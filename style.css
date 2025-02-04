@@ -36,24 +36,6 @@ body {
   position: relative;
 }
 
-.line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-  width: 100%;
-  height: 100%;
-  border-top: 2px solid black;
-}
-
-.symbol {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  font-weight: bold;
-}
-
 .left {
   position: absolute;
   left: 0;
@@ -62,20 +44,6 @@ body {
 .right {
   position: absolute;
   right: 0;
-}
-
-#drag {
-  background-color: black;
-  color: white;
-  padding: 10px;
-  font-size: 2rem;
-  cursor: grab;
-  user-select: none;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
 }
 
 #message {
@@ -87,19 +55,54 @@ body {
   position: relative; /* This is required for positioning the text underneath */
 }
 
+#drag {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: black;
+  color: white;
+  padding: 10px 20px;
+  font-size: 2rem;
+  cursor: grab;
+  user-select: none;
+  z-index: 10; /* Ensure it's above other elements */
+}
+
+.line {
+  position: relative;
+  width: 80%; /* Adjust to fit within the container */
+  height: 50px;
+  margin: 0 auto;
+  border-top: 2px solid black;
+}
+
+.symbol {
+  position: absolute;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
 .symbol.left {
-  position: relative; /* This allows us to position the link under the infinity symbol */
+  left: 0;
+}
+
+.symbol.right {
+  right: 0;
 }
 
 .proverb-link {
-  position: fixed; /* This allows it to stay underneath the infinity symbol */
-  top: 50%; /* Adjust this to control the vertical distance from the infinity symbol */
-  color: black; /* Make the text black */
-  text-decoration: none; /* Remove underline */
-  display: none; /* Ensure the text occupies a new line */
-  text-align: center; /* Center the text */
+  position: absolute;
+  top: 120%; /* Space below the infinity symbol */
+  left: 50%;
+  transform: translateX(-50%);
+  display: none; /* Show only on overlap */
+  font-size: 1rem;
+  text-decoration: none;
+  color: black;
 }
 
 .proverb-link:hover {
-  color: darkgray; /* Optional: change color on hover */
+  color: darkgray;
 }
+
