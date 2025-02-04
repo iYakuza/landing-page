@@ -1,17 +1,4 @@
-#header-text {
-  position: absolute;
-  top: 10%; /* Adjust this value to move the text above the line */
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 2rem; /* Adjust size as needed */
-  color: black; /* Text color */
-  font-family: Arial, sans-serif; /* Or any font you prefer */
-  font-weight: bold; /* Make the text bold */
-  z-index: 1000; /* Ensure it's on top of other content */
-  padding: 10px;
-}
-
-
+/* General Reset */
 * {
   margin: 0;
   padding: 0;
@@ -20,86 +7,80 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-color: white;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  overflow: hidden;
-  margin: 0;
+  min-height: 100vh;
+  background-color: #f4f4f4;
 }
 
+/* Header Text */
+#header-text {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+/* Line and Symbols */
 .container {
   width: 100%;
-  max-width: 1200px; /* Ensure it doesn't stretch too far */
-  text-align: center;
+  max-width: 600px;
   position: relative;
 }
 
 .line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   position: relative;
-  width: 100%;
-  height: 100%;
-  border-top: 2px solid black;
+  height: 4px;
+  background-color: #333;
+  margin: 40px 0;
 }
 
 .symbol {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: absolute;
+  top: -20px;
+  color: #333;
   font-size: 2rem;
   font-weight: bold;
 }
 
-.left {
-  position: absolute;
+.symbol.left {
   left: 0;
 }
 
-.right {
-  position: absolute;
+.symbol.right {
   right: 0;
 }
 
-#drag {
+.drag {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
   background-color: black;
   color: white;
-  padding: 10px;
   font-size: 2rem;
+  padding: 10px;
+  border-radius: 50%;
   cursor: grab;
   user-select: none;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
-}
-
-#message {
-  margin-top: 20px;
-  color: black;
-  font-size: 1.5rem;
-}
-.infinity-container {
-  position: relative; /* This is required for positioning the text underneath */
-}
-
-.symbol.left {
-  position: relative; /* This allows us to position the link under the infinity symbol */
 }
 
 .proverb-link {
-  position: fixed; /* This allows it to stay underneath the infinity symbol */
-  top: 50%; /* Adjust this to control the vertical distance from the infinity symbol */
-  color: black; /* Make the text black */
-  text-decoration: none; /* Remove underline */
-  display: none; /* Ensure the text occupies a new line */
-  text-align: center; /* Center the text */
+  font-size: 1rem;
+  text-decoration: none;
+  color: #555;
+  display: none;
 }
 
 .proverb-link:hover {
-  color: darkgray; /* Optional: change color on hover */
+  color: #000;
+}
+
+/* Message Display */
+#message {
+  margin-top: 20px;
+  text-align: center;
+  color: #666;
 }
