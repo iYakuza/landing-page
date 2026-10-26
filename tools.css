@@ -11,3 +11,24 @@
 #vha-tools-panel iframe{width:100%;height:100%;border:0;background:#050906}
 #vha-tools-panel .vha-tool-note{font:10px/1.5 monospace;color:#aab7a7;padding:9px 14px;border-top:1px solid #b6e83330}
 @media(max-width:600px){#vha-tools-launcher{right:13px;bottom:13px}#vha-tools-trigger{width:48px;height:48px}#vha-tools-panel{bottom:59px;right:-3px;width:calc(100vw - 22px);height:min(78dvh,680px)}}
+
+/* Focused embedded mode: present only the Local Theme Studio inside the cog panel. */
+body.vha-theme-tool-embed{background:#050906!important;overflow-x:hidden}
+body.vha-theme-tool-embed .gd-nav,
+body.vha-theme-tool-embed .posts-hero,
+body.vha-theme-tool-embed .posts-heading,
+body.vha-theme-tool-embed .posts-filters,
+body.vha-theme-tool-embed #posts-list,
+body.vha-theme-tool-embed .posts-note,
+body.vha-theme-tool-embed .gd-footer,
+body.vha-theme-tool-embed .posts-meta{display:none!important}
+body.vha-theme-tool-embed .gd{min-height:0!important}
+body.vha-theme-tool-embed .posts-main{min-height:0!important;background:#050906!important}
+body.vha-theme-tool-embed .posts-content{padding:10px!important;background:#050906!important}
+body.vha-theme-tool-embed #viewer-settings{margin:0!important;padding:13px!important}
+body.vha-theme-tool-embed .viewer-console-head h2{font-size:25px!important}
+body.vha-theme-tool-embed .theme-studio-layout{grid-template-columns:1fr!important}
+body.vha-theme-tool-embed .theme-preset-side{display:none!important}
+body.vha-theme-tool-embed .theme-prompt textarea{min-height:115px}
+body.vha-theme-tool-embed .theme-scope{display:none!important}
+body.vha-theme-tool-embed .theme-studio-intro{margin:8px 0 12px!important}
