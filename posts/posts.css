@@ -383,7 +383,7 @@
 @media(max-width:640px){#falling-tetris-bg{opacity:.3!important}.posts-content{background:rgba(5,9,6,.72)!important}}
 
 /* Full-screen split-screen 1v1 Tetris arena */
-#falling-tetris-bg{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:4!important;display:block!important;visibility:visible!important;opacity:1!important;mix-blend-mode:normal!important;pointer-events:none!important;background:rgba(3,8,5,.78)!important}
+#falling-tetris-bg{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:0!important;display:block!important;visibility:visible!important;opacity:.82!important;mix-blend-mode:screen!important;pointer-events:none!important;background:transparent!important}
 #tetris-arena-controls{position:fixed;z-index:6;top:8px;left:12px;right:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 10px;background:rgba(3,8,5,.94);border:1px solid rgba(182,232,51,.35);color:#d8f6b6;font:10px/1.35 monospace;box-shadow:0 0 24px rgba(0,0,0,.35)}
 .tetris-arena-brand{font-weight:800;color:#b6e833;white-space:nowrap}.tetris-arena-brand span{margin-left:8px;color:#d8f6b6;font-weight:400}
 .tetris-mode-label{display:flex;align-items:center;gap:6px;color:#b6e833}
