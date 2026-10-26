@@ -369,3 +369,15 @@
 .theme-prompt,.posts-filters{background-color:rgba(3,8,5,.84)!important}
 @media(max-width:640px){#falling-tetris-bg{opacity:.22!important}.posts-content{background:rgba(5,9,6,.84)!important}}
 @media(prefers-reduced-motion:reduce){#falling-tetris-bg{display:block!important}}
+
+
+/* FULL-SCREEN TETRIS FIELD: broad, bottom-stacking, background-first presentation. */
+#falling-tetris-bg{z-index:0!important;opacity:.4!important;mix-blend-mode:screen!important}
+.gd{z-index:1!important;background:transparent!important}
+.posts-hero{background:linear-gradient(90deg,rgba(5,9,6,.76),rgba(5,9,6,.38)),radial-gradient(ellipse at 78% 22%,rgba(182,232,51,.08),transparent 48%)!important}
+.posts-content{background:rgba(5,9,6,.55)!important}
+.posts-note{background:linear-gradient(110deg,rgba(17,30,18,.66),rgba(7,11,8,.58))!important}
+.gd-footer{background:rgba(5,9,6,.68)!important}
+.post-card,.viewer-console{background-color:rgba(7,15,9,.72)!important;backdrop-filter:blur(1px)}
+.theme-prompt,.posts-filters{background-color:rgba(3,8,5,.72)!important}
+@media(max-width:640px){#falling-tetris-bg{opacity:.3!important}.posts-content{background:rgba(5,9,6,.72)!important}}
