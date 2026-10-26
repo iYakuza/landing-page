@@ -58,7 +58,7 @@
       return;
     }
     list.innerHTML=filtered.map(post=>{
-      const body=post.content_html?'<details class="post-details" '+(permalink?'open':'')+'><summary>READ TRANSMISSION ↗</summary><div class="post-body">'+cleanHtml(post.content_html)+'</div></details>':'';
+      const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
       const back=permalink?'<p class="post-back"><a href="./">← BACK TO THE ARCHIVE</a></p>':'';
       return '<article class="post-card" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(post.category||'UNCATEGORIZED')+'</span></div><h3>'+safe(post.title)+'</h3><p>'+safe(post.excerpt||'')+'</p>'+body+back+'</article>';
     }).join('');
