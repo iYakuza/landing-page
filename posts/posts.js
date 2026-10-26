@@ -10,6 +10,14 @@
   const emptySearch = document.getElementById('posts-empty-search');
   const requestedSlug = new URLSearchParams(window.location.search).get('post');
   let posts = [];
+  let canEditPosts = false;
+  async function checkEditorAccess(){
+    if(!client)return false;
+    const {data:{session}}=await client.auth.getSession();
+    if(!session?.user)return false;
+    const {data,error}=await client.from('vha_cms_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
+    return !error&&Boolean(data);
+  }
   const safe = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const prettyDate = value => {
     const date = new Date(value);
@@ -80,7 +88,8 @@
       const shapeClass=['shape-i','shape-l','shape-square','shape-t','shape-z','shape-j','shape-s'][index%7];
       if(permalink){
         const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
-        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span></div><h3>'+safe(post.title)+'</h3>'+media+'<p>'+safe(post.excerpt||'')+'</p>'+body+permalinkBack+'</article>';
+        const editButton=canEditPosts?'<a class="post-edit-button" href="../cms/?edit='+encodeURIComponent(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</a>':'';
+        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div><h3>'+safe(post.title)+'</h3>'+media+'<p>'+safe(post.excerpt||'')+'</p>'+body+permalinkBack+'</article>';
       }
       // Archive cards: split the article into four readable cells, then arrange them as a tetromino.
       const doc=new DOMParser().parseFromString(cleanHtml(post.content_html||''),'text/html');
@@ -107,7 +116,7 @@
     if(!client){list.innerHTML='<p class="posts-empty">THE ARCHIVE COULD NOT CONNECT.</p>';count.textContent='SIGNAL UNAVAILABLE';return;}
     const {data,error}=await client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false});
     if(error){list.innerHTML='<p class="posts-empty">THE ARCHIVE COULD NOT LOAD. PLEASE TRY AGAIN LATER.</p>';count.textContent='SIGNAL UNAVAILABLE';return;}
-    posts=data||[];renderCategories();render();
+    posts=data||[];canEditPosts=await checkEditorAccess();renderCategories();render();
   }
   function initViewerThemes(){
     const root=document.documentElement,form=document.getElementById("theme-prompt-form"),prompt=document.getElementById("theme-prompt"),status=document.getElementById("theme-status"),progress=document.getElementById("theme-progress"),bar=document.getElementById("theme-progress-bar"),percent=document.getElementById("theme-progress-percent"),message=document.getElementById("theme-progress-message"),result=document.getElementById("theme-result"),resultTitle=document.getElementById("theme-result-title"),resultDescription=document.getElementById("theme-result-description"),applyButton=document.getElementById("theme-apply"),resetButton=document.getElementById("theme-reset");
