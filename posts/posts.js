@@ -92,7 +92,7 @@
       const buckets=[[],[],[],[]];
       pieces.forEach((piece,i)=>buckets[Math.min(3,Math.floor(i*4/Math.max(1,pieces.length)))].push(piece));
       const blockMarkup=buckets.map((bucket,blockIndex)=>{
-        const lead=blockIndex===0?'<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(post.category||'UNCATEGORIZED')+'</span></div><h3>'+safe(post.title)+'</h3>':'';
+        const lead=blockIndex===0?'<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span></div><h3>'+safe(post.title)+'</h3>':'';
         const inner=bucket.join('');
         return '<section class="post-cell post-cell-'+(blockIndex+1)+'">'+lead+(inner?'<div class="post-cell-content">'+inner+'</div>':'<span class="post-cell-index" aria-hidden="true">0'+(blockIndex+1)+'</span>')+'</section>';
       }).join('');
