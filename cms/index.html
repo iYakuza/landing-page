@@ -77,7 +77,7 @@
     </section>
     <section id="setup-note" class="cms-panel cms-setup-note">
       <p class="gd-kicker">FIRST-TIME SETUP</p><h2>ACCESS IS <em>GRANTED MANUALLY.</em></h2>
-      <p>For security, the site does not offer public account creation. Create your editor account in the Supabase dashboard, then add its user UUID to the <code>vha_cms_admins</code> table. The repository includes <code>cms/SETUP.md</code> with the exact steps and SQL.</p>
+      <ol class="cms-setup-steps"><li>In <a href="https://supabase.com/dashboard/project/oeyxsqocldlovhsmzcjw/auth/users" target="_blank" rel="noopener noreferrer">Supabase → Authentication → Users</a>, create an email/password user for yourself and copy its UUID.</li><li>Open the <a href="https://supabase.com/dashboard/project/oeyxsqocldlovhsmzcjw/sql/new" target="_blank" rel="noopener noreferrer">SQL Editor</a> and run this, replacing the placeholder with that UUID:<pre><code>insert into public.vha_cms_admins (user_id) values ('REPLACE-WITH-YOUR-USER-UUID') on conflict (user_id) do nothing;</code></pre></li><li>Return here and sign in with that account. Only explicitly listed users can publish or edit posts.</li></ol><p>The database owner performs the one-time access grant. The website cannot grant itself CMS access.</p>
     </section>
   </main>
   <footer class="gd-footer"><a class="gd-brand" href="../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="../posts/">OPEN ARCHIVE ↗</a></footer>
