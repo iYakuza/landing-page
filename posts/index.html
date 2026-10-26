@@ -47,7 +47,7 @@
       </div>
       <section class="viewer-console" id="viewer-settings" aria-labelledby="viewer-title">
         <div class="viewer-console-head"><div><p class="gd-kicker">PERSONALIZE THE ENTIRE ARCHIVE</p><h2 id="viewer-title">LOCAL THEME <em>STUDIO</em></h2></div><span class="viewer-live"><i></i> DESIGN SYSTEM // LOCAL</span></div>
-        <p class="theme-studio-intro">Describe a complete visual redesign. The AI can reinterpret the layout, typography, post tiles, navigation, controls, media frames, borders, textures and atmosphere—not only the colors.</p>
+        <p class="theme-studio-intro">Tell the archive how you feel. Your words shape its colors, typography, spacing, textures and overall atmosphere. You can also describe a visual style if you have one in mind.</p>
         <div class="theme-studio-layout">
           <div class="theme-preset-side"><p class="viewer-label">START FROM A DIRECTION</p><div class="theme-swatches" role="group" aria-label="Starting theme directions">
             <button type="button" class="theme-swatch is-active" data-theme="neon" aria-pressed="true"><span class="swatch neon"></span><b>NEON BIOSPHERE</b></button>
@@ -57,12 +57,12 @@
             <button type="button" class="theme-swatch" data-theme="ocean" aria-pressed="false"><span class="swatch ocean"></span><b>DEEP OCEAN</b></button>
           </div>
           <div class="theme-scope"><p class="viewer-label">REDESIGN SCOPE</p><div class="theme-scope-list"><span>✓ Page background &amp; atmosphere</span><span>✓ Typography &amp; hierarchy</span><span>✓ Post tile geometry &amp; layout</span><span>✓ Navigation, filters &amp; buttons</span><span>✓ Image, video &amp; audio frames</span><span>✓ Borders, texture &amp; interaction</span></div></div></div>
-          <form class="theme-prompt" id="theme-prompt-form"><label class="viewer-label" for="theme-prompt">DESCRIBE YOUR REDESIGN <span>›</span></label>
-            <p class="theme-prompt-hint">Be specific about what should change and what should stay. You can ask for a complete theme, a targeted adjustment, or a revision of the current design.</p>
-            <textarea id="theme-prompt" rows="6" maxlength="1600" placeholder="Redesign this as a rainy, futuristic greenhouse. Use translucent glass cards, editorial serif titles, botanical line art, irregular stacked tiles, subtle mist, and framed media. Keep the controls readable and preserve the archive functions…"></textarea>
+          <form class="theme-prompt" id="theme-prompt-form"><label class="viewer-label" for="theme-prompt">HOW ARE YOU FEELING? <span>›</span></label>
+            <p class="theme-prompt-hint">Describe your mood in your own words—calm, sad, restless, hopeful, joyful, lonely, nostalgic, or something harder to name. The archive will respond with a matching visual atmosphere. Add colors or design details if you like.</p>
+            <textarea id="theme-prompt" rows="6" maxlength="1600" placeholder="I feel overwhelmed and need something quiet, spacious, and grounding. Use soft sage, warm off-white, rounded cards, minimal decoration, and no distracting motion…"></textarea>
             <div class="theme-prompt-examples"><button type="button" data-prompt="Make it feel like an analog poetry journal from 1978: warm ivory paper, ink-black serif typography, muted moss accents, fine rules, generous whitespace, and imperfect print textures. Keep the tile layout editorial and make media feel like archival inserts.">ANALOG POETRY JOURNAL</button><button type="button" data-prompt="Redesign the archive as a rainy cyberpunk greenhouse at midnight: deep forest green, translucent glass panels, emerald and violet lighting, botanical line art, layered asymmetrical tiles, editorial serif titles, and soft fog. Keep all text highly readable.">CYBERPUNK GREENHOUSE</button><button type="button" data-prompt="Make the archive look like a brutalist art-book index: oversized condensed headings, stark monochrome surfaces, one acid accent, hard offset shadows, irregular modular blocks, thick borders, and almost no glow. Keep the reading experience clear.">BRUTALIST ART BOOK</button></div>
             <button class="theme-generate" type="submit"><span>✳</span> GENERATE FULL THEME <b>↗</b></button>
-            <p class="theme-status" id="theme-status" role="status" aria-live="polite">LOCAL THEME STUDIO // GENERATES A DESIGN IN THIS BROWSER — NO API OR CREDITS REQUIRED.</p>
+            <p class="theme-status" id="theme-status" role="status" aria-live="polite">MOOD-RESPONSIVE THEME STUDIO // YOUR WORDS SHAPE THE DESIGN.</p>
             <div class="theme-progress" id="theme-progress" hidden><div class="theme-progress-track"><span id="theme-progress-bar"></span></div><div class="theme-progress-meta"><span id="theme-progress-message">BUILDING A DESIGN SYSTEM…</span><b id="theme-progress-percent">0%</b></div></div>
             <div class="theme-result" id="theme-result" hidden><div><strong id="theme-result-title">THEME GENERATED</strong><p id="theme-result-description"></p></div><div class="theme-result-actions"><button type="button" id="theme-apply">APPLY DESIGN</button><button type="button" id="theme-reset">RESET</button></div></div>
           </form>
@@ -116,6 +116,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="posts.js?v=20261027-theme-studio-fix-1"></script>
+<script src="posts.js?v=20261027-mood-theme-1"></script>
 </body>
 </html>
