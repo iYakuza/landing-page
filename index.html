@@ -5,10 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#050906">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://s3.amazonaws.com https://oeyxsqocldlovhsmzcjw.supabase.co; media-src 'self' blob: https://oeyxsqocldlovhsmzcjw.supabase.co; connect-src 'self' https://oeyxsqocldlovhsmzcjw.supabase.co wss://oeyxsqocldlovhsmzcjw.supabase.co; frame-src https://www.youtube-nocookie.com; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://s3.amazonaws.com https://oeyxsqocldlovhsmzcjw.supabase.co; media-src 'self' blob: https://oeyxsqocldlovhsmzcjw.supabase.co; connect-src 'self' https://oeyxsqocldlovhsmzcjw.supabase.co wss://oeyxsqocldlovhsmzcjw.supabase.co; frame-src 'self' https://www.youtube-nocookie.com; upgrade-insecure-requests">
   <meta name="description" content="Verse After Hours / Green Dream: a small island in the noise. We are a bunch of Sisyphuses. We push, we fall, we begin again. The radio plays on.">
   <title>GREEN DREAM — Verse After Hours</title>
   <link rel="stylesheet" href="green-dream/style.css?v=20261026-menu-alignment-3">
+  <style>
+    .gd-cv-embed{background:#050906;border-top:1px solid #b6e83355;padding:clamp(28px,5vw,64px) 0 0;color:#e9f2e8}
+    .gd-cv-heading{width:min(1100px,90vw);margin:0 auto 28px}
+    .gd-cv-heading h2{font-size:clamp(28px,5vw,54px);line-height:1.05;letter-spacing:-.045em;margin:12px 0}
+    .gd-cv-heading h2 em{font-style:normal;color:#b6e833}
+    .gd-cv-heading>p:last-child{font:10px/1.8 monospace;letter-spacing:1px;color:#aebbad}
+    .gd-cv-frame{display:block;width:100%;height:3600px;border:0;background:#050906}
+    @media(max-width:650px){.gd-cv-frame{height:4700px}}
+  </style>
 </head>
 <body class="gd-home">
 <div class="gd" id="gd-top">
@@ -61,6 +70,15 @@
         </div>
       </aside>
       <div class="gd-scroll">SCROLL TO DESCEND <span>↓</span></div>
+    </section>
+
+    <section class="gd-cv-embed" id="cv-section" aria-labelledby="cv-embed-title">
+      <div class="gd-cv-heading">
+        <p class="gd-kicker">PERSONNEL FILE <i>/// 002</i></p>
+        <h2 id="cv-embed-title">THE <em>PERSON</em> BEHIND THE PROJECT</h2>
+        <p>HR BUSINESS ANALYSIS · SYSTEMS · PROCESS IMPROVEMENT</p>
+      </div>
+      <iframe class="gd-cv-frame" src="cv/" title="Emanuel Ștefancu — CV" loading="lazy"></iframe>
     </section>
   </main>
   <footer class="gd-footer"><a class="gd-brand" href="#gd-top"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="#gd-top">BACK TO SURFACE ↑</a></footer>
