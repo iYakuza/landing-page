@@ -201,7 +201,7 @@
     function onKey(e){
       if(e.ctrlKey||e.metaKey||e.altKey)return;
       const target=e.target;
-      if(target&&(target.isContentEditable||/INPUT|TEXTAREA|SELECT|BUTTON/.test(target.tagName)))return;
+      if(target&&(target.isContentEditable||/INPUT|TEXTAREA|SELECT/.test(target.tagName)))return;
       const key=e.key.toLowerCase();
       if(["a","d","s","w"," ","arrowleft","arrowright","arrowdown","arrowup"].includes(key))e.preventDefault();
       if(key==="r"){restart();return;}
