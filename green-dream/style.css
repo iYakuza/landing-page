@@ -24,56 +24,43 @@
 @media(prefers-reduced-motion:reduce){.gd *, .gd *:before,.gd *:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 
 
-/* SINGLE-SCREEN HOME: keep only the hero image and its live controls in view. */
-html,body{width:100%;height:100%;margin:0;overflow:hidden}
-body{min-height:0}
-.gd{height:100vh;height:100svh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-.gd-nav{flex:0 0 auto;min-height:76px}
-.gd main{flex:1 1 auto;min-height:0;overflow:hidden;display:flex}
-.gd-hero{width:100%;height:100%;min-height:0;flex:1 1 auto;overflow:hidden;padding:6vh 6vw;background-size:cover;background-position:center 52%}
-.gd-hero-copy{max-width:58%;max-height:100%}
-.gd-hero h1{font-size:clamp(68px,10.5vw,158px)}
-.gd-scroll{display:none}
+/* SINGLE-SCREEN HOME: scoped to the homepage only. Archive and CMS remain scrollable. */
+body.gd-home{width:100%;height:100%;min-height:0;margin:0;overflow:hidden;overscroll-behavior:none}
+body.gd-home>.gd{position:absolute;inset:0;width:100%;height:100vh;height:100svh;height:100dvh;min-height:0;margin:0;display:flex;flex-direction:column;overflow:hidden}
+body.gd-home .gd-nav{flex:0 0 auto;min-height:76px}
+body.gd-home .gd>main{height:calc(100% - 76px);max-height:calc(100% - 76px);min-height:0;overflow:hidden;display:flex;flex:1 1 auto}
+body.gd-home .gd-hero{position:relative;inset:auto;width:100%;height:100%;max-height:100%;min-height:0;flex:1 1 auto;overflow:hidden;padding:6vh 6vw;background-size:cover;background-position:center 52%}
+body.gd-home .gd-hero-copy{max-width:58%;max-height:100%}
+body.gd-home .gd-hero h1{font-size:clamp(68px,10.5vw,158px)}
+body.gd-home .gd-scroll,body.gd-home .gd-footer{display:none}
 @media(max-width:760px){
-  .gd-nav{min-height:0;padding:12px 5vw;gap:12px}
-  .gd-brand>b{font-size:20px;padding:6px}
-  .gd-nav nav{gap:14px}
-  .gd-hero{padding:5vh 5vw;background-position:58% center;align-items:flex-start}
-  .gd-hero-copy{max-width:100%;padding-right:0}
-  .gd-hero h1{font-size:clamp(62px,15vw,108px);margin-bottom:20px}
-  .gd-sub{font-size:10px;line-height:1.7;letter-spacing:1.3px}
-  .gd-cta{margin-top:14px;padding:12px 13px;font-size:9px}
-  .gd-coordinate{font-size:7px;margin-top:18px}
-  .gd-radio{top:auto;bottom:12px;left:auto;right:5vw;width:min(270px,90%);max-height:48%;overflow:auto}
-  .gd-radio-head{padding:9px 12px}
-  .gd-radio-body{padding:11px}
-  .gd-radio .gd-note{margin-top:8px}
+ body.gd-home .gd-nav{height:auto;min-height:0;padding:12px 5vw;gap:12px;flex-shrink:0}
+ body.gd-home .gd-brand>b{font-size:20px;padding:6px}
+ body.gd-home .gd-nav nav{gap:14px}
+ body.gd-home .gd>main{height:auto;max-height:none;min-height:0;flex:1 1 auto}
+ body.gd-home .gd-hero{height:100%;max-height:100%;min-height:0;padding:5vh 5vw;background-position:58% center;align-items:flex-start}
+ body.gd-home .gd-hero-copy{max-width:100%;padding-right:0}
+ body.gd-home .gd-hero h1{font-size:clamp(62px,15vw,108px);margin-bottom:20px}
+ body.gd-home .gd-sub{font-size:10px;line-height:1.7;letter-spacing:1.3px}
+ body.gd-home .gd-cta{margin-top:14px;padding:12px 13px;font-size:9px}
+ body.gd-home .gd-coordinate{font-size:7px;margin-top:18px}
+ body.gd-home .gd-radio{top:auto;bottom:12px;left:auto;right:5vw;width:min(270px,90%);max-height:48%;overflow:auto}
+ body.gd-home .gd-radio-head{padding:9px 12px}
+ body.gd-home .gd-radio-body{padding:11px}
+ body.gd-home .gd-radio .gd-note{margin-top:8px}
 }
 @media(max-width:420px){
-  .gd-brand small{display:none}
-  .gd-nav{gap:8px}
-  .gd-nav nav{gap:12px}
-  .gd-hero h1{font-size:clamp(58px,14vw,82px)}
-  .gd-coordinate{display:none}
-  .gd-radio{width:min(245px,90%);max-height:44%}
-  .gd-stations button{padding:6px 5px;font-size:7px}
-}
-
-
-/* Hard lock: homepage is a single viewport panel, never a scrolling document. */
-html,body{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;overscroll-behavior:none}
-body>.gd{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;height:100dvh!important;min-height:0!important;margin:0!important;overflow:hidden!important}
-.gd>main{height:calc(100% - 76px)!important;max-height:calc(100% - 76px)!important;min-height:0!important;overflow:hidden!important;flex:1 1 auto!important}
-.gd-hero{position:relative!important;inset:auto!important;min-height:0!important;height:100%!important;max-height:100%!important;overflow:hidden!important}
-.gd-footer{display:none!important}
-@media(max-width:760px){
- .gd-nav{height:auto!important;min-height:0!important;flex-shrink:0!important}
- .gd>main{height:auto!important;max-height:none!important;min-height:0!important;flex:1 1 auto!important}
- .gd-hero{height:100%!important;max-height:100%!important;min-height:0!important}
+ body.gd-home .gd-brand small{display:none}
+ body.gd-home .gd-nav{gap:8px}
+ body.gd-home .gd-nav nav{gap:12px}
+ body.gd-home .gd-hero h1{font-size:clamp(58px,14vw,82px)}
+ body.gd-home .gd-coordinate{display:none}
+ body.gd-home .gd-radio{width:min(245px,90%);max-height:44%}
 }
 
 
 /* GREEN DREAM // Zen inside the machine */
+
 .gd-hero{isolation:isolate}
 .gd-hero:after{content:"";position:absolute;z-index:0;inset:0;pointer-events:none;background:radial-gradient(ellipse at 72% 48%,#b6e83312 0,transparent 34%),linear-gradient(90deg,#03080435,transparent 72%)}
 .gd-hero-copy{position:relative;z-index:1}
