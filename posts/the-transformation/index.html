@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050906">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://s3.amazonaws.com https://oeyxsqocldlovhsmzcjw.supabase.co; media-src 'self' blob: https://oeyxsqocldlovhsmzcjw.supabase.co; connect-src 'self' https://oeyxsqocldlovhsmzcjw.supabase.co wss://oeyxsqocldlovhsmzcjw.supabase.co; frame-src https://www.youtube-nocookie.com; upgrade-insecure-requests">
+  <meta name="description" content="The alchemy of change. Old forms loosen, new meanings take shape, and the self becomes something in motion.">
+  <title>THE TRANSFORMATION — Verse After Hours</title>
+  <link rel="stylesheet" href="../../green-dream/style.css?v=20261026-home-fit-2">
+  <link rel="stylesheet" href="../posts.css?v=20261026-movements-1">
+  <style>
+    .movement-index{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 28px}
+    .movement-index a{display:inline-flex;padding:8px 10px;border:1px solid var(--theme-border,#52613e);color:var(--theme-muted,#aab7a7);text-decoration:none;font:9px/1.3 ui-monospace,monospace;letter-spacing:.4px}
+    .movement-index a:hover,.movement-index a.movement-current{border-color:var(--theme-accent,#b6e833);color:var(--theme-accent,#b6e833);background:rgba(182,232,51,.07)}
+    .movement-back{display:inline-block;margin-top:20px;color:var(--theme-accent,#b6e833);font:10px ui-monospace,monospace;text-decoration:none}
+    .movement-hero h1{max-width:900px;font-size:clamp(42px,8vw,104px);line-height:.92}
+    .movement-hero h1 em{display:block}
+  </style>
+</head>
+<body data-movement="THE TRANSFORMATION">
+<div class="gd" id="gd-top">
+  <header class="gd-nav">
+    <a class="gd-brand" href="../../" aria-label="Verse After Hours home"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a>
+    <nav aria-label="Main navigation"><a href="../../">HOME</a><a href="../../#poetry">POETRY &amp; MEDIA</a><a href="../../#listening">LISTENING ROOM</a><a href="../../green-dream/">GREEN DREAM</a><a class="active" href="../">TRANSMISSIONS</a></nav>
+    <span class="gd-status">● MOVEMENT ARCHIVE // OPEN CHANNEL</span>
+  </header>
+  <main class="posts-main">
+    <section class="posts-hero movement-hero">
+      <p class="gd-kicker">VERSE AFTER HOURS // FIVE MOVEMENTS</p>
+      <h1>IV. <em>TRANSFORMATION.</em></h1>
+      <p class="posts-intro">The alchemy of change. Old forms loosen, new meanings take shape, and the self becomes something in motion.</p>
+      <div class="posts-meta"><span>THE FIVE MOVEMENTS / CATEGORY ARCHIVE</span><span id="post-count">CONNECTING…</span></div>
+    </section>
+    <section class="posts-content" aria-labelledby="archive-title">
+      <div class="posts-heading"><div><p class="gd-kicker">IV. THE TRANSFORMATION</p><h2 id="archive-title">TRANSMISSIONS <em>IN THIS MOVEMENT</em></h2></div>
+        <label class="posts-search"><span class="sr-only">Search posts in this movement</span><input id="post-search" type="search" placeholder="SEARCH THIS MOVEMENT…" autocomplete="off"></label>
+      </div>
+      <nav class="movement-index" aria-label="Browse the five movements"><a href="../the-awakening/">THE AWAKENING</a><a href="../the-descent/">THE DESCENT</a><a href="../the-reconnection/">THE RECONNECTION</a><a class="movement-current" aria-current="page" href="../the-transformation/">THE TRANSFORMATION</a><a href="../the-return/">THE RETURN</a></nav>
+      <div id="posts-list" class="posts-list" aria-live="polite"><p class="posts-empty">CONNECTING TO THE ARCHIVE…</p></div>
+      <p id="posts-empty-search" class="posts-empty" hidden>NO MATCHING TRANSMISSIONS IN THIS MOVEMENT. TRY ANOTHER SEARCH.</p>
+      <a class="movement-back" href="../">← VIEW ALL TRANSMISSIONS</a>
+    </section>
+  </main>
+  <footer class="gd-footer"><a class="gd-brand" href="../../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="#gd-top">BACK TO SURFACE ↑</a></footer>
+</div>
+<div id="post-edit-modal" class="post-edit-modal" hidden>
+  <section class="post-edit-dialog" role="dialog" aria-modal="true" aria-labelledby="post-edit-title">
+    <header class="post-edit-dialog-head">
+      <div><p class="gd-kicker">CREATOR ACCESS // INLINE EDITOR</p><h2 id="post-edit-title">EDIT <em>TRANSMISSION</em></h2></div>
+      <button type="button" id="post-edit-close" class="post-edit-close" aria-label="Close editor">×</button>
+    </header>
+    <form id="post-edit-form">
+      <label for="inline-edit-title">TITLE</label><input id="inline-edit-title" maxlength="180" required>
+      <div class="post-edit-fields">
+        <div><label for="inline-edit-slug">URL SLUG</label><input id="inline-edit-slug" maxlength="180" pattern="[a-z0-9]+(-[a-z0-9]+)*" required></div>
+        <div><label for="inline-edit-category">MOVEMENT</label><select id="inline-edit-category" required><option value="THE AWAKENING">THE AWAKENING</option><option value="THE DESCENT">THE DESCENT</option><option value="THE RECONNECTION">THE RECONNECTION</option><option value="THE TRANSFORMATION">THE TRANSFORMATION</option><option value="THE RETURN">THE RETURN</option></select></div>
+      </div>
+      <label for="inline-edit-excerpt">EXCERPT / DECK</label><textarea id="inline-edit-excerpt" rows="3" maxlength="400"></textarea>
+      <div class="post-edit-toolbar" role="toolbar" aria-label="Post formatting">
+        <button type="button" data-inline-command="bold"><b>B</b></button><button type="button" data-inline-command="italic"><i>I</i></button><button type="button" data-inline-command="formatBlock" data-inline-value="h2">H2</button><button type="button" data-inline-command="formatBlock" data-inline-value="blockquote">❝</button><button type="button" data-inline-command="insertUnorderedList">• LIST</button><button type="button" data-inline-command="insertOrderedList">1. LIST</button><button type="button" id="inline-edit-link">LINK ↗</button>
+      </div>
+      <label for="inline-edit-body">TRANSMISSION BODY</label><div id="inline-edit-body" class="post-edit-body" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Write your transmission…"></div>
+      <p id="post-edit-message" class="post-edit-message" role="status" aria-live="polite"></p>
+      <footer class="post-edit-actions"><button type="button" id="post-edit-cancel">CANCEL</button><button type="submit" id="post-edit-save">SAVE CHANGES ↗</button></footer>
+    </form>
+  </section>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../posts.js?v=20261026-movements-2"></script>
+</body>
+</html>
