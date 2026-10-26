@@ -356,14 +356,14 @@
       setProgress(20,"INTERPRETING STYLE, COLOR & MOOD…");
       pendingTheme=buildLocalTheme(description);
       setProgress(58,"CONFIGURING LAYOUT, TYPOGRAPHY & COMPONENTS…");
-      applyTheme(pendingTheme,false);
+      applyTheme(pendingTheme,true);
       setProgress(82,"APPLYING MEDIA, NAVIGATION & DECORATION…");
       resultTitle.textContent=pendingTheme.name.toUpperCase();
       resultDescription.textContent=pendingTheme.summary;
       result.hidden=false;
-      setProgress(100,"LOCAL DESIGN READY — PROMPT CLEARED");
+      setProgress(100,"LOCAL DESIGN READY — APPLYING TO THIS PAGE");
       prompt.value="";prompt.removeAttribute("value");
-      status.textContent="DESIGN GENERATED LOCALLY. NO PAID API USED. SELECT APPLY DESIGN TO SAVE IT IN THIS BROWSER.";
+      status.textContent="DESIGN GENERATED AND APPLIED LOCALLY. NO PAID API USED.";
       button.disabled=false;
     });
     applyButton?.addEventListener("click",()=>{if(!pendingTheme)return;applyTheme(pendingTheme);status.textContent="THE NEW DESIGN SYSTEM IS APPLIED AND SAVED IN THIS BROWSER.";progress.hidden=true;});
