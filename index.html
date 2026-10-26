@@ -104,29 +104,6 @@
     </section>
 
 
-    <section class="gd-listening" id="after-hours-duel" aria-labelledby="after-hours-title">
-      <div class="gd-listening-intro">
-        <p class="gd-kicker">ARCADE FREQUENCY // 01</p>
-        <h2 id="after-hours-title">AFTER HOURS <em>DUEL</em></h2>
-        <p>Two players. Two boards. One signal. Play locally on one keyboard or create an online room and invite a friend.</p>
-      </div>
-      <div class="tetris-room-intro">
-        <p class="gd-kicker">INSERT COIN // STAY A WHILE</p>
-        <h3>THE CITY IS LOUD.<br><em>LET THE BLOCKS FALL.</em></h3>
-        <p>P1: WASD + Space · P2: Arrow keys + Enter. Drag the V/A menu to move it around the arena. Select a mode, pause, restart, or connect online.</p>
-      </div>
-      <div class="tetris-listening-arena" id="tetris-arena">
-        <div id="tetris-arena-controls" aria-label="Tetris duel controls">
-          <div class="tetris-arena-brand" id="tetris-drag-handle" title="Drag to move">V/A <span>1V1 ARENA ⠿</span></div>
-          <label class="tetris-mode-label" for="tetris-mode"><select id="tetris-mode" aria-label="Game mode"><option value="time">TIME ATTACK · 2 MIN</option><option value="points">POINTS RACE · 1500</option><option value="sprint">SPRINT · 40 LINES</option><option value="ranked">RANKED · 3 MIN</option></select></label>
-          <span id="tetris-status" role="status">MATCH LIVE</span>
-          <div class="tetris-actions"><button id="tetris-start" type="button" aria-label="Pause or resume match">Ⅱ</button><button id="tetris-reset" type="button" aria-label="Restart match">↻</button></div>
-          <div class="tetris-controls-help"><span><b>P1</b> WASD + SPACE</span><span><b>P2</b> ARROWS + ENTER</span></div>
-        </div>
-        <canvas id="falling-tetris-bg" aria-label="Two-player Tetris game board"></canvas>
-      </div>
-    </section>
-
     <section class="gd-cv-embed" id="cv-section" aria-labelledby="cv-embed-title">
       <div class="gd-cv-heading">
         <p class="gd-kicker">PERSONNEL FILE <i>/// 002</i></p>
@@ -135,11 +112,12 @@
       </div>
       <iframe class="gd-cv-frame" src="cv/" title="Emanuel Ștefancu — CV" loading="lazy"></iframe>
     </section>
+
+
   </main>
   <footer class="gd-footer"><a class="gd-brand" href="#gd-top"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="#gd-top">BACK TO SURFACE ↑</a></footer>
 </div>
 <script src="green-dream/script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="green-dream/tetris.js?v=20261026-home-duel-1"></script>
 </body>
 </html>
