@@ -12,9 +12,14 @@
   const frame = launcher.querySelector("iframe");
   const menuItem = launcher.querySelector("#vha-tools-menu-item");
   function showMenu(show) {
+    if (show) {
+      panel.classList.remove("is-open");
+      panel.setAttribute("aria-hidden", "true");
+      menuItem.setAttribute("aria-expanded", "false");
+      trigger.setAttribute("aria-label", "Open tools");
+    }
     launcher.classList.toggle("menu-open", show);
     trigger.setAttribute("aria-expanded", String(show || panel.classList.contains("is-open")));
-    if (show) open(false);
   }
   function open(opened) {
     panel.classList.toggle("is-open", opened);
