@@ -271,8 +271,28 @@
     try{const saved=JSON.parse(localStorage.getItem("vha-ai-theme")||"null");if(saved)applyTheme(saved,false);else showPreset("neon");}catch{showPreset("neon");}
     function buildLocalTheme(description){
       const q=description.toLowerCase();
-      const baseKey=/cyberpunk|cyber punk|neon city|night city|futuristic/.test(q)?"cyber":/violet|lavender|dreamy|ethereal|poetic/.test(q)?"violet":/ember|fire|warm|sunset|orange|cinematic/.test(q)?"ember":/ocean|underwater|aquatic|blue|teal|bioluminescent/.test(q)?"ocean":/green dream|botanical|forest|nature|acid green|terminal|matrix/.test(q)?"neon":"neon";
+      const moods=[
+        {re:/\b(calm|peaceful|relaxed|serene|quiet|grounded)\b/,base:"ocean",name:"Quiet Tide",colors:{page:"#eaf2ef",surface:"#f7fbf8",raised:"#d8e7e1",text:"#203a38",muted:"#617a75",accent:"#438f87",secondary:"#8ab9c8",border:"#bfd4cc",glow:"#d6e7df"},heading:"editorial",body:"humanist",density:"airy",card:"soft",geometry:"rounded",pattern:"none",motion:"subtle",shadows:"soft"},
+        {re:/\b(sad|down|heartbroken|grieving|hurt|melancholy|blue)\b/,base:"violet",name:"Blue Hour",colors:{page:"#111827",surface:"#1a2436",raised:"#263248",text:"#e5eaf4",muted:"#a8b4ca",accent:"#8caee8",secondary:"#b8a5d8",border:"#46536c",glow:"#293b5b"},heading:"editorial",body:"humanist",density:"airy",card:"soft",geometry:"rounded",pattern:"grain",motion:"subtle",shadows:"soft"},
+        {re:/\b(anxious|anxiety|stressed|overthinking|overwhelmed|restless|frazzled)\b/,base:"ocean",name:"Steady Ground",colors:{page:"#edf1ed",surface:"#fbfcf8",raised:"#dce5dc",text:"#28352e",muted:"#65736a",accent:"#56816a",secondary:"#7f9ca5",border:"#c7d2c7",glow:"#d8e2d8"},heading:"modern",body:"humanist",density:"airy",card:"soft",geometry:"rounded",pattern:"none",motion:"none",shadows:"flat",columns:"one"},
+        {re:/\b(angry|furious|frustrated|rage|irritated)\b/,base:"ember",name:"Redline",colors:{page:"#170b0d",surface:"#271316",raised:"#3a1b20",text:"#fff0ef",muted:"#d0a8aa",accent:"#ff5b62",secondary:"#ffb15e",border:"#7d343d",glow:"#5a2029"},heading:"condensed",body:"modern",density:"dense",card:"brutalist",geometry:"square",pattern:"grid",motion:"energetic",shadows:"hard"},
+        {re:/\b(happy|joyful|excited|playful|cheerful|delighted|energized)\b/,base:"ember",name:"Little Sun",colors:{page:"#fff5df",surface:"#fffaf0",raised:"#ffe7b8",text:"#49301c",muted:"#80674f",accent:"#e88a35",secondary:"#e85d75",border:"#e7c998",glow:"#f7d69b"},heading:"display",body:"modern",density:"balanced",card:"soft",geometry:"rounded",pattern:"grain",motion:"energetic",shadows:"soft"},
+        {re:/\b(hopeful|hope|optimistic|inspired|fresh start|motivated)\b/,base:"neon",name:"New Growth",colors:{page:"#f0f5e8",surface:"#fbfff5",raised:"#dfeacb",text:"#293923",muted:"#68785e",accent:"#6e9e42",secondary:"#e0a65b",border:"#c8d7b2",glow:"#d9e7c4"},heading:"editorial",body:"humanist",density:"airy",card:"paper",geometry:"organic",pattern:"botanical",motion:"subtle",shadows:"soft"},
+        {re:/\b(lonely|alone|isolated|unseen|invisible)\b/,base:"violet",name:"After Hours",colors:{page:"#100d1c",surface:"#1b172b",raised:"#29223d",text:"#eee8f7",muted:"#b0a4c6",accent:"#a78bd4",secondary:"#6e9ec5",border:"#514464",glow:"#332546"},heading:"editorial",body:"humanist",density:"airy",card:"editorial",geometry:"rounded",pattern:"grain",motion:"subtle",shadows:"soft"},
+        {re:/\b(nostalgic|nostalgia|homesick|wistful|sentimental)\b/,base:"ember",name:"Memory Lane",colors:{page:"#eee4d2",surface:"#faf3e5",raised:"#e1d1b5",text:"#3e3328",muted:"#796957",accent:"#a56c48",secondary:"#71816a",border:"#c7b79e",glow:"#d8c4a4"},heading:"editorial",body:"editorial",density:"airy",card:"paper",geometry:"organic",pattern:"grain",motion:"none",shadows:"soft"},
+        {re:/\b(romantic|romance|tender|affection|in love)\b/,base:"violet",name:"Soft Focus",colors:{page:"#fff0f2",surface:"#fff9fa",raised:"#f5dce5",text:"#482d3a",muted:"#8a6878",accent:"#c45e87",secondary:"#9a8ad1",border:"#e6c3d2",glow:"#f0d4e0"},heading:"editorial",body:"humanist",density:"airy",card:"soft",geometry:"rounded",pattern:"grain",motion:"subtle",shadows:"soft"}
+      ];
+      const mood=moods.find(item=>item.re.test(q));
+      const baseKey=mood?mood.base:(/cyberpunk|cyber punk|neon city|night city|futuristic/.test(q)?"cyber":/violet|lavender|dreamy|ethereal|poetic/.test(q)?"violet":/ember|fire|warm|sunset|orange|cinematic/.test(q)?"ember":/ocean|underwater|aquatic|blue|teal|bioluminescent/.test(q)?"ocean":/green dream|botanical|forest|nature|acid green|terminal|matrix/.test(q)?"neon":"neon");
       const theme=JSON.parse(JSON.stringify(presets[baseKey]));
+      if(mood){
+        theme.name=mood.name;theme.summary="A visual atmosphere shaped by the feeling you described.";
+        theme.colors={...theme.colors,...mood.colors};
+        theme.typography.heading=mood.heading;theme.typography.body=mood.body;
+        theme.layout.density=mood.density;theme.layout.card=mood.card;theme.layout.geometry=mood.geometry;
+        theme.details.pattern=mood.pattern;theme.details.motion=mood.motion;theme.details.shadows=mood.shadows;
+        if(mood.columns)theme.layout.columns=mood.columns;
+      }
       const setColor=(keys,value)=>{if(keys.some(k=>q.includes(k)))theme.colors.accent=value;};
       setColor(["pink","magenta","hot pink","fuchsia"],"#ff4fd8");
       setColor(["purple","violet","lavender"],"#b69cff");
@@ -321,8 +341,10 @@
       if(/flat|no shadows/.test(q))theme.details.shadows="flat";
       if(/no buttons|outlined buttons|outline/.test(q))theme.details.buttons="outlined";
       if(/solid buttons|filled buttons/.test(q))theme.details.buttons="solid";
-      theme.name="Local Design // "+({neon:"Neon Biosphere",cyber:"Cyberpunk",violet:"Violet Static",ember:"Ember Signal",ocean:"Deep Ocean"}[baseKey]);
-      theme.summary="Built locally from your design brief. No paid API, account, or prompt history required.";
+      if(!mood){
+        theme.name="Local Design // "+({neon:"Neon Biosphere",cyber:"Cyberpunk",violet:"Violet Static",ember:"Ember Signal",ocean:"Deep Ocean"}[baseKey]);
+        theme.summary="Built locally from your design brief. No paid API, account, or prompt history required.";
+      }
       return theme;
     }
     form?.addEventListener("submit",event=>{
