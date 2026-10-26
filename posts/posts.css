@@ -39,3 +39,36 @@
 .post-body a{color:var(--acid)}
 .post-body pre,.post-body code{white-space:pre-wrap;overflow-wrap:anywhere;background:#050906;padding:2px 5px}
 @media(max-width:600px){.posts-filters{align-items:flex-start;flex-direction:column}.posts-filters select{width:100%}}
+
+/* PIXEL STACK // compact, masonry-like transmissions */
+.posts-hero{isolation:isolate}
+.posts-hero:before{content:"";position:absolute;inset:0;z-index:-1;opacity:.25;pointer-events:none;background-image:linear-gradient(#b6e83312 1px,transparent 1px),linear-gradient(90deg,#b6e83312 1px,transparent 1px);background-size:24px 24px;mask-image:linear-gradient(90deg,black,transparent 80%)}
+.hero-pixel-art{position:absolute;right:8vw;top:clamp(90px,12vw,150px);width:clamp(130px,22vw,250px);opacity:.92;filter:drop-shadow(8px 8px 0 #b6e83310);animation:pixel-float 7s steps(7,end) infinite}
+.hero-pixel-art svg{display:block;width:100%;height:auto;image-rendering:pixelated}
+@keyframes pixel-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.posts-list{display:block;columns:3 260px;column-gap:14px;column-fill:balance}
+.post-card{display:inline-block;vertical-align:top;width:100%;min-height:0;margin:0 0 14px;padding:22px;break-inside:avoid;page-break-inside:avoid;position:relative;overflow:hidden;background-color:#0a100b;background-image:linear-gradient(135deg,#b6e83308 25%,transparent 25%),linear-gradient(315deg,#a98bff08 25%,transparent 25%);background-size:16px 16px,24px 24px;transition:border-color .18s,box-shadow .18s,transform .18s}
+.post-card:before{content:"";position:absolute;right:0;top:0;width:12px;height:12px;background:var(--acid);box-shadow:-12px 0 #b6e83355,0 12px #b6e83355}
+.post-card:after{content:"";position:absolute;left:0;bottom:0;width:7px;height:7px;background:#a98bff;box-shadow:7px 0 #a98bff,0 -7px #a98bff,7px -7px #a98bff}
+.post-card:hover{border-color:var(--acid);box-shadow:5px 5px 0 #b6e83318;transform:translate(-1px,-2px)}
+.post-card h3{overflow-wrap:anywhere;margin-top:22px}
+.post-card>p{margin:0 0 18px;overflow-wrap:anywhere}
+.post-card-top{align-items:flex-start}
+.post-category{max-width:60%;overflow-wrap:anywhere}
+.post-details{margin-top:10px}
+.post-body>*:first-child{margin-top:0}
+.post-body>*:last-child{margin-bottom:0}
+.post-body p{margin:0 0 14px}
+.post-body img{max-width:100%;height:auto;image-rendering:pixelated}
+.post-back{padding-top:16px;border-top:1px solid #b6e83330;margin-top:20px!important}
+.post-back a{display:inline-block}
+.posts-empty{break-inside:avoid}
+@media(max-width:900px){.posts-list{columns:2 240px}.hero-pixel-art{right:6vw;top:105px;width:clamp(115px,24vw,190px)}}
+@media(max-width:600px){.posts-list{columns:1;column-gap:0}.hero-pixel-art{right:5vw;top:95px;width:100px;opacity:.62}.posts-hero h1{font-size:clamp(57px,13vw,90px)}.posts-intro{max-width:78%}.post-card{padding:20px}.posts-card{min-height:0}}
+@media(prefers-reduced-motion:reduce){.hero-pixel-art{animation:none}.post-card{transition:none}}
+/* Single-post URLs should read as a focused page, not a masonry tile. */
+.posts-list:has(.post-back){columns:1;max-width:900px}
+.posts-list:has(.post-back) .post-card{display:block;width:100%;padding:clamp(22px,4vw,44px);background-image:linear-gradient(135deg,#b6e83308,transparent 40%)}
+.posts-list:has(.post-back) .post-card h3{font-size:clamp(30px,5vw,54px)}
+.posts-list:has(.post-back) .post-body{font-size:14px;line-height:2}
+.posts-list:has(.post-back) .post-details{border-top:0;padding-top:10px}
