@@ -160,7 +160,7 @@
   }));
   document.getElementById('inline-edit-link')?.addEventListener('click',()=>{
     editBody.focus();const url=prompt('Enter an https:// or mailto: link');
-    if(url&&/^(https?:\\/\\/|mailto:)/i.test(url.trim()))document.execCommand('createLink',false,url.trim());
+    if(url&&/^(https?:\/\/|mailto:)/i.test(url.trim()))document.execCommand('createLink',false,url.trim());
     else if(url)editMessage.textContent='Only https:// and mailto: links are allowed.';
   });
   editForm?.addEventListener('submit',async event=>{
