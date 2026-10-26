@@ -58,3 +58,16 @@ body{min-height:0}
   .gd-radio{width:min(245px,90%);max-height:44%}
   .gd-stations button{padding:6px 5px;font-size:7px}
 }
+
+
+/* Hard lock: homepage is a single viewport panel, never a scrolling document. */
+html,body{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;overscroll-behavior:none}
+body>.gd{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;height:100dvh!important;min-height:0!important;margin:0!important;overflow:hidden!important}
+.gd>main{height:calc(100% - 76px)!important;max-height:calc(100% - 76px)!important;min-height:0!important;overflow:hidden!important;flex:1 1 auto!important}
+.gd-hero{position:relative!important;inset:auto!important;min-height:0!important;height:100%!important;max-height:100%!important;overflow:hidden!important}
+.gd-footer{display:none!important}
+@media(max-width:760px){
+ .gd-nav{height:auto!important;min-height:0!important;flex-shrink:0!important}
+ .gd>main{height:auto!important;max-height:none!important;min-height:0!important;flex:1 1 auto!important}
+ .gd-hero{height:100%!important;max-height:100%!important;min-height:0!important}
+}
