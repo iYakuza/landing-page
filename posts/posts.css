@@ -343,3 +343,15 @@
 #falling-tetris-bg{position:fixed!important;inset:0!important;z-index:5!important;opacity:.42!important;visibility:visible!important;display:block!important;pointer-events:none!important}
 .gd{z-index:3!important}
 @media(max-width:640px){#falling-tetris-bg{opacity:.3!important}}
+
+
+/* FINAL ARCHIVE LAYERING: canvas is a body-level sibling after the site shell,
+   so opaque archive sections cannot cover it. The subtle overlay remains click-through. */
+#falling-tetris-bg{
+  position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;
+  z-index:9999!important;display:block!important;visibility:visible!important;
+  opacity:.72!important;mix-blend-mode:screen!important;pointer-events:none!important;
+}
+.gd{z-index:auto!important;isolation:auto!important}
+@media(max-width:640px){#falling-tetris-bg{opacity:.55!important}}
+@media(prefers-reduced-motion:reduce){#falling-tetris-bg{display:none!important}}
