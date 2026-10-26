@@ -263,3 +263,13 @@ body.gd-home .gd-radio{
 @keyframes gd-tetris-drift{from{translate:0 -5px}to{translate:0 12px}}
 @media(max-width:760px){.gd-tetris-field{opacity:.58}.gd-tetromino{--cell:9px;gap:2px}.gd-tetromino-i{right:42%;top:12%}.gd-tetromino-t{right:7%;top:14%}.gd-tetromino-l{right:36%;bottom:15%}.gd-tetromino-z{right:4%;bottom:16%}.gd-tetromino-o{left:55%;top:38%}}
 @media(prefers-reduced-motion:reduce){.gd-tetromino{animation:none}}
+
+
+/* TETRIS FOREGROUND FIX: keep the falling pieces visibly above the hero artwork, behind the content. */
+.gd-hero{isolation:isolate}
+.gd-hero .gd-tetris-field{z-index:2!important;opacity:.95!important;mix-blend-mode:screen}
+.gd-hero .gd-hero-copy{position:relative;z-index:3!important}
+.gd-hero .gd-radio{z-index:4!important}
+.gd-hero .gd-tetromino{will-change:transform,translate;opacity:1}
+.gd-hero .gd-tetromino i{background:currentColor!important;border:1px solid #f1ffcfaa!important;box-shadow:inset 0 0 8px #efffcf88,0 0 7px #d8ff3e55!important}
+@media(max-width:760px){.gd-hero .gd-tetris-field{opacity:.8!important}}
