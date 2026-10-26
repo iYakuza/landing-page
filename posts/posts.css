@@ -322,3 +322,18 @@
   .posts-list:not(:has(.post-back)) .post-cell .post-category{display:inline-block;margin-top:5px}
   .posts-list:not(:has(.post-back)) .shape-i .post-blocks{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(130px,auto))}
 }
+
+
+/* Keep falling tetrominoes behind the archive UI, never painted over text or tiles. */
+#falling-tetris-bg{z-index:0!important;opacity:.2!important;mix-blend-mode:screen;pointer-events:none}
+.gd{position:relative;z-index:2;isolation:isolate}
+.gd-nav,.posts-main,.posts-main section,.posts-note,.gd-footer{position:relative;z-index:1}
+.posts-list:not(:has(.post-back)){display:flex;flex-direction:column;gap:30px}
+.posts-list:not(:has(.post-back)) .post-card.tetris-post{position:relative;isolation:isolate;grid-column:auto!important;width:100%;max-width:100%;margin:0!important;transform:none!important}
+.posts-list:not(:has(.post-back)) .post-blocks{position:relative;display:grid;grid-auto-flow:row;gap:10px;align-items:stretch;min-width:0}
+.posts-list:not(:has(.post-back)) .post-cell{position:relative;min-width:0;max-width:100%;overflow-wrap:anywhere;overflow:hidden}
+.posts-list:not(:has(.post-back)) .post-cell-content{min-width:0;max-width:100%;overflow-wrap:anywhere}
+@media(max-width:700px){
+ .posts-list:not(:has(.post-back)){gap:22px}
+ .posts-list:not(:has(.post-back)) .post-blocks{gap:7px}
+}
