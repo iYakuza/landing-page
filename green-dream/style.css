@@ -369,3 +369,9 @@ body.gd-home .gd-radio{
 #tetris-arena-controls{left:12px!important;top:10px!important;max-width:calc(100% - 24px)!important;min-height:0;gap:6px 9px;padding:7px 10px!important}
 .tetris-controls-help{padding-top:4px;font-size:8px}
 @media(max-width:760px){#tetris-arena-controls{left:8px!important;top:8px!important;max-width:calc(100% - 16px)!important;gap:4px 6px;padding:6px!important}.tetris-controls-help{font-size:7px;gap:6px}}
+
+
+/* FULL-WIDTH DUEL MENU: stretch the control HUD across the arena's usable width. */
+#tetris-arena-controls{box-sizing:border-box!important;width:calc(100% - 24px)!important;max-width:none!important;left:12px!important;right:auto!important;justify-content:flex-start}
+#tetris-arena-controls .tetris-controls-help{width:100%;box-sizing:border-box}
+@media(max-width:760px){#tetris-arena-controls{width:calc(100% - 16px)!important;max-width:none!important;left:8px!important}}
