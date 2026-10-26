@@ -516,7 +516,7 @@
 .post-edit-close{border:1px solid #b6e83370;background:transparent;color:#b6e833;font-size:28px;line-height:1;width:38px;height:38px;cursor:pointer}
 .post-edit-dialog form{display:grid;gap:9px}
 .post-edit-dialog label{font:10px ui-monospace,monospace;letter-spacing:1px;color:#b6e833;margin-top:8px}
-.post-edit-dialog input,.post-edit-dialog select,.post-edit-dialog textarea,.post-edit-body{width:100%;box-sizing:border-box;background:#0c1710;border:1px solid #536746;color:#e8f4df;padding:11px;font:14px/1.6 inherit;border-radius:0}
+.post-edit-dialog input,.post-edit-dialog select,.post-edit-dialog textarea,.post-edit-body{width:100%;box-sizing:border-box;background:#0c1710;border:1px solid #536746;color:#e8f4df;padding:11px;font:inherit;font-size:14px;line-height:1.6;border-radius:0}
 .post-edit-dialog input:focus,.post-edit-dialog select:focus,.post-edit-dialog textarea:focus,.post-edit-body:focus{outline:1px solid #b6e833;border-color:#b6e833}
 .post-edit-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .post-edit-fields>div{display:grid;gap:9px}
