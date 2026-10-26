@@ -274,13 +274,13 @@
       dragHandle.addEventListener("pointerdown",e=>{
         if(e.button!==0&&e.pointerType!=="touch")return;
         dragging=true;const r=controls.getBoundingClientRect();offsetX=e.clientX-r.left;offsetY=e.clientY-r.top;
-        controls.style.left=r.left+"px";controls.style.top=r.top+"px";controls.style.right="auto";controls.style.bottom="auto";
+        controls.style.setProperty("left",r.left+"px","important");controls.style.setProperty("top",r.top+"px","important");controls.style.setProperty("right","auto","important");controls.style.setProperty("bottom","auto","important");
         dragHandle.setPointerCapture?.(e.pointerId);e.preventDefault();
       });
       dragHandle.addEventListener("pointermove",e=>{
         if(!dragging)return;
         const r=controls.getBoundingClientRect(),left=Math.max(0,Math.min(window.innerWidth-r.width,e.clientX-offsetX)),top=Math.max(0,Math.min(window.innerHeight-r.height,e.clientY-offsetY));
-        controls.style.left=left+"px";controls.style.top=top+"px";
+        controls.style.setProperty("left",left+"px","important");controls.style.setProperty("top",top+"px","important");
       });
       const endDrag=()=>{dragging=false;};
       dragHandle.addEventListener("pointerup",endDrag);dragHandle.addEventListener("pointercancel",endDrag);
