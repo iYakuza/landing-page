@@ -32,3 +32,22 @@ body.vha-theme-tool-embed .theme-preset-side{display:none!important}
 body.vha-theme-tool-embed .theme-prompt textarea{min-height:115px}
 body.vha-theme-tool-embed .theme-scope{display:none!important}
 body.vha-theme-tool-embed .theme-studio-intro{margin:8px 0 12px!important}
+
+/* Shared theme tokens are consumed across every section of the site. */
+html{background:var(--theme-page,#050906);color:var(--theme-text,#e8f4df)}
+body:not(.vha-theme-tool-embed){background-color:var(--theme-page,#050906);color:var(--theme-text,#e8f4df)}
+body:not(.vha-theme-tool-embed) .gd-nav,
+body:not(.vha-theme-tool-embed) .gd-radio,
+body:not(.vha-theme-tool-embed) .gd-panel,
+body:not(.vha-theme-tool-embed) .gd-card,
+body:not(.vha-theme-tool-embed) .gd-move,
+body:not(.vha-theme-tool-embed) .post-card,
+body:not(.vha-theme-tool-embed) .viewer-console{background-color:var(--theme-surface,#080e09);color:var(--theme-text,#e8f4df);border-color:var(--theme-border,#d8ff3e35)}
+body:not(.vha-theme-tool-embed) .gd-nav nav a:hover,
+body:not(.vha-theme-tool-embed) .gd-nav nav a.active,
+body:not(.vha-theme-tool-embed) .gd-kicker,
+body:not(.vha-theme-tool-embed) .gd-coordinate,
+body:not(.vha-theme-tool-embed) .gd-hero h1 em,
+body:not(.vha-theme-tool-embed) .gd-section h2 em{color:var(--theme-accent,#d8ff3e)}
+body:not(.vha-theme-tool-embed) a{outline-color:var(--theme-accent,#d8ff3e)}
+body:not(.vha-theme-tool-embed) button{accent-color:var(--theme-accent,#d8ff3e)}
