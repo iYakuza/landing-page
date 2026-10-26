@@ -10,6 +10,37 @@
   <title>GREEN DREAM — Verse After Hours</title>
   <link rel="stylesheet" href="green-dream/style.css?v=20261026-menu-alignment-3">
   <style>
+
+    /* After Hours Duel: interactive game section on the landing page */
+    .gd-home .gd-listening{display:flex;flex-wrap:wrap;align-items:flex-start;gap:30px;padding:clamp(42px,6vw,80px) 6vw;background:linear-gradient(110deg,#101c11,#070a08);border-top:1px solid #d8ff3e25}
+    .gd-home .gd-listening-intro{max-width:760px;flex:1 1 100%}
+    .gd-home .gd-listening h2{font-size:clamp(30px,5vw,60px);letter-spacing:-2px;line-height:.95;margin:0}
+    .gd-home .gd-listening h2 em{font-style:normal;color:#d8ff3e}
+    .gd-home .gd-listening p:not(.gd-kicker){font-size:13px;line-height:1.9;color:#aebbad;max-width:680px}
+    .gd-home .tetris-room-intro{flex:0 0 100%;max-width:none;margin-top:8px;padding-top:25px;border-top:1px solid #d8ff3e30}
+    .gd-home .tetris-room-intro h3{font-size:clamp(30px,5vw,56px);line-height:.95;letter-spacing:-.06em;margin:0 0 14px;color:#e9f2e8}
+    .gd-home .tetris-room-intro h3 em{font-style:normal;color:#d8ff3e}
+    .gd-home .tetris-room-intro p:not(.gd-kicker){max-width:680px;color:#aebbad;font-size:12px;line-height:1.8}
+    .gd-home .tetris-listening-arena{position:relative;flex:0 0 100%;width:100%;height:min(72vh,720px);min-height:540px;margin-top:10px;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#132015 0%,#050906 72%);border:1px solid #d8ff3e36;isolation:isolate}
+    .gd-home #falling-tetris-bg{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:block!important;visibility:visible!important;opacity:.94!important;mix-blend-mode:screen!important;pointer-events:none!important;background:transparent!important;z-index:0!important}
+    .gd-home #tetris-arena-controls{position:absolute!important;z-index:20!important;top:10px!important;left:12px!important;right:auto!important;bottom:auto!important;width:calc(100% - 24px)!important;max-width:none!important;display:flex;align-items:center;justify-content:flex-start;gap:6px 9px;flex-wrap:wrap;box-sizing:border-box;padding:7px 10px!important;background:rgba(4,9,6,.88)!important;border:1px solid rgba(182,232,51,.3)!important;border-radius:5px;backdrop-filter:blur(12px);box-shadow:0 8px 28px rgba(0,0,0,.35);font:10px/1.25 ui-monospace,monospace}
+    .gd-home #tetris-drag-handle{cursor:grab!important;user-select:none;touch-action:none;padding:4px 3px;color:#b6e833;font-weight:800;letter-spacing:.04em;white-space:nowrap}
+    .gd-home #tetris-drag-handle:active{cursor:grabbing!important}
+    .gd-home .tetris-arena-brand span{margin-left:5px;color:#a8b59f;font-weight:400}
+    .gd-home #tetris-mode{max-width:148px;padding:5px 7px;background:rgba(9,19,12,.95);color:#d8f6b6;border:1px solid rgba(182,232,51,.25);border-radius:3px;font:10px ui-monospace,monospace}
+    .gd-home #tetris-status{flex:1;min-width:95px;color:#9fb68f;font-size:9px}
+    .gd-home .tetris-actions{display:flex;gap:4px}
+    .gd-home .tetris-actions button{min-width:28px;padding:5px 8px;background:rgba(182,232,51,.12);color:#c9f68b;border:1px solid rgba(182,232,51,.3);border-radius:3px;font:bold 13px ui-monospace,monospace;cursor:pointer}
+    .gd-home .tetris-actions button+button{background:transparent;color:#a8b59f;border-color:rgba(220,240,220,.18)}
+    .gd-home .tetris-controls-help{display:flex;flex-basis:100%;justify-content:space-between;gap:16px;width:100%;box-sizing:border-box;padding-top:6px;border-top:1px solid #d8ff3e20;color:#859383;font-size:9px}
+    .gd-home .tetris-controls-help b{color:#b6e833}
+    .gd-home .tetris-online-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0 0;padding:12px;border:1px solid rgba(182,232,51,.22);background:rgba(3,8,5,.62);font:11px/1.5 monospace;color:#d8f6b6}
+    .gd-home .tetris-online-bar button{border:1px solid #b6e833;background:transparent;color:#d8f6b6;padding:9px 11px;font:inherit;cursor:pointer;letter-spacing:.04em}
+    .gd-home .tetris-online-bar button:hover{background:rgba(182,232,51,.12)}
+    .gd-home .tetris-online-bar input{width:110px;min-width:0;background:#050906;border:1px solid rgba(182,232,51,.4);color:#f2f4e8;padding:9px;font:inherit}
+    .gd-home .tetris-online-bar #tetris-online-status{flex:1 1 100%;color:#b6e833}
+    .gd-home .tetris-online-bar [hidden]{display:none!important}
+    @media(max-width:760px){.gd-home .gd-listening{padding:48px 5vw}.gd-home .tetris-listening-arena{height:650px;min-height:540px}.gd-home #tetris-arena-controls{left:8px!important;top:8px!important;width:calc(100% - 16px)!important;gap:4px 6px;padding:6px!important}.gd-home #tetris-mode{max-width:124px;font-size:9px}.gd-home .tetris-controls-help{font-size:7px;gap:6px}.gd-home .tetris-arena-brand span{font-size:9px}.gd-home .tetris-online-bar{gap:6px}.gd-home .tetris-online-bar button{font-size:10px;padding:8px}.gd-home .tetris-online-bar input{width:90px}}
     .gd-cv-embed{background:#050906;border-top:1px solid #b6e83355;padding:clamp(28px,5vw,64px) 0 0;color:#e9f2e8}
     .gd-cv-heading{width:min(1100px,90vw);margin:0 auto 28px}
     .gd-cv-heading h2{font-size:clamp(28px,5vw,54px);line-height:1.05;letter-spacing:-.045em;margin:12px 0}
@@ -72,6 +103,30 @@
       <div class="gd-scroll">SCROLL TO DESCEND <span>↓</span></div>
     </section>
 
+
+    <section class="gd-listening" id="after-hours-duel" aria-labelledby="after-hours-title">
+      <div class="gd-listening-intro">
+        <p class="gd-kicker">ARCADE FREQUENCY // 01</p>
+        <h2 id="after-hours-title">AFTER HOURS <em>DUEL</em></h2>
+        <p>Two players. Two boards. One signal. Play locally on one keyboard or create an online room and invite a friend.</p>
+      </div>
+      <div class="tetris-room-intro">
+        <p class="gd-kicker">INSERT COIN // STAY A WHILE</p>
+        <h3>THE CITY IS LOUD.<br><em>LET THE BLOCKS FALL.</em></h3>
+        <p>P1: WASD + Space · P2: Arrow keys + Enter. Drag the V/A menu to move it around the arena. Select a mode, pause, restart, or connect online.</p>
+      </div>
+      <div class="tetris-listening-arena" id="tetris-arena">
+        <div id="tetris-arena-controls" aria-label="Tetris duel controls">
+          <div class="tetris-arena-brand" id="tetris-drag-handle" title="Drag to move">V/A <span>1V1 ARENA ⠿</span></div>
+          <label class="tetris-mode-label" for="tetris-mode"><select id="tetris-mode" aria-label="Game mode"><option value="time">TIME ATTACK · 2 MIN</option><option value="points">POINTS RACE · 1500</option><option value="sprint">SPRINT · 40 LINES</option><option value="ranked">RANKED · 3 MIN</option></select></label>
+          <span id="tetris-status" role="status">MATCH LIVE</span>
+          <div class="tetris-actions"><button id="tetris-start" type="button" aria-label="Pause or resume match">Ⅱ</button><button id="tetris-reset" type="button" aria-label="Restart match">↻</button></div>
+          <div class="tetris-controls-help"><span><b>P1</b> WASD + SPACE</span><span><b>P2</b> ARROWS + ENTER</span></div>
+        </div>
+        <canvas id="falling-tetris-bg" aria-label="Two-player Tetris game board"></canvas>
+      </div>
+    </section>
+
     <section class="gd-cv-embed" id="cv-section" aria-labelledby="cv-embed-title">
       <div class="gd-cv-heading">
         <p class="gd-kicker">PERSONNEL FILE <i>/// 002</i></p>
@@ -84,5 +139,7 @@
   <footer class="gd-footer"><a class="gd-brand" href="#gd-top"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="#gd-top">BACK TO SURFACE ↑</a></footer>
 </div>
 <script src="green-dream/script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="green-dream/tetris.js?v=20261026-home-duel-1"></script>
 </body>
 </html>
