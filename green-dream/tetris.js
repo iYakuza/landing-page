@@ -163,21 +163,34 @@
 
     const dragHandle=document.getElementById("tetris-drag-handle");
     if(dragHandle&&controls){
+      // Put the menu above the page rather than trapping it inside the arena.
+      if(controls.parentElement!==document.body)document.body.appendChild(controls);
+      controls.classList.add("tetris-floating-controls");
+      controls.style.setProperty("position","fixed","important");
+      controls.style.setProperty("right","auto","important");
       let dragging=false,offsetX=0,offsetY=0;
       dragHandle.style.touchAction="none";
       dragHandle.addEventListener("pointerdown",e=>{
         if(e.button!==0&&e.pointerType!=="touch")return;
-        dragging=true;const r=controls.getBoundingClientRect();offsetX=e.clientX-r.left;offsetY=e.clientY-r.top;
-        controls.style.setProperty("left",controls.offsetLeft+"px","important");controls.style.setProperty("top",controls.offsetTop+"px","important");controls.style.setProperty("right","auto","important");controls.style.setProperty("bottom","auto","important");
+        dragging=true;
+        const r=controls.getBoundingClientRect();offsetX=e.clientX-r.left;offsetY=e.clientY-r.top;
+        controls.style.setProperty("left",r.left+"px","important");controls.style.setProperty("top",r.top+"px","important");
         dragHandle.setPointerCapture?.(e.pointerId);e.preventDefault();
       });
       dragHandle.addEventListener("pointermove",e=>{
         if(!dragging)return;
-        const r=controls.getBoundingClientRect(),parent=controls.parentElement.getBoundingClientRect(),left=Math.max(0,Math.min(parent.width-r.width,e.clientX-parent.left-offsetX)),top=Math.max(0,Math.min(parent.height-r.height,e.clientY-parent.top-offsetY));
+        const r=controls.getBoundingClientRect();
+        const left=Math.max(0,Math.min(window.innerWidth-r.width,e.clientX-offsetX));
+        const top=Math.max(0,Math.min(window.innerHeight-r.height,e.clientY-offsetY));
         controls.style.setProperty("left",left+"px","important");controls.style.setProperty("top",top+"px","important");
       });
       const endDrag=()=>{dragging=false;};
       dragHandle.addEventListener("pointerup",endDrag);dragHandle.addEventListener("pointercancel",endDrag);
+      window.addEventListener("resize",()=>{
+        const r=controls.getBoundingClientRect();
+        controls.style.setProperty("left",Math.max(0,Math.min(window.innerWidth-r.width,r.left))+"px","important");
+        controls.style.setProperty("top",Math.max(0,Math.min(window.innerHeight-r.height,r.top))+"px","important");
+      });
     }
     startButton?.addEventListener("click",()=>{if(finished){restart();return;}if(!players.length)restart();else{running=!running;if(status)status.textContent=running?MODES[mode].description:"MATCH PAUSED";startButton.textContent=running?"Ⅱ":"▶";}});
     resetButton?.addEventListener("click",restart);
