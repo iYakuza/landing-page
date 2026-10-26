@@ -11,6 +11,7 @@
   const excerptInput = $('post-excerpt'), contentEditor = $('post-content');
   const mediaInput = $('post-media'), mediaPreview = $('media-preview'), mediaMessage = $('media-message');
   let currentUser = null, allPosts = [], editingId = null, slugManuallyEdited = false, statusFilter = 'all', saving = false;
+  const requestedEditSlug = new URLSearchParams(window.location.search).get('edit');
   let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null;
   const MEDIA_BUCKET = 'vha-post-media';
   const MAX_MEDIA_BYTES = 30 * 1024 * 1024;
@@ -79,6 +80,12 @@
     managePosts.innerHTML=posts.map(p=>'<button type="button" class="manage-item '+(p.id===editingId?'active':'')+'" data-id="'+escapeHtml(p.id)+'"><strong>'+escapeHtml(p.title)+'</strong><small><span class="'+(p.status==='draft'?'draft-label':'published-label')+'">'+escapeHtml(p.status.toUpperCase())+'</span> · '+escapeHtml(p.category)+'<br>UPDATED '+new Date(p.updated_at).toLocaleDateString('en-GB')+'</small></button>').join('');
     managePosts.querySelectorAll('[data-id]').forEach(btn=>btn.addEventListener('click',()=>{const post=allPosts.find(p=>p.id===btn.dataset.id);if(post)openPost(post);}));
   }
+  function openRequestedPost(){
+    if(!requestedEditSlug)return;
+    const post=allPosts.find(item=>item.slug===requestedEditSlug);
+    if(post)openPost(post);
+    else message(saveMessage,'The requested post could not be found in the editor. It may have been deleted or is not accessible.',true);
+  }
   async function loadPosts(){
     managePosts.innerHTML='<p class="cms-help" style="padding:16px">Scanning transmissions…</p>';
     const {data,error}=await client.from('vha_posts').select('*').order('updated_at',{ascending:false});
@@ -97,14 +104,14 @@
   async function restoreSession(){
     if(!client){showLogin();message(loginMessage,'The publishing client could not initialise. Reload the page or contact the site owner.',true);return;}
     const {data:{session}}=await client.auth.getSession();
-    if(session?.user&&await ensureAdmin(session.user)){currentUser=session.user;showWorkspace(currentUser);await loadPosts();}else showLogin();
+    if(session?.user&&await ensureAdmin(session.user)){currentUser=session.user;showWorkspace(currentUser);await loadPosts();openRequestedPost();}else showLogin();
   }
   loginForm.addEventListener('submit',async event=>{
     event.preventDefault();message(loginMessage,'AUTHENTICATING…');
     const {data,error}=await client.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-password').value});
     if(error){message(loginMessage,error.message,true);return;}
     if(!(await ensureAdmin(data.user)))return;
-    currentUser=data.user;showWorkspace(currentUser);message(loginMessage,'');await loadPosts();
+    currentUser=data.user;showWorkspace(currentUser);message(loginMessage,'');await loadPosts();openRequestedPost();
   });
   $('sign-out').addEventListener('click',async()=>{await client.auth.signOut();currentUser=null;showLogin();message(loginMessage,'Signed out.');});
   $('new-post').addEventListener('click',blankEditor);
