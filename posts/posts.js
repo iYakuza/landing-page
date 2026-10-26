@@ -129,7 +129,7 @@
         const response=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:description})});
         const data=await response.json();
         if(!response.ok)throw new Error(data.error||"The theme service could not complete the request.");
-        pendingTheme=data.theme;setProgress(100,"DESIGN SYSTEM READY");resultTitle.textContent=(pendingTheme.name||"GENERATED THEME").toUpperCase();resultDescription.textContent=pendingTheme.summary||"A complete visual design system has been generated.";result.hidden=false;status.textContent="THEME GENERATED. REVIEW THE DESIGN SUMMARY, THEN APPLY IT."; 
+        pendingTheme=data.theme;setProgress(100,"DESIGN SYSTEM READY — TEMPORARY BRIEF CLEARED");prompt.value="";prompt.removeAttribute("value");resultTitle.textContent=(pendingTheme.name||"GENERATED THEME").toUpperCase();resultDescription.textContent=pendingTheme.summary||"A complete visual design system has been generated.";result.hidden=false;status.textContent="THEME GENERATED. THE PROMPT FIELD IS CLEARED; ONLY THE CURRENT RESULT IS KEPT FOR APPLYING."; 
       }catch(error){status.textContent=error.message||"THE AI THEME ENGINE IS CURRENTLY UNAVAILABLE.";progress.hidden=true;}
       finally{clearInterval(stageTimer);button.disabled=false;}
     });
