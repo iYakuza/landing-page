@@ -225,3 +225,19 @@
 @media(max-width:850px){:root[data-theme-columns="masonry"] .posts-list:not(:has(.post-back)){grid-template-columns:repeat(2,minmax(0,1fr))!important}:root[data-theme-columns="mosaic"] .posts-list:not(:has(.post-back)){grid-template-columns:repeat(4,minmax(0,1fr))!important}.theme-studio-layout{grid-template-columns:1fr}}
 @media(max-width:560px){:root[data-theme-columns="one"] .posts-list:not(:has(.post-back)),:root[data-theme-columns="two"] .posts-list:not(:has(.post-back)),:root[data-theme-columns="mosaic"] .posts-list:not(:has(.post-back)),:root[data-theme-columns="masonry"] .posts-list:not(:has(.post-back)){grid-template-columns:repeat(2,minmax(0,1fr))!important}.theme-result{flex-direction:column}.theme-result-actions{width:100%}.theme-result-actions button{flex:1}}
 @media(prefers-reduced-motion:reduce){.theme-studio-layout *{scroll-behavior:auto!important}}
+
+
+/* Ambient falling tetrominoes: decorative only, never intercepts interaction. */
+#falling-tetris-bg{
+  position:fixed;inset:0;width:100%;height:100%;z-index:2;
+  pointer-events:none;opacity:.42;mix-blend-mode:screen;
+}
+.gd{position:relative;z-index:3;isolation:isolate}
+.gd-nav,.posts-main,.posts-main section,.posts-note,.gd footer{position:relative}
+.posts-hero,.posts-content,.posts-note{background-color:transparent}
+.posts-main{background:transparent}
+.posts-content{background:transparent}
+.posts-hero{background-image:radial-gradient(ellipse at 78% 22%,#b6e83312,transparent 45%),linear-gradient(135deg,#0b150dba,#050906ba 70%)}
+.posts-list,.viewer-console,.posts-heading,.posts-filters,.posts-meta,.posts-intro,.posts-hero h1,.gd-nav,.posts-note>*{position:relative;z-index:1}
+@media(prefers-reduced-motion:reduce){#falling-tetris-bg{display:none}}
+@media(max-width:640px){#falling-tetris-bg{opacity:.25}}
