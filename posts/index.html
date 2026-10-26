@@ -7,7 +7,7 @@
   <meta name="description" content="Transmissions from Verse After Hours — writing, ideas, notes, and creative experiments by Emanuel Ștefancu.">
   <title>TRANSMISSIONS — Verse After Hours</title>
   <link rel="stylesheet" href="../green-dream/style.css">
-  <link rel="stylesheet" href="posts.css?v=20261026-tetris-viewer-2">
+  <link rel="stylesheet" href="posts.css?v=20261026-ai-theme-studio-1">
 </head>
 <body>
 <div class="gd" id="gd-top">
@@ -44,20 +44,27 @@
         <label class="posts-search"><span class="sr-only">Search posts</span><input id="post-search" type="search" placeholder="SEARCH TRANSMISSIONS…" autocomplete="off"></label>
       </div>
       <section class="viewer-console" id="viewer-settings" aria-labelledby="viewer-title">
-        <div class="viewer-console-head"><div><p class="gd-kicker">PERSONALIZE YOUR SIGNAL</p><h2 id="viewer-title">VIEWER <em>SETTINGS</em></h2></div><span class="viewer-live"><i></i> LOCAL THEME ENGINE</span></div>
-        <div class="viewer-grid"><div><p class="viewer-label">POST BACKGROUND / SELECT A REALITY</p><div class="theme-swatches" role="group" aria-label="Post background themes">
-          <button type="button" class="theme-swatch is-active" data-theme="neon" aria-pressed="true"><span class="swatch neon"></span><b>NEON BIOSPHERE</b></button>
-          <button type="button" class="theme-swatch" data-theme="cyber" aria-pressed="false"><span class="swatch cyber"></span><b>CYBERPUNK</b></button>
-          <button type="button" class="theme-swatch" data-theme="violet" aria-pressed="false"><span class="swatch violet"></span><b>VIOLET STATIC</b></button>
-          <button type="button" class="theme-swatch" data-theme="ember" aria-pressed="false"><span class="swatch ember"></span><b>EMBER SIGNAL</b></button>
-          <button type="button" class="theme-swatch" data-theme="ocean" aria-pressed="false"><span class="swatch ocean"></span><b>DEEP OCEAN</b></button>
-        </div></div><form class="theme-prompt" id="theme-prompt-form"><label class="viewer-label" for="theme-prompt">CHATGPT THEME REQUEST <span>›</span></label>
-          <p class="theme-prompt-hint">Describe the atmosphere, colors, and visual effects you want for the archive.</p>
-          <textarea id="theme-prompt" rows="3" maxlength="500" placeholder="A bioluminescent greenhouse at midnight, emerald glass and electric violet mist…"></textarea>
-          <button class="theme-generate" type="submit"><span>✳</span> SYNTHESIZE MY THEME <b>↗</b></button>
-          <p class="theme-status" id="theme-status" role="status" aria-live="polite">READY. YOUR VISUAL PREFERENCES STAY IN THIS BROWSER.</p>
-          <div class="theme-progress" id="theme-progress" hidden><div class="theme-progress-track"><span id="theme-progress-bar"></span></div><div class="theme-progress-meta"><span id="theme-progress-message">INTERPRETING YOUR SIGNAL…</span><b id="theme-progress-percent">0%</b></div></div>
-        </form></div>
+        <div class="viewer-console-head"><div><p class="gd-kicker">PERSONALIZE THE ENTIRE ARCHIVE</p><h2 id="viewer-title">AI THEME <em>STUDIO</em></h2></div><span class="viewer-live"><i></i> DESIGN SYSTEM // GPT</span></div>
+        <p class="theme-studio-intro">Describe a complete visual redesign. The AI can reinterpret the layout, typography, post tiles, navigation, controls, media frames, borders, textures and atmosphere—not only the colors.</p>
+        <div class="theme-studio-layout">
+          <div class="theme-preset-side"><p class="viewer-label">START FROM A DIRECTION</p><div class="theme-swatches" role="group" aria-label="Starting theme directions">
+            <button type="button" class="theme-swatch is-active" data-theme="neon" aria-pressed="true"><span class="swatch neon"></span><b>NEON BIOSPHERE</b></button>
+            <button type="button" class="theme-swatch" data-theme="cyber" aria-pressed="false"><span class="swatch cyber"></span><b>CYBERPUNK</b></button>
+            <button type="button" class="theme-swatch" data-theme="violet" aria-pressed="false"><span class="swatch violet"></span><b>VIOLET STATIC</b></button>
+            <button type="button" class="theme-swatch" data-theme="ember" aria-pressed="false"><span class="swatch ember"></span><b>EMBER SIGNAL</b></button>
+            <button type="button" class="theme-swatch" data-theme="ocean" aria-pressed="false"><span class="swatch ocean"></span><b>DEEP OCEAN</b></button>
+          </div>
+          <div class="theme-scope"><p class="viewer-label">REDESIGN SCOPE</p><div class="theme-scope-list"><span>✓ Page background &amp; atmosphere</span><span>✓ Typography &amp; hierarchy</span><span>✓ Post tile geometry &amp; layout</span><span>✓ Navigation, filters &amp; buttons</span><span>✓ Image, video &amp; audio frames</span><span>✓ Borders, texture &amp; interaction</span></div></div></div>
+          <form class="theme-prompt" id="theme-prompt-form"><label class="viewer-label" for="theme-prompt">DESCRIBE YOUR REDESIGN <span>›</span></label>
+            <p class="theme-prompt-hint">Be specific about what should change and what should stay. You can ask for a complete theme, a targeted adjustment, or a revision of the current design.</p>
+            <textarea id="theme-prompt" rows="6" maxlength="1600" placeholder="Redesign this as a rainy, futuristic greenhouse. Use translucent glass cards, editorial serif titles, botanical line art, irregular stacked tiles, subtle mist, and framed media. Keep the controls readable and preserve the archive functions…"></textarea>
+            <div class="theme-prompt-examples"><button type="button" data-prompt="Make it feel like an analog poetry journal from 1978: warm ivory paper, ink-black serif typography, muted moss accents, fine rules, generous whitespace, and imperfect print textures. Keep the tile layout editorial and make media feel like archival inserts.">ANALOG POETRY JOURNAL</button><button type="button" data-prompt="Redesign the archive as a rainy cyberpunk greenhouse at midnight: deep forest green, translucent glass panels, emerald and violet lighting, botanical line art, layered asymmetrical tiles, editorial serif titles, and soft fog. Keep all text highly readable.">CYBERPUNK GREENHOUSE</button><button type="button" data-prompt="Make the archive look like a brutalist art-book index: oversized condensed headings, stark monochrome surfaces, one acid accent, hard offset shadows, irregular modular blocks, thick borders, and almost no glow. Keep the reading experience clear.">BRUTALIST ART BOOK</button></div>
+            <button class="theme-generate" type="submit"><span>✳</span> GENERATE FULL THEME <b>↗</b></button>
+            <p class="theme-status" id="theme-status" role="status" aria-live="polite">THEME REQUESTS ARE PROCESSED BY THE SERVER-SIDE AI WHEN ITS API KEY IS CONFIGURED.</p>
+            <div class="theme-progress" id="theme-progress" hidden><div class="theme-progress-track"><span id="theme-progress-bar"></span></div><div class="theme-progress-meta"><span id="theme-progress-message">BUILDING A DESIGN SYSTEM…</span><b id="theme-progress-percent">0%</b></div></div>
+            <div class="theme-result" id="theme-result" hidden><div><strong id="theme-result-title">THEME GENERATED</strong><p id="theme-result-description"></p></div><div class="theme-result-actions"><button type="button" id="theme-apply">APPLY DESIGN</button><button type="button" id="theme-reset">RESET</button></div></div>
+          </form>
+        </div>
       </section>
       <div class="posts-filters">
         <label for="category-filter">FILTER BY CATEGORY</label>
@@ -74,6 +81,6 @@
   <footer class="gd-footer"><a class="gd-brand" href="../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="#gd-top">BACK TO SURFACE ↑</a></footer>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="posts.js?v=20261026-tetris-viewer-2"></script>
+<script src="posts.js?v=20261026-ai-theme-studio-1"></script>
 </body>
 </html>
