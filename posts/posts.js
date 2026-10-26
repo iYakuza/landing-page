@@ -127,6 +127,7 @@
     const pieces=[];
     const columns=10;
     let cell=32,boardWidth=320,boardLeft=0;
+    const baseSpeed=34;
     function resize(){
       dpr=Math.min(window.devicePixelRatio||1,1.5);
       width=window.innerWidth;height=window.innerHeight;
@@ -135,16 +136,31 @@
       boardLeft=Math.max(0,(width-boardWidth)/2);
       canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
       ctx.setTransform(dpr,0,0,dpr,0,0);
+      // Rebuild the decorative field at a new viewport size so old coordinates cannot collide.
+      pieces.length=0;
+      spawn();
+      spawn();
+    }
+    function canUseColumns(col,shapeWidth){
+      const left=boardLeft+col*cell,right=left+shapeWidth*cell;
+      return pieces.every(p=>{
+        const pWidth=Math.max(...p.matrix.map(row=>row.length))*p.cell;
+        return right<=p.x || left>=p.x+pWidth;
+      });
     }
     function spawn(){
       const matrix=shapes[Math.floor(Math.random()*shapes.length)];
       const shapeWidth=Math.max(...matrix.map(row=>row.length));
       const maxCol=Math.max(0,columns-shapeWidth);
-      const col=Math.floor(Math.random()*(maxCol+1));
-      pieces.push({matrix,cell,x:boardLeft+col*cell,y:-matrix.length*cell-Math.random()*height*.25,
-        speed:26+Math.random()*42,alpha:.34+Math.random()*.38,
+      const candidates=[];
+      for(let col=0;col<=maxCol;col++)if(canUseColumns(col,shapeWidth))candidates.push(col);
+      // If every lane is occupied, wait for a piece to leave rather than draw over it.
+      if(!candidates.length)return false;
+      const col=candidates[Math.floor(Math.random()*candidates.length)];
+      pieces.push({matrix,cell,x:boardLeft+col*cell,y:-matrix.length*cell,
+        speed:baseSpeed,alpha:.34+Math.random()*.22,
         color:palette[Math.floor(Math.random()*palette.length)]});
-      if(pieces.length>12)pieces.shift();
+      return true;
     }
     function drawPiece(p){
       ctx.save();ctx.globalAlpha=p.alpha;
@@ -163,24 +179,17 @@
       const dt=Math.min((now-last)/1000||0,.05);last=now;spawnClock+=dt;frame++;
       ctx.clearRect(0,0,width,height);
       const accent=getComputedStyle(root).getPropertyValue("--theme-accent").trim();
-      // A subtle 10-column well makes the falling pieces obey a recognizable Tetris width.
       ctx.save();ctx.globalAlpha=.12;ctx.strokeStyle=accent&&/^#[0-9a-f]{6}$/i.test(accent)?accent:"#b6e833";ctx.lineWidth=1;
       for(let col=0;col<=columns;col++){const x=boardLeft+col*cell;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,height);ctx.stroke();}
       ctx.restore();
-      if(spawnClock>.9){spawnClock=0;if(pieces.length<10)spawn();}
-      pieces.forEach(p=>{
-        p.y+=p.speed*dt;
-        if(accent&&/^#[0-9a-f]{6}$/i.test(accent)&&frame%90===0)p.color=accent;
-        drawPiece(p);
-      });
-      for(let i=pieces.length-1;i>=0;i--){
-        if(pieces[i].y>height+80)pieces.splice(i,1);
-      }
+      if(spawnClock>1.1){spawnClock=0;spawn();}
+      pieces.forEach(p=>{p.y+=p.speed*dt;if(accent&&/^#[0-9a-f]{6}$/i.test(accent)&&frame%90===0)p.color=accent;drawPiece(p);});
+      for(let i=pieces.length-1;i>=0;i--)if(pieces[i].y>height+80)pieces.splice(i,1);
       raf=requestAnimationFrame(tick);
     }
     function start(){if(!raf&&!document.hidden){last=performance.now();raf=requestAnimationFrame(tick);}}
     function stop(){if(raf){cancelAnimationFrame(raf);raf=0;}}
-    resize();spawn();spawn();spawn();start();
+    resize();start();
     window.addEventListener("resize",resize,{passive:true});
     document.addEventListener("visibilitychange",()=>{if(document.hidden)stop();else start();});
   }
