@@ -220,3 +220,27 @@ body.gd-home .gd-radio{top:12px!important;bottom:12px!important;right:2.5vw!impo
  body.gd-home .gd-footer>span,body.gd-home .gd-footer>a:last-child{font-size:6px}
  body.gd-home .gd-radio{top:auto!important;bottom:8px!important;left:auto!important;right:4vw!important;width:min(205px,66vw)!important;max-height:calc(100% - 16px)!important;transform:none!important}
 }
+
+
+/* RADIO FIT-CONTENT: natural height, centered within the hero's safe area. */
+body.gd-home .gd-radio{
+  height:max-content!important;
+  top:50%!important;
+  bottom:auto!important;
+  transform:translateY(-50%)!important;
+  max-height:calc(100% - 24px)!important;
+  overflow-y:auto!important;
+}
+@media(max-height:800px) and (min-width:761px){
+  body.gd-home .gd-radio{top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;max-height:calc(100% - 16px)!important}
+}
+@media(max-width:760px){
+  body.gd-home .gd-radio{
+    height:max-content!important;
+    top:auto!important;
+    bottom:8px!important;
+    transform:none!important;
+    max-height:calc(100% - 16px)!important;
+    overflow-y:auto!important;
+  }
+}
