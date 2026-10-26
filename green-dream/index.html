@@ -11,8 +11,8 @@
 <body>
 <div class="gd" id="gd-top">
   <header class="gd-nav">
-    <a class="gd-brand" href="#gd-top" aria-label="Verse After Hours home"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a>
-    <nav aria-label="Main navigation"><a href="#gd-top">HOME</a><a href="#poetry">POETRY &amp; MEDIA</a><a href="#listening">LISTENING ROOM</a><a class="active" href="#green-dream">GREEN DREAM</a><a href="#about">ABOUT</a><a href="../posts/">TRANSMISSIONS</a></nav>
+    <a class="gd-brand" href="../" aria-label="Verse After Hours home"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a>
+    <nav aria-label="Main navigation"><a href="../">HOME</a><a href="#poetry">POETRY</a><a href="#media">MEDIA</a><a href="#listening">LISTENING ROOM</a><a class="active" href="#green-dream">GREEN DREAM</a><a href="#about">ABOUT</a><a href="../posts/">TRANSMISSIONS</a></nav>
     <span class="gd-status">● NOCTURNE PROTOCOL // OPEN CHANNEL</span>
   </header>
 
@@ -73,12 +73,20 @@
         <p class="gd-smallprint">A concise profile shard, not a substitute for the full CV.</p>
       </article>
 
-      <section class="gd-poetry" id="poetry" aria-labelledby="gd-poetry-title">
-        <p class="gd-kicker">TRANSMISSIONS // ARCHIVE STATUS</p><h2 id="gd-poetry-title">POETRY AFTER <em>DARK</em></h2>
-        <div class="gd-poem"><span>01</span><div><strong>Poetry archive</strong><small>WRITING // PUBLISHED WORKS</small></div><a href="https://emanuelstefancu.com" target="_blank" rel="noopener noreferrer" aria-label="Open poetry and writing archive">↗</a></div>
-        <div class="gd-poem"><span>02</span><div><strong>Audio &amp; visual experiments</strong><small>MEDIA // PROJECTS</small></div><a href="#listening" aria-label="Go to listening room">↗</a></div>
-        <div class="gd-poem"><span>03</span><div><strong>Green Dream</strong><small>CONCEPT // AI-ASSISTED DEVELOPMENT</small></div><a href="#movements" aria-label="Explore Green Dream movements">↗</a></div>
-        <p class="gd-smallprint">Archive entries link to the public portfolio until individual published works are connected.</p>
+
+    </section>
+
+    <section class="gd-archive-layout" aria-label="Poetry and media archive">
+      <aside class="gd-poetry-float" id="poetry" aria-labelledby="gd-poetry-title">
+        <p class="gd-kicker">WRITING // FIVE MOVEMENTS</p><h2 id="gd-poetry-title">POETRY <em>INDEX</em></h2>
+        <p class="gd-archive-note">Choose a movement to open its published writing.</p>
+        <div id="movement-archive" class="gd-movement-archive"><p class="gd-smallprint">Loading the poetry archive…</p></div>
+      </aside>
+      <section class="gd-media" id="media" aria-labelledby="gd-media-title">
+        <p class="gd-kicker">SOUND // AUDIO LIBRARY</p><h2 id="gd-media-title">MEDIA <em>AFTER DARK</em></h2>
+        <p class="gd-archive-note">An audio-only playlist from published transmissions. Select a track to listen; video is never embedded here.</p>
+        <audio id="gd-archive-player" class="gd-archive-player" controls preload="none" aria-label="Media playlist player"></audio>
+        <div id="gd-media-playlist" class="gd-media-playlist"><p class="gd-smallprint">Loading audio transmissions…</p></div>
       </section>
     </section>
 
@@ -92,9 +100,11 @@
       </div>
     </section>
   </main>
-  <footer class="gd-footer"><a class="gd-brand" href="#gd-top"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="#gd-top">BACK TO SURFACE ↑</a></footer>
+  <footer class="gd-footer"><a class="gd-brand" href="../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="#gd-top">BACK TO SURFACE ↑</a></footer>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
-<script src="tetris.js?v=20261026-listening-room-1"></script>
+<script src="archive.js?v=20261026-movements-audio-1"></script>
+<script src="tetris.js?v=20261026-floating-menu-1"></script>
 </body>
 </html>
