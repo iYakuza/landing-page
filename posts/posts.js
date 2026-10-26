@@ -80,15 +80,61 @@
     posts=data||[];renderCategories();render();
   }
   function initViewerThemes(){
-    const root=document.documentElement,form=document.getElementById("theme-prompt-form"),prompt=document.getElementById("theme-prompt"),status=document.getElementById("theme-status"),progress=document.getElementById("theme-progress"),bar=document.getElementById("theme-progress-bar"),percent=document.getElementById("theme-progress-percent"),message=document.getElementById("theme-progress-message");
-    const palettes={neon:["#050906","#0b150d","#b6e833","rgba(182,232,51,.22)","#a98bff"],cyber:["#08051a","#140b26","#ff4fd8","rgba(255,79,216,.24)","#54d7ef"],violet:["#090617","#17102b","#b69cff","rgba(169,139,255,.25)","#54d7ef"],ember:["#160906","#26110d","#ff9b54","rgba(255,111,48,.24)","#ff4f82"],ocean:["#031015","#071e27","#53e7df","rgba(83,231,223,.22)","#579bff"]};
-    function setVars(p){["--viewer-bg","--viewer-surface","--viewer-accent","--viewer-glow","--viewer-secondary"].forEach((key,i)=>root.style.setProperty(key,p[i]));}
-    function activate(name,save=true){const p=palettes[name]||palettes.neon;setVars(p);root.dataset.viewerTheme=name;document.querySelectorAll(".theme-swatch").forEach(b=>{const active=b.dataset.theme===name;b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));});if(save){try{localStorage.setItem("vha-viewer-theme",name);localStorage.removeItem("vha-viewer-custom");}catch{}}}
-    function buildTheme(description){const t=description.toLowerCase();let p=[...palettes.neon];if(/pink|magenta|cyberpunk|neon city/.test(t))p=[...palettes.cyber];if(/violet|purple|lavender|dreamy|cosmic|galaxy/.test(t))p=[...palettes.violet];if(/orange|amber|sunset|fire|warm|red|crimson|ember/.test(t))p=[...palettes.ember];if(/ocean|sea|underwater|teal|cyan|blue|arctic|ice/.test(t))p=[...palettes.ocean];if(/greenhouse|forest|emerald|moss|acid green|bioluminescent|toxic/.test(t))p=[...palettes.neon];const hex=[...description.matchAll(/#([0-9a-f]{6})\b/ig)].map(m=>"#"+m[1]);if(hex.length)p[2]=hex[0];if(hex.length>1)p[4]=hex[1];if(/white background|light mode|bright paper|ivory/.test(t)){p[0]="#f0f3e8";p[1]="#ffffff";p[3]="rgba(30,60,30,.12)";}return p;}
-    function applyCustom(p){setVars(p);root.dataset.viewerTheme="custom";document.querySelectorAll(".theme-swatch").forEach(b=>{b.classList.remove("is-active");b.setAttribute("aria-pressed","false");});try{localStorage.setItem("vha-viewer-custom",JSON.stringify(p));localStorage.setItem("vha-viewer-theme","custom");}catch{}}
-    document.querySelectorAll(".theme-swatch").forEach(b=>b.addEventListener("click",()=>activate(b.dataset.theme)));
-    try{const custom=JSON.parse(localStorage.getItem("vha-viewer-custom")||"null");if(custom&&custom.length===5)setVars(custom);else activate(localStorage.getItem("vha-viewer-theme")||"neon",false);}catch{activate("neon",false);}
-    form?.addEventListener("submit",event=>{event.preventDefault();const description=prompt.value.trim();if(!description){status.textContent="ADD A DESCRIPTION FIRST, THEN TRANSMIT YOUR REQUEST.";prompt.focus();return;}const chosen=buildTheme(description);let value=0;progress.hidden=false;status.textContent="THEME SYNTHESIS STARTED. ESTIMATED TIME: ABOUT 6 SECONDS.";bar.style.width="0%";percent.textContent="0%";message.textContent="PARSING YOUR VISUAL BRIEF…";const button=form.querySelector("button[type=submit]");button.disabled=true;const timer=setInterval(()=>{value=Math.min(100,value+7);bar.style.width=value+"%";percent.textContent=value+"%";message.textContent=value<35?"PARSING YOUR VISUAL BRIEF…":value<70?"ASSEMBLING COLOR MATRICES…":"RENDERING ATMOSPHERIC EFFECTS…";if(value===100){clearInterval(timer);applyCustom(chosen);message.textContent="THEME COMPILED";status.textContent="THEME READY. PRESS CTRL + F5 TO REFRESH THE EXPERIENCE.";button.disabled=false;}},420);});
+    const root=document.documentElement,form=document.getElementById("theme-prompt-form"),prompt=document.getElementById("theme-prompt"),status=document.getElementById("theme-status"),progress=document.getElementById("theme-progress"),bar=document.getElementById("theme-progress-bar"),percent=document.getElementById("theme-progress-percent"),message=document.getElementById("theme-progress-message"),result=document.getElementById("theme-result"),resultTitle=document.getElementById("theme-result-title"),resultDescription=document.getElementById("theme-result-description"),applyButton=document.getElementById("theme-apply"),resetButton=document.getElementById("theme-reset");
+    const endpoint="https://oeyxsqocldlovhsmzcjw.supabase.co/functions/v1/website-theme";
+    const presets={
+      neon:{name:"Neon Biosphere",summary:"Acid-green terminal archive with pixel edges and modular tiles.",colors:{page:"#050906",surface:"#0b150d",raised:"#122017",text:"#e8f4df",muted:"#aab7a7",accent:"#b6e833",secondary:"#a98bff",border:"#52613e",glow:"#24351b"},typography:{heading:"mono",body:"modern",scale:"balanced",weight:"bold"},layout:{density:"balanced",columns:"mosaic",card:"pixel",geometry:"cut-corner",hero:"poster"},details:{pattern:"grid",media:"framed",buttons:"mechanical",motion:"subtle",shadows:"glow",nav:"terminal"}},
+      cyber:{name:"Cyberpunk",summary:"Electric night-city palette with high-contrast panels.",colors:{page:"#08051a",surface:"#140b26",raised:"#211137",text:"#f8edff",muted:"#c1aaca",accent:"#ff4fd8",secondary:"#54d7ef",border:"#75476e",glow:"#512044"},typography:{heading:"condensed",body:"modern",scale:"expressive",weight:"black"},layout:{density:"dense",columns:"mosaic",card:"glass",geometry:"cut-corner",hero:"immersive"},details:{pattern:"scanlines",media:"glow",buttons:"outlined",motion:"energetic",shadows:"glow",nav:"boxed"}},
+      violet:{name:"Violet Static",summary:"Dreamlike violet editorial surfaces and soft neon detail.",colors:{page:"#090617",surface:"#17102b",raised:"#241a3e",text:"#f0ebff",muted:"#b7add0",accent:"#b69cff",secondary:"#54d7ef",border:"#625180",glow:"#34245b"},typography:{heading:"editorial",body:"humanist",scale:"expressive",weight:"regular"},layout:{density:"airy",columns:"masonry",card:"editorial",geometry:"organic",hero:"editorial"},details:{pattern:"grain",media:"film",buttons:"pill",motion:"subtle",shadows:"soft",nav:"underline"}},
+      ember:{name:"Ember Signal",summary:"Warm, cinematic charcoal surfaces with firelight accents.",colors:{page:"#160906",surface:"#26110d",raised:"#351a14",text:"#fff0e7",muted:"#c8a99a",accent:"#ff9b54",secondary:"#ff4f82",border:"#7c4934",glow:"#54251a"},typography:{heading:"display",body:"editorial",scale:"expressive",weight:"bold"},layout:{density:"balanced",columns:"mosaic",card:"brutalist",geometry:"stacked",hero:"immersive"},details:{pattern:"grain",media:"film",buttons:"solid",motion:"subtle",shadows:"hard",nav:"boxed"}},
+      ocean:{name:"Deep Ocean",summary:"Bioluminescent deep-water surfaces with cool glass framing.",colors:{page:"#031015",surface:"#071e27",raised:"#0c2a34",text:"#e4fbff",muted:"#9cbfc6",accent:"#53e7df",secondary:"#579bff",border:"#31616b",glow:"#12454a"},typography:{heading:"modern",body:"humanist",scale:"balanced",weight:"regular"},layout:{density:"airy",columns:"masonry",card:"glass",geometry:"rounded",hero:"immersive"},details:{pattern:"blueprint",media:"glow",buttons:"outlined",motion:"subtle",shadows:"soft",nav:"minimal"}}
+    };
+    let pendingTheme=null;
+    const valid=(value,allowed,fallback)=>allowed.includes(value)?value:fallback;
+    function applyTheme(theme,save=true){
+      if(!theme||!theme.colors||!theme.typography||!theme.layout||!theme.details)return;
+      const c=theme.colors;
+      Object.entries({page:c.page,surface:c.surface,raised:c.raised,text:c.text,muted:c.muted,accent:c.accent,secondary:c.secondary,border:c.border,glow:c.glow}).forEach(([key,value])=>{if(/^#[0-9a-f]{6}$/i.test(value||""))root.style.setProperty("--theme-"+key,value);});
+      root.dataset.themeHeading=valid(theme.typography.heading,["editorial","modern","mono","condensed","display"],"modern");
+      root.dataset.themeBody=valid(theme.typography.body,["editorial","modern","mono","humanist"],"modern");
+      root.dataset.themeScale=valid(theme.typography.scale,["compact","balanced","expressive"],"balanced");
+      root.dataset.themeWeight=valid(theme.typography.weight,["light","regular","bold","black"],"bold");
+      root.dataset.themeDensity=valid(theme.layout.density,["airy","balanced","dense"],"balanced");
+      root.dataset.themeColumns=valid(theme.layout.columns,["one","two","mosaic","masonry"],"mosaic");
+      root.dataset.themeCard=valid(theme.layout.card,["glass","paper","brutalist","pixel","soft","editorial"],"editorial");
+      root.dataset.themeGeometry=valid(theme.layout.geometry,["square","rounded","cut-corner","organic","stacked"],"cut-corner");
+      root.dataset.themeHero=valid(theme.layout.hero,["minimal","editorial","immersive","grid","poster"],"poster");
+      root.dataset.themePattern=valid(theme.details.pattern,["none","grid","grain","botanical","scanlines","blueprint","paper"],"grid");
+      root.dataset.themeMedia=valid(theme.details.media,["clean","film","framed","glow","polaroid"],"framed");
+      root.dataset.themeButtons=valid(theme.details.buttons,["minimal","outlined","solid","pill","mechanical"],"mechanical");
+      root.dataset.themeMotion=valid(theme.details.motion,["none","subtle","energetic"],"subtle");
+      root.dataset.themeShadows=valid(theme.details.shadows,["flat","soft","hard","glow"],"glow");
+      root.dataset.themeNav=valid(theme.details.nav,["minimal","boxed","underline","terminal"],"terminal");
+      root.dataset.viewerTheme="custom";
+      document.querySelectorAll(".theme-swatch").forEach(b=>{b.classList.remove("is-active");b.setAttribute("aria-pressed","false");});
+      if(save){try{localStorage.setItem("vha-ai-theme",JSON.stringify(theme));}catch{}}
+    }
+    function setProgress(value,label){progress.hidden=false;bar.style.width=value+"%";percent.textContent=value+"%";message.textContent=label;}
+    function showPreset(name){const p=presets[name]||presets.neon;pendingTheme=p;applyTheme(p);result.hidden=false;resultTitle.textContent=p.name.toUpperCase();resultDescription.textContent=p.summary;status.textContent="PRESET LOADED. IT IS APPLIED LOCALLY.";document.querySelectorAll(".theme-swatch").forEach(b=>{const active=b.dataset.theme===name;b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));});}
+    document.querySelectorAll(".theme-swatch").forEach(b=>b.addEventListener("click",()=>showPreset(b.dataset.theme)));
+    document.querySelectorAll("[data-prompt]").forEach(b=>b.addEventListener("click",()=>{prompt.value=b.dataset.prompt;prompt.focus();}));
+    try{const saved=JSON.parse(localStorage.getItem("vha-ai-theme")||"null");if(saved)applyTheme(saved,false);else showPreset("neon");}catch{showPreset("neon");}
+    form?.addEventListener("submit",async event=>{
+      event.preventDefault();const description=prompt.value.trim();
+      if(description.length<12){status.textContent="DESCRIBE THE REDESIGN IN AT LEAST A FEW WORDS.";prompt.focus();return;}
+      const button=form.querySelector("button[type=submit]");button.disabled=true;result.hidden=true;status.textContent="SENDING YOUR DESIGN BRIEF TO THE AI THEME ENGINE…";setProgress(12,"READING THE VISUAL BRIEF…");
+      const stages=[["MAPPING LAYOUT & TYPOGRAPHY…",30],["DESIGNING COMPONENTS & TILE GEOMETRY…",54],["BUILDING COLOR, MEDIA & DECORATION TOKENS…",78]];
+      let stage=0;const stageTimer=setInterval(()=>{if(stage<stages.length){setProgress(stages[stage][1],stages[stage][0]);stage++;}},1600);
+      try{
+        const response=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:description})});
+        const data=await response.json();
+        if(!response.ok)throw new Error(data.error||"The theme service could not complete the request.");
+        pendingTheme=data.theme;setProgress(100,"DESIGN SYSTEM READY");resultTitle.textContent=(pendingTheme.name||"GENERATED THEME").toUpperCase();resultDescription.textContent=pendingTheme.summary||"A complete visual design system has been generated.";result.hidden=false;status.textContent="THEME GENERATED. REVIEW THE DESIGN SUMMARY, THEN APPLY IT."; 
+      }catch(error){status.textContent=error.message||"THE AI THEME ENGINE IS CURRENTLY UNAVAILABLE.";progress.hidden=true;}
+      finally{clearInterval(stageTimer);button.disabled=false;}
+    });
+    applyButton?.addEventListener("click",()=>{if(!pendingTheme)return;applyTheme(pendingTheme);status.textContent="THE NEW DESIGN SYSTEM IS APPLIED AND SAVED IN THIS BROWSER.";progress.hidden=true;});
+    resetButton?.addEventListener("click",()=>{try{localStorage.removeItem("vha-ai-theme");}catch{}root.removeAttribute("data-theme-heading");root.removeAttribute("data-theme-body");root.removeAttribute("data-theme-scale");root.removeAttribute("data-theme-weight");root.removeAttribute("data-theme-density");root.removeAttribute("data-theme-columns");root.removeAttribute("data-theme-card");root.removeAttribute("data-theme-geometry");root.removeAttribute("data-theme-hero");root.removeAttribute("data-theme-pattern");root.removeAttribute("data-theme-media");root.removeAttribute("data-theme-buttons");root.removeAttribute("data-theme-motion");root.removeAttribute("data-theme-shadows");root.removeAttribute("data-theme-nav");["page","surface","raised","text","muted","accent","secondary","border","glow"].forEach(k=>root.style.removeProperty("--theme-"+k));showPreset("neon");status.textContent="DEFAULT DESIGN RESTORED.";});
   }
   initViewerThemes();
   search.addEventListener('input',render);categoryFilter.addEventListener('change',render);load();
