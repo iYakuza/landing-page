@@ -71,3 +71,42 @@ body>.gd{position:absolute!important;inset:0!important;width:100%!important;heig
  .gd>main{height:auto!important;max-height:none!important;min-height:0!important;flex:1 1 auto!important}
  .gd-hero{height:100%!important;max-height:100%!important;min-height:0!important}
 }
+
+
+/* GREEN DREAM // Zen inside the machine */
+.gd-hero{isolation:isolate}
+.gd-hero:after{content:"";position:absolute;z-index:0;inset:0;pointer-events:none;background:radial-gradient(ellipse at 72% 48%,#b6e83312 0,transparent 34%),linear-gradient(90deg,#03080435,transparent 72%)}
+.gd-hero-copy{position:relative;z-index:1}
+.gd-zen{display:flex;align-items:center;gap:14px;margin-top:clamp(16px,3vh,34px);max-width:450px;padding:12px 15px;border-left:1px solid #b6e8338c;background:linear-gradient(90deg,#061109d9,#06110970,transparent);backdrop-filter:blur(5px)}
+.gd-zen-orbit{width:42px;height:42px;flex:0 0 42px;position:relative;border:1px solid #b6e8339c;border-radius:50%;display:grid;place-items:center;box-shadow:0 0 20px #b6e83312}
+.gd-zen-orbit:before,.gd-zen-orbit:after{content:"";position:absolute;border:1px solid #b6e83355;border-radius:50%;inset:5px}
+.gd-zen-orbit:after{inset:-5px 10px;border-color:#9cb8a244;transform:rotate(38deg)}
+.gd-zen-orbit i{display:block;width:10px;height:10px;background:var(--acid);border-radius:50%;box-shadow:0 0 12px #b6e833a6}
+.gd-zen-orbit b{position:absolute;bottom:6px;right:6px;width:5px;height:5px;border-radius:50%;background:#8db8a2}
+.gd-zen-copy{min-width:0}
+.gd-zen-kicker{font-size:7px;letter-spacing:1.8px;color:#a9c4a4;margin:0 0 6px}
+.gd-zen-pillars{display:flex;align-items:center;gap:8px;margin:0;color:#e3f4d9;font-size:10px;letter-spacing:1.6px}
+.gd-zen-pillars i{font-style:normal;color:var(--acid)}
+.gd-zen-line{font-size:10px;line-height:1.65;letter-spacing:.2px;color:#e3e8dc;margin:7px 0 0}
+.gd-zen-line em{font-style:normal;color:var(--acid)}
+.gd-radio{border-color:#b6e83372;box-shadow:0 12px 55px #0009,0 0 28px #b6e8330a}
+.gd-radio-head{cursor:grab}
+.gd-radio-head:active{cursor:grabbing}
+.gd-cta:focus-visible,.gd-nav a:focus-visible,.gd-radio button:focus-visible{outline:2px solid var(--acid);outline-offset:4px}
+::selection{background:#b6e833;color:#071008}
+@media(max-width:760px){
+ .gd-zen{margin-top:15px;padding:9px 11px;gap:10px;max-width:340px}
+ .gd-zen-orbit{width:34px;height:34px;flex-basis:34px}
+ .gd-zen-kicker{font-size:6px;letter-spacing:1.3px}
+ .gd-zen-pillars{font-size:9px;gap:6px}
+ .gd-zen-line{font-size:9px;margin-top:5px}
+}
+@media(max-height:700px) and (min-width:761px){
+ .gd-hero{padding-top:3vh;padding-bottom:3vh}
+ .gd-hero h1{font-size:clamp(58px,8.5vw,112px);margin-bottom:17px}
+ .gd-coordinate{margin-top:16px}
+ .gd-zen{margin-top:12px;padding:8px 12px}
+ .gd-zen-orbit{width:32px;height:32px;flex-basis:32px}
+ .gd-radio{top:50%;transform:translateY(-50%);max-height:90%;overflow:auto}
+}
+@media(prefers-reduced-motion:reduce){.gd-zen-orbit:after{transform:none}}
