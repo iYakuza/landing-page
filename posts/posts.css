@@ -381,3 +381,18 @@
 .post-card,.viewer-console{background-color:rgba(7,15,9,.72)!important;backdrop-filter:blur(1px)}
 .theme-prompt,.posts-filters{background-color:rgba(3,8,5,.72)!important}
 @media(max-width:640px){#falling-tetris-bg{opacity:.3!important}.posts-content{background:rgba(5,9,6,.72)!important}}
+
+/* Full-screen split-screen 1v1 Tetris arena */
+#falling-tetris-bg{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:4!important;display:block!important;visibility:visible!important;opacity:1!important;mix-blend-mode:normal!important;pointer-events:none!important;background:rgba(3,8,5,.78)!important}
+#tetris-arena-controls{position:fixed;z-index:6;top:8px;left:12px;right:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 10px;background:rgba(3,8,5,.94);border:1px solid rgba(182,232,51,.35);color:#d8f6b6;font:10px/1.35 monospace;box-shadow:0 0 24px rgba(0,0,0,.35)}
+.tetris-arena-brand{font-weight:800;color:#b6e833;white-space:nowrap}.tetris-arena-brand span{margin-left:8px;color:#d8f6b6;font-weight:400}
+.tetris-mode-label{display:flex;align-items:center;gap:6px;color:#b6e833}
+#tetris-mode{max-width:180px;background:#0b150d;color:#e8f4df;border:1px solid #52613e;padding:6px;font:10px monospace}
+#tetris-status{flex:1;min-width:140px;color:#d8f6b6}
+.tetris-actions{display:flex;gap:6px}
+.tetris-actions button{background:#b6e833;color:#07100b;border:1px solid #b6e833;padding:7px 10px;font:bold 10px monospace;cursor:pointer}
+.tetris-actions button+button{background:transparent;color:#b6e833}
+.tetris-controls-help{display:flex;justify-content:space-between;gap:12px;flex-basis:100%;color:#aab7a7}
+.tetris-controls-help b{color:#b6e833}
+.gd{z-index:2!important}
+@media(max-width:760px){#tetris-arena-controls{left:6px;right:6px;top:6px;gap:6px;padding:6px}.tetris-arena-brand span{display:none}.tetris-controls-help{font-size:8px;gap:6px;flex-direction:column}.tetris-actions button{padding:6px}.tetris-mode-label{font-size:9px}#tetris-mode{max-width:145px}.tetris-arena-brand{font-size:9px}}
