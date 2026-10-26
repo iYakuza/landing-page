@@ -43,18 +43,22 @@
   function validMediaUrl(value){
     try{const url=new URL(String(value||''));return url.protocol==='https:'&&url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.includes('/storage/v1/object/public/vha-post-media/')?url.href:'';}catch{return '';}
   }
+  const MOVEMENTS=['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'];
+  function displayCategory(value){
+    const category=String(value||'').trim().toUpperCase();
+    return MOVEMENTS.includes(category)?category:'UNASSIGNED';
+  }
   function renderCategories(){
     const selected=categoryFilter.value;
-    const categories=[...new Set(posts.map(p=>String(p.category||'UNCATEGORIZED').trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
-    categoryFilter.innerHTML='<option value="">ALL CATEGORIES</option>'+categories.map(c=>'<option value="'+safe(c)+'">'+safe(c)+'</option>').join('');
-    categoryFilter.value=categories.includes(selected)?selected:'';
+    categoryFilter.innerHTML='<option value="">ALL MOVEMENTS</option>'+MOVEMENTS.map(c=>'<option value="'+safe(c)+'">'+safe(c)+'</option>').join('');
+    categoryFilter.value=MOVEMENTS.includes(selected)?selected:'';
   }
   function render(){
     const permalink=Boolean(requestedSlug);
     const term=search.value.trim().toLowerCase(),category=categoryFilter.value;
     const filtered=permalink
       ? posts.filter(post=>post.slug===requestedSlug)
-      : posts.filter(post=>(!category||post.category===category)&&[post.title,post.category,post.excerpt,post.content_html].join(' ').replace(/<[^>]*>/g,' ').toLowerCase().includes(term));
+      : posts.filter(post=>(!category||displayCategory(post.category)===category)&&[post.title,post.category,post.excerpt,post.content_html].join(' ').replace(/<[^>]*>/g,' ').toLowerCase().includes(term));
     if(permalink){
       search.closest('label')?.setAttribute('hidden','');
       categoryFilter.closest('label')?.setAttribute('hidden','');
@@ -76,7 +80,7 @@
       const shapeClass=['shape-i','shape-l','shape-square','shape-t','shape-z','shape-j','shape-s'][index%7];
       if(permalink){
         const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
-        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(post.category||'UNCATEGORIZED')+'</span></div><h3>'+safe(post.title)+'</h3>'+media+'<p>'+safe(post.excerpt||'')+'</p>'+body+permalinkBack+'</article>';
+        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span></div><h3>'+safe(post.title)+'</h3>'+media+'<p>'+safe(post.excerpt||'')+'</p>'+body+permalinkBack+'</article>';
       }
       // Archive cards: split the article into four readable cells, then arrange them as a tetromino.
       const doc=new DOMParser().parseFromString(cleanHtml(post.content_html||''),'text/html');
