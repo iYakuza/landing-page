@@ -355,3 +355,17 @@
 .gd{z-index:auto!important;isolation:auto!important}
 @media(max-width:640px){#falling-tetris-bg{opacity:.55!important}}
 @media(prefers-reduced-motion:reduce){#falling-tetris-bg{display:none!important}}
+
+
+/* PLAYABLE TETRIS AS THE ARCHIVE BACKGROUND — content stays in the foreground. */
+#falling-tetris-bg{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:0!important;display:block!important;visibility:visible!important;opacity:.28!important;mix-blend-mode:screen!important;pointer-events:none!important}
+.gd{position:relative!important;z-index:1!important;isolation:auto!important;background:transparent!important}
+.posts-main{background:transparent!important}
+.posts-hero{background:linear-gradient(90deg,rgba(5,9,6,.88),rgba(5,9,6,.54)),radial-gradient(ellipse at 78% 22%,rgba(182,232,51,.08),transparent 48%)!important}
+.posts-content{background:rgba(5,9,6,.76)!important}
+.posts-note{background:linear-gradient(110deg,rgba(17,30,18,.86),rgba(7,11,8,.78))!important}
+.gd-footer{background:rgba(5,9,6,.82)!important}
+.post-card,.viewer-console{background-color:rgba(7,15,9,.84)!important;backdrop-filter:blur(2px)}
+.theme-prompt,.posts-filters{background-color:rgba(3,8,5,.84)!important}
+@media(max-width:640px){#falling-tetris-bg{opacity:.22!important}.posts-content{background:rgba(5,9,6,.84)!important}}
+@media(prefers-reduced-motion:reduce){#falling-tetris-bg{display:block!important}}
