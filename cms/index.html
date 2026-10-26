@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050906">
+  <meta name="robots" content="noindex,nofollow">
+  <title>TRANSMISSION CONSOLE — Verse After Hours</title>
+  <link rel="stylesheet" href="../green-dream/style.css">
+  <link rel="stylesheet" href="cms.css">
+</head>
+<body>
+<div class="gd">
+  <header class="gd-nav">
+    <a class="gd-brand" href="../" aria-label="Verse After Hours home"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a>
+    <nav aria-label="Main navigation"><a href="../">HOME</a><a href="../posts/">TRANSMISSIONS</a><a class="active" href="./">CONSOLE</a></nav>
+    <span class="gd-status">● PRIVATE CHANNEL // AUTH REQUIRED</span>
+  </header>
+  <main class="cms-shell">
+    <section class="cms-hero">
+      <p class="gd-kicker">VERSE AFTER HOURS // CREATOR ACCESS</p>
+      <h1>TRANSMISSION<br><em>CONSOLE.</em></h1>
+      <p>Write the signal. Keep it as a draft. Publish when it is ready.</p>
+    </section>
+    <section id="login-panel" class="cms-login cms-panel">
+      <p class="gd-kicker">AUTHENTICATION REQUIRED</p>
+      <h2>OPEN <em>CHANNEL</em></h2>
+      <form id="login-form">
+        <label for="login-email">EMAIL ADDRESS</label><input id="login-email" type="email" autocomplete="username" required>
+        <label for="login-password">PASSWORD</label><input id="login-password" type="password" autocomplete="current-password" required>
+        <button class="cms-button primary" type="submit">SIGN IN ↗</button>
+      </form>
+      <p class="cms-help">This console has no public sign-up. Your account must be created and granted editor access by the site owner in Supabase.</p>
+      <p id="login-message" class="cms-message" role="status"></p>
+    </section>
+    <section id="workspace" hidden>
+      <div class="cms-toolbar">
+        <div><p class="gd-kicker">EDITORIAL WORKSPACE</p><h2>POST <em>MANIFEST</em></h2><p id="user-line" class="cms-help"></p></div>
+        <div class="cms-toolbar-actions"><button id="new-post" class="cms-button">+ NEW POST</button><button id="sign-out" class="cms-button subtle">SIGN OUT</button></div>
+      </div>
+      <div class="cms-layout">
+        <aside class="cms-panel cms-posts-panel">
+          <div class="cms-list-head"><h3>YOUR TRANSMISSIONS</h3><button id="refresh-posts" class="cms-text-button">REFRESH ↻</button></div>
+          <div class="cms-tabs"><button class="selected" data-status-filter="all">ALL</button><button data-status-filter="draft">DRAFTS</button><button data-status-filter="published">PUBLISHED</button></div>
+          <div id="manage-posts" class="manage-posts"><p class="cms-help">Loading posts…</p></div>
+        </aside>
+        <section class="cms-panel cms-editor-panel">
+          <div class="cms-editor-top"><p class="gd-kicker" id="editor-mode">NEW TRANSMISSION</p><span id="editor-status" class="cms-status">UNSAVED</span></div>
+          <form id="post-form">
+            <label for="post-title">TITLE</label><input id="post-title" maxlength="180" required placeholder="Give the signal a name">
+            <div class="cms-two-col">
+              <div><label for="post-slug">URL SLUG</label><input id="post-slug" maxlength="180" required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="lowercase-words"></div>
+              <div><label for="post-category">CATEGORY</label><input id="post-category" list="category-options" maxlength="60" required placeholder="Choose or type a category"><datalist id="category-options"><option value="POETRY"><option value="FIELD NOTES"><option value="SITE NOTE"><option value="CREATIVE PROCESS"><option value="SOUND"><option value="GREEN DREAM"><option value="PERSONAL"><option value="ESSAY"></datalist></div>
+            </div>
+            <label for="post-excerpt">EXCERPT / DECK <small>UP TO 400 CHARACTERS</small></label><textarea id="post-excerpt" rows="3" maxlength="400" placeholder="A short signal preview for the archive…"></textarea>
+            <div class="cms-label-row"><label>TRANSMISSION BODY</label><span class="cms-help">Visual editor · formatted text</span></div>
+            <div class="rich-editor">
+              <div class="rich-toolbar" role="toolbar" aria-label="Text formatting">
+                <button type="button" data-command="bold" aria-label="Bold"><b>B</b></button>
+                <button type="button" data-command="italic" aria-label="Italic"><i>I</i></button>
+                <button type="button" data-command="formatBlock" data-value="h2" aria-label="Heading">H2</button>
+                <button type="button" data-command="formatBlock" data-value="blockquote" aria-label="Quote">❝</button>
+                <button type="button" data-command="insertUnorderedList" aria-label="Bulleted list">• LIST</button>
+                <button type="button" data-command="insertOrderedList" aria-label="Numbered list">1. LIST</button>
+                <button type="button" id="insert-link" aria-label="Insert link">LINK ↗</button>
+                <button type="button" data-command="removeFormat" aria-label="Clear formatting">CLEAR</button>
+              </div>
+              <div id="post-content" class="rich-content" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Post content" data-placeholder="Begin writing here…"></div>
+            </div>
+            <div class="cms-editor-footer">
+              <span id="save-message" class="cms-message" role="status"></span>
+              <div class="cms-save-actions"><button type="button" id="save-draft" class="cms-button">SAVE DRAFT</button><button type="submit" id="publish-post" class="cms-button primary">PUBLISH ↗</button></div>
+            </div>
+          </form>
+        </section>
+      </div>
+    </section>
+    <section id="setup-note" class="cms-panel cms-setup-note">
+      <p class="gd-kicker">FIRST-TIME SETUP</p><h2>ACCESS IS <em>GRANTED MANUALLY.</em></h2>
+      <p>For security, the site does not offer public account creation. Create your editor account in the Supabase dashboard, then add its user UUID to the <code>vha_cms_admins</code> table. The repository includes <code>cms/SETUP.md</code> with the exact steps and SQL.</p>
+    </section>
+  </main>
+  <footer class="gd-footer"><a class="gd-brand" href="../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="../posts/">OPEN ARCHIVE ↗</a></footer>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="cms.js"></script>
+</body>
+</html>
