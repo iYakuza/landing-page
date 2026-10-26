@@ -453,3 +453,36 @@ body.gd-home .gd-radio{
   grid-column:3;
   justify-self:end;
 }
+
+
+/* Hard-align each movement's post count in the same fixed column. */
+.gd-poetry-float .gd-movement-archive details>summary{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 2ch 8px!important;
+  grid-template-rows:auto!important;
+  justify-content:initial!important;
+  align-items:center!important;
+  column-gap:5px!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+.gd-poetry-float .gd-movement-archive details>summary>span:first-child{
+  grid-column:1!important;
+  min-width:0!important;
+  justify-self:start!important;
+  white-space:nowrap!important;
+}
+.gd-poetry-float .gd-movement-archive details>summary>span:nth-child(2){
+  grid-column:2!important;
+  justify-self:end!important;
+  width:2ch!important;
+  min-width:2ch!important;
+  text-align:right!important;
+  font-variant-numeric:tabular-nums!important;
+}
+.gd-poetry-float .gd-movement-archive details>summary::after{
+  grid-column:3!important;
+  justify-self:end!important;
+  width:8px!important;
+  text-align:right!important;
+}
