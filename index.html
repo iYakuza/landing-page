@@ -9,12 +9,51 @@
   <meta name="description" content="Verse After Hours / Green Dream: a small island in the noise. We are a bunch of Sisyphuses. We push, we fall, we begin again. The radio plays on.">
   <title>GREEN DREAM — Verse After Hours</title>
   <link rel="stylesheet" href="green-dream/style.css?v=20261026-menu-alignment-3">
+
+<style>
+/* Inline CV continuation on the landing page */
+#cv-section{scroll-margin-top:24px;background:#050906;color:#e9f2e8;border-top:1px solid #b6e83355}
+#cv-section .cv-wrap{width:min(1100px,90vw);margin:auto;padding:64px 0 80px}
+#cv-section .cv-kicker{font:10px/1.8 monospace;letter-spacing:2px;color:#b6e833}
+#cv-section .cv-hero{border:1px solid #b6e83375;background:linear-gradient(135deg,#101a11,#070b08);padding:clamp(22px,5vw,54px);position:relative}
+#cv-section .cv-hero:after{content:"PERSONNEL FILE // ACCESS GRANTED";position:absolute;right:20px;top:18px;font:8px monospace;letter-spacing:1.2px;color:#b6e83380}
+#cv-section .cv-name{font-size:clamp(40px,8vw,84px);line-height:.9;letter-spacing:-.07em;margin:18px 0}
+#cv-section .cv-role{font:12px/1.8 monospace;letter-spacing:1px;color:#b6e833}
+#cv-section .cv-contact{font-size:12px;line-height:2;color:#aebbad;overflow-wrap:anywhere}
+#cv-section .cv-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+#cv-section .cv-actions a{border:1px solid #b6e833;color:#b6e833;padding:12px 15px;font:10px monospace;letter-spacing:1px}
+#cv-section .cv-actions a.cv-primary{background:#b6e833;color:#071007;font-weight:bold}
+#cv-section .cv-targets{margin-top:24px;padding-top:18px;border-top:1px solid #b6e83335}
+#cv-section .cv-targets strong{display:block;font:10px monospace;letter-spacing:1px;color:#b6e833;margin-bottom:9px}
+#cv-section .cv-targets p{font-size:12px;line-height:1.8;color:#c0cbbd;margin:0}
+#cv-section .cv-quicklinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+#cv-section .cv-quicklinks a{font:10px monospace;color:#d8e7d2;border:1px solid #b6e83335;padding:7px 9px}
+#cv-section .cv-section{padding:30px 0;border-bottom:1px solid #b6e83335}
+#cv-section .cv-section h2{font-size:clamp(24px,4vw,36px);margin:0 0 20px;letter-spacing:-1px}
+#cv-section .cv-section h2 em{font-style:normal;color:#b6e833}
+#cv-section .cv-section p,#cv-section .cv-section li{font-size:13px;line-height:1.8;color:#c0cbbd}
+#cv-section .cv-skills{display:flex;flex-wrap:wrap;gap:8px}
+#cv-section .cv-skills span{border:1px solid #b6e83345;padding:8px 10px;font-size:10px;color:#d9e6d4}
+#cv-section .cv-job{padding:18px 0;border-top:1px solid #b6e83325}
+#cv-section .cv-job:first-of-type{border-top:0}
+#cv-section .cv-jobhead{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}
+#cv-section .cv-job h3{margin:0;font-size:17px}
+#cv-section .cv-date{font:10px monospace;color:#b6e833}
+#cv-section .cv-company{font:11px monospace;color:#8e9e8c;margin:7px 0 12px}
+#cv-section .cv-job ul{padding-left:20px;margin:10px 0}
+#cv-section .cv-job li{padding:3px 0}
+#cv-section .cv-columns{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+#cv-section .cv-columns h3{font-size:14px;color:#b6e833}
+#cv-section .cv-back{display:inline-block;margin-top:28px;color:#b6e833;font:10px monospace;letter-spacing:1px}
+@media(max-width:650px){#cv-section .cv-wrap{padding:36px 0 50px}#cv-section .cv-hero:after{position:static;display:block;margin-top:15px}#cv-section .cv-columns{grid-template-columns:1fr}#cv-section .cv-section{padding:24px 0}}
+@media print{#cv-section{background:#fff!important;color:#111!important}#cv-section .cv-wrap{width:100%!important;padding:0!important}#cv-section .cv-hero{background:#fff!important;border-color:#777!important}#cv-section .cv-name,#cv-section .cv-section h2,#cv-section .cv-job h3{color:#111!important}#cv-section .cv-actions,#cv-section .cv-back{display:none!important}#cv-section .cv-section p,#cv-section .cv-section li,#cv-section .cv-contact{color:#222!important}}
+</style>
 </head>
 <body class="gd-home">
 <div class="gd" id="gd-top">
   <header class="gd-nav">
     <a class="gd-brand" href="./" aria-label="Verse After Hours home"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a>
-    <nav aria-label="Main navigation"><a class="active" href="#gd-top">HOME</a><a href="green-dream/#listening">LISTENING ROOM</a><a href="music.html">MUSIC</a><a href="cv/">CV</a><details class="gd-nav-dropdown"><summary>GREEN DREAM <span aria-hidden="true">⌄</span></summary><div class="gd-nav-menu" aria-label="Green Dream movements">
+    <nav aria-label="Main navigation"><a class="active" href="#gd-top">HOME</a><a href="green-dream/#listening">LISTENING ROOM</a><a href="music.html">MUSIC</a><a href="#cv-section">CV</a><details class="gd-nav-dropdown"><summary>GREEN DREAM <span aria-hidden="true">⌄</span></summary><div class="gd-nav-menu" aria-label="Green Dream movements">
 <a href="posts/the-awakening/">01 / THE AWAKENING</a>
 <a href="posts/the-descent/">02 / THE DESCENT</a>
 <a href="posts/the-reconnection/">03 / THE RECONNECTION</a>
@@ -62,6 +101,39 @@
       </aside>
       <div class="gd-scroll">SCROLL TO DESCEND <span>↓</span></div>
     </section>
+
+    <section id="cv-section" aria-labelledby="cv-title">
+      <div class="cv-wrap">
+        <section class="cv-hero">
+          <p class="cv-kicker">CV_DATA_SHARD // FULL PERSONNEL RECORD</p>
+          <h2 id="cv-title" class="cv-name">Emanuel<br><span style="color:#b6e833">Ștefancu</span></h2>
+          <p class="cv-role">HR BUSINESS ANALYST | HR SYSTEMS &amp; PROCESS IMPROVEMENT</p>
+          <p class="cv-contact">+40 749 570 778 · stefancu.emanuel@gmail.com<br>linkedin.com/in/emanuel-stefancu<br>Iași, Romania | Open to relocation</p>
+          <div class="cv-actions"><a class="cv-primary" href="mailto:stefancu.emanuel@gmail.com?subject=HR%20Business%20Analysis%20opportunity">CONTACT ↗</a><a href="https://www.linkedin.com/in/emanuel-stefancu/" target="_blank" rel="noopener noreferrer">LINKEDIN ↗</a><a href="#cv-experience">EXPERIENCE ↓</a><a href="cv/" target="_blank" rel="noopener noreferrer">OPEN FULL CV ↗</a></div>
+          <div class="cv-targets"><strong>ROLE FOCUS</strong><p>HR Business Analyst · HR Systems / HRIS Analyst · HR Process Analyst · HR Technology Operations</p><div class="cv-quicklinks"><a href="#cv-summary">PROFILE</a><a href="#cv-skills">CORE SKILLS</a><a href="#cv-experience">EXPERIENCE</a><a href="#cv-tools">SYSTEMS &amp; TOOLS</a><a href="#cv-education">EDUCATION &amp; LANGUAGES</a></div></div>
+        </section>
+        <section class="cv-section" id="cv-summary"><h2>Professional <em>Summary</em></h2><p>Business Analyst with experience supporting HR process and system changes across multi-country EMEA service environments. I combine hands-on HR Operations and payroll knowledge with requirements analysis, workflow mapping, business rules and process documentation, Change Request assessment, UAT and defect investigation, and stakeholder coordination. I supported service expansions and go-lives involving Global Mobility, onboarding, probation review, pre-employment checks and case-management workflows. I translate operational issues into clear requirements, workable procedures and testable outcomes in collaboration with clients, Operations, QA and developers.</p></section>
+        <section class="cv-section" id="cv-skills"><h2>Core <em>Skills</em></h2><div class="cv-skills"><span>Requirements Analysis &amp; Business Rules</span><span>Current-State / Gap Analysis</span><span>Process Mapping &amp; Workflow Improvement</span><span>Stakeholder Workshops &amp; Follow-up</span><span>BRDs, DTPs, Process Flows &amp; User Guides</span><span>Change Requests &amp; Impact/Effort Assessment</span><span>Implementation Support</span><span>UAT / ORT</span><span>Defect Triage &amp; Troubleshooting</span><span>HRIS / HCM Processes</span><span>Training &amp; Knowledge Transfer</span><span>Agile/Scrum Collaboration (working familiarity)</span></div></section>
+        <section class="cv-section" id="cv-experience"><h2>Professional <em>Experience</em></h2>
+          <div class="cv-job"><div class="cv-jobhead"><h3>Business Analyst</h3><span class="cv-date">DEC 2023 – MAR 2026</span></div><p class="cv-company">Conduent | Iași, Romania</p><ul>
+            <li>Analysed HR service workflows, Statements of Work, process flows, Configuration Workbooks and country handovers to identify gaps and local exceptions; gathered stakeholder input and documented requirements, business rules, BRDs, DTPs, process flows and User Guides across EMEA and LATAM.</li>
+            <li>Supported HR service expansion and go-live activities, including Global Mobility across 20+ countries and two legacy environments. Owned the template workstream, tracking hundreds of templates by country, entity, language and sub-process, and coordinated client workshops, follow-ups and deliverables.</li>
+            <li>Assessed effort, timing, resources/headcount and technical implications for Change Requests. For a probation-review rollout, created a reusable DTP and coordinated country-specific BRD sign-off, entity letters, DocuSign envelopes, ServiceNow audit steps and Operations training.</li>
+            <li>Supported UAT/ORT and defect resolution with Operations, QA, clients, testers and developers; reviewed a SharePoint backlog of gaps, defects and PBIs, compared actual versus expected behaviour, and clarified issues for investigation. Examples included a ServiceNow case-reactivation issue and a DocuSign-to-ServiceNow Case ID formatting mismatch.</li>
+            <li>Supported Austria’s HR–Payroll file-transfer implementation by documenting file-archiving and mapping, updating business rules, obtaining client sign-off, training Operations and supporting process adoption.</li>
+            <li>Delivered process and control improvements: redesigned the Brazil New Hire workflow into two stages and trained Operations; created a Power Automate flow with Copilot guidance to delete SharePoint-stored Criminal Record reports older than 30 days. Separately, built an Excel validation tool to flag Configuration Workbook issues; the broader refinement initiative was not implemented or measured before departure.</li>
+          </ul></div>
+          <div class="cv-job"><div class="cv-jobhead"><h3>Payroll Analyst</h3><span class="cv-date">MAY 2021 – NOV 2023</span></div><p class="cv-company">Conduent | Iași, Romania</p><ul><li>Managed daily payroll file exchange via SFTP and SD Worx MSP: validated client inputs, submitted data to in-country payroll providers, checked trial and final runs, EPGL/General Ledger files and payslips, and coordinated client review, approvals and payroll closure.</li><li>Investigated payroll discrepancies by reconciling input/output data, employee records, wage types and communication history with clients and providers. For a Swiss payrun issue identified after payment cut-off, proposed an off-cycle payment after an incorrect wage type affected stock taxation.</li><li>Supported service expansion and system/process changes through DTP and process-flow reviews, testing and stakeholder feedback. Adapted existing PowerShell code to automate file renaming to an agreed naming convention.</li></ul></div>
+          <div class="cv-job"><div class="cv-jobhead"><h3>HR Analyst</h3><span class="cv-date">NOV 2019 – APR 2021</span></div><p class="cv-company">Conduent | Iași, Romania</p><ul><li>Supported HR services in Workday through employee and payroll-related data maintenance, onboarding updates, time-off and one-time-payment changes, case resolution and troubleshooting; analysed reports and investigated data inconsistencies with internal teams and clients.</li></ul></div>
+          <div class="cv-job"><div class="cv-jobhead"><h3>Business Analyst</h3><span class="cv-date">SEP 2018 – MAR 2019</span></div><p class="cv-company">Conduent | Iași, Romania</p><ul><li>Supported implementation of Conduent’s in-house Case Management solution by preparing and executing UAT test cases, coordinating testers, investigating defects with Operations and developers, and reviewing PBIs in HP ALM.</li><li>Created process flows, Desktop Procedures and operational documentation to clarify workflows and support business-user adoption.</li></ul></div>
+          <div class="cv-job"><div class="cv-jobhead"><h3>HR Analyst</h3><span class="cv-date">OCT 2017 – AUG 2018</span></div><p class="cv-company">Conduent | Iași, Romania</p><ul><li>Supported Student Recruitment operations, including requisition marketing, interview coordination, candidate communication and recruitment events; analysed operational reports, created user guidance and supported team training.</li></ul></div>
+        </section>
+        <section class="cv-section" id="cv-tools"><h2>Systems &amp; <em>Tools</em></h2><p>Workday, SAP SuccessFactors Employee Central, ServiceNow, Conduent Case Management, Flowmium, DocuSign, EGJE, SD Worx MSP, SharePoint, Excel, Google Sheets, Visio, Microsoft Clipchamp, ChatGPT.</p></section>
+        <section class="cv-section" id="cv-education"><h2>Education &amp; <em>Languages</em></h2><div class="cv-columns"><div><h3>EDUCATION</h3><p><strong>Alexandru Ioan Cuza University</strong><br>Communication and Public Relations, coursework completed; no degree awarded (2014–2017).</p><p><strong>Arteveldehogeschool</strong><br>Communication Management module, Erasmus+ exchange (2015–2016).</p><p><strong>Ștefan cel Mare University</strong><br>Electrical Engineering and Computer Science, undergraduate studies (2012–2014; not completed).</p></div><div><h3>LANGUAGES</h3><p>Romanian (Native) · English (C1) · Italian (B1) · French (A1)</p><h3>DRIVING LICENSE</h3><p>Category B</p><h3>INTERESTS</h3><p>Running · Sudoku · Calisthenics · Hiking · Music · Creative Writing</p></div></div></section>
+        <a class="cv-back" href="#gd-top">↑ BACK TO THE GREEN DREAM</a>
+      </div>
+    </section>
+
   </main>
   <footer class="gd-footer"><a class="gd-brand" href="#gd-top"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="#gd-top">BACK TO SURFACE ↑</a></footer>
 </div>
