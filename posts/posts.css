@@ -484,3 +484,23 @@
 @media(max-width:560px){.posts-back-top{right:12px;bottom:12px;padding:9px 10px}.posts-back-top span{font-size:8px}}
 /* The CV remains a single full-width panel after Poetry moved into its own archive. */
 .gd-lower{grid-template-columns:minmax(0,1fr)!important}
+
+
+/* Authenticated post-header edit action. */
+.post-edit-button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  align-self:flex-start;
+  border:1px solid var(--viewer-accent,#b6e833);
+  padding:5px 7px;
+  color:var(--viewer-accent,#b6e833)!important;
+  background:rgba(5,9,6,.8);
+  font:700 9px/1.2 ui-monospace,monospace;
+  letter-spacing:.8px;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.post-edit-button:hover{background:var(--viewer-accent,#b6e833);color:#050906!important}
+.posts-list:has(.post-back) .post-card-top{align-items:center;flex-wrap:wrap}
