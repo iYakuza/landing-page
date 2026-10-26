@@ -39,10 +39,13 @@
       const targetId = button.getAttribute("data-cv-target");
       const target = document.getElementById(targetId);
       if (target) {
-        target.scrollIntoView({behavior:"smooth",block:"start"});
         if (embedded) {
           const frame = hostDoc.querySelector('iframe.gd-cv-frame');
-          frame?.scrollIntoView({behavior:"smooth",block:"start"});
+          const frameTop = frame ? frame.getBoundingClientRect().top + hostDoc.defaultView.scrollY : 0;
+          const targetTop = frameTop + target.getBoundingClientRect().top;
+          hostDoc.defaultView.scrollTo({top:Math.max(0,targetTop-18),behavior:"smooth"});
+        } else {
+          target.scrollIntoView({behavior:"smooth",block:"start"});
         }
       }
     }));
