@@ -341,3 +341,24 @@ body.gd-home .gd-radio{
 /* Keep draggable duel controls inside the arena, not the viewport. */
 #tetris-arena-controls{position:absolute!important;z-index:20!important;max-width:calc(100% - 24px)!important;right:auto!important;bottom:auto!important}
 @media(max-width:760px){#tetris-arena-controls{max-width:calc(100% - 16px)!important}}
+
+/* AFTER HOURS DUEL — cohesive in-arena HUD */
+.tetris-listening-arena{position:relative;overflow:hidden}
+#tetris-arena-controls{
+  position:absolute!important;z-index:20!important;top:12px!important;left:12px!important;
+  right:auto!important;bottom:auto!important;transform:none!important;
+  width:max-content;max-width:calc(100% - 24px)!important;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  padding:9px 11px!important;border:1px solid #b6e83360!important;
+  border-radius:4px;background:rgba(4,9,6,.94)!important;
+  box-shadow:0 8px 26px #0007,0 0 22px #b6e8330b;backdrop-filter:blur(12px);
+}
+#tetris-drag-handle{cursor:grab!important;white-space:nowrap}
+#tetris-drag-handle:active{cursor:grabbing!important}
+#tetris-status{min-width:95px}
+.tetris-controls-help{display:flex;flex-basis:100%;justify-content:space-between;gap:16px;padding-top:6px;border-top:1px solid #d8ff3e20}
+@media(max-width:760px){
+  #tetris-arena-controls{top:8px!important;left:8px!important;max-width:calc(100% - 16px)!important;gap:5px;padding:7px!important}
+  #tetris-status{min-width:80px}
+  .tetris-controls-help{gap:9px}
+}
