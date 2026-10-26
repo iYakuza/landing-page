@@ -39,7 +39,7 @@
     function newPlayer(p){p.board=blankBoard();p.active=null;p.score=0;p.lines=0;p.over=false;p.won=false;p.dropClock=0;spawn(p);}
     function restart(){
       const w=Math.max(5,Math.floor((width-24)/(cell*2))-1);
-      cols=w;rows=Math.max(10,Math.floor((height-120)/cell));
+      cols=w;rows=Math.max(10,Math.floor((height-190)/cell));
       players=[makePlayer("PLAYER 1","#b6e833",{left:"a",right:"d",rotate:"w",down:"s",drop:" "}),makePlayer("PLAYER 2","#54d7ef",{left:"arrowleft",right:"arrowright",rotate:"arrowup",down:"arrowdown",drop:"enter"})];
       players.forEach(newPlayer);
       mode=modeSelect?.value||"time";remaining=MODES[mode].seconds;running=true;finished=false;last=performance.now();matchStart=last;
@@ -50,7 +50,7 @@
       dpr=Math.min(window.devicePixelRatio||1,1.5);width=canvas.parentElement.clientWidth;height=canvas.parentElement.clientHeight;
       cell=Math.max(13,Math.min(25,Math.floor(Math.min((width/2-36)/10,(height-88)/20))));
       canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);canvas.style.width=width+"px";canvas.style.height=height+"px";ctx.setTransform(dpr,0,0,dpr,0,0);
-      const newCols=Math.max(5,Math.floor((width-24)/(cell*2))-1),newRows=Math.max(10,Math.floor((height-78)/cell));
+      const newCols=Math.max(5,Math.floor((width-24)/(cell*2))-1),newRows=Math.max(10,Math.floor((height-190)/cell));
       if(!players.length){cols=newCols;rows=newRows;players=[makePlayer("PLAYER 1","#b6e833",{left:"a",right:"d",rotate:"w",down:"s",drop:" "}),makePlayer("PLAYER 2","#54d7ef",{left:"arrowleft",right:"arrowright",rotate:"arrowup",down:"arrowdown",drop:"enter"})];players.forEach(newPlayer);return;}
       if(newCols!==cols||newRows!==rows){
         cols=newCols;rows=newRows;
@@ -120,7 +120,7 @@
     }
     function drawPlayer(p,index){
       const areaW=width/2,boardW=cols*cell,boardH=rows*cell;
-      const ox=index*areaW+(areaW-boardW)/2,oy=112;
+      const ox=index*areaW+(areaW-boardW)/2,oy=166;
       ctx.save();ctx.translate(ox,oy);
       ctx.fillStyle="rgba(3,8,5,.48)";ctx.fillRect(-8,-8,boardW+16,boardH+16);
       ctx.strokeStyle=p.color;ctx.globalAlpha=.28;ctx.lineWidth=1;
@@ -129,7 +129,7 @@
       p.board.forEach((row,y)=>row.forEach((color,x)=>{if(color)drawBlock(x,y,color,.78);}));
       if(p.active)p.active.m.forEach((row,r)=>row.forEach((v,c)=>{if(v)drawBlock(p.active.x+c,p.active.y+r,p.active.color,.96);}));
       ctx.restore();
-      ctx.save();ctx.fillStyle=p.color;ctx.font="bold 12px monospace";ctx.textAlign="center";ctx.fillText(p.name,ox+boardW/2,78);
+      ctx.save();ctx.fillStyle=p.color;ctx.font="bold 12px monospace";ctx.textAlign="center";ctx.fillText(p.name,ox+boardW/2,148);
       ctx.font="11px monospace";ctx.fillText("SCORE "+String(p.score).padStart(5,"0")+"  /  LINES "+String(p.lines).padStart(2,"0"),ox+boardW/2,oy+boardH+18);
       ctx.restore();
     }
@@ -138,11 +138,11 @@
       ctx.fillStyle="rgba(3,8,5,.12)";ctx.fillRect(0,0,width,height);
       ctx.strokeStyle="rgba(182,232,51,.18)";ctx.beginPath();ctx.moveTo(width/2,0);ctx.lineTo(width/2,height);ctx.stroke();
       players.forEach(drawPlayer);
-      ctx.fillStyle="rgba(3,8,5,.85)";ctx.fillRect(0,0,width,27);
+      ctx.fillStyle="rgba(3,8,5,.85)";ctx.fillRect(0,0,width,94);
       ctx.fillStyle="#d8f6b6";ctx.font="11px monospace";ctx.textAlign="center";
       const timer=MODES[mode].seconds?Math.max(0,remaining):null;
-      ctx.fillText("VERSE AFTER HOURS // 1V1 TETRIS",width/2,17);
-      if(timer!==null){ctx.fillStyle="#b6e833";ctx.fillText("TIME "+Math.ceil(timer)+"s",width/2,45);}
+      ctx.fillText("VERSE AFTER HOURS // 1V1 TETRIS",width/2,108);
+      if(timer!==null){ctx.fillStyle="#b6e833";ctx.fillText("TIME "+Math.ceil(timer)+"s",width/2,128);}
       if(!running&&!finished){ctx.fillStyle="rgba(2,5,3,.65)";ctx.fillRect(0,0,width,height);ctx.fillStyle="#d8f6b6";ctx.font="bold 18px monospace";ctx.fillText("PRESS START TO DUEL",width/2,height/2);}
       if(!running&&finished){ctx.fillStyle="rgba(2,5,3,.72)";ctx.fillRect(0,0,width,height);ctx.fillStyle="#b6e833";ctx.font="bold 18px monospace";ctx.fillText("MATCH COMPLETE",width/2,height/2);}
       if(!running&&!finished){ctx.fillStyle="#c9f68b";ctx.font="11px monospace";ctx.fillText("P1 WASD + SPACE  //  P2 ARROWS + ENTER",width/2,height/2+24);}
