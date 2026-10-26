@@ -108,37 +108,35 @@
   function initFallingTetris(){
     const canvas=document.getElementById("falling-tetris-bg");
     if(!canvas||!canvas.getContext)return;
-    if(window.matchMedia?.("(prefers-reduced-motion: reduce)").matches)return;
     const ctx=canvas.getContext("2d"); if(!ctx)return;
-    const COLS=10,ROWS=20;
     const SHAPES=[
       [[1,1,1,1]], [[1,0,0],[1,1,1]], [[0,0,1],[1,1,1]],
       [[1,1],[1,1]], [[0,1,1],[1,1,0]], [[0,1,0],[1,1,1]],
       [[1,1,0],[0,1,1]]
     ];
     const COLORS=["#b6e833","#a98bff","#54d7ef","#f2f4e8","#76e6a6","#ff70c8","#f2c85b"];
-    let width=0,height=0,dpr=1,cell=24,left=0,top=0,last=0,dropClock=0,raf=0,paused=false,over=false,score=0,lines=0;
+    let width=0,height=0,dpr=1,cell=32,cols=0,rows=0,last=0,dropClock=0,raf=0,paused=false,over=false,score=0,lines=0;
     let board=[],active=null;
-    function newBoard(){return Array.from({length:ROWS},()=>Array(COLS).fill(null));}
+    function newBoard(){return Array.from({length:rows},()=>Array(cols).fill(null));}
     function clone(m){return m.map(row=>row.slice());}
     function spawn(){
       const i=Math.floor(Math.random()*SHAPES.length);
-      active={m:clone(SHAPES[i]),x:Math.floor((COLS-SHAPES[i][0].length)/2),y:0,color:COLORS[i]};
+      active={m:clone(SHAPES[i]),x:Math.max(0,Math.floor((cols-SHAPES[i][0].length)/2)),y:0,color:COLORS[i]};
       if(collides(active.m,active.x,active.y))over=true;
     }
     function collides(m,x,y){
       for(let r=0;r<m.length;r++)for(let c=0;c<m[r].length;c++)if(m[r][c]){
         const bx=x+c,by=y+r;
-        if(bx<0||bx>=COLS||by>=ROWS||(by>=0&&board[by][bx]))return true;
+        if(bx<0||bx>=cols||by>=rows||(by>=0&&board[by][bx]))return true;
       }
       return false;
     }
     function lock(){
-      active.m.forEach((row,r)=>row.forEach((v,c)=>{if(v&&active.y+r>=0)board[active.y+r][active.x+c]=active.color;}));
+      active.m.forEach((row,r)=>row.forEach((v,c)=>{if(v&&active.y+r>=0&&active.x+c>=0&&active.x+c<cols)board[active.y+r][active.x+c]=active.color;}));
       let cleared=0;
       board=board.filter(row=>{if(row.every(Boolean)){cleared++;return false;}return true;});
-      while(board.length<ROWS)board.unshift(Array(COLS).fill(null));
-      if(cleared){lines+=cleared;score+=[0,100,300,500,800][cleared]||800;}
+      while(board.length<rows)board.unshift(Array(cols).fill(null));
+      if(cleared){lines+=cleared;score+=[0,100,300,500,800][cleared]||cleared*250;}
       spawn();
     }
     function move(dx,dy=0){
@@ -154,46 +152,57 @@
     function hardDrop(){if(!active||over||paused)return;while(!collides(active.m,active.x,active.y+1)){active.y++;score+=2;}lock();}
     function restart(){board=newBoard();score=0;lines=0;over=false;paused=false;dropClock=0;spawn();}
     function resize(){
+      const oldCols=cols,oldRows=rows;
       dpr=Math.min(window.devicePixelRatio||1,1.5);width=window.innerWidth;height=window.innerHeight;
-      cell=Math.max(16,Math.min(27,Math.floor(Math.min((height-80)/ROWS,(width-24)/COLS,27))));
-      left=Math.round((width-COLS*cell)/2);top=Math.round((height-ROWS*cell)/2);
+      cell=Math.max(22,Math.min(38,Math.floor(Math.min(width/Math.max(1,Math.floor(width/32)),height/Math.max(1,Math.floor(height/32))))||32);
+      cols=Math.max(10,Math.floor(width/cell));rows=Math.max(12,Math.floor(height/cell));
       canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);
       canvas.style.width=width+"px";canvas.style.height=height+"px";
       ctx.setTransform(dpr,0,0,dpr,0,0);
+      if(!board.length){board=newBoard();return;}
+      if(cols!==oldCols||rows!==oldRows){
+        const next=Array.from({length:rows},()=>Array(cols).fill(null));
+        const copyRows=Math.min(rows,board.length),copyCols=Math.min(cols,oldCols);
+        for(let r=0;r<copyRows;r++)for(let c=0;c<copyCols;c++)next[rows-copyRows+r][c]=board[board.length-copyRows+r]?.[c]||null;
+        board=next;
+        if(active){active.x=Math.max(0,Math.min(cols-active.m[0].length,active.x));active.y=Math.max(0,Math.min(rows-active.m.length,active.y));}
+      }
     }
     function block(x,y,color,alpha){
-      const px=left+x*cell,py=top+y*cell,g=1.5;
+      const px=x*cell,py=y*cell,g=1.2;
       ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.fillRect(px+g,py+g,cell-2*g,cell-2*g);
-      ctx.globalAlpha=alpha*.65;ctx.fillStyle="#ffffff";ctx.fillRect(px+g+2,py+g+2,Math.max(1,cell*.45),Math.max(1,cell*.09));
+      ctx.globalAlpha=alpha*.58;ctx.fillStyle="#ffffff";ctx.fillRect(px+g+2,py+g+2,Math.max(1,cell*.4),Math.max(1,cell*.075));
       ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.lineWidth=1;ctx.strokeRect(px+g+.5,py+g+.5,cell-2*g-1,cell-2*g-1);
     }
-    function textLine(text,x,y,align="left",alpha=.75){
-      ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle="#c9f68b";ctx.font="10px monospace";ctx.textAlign=align;ctx.fillText(text,x,y);ctx.restore();
+    function textLine(text,x,y,align="left",alpha=.72){
+      ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle="#c9f68b";ctx.font="11px monospace";ctx.textAlign=align;ctx.fillText(text,x,y);ctx.restore();
     }
     function draw(){
       ctx.clearRect(0,0,width,height);
-      // A restrained arcade board floats behind the archive content.
-      ctx.save();ctx.fillStyle="#07100b";ctx.globalAlpha=.12;ctx.fillRect(left,top,COLS*cell,ROWS*cell);
-      ctx.strokeStyle="#b6e833";ctx.globalAlpha=.2;ctx.lineWidth=1;
-      for(let c=0;c<=COLS;c++){ctx.beginPath();ctx.moveTo(left+c*cell,top);ctx.lineTo(left+c*cell,top+ROWS*cell);ctx.stroke();}
-      for(let r=0;r<=ROWS;r++){ctx.beginPath();ctx.moveTo(left,top+r*cell);ctx.lineTo(left+COLS*cell,top+r*cell);ctx.stroke();}
-      ctx.strokeStyle="#b6e833";ctx.globalAlpha=.65;ctx.strokeRect(left+.5,top+.5,COLS*cell-1,ROWS*cell-1);ctx.restore();
-      board.forEach((row,y)=>row.forEach((color,x)=>{if(color)block(x,y,color,.48);}));
-      if(active)active.m.forEach((row,r)=>row.forEach((v,c)=>{if(v)block(active.x+c,active.y+r,active.color,.82);}));
-      textLine("WASD  /  A D MOVE  ·  W ROTATE  ·  S DROP",left,Math.max(16,top-12),"left",.72);
-      textLine("SCORE "+String(score).padStart(5,"0")+"   LINES "+String(lines).padStart(2,"0"),left+COLS*cell,Math.max(16,top-12),"right",.72);
-      textLine("SPACE HARD DROP  ·  P PAUSE  ·  R RESTART",left+COLS*cell,Math.min(height-8,top+ROWS*cell+17),"right",.62);
+      // A screen-wide field: no small centered playfield, just a faint full-screen grid.
+      ctx.save();ctx.fillStyle="#07100b";ctx.globalAlpha=.045;ctx.fillRect(0,0,width,height);
+      ctx.strokeStyle="#b6e833";ctx.globalAlpha=.09;ctx.lineWidth=1;
+      for(let c=0;c<=cols;c++){ctx.beginPath();ctx.moveTo(c*cell,0);ctx.lineTo(c*cell,rows*cell);ctx.stroke();}
+      for(let r=0;r<=rows;r++){ctx.beginPath();ctx.moveTo(0,r*cell);ctx.lineTo(cols*cell,r*cell);ctx.stroke();}
+      ctx.restore();
+      board.forEach((row,y)=>row.forEach((color,x)=>{if(color)block(x,y,color,.62);}));
+      if(active)active.m.forEach((row,r)=>row.forEach((v,c)=>{if(v)block(active.x+c,active.y+r,active.color,.88);}));
+      // Compact status sits at the top edge; the falling field remains the visual background.
+      ctx.save();ctx.fillStyle="rgba(3,8,5,.62)";ctx.fillRect(0,0,width,28);ctx.restore();
+      textLine("TRANSMISSIONS // LIVE FIELD",16,18,"left",.78);
+      textLine("WASD MOVE / W ROTATE / S DROP  ·  SPACE HARD DROP  ·  P PAUSE  ·  R RESET",width/2,18,"center",.72);
+      textLine("SCORE "+String(score).padStart(5,"0")+"  LINES "+String(lines).padStart(2,"0"),width-16,18,"right",.78);
       if(paused||over){
-        ctx.save();ctx.fillStyle="#030705";ctx.globalAlpha=.78;ctx.fillRect(left,top,COLS*cell,ROWS*cell);
-        ctx.globalAlpha=1;ctx.fillStyle="#b6e833";ctx.textAlign="center";ctx.font="bold 15px monospace";
-        ctx.fillText(over?"SIGNAL STACKED":"PAUSED",left+COLS*cell/2,top+ROWS*cell/2);
-        ctx.font="10px monospace";ctx.fillText(over?"PRESS R TO RESTART":"PRESS P TO RESUME",left+COLS*cell/2,top+ROWS*cell/2+22);ctx.restore();
+        ctx.save();ctx.fillStyle="rgba(3,7,4,.74)";ctx.fillRect(0,0,width,height);
+        ctx.globalAlpha=1;ctx.fillStyle="#b6e833";ctx.textAlign="center";ctx.font="bold 18px monospace";
+        ctx.fillText(over?"FIELD SATURATED":"FIELD PAUSED",width/2,height/2);
+        ctx.font="12px monospace";ctx.fillText(over?"PRESS R TO CLEAR THE FIELD":"PRESS P TO RESUME",width/2,height/2+26);ctx.restore();
       }
     }
     function tick(now){
       raf=0;if(document.hidden)return;
       const dt=Math.min((now-last)/1000||0,.05);last=now;
-      if(!paused&&!over){dropClock+=dt;if(dropClock>(Math.max(.16,.72-lines*.025))){dropClock=0;move(0,1);}}
+      if(!paused&&!over){dropClock+=dt;if(dropClock>(Math.max(.16,.72-lines*.012))){dropClock=0;move(0,1);}}
       draw();raf=requestAnimationFrame(tick);
     }
     function start(){if(!raf&&!document.hidden){last=performance.now();raf=requestAnimationFrame(tick);}}
