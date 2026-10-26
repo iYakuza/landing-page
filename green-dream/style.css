@@ -6,3 +6,5 @@
 
 /* Accessible keyboard focus and reduced-motion support */
 .gd a:focus-visible,.gd button:focus-visible{outline:2px solid var(--acid);outline-offset:4px}.gd button:disabled{opacity:.5;cursor:not-allowed}.gd .gd-radio-head button{min-width:30px;min-height:30px}@media(prefers-reduced-motion:reduce){.gd *, .gd *::before,.gd *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+.gd-skip{position:fixed;z-index:99;top:8px;left:8px;transform:translateY(-160%);background:var(--acid);color:#050906;padding:12px 16px;font-size:12px;font-weight:700}.gd-skip:focus{transform:translateY(0)}
