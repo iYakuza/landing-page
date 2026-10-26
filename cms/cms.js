@@ -106,7 +106,14 @@
       let query=client.from('vha_posts');
       const result=editingId?await query.update(payload).eq('id',editingId).select().single():await query.insert(payload).select().single();
       if(result.error)throw result.error;
-      editingId=result.data.id;slugManuallyEdited=true;setStatus(status.toUpperCase());message(saveMessage,status==='published'?'Published. It is now visible in the public archive.':'Draft saved. It remains private.');
+      editingId=result.data.id;slugManuallyEdited=true;setStatus(status.toUpperCase());
+      if(status==='published'){
+        const postUrl=new URL('../posts/',window.location.href);
+        postUrl.searchParams.set('post',result.data.slug);
+        window.location.assign(postUrl.toString());
+        return;
+      }
+      message(saveMessage,'Draft saved. It remains private.');
       await loadPosts();renderPosts();
     }catch(err){message(saveMessage,err.message||'Could not save this post.',true);}
     finally{saving=false;$('save-draft').disabled=false;$('publish-post').disabled=false;}
