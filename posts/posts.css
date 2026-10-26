@@ -417,3 +417,61 @@
 #falling-tetris-bg,
 #tetris-arena-controls,
 .tetris-listening-arena{display:none!important;visibility:hidden!important;}
+
+
+/* LOCAL THEME STUDIO — compact, quiet, and less clustered. */
+.viewer-console{
+  margin:0 0 22px!important;
+  padding:16px 18px!important;
+  border:1px solid var(--theme-border)!important;
+  border-radius:4px;
+  background:var(--theme-surface)!important;
+  box-shadow:none!important;
+}
+.viewer-console:before{display:none!important}
+.viewer-console-head{gap:12px!important;margin:0!important;align-items:center!important}
+.viewer-console-head h2{font-size:clamp(18px,2vw,24px)!important;line-height:1.15;margin:0!important}
+.viewer-console-head .gd-kicker{margin:0 0 4px!important;font-size:8px!important;letter-spacing:1px!important}
+.viewer-live{font-size:8px!important;letter-spacing:.6px!important;opacity:.7}
+.viewer-live i{width:5px;height:5px;margin-right:5px;box-shadow:none!important;animation:none!important}
+.theme-studio-intro{font-size:11px!important;line-height:1.5!important;max-width:680px!important;margin:8px 0 14px!important}
+.theme-studio-layout{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)!important;gap:16px!important;align-items:start}
+.theme-preset-side{min-width:0}
+.theme-preset-side .viewer-label,.theme-prompt .viewer-label{font-size:8px!important;letter-spacing:.8px!important;margin-bottom:7px!important}
+.theme-swatches{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important}
+.theme-swatch{padding:6px!important;gap:7px!important;font-size:7px!important;letter-spacing:.2px!important;background:transparent!important;box-shadow:none!important}
+.theme-swatch:hover,.theme-swatch.is-active{transform:none!important;box-shadow:none!important}
+.swatch{flex-basis:17px!important;width:17px!important;height:17px!important;box-shadow:none!important}
+.theme-scope{display:none!important}
+.theme-prompt{padding:10px!important;border:1px solid var(--theme-border)!important;background:transparent!important}
+.theme-prompt-hint{font-size:10px!important;line-height:1.45!important;margin:0 0 8px!important}
+.theme-prompt textarea{min-height:64px!important;padding:9px!important;font-size:11px!important;line-height:1.5!important;background:var(--theme-page)!important;box-shadow:none!important}
+.theme-prompt textarea:focus{box-shadow:none!important}
+.theme-prompt-examples{gap:5px!important;margin-top:7px!important}
+.theme-prompt-examples button{padding:5px 6px!important;font-size:7px!important;letter-spacing:.2px!important;background:transparent!important}
+.theme-generate{margin-top:8px!important;padding:9px 10px!important;font-size:9px!important;letter-spacing:.5px!important;box-shadow:none!important}
+.theme-status{margin:8px 0 0!important;font-size:8px!important;line-height:1.45!important;letter-spacing:.2px!important}
+.theme-progress{margin-top:10px!important}
+.theme-progress-track{height:4px!important}
+.theme-progress-track span{box-shadow:none!important}
+.theme-progress-meta{margin-top:5px!important;font-size:7px!important;letter-spacing:.4px!important}
+.theme-result{margin-top:10px!important;padding:10px!important;gap:10px!important}
+.theme-result strong{font-size:9px!important}
+.theme-result p{font-size:10px!important;line-height:1.45!important}
+.theme-result-actions{gap:5px!important}
+.theme-result-actions button{padding:7px 8px!important;font-size:8px!important}
+@media(max-width:720px){
+  .viewer-console{padding:13px!important}
+  .viewer-console-head{align-items:flex-start!important}
+  .viewer-live{white-space:normal!important;text-align:right}
+  .theme-studio-layout{grid-template-columns:1fr!important;gap:12px!important}
+  .theme-swatches{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+  .theme-swatch{flex-direction:column!important;align-items:flex-start!important;gap:4px!important;font-size:6px!important;overflow-wrap:anywhere}
+  .swatch{flex-basis:15px!important;width:15px!important;height:15px!important}
+}
+@media(max-width:420px){
+  .viewer-console-head{flex-direction:column!important;align-items:flex-start!important}
+  .viewer-live{text-align:left}
+  .theme-swatches{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .theme-prompt-examples button{font-size:6px!important}
+}
