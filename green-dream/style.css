@@ -542,3 +542,11 @@ body.gd-home .gd-radio{
 .tetris-online-bar #tetris-online-status{flex:1 1 100%;color:#b6e833}
 .tetris-online-bar [hidden]{display:none!important}
 @media(max-width:600px){.tetris-online-bar{gap:6px}.tetris-online-bar button{font-size:10px;padding:8px}.tetris-online-bar input{width:90px}}
+
+/* SUNO external transmission in the media playlist */
+.gd-suno-row{display:flex;align-items:center;gap:14px;text-decoration:none;cursor:pointer;border:1px solid #b6e83366;background:linear-gradient(90deg,#101b10,#080d09);padding:14px;margin-bottom:10px;color:#e9f2e8;transition:border-color .2s,background .2s}
+.gd-suno-row:hover{border-color:var(--acid);background:#111d11}
+.gd-suno-row .gd-media-track{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}
+.gd-suno-row .gd-media-track strong{font-size:11px;letter-spacing:.4px;overflow-wrap:anywhere}
+.gd-suno-row .gd-media-track small{font:8px monospace;letter-spacing:1px;color:var(--acid)}
+.gd-suno-open{color:var(--acid);font-size:20px}
