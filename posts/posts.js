@@ -20,7 +20,7 @@
     function clean(node){[...node.childNodes].forEach(child=>{
       if(child.nodeType===Node.TEXT_NODE)return;
       if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
-      if(!allowed.has(child.tagName)){child.replaceWith(...child.childNodes);return;}
+      if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
       [...child.attributes].forEach(a=>child.removeAttribute(a.name));
       if(child.tagName==='A'){const href=(child.getAttribute('href')||'').trim();if(/^(https?:|mailto:)/i.test(href)){child.setAttribute('href',href);child.setAttribute('target','_blank');child.setAttribute('rel','noopener noreferrer');}}
       clean(child);
