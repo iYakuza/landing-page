@@ -12,16 +12,16 @@
   <style>
 
     /* After Hours Duel: interactive game section on the landing page */
-    .gd-home .gd-listening{display:flex;flex-wrap:wrap;align-items:flex-start;gap:30px;padding:clamp(42px,6vw,80px) 6vw;background:linear-gradient(110deg,#101c11,#070a08);border-top:1px solid #d8ff3e25}
-    .gd-home .gd-listening-intro{max-width:760px;flex:1 1 100%}
+    .gd-home .gd-listening{display:block!important;width:100%;box-sizing:border-box;padding:clamp(42px,6vw,80px) 6vw;background:linear-gradient(110deg,#101c11,#070a08);border-top:1px solid #d8ff3e25}
+    .gd-home .gd-listening-intro{display:block;width:100%;max-width:760px;margin:0 0 30px}
     .gd-home .gd-listening h2{font-size:clamp(30px,5vw,60px);letter-spacing:-2px;line-height:.95;margin:0}
     .gd-home .gd-listening h2 em{font-style:normal;color:#d8ff3e}
     .gd-home .gd-listening p:not(.gd-kicker){font-size:13px;line-height:1.9;color:#aebbad;max-width:680px}
-    .gd-home .tetris-room-intro{flex:0 0 100%;max-width:none;margin-top:8px;padding-top:25px;border-top:1px solid #d8ff3e30}
+    .gd-home .tetris-room-intro{display:block;width:100%;max-width:none;box-sizing:border-box;margin:30px 0 0;padding-top:25px;border-top:1px solid #d8ff3e30}
     .gd-home .tetris-room-intro h3{font-size:clamp(30px,5vw,56px);line-height:.95;letter-spacing:-.06em;margin:0 0 14px;color:#e9f2e8}
     .gd-home .tetris-room-intro h3 em{font-style:normal;color:#d8ff3e}
     .gd-home .tetris-room-intro p:not(.gd-kicker){max-width:680px;color:#aebbad;font-size:12px;line-height:1.8}
-    .gd-home .tetris-listening-arena{position:relative;flex:0 0 100%;width:100%;height:min(72vh,720px);min-height:540px;margin-top:10px;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#132015 0%,#050906 72%);border:1px solid #d8ff3e36;isolation:isolate}
+    .gd-home .tetris-listening-arena{display:block;position:relative;clear:both;width:100%;height:min(72vh,720px);min-height:540px;margin:24px 0 0;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#132015 0%,#050906 72%);border:1px solid #d8ff3e36;isolation:isolate}
     .gd-home #falling-tetris-bg{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:block!important;visibility:visible!important;opacity:.94!important;mix-blend-mode:screen!important;pointer-events:none!important;background:transparent!important;z-index:0!important}
     .gd-home #tetris-arena-controls{position:absolute!important;z-index:20!important;top:10px!important;left:12px!important;right:auto!important;bottom:auto!important;width:calc(100% - 24px)!important;max-width:none!important;display:flex;align-items:center;justify-content:flex-start;gap:6px 9px;flex-wrap:wrap;box-sizing:border-box;padding:7px 10px!important;background:rgba(4,9,6,.88)!important;border:1px solid rgba(182,232,51,.3)!important;border-radius:5px;backdrop-filter:blur(12px);box-shadow:0 8px 28px rgba(0,0,0,.35);font:10px/1.25 ui-monospace,monospace}
     .gd-home #tetris-drag-handle{cursor:grab!important;user-select:none;touch-action:none;padding:4px 3px;color:#b6e833;font-weight:800;letter-spacing:.04em;white-space:nowrap}
