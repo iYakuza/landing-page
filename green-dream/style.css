@@ -334,3 +334,6 @@ body.gd-home .gd-radio{
 #tetris-arena-controls{position:fixed!important;z-index:999!important;top:16px!important;left:16px!important;right:auto!important;bottom:auto!important;max-width:calc(100vw - 32px)!important;cursor:default}
 #tetris-drag-handle{cursor:grab!important}
 @media(max-width:760px){#tetris-arena-controls{max-width:calc(100vw - 16px)!important;left:8px!important;top:8px!important}}
+
+/* Single-column CV panel now that Poetry has its own archive layout. */
+.gd-lower{grid-template-columns:minmax(0,1fr)!important}
