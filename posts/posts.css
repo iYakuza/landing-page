@@ -72,3 +72,11 @@
 .posts-list:has(.post-back) .post-card h3{font-size:clamp(30px,5vw,54px)}
 .posts-list:has(.post-back) .post-body{font-size:14px;line-height:2}
 .posts-list:has(.post-back) .post-details{border-top:0;padding-top:10px}
+
+
+/* TWO-COLUMN TETRIS GRID: preserve source order, with post #2 always top-right. */
+.posts-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;column-gap:14px;row-gap:14px;columns:unset;column-fill:unset}
+.posts-list .post-card{display:block;width:100%;margin:0;align-self:start;break-inside:auto}
+@media(max-width:600px){.posts-list{grid-template-columns:minmax(0,1fr);column-gap:0;row-gap:14px}}
+.posts-list:has(.post-back){display:block;max-width:900px}
+.posts-list:has(.post-back) .post-card{display:block;width:100%;margin:0}
