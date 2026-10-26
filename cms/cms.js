@@ -9,7 +9,12 @@
   const postForm = $('post-form'), managePosts = $('manage-posts'), saveMessage = $('save-message');
   const titleInput = $('post-title'), slugInput = $('post-slug'), categoryInput = $('post-category');
   const excerptInput = $('post-excerpt'), contentEditor = $('post-content');
+  const mediaInput = $('post-media'), mediaPreview = $('media-preview'), mediaMessage = $('media-message');
   let currentUser = null, allPosts = [], editingId = null, slugManuallyEdited = false, statusFilter = 'all', saving = false;
+  let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null;
+  const MEDIA_BUCKET = 'vha-post-media';
+  const MAX_MEDIA_BYTES = 30 * 1024 * 1024;
+  const ALLOWED_MEDIA = new Set(['image/jpeg','image/png','image/webp','image/gif','image/avif','video/mp4','video/webm','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm']);
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const slugify = value => String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,180);
   function message(el, text, error=false){el.textContent=text;el.classList.toggle('error',error);}
@@ -34,8 +39,19 @@
     }
     clean(doc.body);return doc.body.innerHTML;
   }
+  function renderMediaPreview(){
+    mediaPreview.innerHTML='';mediaPreview.hidden=!mediaUrl;$('remove-media').hidden=!mediaUrl;
+    if(!mediaUrl)return;
+    let el;
+    if(mediaType==='image'){el=document.createElement('img');el.alt='Post media preview';}
+    else if(mediaType==='video'){el=document.createElement('video');el.controls=true;}
+    else{el=document.createElement('audio');el.controls=true;}
+    el.src=mediaUrl;mediaPreview.appendChild(el);
+  }
   function blankEditor(){
     editingId=null;slugManuallyEdited=false;postForm.reset();contentEditor.innerHTML='';
+    mediaUrl=null;mediaPath=null;mediaType=null;originalMediaPath=null;renderMediaPreview();message(mediaMessage,'');
+    $('delete-post').hidden=true;
     $('editor-mode').textContent='NEW TRANSMISSION';setStatus('UNSAVED');message(saveMessage,'');
     $('save-draft').disabled=false;$('publish-post').disabled=false;
     document.querySelectorAll('.manage-item').forEach(x=>x.classList.remove('active'));
@@ -43,6 +59,8 @@
   function openPost(post){
     editingId=post.id;slugManuallyEdited=true;titleInput.value=post.title||'';slugInput.value=post.slug||'';
     categoryInput.value=post.category||'';excerptInput.value=post.excerpt||'';contentEditor.innerHTML=cleanHtml(post.content_html||'');
+    mediaUrl=post.media_url||null;mediaPath=post.media_path||null;mediaType=post.media_type||null;originalMediaPath=post.media_path||null;
+    mediaInput.value='';renderMediaPreview();message(mediaMessage,'');$('delete-post').hidden=false;
     $('editor-mode').textContent='EDIT TRANSMISSION';setStatus(post.status==='published'?'PUBLISHED':'DRAFT');
     message(saveMessage,'');renderPosts();
   }
@@ -99,14 +117,20 @@
     const title=titleInput.value.trim(),slug=slugify(slugInput.value),category=categoryInput.value.trim().toUpperCase();
     if(!title||!slug||!category){message(saveMessage,'Title, URL slug, and category are required.',true);return;}
     if(!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)){message(saveMessage,'Use a valid lowercase URL slug.',true);return;}
-    const payload={title,slug,category,excerpt:excerptInput.value.trim(),content_html:cleanHtml(contentEditor.innerHTML),status};
+    const previousSavedMediaPath=editingId?allPosts.find(p=>p.id===editingId)?.media_path||null:null;
+    const payload={title,slug,category,excerpt:excerptInput.value.trim(),content_html:cleanHtml(contentEditor.innerHTML),media_url:mediaUrl,media_path:mediaPath,media_type:mediaType,status};
     if(status==='published'&&!payload.content_html.trim()){message(saveMessage,'Add some content before publishing.',true);return;}
     saving=true;$('save-draft').disabled=true;$('publish-post').disabled=true;message(saveMessage,status==='published'?'PUBLISHING…':'SAVING DRAFT…');
     try{
       let query=client.from('vha_posts');
       const result=editingId?await query.update(payload).eq('id',editingId).select().single():await query.insert(payload).select().single();
       if(result.error)throw result.error;
-      editingId=result.data.id;slugManuallyEdited=true;setStatus(status.toUpperCase());
+      editingId=result.data.id;slugManuallyEdited=true;
+      if(previousSavedMediaPath&&previousSavedMediaPath!==mediaPath){
+        const cleanup=await client.storage.from(MEDIA_BUCKET).remove([previousSavedMediaPath]);
+        if(cleanup.error)message(mediaMessage,'Post saved, but the previous media file could not be removed: '+cleanup.error.message,true);
+      }
+      originalMediaPath=mediaPath;setStatus(status.toUpperCase());$('delete-post').hidden=false;
       if(status==='published'){
         const postUrl=new URL('../posts/',window.location.href);
         postUrl.searchParams.set('post',result.data.slug);
@@ -118,6 +142,43 @@
     }catch(err){message(saveMessage,err.message||'Could not save this post.',true);}
     finally{saving=false;$('save-draft').disabled=false;$('publish-post').disabled=false;}
   }
+  mediaInput.addEventListener('change',async()=>{
+    const file=mediaInput.files?.[0];if(!file)return;
+    if(!ALLOWED_MEDIA.has(file.type)){message(mediaMessage,'Unsupported media format. Choose an image, MP4/WebM video, or supported audio file.',true);mediaInput.value='';return;}
+    if(file.size>MAX_MEDIA_BYTES){message(mediaMessage,'That file exceeds the 30 MB limit.',true);mediaInput.value='';return;}
+    const previous={url:mediaUrl,path:mediaPath,type:mediaType};
+    mediaInput.disabled=true;message(mediaMessage,'UPLOADING MEDIA…');
+    try{
+      const safeName=file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-').replace(/^-+|-+$/g,'').slice(-100)||'upload';
+      const path=currentUser.id+'/'+crypto.randomUUID()+'-'+safeName;
+      const {error}=await client.storage.from(MEDIA_BUCKET).upload(path,file,{contentType:file.type,upsert:false,cacheControl:'3600'});
+      if(error)throw error;
+      const {data}=client.storage.from(MEDIA_BUCKET).getPublicUrl(path);
+      mediaUrl=data.publicUrl;mediaPath=path;mediaType=file.type.startsWith('image/')?'image':file.type.startsWith('video/')?'video':'audio';
+      renderMediaPreview();message(mediaMessage,'Media uploaded. Save or publish the post to attach it.');setStatus('UNSAVED');
+      if(previous.path&&previous.path!==originalMediaPath)await client.storage.from(MEDIA_BUCKET).remove([previous.path]);
+    }catch(err){message(mediaMessage,err.message||'Media upload failed.',true);mediaUrl=previous.url;mediaPath=previous.path;mediaType=previous.type;renderMediaPreview();}
+    finally{mediaInput.disabled=false;}
+  });
+  $('remove-media').addEventListener('click',async()=>{
+    const path=mediaPath;mediaUrl=null;mediaPath=null;mediaType=null;mediaInput.value='';renderMediaPreview();
+    message(mediaMessage,'Media removed from this post. Save changes to confirm.');setStatus('UNSAVED');
+    if(path&&path!==originalMediaPath){const {error}=await client.storage.from(MEDIA_BUCKET).remove([path]);if(error)message(mediaMessage,'Removed from the post draft, but uploaded file cleanup failed: '+error.message,true);}
+  });
+  $('delete-post').addEventListener('click',async()=>{
+    if(!editingId||saving)return;
+    const post=allPosts.find(p=>p.id===editingId);
+    if(!confirm('Permanently delete “'+(post?.title||titleInput.value)+'”? This cannot be undone.'))return;
+    saving=true;$('delete-post').disabled=true;$('save-draft').disabled=true;$('publish-post').disabled=true;message(saveMessage,'DELETING POST…');
+    try{
+      const id=editingId,path=post?.media_path||mediaPath;
+      const {error}=await client.from('vha_posts').delete().eq('id',id);if(error)throw error;
+      let cleanupError=null;if(path){const removal=await client.storage.from(MEDIA_BUCKET).remove([path]);cleanupError=removal.error;}
+      allPosts=allPosts.filter(p=>p.id!==id);blankEditor();renderPosts();
+      message(saveMessage,cleanupError?'Post deleted, but media cleanup failed: '+cleanupError.message:'Post deleted.');
+    }catch(err){message(saveMessage,err.message||'Could not delete this post.',true);}
+    finally{saving=false;$('delete-post').disabled=false;$('save-draft').disabled=false;$('publish-post').disabled=false;}
+  });
   client?.auth.onAuthStateChange((_event,session)=>{
     if(!session){currentUser=null;showLogin();}
   });
