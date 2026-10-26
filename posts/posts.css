@@ -325,7 +325,7 @@
 
 
 /* Keep falling tetrominoes behind the archive UI, never painted over text or tiles. */
-#falling-tetris-bg{z-index:0!important;opacity:.2!important;mix-blend-mode:screen;pointer-events:none}
+#falling-tetris-bg{z-index:5!important;opacity:.42!important;mix-blend-mode:screen;pointer-events:none}
 .gd{position:relative;z-index:2;isolation:isolate}
 .gd-nav,.posts-main,.posts-main section,.posts-note,.gd-footer{position:relative;z-index:1}
 .posts-list:not(:has(.post-back)){display:flex;flex-direction:column;gap:30px}
@@ -337,3 +337,9 @@
  .posts-list:not(:has(.post-back)){gap:22px}
  .posts-list:not(:has(.post-back)) .post-blocks{gap:7px}
 }
+
+
+/* ARCHIVE TETRIS VISIBILITY: the fixed canvas must sit above the opaque .gd shell. */
+#falling-tetris-bg{position:fixed!important;inset:0!important;z-index:5!important;opacity:.42!important;visibility:visible!important;display:block!important;pointer-events:none!important}
+.gd{z-index:3!important}
+@media(max-width:640px){#falling-tetris-bg{opacity:.3!important}}
