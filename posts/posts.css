@@ -475,3 +475,12 @@
   .theme-swatches{grid-template-columns:repeat(3,minmax(0,1fr))!important}
   .theme-prompt-examples button{font-size:6px!important}
 }
+
+
+/* Transmissions navigation: discreet fixed return-to-top control. */
+.posts-back-top{position:fixed;right:22px;bottom:22px;z-index:50;display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(5,9,6,.9);border:1px solid #d8ff3e70;color:#d8ff3e;text-decoration:none;font:10px ui-monospace,monospace;letter-spacing:.8px;backdrop-filter:blur(10px);box-shadow:0 6px 24px #0005}
+.posts-back-top:hover{background:#d8ff3e;color:#071008}
+.posts-back-top:first-letter{font-size:15px}
+@media(max-width:560px){.posts-back-top{right:12px;bottom:12px;padding:9px 10px}.posts-back-top span{font-size:8px}}
+/* The CV remains a single full-width panel after Poetry moved into its own archive. */
+.gd-lower{grid-template-columns:minmax(0,1fr)!important}
