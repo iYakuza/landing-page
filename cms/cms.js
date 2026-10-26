@@ -21,6 +21,14 @@
   function showLogin(){loginPanel.hidden=false;workspace.hidden=true;setupNote.hidden=false;}
   function showWorkspace(user){loginPanel.hidden=true;workspace.hidden=false;setupNote.hidden=true;$('user-line').textContent='SIGNED IN // '+(user.email||'EDITOR');}
   function setStatus(text){$('editor-status').textContent=text;}
+  function safeLink(value){
+    try{
+      const url=new URL(String(value||''));
+      if(url.protocol==='https:'&&url.hostname)return url.href;
+      if(url.protocol==='mailto:'&&url.pathname)return url.href;
+    }catch{}
+    return '';
+  }
   function cleanHtml(html){
     const doc = new DOMParser().parseFromString(String(html||''),'text/html');
     const allowed = new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE']);
@@ -31,8 +39,9 @@
         if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
         const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
         [...child.attributes].forEach(attr=>child.removeAttribute(attr.name));
-        if(child.tagName==='A'&&/^(https?:|mailto:)/i.test(originalHref)){
-          child.setAttribute('href',originalHref);child.setAttribute('target','_blank');child.setAttribute('rel','noopener noreferrer');
+        const safeHref=child.tagName==='A'?safeLink(originalHref):'';
+        if(child.tagName==='A'&&safeHref){
+          child.setAttribute('href',safeHref);child.setAttribute('target','_blank');child.setAttribute('rel','noopener noreferrer');
         }
         clean(child);
       });
