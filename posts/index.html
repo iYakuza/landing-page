@@ -21,24 +21,27 @@
       <p class="gd-kicker">VERSE AFTER HOURS // OPEN CHANNEL</p>
       <h1>TRANSMIS<br><em>SIONS.</em></h1>
       <p class="posts-intro">Notes from the in-between. Writing, unfinished thoughts, creative experiments, and signals worth keeping.</p>
-      <div class="posts-meta"><span>PERSONAL JOURNAL / PUBLIC ARCHIVE</span><span id="post-count">SCANNING ARCHIVE…</span></div>
+      <div class="posts-meta"><span>PERSONAL JOURNAL / PUBLIC ARCHIVE</span><span id="post-count">CONNECTING…</span></div>
     </section>
     <section class="posts-content" aria-labelledby="archive-title">
       <div class="posts-heading"><div><p class="gd-kicker">INCOMING SIGNALS</p><h2 id="archive-title">LATEST <em>POSTS</em></h2></div>
         <label class="posts-search"><span class="sr-only">Search posts</span><input id="post-search" type="search" placeholder="SEARCH TRANSMISSIONS…" autocomplete="off"></label>
       </div>
-      <div id="posts-list" class="posts-list" aria-live="polite">
-        <p class="posts-empty">CONNECTING TO THE ARCHIVE…</p>
+      <div class="posts-filters">
+        <label for="category-filter">FILTER BY CATEGORY</label>
+        <select id="category-filter"><option value="">ALL CATEGORIES</option></select>
       </div>
-      <p id="posts-empty-search" class="posts-empty" hidden>NO MATCHING TRANSMISSIONS. TRY ANOTHER SEARCH.</p>
+      <div id="posts-list" class="posts-list" aria-live="polite"><p class="posts-empty">CONNECTING TO THE ARCHIVE…</p></div>
+      <p id="posts-empty-search" class="posts-empty" hidden>NO MATCHING TRANSMISSIONS. TRY ANOTHER SEARCH OR CATEGORY.</p>
     </section>
     <section class="posts-note">
       <span class="posts-note-mark">V/A</span>
-      <div><p class="gd-kicker">LEAVE A TRACE</p><h2>EVERY SIGNAL<br><em>STARTS SOMEWHERE.</em></h2><p>This is the home for new writing and ideas. Posts can be essays, poems, project notes, links, or fragments still finding their shape.</p></div>
+      <div><p class="gd-kicker">LEAVE A TRACE</p><h2>EVERY SIGNAL<br><em>STARTS SOMEWHERE.</em></h2><p>This is the home for new writing and ideas. Posts can be essays, poems, project notes, links, or fragments still finding their shape.</p><a class="posts-admin-link" href="../cms/">OPEN CREATOR CONSOLE ↗</a></div>
     </section>
   </main>
   <footer class="gd-footer"><a class="gd-brand" href="../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="#gd-top">BACK TO SURFACE ↑</a></footer>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="posts.js"></script>
 </body>
 </html>
