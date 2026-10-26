@@ -80,3 +80,8 @@
 @media(max-width:600px){.posts-list{grid-template-columns:minmax(0,1fr);column-gap:0;row-gap:14px}}
 .posts-list:has(.post-back){display:block;max-width:900px}
 .posts-list:has(.post-back) .post-card{display:block;width:100%;margin:0}
+
+
+/* Pin the archive announcement to the top-right tile, regardless of later CSS changes. */
+.posts-list:not(:has(.post-back)) #post-the-archive-is-open{grid-column:2;grid-row:1}
+@media(max-width:600px){.posts-list:not(:has(.post-back)) #post-the-archive-is-open{grid-column:1;grid-row:auto}}
