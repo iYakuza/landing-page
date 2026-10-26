@@ -34,3 +34,11 @@ Only database owners can add rows to this admin table; the browser cannot grant 
 - Never put a Supabase secret/service-role key in GitHub Pages, HTML, or JavaScript.
 - RLS permits public reads only for rows with `status = 'published'`. Drafts and all writes require an explicit row in `vha_cms_admins`.
 - The console is marked `noindex,nofollow`; this is not access control by itself. Authentication and RLS enforce access.
+
+
+## Post management and media
+
+- Select any transmission in the console to update its title, slug, category, excerpt, body, or status.
+- Use **Delete Post** in the editor to permanently remove a post. The console asks for confirmation first.
+- **Media Under Title** accepts one image, video, or audio file up to 30 MB. It appears immediately below the post title on the public archive/permalink. Save or publish after uploading to attach it.
+- Media is stored in the public `vha-post-media` Storage bucket. Public visitors can read files; uploads and deletions require an authenticated user listed in `vha_cms_admins`.
