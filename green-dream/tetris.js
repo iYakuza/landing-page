@@ -120,7 +120,7 @@
     }
     function drawPlayer(p,index){
       const areaW=width/2,boardW=cols*cell,boardH=rows*cell;
-      const ox=index*areaW+(areaW-boardW)/2,oy=92;
+      const ox=index*areaW+(areaW-boardW)/2,oy=112;
       ctx.save();ctx.translate(ox,oy);
       ctx.fillStyle="rgba(3,8,5,.48)";ctx.fillRect(-8,-8,boardW+16,boardH+16);
       ctx.strokeStyle=p.color;ctx.globalAlpha=.28;ctx.lineWidth=1;
@@ -129,7 +129,7 @@
       p.board.forEach((row,y)=>row.forEach((color,x)=>{if(color)drawBlock(x,y,color,.78);}));
       if(p.active)p.active.m.forEach((row,r)=>row.forEach((v,c)=>{if(v)drawBlock(p.active.x+c,p.active.y+r,p.active.color,.96);}));
       ctx.restore();
-      ctx.save();ctx.fillStyle=p.color;ctx.font="bold 12px monospace";ctx.textAlign="center";ctx.fillText(p.name,ox+boardW/2,38);
+      ctx.save();ctx.fillStyle=p.color;ctx.font="bold 12px monospace";ctx.textAlign="center";ctx.fillText(p.name,ox+boardW/2,78);
       ctx.font="11px monospace";ctx.fillText("SCORE "+String(p.score).padStart(5,"0")+"  /  LINES "+String(p.lines).padStart(2,"0"),ox+boardW/2,oy+boardH+18);
       ctx.restore();
     }
@@ -168,12 +168,12 @@
       dragHandle.addEventListener("pointerdown",e=>{
         if(e.button!==0&&e.pointerType!=="touch")return;
         dragging=true;const r=controls.getBoundingClientRect();offsetX=e.clientX-r.left;offsetY=e.clientY-r.top;
-        controls.style.setProperty("left",r.left+"px","important");controls.style.setProperty("top",r.top+"px","important");controls.style.setProperty("right","auto","important");controls.style.setProperty("bottom","auto","important");
+        controls.style.setProperty("left",controls.offsetLeft+"px","important");controls.style.setProperty("top",controls.offsetTop+"px","important");controls.style.setProperty("right","auto","important");controls.style.setProperty("bottom","auto","important");
         dragHandle.setPointerCapture?.(e.pointerId);e.preventDefault();
       });
       dragHandle.addEventListener("pointermove",e=>{
         if(!dragging)return;
-        const r=controls.getBoundingClientRect(),left=Math.max(0,Math.min(window.innerWidth-r.width,e.clientX-offsetX)),top=Math.max(0,Math.min(window.innerHeight-r.height,e.clientY-offsetY));
+        const r=controls.getBoundingClientRect(),parent=controls.parentElement.getBoundingClientRect(),left=Math.max(0,Math.min(parent.width-r.width,e.clientX-parent.left-offsetX)),top=Math.max(0,Math.min(parent.height-r.height,e.clientY-parent.top-offsetY));
         controls.style.setProperty("left",left+"px","important");controls.style.setProperty("top",top+"px","important");
       });
       const endDrag=()=>{dragging=false;};
