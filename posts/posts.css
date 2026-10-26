@@ -290,7 +290,7 @@
 .posts-list:not(:has(.post-back)) .shape-j .post-cell-4{grid-area:2/3}
 /* O: two by two. */
 .posts-list:not(:has(.post-back)) .shape-square .post-blocks,
-.posts-list:not(:has(.post-back)) .shape-o .post-blocks{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(180px,auto)}
+.posts-list:not(:has(.post-back)) .shape-o .post-blocks{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(180px,auto))}
 /* T: three across the top, one centered below. */
 .posts-list:not(:has(.post-back)) .shape-t .post-cell-1{grid-area:1/1}
 .posts-list:not(:has(.post-back)) .shape-t .post-cell-2{grid-area:1/2}
