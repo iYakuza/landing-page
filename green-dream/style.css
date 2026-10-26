@@ -337,3 +337,7 @@ body.gd-home .gd-radio{
 
 /* Single-column CV panel now that Poetry has its own archive layout. */
 .gd-lower{grid-template-columns:minmax(0,1fr)!important}
+
+/* Keep draggable duel controls inside the arena, not the viewport. */
+#tetris-arena-controls{position:absolute!important;z-index:20!important;max-width:calc(100% - 24px)!important;right:auto!important;bottom:auto!important}
+@media(max-width:760px){#tetris-arena-controls{max-width:calc(100% - 16px)!important}}
