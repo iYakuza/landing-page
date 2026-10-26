@@ -10,7 +10,7 @@
     const status=document.getElementById("tetris-status");
     const SUPABASE_URL="https://oeyxsqocldlovhsmzcjw.supabase.co";
     const SUPABASE_KEY="sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h";
-    let online=false,isHost=false,roomCode="",roomChannel=null,lastSync=0;
+    let online=false,isHost=false,roomCode="",roomChannel=null,lastSync=0,lastInputAt=0,stateSendPending=false;
     let onlineNotice=null,roomInput=null,inviteButton=null;
 
     const SHAPES=[
@@ -111,7 +111,10 @@
       if(k==="1"||k==="2"||k==="3"||k==="4"){const map={"1":"time","2":"points","3":"sprint","4":"ranked"};if(modeSelect)modeSelect.value=map[k];restart();return;}
       if(online){
         if(isHost){if(k==="arrowleft")hostAction("left");else if(k==="arrowright")hostAction("right");else if(k==="arrowup")hostAction("rotate");else if(k==="arrowdown")hostAction("down");else if(k==="enter")hostAction("drop");}
-        else{const actionMap={arrowleft:"left",arrowright:"right",arrowup:"rotate",arrowdown:"down",enter:"drop"};if(actionMap[k]&&roomChannel)roomChannel.send({type:"broadcast",event:"input",payload:{action:actionMap[k]}});}
+        else{const actionMap={arrowleft:"left",arrowright:"right",arrowup:"rotate",arrowdown:"down",enter:"drop"};if(actionMap[k]&&roomChannel){
+            const now=performance.now();
+            if(now-lastInputAt>=70){lastInputAt=now;roomChannel.send({type:"broadcast",event:"input",payload:{action:actionMap[k]}}).catch?.(()=>{});}
+          }}
         return;
       }
       for(const p of players){
@@ -126,7 +129,13 @@
     function onlineStatus(message){if(onlineNotice)onlineNotice.textContent=message;if(status)status.textContent=message;}
     function serializeState(){return {type:"state",mode,remaining,running,finished,cols,rows,players:players.map(p=>({name:p.name,color:p.color,board:p.board,active:p.active,score:p.score,lines:p.lines,over:p.over,won:p.won,dropClock:p.dropClock}))};}
     function applyState(s){if(!s||s.type!=="state"||!Array.isArray(s.players))return;mode=s.mode||mode;remaining=Number(s.remaining)||0;running=!!s.running;finished=!!s.finished;cols=Number(s.cols)||cols;rows=Number(s.rows)||rows;players=s.players.map((p,i)=>({...makePlayer(p.name||("PLAYER "+(i+1)),p.color||COLORS[i],{}),...p,board:Array.isArray(p.board)?p.board:blankBoard()}));if(modeSelect)modeSelect.value=mode;if(startButton)startButton.textContent=finished?"↻":running?"Ⅱ":"▶";if(status)status.textContent=finished?"MATCH COMPLETE":running?MODES[mode].description:"MATCH PAUSED";}
-    function sendState(){if(online&&isHost&&roomChannel)roomChannel.send({type:"broadcast",event:"state",payload:serializeState()});}
+    function sendState(){
+      if(!online||!isHost||!roomChannel||stateSendPending)return;
+      stateSendPending=true;
+      Promise.resolve(roomChannel.send({type:"broadcast",event:"state",payload:serializeState()}))
+        .catch(()=>{})
+        .finally(()=>{stateSendPending=false;});
+    }
     function hostAction(action){if(!isHost||!players[1])return;const p=players[1];if(action==="left")move(p,-1);else if(action==="right")move(p,1);else if(action==="rotate")rotate(p);else if(action==="down")move(p,0,1);else if(action==="drop")hardDrop(p);}
     async function enterRoom(code,host){
       const client=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY);if(!client){onlineStatus("ONLINE PLAY UNAVAILABLE — CONNECTION LIBRARY FAILED");return;}
@@ -193,7 +202,7 @@
         players.forEach(p=>{if(!p.over){p.dropClock+=dt;if(p.dropClock>.68){p.dropClock=0;move(p,0,1);}}});
         if(players.every(p=>p.over))finish(players[0].score===players[1].score?"DRAW — BOTH FIELDS SATURATED":players[0].score>players[1].score?"PLAYER 1 WINS":"PLAYER 2 WINS");
       }
-      if(online&&isHost&&now-lastSync>120){lastSync=now;sendState();}
+      if(online&&isHost&&now-lastSync>400){lastSync=now;sendState();}
       draw(now);raf=requestAnimationFrame(frame);
     }
     function startLoop(){if(!raf&&!document.hidden){last=performance.now();raf=requestAnimationFrame(frame);}}
