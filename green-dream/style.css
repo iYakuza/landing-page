@@ -533,3 +533,12 @@ body.gd-home .gd-radio{
  .gd-nav nav>a,.gd-nav nav>.gd-nav-dropdown>summary{min-height:28px;font-size:8px!important}
  .gd-nav nav>.gd-nav-dropdown{align-self:center!important}
 }
+
+/* Online Tetris room controls */
+.tetris-online-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0 0;padding:12px;border:1px solid rgba(182,232,51,.22);background:rgba(3,8,5,.62);font:11px/1.5 monospace;color:#d8f6b6}
+.tetris-online-bar button{border:1px solid #b6e833;background:transparent;color:#d8f6b6;padding:9px 11px;font:inherit;cursor:pointer;letter-spacing:.04em}
+.tetris-online-bar button:hover{background:rgba(182,232,51,.12)}
+.tetris-online-bar input{width:110px;min-width:0;background:#050906;border:1px solid rgba(182,232,51,.4);color:#f2f4e8;padding:9px;font:inherit}
+.tetris-online-bar #tetris-online-status{flex:1 1 100%;color:#b6e833}
+.tetris-online-bar [hidden]{display:none!important}
+@media(max-width:600px){.tetris-online-bar{gap:6px}.tetris-online-bar button{font-size:10px;padding:8px}.tetris-online-bar input{width:90px}}
