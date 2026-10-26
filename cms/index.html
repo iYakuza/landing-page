@@ -51,14 +51,14 @@
           <form id="post-form">
             <label for="post-title">TITLE</label><input id="post-title" maxlength="180" required placeholder="Give the signal a name">
             <section class="cms-media-field" aria-labelledby="media-heading">
-              <div class="cms-label-row"><label id="media-heading" for="post-media">MEDIA UNDER TITLE</label><span class="cms-help">Image, video, or audio · max 30 MB</span></div>
-              <input id="post-media" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm,audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm">
+              <div class="cms-label-row"><label id="media-heading" for="post-media">MEDIA UNDER TITLE</label><span class="cms-help">Image or audio · max 30 MB</span></div>
+              <input id="post-media" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm">
               <div id="media-preview" class="cms-media-preview" hidden></div>
               <div class="cms-media-actions"><span id="media-message" class="cms-message" role="status"></span><button type="button" id="remove-media" class="cms-button subtle" hidden>REMOVE MEDIA</button></div>
             </section>
             <div class="cms-two-col">
               <div><label for="post-slug">URL SLUG</label><input id="post-slug" maxlength="180" required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="lowercase-words"></div>
-              <div><label for="post-category">CATEGORY</label><input id="post-category" list="category-options" maxlength="60" required placeholder="Choose or type a category"><datalist id="category-options"><option value="POETRY"><option value="FIELD NOTES"><option value="SITE NOTE"><option value="CREATIVE PROCESS"><option value="SOUND"><option value="GREEN DREAM"><option value="PERSONAL"><option value="ESSAY"></datalist></div>
+              <div><label for="post-category">MOVEMENT CATEGORY</label><select id="post-category" required><option value="">CHOOSE A MOVEMENT</option><option value="THE AWAKENING">THE AWAKENING</option><option value="THE DESCENT">THE DESCENT</option><option value="THE RECONNECTION">THE RECONNECTION</option><option value="THE TRANSFORMATION">THE TRANSFORMATION</option><option value="THE RETURN">THE RETURN</option></select></div>
             </div>
             <label for="post-excerpt">EXCERPT / DECK <small>UP TO 400 CHARACTERS</small></label><textarea id="post-excerpt" rows="3" maxlength="400" placeholder="A short signal preview for the archive…"></textarea>
             <div class="cms-label-row"><label>TRANSMISSION BODY</label><span class="cms-help">Visual editor · formatted text</span></div>
