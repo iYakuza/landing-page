@@ -14,7 +14,7 @@
   let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null;
   const MEDIA_BUCKET = 'vha-post-media';
   const MAX_MEDIA_BYTES = 30 * 1024 * 1024;
-  const ALLOWED_MEDIA = new Set(['image/jpeg','image/png','image/webp','image/gif','image/avif','video/mp4','video/webm','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm']);
+  const ALLOWED_MEDIA = new Set(['image/jpeg','image/png','image/webp','image/gif','image/avif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm']);
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const slugify = value => String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,180);
   function message(el, text, error=false){el.textContent=text;el.classList.toggle('error',error);}
