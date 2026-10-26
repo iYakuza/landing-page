@@ -13,7 +13,42 @@
 <style>
 .cv-page{min-height:100vh;background:#050906;color:#e9f2e8}.cv-wrap{width:min(1100px,90vw);margin:auto;padding:54px 0 90px}.cv-kicker{font:10px/1.8 monospace;letter-spacing:2px;color:#b6e833}.cv-hero{border:1px solid #b6e83375;background:linear-gradient(135deg,#101a11,#070b08);padding:clamp(22px,5vw,54px);position:relative}.cv-hero:after{content:"PERSONNEL FILE // ACCESS GRANTED";position:absolute;right:20px;top:18px;font:8px monospace;letter-spacing:1.2px;color:#b6e83380}.cv-name{font-size:clamp(40px,8vw,84px);line-height:.9;letter-spacing:-.07em;margin:18px 0}.cv-role{font:12px/1.8 monospace;letter-spacing:1px;color:#b6e833}.cv-contact{font-size:12px;line-height:2;color:#aebbad;overflow-wrap:anywhere}.cv-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.cv-actions a{border:1px solid #b6e833;color:#b6e833;padding:12px 15px;font:10px monospace;letter-spacing:1px}.cv-actions a.cv-primary{background:#b6e833;color:#071007;font-weight:bold}.cv-targets{margin-top:24px;padding-top:18px;border-top:1px solid #b6e83335}.cv-targets strong{display:block;font:10px monospace;letter-spacing:1px;color:#b6e833;margin-bottom:9px}.cv-targets p{font-size:12px;line-height:1.8;color:#c0cbbd;margin:0}.cv-quicklinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.cv-quicklinks a{font:10px monospace;color:#d8e7d2;border:1px solid #b6e83335;padding:7px 9px}.cv-note{font-size:11px!important;color:#91a18e!important}.cv-section{padding:30px 0;border-bottom:1px solid #b6e83335}.cv-section h2{font-size:clamp(24px,4vw,36px);margin:0 0 20px;letter-spacing:-1px}.cv-section h2 em{font-style:normal;color:#b6e833}.cv-section p,.cv-section li{font-size:13px;line-height:1.8;color:#c0cbbd}.cv-skills{display:flex;flex-wrap:wrap;gap:8px}.cv-skills span{border:1px solid #b6e83345;padding:8px 10px;font-size:10px;color:#d9e6d4}.cv-job{padding:18px 0;border-top:1px solid #b6e83325}.cv-job:first-of-type{border-top:0}.cv-jobhead{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap}.cv-job h3{margin:0;font-size:17px}.cv-date{font:10px monospace;color:#b6e833}.cv-company{font:11px monospace;color:#8e9e8c;margin:7px 0 12px}.cv-job ul{padding-left:20px;margin:10px 0}.cv-job li{padding:3px 0}.cv-columns{display:grid;grid-template-columns:1fr 1fr;gap:24px}.cv-columns h3{font-size:14px;color:#b6e833}.cv-back{display:inline-block;margin-top:28px;color:#b6e833;font:10px monospace;letter-spacing:1px}
 @media(max-width:650px){.cv-wrap{padding-top:28px}.cv-hero:after{position:static;display:block;margin-top:15px}.cv-columns{grid-template-columns:1fr}.cv-section{padding:24px 0}}
-@media print{body,.cv-page{background:#fff!important;color:#111!important}.cv-wrap{width:100%;padding:0}.cv-hero,.cv-job{background:#fff!important}.cv-name,.cv-section h2,.cv-job h3{color:#111!important}.cv-section p,.cv-section li,.cv-contact,.cv-company{color:#333!important}.cv-kicker,.cv-role,.cv-date,.cv-section h2 em,.cv-columns h3{color:#222!important}.cv-actions,.gd-nav,.cv-back{display:none!important}.cv-section,.cv-job{break-inside:avoid}}
+@page{size:A4;margin:9mm 11mm}
+@media print{
+  html,body{width:100%;margin:0!important;padding:0!important;background:#fff!important;color:#111!important;font-size:8.5pt!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .cv-page{min-height:0!important;background:#fff!important;color:#111!important}
+  .gd-nav,.gd-footer,.cv-actions,.cv-back{display:none!important}
+  .cv-wrap{width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
+  .cv-hero{padding:5mm 6mm!important;border:1px solid #777!important;background:#fff!important;break-inside:avoid}
+  .cv-hero:after{display:none!important}
+  .cv-kicker{font-size:7pt!important;line-height:1.2!important;letter-spacing:1px!important;color:#333!important;margin:0 0 2mm!important}
+  .cv-name{font-size:27pt!important;line-height:.9!important;letter-spacing:-1.5px!important;margin:2mm 0!important;color:#111!important}
+  .cv-name span{color:#111!important}
+  .cv-role{font-size:8pt!important;line-height:1.3!important;letter-spacing:.4px!important;color:#222!important;margin:2mm 0!important}
+  .cv-contact{font-size:7.5pt!important;line-height:1.45!important;color:#333!important}
+  .cv-targets{margin-top:2mm!important;padding-top:2mm!important}
+  .cv-targets strong{font-size:7pt!important;margin-bottom:1mm!important;color:#222!important}
+  .cv-targets p{font-size:7.5pt!important;line-height:1.35!important;color:#333!important}
+  .cv-quicklinks{display:none!important}
+  .cv-section{padding:3mm 0!important;border-bottom:1px solid #bbb!important;break-inside:auto!important}
+  .cv-section h2{font-size:14pt!important;line-height:1.1!important;margin:0 0 2mm!important;letter-spacing:-.3px!important;color:#111!important}
+  .cv-section h2 em,.cv-columns h3{color:#222!important}
+  .cv-section p,.cv-section li{font-size:8pt!important;line-height:1.32!important;color:#222!important}
+  .cv-section p{margin:1mm 0 2mm!important}
+  .cv-skills{gap:1.2mm!important}
+  .cv-skills span{font-size:7pt!important;padding:1mm 1.5mm!important;border:1px solid #aaa!important;color:#222!important}
+  .cv-job{padding:2mm 0!important;border-top:1px solid #ccc!important;break-inside:auto!important}
+  .cv-jobhead{gap:2mm!important;align-items:baseline!important}
+  .cv-job h3{font-size:10pt!important;line-height:1.15!important;margin:0!important;color:#111!important}
+  .cv-date{font-size:7pt!important;color:#222!important}
+  .cv-company{font-size:7pt!important;line-height:1.2!important;margin:1mm 0!important;color:#444!important}
+  .cv-job ul{padding-left:4mm!important;margin:1mm 0!important}
+  .cv-job li{font-size:7.7pt!important;line-height:1.28!important;padding:.4mm 0!important}
+  .cv-columns{grid-template-columns:1fr 1fr!important;gap:4mm!important}
+  .cv-columns h3{font-size:8pt!important;margin:1mm 0!important}
+  .cv-section h2,.cv-job h3,.cv-date,.cv-company{break-after:avoid-page!important}
+  a{color:#111!important;text-decoration:none!important}
+}
 </style>
 </head>
 <body><div class="gd cv-page" id="cv-top">
