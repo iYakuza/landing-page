@@ -73,6 +73,21 @@
     categoryFilter.innerHTML='<option value="">ALL MOVEMENTS</option>'+MOVEMENTS.map(c=>'<option value="'+safe(c)+'">'+safe(c)+'</option>').join('');
     categoryFilter.value=MOVEMENTS.includes(selected)?selected:'';
   }
+  function shareActions(post){
+    const postUrl=new URL(window.location.pathname,window.location.origin);
+    postUrl.searchParams.set('post',post.slug);
+    const url=postUrl.href, encodedUrl=encodeURIComponent(url), encodedTitle=encodeURIComponent(post.title||'Verse After Hours');
+    return '<div class="post-share" aria-label="Share this post">'+
+      '<span class="post-share-label">SHARE</span>'+
+      '<button type="button" class="post-share-action" data-share-url="'+safe(url)+'" data-share-title="'+safe(post.title||'Verse After Hours')+'">↗ SHARE</button>'+
+      '<button type="button" class="post-share-action" data-copy-share="'+safe(url)+'">COPY LINK</button>'+
+      '<a class="post-share-action" href="https://www.facebook.com/sharer/sharer.php?u='+encodedUrl+'" target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook">FACEBOOK</a>'+
+      '<a class="post-share-action" href="https://twitter.com/intent/tweet?url='+encodedUrl+'&text='+encodedTitle+'" target="_blank" rel="noopener noreferrer" aria-label="Share on X">X</a>'+
+      '<a class="post-share-action" href="https://www.linkedin.com/sharing/share-offsite/?url='+encodedUrl+'" target="_blank" rel="noopener noreferrer" aria-label="Share on LinkedIn">LINKEDIN</a>'+
+      '<a class="post-share-action" href="https://wa.me/?text='+encodedTitle+'%20'+encodedUrl+'" target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp">WHATSAPP</a>'+
+      '<a class="post-share-action" href="mailto:?subject='+encodedTitle+'&body='+encodedUrl+'" aria-label="Share by email">EMAIL</a>'+
+      '</div>';
+  }
   function render(){
     const permalink=Boolean(requestedSlug);
     const term=search.value.trim().toLowerCase(),category=categoryFilter.value;
@@ -102,7 +117,7 @@
       if(permalink){
         const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
         const editButton=canEditPosts?'<button class="post-edit-button" type="button" data-inline-edit="'+safe(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</button>':'';
-        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div><h3>'+safe(post.title)+'</h3>'+media+'<p>'+safe(post.excerpt||'')+'</p>'+body+permalinkBack+'</article>';
+        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div><h3>'+safe(post.title)+'</h3>'+media+'<p>'+safe(post.excerpt||'')+'</p>'+body+shareActions(post)+permalinkBack+'</article>';
       }
       // Archive cards: split the article into four readable cells, then arrange them as a tetromino.
       const doc=new DOMParser().parseFromString(cleanHtml(post.content_html||''),'text/html');
@@ -115,11 +130,11 @@
       pieces.forEach((piece,i)=>buckets[Math.min(3,Math.floor(i*4/Math.max(1,pieces.length)))].push(piece));
       const blockMarkup=buckets.map((bucket,blockIndex)=>{
         const editButton=canEditPosts?'<button class="post-edit-button" type="button" data-inline-edit="'+safe(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</button>':'';
-        const lead=blockIndex===0?'<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div><h3>'+safe(post.title)+'</h3>':'';
+        const lead=blockIndex===0?'<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div><h3><a class="post-title-link" href="?post='+encodeURIComponent(post.slug)+'">'+safe(post.title)+'</a></h3>':'';
         const inner=bucket.join('');
         return '<section class="post-cell post-cell-'+(blockIndex+1)+'">'+lead+(inner?'<div class="post-cell-content">'+inner+'</div>':'<span class="post-cell-index" aria-hidden="true">0'+(blockIndex+1)+'</span>')+'</section>';
       }).join('');
-      return '<article class="post-card tetris-post '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-blocks">'+blockMarkup+'</div><a class="post-open-link" href="?post='+encodeURIComponent(post.slug)+'">OPEN TRANSMISSION ↗</a></article>';
+      return '<article class="post-card tetris-post '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-blocks">'+blockMarkup+'</div><a class="post-open-link" href="?post='+encodeURIComponent(post.slug)+'">OPEN TRANSMISSION ↗</a>'+shareActions(post)+'</article>';
     }).join('');
     if(permalink){
       document.title=filtered[0].title+' // VERSE AFTER HOURS';
@@ -144,7 +159,29 @@
     if(editSaving)return;
     editModal.hidden=true;document.body.classList.remove('post-edit-open');editingPost=null;
   }
-  list.addEventListener('click',event=>{
+  list.addEventListener('click',async event=>{
+    const shareButton=event.target.closest('[data-share-url]');
+    if(shareButton){
+      event.preventDefault();
+      const shareData={title:shareButton.dataset.shareTitle||document.title,url:shareButton.dataset.shareUrl};
+      try{
+        if(navigator.share){await navigator.share(shareData);}
+        else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(shareData.url);shareButton.textContent='LINK COPIED';}
+        else {window.prompt('Copy this post link:',shareData.url);}
+      }catch(error){if(error?.name!=='AbortError')window.prompt('Copy this post link:',shareData.url);}
+      return;
+    }
+    const copyButton=event.target.closest('[data-copy-share]');
+    if(copyButton){
+      event.preventDefault();
+      const url=copyButton.dataset.copyShare;
+      try{
+        if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);}
+        else {const field=document.createElement('textarea');field.value=url;field.style.position='fixed';field.style.opacity='0';document.body.appendChild(field);field.select();document.execCommand('copy');field.remove();}
+        copyButton.textContent='LINK COPIED';
+      }catch{window.prompt('Copy this post link:',url);}
+      return;
+    }
     const button=event.target.closest('[data-inline-edit]');
     if(!button)return;
     event.preventDefault();event.stopPropagation();
