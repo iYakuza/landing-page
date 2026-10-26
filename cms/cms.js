@@ -23,7 +23,7 @@
       [...node.childNodes].forEach(child=>{
         if(child.nodeType===Node.TEXT_NODE) return;
         if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
-        if(!allowed.has(child.tagName)){child.replaceWith(...child.childNodes);return;}
+        if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
         const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
         [...child.attributes].forEach(attr=>child.removeAttribute(attr.name));
         if(child.tagName==='A'&&/^(https?:|mailto:)/i.test(originalHref)){
