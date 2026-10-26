@@ -362,3 +362,10 @@ body.gd-home .gd-radio{
   #tetris-status{min-width:80px}
   .tetris-controls-help{gap:9px}
 }
+
+
+/* DUEL HUD ALIGNMENT FIX: reserve a clean header band so the controls never cover game labels. */
+.tetris-listening-arena{padding-top:0}
+#tetris-arena-controls{left:12px!important;top:10px!important;max-width:calc(100% - 24px)!important;min-height:0;gap:6px 9px;padding:7px 10px!important}
+.tetris-controls-help{padding-top:4px;font-size:8px}
+@media(max-width:760px){#tetris-arena-controls{left:8px!important;top:8px!important;max-width:calc(100% - 16px)!important;gap:4px 6px;padding:6px!important}.tetris-controls-help{font-size:7px;gap:6px}}
