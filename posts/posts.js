@@ -189,19 +189,80 @@
     document.querySelectorAll(".theme-swatch").forEach(b=>b.addEventListener("click",()=>showPreset(b.dataset.theme)));
     document.querySelectorAll("[data-prompt]").forEach(b=>b.addEventListener("click",()=>{prompt.value=b.dataset.prompt;prompt.focus();}));
     try{const saved=JSON.parse(localStorage.getItem("vha-ai-theme")||"null");if(saved)applyTheme(saved,false);else showPreset("neon");}catch{showPreset("neon");}
-    form?.addEventListener("submit",async event=>{
-      event.preventDefault();const description=prompt.value.trim();
+    function buildLocalTheme(description){
+      const q=description.toLowerCase();
+      const baseKey=/cyberpunk|cyber punk|neon city|night city|futuristic/.test(q)?"cyber":/violet|lavender|dreamy|ethereal|poetic/.test(q)?"violet":/ember|fire|warm|sunset|orange|cinematic/.test(q)?"ember":/ocean|underwater|aquatic|blue|teal|bioluminescent/.test(q)?"ocean":/green dream|botanical|forest|nature|acid green|terminal|matrix/.test(q)?"neon":"neon";
+      const theme=JSON.parse(JSON.stringify(presets[baseKey]));
+      const setColor=(keys,value)=>{if(keys.some(k=>q.includes(k)))theme.colors.accent=value;};
+      setColor(["pink","magenta","hot pink","fuchsia"],"#ff4fd8");
+      setColor(["purple","violet","lavender"],"#b69cff");
+      setColor(["cyan","ice blue","electric blue"],"#54d7ef");
+      setColor(["orange","amber","sunset","fire"],"#ff9b54");
+      setColor(["red","crimson","blood"],"#ff4f68");
+      setColor(["gold","golden","yellow"],"#f3d35b");
+      setColor(["lime","acid green","green"],"#b6e833");
+      setColor(["turquoise","teal","mint"],"#53e7c1");
+      if(/light mode|light theme|bright background|white background|cream|ivory|paper/.test(q)){
+        theme.colors.page="#f2eee5";theme.colors.surface="#fffaf0";theme.colors.raised="#e8e0d2";
+        theme.colors.text="#20251d";theme.colors.muted="#62695e";theme.colors.border="#b8b09f";theme.colors.glow="#d8d0c0";
+        theme.layout.card=/brutalist|brutalism|raw/.test(q)?"brutalist":"paper";
+        theme.details.pattern=/grid|blueprint/.test(q)?"blueprint":"paper";
+      }
+      if(/dark|black background|midnight|noir/.test(q)){theme.colors.page="#07080b";theme.colors.surface="#111319";theme.colors.raised="#1b1f29";theme.colors.text="#f2f4f8";theme.colors.muted="#a4aab7";}
+      if(/minimal|minimalist|clean|simple/.test(q)){theme.layout.density="airy";theme.layout.columns="one";theme.layout.card="soft";theme.layout.geometry="square";theme.layout.hero="minimal";theme.details.pattern="none";theme.details.buttons="minimal";theme.details.nav="minimal";theme.details.motion="none";}
+      if(/brutalist|brutalism|raw/.test(q)){theme.layout.card="brutalist";theme.layout.geometry="square";theme.details.buttons="mechanical";theme.details.shadows="hard";theme.details.pattern="grid";}
+      if(/glass|glassmorphism|transparent|frosted/.test(q)){theme.layout.card="glass";theme.layout.geometry="rounded";theme.details.media="glow";theme.details.shadows="soft";}
+      if(/pixel|8.bit|retro game|arcade|tetris/.test(q)){theme.typography.heading="mono";theme.layout.card="pixel";theme.layout.geometry="cut-corner";theme.details.buttons="mechanical";theme.details.pattern="grid";}
+      if(/editorial|magazine|literary|bookish|serif/.test(q)){theme.typography.heading="editorial";theme.typography.body="editorial";theme.layout.card="editorial";theme.layout.columns="masonry";theme.layout.hero="editorial";theme.details.media="film";}
+      if(/condensed|narrow type|industrial/.test(q))theme.typography.heading="condensed";
+      if(/monospace|monospaced|terminal|code|hacker/.test(q)){theme.typography.heading="mono";theme.typography.body="mono";theme.details.nav="terminal";}
+      if(/large type|oversized|bold typography|expressive type/.test(q)){theme.typography.scale="expressive";theme.typography.weight="black";theme.layout.hero="poster";}
+      if(/compact|dense|tight spacing/.test(q))theme.layout.density="dense";
+      if(/spacious|airy|lots of whitespace|wide spacing/.test(q))theme.layout.density="airy";
+      if(/two columns|two-column/.test(q))theme.layout.columns="two";
+      if(/single column|one column|full width/.test(q))theme.layout.columns="one";
+      if(/masonry/.test(q))theme.layout.columns="masonry";
+      if(/mosaic|asymmetric|asymmetrical/.test(q))theme.layout.columns="mosaic";
+      if(/rounded|round corners|soft corners|pill/.test(q)){theme.layout.geometry="rounded";theme.details.buttons="pill";}
+      if(/sharp corners|square corners|angular/.test(q))theme.layout.geometry="square";
+      if(/cut corners|cyber corners/.test(q))theme.layout.geometry="cut-corner";
+      if(/botanical|leaves|plant|organic/.test(q)){theme.details.pattern="botanical";theme.layout.geometry="organic";}
+      if(/scanline|crt|vhs/.test(q))theme.details.pattern="scanlines";
+      if(/blueprint|technical drawing/.test(q))theme.details.pattern="blueprint";
+      if(/grain|film grain|analog/.test(q)){theme.details.pattern="grain";theme.details.media="film";}
+      if(/no pattern|plain background|no texture/.test(q))theme.details.pattern="none";
+      if(/polaroid|instant photo/.test(q))theme.details.media="polaroid";
+      if(/glowing media|glow|neon glow/.test(q)){theme.details.media="glow";theme.details.shadows="glow";}
+      if(/framed image|framed media|borders around media/.test(q))theme.details.media="framed";
+      if(/no animation|static|reduced motion/.test(q))theme.details.motion="none";
+      if(/energetic|animated|dynamic motion/.test(q))theme.details.motion="energetic";
+      if(/underline navigation|underlined nav/.test(q))theme.details.nav="underline";
+      if(/boxed navigation|navigation boxes/.test(q))theme.details.nav="boxed";
+      if(/flat|no shadows/.test(q))theme.details.shadows="flat";
+      if(/no buttons|outlined buttons|outline/.test(q))theme.details.buttons="outlined";
+      if(/solid buttons|filled buttons/.test(q))theme.details.buttons="solid";
+      theme.name="Local Design // "+({neon:"Neon Biosphere",cyber:"Cyberpunk",violet:"Violet Static",ember:"Ember Signal",ocean:"Deep Ocean"}[baseKey]);
+      theme.summary="Built locally from your design brief. No paid API, account, or prompt history required.";
+      return theme;
+    }
+    form?.addEventListener("submit",event=>{
+      event.preventDefault();
+      const description=prompt.value.trim();
       if(description.length<12){status.textContent="DESCRIBE THE REDESIGN IN AT LEAST A FEW WORDS.";prompt.focus();return;}
-      const button=form.querySelector("button[type=submit]");button.disabled=true;result.hidden=true;status.textContent="SENDING YOUR DESIGN BRIEF TO THE AI THEME ENGINE…";setProgress(12,"READING THE VISUAL BRIEF…");
-      const stages=[["MAPPING LAYOUT & TYPOGRAPHY…",30],["DESIGNING COMPONENTS & TILE GEOMETRY…",54],["BUILDING COLOR, MEDIA & DECORATION TOKENS…",78]];
-      let stage=0;const stageTimer=setInterval(()=>{if(stage<stages.length){setProgress(stages[stage][1],stages[stage][0]);stage++;}},1600);
-      try{
-        const response=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:description})});
-        const data=await response.json();
-        if(!response.ok)throw new Error(data.error||"The theme service could not complete the request.");
-        pendingTheme=data.theme;setProgress(100,"DESIGN SYSTEM READY — TEMPORARY BRIEF CLEARED");prompt.value="";prompt.removeAttribute("value");resultTitle.textContent=(pendingTheme.name||"GENERATED THEME").toUpperCase();resultDescription.textContent=pendingTheme.summary||"A complete visual design system has been generated.";result.hidden=false;status.textContent="THEME GENERATED. THE PROMPT FIELD IS CLEARED; ONLY THE CURRENT RESULT IS KEPT FOR APPLYING."; 
-      }catch(error){status.textContent=error.message||"THE AI THEME ENGINE IS CURRENTLY UNAVAILABLE.";progress.hidden=true;}
-      finally{clearInterval(stageTimer);button.disabled=false;}
+      const button=form.querySelector("button[type=submit]");
+      button.disabled=true;result.hidden=true;status.textContent="BUILDING YOUR DESIGN LOCALLY — NO API CALLS.";
+      setProgress(20,"INTERPRETING STYLE, COLOR & MOOD…");
+      pendingTheme=buildLocalTheme(description);
+      setProgress(58,"CONFIGURING LAYOUT, TYPOGRAPHY & COMPONENTS…");
+      applyTheme(pendingTheme,false);
+      setProgress(82,"APPLYING MEDIA, NAVIGATION & DECORATION…");
+      resultTitle.textContent=pendingTheme.name.toUpperCase();
+      resultDescription.textContent=pendingTheme.summary;
+      result.hidden=false;
+      setProgress(100,"LOCAL DESIGN READY — PROMPT CLEARED");
+      prompt.value="";prompt.removeAttribute("value");
+      status.textContent="DESIGN GENERATED LOCALLY. NO PAID API USED. SELECT APPLY DESIGN TO SAVE IT IN THIS BROWSER.";
+      button.disabled=false;
     });
     applyButton?.addEventListener("click",()=>{if(!pendingTheme)return;applyTheme(pendingTheme);status.textContent="THE NEW DESIGN SYSTEM IS APPLIED AND SAVED IN THIS BROWSER.";progress.hidden=true;});
     resetButton?.addEventListener("click",()=>{try{localStorage.removeItem("vha-ai-theme");}catch{}root.removeAttribute("data-theme-heading");root.removeAttribute("data-theme-body");root.removeAttribute("data-theme-scale");root.removeAttribute("data-theme-weight");root.removeAttribute("data-theme-density");root.removeAttribute("data-theme-columns");root.removeAttribute("data-theme-card");root.removeAttribute("data-theme-geometry");root.removeAttribute("data-theme-hero");root.removeAttribute("data-theme-pattern");root.removeAttribute("data-theme-media");root.removeAttribute("data-theme-buttons");root.removeAttribute("data-theme-motion");root.removeAttribute("data-theme-shadows");root.removeAttribute("data-theme-nav");["page","surface","raised","text","muted","accent","secondary","border","glow"].forEach(k=>root.style.removeProperty("--theme-"+k));showPreset("neon");status.textContent="DEFAULT DESIGN RESTORED.";});
