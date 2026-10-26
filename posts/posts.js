@@ -262,7 +262,7 @@
       root.dataset.themeNav=valid(theme.details.nav,["minimal","boxed","underline","terminal"],"terminal");
       root.dataset.viewerTheme="custom";
       document.querySelectorAll(".theme-swatch").forEach(b=>{b.classList.remove("is-active");b.setAttribute("aria-pressed","false");});
-      if(save){try{localStorage.setItem("vha-ai-theme",JSON.stringify(theme));}catch{}}
+      if(save){try{localStorage.setItem("vha-ai-theme",JSON.stringify(theme));}catch{}try{if(window.parent!==window)window.parent.postMessage({type:"vha-theme-apply",theme},"*");}catch{}}
     }
     function setProgress(value,label){progress.hidden=false;bar.style.width=value+"%";percent.textContent=value+"%";message.textContent=label;}
     function showPreset(name){const p=presets[name]||presets.neon;pendingTheme=p;applyTheme(p);result.hidden=false;resultTitle.textContent=p.name.toUpperCase();resultDescription.textContent=p.summary;status.textContent="PRESET LOADED. IT IS APPLIED LOCALLY.";document.querySelectorAll(".theme-swatch").forEach(b=>{const active=b.dataset.theme===name;b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));});}
