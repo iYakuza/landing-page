@@ -504,3 +504,31 @@
 }
 .post-edit-button:hover{background:var(--viewer-accent,#b6e833);color:#050906!important}
 .posts-list:has(.post-back) .post-card-top{align-items:center;flex-wrap:wrap}
+
+
+/* Direct in-page editor for authenticated post authors. */
+.post-edit-button{cursor:pointer;font-family:ui-monospace,monospace}
+.post-edit-modal[hidden]{display:none!important}
+.post-edit-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(1,5,3,.84);backdrop-filter:blur(9px);overflow:auto}
+.post-edit-dialog{width:min(820px,100%);max-height:calc(100vh - 36px);overflow:auto;padding:clamp(18px,3vw,32px);background:#071009;color:#e8f4df;border:1px solid #b6e833;box-shadow:0 0 55px #b6e83320;font-family:inherit}
+.post-edit-dialog-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;border-bottom:1px solid #b6e83350;padding-bottom:16px;margin-bottom:20px}
+.post-edit-dialog-head h2{font-size:clamp(23px,4vw,36px);margin:0}
+.post-edit-close{border:1px solid #b6e83370;background:transparent;color:#b6e833;font-size:28px;line-height:1;width:38px;height:38px;cursor:pointer}
+.post-edit-dialog form{display:grid;gap:9px}
+.post-edit-dialog label{font:10px ui-monospace,monospace;letter-spacing:1px;color:#b6e833;margin-top:8px}
+.post-edit-dialog input,.post-edit-dialog select,.post-edit-dialog textarea,.post-edit-body{width:100%;box-sizing:border-box;background:#0c1710;border:1px solid #536746;color:#e8f4df;padding:11px;font:14px/1.6 inherit;border-radius:0}
+.post-edit-dialog input:focus,.post-edit-dialog select:focus,.post-edit-dialog textarea:focus,.post-edit-body:focus{outline:1px solid #b6e833;border-color:#b6e833}
+.post-edit-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.post-edit-fields>div{display:grid;gap:9px}
+.post-edit-toolbar{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.post-edit-toolbar button,.post-edit-actions button{border:1px solid #b6e83370;background:#101d13;color:#b6e833;padding:9px 11px;font:10px ui-monospace,monospace;cursor:pointer}
+.post-edit-toolbar button:hover,.post-edit-actions button:hover{background:#b6e833;color:#071009}
+.post-edit-body{min-height:260px;max-height:45vh;overflow:auto;white-space:normal}
+.post-edit-body:empty:before{content:attr(data-placeholder);color:#8c9b86}
+.post-edit-body p{margin:0 0 12px}
+.post-edit-message{min-height:20px;margin:4px 0;color:#b6e833;font:11px/1.5 ui-monospace,monospace}
+.post-edit-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;border-top:1px solid #b6e83340;padding-top:16px}
+.post-edit-actions #post-edit-save{background:#b6e833;color:#071009;font-weight:700}
+.post-edit-actions #post-edit-save:disabled{opacity:.55;cursor:wait}
+body.post-edit-open{overflow:hidden}
+@media(max-width:600px){.post-edit-modal{padding:8px}.post-edit-dialog{max-height:calc(100vh - 16px);padding:16px}.post-edit-fields{grid-template-columns:1fr}.post-edit-body{min-height:200px}}
