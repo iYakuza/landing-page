@@ -18,13 +18,13 @@
     .song-deck{max-width:640px;color:#aebbad;font-size:14px;line-height:1.9}
     .song-panel{margin:48px 0 28px;padding:clamp(18px,4vw,38px);border:1px solid #b6e83375;background:linear-gradient(145deg,#101a11ef,#070b08f5);box-shadow:0 25px 90px #0008}
     .song-panel-top{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:22px;font:9px monospace;letter-spacing:1.5px;color:#b6e833}
-    .song-embed{display:block;width:100%;height:220px;border:1px solid #35462e;background:#070b08}
+    .song-player-card{display:flex;align-items:center;gap:24px;padding:28px;border:1px solid #35462e;background:radial-gradient(ellipse at 18% 50%,#b6e83320,transparent 55%),#070b08}.song-player-card strong{font:10px monospace;letter-spacing:1px;color:#b6e833}.song-player-card p{font-size:12px;line-height:1.8;color:#aebbad;max-width:500px}.song-disc{flex:0 0 124px;width:124px;height:124px;border-radius:50%;border:1px solid #b6e8339c;display:grid;place-items:center;position:relative;font:22px monospace;color:#b6e833;background:repeating-radial-gradient(circle,#0a110b 0 5px,#162215 6px 7px);box-shadow:0 0 32px #b6e83318}.song-disc span{position:absolute;bottom:22px;font-size:12px;border:1px solid #b6e833;border-radius:50%;padding:7px 9px;background:#071008}.song-embed{display:none}
     .song-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
     .song-link{display:inline-flex;align-items:center;gap:16px;border:1px solid #b6e833;padding:13px 16px;color:#b6e833;text-decoration:none;font:10px monospace;letter-spacing:1px}
     .song-link.primary{background:#b6e833;color:#071008;font-weight:bold}
     .song-note{color:#829080;font:10px/1.8 monospace;margin-top:18px}
     .song-footer{border-top:1px solid #b6e83333;padding:24px 5vw;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;color:#8e9c8d;font:9px monospace;letter-spacing:1px}
-    @media(max-width:700px){.song-main{padding-top:6vh}.song-panel-top{align-items:flex-start;flex-direction:column}.song-embed{height:180px}.song-title{font-size:clamp(48px,14vw,80px)}}
+    @media(max-width:700px){.song-main{padding-top:6vh}.song-panel-top{align-items:flex-start;flex-direction:column}.song-player-card{align-items:flex-start;flex-direction:column}.song-disc{width:100px;height:100px;flex-basis:100px}.song-title{font-size:clamp(48px,14vw,80px)}}
   </style>
 </head>
 <body>
@@ -40,12 +40,12 @@
     <p class="song-deck">A new sound transmission from Verse After Hours. Take a moment, press play, and let the signal find you.</p>
     <section class="song-panel" aria-label="Suno music player">
       <div class="song-panel-top"><span>V/A AUDIO SYSTEM</span><span>HOSTED BY SUNO // USER-INITIATED PLAYBACK</span></div>
-      <iframe class="song-embed" src="https://suno.com/embed/0RJNUsklNXtOiRzv" title="Listen to the original song on Suno" loading="lazy" allow="autoplay; encrypted-media; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      <div class="song-player-card"><div class="song-disc" aria-hidden="true">V/A<span>▶</span></div><div><strong>TRACK SOURCE // SUNO</strong><p>The shared link is a Suno short URL, not a direct audio file. Open the track on Suno to start playback.</p><a class="song-link primary" href="https://suno.com/s/0RJNUsklNXtOiRzv" target="_blank" rel="noopener noreferrer">▶ PLAY TRACK ON SUNO ↗</a></div></div>
       <div class="song-actions">
         <a class="song-link primary" href="https://suno.com/s/0RJNUsklNXtOiRzv" target="_blank" rel="noopener noreferrer">OPEN TRACK ON SUNO ↗</a>
         <a class="song-link" href="../green-dream/">RETURN TO GREEN DREAM ↗</a>
       </div>
-      <p class="song-note">If the embedded player does not load, use OPEN TRACK ON SUNO. Playback is hosted by Suno; this page does not upload or copy the audio.</p>
+      <p class="song-note">Playback opens on Suno because the shared URL does not expose a direct audio stream for an on-page player. To enable native in-page playback, the track needs to be downloaded from Suno and uploaded as an audio asset.</p>
     </section>
     <p class="song-kicker">END OF TRANSMISSION // THE RADIO PLAYS ON.</p>
   </main>
