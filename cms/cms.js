@@ -24,11 +24,10 @@
         if(child.nodeType===Node.TEXT_NODE) return;
         if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
         if(!allowed.has(child.tagName)){child.replaceWith(...child.childNodes);return;}
+        const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
         [...child.attributes].forEach(attr=>child.removeAttribute(attr.name));
-        if(child.tagName==='A'){
-          const raw=child.getAttribute('href')||'';
-          const href=raw.trim();
-          if(/^(https?:|mailto:)/i.test(href)){child.setAttribute('href',href);child.setAttribute('target','_blank');child.setAttribute('rel','noopener noreferrer');}
+        if(child.tagName==='A'&&/^(https?:|mailto:)/i.test(originalHref)){
+          child.setAttribute('href',originalHref);child.setAttribute('target','_blank');child.setAttribute('rel','noopener noreferrer');
         }
         clean(child);
       });
@@ -49,7 +48,7 @@
   }
   function renderPosts(){
     const posts=allPosts.filter(p=>statusFilter==='all'||p.status===statusFilter);
-    if(!posts.length){managePosts.innerHTML='<p class="cms-help" style="padding:16px">No '+(statusFilter==='all'?'transmissions':statusFilter+'s')+' yet. Start a new post.</p>';return;}
+    if(!posts.length){managePosts.innerHTML='<p class="cms-help" style="padding:16px">No '+(statusFilter==='all'?'transmissions':statusFilter==='published'?'published posts':'drafts')+' yet. Start a new post.</p>';return;}
     managePosts.innerHTML=posts.map(p=>'<button type="button" class="manage-item '+(p.id===editingId?'active':'')+'" data-id="'+escapeHtml(p.id)+'"><strong>'+escapeHtml(p.title)+'</strong><small><span class="'+(p.status==='draft'?'draft-label':'published-label')+'">'+escapeHtml(p.status.toUpperCase())+'</span> · '+escapeHtml(p.category)+'<br>UPDATED '+new Date(p.updated_at).toLocaleDateString('en-GB')+'</small></button>').join('');
     managePosts.querySelectorAll('[data-id]').forEach(btn=>btn.addEventListener('click',()=>{const post=allPosts.find(p=>p.id===btn.dataset.id);if(post)openPost(post);}));
   }
