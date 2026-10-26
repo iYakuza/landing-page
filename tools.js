@@ -10,16 +10,31 @@
   const trigger = launcher.querySelector("#vha-tools-trigger");
   const panel = launcher.querySelector("#vha-tools-panel");
   const frame = launcher.querySelector("iframe");
+  const menuItem = launcher.querySelector("#vha-tools-menu-item");
+  function showMenu(show) {
+    launcher.classList.toggle("menu-open", show);
+    trigger.setAttribute("aria-expanded", String(show || panel.classList.contains("is-open")));
+    if (show) open(false);
+  }
   function open(opened) {
     panel.classList.toggle("is-open", opened);
     panel.setAttribute("aria-hidden", String(!opened));
+    launcher.classList.toggle("menu-open", false);
+    menuItem.setAttribute("aria-expanded", String(opened));
     trigger.setAttribute("aria-expanded", String(opened));
     trigger.setAttribute("aria-label", opened ? "Close tools" : "Open tools");
-    if (opened && !frame.dataset.loaded) frame.dataset.loaded = "true";
+    if (opened) {
+      frame.dataset.loaded = "true";
+      if (!frame.dataset.initialized) frame.dataset.initialized = "true";
+    }
   }
-  trigger.addEventListener("click", () => open(!panel.classList.contains("is-open")));
+  trigger.addEventListener("click", () => {
+    if (panel.classList.contains("is-open")) open(false);
+    else showMenu(!launcher.classList.contains("menu-open"));
+  });
+  menuItem.addEventListener("click", () => open(true));
   launcher.querySelector("#vha-tools-close").addEventListener("click", () => open(false));
-  document.addEventListener("keydown", e => { if (e.key === "Escape") open(false); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") { open(false); showMenu(false); } });
   function applyTheme(theme) {
     if (!theme || !theme.colors || !theme.typography || !theme.layout || !theme.details) return;
     const c = theme.colors;
