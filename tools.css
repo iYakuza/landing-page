@@ -1,0 +1,13 @@
+/* Verse After Hours — site-wide Tools launcher */
+#vha-tools-launcher{position:fixed;right:22px;bottom:22px;z-index:2147483000;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#e8f4df}
+#vha-tools-trigger{width:54px;height:54px;border:1px solid #b6e83399;border-radius:50%;display:grid;place-items:center;background:#071009ee;color:#d8ff3e;box-shadow:0 8px 30px #0008,0 0 24px #b6e8331a;cursor:pointer;backdrop-filter:blur(12px);transition:transform .2s,border-color .2s}
+#vha-tools-trigger:hover{transform:rotate(35deg);border-color:#d8ff3e}
+#vha-tools-trigger svg{width:23px;height:23px}
+#vha-tools-panel{position:absolute;right:0;bottom:66px;width:min(440px,calc(100vw - 28px));height:min(680px,calc(100dvh - 110px));background:#070b08;border:1px solid #b6e83380;box-shadow:0 20px 70px #000b;display:none;overflow:hidden}
+#vha-tools-panel.is-open{display:flex;flex-direction:column}
+.vha-tools-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 15px;border-bottom:1px solid #b6e83340;background:#0b150d}
+.vha-tools-head strong{font-size:10px;letter-spacing:1.2px;color:#d8ff3e}
+.vha-tools-head button{border:1px solid #b6e83355;background:transparent;color:#e8f4df;padding:5px 9px;cursor:pointer;font:10px monospace}
+#vha-tools-panel iframe{width:100%;height:100%;border:0;background:#050906}
+#vha-tools-panel .vha-tool-note{font:10px/1.5 monospace;color:#aab7a7;padding:9px 14px;border-top:1px solid #b6e83330}
+@media(max-width:600px){#vha-tools-launcher{right:13px;bottom:13px}#vha-tools-trigger{width:48px;height:48px}#vha-tools-panel{bottom:59px;right:-3px;width:calc(100vw - 22px);height:min(78dvh,680px)}}
