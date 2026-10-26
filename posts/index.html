@@ -43,6 +43,22 @@
       <div class="posts-heading"><div><p class="gd-kicker">INCOMING SIGNALS</p><h2 id="archive-title">LATEST <em>POSTS</em></h2></div>
         <label class="posts-search"><span class="sr-only">Search posts</span><input id="post-search" type="search" placeholder="SEARCH TRANSMISSIONS…" autocomplete="off"></label>
       </div>
+      <section class="viewer-console" id="viewer-settings" aria-labelledby="viewer-title">
+        <div class="viewer-console-head"><div><p class="gd-kicker">PERSONALIZE YOUR SIGNAL</p><h2 id="viewer-title">VIEWER <em>SETTINGS</em></h2></div><span class="viewer-live"><i></i> LOCAL THEME ENGINE</span></div>
+        <div class="viewer-grid"><div><p class="viewer-label">POST BACKGROUND / SELECT A REALITY</p><div class="theme-swatches" role="group" aria-label="Post background themes">
+          <button type="button" class="theme-swatch is-active" data-theme="neon" aria-pressed="true"><span class="swatch neon"></span><b>NEON BIOSPHERE</b></button>
+          <button type="button" class="theme-swatch" data-theme="cyber" aria-pressed="false"><span class="swatch cyber"></span><b>CYBERPUNK</b></button>
+          <button type="button" class="theme-swatch" data-theme="violet" aria-pressed="false"><span class="swatch violet"></span><b>VIOLET STATIC</b></button>
+          <button type="button" class="theme-swatch" data-theme="ember" aria-pressed="false"><span class="swatch ember"></span><b>EMBER SIGNAL</b></button>
+          <button type="button" class="theme-swatch" data-theme="ocean" aria-pressed="false"><span class="swatch ocean"></span><b>DEEP OCEAN</b></button>
+        </div></div><form class="theme-prompt" id="theme-prompt-form"><label class="viewer-label" for="theme-prompt">CHATGPT THEME REQUEST <span>›</span></label>
+          <p class="theme-prompt-hint">Describe the atmosphere, colors, and visual effects you want for the archive.</p>
+          <textarea id="theme-prompt" rows="3" maxlength="500" placeholder="A bioluminescent greenhouse at midnight, emerald glass and electric violet mist…"></textarea>
+          <button class="theme-generate" type="submit"><span>✳</span> SYNTHESIZE MY THEME <b>↗</b></button>
+          <p class="theme-status" id="theme-status" role="status" aria-live="polite">READY. YOUR VISUAL PREFERENCES STAY IN THIS BROWSER.</p>
+          <div class="theme-progress" id="theme-progress" hidden><div class="theme-progress-track"><span id="theme-progress-bar"></span></div><div class="theme-progress-meta"><span id="theme-progress-message">INTERPRETING YOUR SIGNAL…</span><b id="theme-progress-percent">0%</b></div></div>
+        </form></div>
+      </section>
       <div class="posts-filters">
         <label for="category-filter">FILTER BY CATEGORY</label>
         <select id="category-filter"><option value="">ALL CATEGORIES</option></select>
