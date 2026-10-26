@@ -411,3 +411,9 @@
 .tetris-controls-help{display:flex;flex-basis:100%;justify-content:space-between;gap:14px;color:#859383;font-size:9px}
 .tetris-controls-help b{color:#b6e833}
 @media(max-width:600px){#tetris-arena-controls{top:8px!important;left:8px!important;max-width:calc(100vw - 16px);gap:5px;padding:6px!important}#tetris-mode{max-width:124px;font-size:9px}.tetris-controls-help{font-size:8px;gap:8px}.tetris-arena-brand span{font-size:9px}}
+
+
+/* TRANSMISSIONS CLEANUP: the playable game belongs only in the Listening Room. */
+#falling-tetris-bg,
+#tetris-arena-controls,
+.tetris-listening-arena{display:none!important;visibility:hidden!important;}
