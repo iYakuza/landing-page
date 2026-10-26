@@ -9,6 +9,7 @@
   const count = document.getElementById('post-count');
   const emptySearch = document.getElementById('posts-empty-search');
   const requestedSlug = new URLSearchParams(window.location.search).get('post');
+  const requestedMovement = String(document.body.dataset.movement || '').trim().toUpperCase();
   const editModal=document.getElementById('post-edit-modal');
   const editForm=document.getElementById('post-edit-form');
   const editTitle=document.getElementById('inline-edit-title');
@@ -77,13 +78,14 @@
     const term=search.value.trim().toLowerCase(),category=categoryFilter.value;
     const filtered=permalink
       ? posts.filter(post=>post.slug===requestedSlug)
-      : posts.filter(post=>(!category||displayCategory(post.category)===category)&&[post.title,post.category,post.excerpt,post.content_html].join(' ').replace(/<[^>]*>/g,' ').toLowerCase().includes(term));
+      : posts.filter(post=>(!requestedMovement||displayCategory(post.category)===requestedMovement)&&(!category||displayCategory(post.category)===category)&&[post.title,post.category,post.excerpt,post.content_html].join(' ').replace(/<[^>]*>/g,' ').toLowerCase().includes(term));
     if(permalink){
       search.closest('label')?.setAttribute('hidden','');
       categoryFilter.closest('label')?.setAttribute('hidden','');
       count.textContent=filtered.length?'SINGLE TRANSMISSION':'TRANSMISSION NOT FOUND';
     }else{
       count.textContent=String(filtered.length).padStart(2,'0')+' TRANSMISSION'+(filtered.length===1?'':'S');
+      if(requestedMovement)count.textContent=String(filtered.length).padStart(2,'0')+' / '+requestedMovement;
     }
     emptySearch.hidden=filtered.length>0;
     if(!filtered.length){
@@ -308,6 +310,6 @@
     applyButton?.addEventListener("click",()=>{if(!pendingTheme)return;applyTheme(pendingTheme);status.textContent="THE NEW DESIGN SYSTEM IS APPLIED AND SAVED IN THIS BROWSER.";progress.hidden=true;});
     resetButton?.addEventListener("click",()=>{try{localStorage.removeItem("vha-ai-theme");}catch{}root.removeAttribute("data-theme-heading");root.removeAttribute("data-theme-body");root.removeAttribute("data-theme-scale");root.removeAttribute("data-theme-weight");root.removeAttribute("data-theme-density");root.removeAttribute("data-theme-columns");root.removeAttribute("data-theme-card");root.removeAttribute("data-theme-geometry");root.removeAttribute("data-theme-hero");root.removeAttribute("data-theme-pattern");root.removeAttribute("data-theme-media");root.removeAttribute("data-theme-buttons");root.removeAttribute("data-theme-motion");root.removeAttribute("data-theme-shadows");root.removeAttribute("data-theme-nav");["page","surface","raised","text","muted","accent","secondary","border","glow"].forEach(k=>root.style.removeProperty("--theme-"+k));showPreset("neon");status.textContent="DEFAULT DESIGN RESTORED.";});
   }
-  initViewerThemes();
+  if(document.getElementById('theme-prompt-form'))initViewerThemes();
   search.addEventListener('input',render);categoryFilter.addEventListener('change',render);load();
 })();
