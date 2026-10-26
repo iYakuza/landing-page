@@ -8,6 +8,11 @@
     const startButton=document.getElementById("tetris-start");
     const resetButton=document.getElementById("tetris-reset");
     const status=document.getElementById("tetris-status");
+    const SUPABASE_URL="https://oeyxsqocldlovhsmzcjw.supabase.co";
+    const SUPABASE_KEY="sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h";
+    let online=false,isHost=false,roomCode="",roomChannel=null,lastSync=0;
+    let onlineNotice=null,roomInput=null,inviteButton=null;
+
     const SHAPES=[
       [[1,1,1,1]],[[1,0,0],[1,1,1]],[[0,0,1],[1,1,1]],
       [[1,1],[1,1]],[[0,1,1],[1,1,0]],[[0,1,0],[1,1,1]],[[1,1,0],[0,1,1]]
@@ -104,6 +109,11 @@
       if(k==="escape"||k==="p"){running=!running&&!finished;if(startButton)startButton.textContent=running?"Ⅱ":"▶";return;}
       if(k==="r"){restart();return;}
       if(k==="1"||k==="2"||k==="3"||k==="4"){const map={"1":"time","2":"points","3":"sprint","4":"ranked"};if(modeSelect)modeSelect.value=map[k];restart();return;}
+      if(online){
+        if(isHost){if(k==="arrowleft")hostAction("left");else if(k==="arrowright")hostAction("right");else if(k==="arrowup")hostAction("rotate");else if(k==="arrowdown")hostAction("down");else if(k==="enter")hostAction("drop");}
+        else{const actionMap={arrowleft:"left",arrowright:"right",arrowup:"rotate",arrowdown:"down",enter:"drop"};if(actionMap[k]&&roomChannel)roomChannel.send({type:"broadcast",event:"input",payload:{action:actionMap[k]}});}
+        return;
+      }
       for(const p of players){
         if(k===p.keys.left)move(p,-1);
         else if(k===p.keys.right)move(p,1);
@@ -111,6 +121,33 @@
         else if(k===p.keys.down)move(p,0,1);
         else if(k===p.keys.drop)hardDrop(p);
       }
+    }
+
+    function onlineStatus(message){if(onlineNotice)onlineNotice.textContent=message;if(status)status.textContent=message;}
+    function serializeState(){return {type:"state",mode,remaining,running,finished,cols,rows,players:players.map(p=>({name:p.name,color:p.color,board:p.board,active:p.active,score:p.score,lines:p.lines,over:p.over,won:p.won,dropClock:p.dropClock}))};}
+    function applyState(s){if(!s||s.type!=="state"||!Array.isArray(s.players))return;mode=s.mode||mode;remaining=Number(s.remaining)||0;running=!!s.running;finished=!!s.finished;cols=Number(s.cols)||cols;rows=Number(s.rows)||rows;players=s.players.map((p,i)=>({...makePlayer(p.name||("PLAYER "+(i+1)),p.color||COLORS[i],{}),...p,board:Array.isArray(p.board)?p.board:blankBoard()}));if(modeSelect)modeSelect.value=mode;if(startButton)startButton.textContent=finished?"↻":running?"Ⅱ":"▶";if(status)status.textContent=finished?"MATCH COMPLETE":running?MODES[mode].description:"MATCH PAUSED";}
+    function sendState(){if(online&&isHost&&roomChannel)roomChannel.send({type:"broadcast",event:"state",payload:serializeState()});}
+    function hostAction(action){if(!isHost||!players[1])return;const p=players[1];if(action==="left")move(p,-1);else if(action==="right")move(p,1);else if(action==="rotate")rotate(p);else if(action==="down")move(p,0,1);else if(action==="drop")hardDrop(p);}
+    async function enterRoom(code,host){
+      const client=window.supabase?.createClient(SUPABASE_URL,SUPABASE_KEY);if(!client){onlineStatus("ONLINE PLAY UNAVAILABLE — CONNECTION LIBRARY FAILED");return;}
+      if(roomChannel){try{await roomChannel.unsubscribe();}catch{}}
+      roomCode=code;online=true;isHost=host;
+      roomChannel=client.channel("after-hours-tetris-"+code,{config:{broadcast:{self:false}}});
+      roomChannel.on("broadcast",{event:"input"},({payload})=>{if(isHost&&payload?.action)hostAction(payload.action);});
+      roomChannel.on("broadcast",{event:"state"},({payload})=>{if(!isHost)applyState(payload);});
+      roomChannel.on("broadcast",{event:"presence"},({payload})=>{if(isHost&&payload?.kind==="join"){sendState();onlineStatus("FRIEND CONNECTED // ROOM "+roomCode);}});
+      await roomChannel.subscribe(state=>{if(state==="SUBSCRIBED"){if(host){restart();sendState();onlineStatus("ROOM "+roomCode+" READY // SHARE INVITE LINK");}else{roomChannel.send({type:"broadcast",event:"presence",payload:{kind:"join"}});onlineStatus("JOINED ROOM "+roomCode+" // SYNCING MATCH");}}else if(state==="CHANNEL_ERROR"||state==="TIMED_OUT")onlineStatus("CONNECTION ISSUE — TRY REJOINING");});
+      if(roomInput)roomInput.value=code;if(inviteButton){inviteButton.hidden=!host;inviteButton.dataset.url=location.href;}
+    }
+    function setupOnlineControls(){
+      const intro=document.querySelector(".tetris-room-intro");if(!intro)return;
+      const bar=document.createElement("div");bar.className="tetris-online-bar";
+      bar.innerHTML='<button type="button" id="tetris-create-room">CREATE ONLINE ROOM</button><input id="tetris-room-code" maxlength="6" placeholder="ROOM CODE" aria-label="Room code" autocomplete="off"><button type="button" id="tetris-join-room">JOIN FRIEND</button><button type="button" id="tetris-invite" hidden>COPY INVITE LINK</button><span id="tetris-online-status" role="status">LOCAL DUEL // SAME DEVICE</span>';
+      intro.appendChild(bar);onlineNotice=bar.querySelector("#tetris-online-status");roomInput=bar.querySelector("#tetris-room-code");inviteButton=bar.querySelector("#tetris-invite");
+      bar.querySelector("#tetris-create-room").addEventListener("click",()=>{const code=Math.random().toString(36).slice(2,8).toUpperCase();const url=new URL(location.href);url.searchParams.set("room",code);history.replaceState(null,"",url);enterRoom(code,true);});
+      bar.querySelector("#tetris-join-room").addEventListener("click",()=>{const code=(roomInput.value||"").trim().toUpperCase().replace(/[^A-Z0-9]/g,"");if(code.length<4){onlineStatus("ENTER A VALID ROOM CODE");return;}const url=new URL(location.href);url.searchParams.set("room",code);history.replaceState(null,"",url);enterRoom(code,false);});
+      inviteButton.addEventListener("click",async()=>{const url=inviteButton.dataset.url||location.href;try{await navigator.clipboard.writeText(url);onlineStatus("INVITE LINK COPIED — SEND IT TO YOUR FRIEND");}catch{window.prompt("Copy this invite link:",url);}});
+      const query=new URLSearchParams(location.search).get("room");if(query){roomInput.value=query.toUpperCase();onlineStatus("INVITE FOUND // JOIN TO CONNECT");}
     }
     function drawBlock(x,y,color,alpha=1){
       const px=x*cell,py=y*cell,g=1;
@@ -151,11 +188,12 @@
     function frame(now){
       raf=0;if(document.hidden)return;
       const dt=Math.min((now-last)/1000||0,.05);last=now;
-      if(running&&!finished){
+      if(running&&!finished&&(!online||isHost)){
         if(MODES[mode].seconds){remaining-=dt;if(remaining<=0){remaining=0;finish(players[0].score===players[1].score?"DRAW — MATCH TIED":players[0].score>players[1].score?"PLAYER 1 WINS":"PLAYER 2 WINS");}}
         players.forEach(p=>{if(!p.over){p.dropClock+=dt;if(p.dropClock>.68){p.dropClock=0;move(p,0,1);}}});
         if(players.every(p=>p.over))finish(players[0].score===players[1].score?"DRAW — BOTH FIELDS SATURATED":players[0].score>players[1].score?"PLAYER 1 WINS":"PLAYER 2 WINS");
       }
+      if(online&&isHost&&now-lastSync>120){lastSync=now;sendState();}
       draw(now);raf=requestAnimationFrame(frame);
     }
     function startLoop(){if(!raf&&!document.hidden){last=performance.now();raf=requestAnimationFrame(frame);}}
@@ -202,7 +240,7 @@
     window.addEventListener("keydown",keydown,{passive:false});
     window.addEventListener("resize",resize,{passive:true});
     document.addEventListener("visibilitychange",()=>{if(document.hidden)stopLoop();else startLoop();});
-    resize();restart();draw();startLoop();
+    setupOnlineControls();resize();restart();draw();startLoop();
   }
   initFallingTetris();
 })();
