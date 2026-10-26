@@ -150,7 +150,7 @@
       players.forEach(newPlayer);
       mode=modeSelect?.value||"time";remaining=MODES[mode].seconds;running=true;finished=false;last=performance.now();matchStart=last;
       if(status)status.textContent=MODES[mode].description;
-      if(startButton)startButton.textContent="PAUSE MATCH";
+      if(startButton)startButton.textContent="Ⅱ";
     }
     function resize(){
       dpr=Math.min(window.devicePixelRatio||1,1.5);width=window.innerWidth;height=window.innerHeight;
@@ -191,7 +191,7 @@
     function finish(message){
       if(finished)return;finished=true;running=false;
       if(status)status.textContent=message;
-      if(startButton)startButton.textContent="PLAY AGAIN";
+      if(startButton)startButton.textContent="↻";
       if(mode==="ranked"){
         try{
           const old=JSON.parse(localStorage.getItem("vha-tetris-ranked")||"[]");
@@ -207,7 +207,7 @@
       const k=e.key.toLowerCase();
       const used=["a","d","w","s"," ","arrowleft","arrowright","arrowup","arrowdown","enter"].includes(k);
       if(used)e.preventDefault();
-      if(k==="escape"||k==="p"){running=!running&&!finished;if(startButton)startButton.textContent=running?"PAUSE MATCH":"RESUME MATCH";return;}
+      if(k==="escape"||k==="p"){running=!running&&!finished;if(startButton)startButton.textContent=running?"Ⅱ":"▶";return;}
       if(k==="r"){restart();return;}
       if(k==="1"||k==="2"||k==="3"||k==="4"){const map={"1":"time","2":"points","3":"sprint","4":"ranked"};if(modeSelect)modeSelect.value=map[k];restart();return;}
       for(const p of players){
@@ -266,13 +266,32 @@
     }
     function startLoop(){if(!raf&&!document.hidden){last=performance.now();raf=requestAnimationFrame(frame);}}
     function stopLoop(){if(raf){cancelAnimationFrame(raf);raf=0;}}
-    startButton?.addEventListener("click",()=>{if(finished){restart();return;}if(!players.length)restart();else{running=!running;if(status)status.textContent=running?MODES[mode].description:"MATCH PAUSED";startButton.textContent=running?"PAUSE MATCH":"RESUME MATCH";}});
+
+    const dragHandle=document.getElementById("tetris-drag-handle");
+    if(dragHandle&&controls){
+      let dragging=false,offsetX=0,offsetY=0;
+      dragHandle.style.touchAction="none";
+      dragHandle.addEventListener("pointerdown",e=>{
+        if(e.button!==0&&e.pointerType!=="touch")return;
+        dragging=true;const r=controls.getBoundingClientRect();offsetX=e.clientX-r.left;offsetY=e.clientY-r.top;
+        controls.style.left=r.left+"px";controls.style.top=r.top+"px";controls.style.right="auto";controls.style.bottom="auto";
+        dragHandle.setPointerCapture?.(e.pointerId);e.preventDefault();
+      });
+      dragHandle.addEventListener("pointermove",e=>{
+        if(!dragging)return;
+        const r=controls.getBoundingClientRect(),left=Math.max(0,Math.min(window.innerWidth-r.width,e.clientX-offsetX)),top=Math.max(0,Math.min(window.innerHeight-r.height,e.clientY-offsetY));
+        controls.style.left=left+"px";controls.style.top=top+"px";
+      });
+      const endDrag=()=>{dragging=false;};
+      dragHandle.addEventListener("pointerup",endDrag);dragHandle.addEventListener("pointercancel",endDrag);
+    }
+    startButton?.addEventListener("click",()=>{if(finished){restart();return;}if(!players.length)restart();else{running=!running;if(status)status.textContent=running?MODES[mode].description:"MATCH PAUSED";startButton.textContent=running?"Ⅱ":"▶";}});
     resetButton?.addEventListener("click",restart);
     modeSelect?.addEventListener("change",()=>{mode=modeSelect.value;remaining=MODES[mode].seconds;if(status)status.textContent=MODES[mode].description;});
     window.addEventListener("keydown",keydown,{passive:false});
     window.addEventListener("resize",resize,{passive:true});
     document.addEventListener("visibilitychange",()=>{if(document.hidden)stopLoop();else startLoop();});
-    resize();draw();startLoop();
+    resize();restart();draw();startLoop();
   }
   function initViewerThemes(){
     const root=document.documentElement,form=document.getElementById("theme-prompt-form"),prompt=document.getElementById("theme-prompt"),status=document.getElementById("theme-status"),progress=document.getElementById("theme-progress"),bar=document.getElementById("theme-progress-bar"),percent=document.getElementById("theme-progress-percent"),message=document.getElementById("theme-progress-message"),result=document.getElementById("theme-result"),resultTitle=document.getElementById("theme-result-title"),resultDescription=document.getElementById("theme-result-description"),applyButton=document.getElementById("theme-apply"),resetButton=document.getElementById("theme-reset");
