@@ -8,6 +8,7 @@
   const categoryFilter = document.getElementById('category-filter');
   const count = document.getElementById('post-count');
   const emptySearch = document.getElementById('posts-empty-search');
+  const requestedSlug = new URLSearchParams(window.location.search).get('post');
   let posts = [];
   const safe = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const prettyDate = value => {
@@ -21,8 +22,11 @@
       if(child.nodeType===Node.TEXT_NODE)return;
       if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
       if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
+      const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
       [...child.attributes].forEach(a=>child.removeAttribute(a.name));
-      if(child.tagName==='A'){const href=(child.getAttribute('href')||'').trim();if(/^(https?:|mailto:)/i.test(href)){child.setAttribute('href',href);child.setAttribute('target','_blank');child.setAttribute('rel','noopener noreferrer');}}
+      if(child.tagName==='A'&&/^(https?:|mailto:)/i.test(originalHref)){
+        child.setAttribute('href',originalHref);child.setAttribute('target','_blank');child.setAttribute('rel','noopener noreferrer');
+      }
       clean(child);
     });}
     clean(doc.body);return doc.body.innerHTML;
@@ -34,15 +38,34 @@
     categoryFilter.value=categories.includes(selected)?selected:'';
   }
   function render(){
+    const permalink=Boolean(requestedSlug);
     const term=search.value.trim().toLowerCase(),category=categoryFilter.value;
-    const filtered=posts.filter(post=>(!category||post.category===category)&&[post.title,post.category,post.excerpt,post.content_html].join(' ').replace(/<[^>]*>/g,' ').toLowerCase().includes(term));
-    count.textContent=String(filtered.length).padStart(2,'0')+' TRANSMISSION'+(filtered.length===1?'':'S');
+    const filtered=permalink
+      ? posts.filter(post=>post.slug===requestedSlug)
+      : posts.filter(post=>(!category||post.category===category)&&[post.title,post.category,post.excerpt,post.content_html].join(' ').replace(/<[^>]*>/g,' ').toLowerCase().includes(term));
+    if(permalink){
+      search.closest('label')?.setAttribute('hidden','');
+      categoryFilter.closest('label')?.setAttribute('hidden','');
+      count.textContent=filtered.length?'SINGLE TRANSMISSION':'TRANSMISSION NOT FOUND';
+    }else{
+      count.textContent=String(filtered.length).padStart(2,'0')+' TRANSMISSION'+(filtered.length===1?'':'S');
+    }
     emptySearch.hidden=filtered.length>0;
-    if(!filtered.length){list.innerHTML='';return;}
+    if(!filtered.length){
+      list.innerHTML=permalink
+        ? '<p class="posts-empty">THIS TRANSMISSION COULD NOT BE FOUND. IT MAY HAVE BEEN MOVED OR UNPUBLISHED. <a href="./">RETURN TO THE ARCHIVE ↗</a></p>'
+        : '';
+      return;
+    }
     list.innerHTML=filtered.map(post=>{
-      const body=post.content_html?'<details class="post-details"><summary>READ TRANSMISSION ↗</summary><div class="post-body">'+cleanHtml(post.content_html)+'</div></details>':'';
-      return '<article class="post-card"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(post.category||'UNCATEGORIZED')+'</span></div><h3>'+safe(post.title)+'</h3><p>'+safe(post.excerpt||'')+'</p>'+body+'</article>';
+      const body=post.content_html?'<details class="post-details" '+(permalink?'open':'')+'><summary>READ TRANSMISSION ↗</summary><div class="post-body">'+cleanHtml(post.content_html)+'</div></details>':'';
+      const back=permalink?'<p class="post-back"><a href="./">← BACK TO THE ARCHIVE</a></p>':'';
+      return '<article class="post-card" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(post.category||'UNCATEGORIZED')+'</span></div><h3>'+safe(post.title)+'</h3><p>'+safe(post.excerpt||'')+'</p>'+body+back+'</article>';
     }).join('');
+    if(permalink){
+      document.title=filtered[0].title+' // VERSE AFTER HOURS';
+      requestAnimationFrame(()=>list.querySelector('.post-card')?.scrollIntoView({behavior:'smooth',block:'start'}));
+    }
   }
   async function load(){
     if(!client){list.innerHTML='<p class="posts-empty">THE ARCHIVE COULD NOT CONNECT.</p>';count.textContent='SIGNAL UNAVAILABLE';return;}
