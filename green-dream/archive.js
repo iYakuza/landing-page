@@ -42,11 +42,12 @@
     }).join('');
     const tracks = posts.filter(post => post.media_type === 'audio' && safeMediaUrl(post.media_url))
       .map(post => ({...post, url:safeMediaUrl(post.media_url)}));
+    const sunoRow = '<a class="gd-media-row gd-suno-row" href="https://suno.com/s/0RJNUsklNXtOiRzv" target="_blank" rel="noopener noreferrer"><span class="gd-media-number">01</span><div class="gd-media-track"><strong>GREEN DREAM // ORIGINAL TRANSMISSION</strong><small>SUNO // OPEN TRACK PLAYER ↗</small></div><span class="gd-suno-open" aria-hidden="true">↗</span></a>';
     if (!tracks.length) {
-      playlist.innerHTML = '<p class="gd-archive-empty">NO AUDIO TRANSMISSIONS YET. Upload an audio file to a published post in the Creator Console to add it to this playlist. Video and image files are intentionally excluded.</p>';
+      playlist.innerHTML = sunoRow + '<p class="gd-archive-empty">This track is hosted on Suno and opens there for playback. Upload audio files to published posts to add tracks that play directly in this library.</p>';
       return;
     }
-    playlist.innerHTML = tracks.map((post, index) => {
+    playlist.innerHTML = sunoRow + tracks.map((post, index) => {
       const title = audioTitle(post.media_url, post.title);
       return '<article class="gd-media-row" data-track-index="' + index + '">' +
         '<span class="gd-media-number">' + String(index + 1).padStart(2, '0') + '</span>' +
