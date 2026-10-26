@@ -375,3 +375,20 @@ body.gd-home .gd-radio{
 #tetris-arena-controls{box-sizing:border-box!important;width:calc(100% - 24px)!important;max-width:none!important;left:12px!important;right:auto!important;justify-content:flex-start}
 #tetris-arena-controls .tetris-controls-help{width:100%;box-sizing:border-box}
 @media(max-width:760px){#tetris-arena-controls{width:calc(100% - 16px)!important;max-width:none!important;left:8px!important}}
+
+
+/* MOVABLE POETRY INDEX: fixed above the page, with the title acting as its drag handle. */
+.gd-archive-layout{grid-template-columns:minmax(0,1fr)!important}
+.gd-poetry-float{
+  position:fixed!important;top:112px;left:18px;width:min(340px,calc(100vw - 36px));
+  max-height:calc(100vh - 132px);overflow:auto;box-sizing:border-box;
+  z-index:1000!important;align-self:auto;touch-action:pan-y;
+  box-shadow:0 14px 42px #0009;
+}
+#gd-poetry-title{cursor:grab;user-select:none;touch-action:none}
+#gd-poetry-title:active{cursor:grabbing}
+.gd-poetry-float.is-dragging{opacity:.96;cursor:grabbing;user-select:none}
+@media(max-width:820px){
+  .gd-archive-layout{grid-template-columns:minmax(0,1fr)!important}
+  .gd-poetry-float{top:86px;left:8px;width:min(320px,calc(100vw - 16px));max-height:calc(100vh - 100px)}
+}
