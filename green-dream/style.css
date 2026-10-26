@@ -97,3 +97,65 @@ body.gd-home .gd-scroll,body.gd-home .gd-footer{display:none}
  .gd-radio{top:50%;transform:translateY(-50%);max-height:90%;overflow:auto}
 }
 @media(prefers-reduced-motion:reduce){.gd-zen-orbit:after{transform:none}}
+
+
+/* HOME FIT PASS: keep the complete hero composition inside the viewport. */
+body.gd-home .gd-hero{padding:3.5vh 4.5vw}
+body.gd-home .gd-hero-copy{max-width:54%;}
+body.gd-home .gd-kicker{font-size:9px;margin-bottom:15px}
+body.gd-home .gd-hero h1{font-size:clamp(56px,8.5vw,126px);margin-bottom:22px}
+body.gd-home .gd-sub{font-size:10px;line-height:1.7;letter-spacing:1.5px}
+body.gd-home .gd-cta{margin-top:16px;padding:12px 15px}
+body.gd-home .gd-coordinate{margin-top:20px;font-size:7px}
+body.gd-home .gd-zen{margin-top:14px;max-width:390px;padding:9px 12px;gap:11px}
+body.gd-home .gd-zen-orbit{width:34px;height:34px;flex-basis:34px}
+body.gd-home .gd-zen-kicker{margin-bottom:4px;font-size:6px;letter-spacing:1.4px}
+body.gd-home .gd-zen-pillars{font-size:9px;gap:6px}
+body.gd-home .gd-zen-line{font-size:9px;margin-top:4px;line-height:1.5}
+body.gd-home .gd-radio{width:238px;right:3vw;top:50%;transform:translateY(-50%);max-height:calc(100% - 100px);overflow:auto}
+body.gd-home .gd-radio-body{padding:12px}
+body.gd-home .gd-radio .gd-track{font-size:13px}
+@media(max-height:760px) and (min-width:761px){
+ body.gd-home .gd-nav{min-height:62px;padding-top:9px;padding-bottom:9px}
+ body.gd-home .gd>main{height:calc(100% - 62px);max-height:calc(100% - 62px)}
+ body.gd-home .gd-hero{padding-top:2vh;padding-bottom:2vh}
+ body.gd-home .gd-hero h1{font-size:clamp(52px,7.2vw,100px);margin-bottom:16px}
+ body.gd-home .gd-kicker{margin-bottom:11px}
+ body.gd-home .gd-cta{margin-top:12px}
+ body.gd-home .gd-coordinate{margin-top:13px}
+ body.gd-home .gd-zen{margin-top:9px;padding:7px 10px}
+ body.gd-home .gd-radio{max-height:calc(100% - 70px)}
+}
+@media(max-width:760px){
+ body.gd-home .gd-hero{padding:3vh 5vw 2vh;background-position:58% center}
+ body.gd-home .gd-hero-copy{max-width:100%;padding-right:0}
+ body.gd-home .gd-hero h1{font-size:clamp(50px,12vw,82px);line-height:.8;margin-bottom:14px}
+ body.gd-home .gd-kicker{font-size:8px;margin-bottom:10px}
+ body.gd-home .gd-sub{font-size:9px;line-height:1.55;letter-spacing:1px}
+ body.gd-home .gd-cta{margin-top:10px;padding:10px 12px;font-size:8px}
+ body.gd-home .gd-coordinate{margin-top:10px}
+ body.gd-home .gd-zen{margin-top:10px;padding:7px 9px;max-width:310px;gap:8px}
+ body.gd-home .gd-zen-orbit{width:28px;height:28px;flex-basis:28px}
+ body.gd-home .gd-zen-kicker{font-size:5px;letter-spacing:1px}
+ body.gd-home .gd-zen-pillars{font-size:8px;gap:5px}
+ body.gd-home .gd-zen-line{font-size:8px;line-height:1.4}
+ body.gd-home .gd-radio{top:auto;bottom:8px;right:4vw;left:auto;width:min(230px,72vw);max-height:38%;transform:none}
+ body.gd-home .gd-radio-head{padding:7px 9px}
+ body.gd-home .gd-radio-head>span{font-size:9px}
+ body.gd-home .gd-radio-head small{font-size:6px;margin-top:3px}
+ body.gd-home .gd-radio-body{padding:8px}
+ body.gd-home .gd-radio .gd-eq{height:18px;margin-bottom:6px}
+ body.gd-home .gd-radio .gd-tiny{font-size:7px}
+ body.gd-home .gd-radio .gd-track{font-size:11px;margin:5px 0 2px}
+ body.gd-home .gd-radio .gd-artist{font-size:8px}
+ body.gd-home .gd-radio .gd-controls{margin:8px 0}
+ body.gd-home .gd-radio .gd-controls button{padding:6px;font-size:8px}
+ body.gd-home .gd-radio .gd-stations button{padding:6px 5px;font-size:7px}
+ body.gd-home .gd-radio .gd-note{font-size:6px;line-height:1.4;margin-top:6px}
+}
+@media(max-width:420px){
+ body.gd-home .gd-coordinate{display:none}
+ body.gd-home .gd-hero h1{font-size:clamp(46px,11.5vw,68px)}
+ body.gd-home .gd-zen{max-width:270px;margin-top:8px}
+ body.gd-home .gd-radio{width:min(210px,68vw);max-height:35%}
+}
