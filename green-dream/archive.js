@@ -83,6 +83,41 @@
     player.addEventListener('pause', updateButtons);
     player.addEventListener('ended', () => { if (activeIndex + 1 < tracks.length) selectTrack(activeIndex + 1, true); });
   }
+
+  // Make the floating Poetry Index draggable by its title; keep it inside the viewport.
+  const poetryPanel = document.getElementById('poetry');
+  const poetryHandle = document.getElementById('gd-poetry-title');
+  if (poetryPanel && poetryHandle) {
+    poetryHandle.setAttribute('title', 'Drag to move the Poetry Index');
+    poetryHandle.setAttribute('aria-label', 'Poetry Index. Drag this heading to move the panel.');
+    poetryHandle.addEventListener('pointerdown', event => {
+      if (event.button !== 0 && event.pointerType !== 'touch') return;
+      const rect = poetryPanel.getBoundingClientRect();
+      const startX = event.clientX, startY = event.clientY;
+      const offsetX = startX - rect.left, offsetY = startY - rect.top;
+      poetryPanel.classList.add('is-dragging');
+      poetryHandle.setPointerCapture?.(event.pointerId);
+      const move = moveEvent => {
+        const left = Math.max(0, Math.min(window.innerWidth - poetryPanel.offsetWidth, moveEvent.clientX - offsetX));
+        const top = Math.max(0, Math.min(window.innerHeight - Math.min(poetryPanel.offsetHeight, window.innerHeight), moveEvent.clientY - offsetY));
+        poetryPanel.style.left = left + 'px';
+        poetryPanel.style.top = top + 'px';
+        poetryPanel.style.right = 'auto';
+        poetryPanel.style.bottom = 'auto';
+      };
+      const stop = () => {
+        poetryPanel.classList.remove('is-dragging');
+        poetryHandle.removeEventListener('pointermove', move);
+        poetryHandle.removeEventListener('pointerup', stop);
+        poetryHandle.removeEventListener('pointercancel', stop);
+      };
+      poetryHandle.addEventListener('pointermove', move);
+      poetryHandle.addEventListener('pointerup', stop);
+      poetryHandle.addEventListener('pointercancel', stop);
+      event.preventDefault();
+    });
+  }
+
   async function init() {
     const client = window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
     if (!client) {
