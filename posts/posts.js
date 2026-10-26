@@ -145,7 +145,7 @@
     function newPlayer(p){p.board=blankBoard();p.active=null;p.score=0;p.lines=0;p.over=false;p.won=false;p.dropClock=0;spawn(p);}
     function restart(){
       const w=Math.max(5,Math.floor((width-24)/(cell*2))-1);
-      cols=w;rows=Math.max(10,Math.floor((height-78)/cell));
+      cols=w;rows=Math.max(10,Math.floor((height-120)/cell));
       players=[makePlayer("PLAYER 1","#b6e833",{left:"a",right:"d",rotate:"w",down:"s",drop:" "}),makePlayer("PLAYER 2","#54d7ef",{left:"arrowleft",right:"arrowright",rotate:"arrowup",down:"arrowdown",drop:"enter"})];
       players.forEach(newPlayer);
       mode=modeSelect?.value||"time";remaining=MODES[mode].seconds;running=true;finished=false;last=performance.now();matchStart=last;
@@ -226,7 +226,7 @@
     }
     function drawPlayer(p,index){
       const areaW=width/2,boardW=cols*cell,boardH=rows*cell;
-      const ox=index*areaW+(areaW-boardW)/2,oy=52;
+      const ox=index*areaW+(areaW-boardW)/2,oy=92;
       ctx.save();ctx.translate(ox,oy);
       ctx.fillStyle="rgba(3,8,5,.48)";ctx.fillRect(-8,-8,boardW+16,boardH+16);
       ctx.strokeStyle=p.color;ctx.globalAlpha=.28;ctx.lineWidth=1;
