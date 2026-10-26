@@ -153,7 +153,7 @@
   }
   mediaInput.addEventListener('change',async()=>{
     const file=mediaInput.files?.[0];if(!file)return;
-    if(!ALLOWED_MEDIA.has(file.type)){message(mediaMessage,'Unsupported media format. Choose an image, MP4/WebM video, or supported audio file.',true);mediaInput.value='';return;}
+    if(!ALLOWED_MEDIA.has(file.type)){message(mediaMessage,'Unsupported media format. Choose an image or supported audio file.',true);mediaInput.value='';return;}
     if(file.size>MAX_MEDIA_BYTES){message(mediaMessage,'That file exceeds the 30 MB limit.',true);mediaInput.value='';return;}
     const previous={url:mediaUrl,path:mediaPath,type:mediaType};
     mediaInput.disabled=true;message(mediaMessage,'UPLOADING MEDIA…');
