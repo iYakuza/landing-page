@@ -158,8 +158,43 @@
   async function restoreSession(){
     if(!client){showLogin();message(loginMessage,'The publishing client could not initialise. Reload the page or contact the site owner.',true);return;}
     const {data:{session}}=await client.auth.getSession();
+    const resetPanel=$('password-reset-panel');
+    if(new URLSearchParams(window.location.hash.slice(1)).get('type')==='recovery' && session?.user){
+      $('login-panel').hidden=true;$('workspace').hidden=true;resetPanel.hidden=false;
+      $('password-reset-message').textContent='Choose a new password for your account.';
+      return;
+    }
     if(session?.user&&await ensureAdmin(session.user)){currentUser=session.user;showWorkspace(currentUser);await loadPosts();await loadCommunitySubmissions();openRequestedPost();}else showLogin();
   }
+  $('forgot-password')?.addEventListener('click',async()=>{
+    const email=$('login-email').value.trim();
+    if(!email){message(loginMessage,'Enter your account email above first, then request a reset link.',true);$('login-email').focus();return;}
+    const button=$('forgot-password');button.disabled=true;message(loginMessage,'REQUESTING PASSWORD RESET…');
+    try{
+      const redirectTo=new URL('/landing-page/cms/',window.location.origin).href;
+      const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo});
+      if(error)throw error;
+      message(loginMessage,'If an account exists for that email, a password reset link has been sent. Check your inbox and spam folder.');
+    }catch(err){message(loginMessage,err.message||'Could not request a reset link.',true);}
+    finally{button.disabled=false;}
+  });
+  $('password-reset-form')?.addEventListener('submit',async event=>{
+    event.preventDefault();
+    const password=$('new-password').value,confirmPassword=$('confirm-password').value;
+    if(password.length<8){message($('password-reset-message'),'Use at least 8 characters.',true);return;}
+    if(password!==confirmPassword){message($('password-reset-message'),'The passwords do not match.',true);return;}
+    const button=event.currentTarget.querySelector('button');button.disabled=true;message($('password-reset-message'),'UPDATING PASSWORD…');
+    try{
+      const {error}=await client.auth.updateUser({password});
+      if(error)throw error;
+      await client.auth.signOut();
+      window.history.replaceState({},document.title,window.location.pathname);
+      $('password-reset-panel').hidden=true;showLogin();
+      $('login-password').value='';
+      message(loginMessage,'Password updated. Sign in with your new password.');
+    }catch(err){message($('password-reset-message'),err.message||'Could not update the password. Request a fresh reset link and try again.',true);}
+    finally{button.disabled=false;}
+  });
   loginForm.addEventListener('submit',async event=>{
     event.preventDefault();message(loginMessage,'AUTHENTICATING…');
     const {data,error}=await client.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-password').value});
