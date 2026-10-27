@@ -39,7 +39,7 @@
       p.destroy();probePlayer=null;probe.remove();host.replaceChildren();
     }catch(e){picker.replaceChildren();const o=document.createElement('option');o.value='';o.textContent='Playlist unavailable — reload to retry';picker.appendChild(o);status('Could not load playlist titles. '+(e.message||'Check your connection and reload.'))}
   }
-  picker?.addEventListener('change',()=>{const v=videos.find(v=>v.id===picker.value);if(v){setTrack(v);if(playing)playSelected();else{stop();status('Selected: '+v.title+'. Press PLAY to start.')}}});
+  picker?.addEventListener('change',()=>{const v=videos.find(v=>v.id===picker.value);if(v){setTrack(v);playSelected()}});
   play.addEventListener('click',()=>playing?(stop(),status('Playback stopped.')):playSelected());
   function move(n){if(!videos.length)return;let i=videos.findIndex(v=>v.id===selectedId);setTrack(videos[(i+n+videos.length)%videos.length]);if(playing)playSelected();else status('Selected: '+track.textContent+'. Press PLAY to start.')}
   root.querySelector('#gd-next')?.addEventListener('click',()=>move(1));root.querySelector('#gd-prev')?.addEventListener('click',()=>move(-1));
