@@ -10,6 +10,9 @@
   const emptySearch = document.getElementById('posts-empty-search');
   const requestedSlug = new URLSearchParams(window.location.search).get('post');
   const requestedMovement = String(document.body.dataset.movement || '').trim().toUpperCase();
+  const PAGE_SIZE=20, loadMoreButton=document.getElementById('posts-load-more');
+  let postsOffset=0,postsHasMore=false;
+  const isCommunityArchive=document.body.dataset.archive==='community';
   const editModal=document.getElementById('post-edit-modal');
   const editForm=document.getElementById('post-edit-form');
   const editTitle=document.getElementById('inline-edit-title');
@@ -131,7 +134,7 @@
       const permalinkBack=permalink?'<p class="post-back"><a href="./">← BACK TO THE ARCHIVE</a></p>':'';
       const mediaUrl=validMediaUrl(post.media_url);
       const mediaWidth=Math.max(20,Math.min(100,Number(post.media_width)||100));
-      const media=mediaUrl?'<div class="post-media" style="--post-media-width:'+mediaWidth+'%">'+(post.media_type==='image'?'<img src="'+safe(mediaUrl)+'" alt="'+safe(post.title)+'" loading="lazy">':post.media_type==='video'?'<video src="'+safe(mediaUrl)+'" controls preload="metadata"></video>':'<audio src="'+safe(mediaUrl)+'" controls preload="metadata"></audio>')+'</div>':'';
+      const media=mediaUrl?'<div class="post-media" style="--post-media-width:'+mediaWidth+'%">'+(post.media_type==='image'?'<img src="'+safe(mediaUrl)+'" alt="'+safe(post.title)+'" loading="lazy">':post.media_type==='video'?'<video src="'+safe(mediaUrl)+'" controls preload="none" loading="lazy"></video>':'<audio src="'+safe(mediaUrl)+'" controls preload="none"></audio>')+'</div>':'';
       const shapeClass=['shape-i','shape-l','shape-square','shape-t','shape-z','shape-j','shape-s'][index%7];
       if(permalink){
         const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
@@ -162,15 +165,35 @@
       requestAnimationFrame(()=>list.querySelector('.post-card')?.scrollIntoView({behavior:'smooth',block:'start'}));
     }
   }
+  async function loadMorePosts(){
+    if(!client||!postsHasMore||!loadMoreButton)return;
+    loadMoreButton.disabled=true;loadMoreButton.textContent='LOADING…';
+    try{
+      const result=isCommunityArchive
+        ? await client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(postsOffset,postsOffset+PAGE_SIZE-1)
+        : await client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(postsOffset,postsOffset+PAGE_SIZE-1);
+      if(result.error)throw result.error;
+      const rows=result.data||[];
+      postsOffset+=rows.length;postsHasMore=rows.length===PAGE_SIZE;
+      const additions=isCommunityArchive?rows.map(item=>({id:item.id,title:item.title,slug:item.slug,category:'COMMUNITY SIGNAL',excerpt:item.byline?'TRANSMITTED BY '+item.byline:'COMMUNITY SUBMISSION',content_html:item.body?'<p>'+safe(item.body).replace(/\\n/g,'<br>')+'</p>':'',media_url:item.media_url,media_type:item.medium==='photograph'?'image':item.medium==='video'?'video':'audio',created_at:item.created_at,published_at:item.published_at||item.created_at,community:true})):rows.map(p=>({...p,community:false}));
+      posts=[...posts,...additions].sort((a,b)=>new Date(b.published_at||b.created_at)-new Date(a.published_at||a.created_at));
+      render();loadMoreButton.hidden=!postsHasMore;
+    }catch(error){loadMoreButton.textContent='RETRY LOADING OLDER POSTS ↓';}
+    finally{loadMoreButton.disabled=false;if(postsHasMore)loadMoreButton.textContent='LOAD OLDER TRANSMISSIONS ↓';}
+  }
   async function load(){
     if(!client){list.innerHTML='<p class="posts-empty">THE ARCHIVE COULD NOT CONNECT.</p>';count.textContent='SIGNAL UNAVAILABLE';return;}
-    const isCommunityArchive=document.body.dataset.archive==='community';
+    postsOffset=0;
     const [ownerResult,communityResult]=await Promise.all([
-      isCommunityArchive ? Promise.resolve({data:[],error:null}) : client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}),
-      isCommunityArchive ? client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}) : Promise.resolve({data:[],error:null})
+      isCommunityArchive ? Promise.resolve({data:[],error:null}) : client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(0,PAGE_SIZE-1),
+      isCommunityArchive ? client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(0,PAGE_SIZE-1) : Promise.resolve({data:[],error:null})
     ]);
     if(ownerResult.error){list.innerHTML='<p class="posts-empty">THE COMMUNITY GALLERY COULD NOT LOAD. PLEASE TRY AGAIN LATER.</p>';count.textContent='SIGNAL UNAVAILABLE';return;}
     const ownerPosts=ownerResult.data||[];
+    const communityRows=communityResult.error?[]:(communityResult.data||[]);
+    postsOffset=(isCommunityArchive?communityRows.length:ownerPosts.length);
+    postsHasMore=(isCommunityArchive?communityRows.length:ownerPosts.length)===PAGE_SIZE;
+    if(loadMoreButton)loadMoreButton.hidden=!postsHasMore;
     const communityPosts=communityResult.error?[]:(communityResult.data||[]).map(item=>({
       id:item.id,title:item.title,slug:item.slug,category:'COMMUNITY SIGNAL',excerpt:item.byline?'TRANSMITTED BY '+item.byline:'COMMUNITY SUBMISSION',
       content_html:item.body?'<p>'+safe(item.body).replace(/\n/g,'<br>')+'</p>':'',media_url:item.media_url,
@@ -481,5 +504,5 @@
       finally{submissionButton.disabled=false;}
     });
   }
-  search.addEventListener('input',render);categoryFilter.addEventListener('change',render);load();
+  search.addEventListener('input',render);categoryFilter.addEventListener('change',render);loadMoreButton?.addEventListener('click',loadMorePosts);load();
 })();
