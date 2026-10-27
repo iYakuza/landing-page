@@ -80,3 +80,9 @@ body .gd-nav nav{position:relative!important;z-index:2147483001!important;overfl
 body .gd-nav .vha-nav-dropdown{position:relative!important;z-index:2147483002!important;overflow:visible!important}
 body .gd-nav .vha-nav-dropdown[open]{z-index:2147483003!important}
 body .gd-nav .vha-nav-menu{z-index:2147483007!important;isolation:isolate!important}
+
+/* Global typography baseline: one readable sans-serif family across every page and control. */
+:root{--vha-font:Arial,Helvetica,sans-serif}
+html,body,body *{font-family:var(--vha-font)!important}
+button,input,select,textarea{font-family:var(--vha-font)!important}
+code,pre,kbd,samp{font-family:var(--vha-font)!important}
