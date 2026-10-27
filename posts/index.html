@@ -64,29 +64,26 @@
         </svg>
       </div>
       <h1>TRANSMIS<br><em>SIONS.</em></h1>
-      <p class="posts-intro">Notes from the in-between. Writing, unfinished thoughts, creative experiments, and signals worth keeping.</p>
-      <div class="posts-meta"><span>PERSONAL JOURNAL / PUBLIC ARCHIVE</span><span id="post-count">CONNECTING…</span></div>
+      <p class="posts-intro">A quiet channel for poems, photographs, music, and moving images. Leave something here; stay awhile and listen to what others send.</p>
+      <div class="posts-meta"><span>COMMUNITY SIGNALS / OPEN CHANNEL</span><span id="post-count">CONNECTING…</span></div>
+    </section>
+    <section class="transmit-panel" id="send-a-transmission" aria-labelledby="transmit-title">
+      <div class="transmit-copy"><p class="gd-kicker">UPLINK // 001</p><h2 id="transmit-title">SEND SOMETHING<br><em>INTO THE NIGHT.</em></h2><p>A poem you wrote at 2 a.m. A photograph, a song, a small piece of a bigger feeling. This channel is for work made by people, not polished for an algorithm.</p><p class="transmit-note">Submissions are reviewed before publication. Please send only work you created or have permission to share.</p></div>
+      <form id="visitor-transmission-form" class="transmit-form">
+        <label for="visitor-title">GIVE IT A NAME <span>REQUIRED</span></label><input id="visitor-title" name="title" maxlength="120" required placeholder="A title, a line, a feeling…">
+        <div class="transmit-two-col"><div><label for="visitor-byline">YOUR NAME <span>OPTIONAL</span></label><input id="visitor-byline" name="byline" maxlength="80" placeholder="Name or alias"></div><div><label for="visitor-medium">WHAT ARE YOU SENDING?</label><select id="visitor-medium" name="medium" required><option value="poem">POEM / WRITING</option><option value="photograph">PHOTOGRAPH / IMAGE</option><option value="music">MUSIC / AUDIO</option><option value="video">VIDEO</option></select></div></div>
+        <label for="visitor-body">THE TRANSMISSION <span>OPTIONAL FOR MEDIA</span></label><textarea id="visitor-body" name="body" rows="6" maxlength="12000" placeholder="Put the words here. Leave a little context if you want."></textarea>
+        <div class="transmit-upload"><label for="visitor-media">ATTACH A FILE <span>OPTIONAL · MAX 25 MB</span></label><input id="visitor-media" name="media" type="file" accept="image/jpeg,image/png,image/webp,audio/mpeg,audio/mp4,audio/wav,audio/ogg,audio/x-m4a,video/mp4,video/webm,video/quicktime"><p>Images, audio, or video. If your work lives elsewhere, you can include a link in the text.</p></div>
+        <label class="transmit-consent"><input type="checkbox" id="visitor-rights" required><span>I made this work or have permission to share it. I understand it will be reviewed before appearing publicly.</span></label>
+        <input type="text" id="visitor-website" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="transmit-honeypot">
+        <button type="submit" class="transmit-submit" id="visitor-submit">TRANSMIT SIGNAL ↗</button>
+        <p id="visitor-status" class="transmit-status" role="status" aria-live="polite">NO ACCOUNT NEEDED. YOUR WORK WILL BE REVIEWED BEFORE PUBLICATION.</p>
+      </form>
     </section>
     <section class="posts-content" aria-labelledby="archive-title">
-      <div class="posts-heading"><div><p class="gd-kicker">INCOMING SIGNALS</p><h2 id="archive-title">LATEST <em>POSTS</em></h2></div>
+      <div class="posts-heading"><div><p class="gd-kicker">THE RECEIVING ROOM</p><h2 id="archive-title">SIGNALS <em>RECEIVED</em></h2></div>
         <label class="posts-search"><span class="sr-only">Search posts</span><input id="post-search" type="search" placeholder="SEARCH TRANSMISSIONS…" autocomplete="off"></label>
       </div>
-      <section class="viewer-console" id="viewer-settings" aria-labelledby="viewer-title">
-        <div class="viewer-console-head"><div><p class="gd-kicker">PERSONALIZE THE ENTIRE ARCHIVE</p><h2 id="viewer-title">LOCAL THEME <em>STUDIO</em></h2></div><span class="viewer-live"><i></i> DESIGN SYSTEM // LOCAL</span></div>
-        <p class="theme-studio-intro">Tell the archive how you feel. Your words shape its colors, typography, spacing, textures and overall atmosphere. You can also describe a visual style if you have one in mind.</p>
-        <div class="theme-studio-layout">
-          <div class="theme-preset-side"><div class="theme-swatches" role="group" aria-label="Theme directions" hidden></div>
-          <div class="theme-scope"><p class="viewer-label">REDESIGN SCOPE</p><div class="theme-scope-list"><span>✓ Page background &amp; atmosphere</span><span>✓ Typography &amp; hierarchy</span><span>✓ Post tile geometry &amp; layout</span><span>✓ Navigation, filters &amp; buttons</span><span>✓ Image, video &amp; audio frames</span><span>✓ Borders, texture &amp; interaction</span></div></div></div>
-          <form class="theme-prompt" id="theme-prompt-form"><label class="viewer-label" for="theme-prompt">HOW ARE YOU FEELING? <span>›</span></label>
-            <p class="theme-prompt-hint">Describe your mood in your own words—calm, sad, restless, hopeful, joyful, lonely, nostalgic, or something harder to name. The archive will respond with a matching visual atmosphere. Add colors or design details if you like.</p>
-            <textarea id="theme-prompt" rows="6" maxlength="1600" placeholder="I feel overwhelmed and need something quiet, spacious, and grounding. Use soft sage, warm off-white, rounded cards, minimal decoration, and no distracting motion…"></textarea>
-            <div class="theme-prompt-examples"><button type="button" data-prompt="I feel nostalgic tonight. Give the archive a warm, faded-paper feeling, soft sepia tones, moss-green accents, literary typography, and subtle analog grain.">NOSTALGIC</button><button type="button" data-prompt="I feel anxious and overstimulated. Make the archive feel quiet and grounding, with soft sage and off-white colors, generous space, simple rounded cards, clear typography, and no distracting motion.">NEED CALM</button><button type="button" data-prompt="I feel joyful and full of energy. Make the archive bright, playful, and warm, with sunny colors, lively accents, expressive typography, rounded shapes, and a little movement.">FEELING JOYFUL</button></div>
-            <p class="theme-status" id="theme-status" role="status" aria-live="polite">MOOD-RESPONSIVE THEME STUDIO // YOUR WORDS SHAPE THE DESIGN.</p>
-            <div class="theme-progress" id="theme-progress" hidden><div class="theme-progress-track"><span id="theme-progress-bar"></span></div><div class="theme-progress-meta"><span id="theme-progress-message">BUILDING A DESIGN SYSTEM…</span><b id="theme-progress-percent">0%</b></div></div>
-            <div class="theme-result" id="theme-result" hidden><div><strong id="theme-result-title">THEME GENERATED</strong><p id="theme-result-description"></p></div><div class="theme-result-actions"><button type="button" id="theme-apply">APPLY DESIGN</button><button type="button" id="theme-reset">RESET</button></div></div>
-          </form>
-        </div>
-      </section>
       <nav class="movement-index" aria-label="Browse the five movements">
         <a href="the-awakening/">I. THE AWAKENING</a>
         <a href="the-descent/">II. THE DESCENT</a>
@@ -103,7 +100,7 @@
     </section>
     <section class="posts-note">
       <span class="posts-note-mark">V/A</span>
-      <div><p class="gd-kicker">LEAVE A TRACE</p><h2>EVERY SIGNAL<br><em>STARTS SOMEWHERE.</em></h2><p>This is the home for new writing and ideas. Posts can be essays, poems, project notes, links, or fragments still finding their shape.</p><a class="posts-admin-link" href="../cms/">OPEN CREATOR CONSOLE ↗</a></div>
+      <div><p class="gd-kicker">LEAVE A TRACE</p><h2>EVERY SIGNAL<br><em>STARTS SOMEWHERE.</em></h2><p>Have something you want to share? Send it into the channel above. Community submissions are reviewed before they join the public archive.</p><a class="posts-admin-link" href="../cms/">OWNER STUDIO // PUBLISH POSTS ↗</a></div>
     </section>
   </main>
   <footer class="gd-footer"><a class="gd-brand" href="../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="#gd-top">BACK TO SURFACE ↑</a></footer>
@@ -135,7 +132,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="posts.js?v=20261027-auto-apply-2"></script>
+<script src="posts.js?v=20261027-community-uplink-1"></script>
   <script src="/landing-page/tools.js?v=20261027-tools-9"></script>
 </body>
 </html>
