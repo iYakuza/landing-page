@@ -32,20 +32,57 @@
       playing=true;play.textContent='■ STOP';play.setAttribute('aria-label','Stop playback');eq.classList.remove('paused');status('Playing: '+(videos.find(v=>v.id===selectedId)?.title||'selected video'));
     }catch(e){status(e.message||'YouTube could not start.')}
   }
+  let playlistLoading=null;
   async function loadPlaylist(){
-    try{
-      await ensureApi();
-      const probe=document.createElement('div');probe.setAttribute('aria-hidden','true');probe.style.cssText='position:fixed;left:-10000px;top:0;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(probe);
-      const p=await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error('Playlist request timed out.')),15000);probePlayer=new YT.Player(probe,{height:'1',width:'1',playerVars:{listType:'playlist',list:playlistId,playsinline:1,origin:location.origin},events:{onReady:e=>{clearTimeout(timeout);resolve(e.target)},onError:()=>{clearTimeout(timeout);reject(new Error('YouTube could not load this playlist.'))}}})});
-      const ids=p.getPlaylist()||[];if(!ids.length)throw new Error('No videos were returned by the playlist.');
-      videos=await Promise.all(ids.map(async(id,i)=>{try{const url='https://www.youtube.com/oembed?url='+encodeURIComponent('https://www.youtube.com/watch?v='+id)+'&format=json';const res=await fetch(url,{headers:{Accept:'application/json'}});if(!res.ok)throw new Error();const data=await res.json();return{id,title:String(data.title||'').slice(0,180)||('Playlist video '+(i+1))}}catch{return{id,title:'Playlist video '+String(i+1).padStart(2,'0')+' (title unavailable)'}}}));
-      picker.replaceChildren();videos.forEach((v,i)=>{const o=document.createElement('option');o.value=v.id;o.textContent=String(i+1).padStart(2,'0')+' / '+v.title;picker.appendChild(o)});
-      setTrack(videos[0]);status(videos.length+' playlist videos loaded. Choose a title, then press PLAY.');
-      p.destroy();probePlayer=null;probe.remove();host.replaceChildren();
-    }catch(e){picker.replaceChildren();const o=document.createElement('option');o.value='';o.textContent='Playlist unavailable — reload to retry';picker.appendChild(o);status('Could not load playlist titles. '+(e.message||'Check your connection and reload.'))}
+    if(videos.length)return true;
+    if(playlistLoading)return playlistLoading;
+    playlistLoading=(async()=>{
+      let probe=null,p=null,timeoutId=null;
+      try{
+        status('Loading playlist only because you asked to play it…');
+        await ensureApi();
+        probe=document.createElement('div');probe.setAttribute('aria-hidden','true');probe.style.cssText='position:fixed;left:-10000px;top:0;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(probe);
+        p=await new Promise((resolve,reject)=>{timeoutId=setTimeout(()=>reject(new Error('Playlist request timed out.')),15000);probePlayer=new YT.Player(probe,{height:'1',width:'1',playerVars:{listType:'playlist',list:playlistId,playsinline:1,origin:location.origin},events:{onReady:e=>{clearTimeout(timeoutId);resolve(e.target)},onError:()=>{clearTimeout(timeoutId);reject(new Error('YouTube could not load this playlist.'))}}})});
+        const ids=(p.getPlaylist()||[]).slice(0,100);
+        if(!ids.length)throw new Error('No videos were returned by the playlist.');
+        videos=ids.map((id,i)=>({id,title:'Playlist video '+String(i+1).padStart(2,'0')}));
+        // Fetch titles in small batches, not one request per video all at once.
+        for(let start=0;start<ids.length;start+=4){
+          await Promise.all(ids.slice(start,start+4).map(async(id,offset)=>{
+            const i=start+offset;
+            try{
+              const url='https://www.youtube.com/oembed?url='+encodeURIComponent('https://www.youtube.com/watch?v='+id)+'&format=json';
+              const res=await fetch(url,{headers:{Accept:'application/json'}});
+              if(res.ok){const data=await res.json();videos[i].title=String(data.title||videos[i].title).slice(0,180)}
+            }catch{}
+          }));
+        }
+        picker.replaceChildren();
+        videos.forEach((v,i)=>{const o=document.createElement('option');o.value=v.id;o.textContent=String(i+1).padStart(2,'0')+' / '+v.title;picker.appendChild(o)});
+        setTrack(videos[0]);status(videos.length+' playlist videos loaded. Choose a title, then press PLAY.');
+        return true;
+      }catch(e){
+        picker.replaceChildren();const o=document.createElement('option');o.value='';o.textContent='Playlist unavailable — press PLAY to retry';picker.appendChild(o);
+        status('Could not load playlist titles. '+(e.message||'Check your connection and try again.'));
+        return false;
+      }finally{
+        if(timeoutId)clearTimeout(timeoutId);
+        try{p?.destroy()}catch{}
+        try{probePlayer?.destroy()}catch{}
+        probePlayer=null;
+        probe?.remove();
+        host.replaceChildren();
+        playlistLoading=null;
+      }
+    })();
+    return playlistLoading;
   }
   picker?.addEventListener('change',()=>{const v=videos.find(v=>v.id===picker.value);if(v){setTrack(v);playSelected()}});
-  play.addEventListener('click',()=>playing?(stop(),status('Playback stopped.')):playSelected());
+  play.addEventListener('click',async()=>{
+    if(playing){stop();status('Playback stopped.');return}
+    if(!videos.length){play.disabled=true;const loaded=await loadPlaylist();play.disabled=false;if(!loaded||!videos.length)return}
+    await playSelected();
+  });
 
   close?.addEventListener('click',e=>{const m=radio.classList.toggle('minimized');e.currentTarget.textContent=m?'+':'−';e.currentTarget.setAttribute('aria-expanded',String(!m));e.currentTarget.setAttribute('aria-label',m?'Expand radio':'Minimize radio')});
   // Inline !important positioning beats the legacy homepage rules that pinned top/bottom.
@@ -99,5 +136,5 @@
   head.addEventListener('click',e=>{if(Date.now()<suppressClickUntil){suppressClickUntil=0;e.preventDefault();e.stopImmediatePropagation()}},true);
   window.addEventListener('resize',()=>{const r=radio.getBoundingClientRect();setPosition(r.left,r.top,true)});
 
-  loadPlaylist();
+  status('Radio is idle. Press PLAY to load the playlist.');
 })();
