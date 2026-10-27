@@ -9,7 +9,7 @@
   <meta name="robots" content="noindex,nofollow">
   <title>TRANSMISSION CONSOLE — Verse After Hours</title>
   <link rel="stylesheet" href="../green-dream/style.css?v=20261026-scroll-fix-2">
-  <link rel="stylesheet" href="cms.css?v=20261026-movement-categories-1">
+  <link rel="stylesheet" href="cms.css?v=20261027-owner-studio-1">
   <link rel="stylesheet" href="/landing-page/tools.css?v=20261027-nav-buttons-1">
 </head>
 <body>
@@ -35,9 +35,9 @@
   </header>
   <main class="cms-shell">
     <section class="cms-hero">
-      <p class="gd-kicker">VERSE AFTER HOURS // CREATOR ACCESS</p>
-      <h1>TRANSMISSION<br><em>CONSOLE.</em></h1>
-      <p>Write the signal. Keep it as a draft. Publish when it is ready.</p>
+      <p class="gd-kicker">VERSE AFTER HOURS // OWNER STUDIO</p>
+      <h1>POST<br><em>STUDIO.</em></h1>
+      <p>Your writing desk. Draft privately, edit your posts, and publish when they are ready.</p>
     </section>
     <section id="login-panel" class="cms-login cms-panel">
       <p class="gd-kicker">AUTHENTICATION REQUIRED</p>
@@ -57,7 +57,7 @@
       </div>
       <div class="cms-layout">
         <aside class="cms-panel cms-posts-panel">
-          <div class="cms-list-head"><h3>YOUR TRANSMISSIONS</h3><button id="refresh-posts" class="cms-text-button">REFRESH ↻</button></div>
+          <div class="cms-list-head"><h3>YOUR POSTS</h3><button id="refresh-posts" class="cms-text-button">REFRESH ↻</button></div>
           <div class="cms-tabs"><button class="selected" data-status-filter="all">ALL</button><button data-status-filter="draft">DRAFTS</button><button data-status-filter="published">PUBLISHED</button></div>
           <div id="manage-posts" class="manage-posts"><p class="cms-help">Loading posts…</p></div>
         </aside>
@@ -103,7 +103,7 @@
       <ol class="cms-setup-steps"><li>In <a href="https://supabase.com/dashboard/project/oeyxsqocldlovhsmzcjw/auth/users" target="_blank" rel="noopener noreferrer">Supabase → Authentication → Users</a>, create an email/password user for yourself and copy its UUID.</li><li>Open the <a href="https://supabase.com/dashboard/project/oeyxsqocldlovhsmzcjw/sql/new" target="_blank" rel="noopener noreferrer">SQL Editor</a> and run this, replacing the placeholder with that UUID:<pre><code>insert into public.vha_cms_admins (user_id) values ('REPLACE-WITH-YOUR-USER-UUID') on conflict (user_id) do nothing;</code></pre></li><li>Return here and sign in with that account. Only explicitly listed users can publish or edit posts.</li></ol><p>The database owner performs the one-time access grant. The website cannot grant itself CMS access.</p>
     </section>
   </main>
-  <footer class="gd-footer"><a class="gd-brand" href="../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="../posts/">OPEN ARCHIVE ↗</a></footer>
+  <footer class="gd-footer"><a class="gd-brand" href="../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="../posts/">VIEW TRANSMISSIONS ↗</a></footer>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="cms.js"></script>
