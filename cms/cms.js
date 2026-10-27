@@ -73,6 +73,19 @@
     postLayout=layoutInput.value;sunoFields.hidden=postLayout!=='suno';plainFields.hidden=postLayout!=='plain';
     contentEditor.closest('.rich-editor').hidden=postLayout!=='standard';contentEditor.closest('.rich-editor').previousElementSibling.hidden=postLayout!=='standard';
   }
+  function htmlToEditorText(container,skipFirstLabel=false){
+    if(!container)return '';
+    const blocks=[];
+    const nodes=Array.from(container.childNodes).filter(node=>!(skipFirstLabel&&node.nodeType===Node.ELEMENT_NODE&&node.classList.contains('suno-label')));
+    function read(node){
+      if(node.nodeType===Node.TEXT_NODE)return node.nodeValue||'';
+      if(node.nodeType!==Node.ELEMENT_NODE)return '';
+      if(node.tagName==='BR')return '\n';
+      const inner=Array.from(node.childNodes).map(read).join('');
+      return ['P','DIV','SECTION','ASIDE','H2','H3','BLOCKQUOTE','LI'].includes(node.tagName)?'\n\n'+inner+'\n\n':inner;
+    }
+    return nodes.map(read).join('').replace(/\r/g,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').replace(/^\n+|\n+$/g,'');
+  }
   function textAsParagraphs(value){return String(value||'').split(/\n{2,}/).map(part=>'<p>'+escapeHtml(part).replace(/\n/g,'<br>')+'</p>').join('');}
   function buildPostContent(){
     if(postLayout==='standard')return contentEditor.innerHTML;
@@ -102,7 +115,7 @@
     categoryInput.value=post.category||'';excerptInput.value=post.excerpt||'';contentEditor.innerHTML=cleanHtml(post.content_html||'');
     postMediaWidth=Math.max(20,Math.min(100,Number(post.media_width)||100));mediaWidthInput.value=String(postMediaWidth);mediaWidthValue.value=postMediaWidth+'%';
     const savedDoc=new DOMParser().parseFromString(post.content_html||'','text/html');const suno=savedDoc.querySelector('.suno-post-layout'),plain=savedDoc.querySelector('.plain-post-layout');
-    if(suno){postLayout='suno';$('post-main-text').value=savedDoc.querySelector('.suno-text-column')?.innerText.replace(/^01 \/\/ THE TEXT\s*/,'')||'';$('post-lyrics').value=savedDoc.querySelector('.suno-lyrics pre')?.innerText||'';$('post-style-notes').value=savedDoc.querySelector('.suno-notes')?.innerText||'';$('post-learned').value=savedDoc.querySelector('.suno-learned')?.innerText||'';}else if(plain){postLayout='plain';$('post-plain-text').value=savedDoc.querySelector('.plain-copy')?.innerText||'';}else postLayout='standard';layoutInput.value=postLayout;syncLayoutFields();
+    if(suno){postLayout='suno';$('post-main-text').value=htmlToEditorText(savedDoc.querySelector('.suno-text-column'),true);$('post-lyrics').value=savedDoc.querySelector('.suno-lyrics pre')?.textContent||'';$('post-style-notes').value=htmlToEditorText(savedDoc.querySelector('.suno-notes'),true);$('post-learned').value=htmlToEditorText(savedDoc.querySelector('.suno-learned'),true); }else if(plain){postLayout='plain';$('post-plain-text').value=htmlToEditorText(savedDoc.querySelector('.plain-copy'),true);}else postLayout='standard';layoutInput.value=postLayout;syncLayoutFields();
     mediaUrl=post.media_url||null;mediaPath=post.media_path||null;mediaType=post.media_type||null;originalMediaPath=post.media_path||null;
     mediaInput.value='';renderMediaPreview();message(mediaMessage,'');$('delete-post').hidden=false;
     $('editor-mode').textContent='EDIT TRANSMISSION';setStatus(post.status==='published'?'PUBLISHED':'DRAFT');
