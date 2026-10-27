@@ -5,41 +5,9 @@
   const root = document.documentElement;
   const launcher = document.createElement("aside");
   launcher.id = "vha-tools-launcher";
-  launcher.innerHTML = '<button id="vha-tools-trigger" type="button" aria-label="Open tools" aria-expanded="false" title="Tools"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Z"/><path d="m19.4 13.5 1.1.9-1.4 2.5-1.4-.5a7.8 7.8 0 0 1-1.6.9l-.3 1.5h-2.9l-.3-1.5a7.8 7.8 0 0 1-1.6-.9l-1.4.5-1.4-2.5 1.1-.9a7.2 7.2 0 0 1 0-1.8l-1.1-.9 1.4-2.5 1.4.5a7.8 7.8 0 0 1 1.6-.9l.3-1.5h2.9l.3 1.5a7.8 7.8 0 0 1 1.6.9l1.4-.5 1.4 2.5-1.1.9a7.2 7.2 0 0 1 0 1.8Z" transform="translate(-1 -1) scale(.96)"/></svg></button><button id="vha-tools-menu-item" type="button" aria-expanded="false">LOCAL THEME STUDIO <span>↖</span></button><section id="vha-tools-panel" aria-label="Website tools" aria-hidden="true"><header class="vha-tools-head"><strong>TOOLS // LOCAL THEME STUDIO</strong><button type="button" id="vha-tools-close" aria-label="Close tools">CLOSE ×</button></header><iframe title="Local Theme Studio" src="' + "/landing-page/posts/?tool=theme" + '" loading="lazy"></iframe><div class="vha-tool-note">Describe how you feel. Apply a theme to this page in your browser.</div></section>';
+  launcher.innerHTML = '<section id="vha-tools-panel" aria-label="Theme prompt"><iframe title="Theme prompt" src="/landing-page/posts/?tool=theme"></iframe></section>';
   document.body.appendChild(launcher);
-  const trigger = launcher.querySelector("#vha-tools-trigger");
-  const panel = launcher.querySelector("#vha-tools-panel");
   const frame = launcher.querySelector("iframe");
-  const menuItem = launcher.querySelector("#vha-tools-menu-item");
-  function showMenu(show) {
-    if (show) {
-      panel.classList.remove("is-open");
-      panel.setAttribute("aria-hidden", "true");
-      menuItem.setAttribute("aria-expanded", "false");
-      trigger.setAttribute("aria-label", "Open tools");
-    }
-    launcher.classList.toggle("menu-open", show);
-    trigger.setAttribute("aria-expanded", String(show || panel.classList.contains("is-open")));
-  }
-  function open(opened) {
-    panel.classList.toggle("is-open", opened);
-    panel.setAttribute("aria-hidden", String(!opened));
-    launcher.classList.toggle("menu-open", false);
-    menuItem.setAttribute("aria-expanded", String(opened));
-    trigger.setAttribute("aria-expanded", String(opened));
-    trigger.setAttribute("aria-label", opened ? "Close tools" : "Open tools");
-    if (opened) {
-      frame.dataset.loaded = "true";
-      if (!frame.dataset.initialized) frame.dataset.initialized = "true";
-    }
-  }
-  trigger.addEventListener("click", () => {
-    if (panel.classList.contains("is-open")) open(false);
-    else showMenu(!launcher.classList.contains("menu-open"));
-  });
-  menuItem.addEventListener("click", () => open(true));
-  launcher.querySelector("#vha-tools-close").addEventListener("click", () => open(false));
-  document.addEventListener("keydown", e => { if (e.key === "Escape") { open(false); showMenu(false); } });
   function applyTheme(theme) {
     if (!theme || !theme.colors || !theme.typography || !theme.layout || !theme.details) return;
     const c = theme.colors;
