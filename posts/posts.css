@@ -686,3 +686,25 @@ body.post-edit-open{overflow:hidden}
 .post-media img,.post-media video,.post-media audio{width:var(--post-media-width,100%);max-width:100%;height:auto}
 .post-media img,.post-media video{width:var(--post-media-width,100%);max-width:100%;object-fit:contain}
 @media(max-width:700px){.suno-post-layout,.plain-post-layout{grid-template-columns:1fr;gap:14px}.suno-lyrics,.plain-copy,.suno-notes,.plain-response{padding:18px}}
+
+
+/* Preserve the Suno-style editorial split in both archive cards and individual transmissions. */
+.post-media{width:min(var(--post-media-width,100%),100%);max-width:100%;box-sizing:border-box}
+.post-media img,.post-media video{max-width:100%}
+.posts-list:has(.post-back) .post-card .post-body,
+.posts-list:not(:has(.post-back)) .post-archive-composition .post-body{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.posts-list:not(:has(.post-back)) .post-archive-composition{display:block!important;padding:clamp(20px,3vw,34px)!important;min-height:0!important;overflow:hidden}
+.posts-list:not(:has(.post-back)) .post-archive-composition:before{clip-path:polygon(0 0,calc(100% - 18px) 0,calc(100% - 18px) 18px,100% 18px,100% 100%,18px 100%,18px calc(100% - 18px),0 calc(100% - 18px))}
+.posts-list:not(:has(.post-back)) .post-archive-composition .post-media{margin:14px 0 20px}
+.posts-list:not(:has(.post-back)) .post-archive-composition .suno-post-layout,
+.posts-list:not(:has(.post-back)) .post-archive-composition .plain-post-layout{margin:18px 0 22px;gap:clamp(12px,2vw,28px)}
+.posts-list:not(:has(.post-back)) .post-archive-composition .suno-lyrics,
+.posts-list:not(:has(.post-back)) .post-archive-composition .plain-copy,
+.posts-list:not(:has(.post-back)) .post-archive-composition .suno-notes,
+.posts-list:not(:has(.post-back)) .post-archive-composition .plain-response{padding:clamp(12px,2vw,24px)}
+.posts-list:not(:has(.post-back)) .post-archive-composition .suno-lyrics pre{font-size:clamp(12px,1.15vw,15px)}
+.posts-list:not(:has(.post-back)) .post-archive-composition .post-open-link{margin-bottom:12px}
+@media(max-width:700px){
+ .posts-list:not(:has(.post-back)) .post-archive-composition .suno-post-layout,
+ .posts-list:not(:has(.post-back)) .post-archive-composition .plain-post-layout{grid-template-columns:minmax(0,1fr)}
+}
