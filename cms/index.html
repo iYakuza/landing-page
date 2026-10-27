@@ -93,7 +93,7 @@
               <label for="post-layout">LAYOUT</label>
               <select id="post-layout"><option value="suno">SUNO LYRICS + STYLE BREAKDOWN</option><option value="plain">PLAIN TEXT + “OH, SUN.”</option><option value="standard">STANDARD ARTICLE</option></select>
               <div id="suno-fields" class="suno-fields">
-                <label for="post-lyrics">LEFT COLUMN // LYRICS OR ORIGINAL TEXT</label><textarea id="post-lyrics" rows="12" placeholder="Paste the poem here, including [Verse], [Chorus], [Bridge] and other Suno tags…"></textarea>
+                <details class="cms-lyrics-field"><summary>LYRICS <span>CLICK TO EXPAND / COLLAPSE</span></summary><label for="post-lyrics">LEFT COLUMN // LYRICS OR ORIGINAL TEXT</label><textarea id="post-lyrics" rows="12" placeholder="Paste the poem here, including [Verse], [Chorus], [Bridge] and other Suno tags…"></textarea></details>
                 <label for="post-style-notes">RIGHT COLUMN // SUNO STYLE EXPLAINED</label><textarea id="post-style-notes" rows="10" placeholder="Explanation of each [tag], why it is used, what it contributes, and its benefits. ChatGPT can prepare this for you."></textarea>
                 <label for="post-learned">WHAT I LEARNED</label><textarea id="post-learned" rows="4" placeholder="The lesson, discovery, or creative insight behind this piece…"></textarea>
               </div>
@@ -138,7 +138,7 @@
   <footer class="gd-footer"><a class="gd-brand" href="../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="../posts/">VIEW TRANSMISSIONS ↗</a></footer>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
-<script src="cms.js?v=20261027-video-upload-1"></script>
+<script src="cms.js?v=20261027-lyrics-collapse-1"></script>
   <script src="/landing-page/tools.js?v=20261027-mood-global-5"></script>
 
 </body>
