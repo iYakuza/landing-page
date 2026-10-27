@@ -110,7 +110,7 @@
       else message(saveMessage,'The requested post could not be found in the editor. It may have been deleted or is not accessible.',true);
       return;
     }
-    if(requestedNewPost && MOVEMENTS.includes(requestedCategory)){
+    if(requestedNewPost && ['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'].includes(requestedCategory)){
       blankEditor();
       categoryInput.value=requestedCategory;
       setStatus('NEW POST // '+requestedCategory);
