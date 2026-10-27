@@ -464,5 +464,5 @@
       finally{submissionButton.disabled=false;}
     });
   }
-\n  search.addEventListener('input',render);categoryFilter.addEventListener('change',render);load();
+  search.addEventListener('input',render);categoryFilter.addEventListener('change',render);load();
 })();
