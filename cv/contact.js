@@ -122,7 +122,7 @@
     if(files.length>5||total>10*1024*1024||files.some(f=>!allowed.has(f.type)||f.size>5*1024*1024)){status.textContent="Please check attachment types and size limits.";return;}
     submit.disabled=true;submit.textContent="SENDING…";
     try{
-      const payload={name:form.elements.name.value.trim(),email:form.elements.email.value.trim(),subject:form.elements.subject.value.trim()||"Contact about a role",message:form.elements.message.value.trim(),website:form.elements.website.value.trim(),attachments:await Promise.all(files.map(encodeFile))};
+      const payload={name:form.elements.name.value.trim(),email:form.elements.email.value.trim(),subject:form.elements.subject.value.trim()||form.dataset.defaultSubject||"Contact about a role",message:form.elements.message.value.trim(),website:form.elements.website.value.trim(),attachments:await Promise.all(files.map(encodeFile))};
       const response=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
       const result=await response.json().catch(()=>({}));
       if(!response.ok||!result.ok)throw new Error(result.error||"The message could not be sent.");
