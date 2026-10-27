@@ -114,9 +114,14 @@
     managePosts.innerHTML=posts.map(p=>'<button type="button" class="manage-item '+(p.id===editingId?'active':'')+'" data-id="'+escapeHtml(p.id)+'"><strong>'+escapeHtml(p.title)+'</strong><small><span class="'+(p.status==='draft'?'draft-label':'published-label')+'">'+escapeHtml(p.status.toUpperCase())+'</span> · '+escapeHtml(p.category)+'<br>UPDATED '+new Date(p.updated_at).toLocaleDateString('en-GB')+'</small></button>').join('');
     managePosts.querySelectorAll('[data-id]').forEach(btn=>btn.addEventListener('click',()=>{const post=allPosts.find(p=>p.id===btn.dataset.id);if(post)openPost(post);}));
   }
-  function openRequestedPost(){
+  async function openRequestedPost(){
     if(requestedEditSlug){
-      const post=allPosts.find(item=>item.slug===requestedEditSlug);
+      let post=allPosts.find(item=>item.slug===requestedEditSlug);
+      if(!post){
+        const {data,error}=await client.from('vha_posts').select('id,title,slug,category,status,updated_at,media_path').eq('slug',requestedEditSlug).maybeSingle();
+        if(error){message(saveMessage,error.message,true);return;}
+        post=data;
+      }
       if(post)openPost(post);
       else message(saveMessage,'The requested post could not be found in the editor. It may have been deleted or is not accessible.',true);
       return;
@@ -149,7 +154,7 @@
     else target.innerHTML=communityItems.map(item=>{
       const media=item.media_url?'<p><a href="'+escapeHtml(item.media_url)+'" target="_blank" rel="noopener noreferrer">OPEN ATTACHED MEDIA ↗</a></p>':'';
       const body=item.body?'<p class="community-submission-body">'+escapeHtml(item.body).replace(/\n/g,'<br>')+'</p>':'';
-      const actions=item.status==='pending'?'<div class="community-submission-actions"><button type="button" class="cms-button primary" data-submission-action="published" data-submission-id="'+escapeHtml(item.id)+'">APPROVE & PUBLISH</button><button type="button" class="cms-button danger" data-submission-action="failed" data-submission-id="'+escapeHtml(item.id)+'">DECLINE</button></div>':'';
+      const actions=item.status==='pending'?'<div class="community-submission-actions"><button type="button" class="cms-button primary vha-editor-action" data-action-variant="primary" data-submission-action="published" data-submission-id="'+escapeHtml(item.id)+'">APPROVE & PUBLISH</button><button type="button" class="cms-button danger vha-editor-action" data-action-variant="danger" data-submission-action="failed" data-submission-id="'+escapeHtml(item.id)+'">DECLINE</button></div>':'';
       return '<article class="community-submission"><div class="community-submission-top"><div><p class="gd-kicker">'+escapeHtml(item.medium.toUpperCase())+' // '+escapeHtml(item.byline||'ANONYMOUS')+'</p><h3>'+escapeHtml(item.title)+'</h3></div><span class="'+(item.status==='published'?'published-label':item.status==='pending'?'draft-label':'')+'">'+escapeHtml(item.status.toUpperCase())+'</span></div>'+body+media+'<small class="cms-help">RECEIVED '+new Date(item.created_at).toLocaleString('en-GB')+'</small>'+actions+'</article>';
     }).join('');
     $('load-more-submissions').hidden=!hasMoreCommunity;
