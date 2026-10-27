@@ -63,7 +63,7 @@
 
   function syncLayoutFields(){
     postLayout=layoutInput.value;sunoFields.hidden=postLayout!=='suno';plainFields.hidden=postLayout!=='plain';
-    contentEditor.closest('.rich-editor').hidden=postLayout!=='standard';contentEditor.closest('.cms-label-row').hidden=postLayout!=='standard';
+    contentEditor.closest('.rich-editor').hidden=postLayout!=='standard';contentEditor.closest('.rich-editor').previousElementSibling.hidden=postLayout!=='standard';
   }
   function textAsParagraphs(value){return String(value||'').split(/\n{2,}/).map(part=>'<p>'+escapeHtml(part).replace(/\n/g,'<br>')+'</p>').join('');}
   function buildPostContent(){
