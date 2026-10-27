@@ -40,7 +40,7 @@
   }
   function cleanHtml(html){
     const doc = new DOMParser().parseFromString(String(html||''),'text/html');
-    const allowed = new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','DIV','SECTION','ASIDE']);
+    const allowed = new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','DIV','SECTION','ASIDE','DETAILS','SUMMARY']);
     function clean(node){
       [...node.childNodes].forEach(child=>{
         if(child.nodeType===Node.TEXT_NODE) return;
@@ -77,7 +77,7 @@
   function buildPostContent(){
     if(postLayout==='standard')return contentEditor.innerHTML;
     if(postLayout==='plain')return '<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+textAsParagraphs($('post-plain-text').value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>';
-    return '<div class="suno-post-layout"><section class="suno-lyrics"><p class="suno-label">01 // THE LYRICS</p><pre>'+escapeHtml($('post-lyrics').value)+'</pre></section><aside class="suno-notes"><p class="suno-label">02 // SUNO STYLE, DECODED</p>'+textAsParagraphs($('post-style-notes').value)+'<section class="suno-learned"><p class="suno-label">03 // WHAT I LEARNED</p>'+textAsParagraphs($('post-learned').value)+'</section></aside></div>';
+    return '<div class="suno-post-layout"><details class="suno-lyrics"><summary class="suno-label">01 // THE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeHtml($('post-lyrics').value)+'</pre></details><aside class="suno-notes"><p class="suno-label">02 // SUNO STYLE, DECODED</p>'+textAsParagraphs($('post-style-notes').value)+'<section class="suno-learned"><p class="suno-label">03 // WHAT I LEARNED</p>'+textAsParagraphs($('post-learned').value)+'</section></aside></div>';
   }
   layoutInput.addEventListener('change',()=>{syncLayoutFields();setStatus('UNSAVED');});
   mediaWidthInput.addEventListener('input',()=>{postMediaWidth=Number(mediaWidthInput.value)||100;mediaWidthValue.value=postMediaWidth+'%';const media=mediaPreview.firstElementChild;if(media)media.style.width=postMediaWidth+'%';setStatus('UNSAVED');});
