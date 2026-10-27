@@ -2,16 +2,10 @@
   const root = document.querySelector('.gd');
   if (!root) return;
 
-  // Known public YouTube livestream IDs. Other station buttons open a search
-  // rather than pretending an unverified stream is playing.
-  const stations = [
-    { title: 'Lofi Girl — beats to relax/study to', artist: 'Lofi Girl // YouTube live', video: 'jfKfPfyJRdk' },
-    { title: 'Synthwave Radio', artist: 'Synthwave / retrowave // YouTube', video: '4xDzrJKXOOY' },
-    { title: 'Jazz Lofi Radio', artist: 'YouTube search // jazz lofi radio', query: 'jazz lofi radio live stream' },
-    { title: 'Asian Lofi Radio', artist: 'YouTube search // Asian lofi radio', query: 'Asian lofi radio live stream' },
-    { title: 'Sleep Lofi Radio', artist: 'YouTube search // sleep lofi radio', query: 'sleep lofi radio live stream' },
-    { title: 'Classic Hip Hop Radio', artist: 'YouTube search // classic hip hop radio', query: 'classic hip hop radio live stream' }
-  ];
+  // The radio is intentionally locked to the owner's curated YouTube playlist.
+  const playlistId = 'PL-HvxCN6LbEtKhlSDDndY8mdupqTbTlgn';
+  const station = { title: 'Green Dream — curated playlist', artist: 'Verse After Hours // YouTube playlist' };
+  const stations = [station];
 
   let index = 0;
   let playing = false;
@@ -47,21 +41,13 @@
       button.setAttribute('aria-pressed', String(selected));
     });
     stopPlayer();
-    setStatus(station.video
-      ? 'Ready to play. Audio is loaded from YouTube only after you press PLAY.'
-      : 'This station is not embedded yet. Open its YouTube search to choose a stream.');
+    setStatus('Ready to play the Green Dream playlist. Press PLAY to start it.');
   }
 
   function startPlayer() {
-    const station = stations[index];
-    if (!station.video) {
-      window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent(station.query), '_blank', 'noopener,noreferrer');
-      setStatus('Opened YouTube search in a new tab. Playback is controlled by YouTube.');
-      return;
-    }
     const iframe = document.createElement('iframe');
     iframe.title = station.title;
-    iframe.src = 'https://www.youtube-nocookie.com/embed/' + station.video + '?autoplay=1&rel=0';
+    iframe.src = 'https://www.youtube-nocookie.com/embed/videoseries?list=' + encodeURIComponent(playlistId) + '&autoplay=1&rel=0';
     iframe.allow = 'autoplay; encrypted-media; picture-in-picture; web-share';
     iframe.referrerPolicy = 'strict-origin-when-cross-origin';
     iframe.allowFullscreen = true;
@@ -71,12 +57,12 @@
     play.textContent = '■ STOP';
     play.setAttribute('aria-label', 'Stop radio');
     eq.classList.remove('paused');
-    setStatus('YouTube player loaded. If playback does not start, use its player controls or check browser/network restrictions.');
+    setStatus('Green Dream playlist loaded. Use the YouTube controls to move through its tracks.');
   }
 
   stationButtons.forEach(button => button.addEventListener('click', () => selectStation(Number(button.dataset.track))));
-  root.querySelector('#gd-next').addEventListener('click', () => selectStation(index + 1));
-  root.querySelector('#gd-prev').addEventListener('click', () => selectStation(index - 1));
+  root.querySelector('#gd-next').addEventListener('click', () => { if (playing) setStatus('Use the YouTube playlist controls to skip to the next track.'); else startPlayer(); });
+  root.querySelector('#gd-prev').addEventListener('click', () => { if (playing) setStatus('Use the YouTube playlist controls to return to the previous track.'); else startPlayer(); });
   play.addEventListener('click', () => {
     if (playing) {
       stopPlayer();
