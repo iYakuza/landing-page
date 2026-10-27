@@ -45,16 +45,16 @@
   }
   function cleanHtml(html){
     const doc=new DOMParser().parseFromString(String(html||''),'text/html');
-    const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','IMG','VIDEO','AUDIO']);
+    const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','IMG','VIDEO','AUDIO','DIV','SECTION','ASIDE']);
     function clean(node){[...node.childNodes].forEach(child=>{
       if(child.nodeType===Node.TEXT_NODE)return;
       if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
       if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
-      const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
+      const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';\n      const originalClass=(child.getAttribute('class')||'').split(/\\s+/).filter(name=>['suno-post-layout','suno-lyrics','suno-notes','suno-learned','suno-label','plain-post-layout','plain-copy','plain-response'].includes(name)).join(' ');
       const originalSrc=['IMG','VIDEO','AUDIO'].includes(child.tagName)?validMediaUrl(child.getAttribute('src')||''):'';
       const originalAlt=child.tagName==='IMG'?(child.getAttribute('alt')||''):'';
       [...child.attributes].forEach(a=>child.removeAttribute(a.name));
-      const safeHref=child.tagName==='A'?safeLink(originalHref):'';
+      if(originalClass)child.setAttribute('class',originalClass);\n      const safeHref=child.tagName==='A'?safeLink(originalHref):'';
       if(['IMG','VIDEO','AUDIO'].includes(child.tagName)&&!originalSrc){child.remove();return;}
       if(child.tagName==='IMG'){child.setAttribute('src',originalSrc);child.setAttribute('alt',originalAlt);child.setAttribute('loading','lazy');child.style.maxWidth='100%';child.style.height='auto';}
       if(['VIDEO','AUDIO'].includes(child.tagName)){child.setAttribute('src',originalSrc);child.setAttribute('controls','');child.setAttribute('preload','metadata');if(child.tagName==='VIDEO'){child.style.maxWidth='100%';child.style.height='auto';}}
@@ -149,7 +149,7 @@
   async function load(){
     if(!client){list.innerHTML='<p class="posts-empty">THE ARCHIVE COULD NOT CONNECT.</p>';count.textContent='SIGNAL UNAVAILABLE';return;}
     const [ownerResult,communityResult]=await Promise.all([
-      client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}),
+      client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}),
       client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false})
     ]);
     if(ownerResult.error){list.innerHTML='<p class="posts-empty">THE ARCHIVE COULD NOT LOAD. PLEASE TRY AGAIN LATER.</p>';count.textContent='SIGNAL UNAVAILABLE';return;}
