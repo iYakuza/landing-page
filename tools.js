@@ -39,31 +39,31 @@
   } catch {}
 })();
 
-/* Floating Viewer Tools HUD — shared across every page loading tools.js. */
+/* Floating Viewer Tools HUD — draggable, compact, and theme-aware. */
 (() => {
   if (document.getElementById("vha-viewer-tools")) return;
   const style = document.createElement("style");
   style.id = "vha-viewer-tools-style";
   style.textContent = `
-    #vha-viewer-tools{position:fixed;right:clamp(14px,3vw,42px);top:50%;transform:translateY(-50%);z-index:2147483008;font:12px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;color:#7fffea}
+    #vha-viewer-tools{position:fixed;right:18px;bottom:18px;z-index:2147483008;font-family:var(--vha-font,Arial,Helvetica,sans-serif);font-size:11px;line-height:1.25;color:var(--theme-accent,#d8ff3e);touch-action:pan-y}
     #vha-viewer-tools *{box-sizing:border-box}
-    #vha-viewer-tools .vha-tools-trigger{position:relative;z-index:2;display:grid;place-items:center;width:78px;height:78px;border:2px solid #00f5d4;border-radius:50%;background:rgba(1,17,19,.94);color:#00f5d4;box-shadow:0 0 0 7px #00f5d410,0 0 24px #00f5d42b;cursor:pointer;transition:transform .2s,background .2s,box-shadow .2s}
-    #vha-viewer-tools .vha-tools-trigger:hover,#vha-viewer-tools[data-open="true"] .vha-tools-trigger{transform:scale(1.04);background:#062b2b;box-shadow:0 0 0 7px #00f5d41a,0 0 30px #00f5d45c}
-    #vha-viewer-tools .vha-tools-trigger svg{width:36px;height:36px}
-    #vha-viewer-tools .vha-tools-label{position:absolute;left:calc(100% - 2px);top:-37px;padding:9px 14px;border:1px solid #00cdb2;border-radius:10px;background:#021012;color:#00f5d4;letter-spacing:1.5px;white-space:nowrap}
-    #vha-viewer-tools .vha-tools-label:before{content:"";position:absolute;right:100%;top:50%;width:26px;border-top:1px solid #00cdb2}
-    #vha-viewer-tools .vha-tools-panel{position:absolute;right:0;top:calc(100% - 6px);width:200px;padding:24px 12px 12px;border:1px solid #007f78;border-radius:13px;background:rgba(1,12,15,.96);box-shadow:0 12px 36px #0009,inset 0 0 22px #00e6cb0b;backdrop-filter:blur(12px);display:grid;gap:7px;opacity:0;visibility:hidden;transform:translateY(-6px);transition:opacity .18s,transform .18s,visibility .18s}
-    #vha-viewer-tools[data-open="true"] .vha-tools-panel{opacity:1;visibility:visible;transform:translateY(0)}
-    #vha-viewer-tools .vha-tool-row{display:flex;align-items:center;gap:12px;width:100%;min-height:46px;padding:4px 8px;border:0;background:transparent;color:#76d9dc;text-align:left;cursor:pointer;font:12px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace}
-    #vha-viewer-tools .vha-tool-row:hover,#vha-viewer-tools .vha-tool-row:focus-visible{color:#00f5d4;background:#00f5d410;outline:1px solid #00cdb255}
-    #vha-viewer-tools .vha-tool-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border:1px solid #007f86;border-radius:12px;color:#d8fffc;background:#031619}
-    #vha-viewer-tools .vha-tool-icon svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-    #vha-viewer-tools .vha-tool-row[aria-pressed="true"] .vha-tool-icon{border-color:#00f5d4;color:#00f5d4}
-    #vha-viewer-tools .vha-tools-help{margin:6px 6px 2px;padding-top:10px;border-top:1px solid #00f5d42c;color:#4b9b9d;font-size:9px;letter-spacing:.5px}
+    #vha-viewer-tools .vha-tools-trigger{position:relative;z-index:2;display:grid;place-items:center;width:52px;height:52px;border:1px solid var(--theme-accent,#d8ff3e);border-radius:50%;background:var(--theme-surface,#080e09);color:var(--theme-accent,#d8ff3e);box-shadow:0 0 0 4px color-mix(in srgb,var(--theme-accent,#d8ff3e) 9%,transparent),0 3px 18px #0008;cursor:grab;touch-action:none;user-select:none;transition:background .15s,box-shadow .15s}
+    #vha-viewer-tools .vha-tools-trigger:active{cursor:grabbing}
+    #vha-viewer-tools .vha-tools-trigger:hover,#vha-viewer-tools[data-open="true"] .vha-tools-trigger{background:var(--theme-raised,#101910);box-shadow:0 0 0 4px color-mix(in srgb,var(--theme-accent,#d8ff3e) 15%,transparent),0 3px 22px #0009}
+    #vha-viewer-tools .vha-tools-trigger svg{width:25px;height:25px}
+    #vha-viewer-tools .vha-tools-label{position:absolute;right:0;bottom:calc(100% + 8px);padding:5px 8px;border:1px solid var(--theme-border,var(--theme-accent,#d8ff3e));background:var(--theme-page,#050906);color:var(--theme-accent,#d8ff3e);font-size:9px;font-weight:700;letter-spacing:1px;white-space:nowrap;pointer-events:none}
+    #vha-viewer-tools .vha-tools-panel{position:absolute;right:calc(100% + 10px);bottom:0;width:164px;padding:7px;border:1px solid var(--theme-border,var(--theme-accent,#d8ff3e));background:color-mix(in srgb,var(--theme-surface,#080e09) 96%,transparent);color:var(--theme-text,#e8f4df);box-shadow:0 8px 26px #0009;backdrop-filter:blur(10px);display:grid;gap:3px;opacity:0;visibility:hidden;transform:translateX(5px);transition:opacity .16s,transform .16s,visibility .16s}
+    #vha-viewer-tools[data-open="true"] .vha-tools-panel{opacity:1;visibility:visible;transform:translateX(0)}
+    #vha-viewer-tools .vha-tool-row{display:flex;align-items:center;gap:9px;width:100%;min-height:34px;padding:3px 5px;border:0;background:transparent;color:var(--theme-text,#e8f4df);text-align:left;cursor:pointer;font:inherit}
+    #vha-viewer-tools .vha-tool-row:hover,#vha-viewer-tools .vha-tool-row:focus-visible{color:var(--theme-accent,#d8ff3e);background:color-mix(in srgb,var(--theme-accent,#d8ff3e) 8%,transparent);outline:1px solid var(--theme-border,var(--theme-accent,#d8ff3e))}
+    #vha-viewer-tools .vha-tool-icon{display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;border:1px solid var(--theme-border,var(--theme-accent,#d8ff3e));color:var(--theme-accent,#d8ff3e);background:var(--theme-page,#050906)}
+    #vha-viewer-tools .vha-tool-icon svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    #vha-viewer-tools .vha-tool-row[aria-pressed="true"] .vha-tool-icon{border-color:var(--theme-accent,#d8ff3e)}
+    #vha-viewer-tools .vha-tools-help{margin:3px 4px 1px;padding-top:6px;border-top:1px solid var(--theme-border,#d8ff3e35);color:var(--theme-muted,#9aab9c);font-size:8px;letter-spacing:.4px}
     body.vha-tools-hide-ui header,body.vha-tools-hide-ui footer,body.vha-tools-hide-ui nav,body.vha-tools-hide-ui .gd-nav,body.vha-tools-hide-ui .gd-footer{opacity:0!important;pointer-events:none!important;transition:opacity .2s}
     body.vha-tools-hide-ui #vha-viewer-tools{opacity:1!important;pointer-events:auto!important}
     body.vha-tools-large-text main,body.vha-tools-large-text .gd{font-size:1.12em}
-    @media(max-width:600px){#vha-viewer-tools{right:12px;top:auto;bottom:20px;transform:none}#vha-viewer-tools .vha-tools-trigger{width:60px;height:60px}#vha-viewer-tools .vha-tools-trigger svg{width:29px;height:29px}#vha-viewer-tools .vha-tools-label{top:-28px;font-size:9px;padding:6px 9px}#vha-viewer-tools .vha-tools-panel{top:auto;bottom:calc(100% - 2px);padding:12px;width:190px}#vha-viewer-tools .vha-tool-row{min-height:42px}#vha-viewer-tools .vha-tool-icon{width:38px;height:38px;flex-basis:38px}}
+    @media(max-width:600px){#vha-viewer-tools{right:12px;bottom:12px}#vha-viewer-tools .vha-tools-trigger{width:46px;height:46px}#vha-viewer-tools .vha-tools-trigger svg{width:22px;height:22px}#vha-viewer-tools .vha-tools-panel{right:calc(100% + 8px);bottom:0;width:152px}#vha-viewer-tools .vha-tool-row{min-height:32px}#vha-viewer-tools .vha-tool-icon{width:26px;height:26px;flex-basis:26px}}
     @media(prefers-reduced-motion:reduce){#vha-viewer-tools *{transition:none!important}}
   `;
   document.head.appendChild(style);
@@ -75,36 +75,45 @@
     ui:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
     help:'<circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 4.2 1.8c-1.1 1-1.8 1.2-1.8 3M12 17h.01"/>'
   };
-  const svg = (name) => '<svg viewBox="0 0 24 24" aria-hidden="true">'+icons[name]+'</svg>';
+  const svg = name => '<svg viewBox="0 0 24 24" aria-hidden="true">'+icons[name]+'</svg>';
   const root = document.createElement("aside");
   root.id = "vha-viewer-tools";
   root.setAttribute("aria-label","Viewer tools");
   root.dataset.open = "false";
-  root.innerHTML = '<button class="vha-tools-trigger" type="button" aria-label="Open viewer tools" aria-expanded="false" aria-controls="vha-tools-panel">'+svg("tools")+'</button><div class="vha-tools-label" aria-hidden="true">VIEWER TOOLS</div><div class="vha-tools-panel" id="vha-tools-panel" aria-label="Viewer tools menu"><button class="vha-tool-row" type="button" data-tool="fullscreen"><span class="vha-tool-icon">'+svg("fullscreen")+'</span><span>Fullscreen</span></button><button class="vha-tool-row" type="button" data-tool="dark" aria-pressed="false"><span class="vha-tool-icon">'+svg("moon")+'</span><span>Dark Mode</span></button><button class="vha-tool-row" type="button" data-tool="text" aria-pressed="false"><span class="vha-tool-icon">'+svg("text")+'</span><span>Text Size</span></button><button class="vha-tool-row" type="button" data-tool="ui" aria-pressed="false"><span class="vha-tool-icon">'+svg("ui")+'</span><span>UI Toggle</span></button><button class="vha-tool-row" type="button" data-tool="help"><span class="vha-tool-icon">'+svg("help")+'</span><span>Help</span></button><div class="vha-tools-help">LOCAL VIEWER CONTROLS</div></div>';
+  root.innerHTML = '<button class="vha-tools-trigger" type="button" aria-label="Open viewer tools" aria-expanded="false" aria-controls="vha-tools-panel" title="Drag to move; click to open">'+svg("tools")+'</button><div class="vha-tools-label" aria-hidden="true">VIEWER TOOLS</div><div class="vha-tools-panel" id="vha-tools-panel" aria-label="Viewer tools menu"><button class="vha-tool-row" type="button" data-tool="fullscreen"><span class="vha-tool-icon">'+svg("fullscreen")+'</span><span>Fullscreen</span></button><button class="vha-tool-row" type="button" data-tool="dark" aria-pressed="false"><span class="vha-tool-icon">'+svg("moon")+'</span><span>Dark Mode</span></button><button class="vha-tool-row" type="button" data-tool="text" aria-pressed="false"><span class="vha-tool-icon">'+svg("text")+'</span><span>Text Size</span></button><button class="vha-tool-row" type="button" data-tool="ui" aria-pressed="false"><span class="vha-tool-icon">'+svg("ui")+'</span><span>UI Toggle</span></button><button class="vha-tool-row" type="button" data-tool="help"><span class="vha-tool-icon">'+svg("help")+'</span><span>Help</span></button><div class="vha-tools-help">VIEWER CONTROLS</div></div>';
   document.body.appendChild(root);
   const trigger = root.querySelector(".vha-tools-trigger");
   const setOpen = open => { root.dataset.open = String(open); trigger.setAttribute("aria-expanded",String(open)); trigger.setAttribute("aria-label",open?"Close viewer tools":"Open viewer tools"); };
-  trigger.addEventListener("click",()=>setOpen(root.dataset.open!=="true"));
+  let dragging=false, moved=false, startX=0, startY=0, originX=0, originY=0;
+  const clamp=(n,min,max)=>Math.min(Math.max(n,min),max);
+  trigger.addEventListener("pointerdown",e=>{
+    if(e.button!==0 && e.pointerType!=="touch") return;
+    dragging=true;moved=false;startX=e.clientX;startY=e.clientY;
+    const rect=root.getBoundingClientRect();originX=rect.left;originY=rect.top;
+    trigger.setPointerCapture?.(e.pointerId);
+  });
+  trigger.addEventListener("pointermove",e=>{
+    if(!dragging)return;
+    const dx=e.clientX-startX,dy=e.clientY-startY;
+    if(Math.abs(dx)>4||Math.abs(dy)>4)moved=true;
+    if(!moved)return;
+    const x=clamp(originX+dx,0,innerWidth-root.offsetWidth);
+    const y=clamp(originY+dy,0,innerHeight-root.offsetHeight);
+    root.style.left=x+"px";root.style.top=y+"px";root.style.right="auto";root.style.bottom="auto";root.style.transform="none";
+    root.dataset.moved="true";
+  });
+  const finishDrag=()=>{if(!dragging)return;dragging=false;if(moved){setOpen(false);root.dataset.suppressClick="true";setTimeout(()=>delete root.dataset.suppressClick,0)}};
+  trigger.addEventListener("pointerup",finishDrag);trigger.addEventListener("pointercancel",finishDrag);
+  trigger.addEventListener("click",e=>{if(root.dataset.suppressClick==="true"){e.preventDefault();e.stopPropagation();return}setOpen(root.dataset.open!=="true")});
   document.addEventListener("keydown",e=>{if(e.key==="Escape")setOpen(false)});
   document.addEventListener("click",e=>{if(!root.contains(e.target))setOpen(false)});
+  window.addEventListener("resize",()=>{if(root.dataset.moved==="true"){const rect=root.getBoundingClientRect();root.style.left=clamp(rect.left,0,innerWidth-root.offsetWidth)+"px";root.style.top=clamp(rect.top,0,innerHeight-root.offsetHeight)+"px"}});
   root.querySelectorAll("[data-tool]").forEach(button=>button.addEventListener("click",async()=>{
     const tool=button.dataset.tool;
-    if(tool==="fullscreen"){
-      try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen()}catch{alert("Fullscreen is not available in this browser or context.")}
-    } else if(tool==="dark"){
-      const active=document.documentElement.dataset.vhaToolsDark!=="true";
-      document.documentElement.dataset.vhaToolsDark=String(active);
-      document.documentElement.style.setProperty("--theme-page",active?"#020406":"#050906");
-      document.documentElement.style.setProperty("--theme-surface",active?"#03090b":"#080e09");
-      button.setAttribute("aria-pressed",String(active));
-    } else if(tool==="text"){
-      const active=!document.body.classList.contains("vha-tools-large-text");
-      document.body.classList.toggle("vha-tools-large-text",active);button.setAttribute("aria-pressed",String(active));
-    } else if(tool==="ui"){
-      const active=!document.body.classList.contains("vha-tools-hide-ui");
-      document.body.classList.toggle("vha-tools-hide-ui",active);button.setAttribute("aria-pressed",String(active));
-    } else if(tool==="help"){
-      alert("VIEWER TOOLS\n\nFullscreen: expand the page.\nDark Mode: switch to a deeper dark palette.\nText Size: enlarge page text.\nUI Toggle: temporarily hide site navigation and footer.\n\nClick outside this panel or press Escape to close it.");
-    }
+    if(tool==="fullscreen"){try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen()}catch{alert("Fullscreen is not available in this browser or context.")}}
+    else if(tool==="dark"){const active=document.documentElement.dataset.vhaToolsDark!=="true";document.documentElement.dataset.vhaToolsDark=String(active);document.documentElement.style.setProperty("--theme-page",active?"#020406":"#050906");document.documentElement.style.setProperty("--theme-surface",active?"#03090b":"#080e09");button.setAttribute("aria-pressed",String(active))}
+    else if(tool==="text"){const active=!document.body.classList.contains("vha-tools-large-text");document.body.classList.toggle("vha-tools-large-text",active);button.setAttribute("aria-pressed",String(active))}
+    else if(tool==="ui"){const active=!document.body.classList.contains("vha-tools-hide-ui");document.body.classList.toggle("vha-tools-hide-ui",active);button.setAttribute("aria-pressed",String(active))}
+    else if(tool==="help"){alert("VIEWER TOOLS\\n\\nDrag the floating icon to reposition it.\\nFullscreen: expand the page.\\nDark Mode: switch to a deeper dark palette.\\nText Size: enlarge page text.\\nUI Toggle: temporarily hide site navigation and footer.")}
   }));
 })();
