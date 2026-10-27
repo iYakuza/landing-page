@@ -68,7 +68,7 @@
             <section class="cms-media-field" aria-labelledby="media-heading">
               <div class="cms-label-row"><label id="media-heading" for="post-media">MEDIA UNDER TITLE</label><span class="cms-help">Image or audio · max 30 MB</span></div>
               <input id="post-media" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm">
-              <div id="media-preview" class="cms-media-preview" hidden></div>
+              <div id="media-preview" class="cms-media-preview" hidden></div><div class="media-width-control"><label for="media-width">MEDIA WIDTH</label><input id="media-width" type="range" min="20" max="100" step="5" value="100"><output id="media-width-value" for="media-width">100%</output><p class="cms-help">Media is capped at the text column width. Reduce this to make it narrower.</p></div>
               <div class="cms-media-actions"><span id="media-message" class="cms-message" role="status"></span><button type="button" id="remove-media" class="cms-button subtle" hidden>REMOVE MEDIA</button></div>
             </section>
             <div class="cms-two-col">
@@ -76,6 +76,20 @@
               <div><label for="post-category">MOVEMENT CATEGORY</label><select id="post-category" required><option value="">CHOOSE A MOVEMENT</option><option value="THE AWAKENING">THE AWAKENING</option><option value="THE DESCENT">THE DESCENT</option><option value="THE RECONNECTION">THE RECONNECTION</option><option value="THE TRANSFORMATION">THE TRANSFORMATION</option><option value="THE RETURN">THE RETURN</option></select></div>
             </div>
             <label for="post-excerpt">EXCERPT / DECK <small>UP TO 400 CHARACTERS</small></label><textarea id="post-excerpt" rows="3" maxlength="400" placeholder="A short signal preview for the archive…"></textarea>
+            <section class="post-composition" aria-labelledby="composition-heading">
+              <div class="cms-label-row"><label id="composition-heading">CHATGPT POST FORMAT</label><span class="cms-help">Choose how the post should read</span></div>
+              <label for="post-layout">LAYOUT</label>
+              <select id="post-layout"><option value="suno">SUNO LYRICS + STYLE BREAKDOWN</option><option value="plain">PLAIN TEXT + “OH, SUN.”</option><option value="standard">STANDARD ARTICLE</option></select>
+              <div id="suno-fields" class="suno-fields">
+                <label for="post-lyrics">LEFT COLUMN // LYRICS OR ORIGINAL TEXT</label><textarea id="post-lyrics" rows="12" placeholder="Paste the poem here, including [Verse], [Chorus], [Bridge] and other Suno tags…"></textarea>
+                <label for="post-style-notes">RIGHT COLUMN // SUNO STYLE EXPLAINED</label><textarea id="post-style-notes" rows="10" placeholder="Explanation of each [tag], why it is used, what it contributes, and its benefits. ChatGPT can prepare this for you."></textarea>
+                <label for="post-learned">WHAT I LEARNED</label><textarea id="post-learned" rows="4" placeholder="The lesson, discovery, or creative insight behind this piece…"></textarea>
+              </div>
+              <div id="plain-fields" class="suno-fields" hidden>
+                <label for="post-plain-text">LEFT COLUMN // TEXT</label><textarea id="post-plain-text" rows="12" placeholder="Your poem, note, or message…"></textarea>
+                <p class="cms-help">The right column will show “Oh, sun.” as a quiet response.</p>
+              </div>
+            </section>
             <div class="cms-label-row"><label>TRANSMISSION BODY</label><span class="cms-help">Visual editor · formatted text</span></div>
             <div class="rich-editor">
               <div class="rich-toolbar" role="toolbar" aria-label="Text formatting">
@@ -111,7 +125,7 @@
   <footer class="gd-footer"><a class="gd-brand" href="../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="../posts/">VIEW TRANSMISSIONS ↗</a></footer>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="cms.js?v=20261027-community-review-1"></script>
+<script src="cms.js?v=20261027-chatgpt-composer-1"></script>
   <script src="/landing-page/tools.js?v=20261027-tools-9"></script>
 </body>
 </html>
