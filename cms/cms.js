@@ -14,8 +14,8 @@
   const sunoFields = $('suno-fields'), plainFields = $('plain-fields');
   let postLayout = 'suno', postMediaWidth = 100;
   let currentUser = null, allPosts = [], editingId = null, slugManuallyEdited = false, statusFilter = 'all', saving = false;
-  const POSTS_PAGE_SIZE = 40, SUBMISSIONS_PAGE_SIZE = 15;
-  let postsOffset = 0, hasMorePosts = false, communityItems = [], communityOffset = 0, hasMoreCommunity = false;
+  const POSTS_PAGE_SIZE = 20, SUBMISSIONS_PAGE_SIZE = 10;
+  let postsOffset = 0, hasMorePosts = false, communityItems = [], communityOffset = 0, hasMoreCommunity = false, openingPostToken = 0;
   const requestedParams = new URLSearchParams(window.location.search);
   const requestedEditSlug = requestedParams.get('edit');
   const requestedCategory = (requestedParams.get('category') || '').trim().toUpperCase();
@@ -84,14 +84,20 @@
   ['post-main-text','post-lyrics','post-style-notes','post-learned','post-plain-text'].forEach(id=>$(id).addEventListener('input',()=>setStatus('UNSAVED')));
 
   function blankEditor(){
-    editingId=null;slugManuallyEdited=false;postForm.reset();contentEditor.innerHTML='';postLayout='suno';postMediaWidth=100;layoutInput.value='suno';mediaWidthInput.value='100';mediaWidthValue.value='100%';syncLayoutFields();
+    openingPostToken++;editingId=null;slugManuallyEdited=false;postForm.reset();contentEditor.innerHTML='';postLayout='suno';postMediaWidth=100;layoutInput.value='suno';mediaWidthInput.value='100';mediaWidthValue.value='100%';syncLayoutFields();
     mediaUrl=null;mediaPath=null;mediaType=null;originalMediaPath=null;renderMediaPreview();message(mediaMessage,'');
     $('delete-post').hidden=true;
     $('editor-mode').textContent='NEW TRANSMISSION';setStatus('UNSAVED');message(saveMessage,'');
     $('save-draft').disabled=false;$('publish-post').disabled=false;
     document.querySelectorAll('.manage-item').forEach(x=>x.classList.remove('active'));
   }
-  function openPost(post){
+  async function openPost(post){
+    const token=++openingPostToken;
+    message(saveMessage,'LOADING TRANSMISSION…');
+    const {data:fullPost,error}=await client.from('vha_posts').select('*').eq('id',post.id).single();
+    if(token!==openingPostToken)return;
+    if(error||!fullPost){message(saveMessage,error?.message||'Could not load this post.',true);return;}
+    post=fullPost;
     editingId=post.id;slugManuallyEdited=true;titleInput.value=post.title||'';slugInput.value=post.slug||'';
     categoryInput.value=post.category||'';excerptInput.value=post.excerpt||'';contentEditor.innerHTML=cleanHtml(post.content_html||'');
     postMediaWidth=Math.max(20,Math.min(100,Number(post.media_width)||100));mediaWidthInput.value=String(postMediaWidth);mediaWidthValue.value=postMediaWidth+'%';
@@ -126,7 +132,7 @@
     if(reset){postsOffset=0;allPosts=[];}
     managePosts.innerHTML=reset?'<p class="cms-help" style="padding:16px">Loading recent transmissions…</p>':managePosts.innerHTML;
     const start=postsOffset;
-    const {data,error}=await client.from('vha_posts').select('*').order('updated_at',{ascending:false}).range(start,start+POSTS_PAGE_SIZE-1);
+    const {data,error}=await client.from('vha_posts').select('id,title,slug,category,status,updated_at,media_path').order('updated_at',{ascending:false}).range(start,start+POSTS_PAGE_SIZE-1);
     if(error){managePosts.innerHTML='<p class="cms-message error" style="padding:16px">'+escapeHtml(error.message)+'</p>';return;}
     const items=data||[];allPosts=reset?items:allPosts.concat(items);postsOffset+=items.length;hasMorePosts=items.length===POSTS_PAGE_SIZE;
     renderPosts();$('load-more-posts').hidden=!hasMorePosts;
