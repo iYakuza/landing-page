@@ -47,7 +47,7 @@
         if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
         if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
         const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
-        const originalClass=(child.getAttribute('class')||'').split(/\s+/).filter(name=>['suno-post-layout','suno-lyrics','suno-notes','suno-learned','suno-label','plain-post-layout','plain-copy','plain-response'].includes(name)).join(' ');
+        const originalClass=(child.getAttribute('class')||'').split(/\s+/).filter(name=>['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-learned','suno-label','plain-post-layout','plain-copy','plain-response'].includes(name)).join(' ');
         [...child.attributes].forEach(attr=>child.removeAttribute(attr.name));
         if(originalClass)child.setAttribute('class',originalClass);
         const safeHref=child.tagName==='A'?safeLink(originalHref):'';
@@ -77,11 +77,11 @@
   function buildPostContent(){
     if(postLayout==='standard')return contentEditor.innerHTML;
     if(postLayout==='plain')return '<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+textAsParagraphs($('post-plain-text').value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>';
-    return '<div class="suno-post-layout"><details class="suno-lyrics"><summary class="suno-label">01 // THE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeHtml($('post-lyrics').value)+'</pre></details><aside class="suno-notes"><p class="suno-label">02 // SUNO STYLE, DECODED</p>'+textAsParagraphs($('post-style-notes').value)+'<section class="suno-learned"><p class="suno-label">03 // WHAT I LEARNED</p>'+textAsParagraphs($('post-learned').value)+'</section></aside></div>';
+    return '<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+textAsParagraphs($('post-main-text').value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO.COM LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeHtml($('post-lyrics').value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO.COM STYLE</p>'+textAsParagraphs($('post-style-notes').value)+'<section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+textAsParagraphs($('post-learned').value)+'</section></aside></div>';
   }
   layoutInput.addEventListener('change',()=>{syncLayoutFields();setStatus('UNSAVED');});
   mediaWidthInput.addEventListener('input',()=>{postMediaWidth=Number(mediaWidthInput.value)||100;mediaWidthValue.value=postMediaWidth+'%';const media=mediaPreview.firstElementChild;if(media)media.style.width=postMediaWidth+'%';setStatus('UNSAVED');});
-  ['post-lyrics','post-style-notes','post-learned','post-plain-text'].forEach(id=>$(id).addEventListener('input',()=>setStatus('UNSAVED')));
+  ['post-main-text','post-lyrics','post-style-notes','post-learned','post-plain-text'].forEach(id=>$(id).addEventListener('input',()=>setStatus('UNSAVED')));
 
   function blankEditor(){
     editingId=null;slugManuallyEdited=false;postForm.reset();contentEditor.innerHTML='';postLayout='suno';postMediaWidth=100;layoutInput.value='suno';mediaWidthInput.value='100';mediaWidthValue.value='100%';syncLayoutFields();
@@ -96,7 +96,7 @@
     categoryInput.value=post.category||'';excerptInput.value=post.excerpt||'';contentEditor.innerHTML=cleanHtml(post.content_html||'');
     postMediaWidth=Math.max(20,Math.min(100,Number(post.media_width)||100));mediaWidthInput.value=String(postMediaWidth);mediaWidthValue.value=postMediaWidth+'%';
     const savedDoc=new DOMParser().parseFromString(post.content_html||'','text/html');const suno=savedDoc.querySelector('.suno-post-layout'),plain=savedDoc.querySelector('.plain-post-layout');
-    if(suno){postLayout='suno';$('post-lyrics').value=savedDoc.querySelector('.suno-lyrics pre')?.innerText||'';$('post-style-notes').value=savedDoc.querySelector('.suno-notes')?.innerText||'';$('post-learned').value=savedDoc.querySelector('.suno-learned')?.innerText||'';}else if(plain){postLayout='plain';$('post-plain-text').value=savedDoc.querySelector('.plain-copy')?.innerText||'';}else postLayout='standard';layoutInput.value=postLayout;syncLayoutFields();
+    if(suno){postLayout='suno';$('post-main-text').value=savedDoc.querySelector('.suno-text-column')?.innerText.replace(/^01 \/\/ THE TEXT\s*/,'')||'';$('post-lyrics').value=savedDoc.querySelector('.suno-lyrics pre')?.innerText||'';$('post-style-notes').value=savedDoc.querySelector('.suno-notes')?.innerText||'';$('post-learned').value=savedDoc.querySelector('.suno-learned')?.innerText||'';}else if(plain){postLayout='plain';$('post-plain-text').value=savedDoc.querySelector('.plain-copy')?.innerText||'';}else postLayout='standard';layoutInput.value=postLayout;syncLayoutFields();
     mediaUrl=post.media_url||null;mediaPath=post.media_path||null;mediaType=post.media_type||null;originalMediaPath=post.media_path||null;
     mediaInput.value='';renderMediaPreview();message(mediaMessage,'');$('delete-post').hidden=false;
     $('editor-mode').textContent='EDIT TRANSMISSION';setStatus(post.status==='published'?'PUBLISHED':'DRAFT');
