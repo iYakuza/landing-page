@@ -118,3 +118,6 @@ body.vha-theme-tool-embed #theme-prompt-form{display:flex!important;flex-directi
 body.vha-theme-tool-embed .theme-prompt textarea{display:block!important;flex:1 1 auto!important;width:auto!important;min-width:0!important;border-right:0!important;border-radius:3px 0 0 3px!important}
 body.vha-theme-tool-embed .theme-generate{display:block!important;flex:0 0 94px!important;width:94px!important;min-width:94px!important;border-radius:0 3px 3px 0!important;padding:0!important}
 @media(max-width:600px){body.vha-theme-tool-embed .theme-prompt,body.vha-theme-tool-embed #theme-prompt-form{height:52px!important}body.vha-theme-tool-embed .theme-prompt textarea,body.vha-theme-tool-embed .theme-generate{height:52px!important;min-height:52px!important;max-height:52px!important}body.vha-theme-tool-embed .theme-generate{flex-basis:82px!important;width:82px!important;min-width:82px!important}}
+
+/* User requested removal of the floating submit button. */
+body.vha-theme-tool-embed .theme-generate{display:none!important}
