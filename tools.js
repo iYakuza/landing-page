@@ -1,6 +1,5 @@
-/* Verse After Hours — site-wide Tools launcher and theme receiver */
+/* Verse After Hours — saved theme manager and same-origin theme receiver */
 (() => {
-  if (new URLSearchParams(location.search).get("tool") === "theme") { document.body.classList.add("vha-theme-tool-embed"); return; }
   function applyTheme(theme) {
     if (!theme || !theme.colors || !theme.typography || !theme.layout || !theme.details) return;
     const c = theme.colors;
