@@ -519,6 +519,23 @@ body.gd-home .gd-radio{
 @media(max-width:760px){.gd-nav nav{align-items:flex-start}.gd-nav-dropdown .gd-nav-menu{top:calc(100% + 6px)!important;left:0!important;min-width:220px!important}}
 
 
+/* COMMUNITY SIGNALS — always visible as a standalone top-level navigation button */
+.gd-nav nav>a.vha-community-button{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  align-self:center!important;visibility:visible!important;opacity:1!important;flex:0 0 auto!important;
+  min-height:32px!important;padding:0 10px!important;margin:0!important;
+  border:1px solid #d8ff3e!important;background:rgba(182,232,51,.07)!important;
+  color:#d8ff3e!important;text-decoration:none!important;
+  font:9px/1 Arial,Helvetica,sans-serif!important;letter-spacing:1px!important;
+  white-space:nowrap!important;position:relative!important;z-index:1004!important;
+}
+.gd-nav nav>a.vha-community-button:hover,.gd-nav nav>a.vha-community-button:focus-visible{
+  background:#d8ff3e!important;color:#050906!important;outline:2px solid #d8ff3e!important;outline-offset:3px!important;
+}
+@media(max-width:760px){
+  .gd-nav nav>a.vha-community-button{min-height:28px!important;padding:0 8px!important;font-size:8px!important;letter-spacing:.5px!important}
+}
+
 /* GREEN DREAM // align navigation labels and dropdown to one baseline */
 .gd-nav{align-items:center!important}
 .gd-nav nav{display:flex!important;align-items:center!important;align-content:center;gap:clamp(10px,1.5vw,22px)!important}
