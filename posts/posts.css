@@ -569,3 +569,11 @@ body.post-edit-open{overflow:hidden}
 .posts-note{background:linear-gradient(110deg,var(--theme-surface,#080e09),var(--theme-page,#050906));border-color:var(--theme-border,#d8ff3e35)}
 .posts-note-mark{border-color:color-mix(in srgb,var(--theme-accent,#d8ff3e) 45%,transparent);color:var(--theme-accent,#d8ff3e)}
 .posts-hero:before{background-image:linear-gradient(color-mix(in srgb,var(--theme-accent,#d8ff3e) 7%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--theme-accent,#d8ff3e) 7%,transparent) 1px,transparent 1px)}
+
+/* Inline editor media insertion controls */
+.post-edit-toolbar{display:flex;flex-wrap:wrap;gap:6px}
+.post-edit-toolbar button{cursor:pointer}
+.post-edit-body img,.post-edit-body video{display:block;max-width:100%;height:auto;margin:16px 0}
+.post-edit-body audio{display:block;width:100%;max-width:100%;margin:16px 0}
+.post-body img,.post-body video{display:block;max-width:100%;height:auto;margin:18px 0}
+.post-body audio{display:block;width:100%;max-width:100%;margin:18px 0}
