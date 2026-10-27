@@ -13,16 +13,6 @@
   const PAGE_SIZE=20, loadMoreButton=document.getElementById('posts-load-more');
   let postsOffset=0,postsHasMore=false;
   const isCommunityArchive=document.body.dataset.archive==='community';
-  const editModal=document.getElementById('post-edit-modal');
-  const editForm=document.getElementById('post-edit-form');
-  const editTitle=document.getElementById('inline-edit-title');
-  const editSlug=document.getElementById('inline-edit-slug');
-  const editCategory=document.getElementById('inline-edit-category');
-  const editExcerpt=document.getElementById('inline-edit-excerpt');
-  const editBody=document.getElementById('inline-edit-body');
-  const editMessage=document.getElementById('post-edit-message');
-  const editSave=document.getElementById('post-edit-save');
-  let editingPost=null, editSaving=false;
   let posts = [];
   let canEditPosts = false;
   async function checkEditorAccess(){
@@ -205,17 +195,6 @@
     canEditPosts=await checkEditorAccess();renderCategories();render();
   }
 
-  function openInlineEditor(post){
-    if(!canEditPosts||!post||!editModal)return;
-    editingPost=post;editTitle.value=post.title||'';editSlug.value=post.slug||'';
-    editCategory.value=displayCategory(post.category);editExcerpt.value=post.excerpt||'';
-    editBody.innerHTML=cleanHtml(post.content_html||'');editMessage.textContent='';
-    editModal.hidden=false;document.body.classList.add('post-edit-open');editTitle.focus();
-  }
-  function closeInlineEditor(){
-    if(editSaving)return;
-    editModal.hidden=true;document.body.classList.remove('post-edit-open');editingPost=null;
-  }
   list.addEventListener('click',async event=>{
     const shareButton=event.target.closest('[data-share-url]');
     if(shareButton){
@@ -237,90 +216,7 @@
         else {const field=document.createElement('textarea');field.value=url;field.style.position='fixed';field.style.opacity='0';document.body.appendChild(field);field.select();document.execCommand('copy');field.remove();}
         copyButton.textContent='LINK COPIED';
       }catch{window.prompt('Copy this post link:',url);}
-      return;
     }
-    const button=event.target.closest('[data-inline-edit]');
-    if(!button)return;
-    event.preventDefault();event.stopPropagation();
-    const post=posts.find(item=>item.slug===button.dataset.inlineEdit);
-    if(post)openInlineEditor(post);
-  });
-  document.getElementById('post-edit-close')?.addEventListener('click',closeInlineEditor);
-  document.getElementById('post-edit-cancel')?.addEventListener('click',closeInlineEditor);
-  editModal?.addEventListener('click',event=>{if(event.target===editModal)closeInlineEditor();});
-  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!editModal.hidden)closeInlineEditor();});
-  document.querySelectorAll('[data-inline-command]').forEach(button=>button.addEventListener('click',()=>{
-    editBody.focus();const command=button.dataset.inlineCommand;
-    if(command==='formatBlock')document.execCommand(command,false,'<'+button.dataset.inlineValue+'>');
-    else document.execCommand(command,false,null);
-  }));
-  document.getElementById('inline-edit-link')?.addEventListener('click',()=>{
-    editBody.focus();const url=prompt('Enter an https:// or mailto: link');
-    if(url&&/^(https?:\/\/|mailto:)/i.test(url.trim()))document.execCommand('createLink',false,url.trim());
-    else if(url)editMessage.textContent='Only https:// and mailto: links are allowed.';
-  });
-  const inlineFile=document.getElementById('inline-edit-file');
-  async function uploadInlineMedia(file,kind){
-    if(!file||!editingPost||editSaving)return;
-    const image=file.type.startsWith('image/'),video=file.type.startsWith('video/'),audio=file.type.startsWith('audio/');
-    const allowed=(image&&['image/jpeg','image/png','image/webp','image/gif','image/avif'].includes(file.type))||(audio&&['audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm'].includes(file.type))||(video&&['video/mp4','video/webm'].includes(file.type));
-    if(!allowed){editMessage.textContent='Choose a supported image, audio, or video file.';return;}
-    if(file.size>30*1024*1024){editMessage.textContent='Files must be 30 MB or smaller.';return;}
-    editMessage.textContent='UPLOADING MEDIA…';
-    const {data:{session}}=await client.auth.getSession();
-    if(!session?.user){editMessage.textContent='Your editor session has expired. Sign in again.';return;}
-    const ext=(file.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'');
-    const path=session.user.id+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;
-    try{
-      const {error}=await client.storage.from('vha-post-media').upload(path,file,{contentType:file.type,upsert:false});
-      if(error)throw error;
-      const {data}=client.storage.from('vha-post-media').getPublicUrl(path);
-      const url=validMediaUrl(data?.publicUrl);
-      if(!url)throw new Error('Could not create a valid media URL.');
-      editBody.focus();
-      if(image){
-        const img=document.createElement('img');img.src=url;img.alt=file.name.replace(/\.[^.]+$/,'');img.style.maxWidth='100%';img.style.height='auto';
-        const selection=window.getSelection();
-        if(selection?.rangeCount&&editBody.contains(selection.anchorNode)){const range=selection.getRangeAt(0);range.deleteContents();range.insertNode(img);range.setStartAfter(img);range.collapse(true);selection.removeAllRanges();selection.addRange(range);}
-        else editBody.appendChild(img);
-      }else{
-        const el=document.createElement(video?'video':'audio');el.src=url;el.controls=true;el.preload='metadata';if(video){el.style.maxWidth='100%';el.style.height='auto';}
-        const selection=window.getSelection();
-        if(selection?.rangeCount&&editBody.contains(selection.anchorNode)){const range=selection.getRangeAt(0);range.deleteContents();range.insertNode(el);range.setStartAfter(el);range.collapse(true);selection.removeAllRanges();selection.addRange(range);}
-        else editBody.appendChild(el);
-      }
-      editMessage.textContent='MEDIA INSERTED. SAVE CHANGES TO PUBLISH IT IN THE POST.';
-    }catch(error){editMessage.textContent=error.message||'Media upload failed.';}
-  }
-  document.getElementById('inline-edit-image')?.addEventListener('click',()=>{if(inlineFile){inlineFile.accept='image/jpeg,image/png,image/webp,image/gif,image/avif';inlineFile.click();}});
-  document.getElementById('inline-edit-media')?.addEventListener('click',()=>{if(inlineFile){inlineFile.accept='audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm';inlineFile.click();}});
-  inlineFile?.addEventListener('change',async()=>{const file=inlineFile.files?.[0];if(file)await uploadInlineMedia(file);inlineFile.value='';});
-  editForm?.addEventListener('submit',async event=>{
-    event.preventDefault();
-    if(editSaving||!editingPost||!client)return;
-    const title=editTitle.value.trim(),slug=slugify(editSlug.value),category=editCategory.value.trim().toUpperCase();
-    const excerpt=editExcerpt.value.trim(),content_html=cleanHtml(editBody.innerHTML);
-    if(!title||!slug||!MOVEMENTS.includes(category)){editMessage.textContent='Title, a valid slug, and movement are required.';return;}
-    if(!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)){editMessage.textContent='Use lowercase words separated by hyphens for the URL slug.';return;}
-    if(!content_html.trim()){editMessage.textContent='The post body cannot be empty.';return;}
-    editSaving=true;editSave.disabled=true;editMessage.textContent='SAVING CHANGES…';
-    try{
-      const {data:{session}}=await client.auth.getSession();
-      if(!session?.user)throw new Error('Your editor session has expired. Sign in again to edit posts.');
-      const {data:admin,error:adminError}=await client.from('vha_cms_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
-      if(adminError||!admin)throw new Error('This account does not have CMS editor access.');
-      const {data,error}=await client.from('vha_posts').update({title,slug,category,excerpt,content_html}).eq('id',editingPost.id).eq('status','published').select('id,title,slug,category,excerpt,content_html,media_url,media_type,created_at,published_at').single();
-      if(error)throw error;
-      posts=posts.map(post=>post.id===data.id?{...post,...data}:post);
-      const changedSlug=data.slug!==requestedSlug;
-      editMessage.textContent='SAVED. REFRESHING TRANSMISSION…';
-      editModal.hidden=true;document.body.classList.remove('post-edit-open');
-      if(changedSlug&&new URLSearchParams(location.search).has('post')){
-        const url=new URL(location.href);url.searchParams.set('post',data.slug);location.assign(url.toString());return;
-      }
-      editingPost=null;render();
-    }catch(error){editMessage.textContent=error.message||'Could not save changes.';}
-    finally{editSaving=false;editSave.disabled=false;}
   });
 
   function initViewerThemes(){
