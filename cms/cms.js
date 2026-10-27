@@ -11,7 +11,10 @@
   const excerptInput = $('post-excerpt'), contentEditor = $('post-content');
   const mediaInput = $('post-media'), mediaPreview = $('media-preview'), mediaMessage = $('media-message');
   let currentUser = null, allPosts = [], editingId = null, slugManuallyEdited = false, statusFilter = 'all', saving = false;
-  const requestedEditSlug = new URLSearchParams(window.location.search).get('edit');
+  const requestedParams = new URLSearchParams(window.location.search);
+  const requestedEditSlug = requestedParams.get('edit');
+  const requestedCategory = (requestedParams.get('category') || '').trim().toUpperCase();
+  const requestedNewPost = requestedParams.get('new') === '1';
   let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null;
   const MEDIA_BUCKET = 'vha-post-media';
   const MAX_MEDIA_BYTES = 30 * 1024 * 1024;
@@ -101,10 +104,18 @@
     managePosts.querySelectorAll('[data-id]').forEach(btn=>btn.addEventListener('click',()=>{const post=allPosts.find(p=>p.id===btn.dataset.id);if(post)openPost(post);}));
   }
   function openRequestedPost(){
-    if(!requestedEditSlug)return;
-    const post=allPosts.find(item=>item.slug===requestedEditSlug);
-    if(post)openPost(post);
-    else message(saveMessage,'The requested post could not be found in the editor. It may have been deleted or is not accessible.',true);
+    if(requestedEditSlug){
+      const post=allPosts.find(item=>item.slug===requestedEditSlug);
+      if(post)openPost(post);
+      else message(saveMessage,'The requested post could not be found in the editor. It may have been deleted or is not accessible.',true);
+      return;
+    }
+    if(requestedNewPost && MOVEMENTS.includes(requestedCategory)){
+      blankEditor();
+      categoryInput.value=requestedCategory;
+      setStatus('NEW POST // '+requestedCategory);
+      message(saveMessage,'New transmission for '+requestedCategory+'. Add the title and content, then save or publish.');
+    }
   }
   async function loadPosts(){
     managePosts.innerHTML='<p class="cms-help" style="padding:16px">Scanning transmissions…</p>';
