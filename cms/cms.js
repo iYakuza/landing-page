@@ -10,6 +10,9 @@
   const titleInput = $('post-title'), slugInput = $('post-slug'), categoryInput = $('post-category');
   const excerptInput = $('post-excerpt'), contentEditor = $('post-content');
   const mediaInput = $('post-media'), mediaPreview = $('media-preview'), mediaMessage = $('media-message');
+  const layoutInput = $('post-layout'), mediaWidthInput = $('media-width'), mediaWidthValue = $('media-width-value');
+  const sunoFields = $('suno-fields'), plainFields = $('plain-fields');
+  let postLayout = 'suno', postMediaWidth = 100;
   let currentUser = null, allPosts = [], editingId = null, slugManuallyEdited = false, statusFilter = 'all', saving = false;
   const requestedParams = new URLSearchParams(window.location.search);
   const requestedEditSlug = requestedParams.get('edit');
