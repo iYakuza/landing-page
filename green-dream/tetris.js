@@ -129,7 +129,7 @@
 
     function onlineStatus(message){if(onlineNotice)onlineNotice.textContent=message;if(status)status.textContent=message;}
     function serializeState(){return {type:"state",mode,remaining,running,finished,cols,rows,players:players.map(p=>({name:p.name,color:p.color,board:p.board,active:p.active,score:p.score,lines:p.lines,over:p.over,won:p.won,dropClock:p.dropClock}))};}
-    function applyState(s){if(!s||s.type!=="state"||!Array.isArray(s.players))return;mode=s.mode||mode;remaining=Number(s.remaining)||0;running=!!s.running;finished=!!s.finished;cols=Number(s.cols)||cols;rows=Number(s.rows)||rows;players=s.players.map((p,i)=>({...makePlayer(p.name||("PLAYER "+(i+1)),p.color||COLORS[i],{}),...p,board:Array.isArray(p.board)?p.board:blankBoard()}));if(modeSelect)modeSelect.value=mode;if(startButton)startButton.textContent=finished?"↻":running?"Ⅱ":"▶";if(status)status.textContent=finished?"MATCH COMPLETE":running?MODES[mode].description:"MATCH PAUSED";}
+    function applyState(s){if(!s||s.type!=="state"||!Array.isArray(s.players))return;mode=s.mode||mode;remaining=Number(s.remaining)||0;running=!!s.running;finished=!!s.finished;cols=Number(s.cols)||cols;rows=Number(s.rows)||rows;players=s.players.map((p,i)=>({...makePlayer(p.name||("PLAYER "+(i+1)),p.color||COLORS[i],{}),...p,board:Array.isArray(p.board)?p.board:blankBoard()}));if(modeSelect)modeSelect.value=mode;if(startButton)startButton.textContent=finished?"↻":running?"Ⅱ":"▶";if(status)status.textContent=finished?"MATCH COMPLETE":running?MODES[mode].description:"MATCH PAUSED";if(running)startLoop();else stopLoop();draw();}
     function sendState(){
       if(!online||!isHost||!roomChannel||stateSendPending)return;
       stateSendPending=true;
@@ -206,7 +206,7 @@
       if(online&&isHost&&now-lastSync>400){lastSync=now;sendState();}
       draw(now);
       // Keep the expensive canvas renderer idle while the duel is paused.
-      if(running||(online&&isHost))raf=requestAnimationFrame(frame);else raf=0;
+      if(running)raf=requestAnimationFrame(frame);else raf=0;
     }
     function startLoop(){if(!raf&&!document.hidden){last=performance.now();raf=requestAnimationFrame(frame);}}
     function stopLoop(){if(raf){cancelAnimationFrame(raf);raf=0;}}
