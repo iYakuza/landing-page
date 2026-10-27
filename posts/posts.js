@@ -66,13 +66,13 @@
     clean(doc.body);return doc.body.innerHTML;
   }
   function validMediaUrl(value){
-    try{const url=new URL(String(value||''));return url.protocol==='https:'&&url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.includes('/storage/v1/object/public/vha-post-media/')?url.href:'';}catch{return '';}
+    try{const url=new URL(String(value||''));return url.protocol==='https:'&&url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&(/\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname))?url.href:'';}catch{return '';}
   }
   function validMediaUrl(value){try{const url=new URL(String(value||''));return url.protocol==='https:'&&url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.includes('/storage/v1/object/public/vha-post-media/')?url.href:'';}catch{return '';}}
   const MOVEMENTS=['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'];
   function displayCategory(value){
     const category=String(value||'').trim().toUpperCase();
-    return MOVEMENTS.includes(category)?category:'UNASSIGNED';
+    return MOVEMENTS.includes(category)?category:(category.startsWith('COMMUNITY')?'COMMUNITY SIGNAL':'UNASSIGNED');
   }
   function renderCategories(){
     const selected=categoryFilter.value;
@@ -149,9 +149,20 @@
   }
   async function load(){
     if(!client){list.innerHTML='<p class="posts-empty">THE ARCHIVE COULD NOT CONNECT.</p>';count.textContent='SIGNAL UNAVAILABLE';return;}
-    const {data,error}=await client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false});
-    if(error){list.innerHTML='<p class="posts-empty">THE ARCHIVE COULD NOT LOAD. PLEASE TRY AGAIN LATER.</p>';count.textContent='SIGNAL UNAVAILABLE';return;}
-    posts=data||[];canEditPosts=await checkEditorAccess();renderCategories();render();
+    const [ownerResult,communityResult]=await Promise.all([
+      client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}),
+      client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false})
+    ]);
+    if(ownerResult.error){list.innerHTML='<p class="posts-empty">THE ARCHIVE COULD NOT LOAD. PLEASE TRY AGAIN LATER.</p>';count.textContent='SIGNAL UNAVAILABLE';return;}
+    const ownerPosts=ownerResult.data||[];
+    const communityPosts=communityResult.error?[]:(communityResult.data||[]).map(item=>({
+      id:item.id,title:item.title,slug:item.slug,category:'COMMUNITY SIGNAL',excerpt:item.byline?'TRANSMITTED BY '+item.byline:'COMMUNITY SUBMISSION',
+      content_html:item.body?'<p>'+safe(item.body).replace(/\n/g,'<br>')+'</p>':'',media_url:item.media_url,
+      media_type:item.medium==='photograph'?'image':item.medium==='video'?'video':'audio',
+      created_at:item.created_at,published_at:item.published_at||item.created_at,community:true
+    }));
+    posts=[...ownerPosts.map(p=>({...p,community:false})),...communityPosts].sort((a,b)=>new Date(b.published_at||b.created_at)-new Date(a.published_at||a.created_at));
+    canEditPosts=await checkEditorAccess();renderCategories();render();
   }
 
   function openInlineEditor(post){
@@ -412,5 +423,47 @@
     resetButton?.addEventListener("click",()=>{try{localStorage.removeItem("vha-ai-theme");}catch{}root.removeAttribute("data-theme-heading");root.removeAttribute("data-theme-body");root.removeAttribute("data-theme-scale");root.removeAttribute("data-theme-weight");root.removeAttribute("data-theme-density");root.removeAttribute("data-theme-columns");root.removeAttribute("data-theme-card");root.removeAttribute("data-theme-geometry");root.removeAttribute("data-theme-hero");root.removeAttribute("data-theme-pattern");root.removeAttribute("data-theme-media");root.removeAttribute("data-theme-buttons");root.removeAttribute("data-theme-motion");root.removeAttribute("data-theme-shadows");root.removeAttribute("data-theme-nav");["page","surface","raised","text","muted","accent","secondary","border","glow"].forEach(k=>root.style.removeProperty("--theme-"+k));showPreset("neon");status.textContent="DEFAULT DESIGN RESTORED.";});
   }
   if(document.getElementById('theme-prompt-form'))initViewerThemes();
-  search.addEventListener('input',render);categoryFilter.addEventListener('change',render);load();
+
+  const submissionForm=document.getElementById('visitor-transmission-form');
+  if(submissionForm){
+    const submissionStatus=document.getElementById('visitor-status'),submissionButton=document.getElementById('visitor-submit');
+    const setSubmissionStatus=(text,kind='')=>{submissionStatus.textContent=text;submissionStatus.classList.remove('error','success');if(kind)submissionStatus.classList.add(kind);};
+    submissionForm.addEventListener('submit',async event=>{
+      event.preventDefault();
+      if(document.getElementById('visitor-website').value.trim()){setSubmissionStatus('SIGNAL RECEIVED. THANK YOU.','success');submissionForm.reset();return;}
+      const title=document.getElementById('visitor-title').value.trim();
+      const body=document.getElementById('visitor-body').value.trim();
+      const medium=document.getElementById('visitor-medium').value;
+      const byline=document.getElementById('visitor-byline').value.trim();
+      const file=document.getElementById('visitor-media').files?.[0];
+      if(!title){setSubmissionStatus('PLEASE GIVE YOUR TRANSMISSION A NAME.','error');return;}
+      if(!body&&!file){setSubmissionStatus('ADD SOME WORDS OR ATTACH A MEDIA FILE.','error');return;}
+      if(file&&file.size>25*1024*1024){setSubmissionStatus('THIS FILE IS OVER 25 MB. PLEASE SEND A SMALLER ONE.','error');return;}
+      if(file&&medium==='poem'){setSubmissionStatus('CHOOSE THE MEDIA TYPE THAT MATCHES YOUR FILE.','error');return;}
+      if(!client){setSubmissionStatus('THE CHANNEL IS OFFLINE. PLEASE TRY AGAIN LATER.','error');return;}
+      submissionButton.disabled=true;setSubmissionStatus('UPLOADING YOUR SIGNAL…');
+      try{
+        let mediaUrl=null,storagePath=null;
+        if(file){
+          const allowed={
+            photograph:['image/jpeg','image/png','image/webp'],
+            music:['audio/mpeg','audio/mp4','audio/wav','audio/ogg','audio/x-m4a'],
+            video:['video/mp4','video/webm','video/quicktime']
+          };
+          if(!allowed[medium]?.includes(file.type))throw new Error('That file type does not match the selected medium.');
+          const extension=(file.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,8)||'bin';
+          storagePath='submissions/'+(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36))+'.'+extension;
+          const upload=await client.storage.from('poetry-media').upload(storagePath,file,{contentType:file.type,upsert:false});
+          if(upload.error)throw upload.error;
+          mediaUrl=client.storage.from('poetry-media').getPublicUrl(storagePath).data.publicUrl;
+        }
+        const slug=(title.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,100)||'transmission')+'-'+Date.now().toString(36);
+        const {error}=await client.from('poetry_submissions').insert({title,slug,medium,body,byline,rights_confirmed:true,media_url:mediaUrl,storage_path:storagePath,status:'pending'});
+        if(error)throw error;
+        submissionForm.reset();setSubmissionStatus('SIGNAL RECEIVED. IT IS IN THE REVIEW QUEUE; IF APPROVED, IT WILL APPEAR IN THE ARCHIVE BELOW.','success');
+      }catch(error){setSubmissionStatus(error?.message||'THE TRANSMISSION DID NOT GO THROUGH. PLEASE TRY AGAIN.','error');}
+      finally{submissionButton.disabled=false;}
+    });
+  }
+\n  search.addEventListener('input',render);categoryFilter.addEventListener('change',render);load();
 })();
