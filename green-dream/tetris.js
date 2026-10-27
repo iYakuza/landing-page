@@ -47,9 +47,10 @@
       cols=w;rows=Math.max(10,Math.floor((height-230)/cell));
       players=[makePlayer("PLAYER 1","#b6e833",{left:"a",right:"d",rotate:"w",down:"s",drop:" "}),makePlayer("PLAYER 2","#54d7ef",{left:"arrowleft",right:"arrowright",rotate:"arrowup",down:"arrowdown",drop:"enter"})];
       players.forEach(newPlayer);
-      mode=modeSelect?.value||"time";remaining=MODES[mode].seconds;running=true;finished=false;last=performance.now();matchStart=last;
-      if(status)status.textContent=MODES[mode].description;
-      if(startButton)startButton.textContent="Ⅱ";
+      mode=modeSelect?.value||"time";remaining=MODES[mode].seconds;running=false;finished=false;last=performance.now();matchStart=last;
+      stopLoop();
+      if(status)status.textContent=MODES[mode].description+" — PRESS START WHEN READY";
+      if(startButton)startButton.textContent="▶";
     }
     function resize(){
       dpr=Math.min(window.devicePixelRatio||1,1.5);width=canvas.parentElement.clientWidth;height=canvas.parentElement.clientHeight;
@@ -106,7 +107,7 @@
       const k=e.key.toLowerCase();
       const used=["a","d","w","s"," ","arrowleft","arrowright","arrowup","arrowdown","enter"].includes(k);
       if(used)e.preventDefault();
-      if(k==="escape"||k==="p"){running=!running&&!finished;if(startButton)startButton.textContent=running?"Ⅱ":"▶";return;}
+      if(k==="escape"||k==="p"){running=!running&&!finished;if(startButton)startButton.textContent=running?"Ⅱ":"▶";if(running)startLoop();else stopLoop();draw();return;}
       if(k==="r"){restart();return;}
       if(k==="1"||k==="2"||k==="3"||k==="4"){const map={"1":"time","2":"points","3":"sprint","4":"ranked"};if(modeSelect)modeSelect.value=map[k];restart();return;}
       if(online){
@@ -203,7 +204,9 @@
         if(players.every(p=>p.over))finish(players[0].score===players[1].score?"DRAW — BOTH FIELDS SATURATED":players[0].score>players[1].score?"PLAYER 1 WINS":"PLAYER 2 WINS");
       }
       if(online&&isHost&&now-lastSync>400){lastSync=now;sendState();}
-      draw(now);raf=requestAnimationFrame(frame);
+      draw(now);
+      // Keep the expensive canvas renderer idle while the duel is paused.
+      if(running||(online&&isHost))raf=requestAnimationFrame(frame);else raf=0;
     }
     function startLoop(){if(!raf&&!document.hidden){last=performance.now();raf=requestAnimationFrame(frame);}}
     function stopLoop(){if(raf){cancelAnimationFrame(raf);raf=0;}}
@@ -243,13 +246,13 @@
         controls.style.setProperty("top",Math.max(0,Math.min(Math.max(0,112-r.height),parseFloat(controls.style.top)||12))+"px","important");
       });
     }
-    startButton?.addEventListener("click",()=>{if(finished){restart();return;}if(!players.length)restart();else{running=!running;if(status)status.textContent=running?MODES[mode].description:"MATCH PAUSED";startButton.textContent=running?"Ⅱ":"▶";}});
+    startButton?.addEventListener("click",()=>{if(finished){restart();draw();return;}if(!players.length){restart();draw();return;}running=!running;if(status)status.textContent=running?MODES[mode].description:"MATCH PAUSED";startButton.textContent=running?"Ⅱ":"▶";if(running)startLoop();else stopLoop();draw();});
     resetButton?.addEventListener("click",restart);
     modeSelect?.addEventListener("change",()=>{mode=modeSelect.value;remaining=MODES[mode].seconds;if(status)status.textContent=MODES[mode].description;});
     window.addEventListener("keydown",keydown,{passive:false});
     window.addEventListener("resize",resize,{passive:true});
     document.addEventListener("visibilitychange",()=>{if(document.hidden)stopLoop();else startLoop();});
-    setupOnlineControls();resize();restart();draw();startLoop();
+    setupOnlineControls();resize();restart();draw();
   }
   initFallingTetris();
 })();
