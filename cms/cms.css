@@ -95,3 +95,12 @@ body{background:#050906;color:var(--cms-ink)}
 .community-submission a{color:#d8ff3e;font:10px ui-monospace,monospace}
 .community-submission-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
 .community-submission small{display:block;margin-top:10px}
+
+
+/* ChatGPT-assisted post layouts */
+.post-composition{padding:18px;margin:20px 0;background:#080e09;border:1px solid #d8ff3e35}
+.post-composition>label,.suno-fields>label,.media-width-control>label{display:block;margin:14px 0 8px;color:#d8ff3e;font:10px ui-monospace,monospace;letter-spacing:.07em}
+.suno-fields textarea{box-sizing:border-box;width:100%;min-height:110px;padding:12px;background:#050906;border:1px solid #d8ff3e40;color:#e8f4df;font:12px/1.8 Georgia,"Times New Roman",serif;resize:vertical}
+.suno-fields[hidden]{display:none}
+.media-width-control{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;margin-top:14px}
+.media-width-control label{margin:0}.media-width-control input{grid-column:1/-1;width:100%;accent-color:#d8ff3e}.media-width-control output{color:#d8ff3e;font:11px ui-monospace,monospace}.media-width-control p{grid-column:1/-1;margin:0}
