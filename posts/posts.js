@@ -51,7 +51,7 @@
       if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
       if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
       const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
-      const originalClass=(child.getAttribute('class')||'').split(/\\s+/).filter(name=>['suno-post-layout','suno-lyrics','suno-notes','suno-learned','suno-label','plain-post-layout','plain-copy','plain-response'].includes(name)).join(' ');
+      const originalClass=(child.getAttribute('class')||'').split(/\s+/).filter(name=>['suno-post-layout','suno-lyrics','suno-notes','suno-learned','suno-label','plain-post-layout','plain-copy','plain-response'].includes(name)).join(' ');
       const originalSrc=['IMG','VIDEO','AUDIO'].includes(child.tagName)?validMediaUrl(child.getAttribute('src')||''):'';
       const originalAlt=child.tagName==='IMG'?(child.getAttribute('alt')||''):'';
       [...child.attributes].forEach(a=>child.removeAttribute(a.name));
