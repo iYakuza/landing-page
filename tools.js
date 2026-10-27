@@ -1,15 +1,6 @@
 /* Verse After Hours — site-wide Tools launcher and theme receiver */
 (() => {
   if (new URLSearchParams(location.search).get("tool") === "theme") { document.body.classList.add("vha-theme-tool-embed"); return; }
-  // Floating theme prompt window removed.
-  return;
-  if (document.getElementById("vha-tools-launcher")) return;
-  const root = document.documentElement;
-  const launcher = document.createElement("aside");
-  launcher.id = "vha-tools-launcher";
-  launcher.innerHTML = '<section id="vha-tools-panel" aria-label="Theme prompt"><iframe title="Theme prompt" src="/landing-page/posts/?tool=theme&v=20261027-no-submit-1"></iframe></section>';
-  document.body.appendChild(launcher);
-  const frame = launcher.querySelector("iframe");
   function applyTheme(theme) {
     if (!theme || !theme.colors || !theme.typography || !theme.layout || !theme.details) return;
     const c = theme.colors;
@@ -40,7 +31,7 @@
     try { localStorage.setItem("vha-global-theme", JSON.stringify({theme,colors})); } catch {}
   }
   window.addEventListener("message", e => {
-    if (e.source !== frame.contentWindow || e.data?.type !== "vha-theme-apply") return;
+    if (e.origin !== location.origin || e.data?.type !== "vha-theme-apply") return;
     applyTheme(e.data.theme);
   });
   try {
