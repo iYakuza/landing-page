@@ -20,7 +20,7 @@
   const slugify = value => String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,180);
   function message(el, text, error=false){el.textContent=text;el.classList.toggle('error',error);}
   function showLogin(){loginPanel.hidden=false;workspace.hidden=true;setupNote.hidden=false;}
-  function showWorkspace(user){loginPanel.hidden=true;workspace.hidden=false;setupNote.hidden=true;$('user-line').textContent='SIGNED IN // '+(user.email||'EDITOR');}
+  function showWorkspace(user){loginPanel.hidden=true;workspace.hidden=false;setupNote.hidden=true;$('community-review').hidden=false;$('user-line').textContent='SIGNED IN // '+(user.email||'EDITOR');}
   function setStatus(text){$('editor-status').textContent=text;}
   function safeLink(value){
     try{
@@ -92,6 +92,29 @@
     if(error){managePosts.innerHTML='<p class="cms-message error" style="padding:16px">'+escapeHtml(error.message)+'</p>';return;}
     allPosts=data||[];renderPosts();
   }
+
+  async function loadCommunitySubmissions(){
+    const target=$('community-submissions');if(!target)return;
+    target.innerHTML='<p class="cms-help">Scanning the incoming channel…</p>';
+    const {data,error}=await client.from('poetry_submissions').select('id,title,medium,body,byline,media_url,created_at,status').order('created_at',{ascending:false});
+    if(error){target.innerHTML='<p class="cms-message error">Could not load community submissions: '+escapeHtml(error.message)+'</p>';return;}
+    const items=data||[];
+    if(!items.length){target.innerHTML='<p class="cms-help">No visitor submissions yet.</p>';return;}
+    target.innerHTML=items.map(item=>{
+      const media=item.media_url?'<p><a href="'+escapeHtml(item.media_url)+'" target="_blank" rel="noopener noreferrer">OPEN ATTACHED MEDIA ↗</a></p>':'';
+      const body=item.body?'<p class="community-submission-body">'+escapeHtml(item.body).replace(/\n/g,'<br>')+'</p>':'';
+      const actions=item.status==='pending'?'<div class="community-submission-actions"><button type="button" class="cms-button primary" data-submission-action="published" data-submission-id="'+escapeHtml(item.id)+'">APPROVE & PUBLISH</button><button type="button" class="cms-button danger" data-submission-action="failed" data-submission-id="'+escapeHtml(item.id)+'">DECLINE</button></div>':'';
+      return '<article class="community-submission"><div class="community-submission-top"><div><p class="gd-kicker">'+escapeHtml(item.medium.toUpperCase())+' // '+escapeHtml(item.byline||'ANONYMOUS')+'</p><h3>'+escapeHtml(item.title)+'</h3></div><span class="'+(item.status==='published'?'published-label':item.status==='pending'?'draft-label':'')+'">'+escapeHtml(item.status.toUpperCase())+'</span></div>'+body+media+'<small class="cms-help">RECEIVED '+new Date(item.created_at).toLocaleString('en-GB')+'</small>'+actions+'</article>';
+    }).join('');
+  }
+  $('refresh-submissions')?.addEventListener('click',loadCommunitySubmissions);
+  $('community-submissions')?.addEventListener('click',async event=>{
+    const button=event.target.closest('[data-submission-action]');if(!button)return;
+    button.disabled=true;const status=button.dataset.submissionAction,id=button.dataset.submissionId;
+    const {error}=await client.from('poetry_submissions').update({status,...(status==='published'?{published_at:new Date().toISOString()}:{})}).eq('id',id);
+    if(error){button.disabled=false;alert('Could not update submission: '+error.message);return;}
+    await loadCommunitySubmissions();
+  });
   async function ensureAdmin(user){
     const {data,error}=await client.from('vha_cms_admins').select('user_id').eq('user_id',user.id).maybeSingle();
     if(error||!data){
@@ -104,14 +127,14 @@
   async function restoreSession(){
     if(!client){showLogin();message(loginMessage,'The publishing client could not initialise. Reload the page or contact the site owner.',true);return;}
     const {data:{session}}=await client.auth.getSession();
-    if(session?.user&&await ensureAdmin(session.user)){currentUser=session.user;showWorkspace(currentUser);await loadPosts();openRequestedPost();}else showLogin();
+    if(session?.user&&await ensureAdmin(session.user)){currentUser=session.user;showWorkspace(currentUser);await loadPosts();await loadCommunitySubmissions();openRequestedPost();}else showLogin();
   }
   loginForm.addEventListener('submit',async event=>{
     event.preventDefault();message(loginMessage,'AUTHENTICATING…');
     const {data,error}=await client.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-password').value});
     if(error){message(loginMessage,error.message,true);return;}
     if(!(await ensureAdmin(data.user)))return;
-    currentUser=data.user;showWorkspace(currentUser);message(loginMessage,'');await loadPosts();openRequestedPost();
+    currentUser=data.user;showWorkspace(currentUser);message(loginMessage,'');await loadPosts();await loadCommunitySubmissions();openRequestedPost();
   });
   $('sign-out').addEventListener('click',async()=>{await client.auth.signOut();currentUser=null;showLogin();message(loginMessage,'Signed out.');});
   $('new-post').addEventListener('click',blankEditor);
