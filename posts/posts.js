@@ -103,6 +103,7 @@
     const textColumn=doc.querySelector('.suno-text-column');
     const lyrics=doc.querySelector('.suno-lyrics');
     const style=doc.querySelector('.suno-notes');
+    style?.querySelector(':scope > .suno-label')?.remove();
     const textHtml=textColumn?textColumn.innerHTML:'<p class="suno-empty-column">No accompanying text added yet.</p>';
     const lyricsHtml=lyrics?lyrics.outerHTML:'<details class="suno-lyrics"><summary class="suno-label">02 // SUNO.COM LYRICS</summary><p>No lyrics added yet.</p></details>';
     const styleHtml=style?style.innerHTML:'<p>No style notes added yet.</p>';
