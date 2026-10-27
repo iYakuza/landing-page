@@ -577,3 +577,72 @@ body.post-edit-open{overflow:hidden}
 .post-edit-body audio{display:block;width:100%;max-width:100%;margin:16px 0}
 .post-body img,.post-body video{display:block;max-width:100%;height:auto;margin:18px 0}
 .post-body audio{display:block;width:100%;max-width:100%;margin:18px 0}
+
+
+/* VERSE AFTER HOURS — unified editorial / cybernetic typography system.
+   Editorial serif for poetry and story titles; clean sans for reading;
+   monospace only for interface metadata and signal labels. */
+.posts-main,.posts-content,.posts-note,.post-card,.post-edit-dialog{
+  font-family:Arial,Helvetica,sans-serif;
+}
+.posts-hero h1,.posts-content h2,.posts-note h2,
+.post-card h3,.post-body h2,.post-body h3,
+.posts-list:has(.post-back) .post-card h3{
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:500;
+  letter-spacing:-.045em;
+  line-height:1.04;
+  text-transform:none;
+}
+.posts-hero h1{
+  font-size:clamp(48px,8vw,108px);
+  line-height:.98;
+  letter-spacing:-.055em;
+  max-width:1000px;
+}
+.posts-content h2,.posts-note h2{
+  font-size:clamp(30px,4.4vw,52px);
+  line-height:1.08;
+}
+.post-card h3{
+  font-size:clamp(22px,2.25vw,31px);
+  line-height:1.12;
+  margin:20px 0 12px;
+}
+.posts-intro,.posts-note p:not(.gd-kicker),.post-card p,.post-body{
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:14px;
+  font-weight:400;
+  line-height:1.85;
+  letter-spacing:0;
+}
+.posts-intro{max-width:650px}
+.post-card p{font-size:13px;line-height:1.8}
+.post-body{font-size:15px;line-height:1.95}
+.post-body h2{font-size:clamp(27px,4vw,42px);margin:1.4em 0 .55em}
+.post-body h3{font-size:clamp(22px,3vw,32px);margin:1.3em 0 .5em}
+.posts-meta,.post-card-top,.post-category,.post-card>a,.posts-search input,
+.posts-filters,.posts-empty,.gd-kicker,.posts-admin-link,
+.post-edit-dialog label,.post-edit-toolbar button,.post-edit-actions button,
+.post-edit-message{
+  font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;
+}
+.posts-meta{font-size:10px;line-height:1.6;letter-spacing:1.2px}
+.post-card-top{font-size:10px;line-height:1.5;letter-spacing:.9px}
+.post-category{font-size:9px;line-height:1.4;letter-spacing:.8px}
+.post-card>a,.posts-admin-link{font-size:10px;line-height:1.5;letter-spacing:1px}
+.posts-search input,.posts-filters{font-size:10px;line-height:1.5}
+.posts-empty{font-size:11px;line-height:1.8;letter-spacing:1px}
+.gd-kicker{font-size:10px;line-height:1.6;letter-spacing:1.7px}
+.post-edit-dialog{font-size:14px;line-height:1.65}
+.post-edit-dialog-head h2{font-family:Georgia,"Times New Roman",serif;font-size:clamp(25px,4vw,36px);font-weight:500;letter-spacing:-.04em;line-height:1.08}
+.post-edit-body{font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.85}
+.post-edit-body h2,.post-edit-body h3{font-family:Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:-.035em;line-height:1.15}
+@media(max-width:600px){
+  .posts-hero h1{font-size:clamp(43px,11vw,72px);line-height:1}
+  .posts-content h2,.posts-note h2{font-size:clamp(29px,8vw,40px)}
+  .post-card h3{font-size:clamp(23px,6.5vw,30px)}
+  .posts-intro,.posts-note p:not(.gd-kicker){font-size:14px;line-height:1.8}
+  .post-body{font-size:15px;line-height:1.9}
+  .posts-meta{font-size:9px}
+}
