@@ -4,6 +4,7 @@
   const radio=root.querySelector('#gd-radio'),head=root.querySelector('#gd-drag'),track=root.querySelector('#gd-track'),artist=root.querySelector('#gd-artist'),play=root.querySelector('#gd-play'),eq=root.querySelector('.gd-eq'),host=root.querySelector('#gd-player'),note=root.querySelector('#gd-radio-note'),picker=root.querySelector('#gd-video-select');
   const close=radio?.querySelector('#gd-close');
   // Move the player out of the hero so section overflow/positioning cannot trap it.
+  if(radio)radio.style.setProperty('--acid','#d8ff3e');
   if(radio && radio.parentElement!==document.body)document.body.appendChild(radio);
 
   let videos=[],selectedId='',playing=false,player=null,apiPromise=null,probePlayer=null;
