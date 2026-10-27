@@ -724,3 +724,13 @@ body.post-edit-open{overflow:hidden}
 .posts-list:has(.post-back) .post-detail-grid.text-only{grid-template-columns:minmax(0,1fr)}
 .posts-list:has(.post-back) .post-detail-grid.text-only .post-detail-copy{max-width:900px}
 @media(max-width:760px){.posts-list:has(.post-back) .post-detail-grid{grid-template-columns:minmax(0,1fr);gap:20px}.posts-list:has(.post-back) .post-detail-media{position:static;grid-row:1}.posts-list:has(.post-back) .post-detail-grid.text-only .post-detail-media{display:none}}
+
+
+/* Lyrics start collapsed; the heading is the disclosure control. */
+.suno-lyrics{min-width:0}
+.suno-lyrics>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none;user-select:none}
+.suno-lyrics>summary::-webkit-details-marker{display:none}
+.suno-lyrics>summary:after{content:'+';flex:0 0 auto;color:#d8ff3e;font:18px/1 ui-monospace,monospace}
+.suno-lyrics[open]>summary:after{content:'−'}
+.suno-lyrics .suno-collapse-hint{font:8px/1.5 ui-monospace,monospace;letter-spacing:.08em;color:#9aab9c}
+.suno-lyrics>pre{padding-top:14px}
