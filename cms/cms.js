@@ -32,14 +32,16 @@
   }
   function cleanHtml(html){
     const doc = new DOMParser().parseFromString(String(html||''),'text/html');
-    const allowed = new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE']);
+    const allowed = new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','DIV','SECTION','ASIDE']);
     function clean(node){
       [...node.childNodes].forEach(child=>{
         if(child.nodeType===Node.TEXT_NODE) return;
         if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
         if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
         const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
+        const originalClass=(child.getAttribute('class')||'').split(/\s+/).filter(name=>['suno-post-layout','suno-lyrics','suno-notes','suno-learned','suno-label','plain-post-layout','plain-copy','plain-response'].includes(name)).join(' ');
         [...child.attributes].forEach(attr=>child.removeAttribute(attr.name));
+        if(originalClass)child.setAttribute('class',originalClass);
         const safeHref=child.tagName==='A'?safeLink(originalHref):'';
         if(child.tagName==='A'&&safeHref){
           child.setAttribute('href',safeHref);child.setAttribute('target','_blank');child.setAttribute('rel','noopener noreferrer');
@@ -56,10 +58,25 @@
     if(mediaType==='image'){el=document.createElement('img');el.alt='Post media preview';}
     else if(mediaType==='video'){el=document.createElement('video');el.controls=true;}
     else{el=document.createElement('audio');el.controls=true;}
-    el.src=mediaUrl;mediaPreview.appendChild(el);
+    el.src=mediaUrl;el.style.width=postMediaWidth+'%';el.style.maxWidth='100%';mediaPreview.appendChild(el);
   }
+
+  function syncLayoutFields(){
+    postLayout=layoutInput.value;sunoFields.hidden=postLayout!=='suno';plainFields.hidden=postLayout!=='plain';
+    contentEditor.closest('.rich-editor').hidden=postLayout!=='standard';contentEditor.closest('.cms-label-row').hidden=postLayout!=='standard';
+  }
+  function textAsParagraphs(value){return String(value||'').split(/\n{2,}/).map(part=>'<p>'+escapeHtml(part).replace(/\n/g,'<br>')+'</p>').join('');}
+  function buildPostContent(){
+    if(postLayout==='standard')return contentEditor.innerHTML;
+    if(postLayout==='plain')return '<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+textAsParagraphs($('post-plain-text').value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>';
+    return '<div class="suno-post-layout"><section class="suno-lyrics"><p class="suno-label">01 // THE LYRICS</p><pre>'+escapeHtml($('post-lyrics').value)+'</pre></section><aside class="suno-notes"><p class="suno-label">02 // SUNO STYLE, DECODED</p>'+textAsParagraphs($('post-style-notes').value)+'<section class="suno-learned"><p class="suno-label">03 // WHAT I LEARNED</p>'+textAsParagraphs($('post-learned').value)+'</section></aside></div>';
+  }
+  layoutInput.addEventListener('change',()=>{syncLayoutFields();setStatus('UNSAVED');});
+  mediaWidthInput.addEventListener('input',()=>{postMediaWidth=Number(mediaWidthInput.value)||100;mediaWidthValue.value=postMediaWidth+'%';const media=mediaPreview.firstElementChild;if(media)media.style.width=postMediaWidth+'%';setStatus('UNSAVED');});
+  ['post-lyrics','post-style-notes','post-learned','post-plain-text'].forEach(id=>$(id).addEventListener('input',()=>setStatus('UNSAVED')));
+
   function blankEditor(){
-    editingId=null;slugManuallyEdited=false;postForm.reset();contentEditor.innerHTML='';
+    editingId=null;slugManuallyEdited=false;postForm.reset();contentEditor.innerHTML='';postLayout='suno';postMediaWidth=100;layoutInput.value='suno';mediaWidthInput.value='100';mediaWidthValue.value='100%';syncLayoutFields();
     mediaUrl=null;mediaPath=null;mediaType=null;originalMediaPath=null;renderMediaPreview();message(mediaMessage,'');
     $('delete-post').hidden=true;
     $('editor-mode').textContent='NEW TRANSMISSION';setStatus('UNSAVED');message(saveMessage,'');
@@ -69,6 +86,9 @@
   function openPost(post){
     editingId=post.id;slugManuallyEdited=true;titleInput.value=post.title||'';slugInput.value=post.slug||'';
     categoryInput.value=post.category||'';excerptInput.value=post.excerpt||'';contentEditor.innerHTML=cleanHtml(post.content_html||'');
+    postMediaWidth=Math.max(20,Math.min(100,Number(post.media_width)||100));mediaWidthInput.value=String(postMediaWidth);mediaWidthValue.value=postMediaWidth+'%';
+    const savedDoc=new DOMParser().parseFromString(post.content_html||'','text/html');const suno=savedDoc.querySelector('.suno-post-layout'),plain=savedDoc.querySelector('.plain-post-layout');
+    if(suno){postLayout='suno';$('post-lyrics').value=savedDoc.querySelector('.suno-lyrics')?.innerText||'';$('post-style-notes').value=savedDoc.querySelector('.suno-notes')?.innerText||'';$('post-learned').value=savedDoc.querySelector('.suno-learned')?.innerText||'';}else if(plain){postLayout='plain';$('post-plain-text').value=savedDoc.querySelector('.plain-copy')?.innerText||'';}else postLayout='standard';layoutInput.value=postLayout;syncLayoutFields();
     mediaUrl=post.media_url||null;mediaPath=post.media_path||null;mediaType=post.media_type||null;originalMediaPath=post.media_path||null;
     mediaInput.value='';renderMediaPreview();message(mediaMessage,'');$('delete-post').hidden=false;
     $('editor-mode').textContent='EDIT TRANSMISSION';setStatus(post.status==='published'?'PUBLISHED':'DRAFT');
@@ -157,7 +177,8 @@
     if(!title||!slug||!category){message(saveMessage,'Title, URL slug, and category are required.',true);return;}
     if(!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)){message(saveMessage,'Use a valid lowercase URL slug.',true);return;}
     const previousSavedMediaPath=editingId?allPosts.find(p=>p.id===editingId)?.media_path||null:null;
-    const payload={title,slug,category,excerpt:excerptInput.value.trim(),content_html:cleanHtml(contentEditor.innerHTML),media_url:mediaUrl,media_path:mediaPath,media_type:mediaType,status};
+    const composedHtml=buildPostContent();
+    const payload={title,slug,category,excerpt:excerptInput.value.trim(),content_html:cleanHtml(composedHtml),media_url:mediaUrl,media_path:mediaPath,media_type:mediaType,media_width:postMediaWidth,status};
     if(status==='published'&&!payload.content_html.trim()){message(saveMessage,'Add some content before publishing.',true);return;}
     saving=true;$('save-draft').disabled=true;$('publish-post').disabled=true;message(saveMessage,status==='published'?'PUBLISHING…':'SAVING DRAFT…');
     try{
