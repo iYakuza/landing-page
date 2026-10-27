@@ -45,14 +45,19 @@
   }
   function cleanHtml(html){
     const doc=new DOMParser().parseFromString(String(html||''),'text/html');
-    const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE']);
+    const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','IMG','VIDEO','AUDIO']);
     function clean(node){[...node.childNodes].forEach(child=>{
       if(child.nodeType===Node.TEXT_NODE)return;
       if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
       if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
       const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
+      const originalSrc=['IMG','VIDEO','AUDIO'].includes(child.tagName)?validMediaUrl(child.getAttribute('src')||''):'';
+      const originalAlt=child.tagName==='IMG'?(child.getAttribute('alt')||''):'';
       [...child.attributes].forEach(a=>child.removeAttribute(a.name));
       const safeHref=child.tagName==='A'?safeLink(originalHref):'';
+      if(['IMG','VIDEO','AUDIO'].includes(child.tagName)&&!originalSrc){child.remove();return;}
+      if(child.tagName==='IMG'){child.setAttribute('src',originalSrc);child.setAttribute('alt',originalAlt);child.setAttribute('loading','lazy');child.style.maxWidth='100%';child.style.height='auto';}
+      if(['VIDEO','AUDIO'].includes(child.tagName)){child.setAttribute('src',originalSrc);child.setAttribute('controls','');child.setAttribute('preload','metadata');if(child.tagName==='VIDEO'){child.style.maxWidth='100%';child.style.height='auto';}}
         if(child.tagName==='A'&&safeHref){
         child.setAttribute('href',safeHref);child.setAttribute('target','_blank');child.setAttribute('rel','noopener noreferrer');
       }
@@ -63,6 +68,7 @@
   function validMediaUrl(value){
     try{const url=new URL(String(value||''));return url.protocol==='https:'&&url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.includes('/storage/v1/object/public/vha-post-media/')?url.href:'';}catch{return '';}
   }
+  function validMediaUrl(value){try{const url=new URL(String(value||''));return url.protocol==='https:'&&url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.includes('/storage/v1/object/public/vha-post-media/')?url.href:'';}catch{return '';}}
   const MOVEMENTS=['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'];
   function displayCategory(value){
     const category=String(value||'').trim().toUpperCase();
@@ -202,6 +208,42 @@
     if(url&&/^(https?:\/\/|mailto:)/i.test(url.trim()))document.execCommand('createLink',false,url.trim());
     else if(url)editMessage.textContent='Only https:// and mailto: links are allowed.';
   });
+  const inlineFile=document.getElementById('inline-edit-file');
+  async function uploadInlineMedia(file,kind){
+    if(!file||!editingPost||editSaving)return;
+    const image=file.type.startsWith('image/'),video=file.type.startsWith('video/'),audio=file.type.startsWith('audio/');
+    const allowed=(image&&['image/jpeg','image/png','image/webp','image/gif','image/avif'].includes(file.type))||(audio&&['audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm'].includes(file.type))||(video&&['video/mp4','video/webm'].includes(file.type));
+    if(!allowed){editMessage.textContent='Choose a supported image, audio, or video file.';return;}
+    if(file.size>30*1024*1024){editMessage.textContent='Files must be 30 MB or smaller.';return;}
+    editMessage.textContent='UPLOADING MEDIA…';
+    const {data:{session}}=await client.auth.getSession();
+    if(!session?.user){editMessage.textContent='Your editor session has expired. Sign in again.';return;}
+    const ext=(file.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'');
+    const path=session.user.id+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,9)+'.'+ext;
+    try{
+      const {error}=await client.storage.from('vha-post-media').upload(path,file,{contentType:file.type,upsert:false});
+      if(error)throw error;
+      const {data}=client.storage.from('vha-post-media').getPublicUrl(path);
+      const url=validMediaUrl(data?.publicUrl);
+      if(!url)throw new Error('Could not create a valid media URL.');
+      editBody.focus();
+      if(image){
+        const img=document.createElement('img');img.src=url;img.alt=file.name.replace(/\.[^.]+$/,'');img.style.maxWidth='100%';img.style.height='auto';
+        const selection=window.getSelection();
+        if(selection?.rangeCount&&editBody.contains(selection.anchorNode)){const range=selection.getRangeAt(0);range.deleteContents();range.insertNode(img);range.setStartAfter(img);range.collapse(true);selection.removeAllRanges();selection.addRange(range);}
+        else editBody.appendChild(img);
+      }else{
+        const el=document.createElement(video?'video':'audio');el.src=url;el.controls=true;el.preload='metadata';if(video){el.style.maxWidth='100%';el.style.height='auto';}
+        const selection=window.getSelection();
+        if(selection?.rangeCount&&editBody.contains(selection.anchorNode)){const range=selection.getRangeAt(0);range.deleteContents();range.insertNode(el);range.setStartAfter(el);range.collapse(true);selection.removeAllRanges();selection.addRange(range);}
+        else editBody.appendChild(el);
+      }
+      editMessage.textContent='MEDIA INSERTED. SAVE CHANGES TO PUBLISH IT IN THE POST.';
+    }catch(error){editMessage.textContent=error.message||'Media upload failed.';}
+  }
+  document.getElementById('inline-edit-image')?.addEventListener('click',()=>{if(inlineFile){inlineFile.accept='image/jpeg,image/png,image/webp,image/gif,image/avif';inlineFile.click();}});
+  document.getElementById('inline-edit-media')?.addEventListener('click',()=>{if(inlineFile){inlineFile.accept='audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm';inlineFile.click();}});
+  inlineFile?.addEventListener('change',async()=>{const file=inlineFile.files?.[0];if(file)await uploadInlineMedia(file);inlineFile.value='';});
   editForm?.addEventListener('submit',async event=>{
     event.preventDefault();
     if(editSaving||!editingPost||!client)return;
