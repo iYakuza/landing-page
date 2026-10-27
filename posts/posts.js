@@ -129,7 +129,7 @@
       const shapeClass=['shape-i','shape-l','shape-square','shape-t','shape-z','shape-j','shape-s'][index%7];
       if(permalink){
         const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
-        const editButton=canEditPosts&&!post.community?'<button class="post-edit-button" type="button" data-inline-edit="'+safe(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</button>':'';
+        const editButton=canEditPosts&&!post.community?'<a class="post-edit-button vha-editor-action" href="/landing-page/cms/?edit='+encodeURIComponent(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</a>':'';
         if(/class=["']suno-post-layout["']/.test(post.content_html||'')){
           const titleHtml='<h3>'+safe(post.title)+'</h3>';
           const excerptHtml=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
@@ -142,7 +142,7 @@
       }
       // Archive cards preserve the complete post composition: left-side text, right-side Suno-style notes, and uploaded media.
       const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
-      const editButton=canEditPosts&&!post.community?'<button class="post-edit-button" type="button" data-inline-edit="'+safe(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</button>':'';
+      const editButton=canEditPosts&&!post.community?'<a class="post-edit-button vha-editor-action" href="/landing-page/cms/?edit='+encodeURIComponent(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</a>':'';
       const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div>';
       if(/class=["']suno-post-layout["']/.test(post.content_html||'')){
         const titleHtml='<h3><a class="post-title-link" href="?post='+encodeURIComponent(post.slug)+'">'+safe(post.title)+'</a></h3>';
