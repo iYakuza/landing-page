@@ -14,6 +14,8 @@
   const sunoFields = $('suno-fields'), plainFields = $('plain-fields');
   let postLayout = 'suno', postMediaWidth = 100;
   let currentUser = null, allPosts = [], editingId = null, slugManuallyEdited = false, statusFilter = 'all', saving = false;
+  const POSTS_PAGE_SIZE = 40, SUBMISSIONS_PAGE_SIZE = 15;
+  let postsOffset = 0, hasMorePosts = false, communityItems = [], communityOffset = 0, hasMoreCommunity = false;
   const requestedParams = new URLSearchParams(window.location.search);
   const requestedEditSlug = requestedParams.get('edit');
   const requestedCategory = (requestedParams.get('category') || '').trim().toUpperCase();
@@ -120,28 +122,35 @@
       message(saveMessage,'New transmission for '+requestedCategory+'. Add the title and content, then save or publish.');
     }
   }
-  async function loadPosts(){
-    managePosts.innerHTML='<p class="cms-help" style="padding:16px">Scanning transmissions…</p>';
-    const {data,error}=await client.from('vha_posts').select('*').order('updated_at',{ascending:false});
+  async function loadPosts(reset = true){
+    if(reset){postsOffset=0;allPosts=[];}
+    managePosts.innerHTML=reset?'<p class="cms-help" style="padding:16px">Loading recent transmissions…</p>':managePosts.innerHTML;
+    const start=postsOffset;
+    const {data,error}=await client.from('vha_posts').select('*').order('updated_at',{ascending:false}).range(start,start+POSTS_PAGE_SIZE-1);
     if(error){managePosts.innerHTML='<p class="cms-message error" style="padding:16px">'+escapeHtml(error.message)+'</p>';return;}
-    allPosts=data||[];renderPosts();
+    const items=data||[];allPosts=reset?items:allPosts.concat(items);postsOffset+=items.length;hasMorePosts=items.length===POSTS_PAGE_SIZE;
+    renderPosts();$('load-more-posts').hidden=!hasMorePosts;
   }
 
-  async function loadCommunitySubmissions(){
+  async function loadCommunitySubmissions(reset = true){
     const target=$('community-submissions');if(!target)return;
-    target.innerHTML='<p class="cms-help">Scanning the incoming channel…</p>';
-    const {data,error}=await client.from('poetry_submissions').select('id,title,medium,body,byline,media_url,created_at,status').order('created_at',{ascending:false});
+    if(reset){communityOffset=0;communityItems=[];target.innerHTML='<p class="cms-help">Loading recent community submissions…</p>';}
+    const start=communityOffset;
+    const {data,error}=await client.from('poetry_submissions').select('id,title,medium,body,byline,media_url,created_at,status').order('created_at',{ascending:false}).range(start,start+SUBMISSIONS_PAGE_SIZE-1);
     if(error){target.innerHTML='<p class="cms-message error">Could not load community submissions: '+escapeHtml(error.message)+'</p>';return;}
-    const items=data||[];
-    if(!items.length){target.innerHTML='<p class="cms-help">No visitor submissions yet.</p>';return;}
-    target.innerHTML=items.map(item=>{
+    const items=data||[];communityItems=reset?items:communityItems.concat(items);communityOffset+=items.length;hasMoreCommunity=items.length===SUBMISSIONS_PAGE_SIZE;
+    if(!communityItems.length){target.innerHTML='<p class="cms-help">No visitor submissions yet.</p>';}
+    else target.innerHTML=communityItems.map(item=>{
       const media=item.media_url?'<p><a href="'+escapeHtml(item.media_url)+'" target="_blank" rel="noopener noreferrer">OPEN ATTACHED MEDIA ↗</a></p>':'';
       const body=item.body?'<p class="community-submission-body">'+escapeHtml(item.body).replace(/\n/g,'<br>')+'</p>':'';
       const actions=item.status==='pending'?'<div class="community-submission-actions"><button type="button" class="cms-button primary" data-submission-action="published" data-submission-id="'+escapeHtml(item.id)+'">APPROVE & PUBLISH</button><button type="button" class="cms-button danger" data-submission-action="failed" data-submission-id="'+escapeHtml(item.id)+'">DECLINE</button></div>':'';
       return '<article class="community-submission"><div class="community-submission-top"><div><p class="gd-kicker">'+escapeHtml(item.medium.toUpperCase())+' // '+escapeHtml(item.byline||'ANONYMOUS')+'</p><h3>'+escapeHtml(item.title)+'</h3></div><span class="'+(item.status==='published'?'published-label':item.status==='pending'?'draft-label':'')+'">'+escapeHtml(item.status.toUpperCase())+'</span></div>'+body+media+'<small class="cms-help">RECEIVED '+new Date(item.created_at).toLocaleString('en-GB')+'</small>'+actions+'</article>';
     }).join('');
+    $('load-more-submissions').hidden=!hasMoreCommunity;
   }
-  $('refresh-submissions')?.addEventListener('click',loadCommunitySubmissions);
+  $('refresh-submissions')?.addEventListener('click',()=>loadCommunitySubmissions(true));
+  $('load-more-submissions')?.addEventListener('click',()=>loadCommunitySubmissions(false));
+  $('load-more-posts')?.addEventListener('click',()=>loadPosts(false));
   $('community-submissions')?.addEventListener('click',async event=>{
     const button=event.target.closest('[data-submission-action]');if(!button)return;
     button.disabled=true;const status=button.dataset.submissionAction,id=button.dataset.submissionId;
