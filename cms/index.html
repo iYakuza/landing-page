@@ -10,7 +10,7 @@
   <title>TRANSMISSION CONSOLE — Verse After Hours</title>
   <link rel="stylesheet" href="../green-dream/style.css?v=20261026-scroll-fix-2">
   <link rel="stylesheet" href="cms.css?v=20261027-category-create-1">
-  <link rel="stylesheet" href="/landing-page/tools.css?v=20261027-nav-buttons-1">
+  <link rel="stylesheet" href="/landing-page/tools.css?v=20261027-transmissions-dropdown-1">
 </head>
 <body>
 <div class="gd">
@@ -21,15 +21,15 @@
 <a href="/landing-page/green-dream/">GREEN DREAM</a>
 <a href="/landing-page/music.html">MUSIC</a>
 <a href="/landing-page/cv/">CV</a>
-<a href="/landing-page/posts/">TRANSMISSIONS</a>
-<details class="vha-nav-dropdown"><summary>EXPLORE <span aria-hidden="true">⌄</span></summary><div class="vha-nav-menu" aria-label="Green Dream movements">
+<details class="vha-nav-dropdown"><summary>TRANSMISSIONS <span aria-hidden="true">⌄</span></summary><div class="vha-nav-menu" aria-label="Transmissions archive and five movements">
+<a href="/landing-page/posts/">ALL TRANSMISSIONS</a>
 <a href="/landing-page/posts/the-awakening/">01 / THE AWAKENING</a>
 <a href="/landing-page/posts/the-descent/">02 / THE DESCENT</a>
 <a href="/landing-page/posts/the-reconnection/">03 / THE RECONNECTION</a>
 <a href="/landing-page/posts/the-transformation/">04 / THE TRANSFORMATION</a>
 <a href="/landing-page/posts/the-return/">05 / THE RETURN</a>
-<a class="active" aria-current="page" href="/landing-page/cms/">CREATOR CONSOLE</a>
 </div></details>
+
 </nav>
     <span class="gd-status">● PRIVATE CHANNEL // AUTH REQUIRED</span>
   </header>
@@ -117,15 +117,15 @@
       <p class="cms-help">Visitor submissions stay private until you approve them. Approving makes them visible in the public Transmissions archive.</p>
       <div id="community-submissions"><p class="cms-help">Loading submissions…</p></div>
     </section>
-    <section id="setup-note" class="cms-panel cms-setup-note">
-      <p class="gd-kicker">FIRST-TIME SETUP</p><h2>ACCESS IS <em>GRANTED MANUALLY.</em></h2>
-      <ol class="cms-setup-steps"><li>In <a href="https://supabase.com/dashboard/project/oeyxsqocldlovhsmzcjw/auth/users" target="_blank" rel="noopener noreferrer">Supabase → Authentication → Users</a>, create an email/password user for yourself and copy its UUID.</li><li>Open the <a href="https://supabase.com/dashboard/project/oeyxsqocldlovhsmzcjw/sql/new" target="_blank" rel="noopener noreferrer">SQL Editor</a> and run this, replacing the placeholder with that UUID:<pre><code>insert into public.vha_cms_admins (user_id) values ('REPLACE-WITH-YOUR-USER-UUID') on conflict (user_id) do nothing;</code></pre></li><li>Return here and sign in with that account. Only explicitly listed users can publish or edit posts.</li></ol><p>The database owner performs the one-time access grant. The website cannot grant itself CMS access.</p>
+    <section id="setup-note" class="cms-panel cms-setup-note" hidden>
+      <p class="gd-kicker">OWNER ACCESS</p><h2>PRIVATE <em>EDITOR CONSOLE.</em></h2>
+      <p>Owner Studio is not public. Access is limited to accounts explicitly authorized by the site owner. If you are the site owner and need access provisioned, use the site's private Supabase administration account.</p>
     </section>
   </main>
   <footer class="gd-footer"><a class="gd-brand" href="../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="../posts/">VIEW TRANSMISSIONS ↗</a></footer>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="cms.js?v=20261027-category-create-2"></script>
+<script src="cms.js?v=20261027-private-console-1"></script>
   <script src="/landing-page/tools.js?v=20261027-tools-9"></script>
 </body>
 </html>
