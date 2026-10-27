@@ -21,9 +21,29 @@ function addControls(){document.querySelectorAll('.vha-nav-menu').forEach(menu=>
 const quick=addControls();
 /* Every create action opens the same full-featured Owner Studio composer. */
 quick.addEventListener('click',event=>{event.preventDefault();openStudio(pageCategory())});
-let authBound=false;
+let authBound=false,refreshing=false;
 function hasStoredSession(){try{return Boolean(localStorage.getItem('sb-oeyxsqocldlovhsmzcjw-auth-token'))}catch{return false}}
 async function ensureSupabase(){if(window.supabase?.createClient)return true;if(!hasStoredSession())return false;return new Promise(resolve=>{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';script.async=true;script.onload=()=>resolve(Boolean(window.supabase?.createClient));script.onerror=()=>resolve(false);document.head.appendChild(script)})}
-async function refresh(){try{if(!await ensureSupabase()){isCreator=false}else{client=window.supabase.createClient(URL_API,KEY);const {data:{session},error:se}=await client.auth.getSession();if(se||!session?.user)isCreator=false;else{const {data,error}=await client.from('vha_cms_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();isCreator=!error&&!!data}if(!authBound){authBound=true;client.auth.onAuthStateChange(()=>setTimeout(refresh,0))}}}catch{isCreator=false}document.querySelectorAll('.vha-create-plus').forEach(b=>b.hidden=!isCreator);quick.hidden=!isCreator}
+async function refresh(sessionOverride){
+ if(refreshing)return;
+ refreshing=true;
+ try{
+  if(!await ensureSupabase()){isCreator=false;return}
+  if(!client)client=window.supabase.createClient(URL_API,KEY);
+  let session=sessionOverride;
+  if(sessionOverride===undefined){const result=await client.auth.getSession();session=result.data?.session;if(result.error)isCreator=false}
+  if(!session?.user)isCreator=false;
+  else{const {data,error}=await client.from('vha_cms_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();isCreator=!error&&!!data}
+  if(!authBound){
+   authBound=true;
+   client.auth.onAuthStateChange((_event,session)=>{refresh(session)});
+  }
+ }catch{isCreator=false}
+ finally{
+  refreshing=false;
+  document.querySelectorAll('.vha-create-plus').forEach(b=>b.hidden=!isCreator);
+  quick.hidden=!isCreator;
+ }
+}
 refresh();
 })();
