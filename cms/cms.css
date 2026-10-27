@@ -83,3 +83,15 @@ body{background:#050906;color:var(--cms-ink)}
 /* Movement category selector */
 #post-category{width:100%;min-width:0;background:#080e09;color:#e9f2e8;border:1px solid #d8ff3e50;padding:12px 13px;font:11px ui-monospace,monospace;letter-spacing:.4px;border-radius:0}
 #post-category:focus{outline:2px solid var(--acid);outline-offset:2px}
+
+
+.community-review{margin-top:24px;padding:clamp(18px,3vw,30px)}
+.community-review h2{margin:0;color:#e8f4df;font-size:clamp(24px,4vw,38px)}
+.community-review h2 em{font-style:normal;color:#d8ff3e}
+.community-submission{padding:18px 0;border-top:1px solid #b6e83335}
+.community-submission-top{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
+.community-submission h3{margin:5px 0 12px;color:#e8f4df;font:clamp(20px,3vw,28px)/1.2 Georgia,"Times New Roman",serif}
+.community-submission-body{color:#c1cdbd;font-size:13px;line-height:1.85;overflow-wrap:anywhere}
+.community-submission a{color:#d8ff3e;font:10px ui-monospace,monospace}
+.community-submission-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+.community-submission small{display:block;margin-top:10px}
