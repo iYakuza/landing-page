@@ -1,6 +1,8 @@
 /* Verse After Hours — site-wide Tools launcher and theme receiver */
 (() => {
   if (new URLSearchParams(location.search).get("tool") === "theme") { document.body.classList.add("vha-theme-tool-embed"); return; }
+  // Floating theme prompt window removed.
+  return;
   if (document.getElementById("vha-tools-launcher")) return;
   const root = document.documentElement;
   const launcher = document.createElement("aside");
