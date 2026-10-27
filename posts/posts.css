@@ -734,3 +734,23 @@ body.post-edit-open{overflow:hidden}
 .suno-lyrics[open]>summary:after{content:'−'}
 .suno-lyrics .suno-collapse-hint{font:8px/1.5 ui-monospace,monospace;letter-spacing:.08em;color:#9aab9c}
 .suno-lyrics>pre{padding-top:14px}
+
+
+/* Three-column Suno post composition: text/media, lyrics, style. */
+.suno-three-column{overflow:hidden}
+.suno-three-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:clamp(14px,2vw,28px);align-items:start;margin-top:18px}
+.suno-column{min-width:0;overflow-wrap:anywhere}
+.suno-column h3{margin-top:0}
+.suno-column .post-media{width:100%;max-width:100%;margin:14px 0}
+.suno-column .post-media img,.suno-column .post-media video,.suno-column .post-media audio{display:block;width:100%;max-width:100%;height:auto}
+.suno-column-copy{line-height:1.75}
+.suno-column-lyrics>details{border:1px solid rgba(216,255,62,.22);padding:12px}
+.suno-column-lyrics .suno-lyrics>summary{display:flex;justify-content:space-between;gap:10px;cursor:pointer;list-style:none}
+.suno-column-lyrics .suno-lyrics>summary::-webkit-details-marker{display:none}
+.suno-column-lyrics .suno-lyrics>summary:after{content:'+';color:#d8ff3e}
+.suno-column-lyrics .suno-lyrics[open]>summary:after{content:'−'}
+.suno-column-lyrics .suno-lyrics pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;line-height:1.75}
+.suno-column-style .suno-label,.suno-column-lyrics .suno-label,.suno-column-text .suno-label{font:9px/1.5 ui-monospace,monospace;letter-spacing:.1em;color:#d8ff3e}
+.suno-column-style .suno-learned{margin-top:22px;padding-top:14px;border-top:1px solid rgba(216,255,62,.18)}
+@media(max-width:900px){.suno-three-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.suno-column-text{grid-column:1/-1}.suno-column-text .post-media{max-width:680px}}
+@media(max-width:560px){.suno-three-grid{grid-template-columns:minmax(0,1fr);gap:22px}.suno-column-text{grid-column:auto}}
