@@ -50,11 +50,13 @@
       if(child.nodeType===Node.TEXT_NODE)return;
       if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
       if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
-      const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';\n      const originalClass=(child.getAttribute('class')||'').split(/\\s+/).filter(name=>['suno-post-layout','suno-lyrics','suno-notes','suno-learned','suno-label','plain-post-layout','plain-copy','plain-response'].includes(name)).join(' ');
+      const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
+      const originalClass=(child.getAttribute('class')||'').split(/\\s+/).filter(name=>['suno-post-layout','suno-lyrics','suno-notes','suno-learned','suno-label','plain-post-layout','plain-copy','plain-response'].includes(name)).join(' ');
       const originalSrc=['IMG','VIDEO','AUDIO'].includes(child.tagName)?validMediaUrl(child.getAttribute('src')||''):'';
       const originalAlt=child.tagName==='IMG'?(child.getAttribute('alt')||''):'';
       [...child.attributes].forEach(a=>child.removeAttribute(a.name));
-      if(originalClass)child.setAttribute('class',originalClass);\n      const safeHref=child.tagName==='A'?safeLink(originalHref):'';
+      if(originalClass)child.setAttribute('class',originalClass); 
+      const safeHref=child.tagName==='A'?safeLink(originalHref):'';
       if(['IMG','VIDEO','AUDIO'].includes(child.tagName)&&!originalSrc){child.remove();return;}
       if(child.tagName==='IMG'){child.setAttribute('src',originalSrc);child.setAttribute('alt',originalAlt);child.setAttribute('loading','lazy');child.style.maxWidth='100%';child.style.height='auto';}
       if(['VIDEO','AUDIO'].includes(child.tagName)){child.setAttribute('src',originalSrc);child.setAttribute('controls','');child.setAttribute('preload','metadata');if(child.tagName==='VIDEO'){child.style.maxWidth='100%';child.style.height='auto';}}
@@ -117,7 +119,8 @@
     list.innerHTML=filtered.map((post,index)=>{
       const permalinkBack=permalink?'<p class="post-back"><a href="./">← BACK TO THE ARCHIVE</a></p>':'';
       const mediaUrl=validMediaUrl(post.media_url);
-      const media=mediaUrl?'<div class="post-media">'+(post.media_type==='image'?'<img src="'+safe(mediaUrl)+'" alt="'+safe(post.title)+'" loading="lazy">':post.media_type==='video'?'<video src="'+safe(mediaUrl)+'" controls preload="metadata"></video>':'<audio src="'+safe(mediaUrl)+'" controls preload="metadata"></audio>')+'</div>':'';
+      const mediaWidth=Math.max(20,Math.min(100,Number(post.media_width)||100));
+      const media=mediaUrl?'<div class="post-media" style="--post-media-width:'+mediaWidth+'%">'+(post.media_type==='image'?'<img src="'+safe(mediaUrl)+'" alt="'+safe(post.title)+'" loading="lazy">':post.media_type==='video'?'<video src="'+safe(mediaUrl)+'" controls preload="metadata"></video>':'<audio src="'+safe(mediaUrl)+'" controls preload="metadata"></audio>')+'</div>':'';
       const shapeClass=['shape-i','shape-l','shape-square','shape-t','shape-z','shape-j','shape-s'][index%7];
       if(permalink){
         const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
