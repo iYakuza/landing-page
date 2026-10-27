@@ -98,6 +98,11 @@
         </section>
       </div>
     </section>
+    <section id="community-review" class="cms-panel community-review" hidden>
+      <div class="cms-list-head"><div><p class="gd-kicker">INCOMING FROM THE COMMUNITY</p><h2>REVIEW <em>QUEUE</em></h2></div><button type="button" id="refresh-submissions" class="cms-text-button">REFRESH ↻</button></div>
+      <p class="cms-help">Visitor submissions stay private until you approve them. Approving makes them visible in the public Transmissions archive.</p>
+      <div id="community-submissions"><p class="cms-help">Loading submissions…</p></div>
+    </section>
     <section id="setup-note" class="cms-panel cms-setup-note">
       <p class="gd-kicker">FIRST-TIME SETUP</p><h2>ACCESS IS <em>GRANTED MANUALLY.</em></h2>
       <ol class="cms-setup-steps"><li>In <a href="https://supabase.com/dashboard/project/oeyxsqocldlovhsmzcjw/auth/users" target="_blank" rel="noopener noreferrer">Supabase → Authentication → Users</a>, create an email/password user for yourself and copy its UUID.</li><li>Open the <a href="https://supabase.com/dashboard/project/oeyxsqocldlovhsmzcjw/sql/new" target="_blank" rel="noopener noreferrer">SQL Editor</a> and run this, replacing the placeholder with that UUID:<pre><code>insert into public.vha_cms_admins (user_id) values ('REPLACE-WITH-YOUR-USER-UUID') on conflict (user_id) do nothing;</code></pre></li><li>Return here and sign in with that account. Only explicitly listed users can publish or edit posts.</li></ol><p>The database owner performs the one-time access grant. The website cannot grant itself CMS access.</p>
