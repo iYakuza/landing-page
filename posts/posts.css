@@ -557,16 +557,6 @@ body.post-edit-open{overflow:hidden}
 
 
 /* DEFAULT VERSE AFTER HOURS PALETTE — make archive surfaces follow the site theme. */
-:root{
-  --theme-page:var(--theme-page,#050906);
-  --theme-surface:var(--theme-surface,#080e09);
-  --theme-raised:var(--theme-raised,#0d170f);
-  --theme-text:var(--theme-text,#e8f4df);
-  --theme-muted:var(--theme-muted,#9aab9c);
-  --theme-accent:var(--theme-accent,#d8ff3e);
-  --theme-secondary:var(--theme-secondary,#9aab9c);
-  --theme-border:var(--theme-border,#d8ff3e35);
-}
 .posts-main,.posts-content{background:var(--theme-page,#050906)!important;color:var(--theme-text,#e8f4df)}
 .posts-hero{background:radial-gradient(ellipse at 78% 22%,color-mix(in srgb,var(--theme-accent,#d8ff3e) 8%,transparent),transparent 48%),linear-gradient(135deg,var(--theme-surface,#080e09),var(--theme-page,#050906) 70%)!important}
 .posts-content{background:radial-gradient(ellipse at 15% 30%,color-mix(in srgb,var(--theme-accent,#d8ff3e) 5%,transparent),transparent 50%),var(--theme-page,#050906)!important}
