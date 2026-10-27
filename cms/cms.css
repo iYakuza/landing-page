@@ -104,3 +104,14 @@ body{background:#050906;color:var(--cms-ink)}
 .suno-fields[hidden]{display:none}
 .media-width-control{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;margin-top:14px}
 .media-width-control label{margin:0}.media-width-control input{grid-column:1/-1;width:100%;accent-color:#d8ff3e}.media-width-control output{color:#d8ff3e;font:11px ui-monospace,monospace}.media-width-control p{grid-column:1/-1;margin:0}
+
+
+/* Keep the composer’s Lyrics field tucked away until its header is clicked. */
+.cms-lyrics-field{margin:10px 0 18px;border:1px solid #536746;background:#0a120c}
+.cms-lyrics-field>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;color:#d8ff3e;font:10px/1.5 ui-monospace,monospace;letter-spacing:1px;cursor:pointer;list-style:none}
+.cms-lyrics-field>summary::-webkit-details-marker{display:none}
+.cms-lyrics-field>summary:after{content:'+';font-size:16px}
+.cms-lyrics-field[open]>summary:after{content:'−'}
+.cms-lyrics-field>summary span{color:#91a18d;font-size:8px;letter-spacing:.5px}
+.cms-lyrics-field>label,.cms-lyrics-field>textarea{margin-left:12px;margin-right:12px;width:calc(100% - 24px);box-sizing:border-box}
+.cms-lyrics-field>textarea{margin-bottom:12px}
