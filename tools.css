@@ -54,3 +54,20 @@ body:not(.vha-theme-tool-embed) .gd-hero h1 em,
 body:not(.vha-theme-tool-embed) .gd-section h2 em{color:var(--theme-accent,#d8ff3e)}
 body:not(.vha-theme-tool-embed) a{outline-color:var(--theme-accent,#d8ff3e)}
 body:not(.vha-theme-tool-embed) button{accent-color:var(--theme-accent,#d8ff3e)}
+
+/* Floating inline theme composer */
+#vha-tools-panel{right:0;bottom:65px;width:min(650px,calc(100vw - 28px));height:94px;background:transparent;border:0;box-shadow:none;overflow:visible}
+#vha-tools-panel.is-open{display:block}
+#vha-tools-panel .vha-tools-head,#vha-tools-panel .vha-tool-note{display:none}
+#vha-tools-panel iframe{height:94px;background:transparent}
+body.vha-theme-tool-embed,body.vha-theme-tool-embed .gd,body.vha-theme-tool-embed .posts-main,body.vha-theme-tool-embed .posts-content{background:transparent!important}
+body.vha-theme-tool-embed .posts-content{padding:0!important}
+body.vha-theme-tool-embed #viewer-settings,body.vha-theme-tool-embed .viewer-console{margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important}
+body.vha-theme-tool-embed .viewer-console:before,body.vha-theme-tool-embed .viewer-console-head,body.vha-theme-tool-embed .theme-studio-intro,body.vha-theme-tool-embed .theme-progress,body.vha-theme-tool-embed #theme-result,body.vha-theme-tool-embed #theme-status{display:none!important}
+body.vha-theme-tool-embed .viewer-grid{display:block!important}
+body.vha-theme-tool-embed .theme-prompt{display:flex!important;align-items:center;gap:8px;margin:0!important;padding:0!important;border:0!important;background:transparent!important}
+body.vha-theme-tool-embed .theme-prompt-hint{display:none!important}
+body.vha-theme-tool-embed #theme-prompt-form{display:block;width:100%;margin:0!important}
+body.vha-theme-tool-embed .theme-prompt textarea{height:46px;min-height:46px;max-height:46px;resize:none;box-sizing:border-box;padding:12px 14px;background:#071009f2;border:1px solid #b6e83380;color:#eef5e9;font:11px/1.5 monospace;box-shadow:0 8px 25px #0007}
+body.vha-theme-tool-embed .theme-generate{width:auto;min-width:112px;height:46px;margin:0!important;padding:0 15px;white-space:nowrap;box-shadow:0 8px 25px #0007}
+@media(max-width:600px){#vha-tools-panel{bottom:59px;width:calc(100vw - 26px);height:106px}#vha-tools-panel iframe{height:106px}body.vha-theme-tool-embed .theme-prompt{gap:6px}body.vha-theme-tool-embed .theme-prompt textarea{height:50px;min-height:50px;max-height:50px;padding:9px;font-size:10px}body.vha-theme-tool-embed .theme-generate{height:50px;min-width:94px;padding:0 10px;font-size:9px}}
