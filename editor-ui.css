@@ -1,0 +1,46 @@
+/* Shared controls for every create/edit/publish action across the site. */
+.vha-editor-action{
+  box-sizing:border-box;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  min-height:34px;
+  padding:10px 13px;
+  border:1px solid var(--editor-action-border,var(--theme-accent,#d8ff3e));
+  border-radius:0;
+  background:var(--editor-action-bg,transparent);
+  color:var(--editor-action-color,var(--theme-text,#e8f4df));
+  font:700 10px/1.35 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.07em;
+  text-decoration:none;
+  cursor:pointer;
+  transition:background-color .15s ease,color .15s ease,border-color .15s ease,transform .15s ease;
+}
+.vha-editor-action:hover,.vha-editor-action:focus-visible{
+  border-color:var(--theme-accent,#d8ff3e);
+  background:var(--theme-accent,#d8ff3e);
+  color:var(--theme-page,#050906);
+}
+.vha-editor-action:focus-visible{outline:2px solid var(--theme-accent,#d8ff3e);outline-offset:3px}
+.vha-editor-action:disabled{opacity:.55;cursor:wait}
+.vha-editor-action[data-action-variant="primary"]{
+  --editor-action-bg:var(--theme-accent,#d8ff3e);
+  --editor-action-color:var(--theme-page,#050906);
+}
+.vha-editor-action[data-action-variant="danger"]{
+  --editor-action-border:#ff806a70;
+  --editor-action-color:#ff9a83;
+}
+.vha-editor-action[data-action-variant="danger"]:hover{
+  --editor-action-bg:#ff806a;
+  --editor-action-color:#190c09;
+}
+.vha-editor-action[data-action-variant="subtle"]{
+  --editor-action-border:var(--theme-border,#536746);
+  --editor-action-color:var(--theme-muted,#9aab9c);
+}
+.vha-editor-action[data-action-variant="floating"]{
+  box-shadow:0 5px 20px #0008;
+}
+@media(prefers-reduced-motion:reduce){.vha-editor-action{transition:none}}
