@@ -5,7 +5,7 @@
   const root = document.documentElement;
   const launcher = document.createElement("aside");
   launcher.id = "vha-tools-launcher";
-  launcher.innerHTML = '<section id="vha-tools-panel" aria-label="Theme prompt"><iframe title="Theme prompt" src="/landing-page/posts/?tool=theme"></iframe></section>';
+  launcher.innerHTML = '<section id="vha-tools-panel" aria-label="Theme prompt"><iframe title="Theme prompt" src="/landing-page/posts/?tool=theme&v=20261027-no-submit-1"></iframe></section>';
   document.body.appendChild(launcher);
   const frame = launcher.querySelector("iframe");
   function applyTheme(theme) {
