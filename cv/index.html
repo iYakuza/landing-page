@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#050906">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://s3.amazonaws.com https://oeyxsqocldlovhsmzcjw.supabase.co; media-src 'self' blob: https://oeyxsqocldlovhsmzcjw.supabase.co; connect-src 'self' https://oeyxsqocldlovhsmzcjw.supabase.co wss://oeyxsqocldlovhsmzcjw.supabase.co; frame-src 'self'; upgrade-insecure-requests">
 <meta name="description" content="Emanuel Ștefancu — HR Business Analyst focused on HR systems, process analysis, requirements, implementation support and UAT. Contact details and full professional experience.">
 <meta property="og:title" content="Emanuel Ștefancu — HR Business Analyst">
 <meta property="og:description" content="HR Business Analysis · HR Systems · Process Improvement · UAT and implementation support">
@@ -9,7 +11,7 @@
 <meta property="og:url" content="https://iyakuza.github.io/landing-page/cv/">
 <link rel="canonical" href="https://iyakuza.github.io/landing-page/cv/">
 <title>CV DATA SHARD — Emanuel Ștefancu | Verse After Hours</title>
-<link rel="stylesheet" href="../green-dream/style.css?v=20261026-cv-full-1">
+<link rel="stylesheet" href="../green-dream/style.css?v=20261027-playlist-picker-2">
 <style>
 
 .cv-contact-open{font:10px monospace;letter-spacing:1px;cursor:pointer}
@@ -81,7 +83,7 @@
 </style>
   <link rel="stylesheet" href="/landing-page/tools.css?v=20261027-nav-security-2">
 </head>
-<body><script>if(new URLSearchParams(location.search).has("embed"))document.documentElement.classList.add("cv-embedded");</script><div class="gd cv-page" id="cv-top">
+<body><div class="gd cv-page" id="cv-top">
 <header class="gd-nav"><a class="gd-brand" href="../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><nav class="vha-main-nav" aria-label="Main navigation">
 <a href="/landing-page/">HOME</a>
 <a href="/landing-page/green-dream/">GREEN DREAM</a>
@@ -155,24 +157,6 @@
 </div>
 <script src="contact.js?v=20261027-drag-nav-2" defer></script>
 <footer class="gd-footer"><a class="gd-brand" href="../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>PERSONNEL FILE // END OF RECORD</span><a href="#cv-top">BACK TO TOP ↑</a></footer></div>
-<script>
-(function(){
-  if(!new URLSearchParams(location.search).has('embed')||window.parent===window)return;
-  var lastHeight=0;
-  function reportHeight(){
-    var root=document.querySelector('.cv-page');
-    if(!root)return;
-    var height=Math.ceil(Math.max(root.scrollHeight,root.getBoundingClientRect().height,document.documentElement.scrollHeight));
-    if(height!==lastHeight){lastHeight=height;window.parent.postMessage({type:'cv-embed-height',height:height},window.location.origin);}
-  }
-  reportHeight();
-  if('ResizeObserver' in window){
-    new ResizeObserver(reportHeight).observe(document.querySelector('.cv-page'));
-  }
-  window.addEventListener('load',reportHeight);
-  window.addEventListener('resize',reportHeight);
-  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(reportHeight);
-})();
-</script>
+<script src="embed.js?v=20261027-security-1" defer></script>
 <script src="/landing-page/tools.js?v=20261027-tools-9"></script>
 </body></html>
