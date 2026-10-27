@@ -671,3 +671,18 @@ body.post-edit-open{overflow:hidden}
 .transmit-status{margin:13px 0 0;color:#8fa08c;font:9px/1.8 ui-monospace,monospace;letter-spacing:.05em}.transmit-status.error{color:#ff9a85}.transmit-status.success{color:#d8ff3e}
 .transmit-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;opacity:0!important}
 @media(max-width:760px){.transmit-panel{grid-template-columns:1fr;padding:48px 6vw;gap:22px}.transmit-copy h2{font-size:clamp(32px,9vw,48px)}.transmit-two-col{grid-template-columns:1fr;gap:0}.transmit-form{padding:18px}}
+
+
+/* Suno lyric / style explainer editorial spread */
+.suno-post-layout,.plain-post-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(20px,4vw,54px);align-items:start;width:100%;max-width:100%;margin:clamp(20px,4vw,48px) 0}
+.suno-lyrics,.plain-copy{min-width:0;padding:clamp(16px,2.4vw,30px);border-left:1px solid #d8ff3e7a;background:linear-gradient(145deg,#0b130d,#060906)}
+.suno-notes,.plain-response{min-width:0;padding:clamp(16px,2.4vw,30px);border-top:1px solid #42f5e533;background:linear-gradient(145deg,#07120f,#080c09)}
+.suno-label{margin:0 0 18px!important;color:#d8ff3e!important;font:9px/1.7 ui-monospace,monospace!important;letter-spacing:.12em;text-transform:uppercase}
+.suno-lyrics pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;color:#e8f4df;font:clamp(13px,1.4vw,16px)/1.95 Georgia,"Times New Roman",serif}
+.suno-notes p,.plain-copy p,.suno-learned p{color:#b8c8b7;font-size:13px;line-height:1.9;overflow-wrap:anywhere}
+.suno-notes h2,.plain-response h2{font:italic clamp(26px,4vw,42px)/1.15 Georgia,"Times New Roman",serif;color:#d8ff3e;margin:0 0 18px}
+.suno-learned{margin-top:32px;padding-top:20px;border-top:1px dashed #d8ff3e50}
+.post-media{width:100%;max-width:100%;overflow:hidden}
+.post-media img,.post-media video,.post-media audio{max-width:100%;height:auto}
+.post-media img,.post-media video{width:var(--post-media-width,100%);max-width:100%;object-fit:contain}
+@media(max-width:700px){.suno-post-layout,.plain-post-layout{grid-template-columns:1fr;gap:14px}.suno-lyrics,.plain-copy,.suno-notes,.plain-response{padding:18px}}
