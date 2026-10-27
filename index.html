@@ -41,13 +41,34 @@
     .gd-home .tetris-online-bar #tetris-online-status{flex:1 1 100%;color:#b6e833}
     .gd-home .tetris-online-bar [hidden]{display:none!important}
     @media(max-width:760px){.gd-home .gd-listening{padding:48px 5vw}.gd-home .tetris-listening-arena{height:650px;min-height:540px}.gd-home #tetris-arena-controls{left:8px!important;top:8px!important;width:calc(100% - 16px)!important;gap:4px 6px;padding:6px!important}.gd-home #tetris-mode{max-width:124px;font-size:9px}.gd-home .tetris-controls-help{font-size:7px;gap:6px}.gd-home .tetris-arena-brand span{font-size:9px}.gd-home .tetris-online-bar{gap:6px}.gd-home .tetris-online-bar button{font-size:10px;padding:8px}.gd-home .tetris-online-bar input{width:90px}}
-    .gd-cv-embed{background:#050906;border-top:1px solid #b6e83355;padding:clamp(28px,5vw,64px) 0 0;color:#e9f2e8}
-    .gd-cv-heading{width:min(1100px,90vw);margin:0 auto 28px}
+    .gd-cv-embed{background:linear-gradient(180deg,#080e09,#050906 45%);border-top:1px solid #b6e83355;padding:clamp(38px,6vw,76px) 0;color:#e9f2e8}
+    .gd-cv-inner{width:min(1100px,90vw);margin:0 auto}
+    .gd-cv-heading{margin:0 0 30px}
     .gd-cv-heading h2{font-size:clamp(28px,5vw,54px);line-height:1.05;letter-spacing:-.045em;margin:12px 0}
     .gd-cv-heading h2 em{font-style:normal;color:#b6e833}
     .gd-cv-heading>p:last-child{font:10px/1.8 monospace;letter-spacing:1px;color:#aebbad}
-    .gd-cv-frame{display:block;width:100%;height:1000px;border:0;background:#050906;overflow:hidden}
-    @media(max-width:650px){.gd-cv-frame{height:1200px}}
+    .gd-cv-profile{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(220px,.8fr);gap:clamp(20px,4vw,48px);padding:clamp(20px,4vw,38px);border:1px solid #b6e83355;background:linear-gradient(135deg,#101a11,#070b08)}
+    .gd-cv-profile h3{font-size:clamp(23px,3vw,34px);line-height:1.1;margin:0 0 14px;letter-spacing:-.04em}
+    .gd-cv-profile h3 em{font-style:normal;color:#b6e833}
+    .gd-cv-profile p{font-size:13px;line-height:1.85;color:#c0cbbd;margin:0 0 14px}
+    .gd-cv-label{font:10px/1.6 monospace;letter-spacing:1.2px;color:#b6e833;margin:0 0 10px!important}
+    .gd-cv-facts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
+    .gd-cv-fact{border-top:1px solid #b6e83345;padding-top:10px}
+    .gd-cv-fact strong{display:block;font:700 10px/1.5 monospace;color:#d8ff3e;letter-spacing:.5px}
+    .gd-cv-fact span{display:block;font-size:11px;line-height:1.6;color:#aebbad;margin-top:4px}
+    .gd-cv-skills{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
+    .gd-cv-skills span{border:1px solid #b6e83340;background:#0a120b;padding:7px 9px;font:9px/1.4 monospace;letter-spacing:.2px;color:#d9e6d4}
+    .gd-cv-timeline{border-left:1px solid #b6e83360;padding-left:18px;margin:0 0 22px}
+    .gd-cv-role{position:relative;margin:0 0 22px}
+    .gd-cv-role:before{content:"";position:absolute;left:-23px;top:5px;width:8px;height:8px;background:#b6e833;box-shadow:0 0 12px #b6e83370}
+    .gd-cv-role h4{font-size:14px;margin:0 0 4px}
+    .gd-cv-role time{display:block;font:9px/1.6 monospace;letter-spacing:.5px;color:#b6e833}
+    .gd-cv-role p{font-size:11px;line-height:1.7;margin:5px 0 0;color:#aebbad}
+    .gd-cv-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+    .gd-cv-actions a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border:1px solid #b6e833;color:#d8ff3e;font:10px/1.3 monospace;letter-spacing:.7px;text-decoration:none}
+    .gd-cv-actions a.primary{background:#b6e833;color:#071007;font-weight:bold}
+    .gd-cv-actions a:hover{background:#d8ff3e;color:#050906}
+    @media(max-width:700px){.gd-cv-profile{grid-template-columns:1fr}.gd-cv-facts{gap:12px}.gd-cv-heading{margin-bottom:22px}.gd-cv-profile p{font-size:12px}}
     /* Keep the landing hero as the first screen, then allow the CV below it to scroll normally. */
     html:has(body.gd-home){height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
     body.gd-home{height:auto!important;min-height:100vh!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:auto!important}
@@ -55,8 +76,7 @@
     body.gd-home .gd>main{display:block!important;width:100%!important;height:auto!important;max-height:none!important;min-height:0!important;overflow:visible!important}
     body.gd-home .gd-hero{display:flex;width:100%;height:auto!important;min-height:min(820px,calc(100vh - 60px))!important;max-height:none!important;overflow:hidden}
     body.gd-home .gd-cv-embed{position:relative;display:block;width:100%;clear:both}
-    body.gd-home .gd-cv-frame{display:block;width:100%;height:1000px;border:0;overflow:hidden}
-    @media(max-width:650px){body.gd-home .gd-cv-frame{height:1200px}body.gd-home .gd-hero{min-height:760px!important}}
+    @media(max-width:650px){body.gd-home .gd-hero{min-height:760px!important}}
   </style>
   <link rel="stylesheet" href="/landing-page/tools.css?v=20261027-nav-buttons-1">
 </head>
@@ -123,12 +143,44 @@
 
 
     <section class="gd-cv-embed" id="cv-section" aria-labelledby="cv-embed-title">
-      <div class="gd-cv-heading">
-        <p class="gd-kicker">PERSONNEL FILE <i>/// 002</i></p>
-        <h2 id="cv-embed-title">THE <em>PERSON</em> BEHIND THE PROJECT</h2>
-        <p>HR BUSINESS ANALYSIS · SYSTEMS · PROCESS IMPROVEMENT</p>
+      <div class="gd-cv-inner">
+        <div class="gd-cv-heading">
+          <p class="gd-kicker">PERSONNEL FILE <i>/// 002</i></p>
+          <h2 id="cv-embed-title">THE <em>PERSON</em> BEHIND THE PROJECT</h2>
+          <p>HR BUSINESS ANALYSIS · SYSTEMS · PROCESS IMPROVEMENT</p>
+        </div>
+        <div class="gd-cv-profile">
+          <div>
+            <p class="gd-cv-label">PROFILE // EMANUEL ȘTEFANCU</p>
+            <h3>Turning messy processes into <em>clearer systems.</em></h3>
+            <p>I'm an HR Business Analyst with a background in HR Operations and payroll, supporting process and system changes across multi-country service environments. I work across requirements, workflow mapping, business rules, documentation, UAT and defect investigation—connecting what the business needs with what teams can actually deliver.</p>
+            <div class="gd-cv-facts">
+              <div class="gd-cv-fact"><strong>FOCUS</strong><span>HR Business Analysis · HR Systems · HR Process Improvement</span></div>
+              <div class="gd-cv-fact"><strong>ENVIRONMENTS</strong><span>EMEA &amp; LATAM · Multi-country HR services</span></div>
+              <div class="gd-cv-fact"><strong>WORK STYLE</strong><span>Practical, structured, collaborative</span></div>
+              <div class="gd-cv-fact"><strong>LANGUAGES</strong><span>Romanian · English · Italian</span></div>
+            </div>
+            <div class="gd-cv-skills" aria-label="Core skills">
+              <span>Requirements &amp; business rules</span><span>Process mapping</span><span>Gap analysis</span><span>BRDs / DTPs / User Guides</span><span>Change Requests</span><span>UAT / ORT</span><span>Defect triage</span><span>HRIS / HCM</span>
+            </div>
+            <div class="gd-cv-actions">
+              <a class="primary" href="/landing-page/cv/">OPEN FULL CV ↗</a>
+              <a href="/landing-page/cv/#experience">EXPERIENCE DETAILS ↓</a>
+              <a href="mailto:stefancu.emanuel@gmail.com">CONTACT ↗</a>
+            </div>
+          </div>
+          <div>
+            <p class="gd-cv-label">EXPERIENCE LOG // 2017—2026</p>
+            <div class="gd-cv-timeline">
+              <article class="gd-cv-role"><h4>Business Analyst</h4><time>DEC 2023 — MAR 2026</time><p>HR service expansion, requirements and process documentation, Change Requests, UAT/ORT, defect investigation and implementation support.</p></article>
+              <article class="gd-cv-role"><h4>Payroll Analyst</h4><time>MAY 2021 — NOV 2023</time><p>Payroll data exchange, trial/final run validation, discrepancy investigation and process/system changes.</p></article>
+              <article class="gd-cv-role"><h4>HR Analyst</h4><time>NOV 2019 — APR 2021</time><p>Workday HR services, employee data, onboarding updates, case resolution and troubleshooting.</p></article>
+              <article class="gd-cv-role"><h4>Business Analyst</h4><time>SEP 2018 — MAR 2019</time><p>Case Management implementation support, UAT test execution, defect investigation and process documentation.</p></article>
+              <article class="gd-cv-role"><h4>HR Analyst</h4><time>OCT 2017 — AUG 2018</time><p>Recruitment operations, candidate communication, operational reporting and user guidance.</p></article>
+            </div>
+          </div>
+        </div>
       </div>
-      <iframe class="gd-cv-frame" src="cv/?embed=1" title="Emanuel Ștefancu — CV" loading="lazy"></iframe>
     </section>
 
 
@@ -138,18 +190,5 @@
 <script src="green-dream/script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/landing-page/tools.js?v=20261027-tools-9"></script>
-<script>
-(function(){
-  var frame=document.querySelector('.gd-cv-frame');
-  if(!frame)return;
-  window.addEventListener('message',function(event){
-    if(event.origin!==window.location.origin||event.source!==frame.contentWindow)return;
-    var data=event.data;
-    if(data&&data.type==='cv-embed-height'&&Number.isFinite(data.height)){
-      frame.style.height=Math.max(800,Math.ceil(data.height)+8)+'px';
-    }
-  });
-})();
-</script>
 </body>
 </html>
