@@ -64,8 +64,8 @@
     if(!mediaUrl)return;
     let el;
     if(mediaType==='image'){el=document.createElement('img');el.alt='Post media preview';}
-    else if(mediaType==='video'){el=document.createElement('video');el.controls=true;}
-    else{el=document.createElement('audio');el.controls=true;}
+    else if(mediaType==='video'){el=document.createElement('video');el.controls=true;el.preload='none';}
+    else{el=document.createElement('audio');el.controls=true;el.preload='none';}
     el.src=mediaUrl;el.style.width=postMediaWidth+'%';el.style.maxWidth='100%';mediaPreview.appendChild(el);
   }
 
