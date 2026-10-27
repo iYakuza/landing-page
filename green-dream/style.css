@@ -550,3 +550,10 @@ body.gd-home .gd-radio{
 .gd-suno-row .gd-media-track strong{font-size:11px;letter-spacing:.4px;overflow-wrap:anywhere}
 .gd-suno-row .gd-media-track small{font:8px monospace;letter-spacing:1px;color:var(--acid)}
 .gd-suno-open{color:var(--acid);font-size:20px}
+
+/* Playlist selector replaces legacy radio stations. */
+.gd-video-picker{display:grid;grid-template-columns:1fr;gap:6px;margin:10px 0}
+.gd-video-picker label{font:8px/1.5 ui-monospace,monospace;letter-spacing:1px;color:var(--acid)}
+.gd-video-picker select{box-sizing:border-box;width:100%;min-width:0;max-width:100%;padding:10px 9px;background:#071009;color:#e9f2e8;border:1px solid #b6e83370;border-radius:0;font:10px/1.5 ui-monospace,monospace}
+.gd-video-picker select:focus-visible{outline:2px solid var(--acid);outline-offset:2px}
+.gd-video-picker option{background:#071009;color:#e9f2e8}
