@@ -72,3 +72,11 @@ body .gd-nav .vha-nav-menu a.active{border-color:#d8ff3e!important;background:#d
  body .gd-nav .vha-main-nav{gap:5px!important}
  body .gd-nav .vha-main-nav>a,body .gd-nav .vha-main-nav>.vha-nav-dropdown>summary{min-height:28px!important;padding:0 6px!important;font-size:7px!important;letter-spacing:.35px!important}
 }
+
+
+/* Dropdowns must paint above page content on every section and movement page. */
+body .gd-nav{position:relative!important;z-index:2147483000!important;isolation:isolate!important;overflow:visible!important}
+body .gd-nav nav{position:relative!important;z-index:2147483001!important;overflow:visible!important}
+body .gd-nav .vha-nav-dropdown{position:relative!important;z-index:2147483002!important;overflow:visible!important}
+body .gd-nav .vha-nav-dropdown[open]{z-index:2147483003!important}
+body .gd-nav .vha-nav-menu{z-index:2147483007!important;isolation:isolate!important}
