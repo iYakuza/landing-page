@@ -47,8 +47,19 @@
         <label for="login-password">PASSWORD</label><input id="login-password" type="password" autocomplete="current-password" required>
         <button class="cms-button primary" type="submit">SIGN IN ↗</button>
       </form>
+      <p class="cms-help">Forgot your password? <button type="button" id="forgot-password" class="cms-text-button">EMAIL ME A RESET LINK ↗</button></p>
       <p class="cms-help">This console has no public sign-up. Your account must be created and granted editor access by the site owner in Supabase.</p>
       <p id="login-message" class="cms-message" role="status"></p>
+    </section>
+    <section id="password-reset-panel" class="cms-login cms-panel" hidden>
+      <p class="gd-kicker">ACCOUNT RECOVERY</p>
+      <h2>RESET <em>PASSWORD</em></h2>
+      <form id="password-reset-form">
+        <label for="new-password">NEW PASSWORD</label><input id="new-password" type="password" autocomplete="new-password" minlength="8" required>
+        <label for="confirm-password">CONFIRM NEW PASSWORD</label><input id="confirm-password" type="password" autocomplete="new-password" minlength="8" required>
+        <button class="cms-button primary" type="submit">SAVE NEW PASSWORD ↗</button>
+      </form>
+      <p id="password-reset-message" class="cms-message" role="status"></p>
     </section>
     <section id="workspace" hidden>
       <div class="cms-toolbar">
