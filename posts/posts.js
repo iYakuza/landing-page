@@ -51,7 +51,7 @@
       if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
       if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
       const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
-      const originalClass=(child.getAttribute('class')||'').split(/\s+/).filter(name=>['suno-post-layout','suno-lyrics','suno-notes','suno-learned','suno-label','plain-post-layout','plain-copy','plain-response'].includes(name)).join(' ');
+      const originalClass=(child.getAttribute('class')||'').split(/\s+/).filter(name=>['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-learned','suno-label','plain-post-layout','plain-copy','plain-response'].includes(name)).join(' ');
       const originalSrc=['IMG','VIDEO','AUDIO'].includes(child.tagName)?validMediaUrl(child.getAttribute('src')||''):'';
       const originalAlt=child.tagName==='IMG'?(child.getAttribute('alt')||''):'';
       [...child.attributes].forEach(a=>child.removeAttribute(a.name));
@@ -94,6 +94,17 @@
       '<a class="post-share-action" href="https://wa.me/?text='+encodedTitle+'%20'+encodedUrl+'" target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp">WHATSAPP</a>'+
       '<a class="post-share-action" href="mailto:?subject='+encodedTitle+'&body='+encodedUrl+'" aria-label="Share by email">EMAIL</a>'+
       '</div>';
+  }
+  function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,permalinkBack,shapeClass){
+    const doc=new DOMParser().parseFromString(cleanHtml(post.content_html||''),'text/html');
+    const textColumn=doc.querySelector('.suno-text-column');
+    const lyrics=doc.querySelector('.suno-lyrics');
+    const style=doc.querySelector('.suno-notes');
+    const textHtml=textColumn?textColumn.innerHTML:'<p class="suno-empty-column">No accompanying text added yet.</p>';
+    const lyricsHtml=lyrics?lyrics.outerHTML:'<details class="suno-lyrics"><summary class="suno-label">02 // SUNO.COM LYRICS</summary><p>No lyrics added yet.</p></details>';
+    const styleHtml=style?style.innerHTML:'<p>No style notes added yet.</p>';
+    const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+'<div class="suno-column-copy">'+textHtml+'</div></section>';
+    return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+'<div class="suno-three-grid">'+first+'<section class="suno-column suno-column-lyrics">'+lyricsHtml+'</section><section class="suno-column suno-column-style"><p class="suno-label">03 // SUNO.COM STYLE</p>'+styleHtml+'</section></div>'+shareActions(post)+permalinkBack+'</article>';
   }
   function render(){
     const permalink=Boolean(requestedSlug);
