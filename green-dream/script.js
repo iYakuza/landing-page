@@ -75,13 +75,14 @@
   const initialX=Number.isFinite(saved?.x)?saved.x:innerWidth-initial.width-12;
   const initialY=Number.isFinite(saved?.y)?saved.y:(innerWidth<=760?innerHeight-initial.height-12:(innerHeight-initial.height)/2);
   setPosition(initialX,initialY,false);
+  head.addEventListener('dragstart',e=>e.preventDefault());
   head.addEventListener('pointerdown',e=>{
-    if((e.pointerType==='mouse'&&e.button!==0)||e.target.closest('button,select,label,a'))return;
+    if((e.pointerType==='mouse'&&e.button!==0)||e.target.closest('button,select,label'))return;
     const r=radio.getBoundingClientRect();
     drag={id:e.pointerId,startX:e.clientX,startY:e.clientY,left:r.left,top:r.top,moved:false};
     head.style.cursor='grabbing';
-    try{head.setPointerCapture(e.pointerId)}catch{}
-    e.preventDefault();
+    // Window-level pointer listeners continue tracking movement without capturing
+    // the pointer, so a brand link still clicks normally when the pointer isn't dragged.
   });
   window.addEventListener('pointermove',e=>{
     if(!drag||e.pointerId!==drag.id)return;
