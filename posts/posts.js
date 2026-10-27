@@ -45,7 +45,7 @@
   }
   function cleanHtml(html){
     const doc=new DOMParser().parseFromString(String(html||''),'text/html');
-    const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','IMG','VIDEO','AUDIO','DIV','SECTION','ASIDE']);
+    const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','IMG','VIDEO','AUDIO','DIV','SECTION','ASIDE','DETAILS','SUMMARY']);
     function clean(node){[...node.childNodes].forEach(child=>{
       if(child.nodeType===Node.TEXT_NODE)return;
       if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
