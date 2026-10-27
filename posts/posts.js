@@ -375,7 +375,6 @@
       if(!title){setSubmissionStatus('PLEASE GIVE YOUR TRANSMISSION A NAME.','error');return;}
       if(!body&&!file){setSubmissionStatus('ADD SOME WORDS OR ATTACH A MEDIA FILE.','error');return;}
       if(file&&file.size>25*1024*1024){setSubmissionStatus('THIS FILE IS OVER 25 MB. PLEASE SEND A SMALLER ONE.','error');return;}
-      if(file&&medium==='poem'){setSubmissionStatus('CHOOSE THE MEDIA TYPE THAT MATCHES YOUR FILE.','error');return;}
       if(!client){setSubmissionStatus('THE CHANNEL IS OFFLINE. PLEASE TRY AGAIN LATER.','error');return;}
       submissionButton.disabled=true;setSubmissionStatus('UPLOADING YOUR SIGNAL…');
       try{
