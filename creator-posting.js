@@ -29,6 +29,17 @@ async function save(state){if(!isCreator||saving)return;const t=title.value.trim
 draft.addEventListener('click',()=>save('draft'));form.addEventListener('submit',e=>{e.preventDefault();save('published')});
 function addControls(){document.querySelectorAll('.vha-nav-menu').forEach(menu=>{const allLink=[...menu.querySelectorAll('a')].find(x=>x.textContent.toUpperCase().includes('ALL TRANSMISSIONS'));if(allLink&&!allLink.parentElement.classList.contains('vha-movement-row')){const allRow=document.createElement('div');allRow.className='vha-movement-row';allLink.parentNode.insertBefore(allRow,allLink);allRow.appendChild(allLink);const allPlus=document.createElement('button');allPlus.type='button';allPlus.className='vha-create-plus';allPlus.textContent='+';allPlus.setAttribute('aria-label','Create a post in any movement');allPlus.title='Create a post';allPlus.hidden=true;allPlus.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();open('')});allRow.appendChild(allPlus)}M.forEach(m=>{const a=[...menu.querySelectorAll('a')].find(x=>x.textContent.toUpperCase().includes(m[0]));if(!a||a.parentElement.classList.contains('vha-movement-row'))return;const row=document.createElement('div');row.className='vha-movement-row';a.parentNode.insertBefore(row,a);row.appendChild(a);const plus=document.createElement('button');plus.type='button';plus.className='vha-create-plus';plus.textContent='+';plus.setAttribute('aria-label','Create post in '+m[0]);plus.title='Create a post in '+m[0];plus.hidden=true;plus.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();open(m[0])});row.appendChild(plus)})});const q=document.createElement('button');q.type='button';q.className='vha-quick-post';q.hidden=true;q.textContent='+ QUICK POST';q.addEventListener('click',()=>open(pageCategory()));document.body.appendChild(q);return q}
 const quick=addControls();
+/* QUICK POST opens the full Owner Studio editor, matching EDIT TRANSMISSION
+   functionality (rich layouts, media, preview, draft/publish and post management).
+   The category is carried forward when this button is used from a movement page. */
+quick.addEventListener('click',event=>{
+  event.preventDefault();
+  const category=pageCategory();
+  const url=new URL('/landing-page/cms/',location.origin);
+  url.searchParams.set('new','1');
+  if(category)url.searchParams.set('category',category);
+  location.assign(url.pathname+url.search);
+});
 let authBound=false;
 function hasStoredSession(){try{return Boolean(localStorage.getItem('sb-oeyxsqocldlovhsmzcjw-auth-token'))}catch{return false}}
 async function ensureSupabase(){if(window.supabase?.createClient)return true;if(!hasStoredSession())return false;return new Promise(resolve=>{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';script.async=true;script.onload=()=>resolve(Boolean(window.supabase?.createClient));script.onerror=()=>resolve(false);document.head.appendChild(script)})}
