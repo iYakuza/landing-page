@@ -30,13 +30,13 @@
   async function loadPlaylist(){
     try{
       await ensureApi();
-      const probe=document.createElement('div');probe.hidden=true;host.appendChild(probe);
+      const probe=document.createElement('div');probe.setAttribute('aria-hidden','true');probe.style.cssText='position:fixed;left:-10000px;top:0;width:2px;height:2px;opacity:0;pointer-events:none';document.body.appendChild(probe);
       const p=await new Promise((resolve,reject)=>{const timeout=setTimeout(()=>reject(new Error('Playlist request timed out.')),15000);probePlayer=new YT.Player(probe,{height:'1',width:'1',playerVars:{listType:'playlist',list:playlistId,playsinline:1,origin:location.origin},events:{onReady:e=>{clearTimeout(timeout);resolve(e.target)},onError:()=>{clearTimeout(timeout);reject(new Error('YouTube could not load this playlist.'))}}})});
       const ids=p.getPlaylist()||[];if(!ids.length)throw new Error('No videos were returned by the playlist.');
       videos=await Promise.all(ids.map(async(id,i)=>{try{const url='https://www.youtube.com/oembed?url='+encodeURIComponent('https://www.youtube.com/watch?v='+id)+'&format=json';const res=await fetch(url,{headers:{Accept:'application/json'}});if(!res.ok)throw new Error();const data=await res.json();return{id,title:String(data.title||'').slice(0,180)||('Playlist video '+(i+1))}}catch{return{id,title:'Playlist video '+String(i+1).padStart(2,'0')+' (title unavailable)'}}}));
       picker.replaceChildren();videos.forEach((v,i)=>{const o=document.createElement('option');o.value=v.id;o.textContent=String(i+1).padStart(2,'0')+' / '+v.title;picker.appendChild(o)});
       setTrack(videos[0]);status(videos.length+' playlist videos loaded. Choose a title, then press PLAY.');
-      p.destroy();probePlayer=null;host.replaceChildren();
+      p.destroy();probePlayer=null;probe.remove();host.replaceChildren();
     }catch(e){picker.replaceChildren();const o=document.createElement('option');o.value='';o.textContent='Playlist unavailable — reload to retry';picker.appendChild(o);status('Could not load playlist titles. '+(e.message||'Check your connection and reload.'))}
   }
   picker?.addEventListener('change',()=>{const v=videos.find(v=>v.id===picker.value);if(v){setTrack(v);if(playing)playSelected();else{stop();status('Selected: '+v.title+'. Press PLAY to start.')}}});
