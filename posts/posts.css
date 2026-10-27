@@ -554,3 +554,28 @@ body.post-edit-open{overflow:hidden}
 .post-card:not(.tetris-post)>.post-share{margin-top:20px}
 .post-back{margin-top:18px}
 @media(max-width:600px){.post-share{gap:5px}.post-share-action{font-size:7px;padding:6px}.post-share-label{width:100%;margin-bottom:2px}}
+
+
+/* DEFAULT VERSE AFTER HOURS PALETTE — make archive surfaces follow the site theme. */
+:root{
+  --theme-page:var(--theme-page,#050906);
+  --theme-surface:var(--theme-surface,#080e09);
+  --theme-raised:var(--theme-raised,#0d170f);
+  --theme-text:var(--theme-text,#e8f4df);
+  --theme-muted:var(--theme-muted,#9aab9c);
+  --theme-accent:var(--theme-accent,#d8ff3e);
+  --theme-secondary:var(--theme-secondary,#9aab9c);
+  --theme-border:var(--theme-border,#d8ff3e35);
+}
+.posts-main,.posts-content{background:var(--theme-page,#050906)!important;color:var(--theme-text,#e8f4df)}
+.posts-hero{background:radial-gradient(ellipse at 78% 22%,color-mix(in srgb,var(--theme-accent,#d8ff3e) 8%,transparent),transparent 48%),linear-gradient(135deg,var(--theme-surface,#080e09),var(--theme-page,#050906) 70%)!important}
+.posts-content{background:radial-gradient(ellipse at 15% 30%,color-mix(in srgb,var(--theme-accent,#d8ff3e) 5%,transparent),transparent 50%),var(--theme-page,#050906)!important}
+.posts-meta,.posts-filters label,.post-card p,.posts-note p:not(.gd-kicker){color:var(--theme-muted,#9aab9c)}
+.posts-filters,.post-card,.viewer-console{border-color:var(--theme-border,#d8ff3e35)}
+.posts-filters,.posts-search input,.posts-filters select,.post-body pre,.post-body code{background:var(--theme-surface,#080e09)}
+.post-card{background-color:var(--theme-surface,#080e09);background-image:linear-gradient(135deg,color-mix(in srgb,var(--theme-accent,#d8ff3e) 4%,transparent),transparent 48%),linear-gradient(315deg,color-mix(in srgb,var(--theme-secondary,#9aab9c) 5%,transparent) 25%,transparent 25%)}
+.post-card h3,.viewer-console-head h2,.post-body h2,.post-body h3{color:var(--theme-text,#e8f4df)}
+.posts-intro,.post-card p,.post-body{color:var(--theme-muted,#9aab9c)}
+.posts-note{background:linear-gradient(110deg,var(--theme-surface,#080e09),var(--theme-page,#050906));border-color:var(--theme-border,#d8ff3e35)}
+.posts-note-mark{border-color:color-mix(in srgb,var(--theme-accent,#d8ff3e) 45%,transparent);color:var(--theme-accent,#d8ff3e)}
+.posts-hero:before{background-image:linear-gradient(color-mix(in srgb,var(--theme-accent,#d8ff3e) 7%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--theme-accent,#d8ff3e) 7%,transparent) 1px,transparent 1px)}
