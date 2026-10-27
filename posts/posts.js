@@ -369,9 +369,17 @@
       if(document.getElementById('visitor-website').value.trim()){setSubmissionStatus('SIGNAL RECEIVED. THANK YOU.','success');submissionForm.reset();return;}
       const title=document.getElementById('visitor-title').value.trim();
       const body=document.getElementById('visitor-body').value.trim();
-      const medium=document.getElementById('visitor-medium').value;
+      const mediumSelect=document.getElementById('visitor-medium');
+      let medium=mediumSelect.value;
       const byline=document.getElementById('visitor-byline').value.trim();
       const file=document.getElementById('visitor-media').files?.[0];
+      if(file){
+        if(file.type.startsWith('image/'))medium='photograph';
+        else if(file.type.startsWith('audio/'))medium='music';
+        else if(file.type.startsWith('video/'))medium='video';
+        else {setSubmissionStatus('THIS FILE TYPE IS NOT SUPPORTED. PLEASE CHOOSE AN IMAGE, AUDIO, OR VIDEO FILE.','error');return;}
+        mediumSelect.value=medium;
+      }
       if(!title){setSubmissionStatus('PLEASE GIVE YOUR TRANSMISSION A NAME.','error');return;}
       if(!body&&!file){setSubmissionStatus('ADD SOME WORDS OR ATTACH A MEDIA FILE.','error');return;}
       if(file&&file.size>25*1024*1024){setSubmissionStatus('THIS FILE IS OVER 25 MB. PLEASE SEND A SMALLER ONE.','error');return;}
@@ -380,12 +388,6 @@
       try{
         let mediaUrl=null,storagePath=null;
         if(file){
-          const allowed={
-            photograph:['image/jpeg','image/png','image/webp'],
-            music:['audio/mpeg','audio/mp4','audio/wav','audio/ogg','audio/x-m4a'],
-            video:['video/mp4','video/webm','video/quicktime']
-          };
-          if(!allowed[medium]?.includes(file.type))throw new Error('That file type does not match the selected medium.');
           const extension=(file.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,8)||'bin';
           storagePath='submissions/'+(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36))+'.'+extension;
           const upload=await client.storage.from('poetry-media').upload(storagePath,file,{contentType:file.type,upsert:false});
