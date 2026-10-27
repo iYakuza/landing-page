@@ -683,6 +683,6 @@ body.post-edit-open{overflow:hidden}
 .suno-notes h2,.plain-response h2{font:italic clamp(26px,4vw,42px)/1.15 Georgia,"Times New Roman",serif;color:#d8ff3e;margin:0 0 18px}
 .suno-learned{margin-top:32px;padding-top:20px;border-top:1px dashed #d8ff3e50}
 .post-media{width:100%;max-width:100%;overflow:hidden}
-.post-media img,.post-media video,.post-media audio{max-width:100%;height:auto}
+.post-media img,.post-media video,.post-media audio{width:var(--post-media-width,100%);max-width:100%;height:auto}
 .post-media img,.post-media video{width:var(--post-media-width,100%);max-width:100%;object-fit:contain}
 @media(max-width:700px){.suno-post-layout,.plain-post-layout{grid-template-columns:1fr;gap:14px}.suno-lyrics,.plain-copy,.suno-notes,.plain-response{padding:18px}}
