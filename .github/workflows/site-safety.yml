@@ -1,0 +1,65 @@
+name: Static-site safety checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Validate static site
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' file; do
+            echo "Checking $file"
+            node --check "$file"
+          done < <(find . -type f -name '*.js' -not -path './.git/*' -print0)
+
+      - name: Prevent radio controls from regressing
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -nE 'gd-prev|gd-next|Previous station|Next station' index.html green-dream/index.html green-dream/script.js; then
+            echo "Legacy Previous/Next radio controls must not return."
+            exit 1
+          fi
+          grep -Fq "radio.style.setProperty('left',p.x+'px','important')" green-dream/script.js
+          grep -Fq "radio.style.setProperty('top',p.y+'px','important')" green-dream/script.js
+          grep -Fq "window.addEventListener('pointermove'" green-dream/script.js
+          grep -Fq "document.body.appendChild(radio)" green-dream/script.js
+
+      - name: Check baseline browser security policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          for page in index.html green-dream/index.html cv/index.html cms/index.html; do
+            grep -q 'Content-Security-Policy' "$page"
+            if grep -Eq "script-src[^;]*unsafe-inline" "$page"; then
+              echo "Inline script execution must not be allowed by the CSP in $page."
+              exit 1
+            fi
+          done
+
+      - name: Scan frontend source for obvious private-key markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -RInE 'sb_secret_[A-Za-z0-9_-]{20,}|-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|service_role[[:space:]]*[:=]' \
+            --include='*.html' --include='*.js' .; then
+            echo "Possible private credential marker found in public frontend source; review immediately."
+            exit 1
+          fi
+          echo "No obvious private-key markers found in HTML/JavaScript source."
