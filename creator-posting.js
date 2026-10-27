@@ -9,7 +9,7 @@ const css=document.createElement('style');css.textContent=[
 '.vha-quick-post{position:fixed;left:18px;bottom:18px;z-index:2147483007;padding:12px 15px;box-shadow:0 5px 20px #0008}.vha-quick-post[hidden],.vha-create-plus[hidden]{display:none!important}',
 '@media(max-width:560px){.vha-quick-post{left:10px;bottom:10px}}'
 ].join('');document.head.appendChild(css);
-const pageCategory=()=>{const b=(document.body.dataset.movement||'').toUpperCase();if(M.some(m=>m[0]===b))return b;const x=location.pathname.match(/\\/posts\\/(the-awakening|the-descent|the-reconnection|the-transformation|the-return)\\/?/i);return x?M.find(m=>m[2]===x[1].toLowerCase())?.[0]||'':''};
+const pageCategory=()=>{const b=(document.body.dataset.movement||'').toUpperCase();if(M.some(m=>m[0]===b))return b;const slug=location.pathname.split('/').find(part=>M.some(m=>m[2]===part.toLowerCase()));return slug?M.find(m=>m[2]===slug.toLowerCase())?.[0]||'':''};
 let client=null,isCreator=false;
 function openStudio(selected=''){
   const url=new URL('/landing-page/cms/',location.origin);
