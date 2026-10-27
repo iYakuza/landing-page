@@ -10,6 +10,7 @@
   <title>TRANSMISSION CONSOLE — Verse After Hours</title>
   <link rel="stylesheet" href="../green-dream/style.css?v=20261026-scroll-fix-2">
   <link rel="stylesheet" href="cms.css?v=20261027-three-column-1">
+  <link rel="stylesheet" href="../editor-ui.css?v=20261027-shared-actions-1">
   <link rel="stylesheet" href="/landing-page/tools.css?v=20261027-nav-security-2">
 </head>
 <body>
@@ -45,7 +46,7 @@
       <form id="login-form">
         <label for="login-email">EMAIL ADDRESS</label><input id="login-email" type="email" autocomplete="username" required>
         <label for="login-password">PASSWORD</label><input id="login-password" type="password" autocomplete="current-password" required>
-        <button class="cms-button primary" type="submit">SIGN IN ↗</button>
+        <button class="cms-button primary vha-editor-action" data-action-variant="primary" type="submit">SIGN IN ↗</button>
       </form>
       <p class="cms-help">Forgot your password? <button type="button" id="forgot-password" class="cms-text-button">EMAIL ME A RESET LINK ↗</button></p>
       <p class="cms-help">This console has no public sign-up. Your account must be created and granted editor access by the site owner in Supabase.</p>
@@ -57,14 +58,14 @@
       <form id="password-reset-form">
         <label for="new-password">NEW PASSWORD</label><input id="new-password" type="password" autocomplete="new-password" minlength="8" required>
         <label for="confirm-password">CONFIRM NEW PASSWORD</label><input id="confirm-password" type="password" autocomplete="new-password" minlength="8" required>
-        <button class="cms-button primary" type="submit">SAVE NEW PASSWORD ↗</button>
+        <button class="cms-button primary vha-editor-action" data-action-variant="primary" type="submit">SAVE NEW PASSWORD ↗</button>
       </form>
       <p id="password-reset-message" class="cms-message" role="status"></p>
     </section>
     <section id="workspace" hidden>
       <div class="cms-toolbar">
         <div><p class="gd-kicker">EDITORIAL WORKSPACE</p><h2>POST <em>MANIFEST</em></h2><p id="user-line" class="cms-help"></p></div>
-        <div class="cms-toolbar-actions"><button id="new-post" class="cms-button">+ NEW POST</button><button id="sign-out" class="cms-button subtle">SIGN OUT</button></div>
+        <div class="cms-toolbar-actions"><button id="new-post" class="cms-button vha-editor-action">+ NEW POST</button><button id="sign-out" class="cms-button subtle vha-editor-action" data-action-variant="subtle">SIGN OUT</button></div>
       </div>
       <div class="cms-layout">
         <aside class="cms-panel cms-posts-panel">
@@ -81,7 +82,7 @@
               <div class="cms-label-row"><label id="media-heading" for="post-media">MEDIA UNDER TITLE</label><span class="cms-help">Image, audio, or video (MP4, WebM, MOV) · max 30 MB</span></div>
               <input id="post-media" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm,video/quicktime">
               <div id="media-preview" class="cms-media-preview" hidden></div><div class="media-width-control"><label for="media-width">MEDIA WIDTH</label><input id="media-width" type="range" min="20" max="100" step="5" value="100"><output id="media-width-value" for="media-width">100%</output><p class="cms-help">Media is capped at the text column width. Reduce this to make it narrower.</p></div>
-              <div class="cms-media-actions"><span id="media-message" class="cms-message" role="status"></span><button type="button" id="remove-media" class="cms-button subtle" hidden>REMOVE MEDIA</button></div>
+              <div class="cms-media-actions"><span id="media-message" class="cms-message" role="status"></span><button type="button" id="remove-media" class="cms-button subtle vha-editor-action" data-action-variant="subtle" hidden>REMOVE MEDIA</button></div>
             </section>
             <div class="cms-two-col">
               <div><label for="post-slug">URL SLUG</label><input id="post-slug" maxlength="180" required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="lowercase-words"></div>
@@ -119,7 +120,7 @@
             </div>
             <div class="cms-editor-footer">
               <span id="save-message" class="cms-message" role="status"></span>
-              <div class="cms-save-actions"><button type="button" id="delete-post" class="cms-button danger" hidden>DELETE POST</button><button type="button" id="save-draft" class="cms-button">SAVE DRAFT</button><button type="submit" id="publish-post" class="cms-button primary">PUBLISH ↗</button></div>
+              <div class="cms-save-actions"><button type="button" id="delete-post" class="cms-button danger vha-editor-action" data-action-variant="danger" hidden>DELETE POST</button><button type="button" id="save-draft" class="cms-button vha-editor-action">SAVE DRAFT</button><button type="submit" id="publish-post" class="cms-button primary vha-editor-action" data-action-variant="primary">PUBLISH ↗</button></div>
             </div>
           </form>
         </section>
@@ -139,7 +140,7 @@
   <footer class="gd-footer"><a class="gd-brand" href="../"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="../posts/">VIEW TRANSMISSIONS ↗</a></footer>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
-<script src="cms.js?v=20261027-three-column-2"></script>
+<script src="cms.js?v=20261027-lazy-editor-1"></script>
   <script src="/landing-page/tools.js?v=20261027-mood-global-5"></script>
 
 </body>
