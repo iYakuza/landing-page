@@ -200,7 +200,7 @@
       $('password-reset-message').textContent='Choose a new password for your account.';
       return;
     }
-    if(session?.user&&await ensureAdmin(session.user)){currentUser=session.user;showWorkspace(currentUser);await loadPosts();await loadCommunitySubmissions();openRequestedPost();}else showLogin();
+    if(session?.user&&await ensureAdmin(session.user)){currentUser=session.user;showWorkspace(currentUser);await Promise.all([loadPosts(),loadCommunitySubmissions()]);openRequestedPost();}else showLogin();
   }
   $('forgot-password')?.addEventListener('click',async()=>{
     const email=$('login-email').value.trim();
@@ -236,7 +236,7 @@
     const {data,error}=await client.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-password').value});
     if(error){message(loginMessage,error.message,true);return;}
     if(!(await ensureAdmin(data.user)))return;
-    currentUser=data.user;showWorkspace(currentUser);message(loginMessage,'');await loadPosts();await loadCommunitySubmissions();openRequestedPost();
+    currentUser=data.user;showWorkspace(currentUser);message(loginMessage,'');await Promise.all([loadPosts(),loadCommunitySubmissions()]);openRequestedPost();
   });
   $('sign-out').addEventListener('click',async()=>{await client.auth.signOut();currentUser=null;showLogin();message(loginMessage,'Signed out.');});
   $('new-post').addEventListener('click',blankEditor);
