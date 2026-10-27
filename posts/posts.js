@@ -142,11 +142,12 @@
   }
   async function load(){
     if(!client){list.innerHTML='<p class="posts-empty">THE ARCHIVE COULD NOT CONNECT.</p>';count.textContent='SIGNAL UNAVAILABLE';return;}
+    const isCommunityArchive=document.body.dataset.archive==='community';
     const [ownerResult,communityResult]=await Promise.all([
-      client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}),
-      client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false})
+      isCommunityArchive ? Promise.resolve({data:[],error:null}) : client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}),
+      isCommunityArchive ? client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}) : Promise.resolve({data:[],error:null})
     ]);
-    if(ownerResult.error){list.innerHTML='<p class="posts-empty">THE ARCHIVE COULD NOT LOAD. PLEASE TRY AGAIN LATER.</p>';count.textContent='SIGNAL UNAVAILABLE';return;}
+    if(ownerResult.error){list.innerHTML='<p class="posts-empty">THE COMMUNITY GALLERY COULD NOT LOAD. PLEASE TRY AGAIN LATER.</p>';count.textContent='SIGNAL UNAVAILABLE';return;}
     const ownerPosts=ownerResult.data||[];
     const communityPosts=communityResult.error?[]:(communityResult.data||[]).map(item=>({
       id:item.id,title:item.title,slug:item.slug,category:'COMMUNITY SIGNAL',excerpt:item.byline?'TRANSMITTED BY '+item.byline:'COMMUNITY SUBMISSION',
@@ -453,7 +454,7 @@
         const slug=(title.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,100)||'transmission')+'-'+Date.now().toString(36);
         const {error}=await client.from('poetry_submissions').insert({title,slug,medium,body,byline,rights_confirmed:true,media_url:mediaUrl,storage_path:storagePath,status:'pending'});
         if(error)throw error;
-        submissionForm.reset();setSubmissionStatus('SIGNAL RECEIVED. IT IS IN THE REVIEW QUEUE; IF APPROVED, IT WILL APPEAR IN THE ARCHIVE BELOW.','success');
+        submissionForm.reset();setSubmissionStatus('SIGNAL RECEIVED. IT IS IN THE REVIEW QUEUE; IF APPROVED, IT WILL APPEAR IN THE COMMUNITY GALLERY.','success');
       }catch(error){setSubmissionStatus(error?.message||'THE TRANSMISSION DID NOT GO THROUGH. PLEASE TRY AGAIN.','error');}
       finally{submissionButton.disabled=false;}
     });
