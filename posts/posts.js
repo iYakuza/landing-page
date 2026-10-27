@@ -127,22 +127,11 @@
         const editButton=canEditPosts&&!post.community?'<button class="post-edit-button" type="button" data-inline-edit="'+safe(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</button>':'';
         return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div><h3>'+safe(post.title)+'</h3>'+media+'<p>'+safe(post.excerpt||'')+'</p>'+body+shareActions(post)+permalinkBack+'</article>';
       }
-      // Archive cards: split the article into four readable cells, then arrange them as a tetromino.
-      const doc=new DOMParser().parseFromString(cleanHtml(post.content_html||''),'text/html');
-      const contentNodes=[...doc.body.children].map(node=>node.outerHTML);
-      const pieces=[];
-      if(post.excerpt)pieces.push('<p class="post-excerpt">'+safe(post.excerpt)+'</p>');
-      if(media)pieces.push(media);
-      pieces.push(...contentNodes);
-      const buckets=[[],[],[],[]];
-      pieces.forEach((piece,i)=>buckets[Math.min(3,Math.floor(i*4/Math.max(1,pieces.length)))].push(piece));
-      const blockMarkup=buckets.map((bucket,blockIndex)=>{
-        const editButton=canEditPosts&&!post.community?'<button class="post-edit-button" type="button" data-inline-edit="'+safe(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</button>':'';
-        const lead=blockIndex===0?'<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div><h3><a class="post-title-link" href="?post='+encodeURIComponent(post.slug)+'">'+safe(post.title)+'</a></h3>':'';
-        const inner=bucket.join('');
-        return '<section class="post-cell post-cell-'+(blockIndex+1)+'">'+lead+(inner?'<div class="post-cell-content">'+inner+'</div>':'<span class="post-cell-index" aria-hidden="true">0'+(blockIndex+1)+'</span>')+'</section>';
-      }).join('');
-      return '<article class="post-card tetris-post '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-blocks">'+blockMarkup+'</div><a class="post-open-link" href="?post='+encodeURIComponent(post.slug)+'">OPEN TRANSMISSION ↗</a>'+shareActions(post)+'</article>';
+      // Archive cards preserve the complete post composition: left-side text, right-side Suno-style notes, and uploaded media.
+      const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
+      const editButton=canEditPosts&&!post.community?'<button class="post-edit-button" type="button" data-inline-edit="'+safe(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</button>':'';
+      const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div>';
+      return '<article class="post-card '+shapeClass+' post-archive-composition" id="post-'+safe(post.slug)+'">'+lead+'<h3><a class="post-title-link" href="?post='+encodeURIComponent(post.slug)+'">'+safe(post.title)+'</a></h3>'+media+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'<a class="post-open-link" href="?post='+encodeURIComponent(post.slug)+'">OPEN TRANSMISSION ↗</a>'+shareActions(post)+'</article>';
     }).join('');
     if(permalink){
       document.title=filtered[0].title+' // VERSE AFTER HOURS';
