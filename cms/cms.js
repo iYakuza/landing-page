@@ -23,7 +23,7 @@
   let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null;
   const MEDIA_BUCKET = 'vha-post-media';
   const MAX_MEDIA_BYTES = 30 * 1024 * 1024;
-  const ALLOWED_MEDIA = new Set(['image/jpeg','image/png','image/webp','image/gif','image/avif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm']);
+  const ALLOWED_MEDIA = new Set(['image/jpeg','image/png','image/webp','image/gif','image/avif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm','video/mp4','video/webm','video/quicktime']);
   const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const slugify = value => String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,180);
   function message(el, text, error=false){el.textContent=text;el.classList.toggle('error',error);}
@@ -262,7 +262,7 @@
   }
   mediaInput.addEventListener('change',async()=>{
     const file=mediaInput.files?.[0];if(!file)return;
-    if(!ALLOWED_MEDIA.has(file.type)){message(mediaMessage,'Unsupported media format. Choose an image or supported audio file.',true);mediaInput.value='';return;}
+    if(!ALLOWED_MEDIA.has(file.type)){message(mediaMessage,'Unsupported media format. Choose an image, supported audio, or video file (MP4, WebM, or MOV).',true);mediaInput.value='';return;}
     if(file.size>MAX_MEDIA_BYTES){message(mediaMessage,'That file exceeds the 30 MB limit.',true);mediaInput.value='';return;}
     const previous={url:mediaUrl,path:mediaPath,type:mediaType};
     mediaInput.disabled=true;message(mediaMessage,'UPLOADING MEDIA…');
