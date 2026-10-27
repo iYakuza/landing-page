@@ -96,7 +96,7 @@
     categoryInput.value=post.category||'';excerptInput.value=post.excerpt||'';contentEditor.innerHTML=cleanHtml(post.content_html||'');
     postMediaWidth=Math.max(20,Math.min(100,Number(post.media_width)||100));mediaWidthInput.value=String(postMediaWidth);mediaWidthValue.value=postMediaWidth+'%';
     const savedDoc=new DOMParser().parseFromString(post.content_html||'','text/html');const suno=savedDoc.querySelector('.suno-post-layout'),plain=savedDoc.querySelector('.plain-post-layout');
-    if(suno){postLayout='suno';$('post-lyrics').value=savedDoc.querySelector('.suno-lyrics')?.innerText||'';$('post-style-notes').value=savedDoc.querySelector('.suno-notes')?.innerText||'';$('post-learned').value=savedDoc.querySelector('.suno-learned')?.innerText||'';}else if(plain){postLayout='plain';$('post-plain-text').value=savedDoc.querySelector('.plain-copy')?.innerText||'';}else postLayout='standard';layoutInput.value=postLayout;syncLayoutFields();
+    if(suno){postLayout='suno';$('post-lyrics').value=savedDoc.querySelector('.suno-lyrics pre')?.innerText||'';$('post-style-notes').value=savedDoc.querySelector('.suno-notes')?.innerText||'';$('post-learned').value=savedDoc.querySelector('.suno-learned')?.innerText||'';}else if(plain){postLayout='plain';$('post-plain-text').value=savedDoc.querySelector('.plain-copy')?.innerText||'';}else postLayout='standard';layoutInput.value=postLayout;syncLayoutFields();
     mediaUrl=post.media_url||null;mediaPath=post.media_path||null;mediaType=post.media_type||null;originalMediaPath=post.media_path||null;
     mediaInput.value='';renderMediaPreview();message(mediaMessage,'');$('delete-post').hidden=false;
     $('editor-mode').textContent='EDIT TRANSMISSION';setStatus(post.status==='published'?'PUBLISHED':'DRAFT');
