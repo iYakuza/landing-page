@@ -150,6 +150,11 @@
       const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
       const editButton=canEditPosts&&!post.community?'<button class="post-edit-button" type="button" data-inline-edit="'+safe(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</button>':'';
       const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div>';
+      if(/class=["']suno-post-layout["']/.test(post.content_html||'')){
+        const titleHtml='<h3><a class="post-title-link" href="?post='+encodeURIComponent(post.slug)+'">'+safe(post.title)+'</a></h3>';
+        const excerptHtml=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
+        return renderSunoColumns(post,media,titleHtml,excerptHtml,lead,'',shapeClass);
+      }
       return '<article class="post-card '+shapeClass+' post-archive-composition" id="post-'+safe(post.slug)+'">'+lead+'<h3><a class="post-title-link" href="?post='+encodeURIComponent(post.slug)+'">'+safe(post.title)+'</a></h3>'+media+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'<a class="post-open-link" href="?post='+encodeURIComponent(post.slug)+'">OPEN TRANSMISSION ↗</a>'+shareActions(post)+'</article>';
     }).join('');
     if(permalink){
