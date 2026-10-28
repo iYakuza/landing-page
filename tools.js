@@ -68,6 +68,14 @@
     #vha-viewer-tools .vha-mood-box button{padding:7px;border:1px solid var(--theme-accent,#d8ff3e);background:var(--theme-accent,#d8ff3e);color:var(--theme-page,#050906);font:inherit;font-weight:700;cursor:pointer}#vha-viewer-tools .vha-mood-presets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}#vha-viewer-tools .vha-mood-presets button{padding:6px 2px;background:transparent;color:var(--theme-text,#e8f4df);font-size:9px;text-transform:capitalize}#vha-viewer-tools .vha-mood-presets button:hover,#vha-viewer-tools .vha-mood-presets button:focus-visible{background:var(--theme-accent,#d8ff3e);color:var(--theme-page,#050906)}
     #vha-viewer-tools .vha-mood-status{font-size:9px;color:var(--theme-muted,#9aab9c);min-height:12px}
     #vha-viewer-tools .vha-tools-help{margin:3px 4px 1px;padding-top:6px;border-top:1px solid var(--theme-border,#d8ff3e35);color:var(--theme-muted,#9aab9c);font-size:8px;letter-spacing:.4px}
+    #vha-presentation-bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:2147483007;display:none;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--theme-border,var(--theme-accent,#d8ff3e));background:color-mix(in srgb,var(--theme-surface,#080e09) 96%,transparent);color:var(--theme-text,#e8f4df);font:11px/1.2 Arial,Helvetica,sans-serif;box-shadow:0 8px 28px #0009;backdrop-filter:blur(12px);max-width:calc(100vw - 24px)}
+    body.vha-presentation-active #vha-presentation-bar{display:flex}
+    #vha-presentation-bar button{min-width:34px;min-height:32px;padding:5px 9px;border:1px solid var(--theme-border,var(--theme-accent,#d8ff3e));background:transparent;color:var(--theme-text,#e8f4df);font:inherit;cursor:pointer}
+    #vha-presentation-bar button:hover,#vha-presentation-bar button:focus-visible{background:var(--theme-accent,#d8ff3e);color:var(--theme-page,#050906);outline:2px solid var(--theme-accent,#d8ff3e);outline-offset:2px}
+    #vha-presentation-progress{min-width:100px;text-align:center;white-space:nowrap;color:var(--theme-accent,#d8ff3e);font:700 10px/1.2 ui-monospace,monospace;letter-spacing:.5px}
+    #vha-presentation-hint{font-size:9px;color:var(--theme-muted,#9aab9c);white-space:nowrap}
+    body.vha-presentation-active{scroll-behavior:auto}
+    @media(max-width:600px){#vha-presentation-bar{bottom:10px;gap:5px;padding:6px}#vha-presentation-hint{display:none}#vha-presentation-progress{min-width:84px}}
     body.vha-tools-hide-ui header,body.vha-tools-hide-ui footer,body.vha-tools-hide-ui nav,body.vha-tools-hide-ui .gd-nav,body.vha-tools-hide-ui .gd-footer{opacity:0!important;pointer-events:none!important;transition:opacity .2s}
     body.vha-tools-hide-ui #vha-viewer-tools{opacity:1!important;pointer-events:auto!important}
     body.vha-tools-large-text main,body.vha-tools-large-text .gd{font-size:1.12em}
@@ -92,6 +100,85 @@
   root.dataset.open = "false";
   root.innerHTML = '<button class="vha-tools-trigger" type="button" aria-label="Open viewer tools" aria-expanded="false" aria-controls="vha-tools-panel" title="Drag to move; click to open">'+svg("tools")+'</button><div class="vha-tools-label" aria-hidden="true">VIEWER TOOLS</div><div class="vha-tools-panel" id="vha-tools-panel" aria-label="Viewer tools menu"><button class="vha-tool-row" type="button" data-tool="fullscreen"><span class="vha-tool-icon">'+svg("fullscreen")+'</span><span>Fullscreen</span></button><button class="vha-tool-row" type="button" data-tool="dark" aria-pressed="false"><span class="vha-tool-icon">'+svg("moon")+'</span><span>Dark Mode</span></button><button class="vha-tool-row" type="button" data-tool="text" aria-pressed="false"><span class="vha-tool-icon">'+svg("text")+'</span><span>Text Size</span></button><button class="vha-tool-row" type="button" data-tool="ui" aria-pressed="false"><span class="vha-tool-icon">'+svg("ui")+'</span><span>UI Toggle</span></button><button class="vha-tool-row" type="button" data-tool="mood" aria-expanded="false"><span class="vha-tool-icon">'+svg("mood")+'</span><span>Match my mood</span></button><div class="vha-mood-box"><label for="vha-mood-description">How are you feeling right now?</label><textarea id="vha-mood-description" maxlength="500" placeholder="Describe it in your own words…"></textarea><div class="vha-mood-presets" aria-label="Choose a feeling"><button type="button" data-mood-preset="calm">Calm</button><button type="button" data-mood-preset="sad">Sad</button><button type="button" data-mood-preset="anxious">Anxious</button><button type="button" data-mood-preset="happy">Happy</button><button type="button" data-mood-preset="angry">Angry</button><button type="button" data-mood-preset="tired">Tired</button><button type="button" data-mood-preset="focused">Focused</button><button type="button" data-mood-preset="hopeful">Hopeful</button></div><button type="button" data-tool="apply-mood">Adapt the site</button><div class="vha-mood-status" role="status" aria-live="polite"></div></div><button class="vha-tool-row" type="button" data-tool="reset-mood"><span class="vha-tool-icon">'+svg("reset")+'</span><span>Reset mood theme</span></button><button class="vha-tool-row" type="button" data-tool="help"><span class="vha-tool-icon">'+svg("help")+'</span><span>Help</span></button><div class="vha-tools-help">VIEWER CONTROLS</div></div>';
   document.body.appendChild(root);
+
+  // Fullscreen doubles as a lightweight presentation mode: step through the page
+  // in viewport-sized increments with keyboard or on-screen controls.
+  let presentationActive = false;
+  let presentationStep = 0.88;
+  const presentationBar = document.createElement("div");
+  presentationBar.id = "vha-presentation-bar";
+  presentationBar.setAttribute("role", "toolbar");
+  presentationBar.setAttribute("aria-label", "Presentation navigation");
+  presentationBar.innerHTML = '<button type="button" data-presentation="prev" aria-label="Previous slide" title="Previous (← / Page Up)">←</button><span id="vha-presentation-progress" aria-live="polite">PRESENTATION 01 / 01</span><button type="button" data-presentation="next" aria-label="Next slide" title="Next (→ / Page Down / Space)">→</button><span id="vha-presentation-hint">← → / SPACE</span><button type="button" data-presentation="exit" aria-label="Exit presentation" title="Exit presentation">✕</button>';
+  document.body.appendChild(presentationBar);
+  const presentationProgress = presentationBar.querySelector("#vha-presentation-progress");
+  function presentationMetrics() {
+    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+    const step = Math.max(320, window.innerHeight * presentationStep);
+    return {maxScroll, step, total: Math.max(1, Math.ceil(maxScroll / step) + 1)};
+  }
+  function updatePresentationProgress() {
+    if (!presentationActive) return;
+    const {maxScroll, step, total} = presentationMetrics();
+    const current = Math.min(total, Math.round(Math.min(window.scrollY, maxScroll) / step) + 1);
+    presentationProgress.textContent = "PRESENTATION " + String(current).padStart(2, "0") + " / " + String(total).padStart(2, "0");
+    const prev = presentationBar.querySelector('[data-presentation="prev"]');
+    const next = presentationBar.querySelector('[data-presentation="next"]');
+    prev.disabled = window.scrollY <= 2;
+    next.disabled = window.scrollY >= maxScroll - 2;
+    prev.style.opacity = prev.disabled ? ".4" : "1";
+    next.style.opacity = next.disabled ? ".4" : "1";
+  }
+  function goToPresentationStep(direction) {
+    const {maxScroll, step} = presentationMetrics();
+    const current = Math.round(window.scrollY / step);
+    const next = direction === "end" ? Math.ceil(maxScroll / step) : direction === "home" ? 0 : current + direction;
+    window.scrollTo({top: Math.max(0, Math.min(maxScroll, next * step)), behavior: "smooth"});
+    updatePresentationProgress();
+  }
+  function stopPresentation() {
+    presentationActive = false;
+    document.body.classList.remove("vha-presentation-active");
+    presentationBar.hidden = true;
+    presentationBar.style.display = "none";
+  }
+  function startPresentation() {
+    presentationActive = true;
+    presentationBar.hidden = false;
+    presentationBar.style.display = "flex";
+    document.body.classList.add("vha-presentation-active");
+    updatePresentationProgress();
+  }
+  presentationBar.querySelector('[data-presentation="prev"]').addEventListener("click", () => goToPresentationStep(-1));
+  presentationBar.querySelector('[data-presentation="next"]').addEventListener("click", () => goToPresentationStep(1));
+  presentationBar.querySelector('[data-presentation="exit"]').addEventListener("click", async () => {
+    stopPresentation();
+    if (document.fullscreenElement) {
+      try { await document.exitFullscreen(); } catch {}
+    }
+  });
+  window.addEventListener("scroll", updatePresentationProgress, {passive:true});
+  window.addEventListener("resize", updatePresentationProgress);
+  document.addEventListener("fullscreenchange", () => {
+    if (!document.fullscreenElement) stopPresentation();
+  });
+  document.addEventListener("keydown", e => {
+    if (!presentationActive || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(e.target.tagName))) return;
+    if (["ArrowRight","ArrowDown","PageDown"," "].includes(e.key)) {
+      e.preventDefault();
+      goToPresentationStep(1);
+    } else if (["ArrowLeft","ArrowUp","PageUp","Backspace"].includes(e.key)) {
+      e.preventDefault();
+      goToPresentationStep(-1);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      goToPresentationStep("home");
+    } else if (e.key === "End") {
+      e.preventDefault();
+      goToPresentationStep("end");
+    }
+  });
   function setMoodTheme(name,colors){
     const [page,surface,textColor,accent]=colors,html=document.documentElement;
     html.style.setProperty("--theme-page",page);html.style.setProperty("--theme-surface",surface);html.style.setProperty("--theme-raised",surface);html.style.setProperty("--theme-text",textColor);html.style.setProperty("--theme-muted",textColor+"b0");html.style.setProperty("--theme-accent",accent);html.style.setProperty("--theme-secondary",accent);html.style.setProperty("--theme-border",accent+"70");html.style.setProperty("--theme-glow",accent+"35");
@@ -201,10 +288,10 @@ html[data-vha-mood] .vha-main-nav .active,html[data-vha-mood] .vha-main-nav [ari
       root.querySelector("#vha-mood-description").value="";
       root.querySelector(".vha-mood-status").textContent="Default website theme restored across the website.";return;
     }
-    if(tool==="fullscreen"){try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen()}catch{alert("Fullscreen is not available in this browser or context.")}}
+    if(tool==="fullscreen"){try{if(!document.fullscreenElement){await document.documentElement.requestFullscreen();startPresentation()}else{stopPresentation();await document.exitFullscreen()}}catch{startPresentation();alert("Browser fullscreen is unavailable here. Presentation navigation is still active; use the arrows or Space to move through the page.")}}
     else if(tool==="dark"){const active=document.documentElement.dataset.vhaToolsDark!=="true";document.documentElement.dataset.vhaToolsDark=String(active);document.documentElement.style.setProperty("--theme-page",active?"#020406":"#050906");document.documentElement.style.setProperty("--theme-surface",active?"#03090b":"#080e09");button.setAttribute("aria-pressed",String(active))}
     else if(tool==="text"){const active=!document.body.classList.contains("vha-tools-large-text");setViewerTextSize(active);button.setAttribute("aria-pressed",String(active))}
     else if(tool==="ui"){const active=!document.body.classList.contains("vha-tools-hide-ui");document.body.classList.toggle("vha-tools-hide-ui",active);button.setAttribute("aria-pressed",String(active))}
-    else if(tool==="help"){alert("VIEWER TOOLS\\n\\nDrag the floating icon to reposition it.\\nFullscreen: expand the page.\\nDark Mode: switch to a deeper dark palette.\\nText Size: enlarge page text.\\nUI Toggle: temporarily hide site navigation and footer.")}
+    else if(tool==="help"){alert("VIEWER TOOLS\\n\\nDrag the floating icon to reposition it.\\nFullscreen: enter presentation mode. Use Right/Down, Page Down, or Space for the next screen; Left/Up or Page Up for the previous screen. Home and End jump to the beginning and end. Use the bottom controls to navigate or exit.\\nDark Mode: switch to a deeper dark palette.\\nText Size: enlarge page text.\\nUI Toggle: temporarily hide site navigation and footer.")}
   }));
 })();
