@@ -75,6 +75,6 @@
 .gd-home .vha-community-button{opacity:.68}
 .gd-home .gd-radio{opacity:.91}
 .gd-home .gd-hero-copy>.gd-cta{position:relative;z-index:3;box-shadow:0 0 0 1px #d8ff3e18,0 8px 34px #b6e83312}
-.gd-home .gd-story-step:not(.is-first){opacity:calc(.72 + var(--journey-presence,0) * .28)}
+.gd-home .gd-story-step:not(.is-first){opacity:.82}
 .gd-home .gd-story-step.is-first{transform:translateY(-2px)}
 @media(prefers-reduced-motion:reduce){.gd-home .vha-main-nav a:not(.active){transition:none}}
