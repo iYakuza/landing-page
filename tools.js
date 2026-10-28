@@ -141,6 +141,37 @@ html[data-vha-mood] .vha-main-nav .active,html[data-vha-mood] .vha-main-nav [ari
   document.addEventListener("click",e=>{if(!root.contains(e.target))setOpen(false)});
   window.addEventListener("resize",()=>{if(root.dataset.moved==="true"){const rect=root.getBoundingClientRect();root.style.left=clamp(rect.left,0,innerWidth-root.offsetWidth)+"px";root.style.top=clamp(rect.top,0,innerHeight-root.offsetHeight)+"px"}});
   root.querySelectorAll("[data-mood-preset]").forEach(button=>button.addEventListener("click",()=>{const mood=button.dataset.moodPreset;const prompts={calm:"I feel calm and peaceful. Adapt the website to feel serene, spacious, and grounded.",sad:"I feel sad and a little low. Adapt the website to feel gentle, quiet, and comforting.",anxious:"I feel anxious and overwhelmed. Adapt the website to feel steady, soft, and low-stimulation.",happy:"I feel happy and upbeat. Adapt the website to feel warm, bright, and optimistic.",angry:"I feel angry or frustrated. Adapt the website to feel strong, grounded, and controlled.",tired:"I feel tired and drained. Adapt the website to feel restful, muted, and easy on the eyes.",focused:"I feel focused and ready to work. Adapt the website to feel clear, structured, and distraction-free.",hopeful:"I feel hopeful and inspired. Adapt the website to feel fresh, open, and uplifting."};const textarea=root.querySelector("#vha-mood-description");textarea.value=prompts[mood]||"";textarea.focus();root.querySelector(".vha-mood-status").textContent="Prompt ready. Choose Adapt the site to apply this feeling.";root.querySelectorAll("[data-mood-preset]").forEach(b=>b.setAttribute("aria-pressed",String(b===button)));}));
+  // Scale actual text-bearing elements rather than only the main wrapper's inherited font size.
+  // Many site components define their typography in pixels, so a parent font-size alone has no effect.
+  const originalTextSizes = new Map();
+  function setViewerTextSize(enabled) {
+    if (enabled) {
+      const candidates = [...document.body.querySelectorAll("*")].filter(el =>
+        !el.closest("#vha-viewer-tools") &&
+        [...el.childNodes].some(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim())
+      );
+      const sizes = candidates.map(el => ({el, size: parseFloat(getComputedStyle(el).fontSize)}))
+        .filter(item => Number.isFinite(item.size));
+      for (const {el, size} of sizes) {
+        if (!originalTextSizes.has(el)) {
+          originalTextSizes.set(el, {
+            value: el.style.getPropertyValue("font-size"),
+            priority: el.style.getPropertyPriority("font-size")
+          });
+        }
+        el.style.setProperty("font-size", (size * 1.12) + "px", "important");
+      }
+    } else {
+      for (const [el, original] of originalTextSizes) {
+        if (!el.isConnected) continue;
+        if (original.value) el.style.setProperty("font-size", original.value, original.priority);
+        else el.style.removeProperty("font-size");
+      }
+      originalTextSizes.clear();
+    }
+    document.body.classList.toggle("vha-tools-large-text", enabled);
+  }
+
   root.querySelectorAll("[data-tool]").forEach(button=>button.addEventListener("click",async()=>{
     const tool=button.dataset.tool;
     if(tool==="mood"){const open=root.dataset.moodOpen!=="true";root.dataset.moodOpen=String(open);button.setAttribute("aria-expanded",String(open));if(open)root.querySelector("#vha-mood-description").focus();return}
@@ -172,7 +203,7 @@ html[data-vha-mood] .vha-main-nav .active,html[data-vha-mood] .vha-main-nav [ari
     }
     if(tool==="fullscreen"){try{if(!document.fullscreenElement)await document.documentElement.requestFullscreen();else await document.exitFullscreen()}catch{alert("Fullscreen is not available in this browser or context.")}}
     else if(tool==="dark"){const active=document.documentElement.dataset.vhaToolsDark!=="true";document.documentElement.dataset.vhaToolsDark=String(active);document.documentElement.style.setProperty("--theme-page",active?"#020406":"#050906");document.documentElement.style.setProperty("--theme-surface",active?"#03090b":"#080e09");button.setAttribute("aria-pressed",String(active))}
-    else if(tool==="text"){const active=!document.body.classList.contains("vha-tools-large-text");document.body.classList.toggle("vha-tools-large-text",active);button.setAttribute("aria-pressed",String(active))}
+    else if(tool==="text"){const active=!document.body.classList.contains("vha-tools-large-text");setViewerTextSize(active);button.setAttribute("aria-pressed",String(active))}
     else if(tool==="ui"){const active=!document.body.classList.contains("vha-tools-hide-ui");document.body.classList.toggle("vha-tools-hide-ui",active);button.setAttribute("aria-pressed",String(active))}
     else if(tool==="help"){alert("VIEWER TOOLS\\n\\nDrag the floating icon to reposition it.\\nFullscreen: expand the page.\\nDark Mode: switch to a deeper dark palette.\\nText Size: enlarge page text.\\nUI Toggle: temporarily hide site navigation and footer.")}
   }));
