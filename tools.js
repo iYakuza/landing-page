@@ -164,7 +164,7 @@
   });
   document.addEventListener("keydown", e => {
     if (!presentationActive || e.altKey || e.ctrlKey || e.metaKey) return;
-    if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(e.target.tagName))) return;
+    if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || (e.target.tagName === "BUTTON" && !presentationBar.contains(e.target)))) return;
     if (["ArrowRight","ArrowDown","PageDown"," "].includes(e.key)) {
       e.preventDefault();
       goToPresentationStep(1);
