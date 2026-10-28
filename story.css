@@ -53,3 +53,18 @@
 @media(max-width:900px){.gd-story-route{grid-template-columns:repeat(3,minmax(0,1fr))}.gd-story-step.is-first{min-height:190px}.gd-public-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.gd-story-heading,.gd-sensory{grid-template-columns:1fr}.gd-story-route{grid-template-columns:repeat(2,minmax(0,1fr))}.gd-story-step{min-height:150px;padding:14px}.gd-story-step strong{padding-top:25px}.gd-story-step.is-first{min-height:170px}.gd-story-footer,.gd-public-stats-head,.gd-public-footnote{align-items:flex-start;flex-direction:column}.gd-sensory-art{min-height:150px}.gd-public-grid{gap:7px}.gd-public-stat{padding:14px}.gd-public-stat strong{font-size:28px}}
 @media(prefers-reduced-motion:reduce){.gd-story-step,.gd-story-step:after{transition:none}.gd-sensory-art:before,.gd-sensory-art:after,.gd-sensory-art .gd-pulse{animation:none}.gd-sensory-art .gd-pulse{display:none}}
+
+/* Shared chapter bridge used by the project, movements, archive and community pages. */
+.gd-journey-bridge{position:relative;padding:clamp(28px,4vw,50px) clamp(18px,5vw,6vw);background:linear-gradient(120deg,#0e180f,#050906);border-top:1px solid #b6e83335;border-bottom:1px solid #b6e83325;color:#e9f2e8}
+.gd-journey-bridge-inner{max-width:1160px;margin:auto;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:28px;align-items:center}
+.gd-journey-bridge-copy h2{font-size:clamp(22px,3vw,34px);line-height:1;letter-spacing:-.05em;margin:10px 0}
+.gd-journey-progress{height:3px;max-width:260px;background:#b6e83320;margin-top:18px;overflow:hidden}
+.gd-journey-progress span{display:block;height:100%;background:#d8ff3e;box-shadow:0 0 12px #b6e83366}
+.gd-journey-bridge-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.gd-journey-bridge-actions a{display:flex;flex-direction:column;justify-content:center;gap:8px;min-height:74px;padding:14px;border:1px solid #b6e83335;text-decoration:none;color:#e9f2e8;background:#0a100b;transition:border-color .2s,background .2s}
+.gd-journey-bridge-actions a small{font:9px/1.4 ui-monospace,monospace;color:#91a18e;letter-spacing:.05em}
+.gd-journey-bridge-actions a strong{font:11px/1.5 ui-monospace,monospace;color:#d8ff3e}
+.gd-journey-bridge-actions a:hover,.gd-journey-bridge-actions a:focus-visible{border-color:#d8ff3e;background:#142015;outline-offset:3px}
+.gd-journey-next{border-color:#d8ff3e55!important}
+@media(max-width:700px){.gd-journey-bridge-inner{grid-template-columns:1fr;gap:18px}.gd-journey-bridge-actions{grid-template-columns:1fr 1fr}.gd-journey-bridge-actions a{padding:11px;min-height:68px}.gd-journey-bridge-actions a strong{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.gd-journey-bridge-actions a{transition:none}}
