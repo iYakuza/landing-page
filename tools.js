@@ -187,7 +187,7 @@
     slideCounter.textContent=String(slideIndex+1).padStart(2,"0")+" / "+String(manuscriptSlides.length).padStart(2,"0");
     slideProgress.style.width=((slideIndex+1)/manuscriptSlides.length*100)+"%";
     manuscript.querySelector('[data-vm="prev"]').disabled=slideIndex===0;
-    manuscript.querySelector('[data-vm="next"]').disabled=false;
+    manuscript.querySelector('[data-vm="next"]').disabled=slideIndex===manuscriptSlides.length-1;
     manuscript.querySelector('[data-vm="next"]').setAttribute("aria-label",slideIndex===manuscriptSlides.length-1?"End of manuscript":"Continue to "+manuscriptSlides[slideIndex+1].chapter);
   }
   function startPresentation() {
