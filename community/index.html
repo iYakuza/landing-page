@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07100b">
+  <meta name="description" content="Shiva's Green Dream — a gathering place for sound explorers, visual artists, musicians, and curious minds. From noise toward stillness.">
+  <title>THE CIRCLE — Shiva's Green Dream</title>
+  <style>
+    :root{color-scheme:dark;--night:#07100b;--deep:#0b1710;--panel:#101d14;--emerald:#153d2a;--green:#b9d76a;--acid:#d8ff85;--gold:#bca36b;--ivory:#eee9dc;--muted:#a2ad9e;--line:#c1d99c30;--serif:Georgia,'Times New Roman',serif;--mono:'SFMono-Regular',Consolas,'Liberation Mono',monospace;--sans:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;background:var(--night)}body{margin:0;background:var(--night);color:var(--ivory);font-family:var(--sans);line-height:1.6}a{color:inherit}button,a{-webkit-tap-highlight-color:transparent}a:focus-visible,button:focus-visible{outline:2px solid var(--acid);outline-offset:4px}
+    .grain{position:fixed;inset:0;pointer-events:none;z-index:4;opacity:.11;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E")}
+    .topbar{position:relative;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px clamp(20px,5vw,72px);border-bottom:1px solid var(--line);background:#07100be8;backdrop-filter:blur(14px)}.brand{display:flex;align-items:center;gap:12px;text-decoration:none}.sigil{width:38px;height:38px;display:grid;place-items:center;border:1px solid var(--gold);color:var(--gold);font:20px var(--serif);border-radius:50%}.brand strong{display:block;font:700 11px var(--mono);letter-spacing:.16em}.brand small{display:block;color:var(--muted);font:9px var(--mono);letter-spacing:.1em;margin-top:4px}.toplinks{display:flex;align-items:center;gap:22px}.toplinks a{text-decoration:none;color:var(--muted);font:10px var(--mono);letter-spacing:.12em}.toplinks a:hover{color:var(--acid)}
+    .wrap{width:min(1180px,calc(100% - 44px));margin:auto}.eyebrow{font:10px var(--mono);letter-spacing:.2em;text-transform:uppercase;color:var(--green)}.eyebrow:before{content:'✳';color:var(--gold);margin-right:10px}.hero{position:relative;overflow:hidden;min-height:660px;display:grid;align-items:center;border-bottom:1px solid var(--line);background:radial-gradient(ellipse at 74% 42%,#21472c80 0,transparent 36%),radial-gradient(ellipse at 82% 80%,#bca36b12 0,transparent 35%),linear-gradient(125deg,#07100b 20%,#0a1a10 65%,#09110b)}.hero:before,.hero:after{content:'';position:absolute;pointer-events:none;border:1px solid #bca36b27;border-radius:50%;width:min(68vw,780px);aspect-ratio:1;right:-12%;top:50%;transform:translateY(-50%)}.hero:after{width:min(49vw,560px);right:-1%;border-color:#b9d76a22}.hero-inner{position:relative;z-index:1;padding:86px 0 94px;max-width:780px}.hero h1{font:400 clamp(54px,9vw,112px)/.9 var(--serif);letter-spacing:-.065em;margin:24px 0 28px}.hero h1 span{display:block;color:var(--green);font-style:italic}.hero .lead{font-size:clamp(16px,2vw,19px);line-height:1.8;max-width:610px;color:#c6cec0}.hero .lead strong{color:var(--ivory);font-weight:500}.hero-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:36px}.button{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:48px;padding:0 18px;border:1px solid var(--green);background:var(--green);color:#09120b;text-decoration:none;text-transform:uppercase;font:700 10px var(--mono);letter-spacing:.1em;cursor:pointer;transition:transform .2s,background .2s,border-color .2s}.button:hover{transform:translateY(-2px);background:var(--acid);border-color:var(--acid)}.button.secondary{background:transparent;color:var(--ivory);border-color:#c1d99c55}.button.secondary:hover{color:var(--acid);border-color:var(--acid)}.button[aria-disabled=true]{opacity:.52;cursor:not-allowed;transform:none}.status{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font:10px var(--mono);letter-spacing:.08em}.dot{width:7px;height:7px;background:var(--gold);border-radius:50%;box-shadow:0 0 12px #bca36b80}
+    .section{padding:clamp(68px,9vw,116px) 0;border-bottom:1px solid var(--line)}.section-head{display:grid;grid-template-columns:.7fr 1.3fr;gap:30px;align-items:start;margin-bottom:40px}.section-head h2{font:400 clamp(35px,5vw,58px)/1 var(--serif);letter-spacing:-.045em;margin:0}.section-head h2 em{color:var(--green);font-weight:400}.section-head p{max-width:540px;margin:5px 0 0;color:var(--muted);font-size:14px;line-height:1.9}
+    .principles{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line)}.principle{padding:27px;border-right:1px solid var(--line);min-height:190px;background:linear-gradient(145deg,#11201788,transparent)}.principle:last-child{border-right:0}.principle .num{font:10px var(--mono);color:var(--gold);letter-spacing:.15em}.principle h3{font:400 24px var(--serif);margin:18px 0 8px}.principle p{color:var(--muted);font-size:12px;line-height:1.8;margin:0}
+    .channels{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.channel{position:relative;display:flex;gap:16px;padding:22px;border:1px solid var(--line);background:linear-gradient(135deg,#101d14,#0a120c);min-height:145px}.channel .hash{flex:0 0 34px;width:34px;height:34px;display:grid;place-items:center;border:1px solid #b9d76a45;color:var(--green);font:17px var(--mono)}.channel h3{font:700 12px var(--mono);letter-spacing:.08em;margin:2px 0 8px}.channel p{font-size:12px;color:var(--muted);margin:0;line-height:1.8}.channel .tag{position:absolute;right:12px;top:12px;color:#bca36b;font:8px var(--mono);letter-spacing:.1em}
+    .gather{position:relative;overflow:hidden;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;padding:clamp(26px,5vw,58px);border:1px solid #bca36b55;background:radial-gradient(ellipse at 90% 0%,#25442b80,transparent 45%),linear-gradient(120deg,#101b12,#09110b)}.gather h2{font:400 clamp(34px,5vw,60px)/.98 var(--serif);letter-spacing:-.05em;margin:18px 0}.gather h2 em{color:var(--green)}.gather p{font-size:13px;line-height:1.9;color:#b7c1b2;max-width:530px}.gather-side{align-self:center;border-left:1px solid var(--line);padding-left:clamp(20px,4vw,42px)}.gather-side .state{font:10px var(--mono);letter-spacing:.12em;color:var(--gold);text-transform:uppercase}.gather-side h3{font:400 25px var(--serif);margin:12px 0}.gather-side p{font-size:12px}.gather-side .button{margin-top:12px}.note{margin-top:16px;color:#8f9a8c!important;font:10px/1.8 var(--mono)!important}
+    .footer{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:28px 0;color:var(--muted);font:9px var(--mono);letter-spacing:.1em}.footer a{color:var(--green);text-decoration:none}.footer .motto{color:var(--gold)}
+    .toast{position:fixed;z-index:10;bottom:20px;left:50%;transform:translate(-50%,20px);width:min(520px,calc(100% - 32px));padding:14px 18px;border:1px solid var(--gold);background:#101a12;color:var(--ivory);font:11px/1.7 var(--mono);opacity:0;pointer-events:none;transition:.25s}.toast.show{opacity:1;transform:translate(-50%,0)}
+    @media(max-width:760px){.topbar{padding:14px 20px}.toplinks a:not(:last-child){display:none}.hero{min-height:590px}.hero:before{width:105vw;right:-55%}.hero:after{width:80vw;right:-40%}.section-head{grid-template-columns:1fr;gap:16px}.principles{grid-template-columns:1fr}.principle{min-height:0;border-right:0;border-bottom:1px solid var(--line)}.principle:last-child{border-bottom:0}.channels{grid-template-columns:1fr}.gather{grid-template-columns:1fr;gap:20px}.gather-side{border-left:0;border-top:1px solid var(--line);padding:22px 0 0}.footer{align-items:flex-start;flex-direction:column}.hero-inner{padding:74px 0}.wrap{width:min(100% - 36px,1180px)}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
+  </style>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="/landing-page/" aria-label="Shiva's Green Dream home"><span class="sigil" aria-hidden="true">ॐ</span><span><strong>SHIVA'S GREEN DREAM</strong><small>AN ISLAND INSIDE THE NOISE</small></span></a>
+    <nav class="toplinks" aria-label="Page navigation"><a href="#ethos">THE ETHOS</a><a href="#channels">CHANNELS</a><a href="#join">THE CIRCLE ↗</a></nav>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="wrap"><div class="hero-inner">
+        <p class="eyebrow">A living room for the curious</p>
+        <h1>Enter the<br><span>Green Dream.</span></h1>
+        <p class="lead">A gathering place for sound explorers, musicians, visual artists, thoughtful weirdos, and people who feel there is <strong>something beneath the noise.</strong> No guru energy. No perfect takes. Just curiosity, craft, and the occasional beautiful detour.</p>
+        <div class="hero-meta"><a class="button" href="#join">Find your way in <span aria-hidden="true">↗</span></a><a class="button secondary" href="#ethos">What this is</a><span class="status"><i class="dot"></i> THE CIRCLE IS TAKING SHAPE</span></div>
+      </div></div>
+    </section>
+    <section class="section" id="ethos">
+      <div class="wrap">
+        <div class="section-head"><div><p class="eyebrow">01 / The intention</p></div><div><h2>Shiva is the vision.<br><em>Green Dream is its expression.</em></h2><p>This is one room in a larger world: a creative project imagined as something Shiva is dreaming. The music is the journey; the people around it help the world grow. We move from disturbance to pattern, from many frequencies toward one, then back to silence.</p></div></div>
+        <div class="principles">
+          <article class="principle"><span class="num">01 — LISTEN</span><h3>Stay curious.</h3><p>Share sounds, references, fragments, strange ideas, and works-in-progress. The unfinished thing belongs here too.</p></article>
+          <article class="principle"><span class="num">02 — MAKE</span><h3>Make room.</h3><p>Musicians, producers, writers, visual artists, listeners, and curious minds can all bring something to the table.</p></article>
+          <article class="principle"><span class="num">03 — RETURN</span><h3>Leave space.</h3><p>Keep it human. Respect context and credit. No pressure to perform, no claims to have all the answers.</p></article>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="channels">
+      <div class="wrap">
+        <div class="section-head"><div><p class="eyebrow">02 / Find your frequency</p></div><div><h2>Different paths.<br><em>One shared signal.</em></h2><p>Inside the Slack home, these channels give the conversation a little shape without turning a creative project into another office. Start anywhere; follow what resonates.</p></div></div>
+        <div class="channels">
+          <article class="channel"><span class="hash">#</span><div><h3>the-lobby</h3><p>Say hello, meet the humans, find out what everyone is exploring. Low stakes, open door.</p></div><span class="tag">WELCOME</span></article>
+          <article class="channel"><span class="hash">#</span><div><h3>listening-room</h3><p>Tracks, references, field recordings, playlists, and the sounds that won't leave your head.</p></div></article>
+          <article class="channel"><span class="hash">#</span><div><h3>the-workshop</h3><p>Work-in-progress, experiments, production questions, happy accidents, and useful feedback.</p></div></article>
+          <article class="channel"><span class="hash">#</span><div><h3>visual-garden</h3><p>Artwork, photography, motion, symbols, textures, booklets, and the world around the music.</p></div></article>
+          <article class="channel"><span class="hash">#</span><div><h3>collaborators</h3><p>Find vocalists, instrumentalists, sound designers, writers, and people to build with.</p></div></article>
+          <article class="channel"><span class="hash">#</span><div><h3>off-the-path</h3><p>Side quests, life outside the project, unexpected rabbit holes, and the occasional nonsense.</p></div></article>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="join">
+      <div class="wrap">
+        <div class="gather">
+          <div><p class="eyebrow">03 / The gathering</p><h2>The door opens<br>one <em>signal</em> at a time.</h2><p>Slack will be the shared home for the circle: asynchronous, easy to dip into, and built around channels rather than endless noise. No need to arrive with a finished masterpiece. Bring a thought, a sound, or a question.</p><p class="note">A NOTE ON THE DOOR: the website is ready, but the invite link must be connected to a real Slack workspace before anyone can join. No fake invite, no dead-end button.</p></div>
+          <div class="gather-side"><span class="state" id="slack-state">Workspace connection / pending</span><h3 id="join-title">The signal is prepared.<br>The room needs its key.</h3><p id="join-copy">The community doorway is built. Once the Slack workspace is created and its invite URL is added to the site configuration, this button will take visitors straight inside.</p><a class="button" id="join-button" href="https://slack.com/get-started#/createnew" target="_blank" rel="noopener noreferrer">Create the Slack home ↗</a><p class="note" id="join-note">Workspace setup opens on Slack. The website never asks for your password or token.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="wrap footer"><a href="/landing-page/">← BACK TO SHIVA'S GREEN DREAM</a><span class="motto">FROM NOISE TO STILLNESS.</span><span>SHIVA / GREEN DREAM / THE CIRCLE</span></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script>
+    // After creating the workspace, paste its Slack invite URL here.
+    // Use a public invitation link (https://join.slack.com/...) — never a bot token or API secret.
+    const GREEN_DREAM_SLACK_INVITE = "";
+    const joinButton = document.getElementById("join-button");
+    const state = document.getElementById("slack-state");
+    const title = document.getElementById("join-title");
+    const copy = document.getElementById("join-copy");
+    const note = document.getElementById("join-note");
+    const toast = document.getElementById("toast");
+    function isSlackInvite(value) {
+      try {
+        const url = new URL(value);
+        return url.protocol === "https:" && (url.hostname === "join.slack.com" || url.hostname.endsWith(".slack.com"));
+      } catch (_) { return false; }
+    }
+    if (isSlackInvite(GREEN_DREAM_SLACK_INVITE)) {
+      state.textContent = "Workspace connection / live";
+      state.style.color = "var(--green)";
+      title.innerHTML = "Come on in.<br>The circle is open.";
+      copy.textContent = "You're one click away from the Green Dream circle. Introduce yourself in #the-lobby and follow whichever frequency feels right.";
+      note.textContent = "You'll continue to Slack to accept the invitation.";
+      joinButton.href = GREEN_DREAM_SLACK_INVITE;
+      joinButton.textContent = "Join the Green Dream circle ↗";
+    } else {
+      joinButton.href = "https://slack.com/get-started#/createnew";
+      joinButton.textContent = "Create the Slack home ↗";
+      joinButton.addEventListener("click", () => {
+        state.textContent = "Workspace setup opened";
+      });
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(link => link.addEventListener("click", event => {
+      const target = document.querySelector(link.getAttribute("href"));
+      if (target) { event.preventDefault(); target.scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); }
+    }));
+  </script>
+</body>
+</html>
