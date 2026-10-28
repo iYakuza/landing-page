@@ -101,6 +101,67 @@
   root.innerHTML = '<button class="vha-tools-trigger" type="button" aria-label="Open viewer tools" aria-expanded="false" aria-controls="vha-tools-panel" title="Drag to move; click to open">'+svg("tools")+'</button><div class="vha-tools-label" aria-hidden="true">VIEWER TOOLS</div><div class="vha-tools-panel" id="vha-tools-panel" aria-label="Viewer tools menu"><button class="vha-tool-row" type="button" data-tool="fullscreen"><span class="vha-tool-icon">'+svg("fullscreen")+'</span><span>Fullscreen</span></button><button class="vha-tool-row" type="button" data-tool="dark" aria-pressed="false"><span class="vha-tool-icon">'+svg("moon")+'</span><span>Dark Mode</span></button><button class="vha-tool-row" type="button" data-tool="text" aria-pressed="false"><span class="vha-tool-icon">'+svg("text")+'</span><span>Text Size</span></button><button class="vha-tool-row" type="button" data-tool="ui" aria-pressed="false"><span class="vha-tool-icon">'+svg("ui")+'</span><span>UI Toggle</span></button><button class="vha-tool-row" type="button" data-tool="mood" aria-expanded="false"><span class="vha-tool-icon">'+svg("mood")+'</span><span>Match my mood</span></button><div class="vha-mood-box"><label for="vha-mood-description">How are you feeling right now?</label><textarea id="vha-mood-description" maxlength="500" placeholder="Describe it in your own words…"></textarea><div class="vha-mood-presets" aria-label="Choose a feeling"><button type="button" data-mood-preset="calm">Calm</button><button type="button" data-mood-preset="sad">Sad</button><button type="button" data-mood-preset="anxious">Anxious</button><button type="button" data-mood-preset="happy">Happy</button><button type="button" data-mood-preset="angry">Angry</button><button type="button" data-mood-preset="tired">Tired</button><button type="button" data-mood-preset="focused">Focused</button><button type="button" data-mood-preset="hopeful">Hopeful</button></div><button type="button" data-tool="apply-mood">Adapt the site</button><div class="vha-mood-status" role="status" aria-live="polite"></div></div><button class="vha-tool-row" type="button" data-tool="reset-mood"><span class="vha-tool-icon">'+svg("reset")+'</span><span>Reset mood theme</span></button><button class="vha-tool-row" type="button" data-tool="help"><span class="vha-tool-icon">'+svg("help")+'</span><span>Help</span></button><div class="vha-tools-help">VIEWER CONTROLS</div></div>';
   document.body.appendChild(root);
 
+  // Fullscreen post reader: permalink views use the actual transmission, not the editorial chapter deck.
+  const postReaderStyle=document.createElement("style");
+  postReaderStyle.id="vha-post-reader-style";
+  postReaderStyle.textContent=`
+    body.vha-post-fullscreen{overflow:hidden!important;background:#050906!important}
+    body.vha-post-fullscreen .gd-nav,body.vha-post-fullscreen .gd-footer,
+    body.vha-post-fullscreen .posts-hero,body.vha-post-fullscreen .posts-heading,
+    body.vha-post-fullscreen .movement-index,body.vha-post-fullscreen .posts-filters,
+    body.vha-post-fullscreen #posts-load-more,body.vha-post-fullscreen #posts-empty-search,
+    body.vha-post-fullscreen .posts-note,body.vha-post-fullscreen .post-back,
+    body.vha-post-fullscreen .post-edit-button{display:none!important}
+    body.vha-post-fullscreen .posts-main,body.vha-post-fullscreen .posts-content,
+    body.vha-post-fullscreen #posts-list{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;border:0!important;background:#050906!important}
+    body.vha-post-fullscreen #posts-list>.post-card{position:fixed!important;inset:0!important;z-index:2147482990!important;display:block!important;overflow-y:auto!important;overscroll-behavior:contain!important;width:100vw!important;height:100dvh!important;max-width:none!important;margin:0!important;padding:clamp(72px,9vh,112px) clamp(22px,9vw,150px) 90px!important;border:0!important;border-radius:0!important;background:radial-gradient(ellipse at 80% 0%,#17251a 0%,#080d09 48%,#050906 100%)!important;color:#e8f4df!important;box-shadow:none!important}
+    body.vha-post-fullscreen .post-card h3{max-width:1100px!important;margin:0 0 28px!important;font-size:clamp(36px,6vw,82px)!important;line-height:1.02!important;letter-spacing:-.045em!important;color:#f0f2e8!important}
+    body.vha-post-fullscreen .post-card .post-card-top{display:flex!important;gap:14px!important;margin:0 0 24px!important;color:#aab9a5!important;font:10px/1.5 ui-monospace,monospace!important;letter-spacing:.12em!important;text-transform:uppercase}
+    body.vha-post-fullscreen .post-card .post-detail-grid{display:grid!important;grid-template-columns:minmax(0,1.5fr) minmax(220px,.7fr)!important;gap:clamp(24px,5vw,72px)!important;max-width:1250px!important}
+    body.vha-post-fullscreen .post-card .post-detail-grid.text-only{display:block!important}
+    body.vha-post-fullscreen .post-card .post-detail-copy,body.vha-post-fullscreen .post-card .post-body{max-width:820px!important;color:#d7ded2!important;font-size:clamp(16px,1.5vw,21px)!important;line-height:1.85!important}
+    body.vha-post-fullscreen .post-card .post-detail-copy p,body.vha-post-fullscreen .post-card .post-body p{margin:0 0 1.35em!important}
+    body.vha-post-fullscreen .post-card .post-detail-copy h2,body.vha-post-fullscreen .post-card .post-body h2{margin:1.8em 0 .65em!important;font-size:clamp(24px,3vw,42px)!important;line-height:1.15!important;color:#e8f4df!important}
+    body.vha-post-fullscreen .post-card .post-detail-copy h3,body.vha-post-fullscreen .post-card .post-body h3{font-size:clamp(20px,2.4vw,32px)!important;color:#e8f4df!important}
+    body.vha-post-fullscreen .post-card blockquote{margin:2em 0!important;padding:8px 0 8px 22px!important;border-left:2px solid #d8ff3e!important;color:#d8ffb2!important}
+    body.vha-post-fullscreen .post-card a{color:#d8ff3e!important}
+    body.vha-post-fullscreen .post-card .post-detail-media img,body.vha-post-fullscreen .post-card .post-media img{max-width:100%!important;height:auto!important}
+    body.vha-post-fullscreen .post-card video,body.vha-post-fullscreen .post-card audio{max-width:100%!important}
+    #vha-post-reader-close{position:fixed;z-index:2147483009;top:18px;right:22px;display:none;align-items:center;gap:9px;padding:10px 13px;border:1px solid #d8ff3e;background:#080e09;color:#d8ff3e;font:10px/1.2 ui-monospace,monospace;letter-spacing:.1em;cursor:pointer}
+    body.vha-post-fullscreen #vha-post-reader-close{display:flex}
+    #vha-post-reader-close:hover,#vha-post-reader-close:focus-visible{background:#d8ff3e;color:#050906;outline:2px solid #d8ff3e;outline-offset:3px}
+    body.vha-post-fullscreen #vha-viewer-tools{z-index:2147483010}
+    @media(max-width:700px){body.vha-post-fullscreen #posts-list>.post-card{padding:76px 22px 90px!important}body.vha-post-fullscreen .post-card .post-detail-grid{grid-template-columns:1fr!important}#vha-post-reader-close{top:10px;right:10px}}
+  `;
+  document.head.appendChild(postReaderStyle);
+  const postReaderClose=document.createElement("button");
+  postReaderClose.id="vha-post-reader-close";postReaderClose.type="button";
+  postReaderClose.innerHTML="&#8592; BACK TO ARCHIVE";
+  postReaderClose.setAttribute("aria-label","Exit fullscreen transmission and return to archive");
+  document.body.appendChild(postReaderClose);
+  function hasPostPermalink(){return Boolean(new URLSearchParams(location.search).get("post"))}
+  function startPostReader(){
+    const article=document.querySelector("#posts-list > .post-card");
+    if(!hasPostPermalink()||!article)return false;
+    document.body.classList.add("vha-post-fullscreen");
+    document.body.classList.remove("vha-presentation-active");
+    const manuscript=document.getElementById("vha-manuscript");
+    if(manuscript)manuscript.setAttribute("aria-hidden","true");
+    return true;
+  }
+  function stopPostReader(){
+    document.body.classList.remove("vha-post-fullscreen");
+    if(hasPostPermalink())document.querySelector("#posts-list > .post-card")?.scrollIntoView({block:"start"});
+  }
+  postReaderClose.addEventListener("click",()=>{
+    stopPostReader();
+    const url=new URL(location.href);url.searchParams.delete("post");
+    location.href=url.pathname+(url.search?url.search:"")+url.hash;
+  });
+  const postReaderObserver=new MutationObserver(()=>{if(hasPostPermalink())startPostReader()});
+  postReaderObserver.observe(document.body,{childList:true,subtree:true});
+  if(hasPostPermalink())startPostReader();
+
   // Fullscreen opens the project's editorial manuscript: a sequence of designed, navigable chapters.
   let presentationActive = false;
   let slideIndex = 0;
@@ -332,7 +393,7 @@ html[data-vha-mood] .vha-main-nav .active,html[data-vha-mood] .vha-main-nav [ari
       root.querySelector("#vha-mood-description").value="";
       root.querySelector(".vha-mood-status").textContent="Default website theme restored across the website.";return;
     }
-    if(tool==="fullscreen"){try{if(!document.fullscreenElement){await document.documentElement.requestFullscreen();startPresentation()}else{stopPresentation();await document.exitFullscreen()}}catch{startPresentation();alert("Browser fullscreen is unavailable here. Presentation navigation is still active; use the arrows or Space to move through the page.")}}
+    if(tool==="fullscreen"){if(hasPostPermalink()&&document.querySelector("#posts-list > .post-card")){if(document.body.classList.contains("vha-post-fullscreen"))stopPostReader();else startPostReader()}else{try{if(!document.fullscreenElement){await document.documentElement.requestFullscreen();startPresentation()}else{stopPresentation();await document.exitFullscreen()}}catch{startPresentation();alert("Browser fullscreen is unavailable here. Presentation navigation is still active; use the arrows or Space to move through the page.")}}}
     else if(tool==="dark"){const active=document.documentElement.dataset.vhaToolsDark!=="true";document.documentElement.dataset.vhaToolsDark=String(active);document.documentElement.style.setProperty("--theme-page",active?"#020406":"#050906");document.documentElement.style.setProperty("--theme-surface",active?"#03090b":"#080e09");button.setAttribute("aria-pressed",String(active))}
     else if(tool==="text"){const active=!document.body.classList.contains("vha-tools-large-text");setViewerTextSize(active);button.setAttribute("aria-pressed",String(active))}
     else if(tool==="ui"){const active=!document.body.classList.contains("vha-tools-hide-ui");document.body.classList.toggle("vha-tools-hide-ui",active);button.setAttribute("aria-pressed",String(active))}
