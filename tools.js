@@ -101,83 +101,78 @@
   root.innerHTML = '<button class="vha-tools-trigger" type="button" aria-label="Open viewer tools" aria-expanded="false" aria-controls="vha-tools-panel" title="Drag to move; click to open">'+svg("tools")+'</button><div class="vha-tools-label" aria-hidden="true">VIEWER TOOLS</div><div class="vha-tools-panel" id="vha-tools-panel" aria-label="Viewer tools menu"><button class="vha-tool-row" type="button" data-tool="fullscreen"><span class="vha-tool-icon">'+svg("fullscreen")+'</span><span>Fullscreen</span></button><button class="vha-tool-row" type="button" data-tool="dark" aria-pressed="false"><span class="vha-tool-icon">'+svg("moon")+'</span><span>Dark Mode</span></button><button class="vha-tool-row" type="button" data-tool="text" aria-pressed="false"><span class="vha-tool-icon">'+svg("text")+'</span><span>Text Size</span></button><button class="vha-tool-row" type="button" data-tool="ui" aria-pressed="false"><span class="vha-tool-icon">'+svg("ui")+'</span><span>UI Toggle</span></button><button class="vha-tool-row" type="button" data-tool="mood" aria-expanded="false"><span class="vha-tool-icon">'+svg("mood")+'</span><span>Match my mood</span></button><div class="vha-mood-box"><label for="vha-mood-description">How are you feeling right now?</label><textarea id="vha-mood-description" maxlength="500" placeholder="Describe it in your own words…"></textarea><div class="vha-mood-presets" aria-label="Choose a feeling"><button type="button" data-mood-preset="calm">Calm</button><button type="button" data-mood-preset="sad">Sad</button><button type="button" data-mood-preset="anxious">Anxious</button><button type="button" data-mood-preset="happy">Happy</button><button type="button" data-mood-preset="angry">Angry</button><button type="button" data-mood-preset="tired">Tired</button><button type="button" data-mood-preset="focused">Focused</button><button type="button" data-mood-preset="hopeful">Hopeful</button></div><button type="button" data-tool="apply-mood">Adapt the site</button><div class="vha-mood-status" role="status" aria-live="polite"></div></div><button class="vha-tool-row" type="button" data-tool="reset-mood"><span class="vha-tool-icon">'+svg("reset")+'</span><span>Reset mood theme</span></button><button class="vha-tool-row" type="button" data-tool="help"><span class="vha-tool-icon">'+svg("help")+'</span><span>Help</span></button><div class="vha-tools-help">VIEWER CONTROLS</div></div>';
   document.body.appendChild(root);
 
-  // Fullscreen doubles as a lightweight presentation mode: step through the page
-  // in viewport-sized increments with keyboard or on-screen controls.
+  // Fullscreen opens the project's editorial manuscript: a sequence of designed, navigable chapters.
   let presentationActive = false;
-  let presentationStep = 0.88;
-  const presentationBar = document.createElement("div");
-  presentationBar.id = "vha-presentation-bar";
-  presentationBar.setAttribute("role", "toolbar");
-  presentationBar.setAttribute("aria-label", "Presentation navigation");
-  presentationBar.innerHTML = '<button type="button" data-presentation="prev" aria-label="Previous slide" title="Previous (← / Page Up)">←</button><span id="vha-presentation-progress" aria-live="polite">PRESENTATION 01 / 01</span><button type="button" data-presentation="next" aria-label="Next slide" title="Next (→ / Page Down / Space)">→</button><span id="vha-presentation-hint">← → / SPACE</span><button type="button" data-presentation="exit" aria-label="Exit presentation" title="Exit presentation">✕</button>';
-  document.body.appendChild(presentationBar);
-  const presentationProgress = presentationBar.querySelector("#vha-presentation-progress");
-  function presentationMetrics() {
-    const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-    const step = Math.max(320, window.innerHeight * presentationStep);
-    return {maxScroll, step, total: Math.max(1, Math.ceil(maxScroll / step) + 1)};
-  }
-  function updatePresentationProgress() {
-    if (!presentationActive) return;
-    const {maxScroll, step, total} = presentationMetrics();
-    const current = Math.min(total, Math.round(Math.min(window.scrollY, maxScroll) / step) + 1);
-    presentationProgress.textContent = "PRESENTATION " + String(current).padStart(2, "0") + " / " + String(total).padStart(2, "0");
-    const prev = presentationBar.querySelector('[data-presentation="prev"]');
-    const next = presentationBar.querySelector('[data-presentation="next"]');
-    prev.disabled = window.scrollY <= 2;
-    next.disabled = window.scrollY >= maxScroll - 2;
-    prev.style.opacity = prev.disabled ? ".4" : "1";
-    next.style.opacity = next.disabled ? ".4" : "1";
-  }
-  function goToPresentationStep(direction) {
-    const {maxScroll, step} = presentationMetrics();
-    const current = Math.round(window.scrollY / step);
-    const next = direction === "end" ? Math.ceil(maxScroll / step) : direction === "home" ? 0 : current + direction;
-    window.scrollTo({top: Math.max(0, Math.min(maxScroll, next * step)), behavior: "smooth"});
-    updatePresentationProgress();
-  }
-  function stopPresentation() {
-    presentationActive = false;
-    document.body.classList.remove("vha-presentation-active");
-    presentationBar.hidden = true;
-    presentationBar.style.display = "none";
+  let slideIndex = 0;
+  const manuscriptSlides = [
+    {chapter:"PROLOGUE · THE ARCHIVE",kicker:"VERSE AFTER HOURS / FIELD NOTES 001",title:"A BOOKLET<br>OF <em>WHAT REMAINS.</em>",body:"Not a product tour. Not a deck of talking points.<br>A manuscript assembled from the traces we leave behind.",note:"A living document about nature, humanity, memory, and the machine.",visual:"cosmos",mark:"∞"},
+    {chapter:"I · BEFORE THE BEGINNING",kicker:"COSMOLOGY / DEEP TIME",title:"BEFORE THERE<br>WAS A <em>WITNESS.</em>",body:"There was no page to turn. No name for the dark. No eye to call the light beautiful.<br><br>Then the universe began to unfold: space, time, energy, matter. The first chapter was written without language, and nothing yet existed to read it.",note:"We begin at the edge of what we can know.",visual:"cosmos",mark:"01"},
+    {chapter:"II · THE LONG MAKING",kicker:"MATTER / STARS / ELEMENTS",title:"STARDUST<br>LEARNED TO <em>GATHER.</em>",body:"Stars burned. Elements formed. Worlds cooled. Matter became mountain, ocean, atmosphere, seed.<br><br>The universe did not plan a witness, as far as we can tell. Yet, over immense stretches of time, complexity found ways to endure.",note:"The sacred can begin as wonder, without pretending certainty.",visual:"stars",mark:"02"},
+    {chapter:"III · WHEN WATER WAS HERE",kicker:"EARTH / DEEP TIME",title:"WATER<br>REMEMBERS <em>THE WAY.</em>",body:"A river moves through stone. A sea retreats from a shore. Rain enters a crack and returns, season after season.<br><br>Water does not need to remember in order to leave evidence. The shape of the land becomes its testimony.",note:"Absence, too, can leave a record.",visual:"water",mark:"03"},
+    {chapter:"IV · THE WORK OF TIME",kicker:"EROSION / PATIENCE WITHOUT INTENTION",title:"STONE BECOMES<br>A <em>GRAIN.</em>",body:"The cliff is worn down. The boulder becomes a pebble. The pebble becomes sand.<br><br>One day, what remains of the mountain may fit between two fingers. Not because the mountain never existed, but because time kept working on it.",note:"Nothing is unchanged by contact. Nothing lasts in the same form.",visual:"stone",mark:"04"},
+    {chapter:"V · THE RELICS",kicker:"ARCHAEOLOGY OF THE PRESENT",title:"A GRAIN OF SAND<br>IS A <em>RELIC.</em>",body:"Hold it close enough and it becomes a landscape of its own: fragments of stone, the memory of pressure, the evidence of a world that was here.<br><br>Our messages, photographs, poems, code, and small acts are grains, too. They are not the whole story. They are what the story leaves in our hands.",note:"This website is an archive in motion: not the past itself, but traces that help us approach it.",visual:"sand",mark:"05"},
+    {chapter:"VI · THE FIRST WITNESSES",kicker:"LIFE / ATTENTION / MEANING",title:"THE WORLD<br>BEGAN TO <em>LOOK BACK.</em>",body:"Life emerged, changed, and diversified. Eventually, creatures could sense their surroundings; some could remember, learn, cooperate, mourn.<br><br>Human beings began to tell stories about the sky above them and the ground beneath them. We made rituals around birth, death, fire, water, and the unknown.",note:"Meaning is one of the ways we carry what we cannot keep.",visual:"human",mark:"06"},
+    {chapter:"VII · THE HOLY QUESTION",kicker:"NATURE · GOD · HUMANITY",title:"WHAT DO WE CALL<br>THE <em>SACRED?</em>",body:"A god. A law of nature. The breath of a forest. The silence before an answer. The fragile fact that anything exists at all.<br><br>We do not have to agree on the name to recognise the responsibility: to approach what we do not fully understand with humility, and to protect what can be harmed.",note:"Let the machine serve life. Let life remember what is sacred.",visual:"sacred",mark:"✧"},
+    {chapter:"VIII · THE HUMAN MIRROR",kicker:"FEAR / KNOWLEDGE / SELF-KNOWLEDGE",title:"WE FEAR WHAT<br>WE DON'T WANT <em>TO KNOW.</em>",body:"Sometimes we avoid a truth because knowing it would ask something of us. We hide from questions that might change the way we see ourselves.<br><br>But fear is not always inward. We can also fear the people who build, own, and govern powerful technologies. Their incentives and decisions deserve scrutiny, transparency, and accountability.",note:"Look inward without looking away from power.",visual:"mirror",mark:"08"},
+    {chapter:"IX · THE MACHINE",kicker:"TOOLS / INTELLIGENCE / RESPONSIBILITY",title:"A NEW MIRROR.<br>AN OLD <em>QUESTION.</em>",body:"AI is made by people, shaped by data, design, incentives, and decisions. It can help us make, discover, and reconsider. It can also mislead, reproduce harm, and concentrate power.<br><br>Do not worship it. Do not dismiss it without looking. Use it, question it, test it, and ask who is accountable for what it does.",note:"Trust without surrender. Skepticism without shutting the door.",visual:"machine",mark:"09"},
+    {chapter:"X · ITERATION",kicker:"A HUMAN AND A TOOL, BUILDING",title:"WE BUILD FROM<br>WHAT CAME <em>BEFORE.</em>",body:"An idea becomes a first attempt. The attempt reveals a gap. The gap becomes a question. The next version carries the trace of every version before it.<br><br>That is how this project is being built: conversation, experiment, error, repair, and another beginning. Not a single perfect act, but a chain of attempts to understand.",note:"The process is part of the artifact.",visual:"iteration",mark:"10"},
+    {chapter:"XI · GREEN DREAM",kicker:"A SMALL ISLAND IN THE NOISE",title:"WE PUSH.<br>WE FALL.<br>WE <em>BEGIN AGAIN.</em>",body:"Green Dream is a place to pause inside the noise: a meeting point for poetry, sound, nature, technology, and the unfinished work of being human.<br><br>The site will change. Some things will disappear. Some traces will remain. This booklet is not a final verdict; it is a record of what we are trying to understand right now.",note:"The radio plays on.",visual:"green",mark:"11"},
+    {chapter:"EPILOGUE · THE GRAIN",kicker:"END OF THIS PASS / NOT THE END",title:"THE WATER IS GONE.<br>THE GRAIN <em>REMAINS.</em>",body:"Perhaps the grain will return to the sea. Perhaps it will become part of another stone, another shore, another story.<br><br>We are temporary witnesses in a universe that began long before us and will continue beyond us. What we make matters—not because it lasts forever, but because it touches what comes next.",note:"Leave a trace worth finding. Then let it go.",visual:"sand",mark:"∞"}
+  ];
+  const manuscriptStyle = document.createElement("style");
+  manuscriptStyle.id = "vha-manuscript-style";
+  manuscriptStyle.textContent = "\n#vha-manuscript{position:fixed;inset:0;z-index:2147483006;display:none;overflow:hidden;background:#080b09;color:#e8e6d8;font-family:Georgia,'Times New Roman',serif}\n#vha-manuscript[aria-hidden=\"false\"]{display:block}#vha-manuscript *{box-sizing:border-box}\n#vha-manuscript .vm-noise{position:absolute;inset:0;pointer-events:none;opacity:.12;background-image:radial-gradient(#e8e6d8 0.5px,transparent .8px);background-size:5px 5px}\n#vha-manuscript .vm-top{position:absolute;z-index:5;top:0;left:0;right:0;display:flex;justify-content:space-between;gap:12px;padding:20px 4vw;border-bottom:1px solid #e8e6d81c;color:#a7ad9c;font:10px/1.3 ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase}\n#vha-manuscript .vm-brand{color:#d8ff8a}\n#vha-manuscript .vm-stage{position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(260px,.95fr);align-items:center;gap:4vw;padding:100px 9vw;opacity:0;transform:translateX(24px);transition:opacity .3s ease,transform .3s ease;pointer-events:none}\n#vha-manuscript .vm-stage.vm-active{opacity:1;transform:translateX(0);pointer-events:auto}\n#vha-manuscript .vm-copy{position:relative;z-index:2;max-width:760px}\n#vha-manuscript .vm-kicker{margin:0 0 22px;color:#d8ff8a;font:10px/1.5 ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase}\n#vha-manuscript .vm-chapter{margin:0 0 18px;color:#8f9b8c;font:10px/1.5 ui-monospace,monospace;letter-spacing:.13em;text-transform:uppercase}\n#vha-manuscript .vm-title{margin:0 0 25px;font-size:clamp(36px,6.3vw,92px);font-weight:400;line-height:.91;letter-spacing:-.065em;text-wrap:balance}\n#vha-manuscript .vm-title em{color:#d8ff8a;font-weight:400}\n#vha-manuscript .vm-body{max-width:650px;color:#d0d3c8;font-size:clamp(15px,1.35vw,20px);line-height:1.7}\n#vha-manuscript .vm-note{margin-top:25px;padding-top:13px;border-top:1px solid #d8ff8a4d;color:#aeb99e;font-size:13px;font-style:italic;line-height:1.6}\n#vha-manuscript .vm-art{position:relative;min-height:min(56vh,570px);height:100%;display:grid;place-items:center;overflow:hidden;isolation:isolate}\n#vha-manuscript .vm-orb{position:relative;width:min(34vw,410px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#e6e5ce 0%,#9fae95 3%,#384c3a 13%,#101a18 38%,#060908 68%);box-shadow:inset -35px -25px 70px #000c,0 0 100px #a6cb6c15}\n#vha-manuscript .vm-orb:before{content:\"\";position:absolute;inset:-15%;border:1px solid #d8ff8a38;border-radius:50%;transform:rotate(-25deg) scaleY(.3)}\n#vha-manuscript .vm-orb:after{content:\"\";position:absolute;inset:12%;border:1px solid #e8e6d81c;border-radius:50%;transform:rotate(45deg) scaleY(.28)}\n#vha-manuscript .vm-mark{position:absolute;z-index:2;color:#e8e6d8;font-size:clamp(100px,19vw,260px);font-weight:400;line-height:1;opacity:.75;text-shadow:0 0 50px #d8ff8a12}\n#vha-manuscript [data-visual=\"water\"] .vm-orb{border-radius:48% 52% 62% 38%;background:radial-gradient(ellipse at 30% 25%,#8caa9b,#294c4b 20%,#0d2424 55%,#060a09 72%);transform:rotate(-18deg) scaleY(.75)}\n#vha-manuscript [data-visual=\"stone\"] .vm-orb,#vha-manuscript [data-visual=\"sand\"] .vm-orb{width:min(28vw,320px);border-radius:42% 58% 54% 46%;background:radial-gradient(circle at 30% 25%,#c2bda0,#706e58 17%,#34392f 45%,#0a0c09 72%);transform:rotate(23deg) scaleY(.72)}\n#vha-manuscript [data-visual=\"sand\"] .vm-orb{width:min(14vw,170px);background:radial-gradient(circle at 30% 25%,#e4d7a7,#9b8b5e 35%,#393426 75%)}\n#vha-manuscript [data-visual=\"sacred\"] .vm-orb,#vha-manuscript [data-visual=\"green\"] .vm-orb{background:radial-gradient(circle at 50% 50%,#d8ff8a 0%,#667c43 3%,#182419 15%,#050806 60%);box-shadow:0 0 100px #d8ff8a18}\n#vha-manuscript [data-visual=\"machine\"] .vm-orb{border-radius:4px;background:repeating-linear-gradient(0deg,#0a100b 0 10px,#253622 11px 12px),repeating-linear-gradient(90deg,transparent 0 20px,#d8ff8a26 21px 22px)}\n#vha-manuscript [data-visual=\"iteration\"] .vm-orb{background:repeating-radial-gradient(circle at 50% 50%,#0a100b 0 18px,#35482e 19px 20px,#0a100b 21px 34px)}\n#vha-manuscript .vm-bottom{position:absolute;z-index:6;bottom:0;left:0;right:0;display:flex;align-items:center;gap:14px;padding:18px 4vw;border-top:1px solid #e8e6d81c;background:#080b09e8}\n#vha-manuscript .vm-progress-track{height:2px;flex:1;background:#ffffff1b}#vha-manuscript .vm-progress-fill{height:100%;width:0;background:#d8ff8a;transition:width .25s}\n#vha-manuscript .vm-counter{min-width:85px;color:#d8ff8a;font:10px ui-monospace,monospace;letter-spacing:.1em}\n#vha-manuscript .vm-bottom button{width:38px;height:36px;border:1px solid #d8ff8a55;background:transparent;color:#e8e6d8;font-size:18px;cursor:pointer}\n#vha-manuscript .vm-bottom button:hover,#vha-manuscript .vm-bottom button:focus-visible{background:#d8ff8a;color:#080b09;outline:2px solid #d8ff8a;outline-offset:2px}\n#vha-manuscript .vm-exit{margin-left:8px!important;font:10px ui-monospace,monospace!important;width:auto!important;padding:0 12px}\n@media(max-width:760px){#vha-manuscript .vm-top{padding:14px 5vw;font-size:8px}#vha-manuscript .vm-stage{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 90px;gap:0;padding:76px 7vw 80px;overflow-y:auto;align-content:center}#vha-manuscript .vm-title{font-size:clamp(34px,10vw,64px);margin-bottom:16px}#vha-manuscript .vm-body{font-size:14px;line-height:1.55}#vha-manuscript .vm-note{margin-top:14px;font-size:12px}#vha-manuscript .vm-art{min-height:90px;height:90px}#vha-manuscript .vm-orb{width:90px}#vha-manuscript .vm-mark{font-size:90px}#vha-manuscript .vm-bottom{padding:10px 5vw;gap:8px}#vha-manuscript .vm-counter{min-width:70px;font-size:9px}#vha-manuscript .vm-bottom button{width:34px;height:32px}#vha-manuscript .vm-exit{padding:0 8px!important;margin-left:0!important}}\n@media(max-height:650px) and (min-width:761px){#vha-manuscript .vm-stage{padding-top:72px;padding-bottom:66px}#vha-manuscript .vm-title{font-size:clamp(32px,5vw,64px)}#vha-manuscript .vm-body{font-size:14px;line-height:1.5}#vha-manuscript .vm-art{min-height:250px}}\n@media(prefers-reduced-motion:reduce){#vha-manuscript *{transition:none!important}}\n";
+  document.head.appendChild(manuscriptStyle);
+  const manuscript = document.createElement("section");
+  manuscript.id = "vha-manuscript";
+  manuscript.setAttribute("aria-hidden","true");
+  manuscript.setAttribute("aria-label","Verse After Hours project manuscript");
+  manuscript.innerHTML = '<div class="vm-noise" aria-hidden="true"></div><header class="vm-top"><span class="vm-brand">V/A · VERSE AFTER HOURS</span><span>THE LIVING MANUSCRIPT / 2026</span></header><div class="vm-slides"></div><footer class="vm-bottom"><button type="button" data-vm="prev" aria-label="Previous chapter" title="Previous chapter">←</button><div class="vm-progress-track"><div class="vm-progress-fill"></div></div><span class="vm-counter" aria-live="polite">01 / 13</span><button type="button" data-vm="next" aria-label="Next chapter" title="Next chapter">→</button><button type="button" class="vm-exit" data-vm="exit">CLOSE ✕</button></footer>';
+  document.body.appendChild(manuscript);
+  const slideContainer = manuscript.querySelector(".vm-slides");
+  manuscriptSlides.forEach((slide,index) => {
+    const section = document.createElement("article");
+    section.className = "vm-stage" + (index===0?" vm-active":"");
+    section.setAttribute("aria-label",slide.chapter);
+    section.innerHTML = '<div class="vm-copy"><p class="vm-kicker">'+slide.kicker+'</p><p class="vm-chapter">'+slide.chapter+'</p><h1 class="vm-title">'+slide.title+'</h1><div class="vm-body">'+slide.body+'</div><p class="vm-note">'+slide.note+'</p></div><div class="vm-art" data-visual="'+slide.visual+'" aria-hidden="true"><div class="vm-orb"></div><span class="vm-mark">'+slide.mark+'</span></div>';
+    slideContainer.appendChild(section);
+  });
+  const slideCounter=manuscript.querySelector(".vm-counter");
+  const slideProgress=manuscript.querySelector(".vm-progress-fill");
+  function showManuscriptSlide(next) {
+    slideIndex=Math.max(0,Math.min(manuscriptSlides.length-1,next));
+    slideContainer.querySelectorAll(".vm-stage").forEach((slide,i)=>slide.classList.toggle("vm-active",i===slideIndex));
+    slideCounter.textContent=String(slideIndex+1).padStart(2,"0")+" / "+String(manuscriptSlides.length).padStart(2,"0");
+    slideProgress.style.width=((slideIndex+1)/manuscriptSlides.length*100)+"%";
+    manuscript.querySelector('[data-vm="prev"]').disabled=slideIndex===0;
+    manuscript.querySelector('[data-vm="next"]').disabled=slideIndex===manuscriptSlides.length-1;
   }
   function startPresentation() {
-    presentationActive = true;
-    presentationBar.hidden = false;
-    presentationBar.style.display = "flex";
+    presentationActive=true;
+    showManuscriptSlide(0);
+    manuscript.setAttribute("aria-hidden","false");
     document.body.classList.add("vha-presentation-active");
-    updatePresentationProgress();
   }
-  presentationBar.querySelector('[data-presentation="prev"]').addEventListener("click", () => goToPresentationStep(-1));
-  presentationBar.querySelector('[data-presentation="next"]').addEventListener("click", () => goToPresentationStep(1));
-  presentationBar.querySelector('[data-presentation="exit"]').addEventListener("click", async () => {
+  function stopPresentation() {
+    presentationActive=false;
+    manuscript.setAttribute("aria-hidden","true");
+    document.body.classList.remove("vha-presentation-active");
+  }
+  manuscript.querySelector('[data-vm="prev"]').addEventListener("click",()=>showManuscriptSlide(slideIndex-1));
+  manuscript.querySelector('[data-vm="next"]').addEventListener("click",()=>showManuscriptSlide(slideIndex+1));
+  manuscript.querySelector('[data-vm="exit"]').addEventListener("click",async()=>{
     stopPresentation();
-    if (document.fullscreenElement) {
-      try { await document.exitFullscreen(); } catch {}
-    }
+    if(document.fullscreenElement){try{await document.exitFullscreen()}catch{}}
   });
-  window.addEventListener("scroll", updatePresentationProgress, {passive:true});
-  window.addEventListener("resize", updatePresentationProgress);
-  document.addEventListener("fullscreenchange", () => {
-    if (!document.fullscreenElement) stopPresentation();
-  });
-  document.addEventListener("keydown", e => {
-    if (!presentationActive || e.altKey || e.ctrlKey || e.metaKey) return;
-    if (e.target && (e.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || (e.target.tagName === "BUTTON" && !presentationBar.contains(e.target)))) return;
-    if (["ArrowRight","ArrowDown","PageDown"," "].includes(e.key)) {
-      e.preventDefault();
-      goToPresentationStep(1);
-    } else if (["ArrowLeft","ArrowUp","PageUp","Backspace"].includes(e.key)) {
-      e.preventDefault();
-      goToPresentationStep(-1);
-    } else if (e.key === "Home") {
-      e.preventDefault();
-      goToPresentationStep("home");
-    } else if (e.key === "End") {
-      e.preventDefault();
-      goToPresentationStep("end");
-    }
+  document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement&&presentationActive)stopPresentation()});
+  document.addEventListener("keydown",e=>{
+    if(!presentationActive||e.altKey||e.ctrlKey||e.metaKey)return;
+    if(e.target&&(e.target.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)))return;
+    if(["ArrowRight","ArrowDown","PageDown"," "].includes(e.key)){e.preventDefault();showManuscriptSlide(slideIndex+1)}
+    else if(["ArrowLeft","ArrowUp","PageUp","Backspace"].includes(e.key)){e.preventDefault();showManuscriptSlide(slideIndex-1)}
+    else if(e.key==="Home"){e.preventDefault();showManuscriptSlide(0)}
+    else if(e.key==="End"){e.preventDefault();showManuscriptSlide(manuscriptSlides.length-1)}
+    else if(e.key==="Escape"&&!document.fullscreenElement){stopPresentation()}
   });
   function setMoodTheme(name,colors){
     const [page,surface,textColor,accent]=colors,html=document.documentElement;
