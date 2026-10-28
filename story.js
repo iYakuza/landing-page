@@ -5,6 +5,7 @@
   if (!root || root.dataset.ready === '1') return;
   root.dataset.ready = '1';
 
+  const PUBLIC_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h'; // gitleaks:allow -- Supabase publishable key, intentionally public
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const soundButton = document.getElementById('gd-sound-toggle');
   const soundArt = document.getElementById('gd-sensory-art');
@@ -104,8 +105,8 @@
       const response = await fetch('https://oeyxsqocldlovhsmzcjw.supabase.co/rest/v1/rpc/vha_public_analytics_summary', {
         method: 'POST',
         headers: {
-          'apikey': 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h',
-          'Authorization': 'Bearer sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h',
+          'apikey': PUBLIC_KEY,
+          'Authorization': 'Bearer ' + PUBLIC_KEY,
           'Content-Type': 'application/json'
         },
         body: '{}',
