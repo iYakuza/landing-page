@@ -116,6 +116,22 @@
     .cv-contact-field input,.cv-contact-field textarea{width:100%;box-sizing:border-box;border:1px solid #b6e83355;background:#050906;color:#e9f2e8;padding:9px 10px;font:13px/1.4 inherit;min-height:36px;border-radius:0}.cv-contact-field textarea{min-height:86px;resize:vertical}.cv-contact-field input:focus,.cv-contact-field textarea:focus{outline:2px solid #b6e833;outline-offset:1px}.cv-contact-field input[type=file]{font:11px monospace}
     .cv-contact-hint{font:10px/1.6 monospace!important;color:#91a18e!important;margin:0}.cv-contact-submit{grid-column:1/-1;display:flex;gap:12px;align-items:center;flex-wrap:wrap}.cv-contact-submit button{background:#b6e833;color:#071007;border:1px solid #b6e833;padding:10px 14px;font:bold 10px monospace;letter-spacing:.8px;cursor:pointer}.cv-contact-submit button:disabled{opacity:.6;cursor:wait}.cv-contact-status{font-size:11px!important;color:#d8ff3e!important;margin:0}.cv-contact-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
     @media(max-width:560px){.cv-contact-form{grid-template-columns:1fr;gap:9px}.cv-contact-field.full,.cv-contact-submit{grid-column:1}.cv-contact-panel{padding:16px}.cv-contact-panel h2{font-size:24px;margin-right:35px}.cv-contact-panel textarea{min-height:72px}.cv-contact-hint{font-size:9px!important}}
+
+    /* Shiva's Green Dream — community doorway */
+    .gd-circle-portal{position:relative;isolation:isolate;overflow:hidden;padding:clamp(54px,8vw,100px) 6vw;border-top:1px solid #bca36b55;border-bottom:1px solid #bca36b38;background:radial-gradient(ellipse at 84% 50%,#24452a70,transparent 38%),linear-gradient(120deg,#080f0a,#0e1b11 60%,#07100b);color:#eee9dc}
+    .gd-circle-portal:before{content:"";position:absolute;z-index:-1;right:-8%;top:50%;width:min(42vw,500px);aspect-ratio:1;border:1px solid #bca36b2b;border-radius:50%;transform:translateY(-50%);box-shadow:0 0 0 38px #bca36b08,0 0 0 76px #bca36b05}
+    .gd-circle-inner{width:min(1100px,100%);margin:auto;display:grid;grid-template-columns:1.25fr .75fr;gap:clamp(24px,5vw,70px);align-items:center}
+    .gd-circle-kicker{font:10px/1.5 monospace;letter-spacing:2px;color:#b9d76a}
+    .gd-circle-portal h2{font:400 clamp(38px,6vw,72px)/.96 Georgia,serif;letter-spacing:-.055em;margin:18px 0}
+    .gd-circle-portal h2 em{color:#b9d76a;font-weight:400}
+    .gd-circle-portal p{max-width:630px;color:#b6c2b2;font-size:13px;line-height:1.9}
+    .gd-circle-portal .gd-circle-side{padding:24px;border:1px solid #bca36b55;background:#07100bc9;backdrop-filter:blur(8px)}
+    .gd-circle-side strong{display:block;font:10px/1.7 monospace;letter-spacing:1px;color:#bca36b}
+    .gd-circle-side p{font-size:12px;margin:12px 0 18px}
+    .gd-circle-portal a{display:inline-flex;align-items:center;gap:12px;min-height:44px;padding:0 14px;border:1px solid #b9d76a;background:#b9d76a;color:#07100b;text-decoration:none;font:700 10px monospace;letter-spacing:1px;transition:background .2s,transform .2s}
+    .gd-circle-portal a:hover{background:#d8ff85;transform:translateY(-2px)}
+    @media(max-width:700px){.gd-circle-inner{grid-template-columns:1fr}.gd-circle-portal:before{width:85vw;right:-38%}.gd-circle-portal .gd-circle-side{padding:20px}}
+
   </style>
   <link rel="stylesheet" href="/landing-page/tools.css?v=20261027-font-hud-1">
 </head>
@@ -137,7 +153,7 @@
 <a href="/landing-page/posts/the-return/">05 / THE RETURN</a>
 </div></details>
 </nav>
-    <a class="vha-community-button" href="/landing-page/posts/community/">COMMUNITY SIGNALS</a>
+    <a class="vha-community-button" href="/landing-page/community/">THE CIRCLE ↗</a>
     <span class="gd-status">● ISLAND ONLINE // OPEN CHANNEL</span>
   </header>
 
@@ -215,6 +231,22 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+
+    <section class="gd-circle-portal" aria-labelledby="gd-circle-title">
+      <div class="gd-circle-inner">
+        <div>
+          <p class="gd-circle-kicker">SHIVA'S GREEN DREAM / THE CIRCLE</p>
+          <h2 id="gd-circle-title">A place for the<br><em>frequencies between.</em></h2>
+          <p>Sound explorers, musicians, visual artists, curious minds, beautiful detours. The Green Dream circle is where the work-in-progress belongs — from the first strange idea to the moment everything falls quiet.</p>
+        </div>
+        <aside class="gd-circle-side">
+          <strong>THE COMMUNITY IS TAKING SHAPE</strong>
+          <p>Find the listening room, the workshop, the visual garden, and the people who might help your next idea grow.</p>
+          <a href="/landing-page/community/">ENTER THE CIRCLE <span aria-hidden="true">↗</span></a>
+        </aside>
       </div>
     </section>
 
