@@ -1,0 +1,7 @@
+title = "GREEN DREAM public-site secret scanning exceptions"
+
+[[allowlists]]
+description = "Exact false positive: the Supabase publishable key used by browser-side aggregate analytics. It is designed to be public; the RPC returns aggregate counts only and the underlying table remains private."
+fingerprints = [
+  "cc7a89dbe38fa3f09e8c9352e1bb0a9806b87921:story.js:generic-api-key:107"
+]
