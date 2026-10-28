@@ -105,6 +105,7 @@
         method: 'POST',
         headers: {
           'apikey': 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h',
+          'Authorization': 'Bearer sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h',
           'Content-Type': 'application/json'
         },
         body: '{}',
