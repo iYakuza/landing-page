@@ -61,3 +61,13 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 3. Design a separate pending-only Signal intake with explicit publication consent, safe text/URL validation, anti-spam controls, and moderator-only review.
 4. Define and implement a realistic removal/correction request route before accepting public contributions.
 5. Configure a real Discord invite only after the destination exists.
+
+
+## Secure Your Soul intake backend — 2026-10-29
+
+- Applied the private pending-first transmission schema and committed its SQL migration at `supabase/migrations/20261029120000_secure_your_soul_pending_transmissions.sql`.
+- Deployed Edge Function `secure-your-soul-transmissions` version 1 and committed its source at `supabase/functions/secure-your-soul-transmissions/index.ts`.
+- The new table is RLS-enabled and direct anon/authenticated access is revoked. Submission requires text validation, explicit rights and publication consent, honeypot, Turnstile, origin check, and a server-side rate limit. The submit path writes pending records only.
+- Moderator operations require a verified Supabase user on the `vha_cms_admins` allowlist. Supported actions: list pending, publish, reject, and remove.
+- Launch is blocked pending configuration of `SYS_ALLOWED_ORIGIN`, `SYS_TRANSMISSION_RATE_SALT`, `TURNSTILE_SECRET_KEY`, the Turnstile site key, a visitor-facing form, and a moderator review UI.
+- End-to-end submissions and moderator actions have not yet been tested. Atomic concurrency protection for simultaneous publish requests remains a hardening task. Keep visitor submissions closed until these checks pass.
