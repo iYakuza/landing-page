@@ -42,10 +42,11 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 | Blueprint read | Passed | Library DOCX, 12 pages / 631 extracted lines |
 | Repository/default branch | Passed | `iYakuza/landing-page`, default branch `main` |
 | New source committed | Passed | Commits returned for each of the three new files |
+| Guided Reading source checks | Passed (source-level only) | Latest committed JS parses; guided entry/exit and chapter-switch handlers are present; all nine chapter IDs and in-page anchors resolve; CSS braces balance; no duplicate IDs. Browser behavior remains unverified. |
 | Static syntax / link checks | Passed (source-level only) | JavaScript parses with no syntax error; CSS brace balance is zero; no duplicate HTML IDs; all in-page anchor targets exist; reduced-motion and skip-link patterns present; no fake submission form; homepage route link exists |
 | GitHub Actions | Unverified | Combined status endpoint returned no status entries for checked commits; this is not evidence of a pass or failure |
 | Live route / deployed rendering | Unverified | Direct live URL could not be inspected through the available web viewer; do not mark deployed until verified |
-| Browser accessibility and responsive checks | Pending | Chapter links are semantic anchors with labels; visual and keyboard behavior still require browser-level verification |
+| Browser accessibility and responsive checks | Pending | Guided Reading now offers one chapter at a time, a persistent chapter label, previous/next navigation, and an exit control. Keyboard focus, real viewport rendering, and behavior still require browser-level verification |
 
 ## Backend discovery
 
