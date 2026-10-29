@@ -18,7 +18,7 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 | FR-07 — Real Discord invitation | Blocked on real invite | Entrance page does not invent a join URL | No placeholder invite added | Add only after a valid server invite is supplied/configured |
 | FR-08 — GitHub development route | Implemented in source | `secure-your-soul/index.html` | External repository link includes `target=_blank` and `rel=noopener noreferrer` | Verify link from live page |
 | FR-09 — Removal/correction request | Not implemented | No public intake has been enabled | No false removal promise made | Define owner and contact route before submissions open |
-| FR-10 — Responsive/accessibility | Implemented in source; tests pending | Semantic landmarks, skip link, focus-visible styles, reduced-motion CSS, responsive layouts | Source inspection only; no browser audit yet | Run live keyboard, contrast, viewport, and reduced-motion checks |
+| FR-10 — Responsive/accessibility | Implemented in source; tests pending | Semantic landmarks, skip link, focus-visible styles, reduced-motion CSS, responsive layouts, generated sequential chapter navigation | Source-level checks passed for JavaScript syntax, chapter targets, CSS balance, and unique HTML IDs; no browser audit yet | Run live keyboard, contrast, viewport, and reduced-motion checks |
 | FR-11 — Secure uploads/spam | Not implemented; no uploads enabled | No upload control present | No unmoderated upload surface introduced | Reuse existing backend only after security and retention review |
 | Main URL and existing site continuity | Implemented in source; deployment pending | New experience is isolated under `/secure-your-soul/`; homepage nav gets a route link | Existing homepage body is preserved; only one nav link is added | Verify current GitHub Pages deployment and check existing features remain intact |
 
@@ -55,7 +55,7 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 ## Next highest-priority tasks
 
 1. Verify the route and navigation link on the live GitHub Pages deployment.
-2. Test lifepath selection and the new chapter progression; fix any build/static-safety issues.
+2. Test lifepath selection and chapter progression in a real browser; fix any build/static-safety issues.
 3. Design a separate pending-only Signal intake with explicit publication consent, safe text/URL validation, anti-spam controls, and moderator-only review.
 4. Define and implement a realistic removal/correction request route before accepting public contributions.
 5. Configure a real Discord invite only after the destination exists.
