@@ -144,6 +144,26 @@
   guidedToggle.addEventListener("click", enterGuidedMode);
   exitButton.addEventListener("click", exitGuidedMode);
 
+  // Keyboard controls are scoped to the optional reader and never hijack form
+  // fields or ordinary page browsing.
+  document.addEventListener("keydown", (event) => {
+    if (!guidedMode || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key === "Escape") {
+      event.preventDefault();
+      exitGuidedMode();
+      return;
+    }
+    if (event.target instanceof HTMLElement &&
+        (event.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName))) return;
+    if (event.key === "ArrowRight" && currentChapterIndex < chapters.length - 1) {
+      event.preventDefault();
+      showChapter(currentChapterIndex + 1);
+    } else if (event.key === "ArrowLeft" && currentChapterIndex > 0) {
+      event.preventDefault();
+      showChapter(currentChapterIndex - 1);
+    }
+  });
+
   document.querySelectorAll(".chapter-navigation").forEach((nav) => {
     nav.addEventListener("click", (event) => {
       if (!guidedMode) return;
