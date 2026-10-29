@@ -102,3 +102,12 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 - Commit: [7c42f0a](https://github.com/iYakuza/landing-page/commit/7c42f0a320740277d8e98cd239c5521564f93a98) (metadata) and [41c3e7a](https://github.com/iYakuza/landing-page/commit/41c3e7a6e7c771432b55296b4688c39020e302af) (homepage redesign).
 - Source-level verification after the redesign: one main entrance section; all five destination cards present; existing radio markup retained; no duplicate HTML IDs; no missing in-page fragment targets; CSS brace counts balanced (239/239). This does **not** establish that GitHub Pages has deployed the commit or that browser rendering is correct.
 - Still required: verify the live route after deployment; inspect desktop/tablet/mobile rendering and confirm the radio works in-browser. If the new layout is not visible after the commit is deployed, investigate GitHub Pages workflow/build/cache rather than assuming the source change failed.
+
+
+## Homepage redesign rolled back — 2026-10-29
+
+- User rejected the 2026-10-29 fixed entrance redesign.
+- Restored `index.html` to its exact pre-redesign contents from parent commit `41c3e7a7e6c771432b55296b4688c39020e302af^`, including the original GREEN DREAM hero, scroll cue, embedded profile section, Circle portal, and original inline styles/stylesheet cache versions.
+- Rollback commit: [d85567c](https://github.com/iYakuza/landing-page/commit/d85567cc09e533ef0919aa7f2390718713e0724e).
+- This reverts the homepage file only. The separate Secure Your Soul page and its prior accessibility/backend work remain untouched.
+- Live deployment/rendering has not been verified.
