@@ -39,7 +39,7 @@ jobs:
               html = html_path.read_text(encoding="utf-8")
 
           csp_match = re.search(
-              r"""<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]+content=["']([^"']+)""",
+              r"""<meta[^>]+http-equiv="Content-Security-Policy"[^>]+content="([^"]+)""",
               html,
               re.IGNORECASE,
           )
