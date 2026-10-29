@@ -1,0 +1,115 @@
+name: Static security posture checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-source-checks:
+    name: Check static security controls
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate security controls and public metadata
+        run: |
+          python3 - <<'PY'
+          from datetime import datetime, timezone
+          from pathlib import Path
+          import re
+          import sys
+          import xml.etree.ElementTree as ET
+
+          errors = []
+          warnings = []
+
+          html_path = Path("index.html")
+          if not html_path.exists():
+              errors.append("index.html is missing.")
+              html = ""
+          else:
+              html = html_path.read_text(encoding="utf-8")
+
+          csp_match = re.search(
+              r'<meta[^>]+http-equiv=["\\']Content-Security-Policy["\\'][^>]+content=["\\']([^"\\']+)',
+              html,
+              re.IGNORECASE,
+          )
+          if not csp_match:
+              errors.append("Homepage CSP meta policy is missing.")
+          else:
+              csp = csp_match.group(1).lower()
+              for directive in ("default-src", "base-uri", "object-src", "script-src", "form-action"):
+                  if directive not in csp:
+                      errors.append(f"CSP is missing the {directive} directive.")
+              if "object-src 'none'" not in csp:
+                  errors.append("CSP must keep object-src 'none'.")
+
+          analytics_tags = re.findall(r'<script\\b[^>]*src=["\\'][^"\\']*analytics\\.js[^"\\']*["\\'][^>]*>', html, re.IGNORECASE)
+          if len(analytics_tags) != 1:
+              errors.append(f"Expected exactly one analytics.js script tag; found {len(analytics_tags)}.")
+
+          for tag in re.findall(r'<script\\b[^>]*src=["\\']([^"\\']+)["\\'][^>]*>', html, re.IGNORECASE):
+              if tag.startswith(("https://", "http://")) and "iyakuza.github.io" not in tag:
+                  full_tag = next((t for t in re.findall(r'<script\\b[^>]*src=["\\'][^"\\']+["\\'][^>]*>', html, re.IGNORECASE) if tag in t), "")
+                  if not re.search(r'\\bintegrity=["\\']sha(256|384|512)-', full_tag, re.IGNORECASE):
+                      errors.append(f"Third-party script lacks SRI integrity: {tag}")
+
+          creator_path = Path("creator-posting.js")
+          creator = creator_path.read_text(encoding="utf-8") if creator_path.exists() else ""
+          if "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" not in creator:
+              errors.append("Creator SDK must remain pinned to an explicit Supabase JS version.")
+          if "crossOrigin='anonymous'" not in creator or "referrerPolicy='no-referrer'" not in creator:
+              errors.append("Creator SDK loader must set anonymous CORS and no-referrer policy.")
+          if "integrity=" not in creator:
+              warnings.append("Creator SDK is dynamically loaded from a pinned CDN version but still lacks a verified SRI hash.")
+
+          security_path = Path(".well-known/security.txt")
+          if not security_path.exists():
+              errors.append(".well-known/security.txt is missing.")
+          else:
+              security_txt = security_path.read_text(encoding="utf-8")
+              for field in ("Contact:", "Canonical:", "Policy:", "Expires:"):
+                  if not re.search(r"^" + re.escape(field), security_txt, re.MULTILINE):
+                      errors.append(f"security.txt is missing {field}")
+              expiry = re.search(r"^Expires:\\s*(.+)$", security_txt, re.MULTILINE)
+              if expiry:
+                  try:
+                      expiry_date = datetime.fromisoformat(expiry.group(1).replace("Z", "+00:00"))
+                      if expiry_date <= datetime.now(timezone.utc):
+                          errors.append("security.txt Expires date is not in the future.")
+                  except ValueError:
+                      errors.append("security.txt Expires date is not valid ISO 8601.")
+
+          robots_path = Path("robots.txt")
+          if not robots_path.exists() or "Sitemap: https://iyakuza.github.io/landing-page/sitemap.xml" not in robots_path.read_text(encoding="utf-8"):
+              errors.append("robots.txt must point to the published sitemap.")
+
+          sitemap_path = Path("sitemap.xml")
+          if not sitemap_path.exists():
+              errors.append("sitemap.xml is missing.")
+          else:
+              try:
+                  ET.parse(sitemap_path)
+              except ET.ParseError as exc:
+                  errors.append(f"sitemap.xml is not valid XML: {exc}")
+
+          for warning in warnings:
+              print(f"::warning::{warning}")
+          for error in errors:
+              print(f"::error::{error}")
+
+          if errors:
+              print(f"Security source checks failed: {len(errors)} error(s), {len(warnings)} warning(s).")
+              sys.exit(1)
+
+          print(f"Security source checks passed. Warnings: {len(warnings)}.")
+          PY
