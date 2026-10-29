@@ -128,3 +128,11 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 - The feature is now framed as an original fictional world. Do not reintroduce game-specific names, characters, locations, organizations, technologies, or vocabulary.
 - Source commits: [HTML](https://github.com/iYakuza/landing-page/commit/939aabe0f1d799e5126b995c7ae05af8ecf8bb0d), [JavaScript](https://github.com/iYakuza/landing-page/commit/85ba44f02a34f994b76cfceb8e8f18f13b206267).
 - Deployment and browser rendering remain unverified.
+
+## Community signal not appearing — 2026-10-29
+
+- **Confirmed behavior:** `posts/community/index.html` submits visitor signals into `poetry_submissions` with `status = 'pending'`. The public Community Gallery queries only `status = 'published'`, so pending submissions are intentionally hidden until an administrator approves them in the CMS community-review queue.
+- **Database check:** The latest records from the last seven days were two old test entries with `status = 'failed'`; no new pending submission was present at the time of inspection.
+- **Request-log check:** Recent Supabase logs showed reads of the moderation queue and published gallery, but no corresponding POST to `poetry_submissions` in the inspected window. The available evidence does not establish that the user's signal reached the database.
+- **Small preventative fix committed:** Changed the hidden anti-spam honeypot's HTML field name from the common `website` to an uncommon `contact_check_7f3a` to reduce accidental browser-autofill false positives. The handler still checks the field by its stable element ID. Commit: `0d443a87c5f2e151ec35715b3ddb8b9da938ad26`.
+- **Status:** Root cause is not fully verified; do not mark the submission recovered or the flow tested. Next: reproduce a test submission after deployment, verify the visible result matches database persistence, then approve a clearly marked test item and confirm it appears in the public gallery. Review the legacy direct-to-table submission flow against the newer secure intake function before opening submissions more broadly.
