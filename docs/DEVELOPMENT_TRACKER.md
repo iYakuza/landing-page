@@ -13,7 +13,7 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 |---|---|---|---|---|
 | FR-01 — Present identity and central narrative question | Implemented in repository; deployment pending verification | `secure-your-soul/index.html`, `secure-your-soul/secure-your-soul.css` | Source files created; GitHub Pages URL not yet verified live | Verify rendered page at the feature route; check desktop/mobile layout |
 | FR-02 — Offer Street Kid, Corpo, Nomad entry paths | Implemented in repository; interaction test pending | `secure-your-soul/index.html`, `secure-your-soul/secure-your-soul.js` | Three semantic buttons, `aria-pressed`, live response panel, clear-selection action in source | Test keyboard selection, screen-reader announcements, and mobile focus |
-| FR-05 — Moderate submissions before publishing | Not implemented; deliberately not opened | Signal intake notice in `secure-your-soul/index.html` | Page explicitly states no visitor submission is accepted or stored | Inspect existing Supabase tables, policies, admin/moderation workflow before building intake |
+| FR-05 — Moderate submissions before publishing | Not implemented; deliberately not opened | Signal intake notice in `secure-your-soul/index.html`; existing Supabase `poetry-submit` function inspected | Existing function requires a rights confirmation and anti-spam check but publishes directly to Webflow on successful submission; it is not suitable for Secure Your Soul without redesign | Implement a separate pending-only Signal intake and explicit publication consent; preserve human moderation before publication |
 | FR-06 — Curated Signals archive | Partially implemented as original fictional sample shards | `secure-your-soul/index.html` | Static authored fragments only; no visitor data displayed | Define content model and moderation process before connecting visitor submissions |
 | FR-07 — Real Discord invitation | Blocked on real invite | Entrance page does not invent a join URL | No placeholder invite added | Add only after a valid server invite is supplied/configured |
 | FR-08 — GitHub development route | Implemented in source | `secure-your-soul/index.html` | External repository link includes `target=_blank` and `rel=noopener noreferrer` | Verify link from live page |
@@ -45,10 +45,16 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 | Live route / deployed rendering | Unverified | Direct live URL could not be inspected through the available web viewer; do not mark deployed until verified |
 | Browser accessibility and responsive checks | Pending | Requires browser-level verification |
 
+## Backend discovery
+
+- Supabase project `verse-after-hours` is active and contains `poetry_submissions`, `vha_posts`, the `vha_cms_admins` admin allowlist, and an active `poetry-submit` Edge Function.
+- `poetry_submissions` has RLS enabled and admin-only access to moderation records, plus a public insert policy constrained to pending/rights-confirmed rows. However, the current Edge Function also creates a Webflow CMS item with a live publication request and updates the submission to `published` in the same request. It therefore does **not** meet Secure Your Soul's requirement for explicit publication consent and human review before public release.
+- Do not connect the new page to this function unchanged. The new intake should create pending records only; public publication must be a separate moderator action. Reuse existing admin identity controls only after confirming the admin UI can support the new workflow.
+
 ## Next highest-priority tasks
 
 1. Verify the route and navigation link on the live GitHub Pages deployment.
 2. Test lifepath selection and page navigation; fix any build/static-safety issues.
-3. Inspect the existing Supabase submission/CMS implementation and its policies before designing the Signal intake.
-4. Define a real moderation and removal process before accepting public contributions.
+3. Design a separate pending-only Signal intake with explicit publication consent, safe text/URL validation, anti-spam controls, and moderator-only review.
+4. Define and implement a realistic removal/correction request route before accepting public contributions.
 5. Configure a real Discord invite only after the destination exists.
