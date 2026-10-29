@@ -33,14 +33,16 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 
 ## Verification log
 
+- Source-level checks run after fetching the committed files from GitHub: JavaScript syntax passed; CSS braces balanced; no duplicate HTML IDs; all fragment links target an existing ID; three lifepaths are present; reduced-motion support and skip link are present; no external font imports or fake submission form were found. These checks do not replace a real browser test.
+
 | Check | Result | Evidence |
 |---|---|---|
 | Blueprint read | Passed | Library DOCX, 12 pages / 631 extracted lines |
 | Repository/default branch | Passed | `iYakuza/landing-page`, default branch `main` |
 | New source committed | Passed | Commits returned for each of the three new files |
-| Static syntax / link checks | Pending | Run after source retrieval |
-| GitHub Actions | Pending | Inspect runs for the new commits |
-| Live route / deployed rendering | Pending | Verify after Pages deployment |
+| Static syntax / link checks | Passed (source-level only) | JavaScript parses with no syntax error; CSS brace balance is zero; no duplicate HTML IDs; all in-page anchor targets exist; reduced-motion and skip-link patterns present; no fake submission form; homepage route link exists |
+| GitHub Actions | Unverified | Combined status endpoint returned no status entries for checked commits; this is not evidence of a pass or failure |
+| Live route / deployed rendering | Unverified | Direct live URL could not be inspected through the available web viewer; do not mark deployed until verified |
 | Browser accessibility and responsive checks | Pending | Requires browser-level verification |
 
 ## Next highest-priority tasks
