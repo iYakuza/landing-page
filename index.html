@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#050906">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.youtube.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://s3.amazonaws.com https://oeyxsqocldlovhsmzcjw.supabase.co; media-src 'self' blob: https://oeyxsqocldlovhsmzcjw.supabase.co; connect-src 'self' https://oeyxsqocldlovhsmzcjw.supabase.co wss://oeyxsqocldlovhsmzcjw.supabase.co https://www.youtube.com; frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com; upgrade-insecure-requests">
-  <meta name="description" content="Verse After Hours is a small island in the noise: music, poetry, strange questions, and people who begin again. The radio plays on.">
-  <title>VERSE AFTER HOURS — The City Is Loud</title>
-  <link rel="stylesheet" href="green-dream/style.css?v=20261029-entrance-redesign-1">
+  <meta name="description" content="Verse After Hours / Green Dream: a small island in the noise. We are a bunch of Sisyphuses. We push, we fall, we begin again. The radio plays on.">
+  <title>GREEN DREAM — Verse After Hours</title>
+  <link rel="stylesheet" href="green-dream/style.css?v=20261027-community-nav-fix-4">
   <style>
     .vha-community-button{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border:1px solid #d8ff3e;color:#d8ff3e;text-decoration:none;font:9px/1.2 ui-monospace,monospace;letter-spacing:1px;white-space:nowrap;background:#b6e8330a;transition:background .15s,color .15s}
     .vha-community-button:hover,.vha-community-button:focus-visible{background:#d8ff3e;color:#050906;outline-offset:3px}
@@ -132,95 +132,8 @@
     .gd-circle-portal a:hover{background:#d8ff85;transform:translateY(-2px)}
     @media(max-width:700px){.gd-circle-inner{grid-template-columns:1fr}.gd-circle-portal:before{width:85vw;right:-38%}.gd-circle-portal .gd-circle-side{padding:20px}}
 
-
-    /* 2026-10-29: the homepage is a true entrance, not a long mixed-content feed. */
-    html:has(body.gd-home){height:100%;min-height:0;overflow:hidden!important}
-    body.gd-home{height:100vh!important;height:100svh!important;min-height:0!important;overflow:hidden!important;overscroll-behavior:none!important}
-    body.gd-home>.gd{height:100vh!important;height:100svh!important;min-height:0!important;overflow:hidden!important;display:flex!important;flex-direction:column!important}
-    body.gd-home .gd-nav{flex:0 0 auto;min-height:64px;padding:9px clamp(14px,2.5vw,36px);gap:16px}
-    body.gd-home .gd-nav nav{gap:clamp(9px,1.3vw,20px);justify-content:center}
-    body.gd-home .gd-nav nav a{font-size:9px}
-    body.gd-home .gd-status{display:none}
-    body.gd-home>.gd>main.vha-entrance{display:block!important;flex:1 1 auto!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
-    body.gd-home .vha-home-hero{height:100%!important;min-height:0!important;max-height:none!important;display:flex;align-items:center;overflow:hidden;padding:clamp(22px,3.2vh,42px) clamp(18px,5vw,76px);background-position:center 54%}
-    body.gd-home .vha-home-hero:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:linear-gradient(90deg,rgba(3,8,4,.91) 0%,rgba(3,8,4,.72) 43%,rgba(3,8,4,.16) 100%),linear-gradient(0deg,rgba(3,8,4,.75),transparent 42%,rgba(3,8,4,.2))}
-    body.gd-home .vha-home-copy{position:relative;z-index:2;width:min(780px,calc(100% - 330px));max-width:780px}
-    body.gd-home .vha-home-copy .gd-kicker{margin-bottom:clamp(12px,2vh,22px);font-size:10px}
-    body.gd-home .vha-home-copy h1{font-size:clamp(44px,6.4vw,100px);line-height:.88;letter-spacing:-.075em;margin:0 0 clamp(12px,2vh,22px);max-width:850px;color:#f0eadc;text-shadow:0 3px 30px #0009}
-    body.gd-home .vha-home-copy h1 em{color:#c4d58a}
-    body.gd-home .vha-home-lead{max-width:560px;margin:0;color:#e4e5d8;font:clamp(12px,1.1vw,15px)/1.65 Georgia,serif}
-    body.gd-home .vha-home-mantra{margin:clamp(10px,1.6vh,18px) 0 clamp(16px,2.5vh,28px);font:700 9px/1.6 ui-monospace,monospace;letter-spacing:1.6px;color:#d1b982}
-    body.gd-home .vha-destinations{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;width:min(920px,100%)}
-    body.gd-home .vha-destination{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;min-height:clamp(110px,17vh,160px);padding:12px 11px 13px;border:1px solid rgba(227,219,194,.34);background:linear-gradient(150deg,rgba(13,23,15,.86),rgba(4,9,6,.86));color:#f0eadc;text-decoration:none;transition:transform .18s ease,border-color .18s ease,background .18s ease;overflow:hidden}
-    body.gd-home .vha-destination:before{content:"";position:absolute;left:0;top:0;width:100%;height:2px;background:#c4d58a;transform:scaleX(0);transform-origin:left;transition:transform .18s ease}
-    body.gd-home .vha-destination:hover,body.gd-home .vha-destination:focus-visible{transform:translateY(-3px);border-color:#c4d58a;background:linear-gradient(150deg,rgba(32,48,31,.96),rgba(4,9,6,.92));outline-offset:3px}
-    body.gd-home .vha-destination:hover:before,body.gd-home .vha-destination:focus-visible:before{transform:scaleX(1)}
-    body.gd-home .vha-destination-primary{border-color:#c4d58a;background:linear-gradient(150deg,rgba(44,60,35,.92),rgba(6,12,7,.94))}
-    body.gd-home .vha-destination-index{font:8px/1.4 ui-monospace,monospace;letter-spacing:.7px;color:#c4d58a}
-    body.gd-home .vha-destination strong{font:700 clamp(10px,.9vw,13px)/1.2 Arial,Helvetica,sans-serif;letter-spacing:.4px;overflow-wrap:anywhere}
-    body.gd-home .vha-destination small{font:10px/1.45 Arial,Helvetica,sans-serif;color:#c1c7b9}
-    body.gd-home .vha-destination>b{position:absolute;right:10px;top:9px;font-size:16px;font-weight:400;color:#d1b982}
-    body.gd-home .vha-home-footnote{display:flex;justify-content:space-between;gap:18px;width:min(920px,100%);margin:clamp(14px,2.5vh,28px) 0 0;padding-top:10px;border-top:1px solid #c4d58a48;color:#c0c6b8;font:8px/1.6 ui-monospace,monospace;letter-spacing:1px}
-    body.gd-home .gd-radio{top:auto!important;right:clamp(16px,3vw,44px)!important;bottom:clamp(56px,9vh,100px)!important;width:250px;max-height:calc(100% - 34px);overflow:auto}
-    body.gd-home .gd-radio-body{padding:13px}
-    body.gd-home .vha-radio-hint{position:absolute;z-index:2;right:clamp(16px,3vw,44px);bottom:20px;display:flex;align-items:center;gap:10px;color:#c0c6b8;font:8px/1.4 ui-monospace,monospace;letter-spacing:.8px}
-    body.gd-home .vha-radio-hint span{color:#c4d58a}
-    body.gd-home .gd-footer{display:none!important}
-    body.gd-home .cv-contact-dialog{display:none!important}
-    @media(max-width:1050px){
-      body.gd-home .gd-nav{gap:10px}
-      body.gd-home .gd-brand small{display:none}
-      body.gd-home .gd-nav nav{gap:9px}
-      body.gd-home .gd-nav nav a{font-size:8px;letter-spacing:.4px}
-      body.gd-home .vha-home-copy{width:calc(100% - 270px)}
-      body.gd-home .vha-destinations{grid-template-columns:repeat(3,minmax(0,1fr))}
-      body.gd-home .vha-destination{min-height:100px}
-      body.gd-home .vha-destination:nth-child(4),body.gd-home .vha-destination:nth-child(5){min-height:90px}
-    }
-    @media(max-width:700px){
-      body.gd-home .gd-nav{min-height:56px;padding:8px 12px}
-      body.gd-home .gd-brand{gap:7px}
-      body.gd-home .gd-brand>b{font-size:18px;padding:6px}
-      body.gd-home .gd-brand strong{font-size:9px;letter-spacing:1px}
-      body.gd-home .gd-nav nav{justify-content:flex-end;gap:7px}
-      body.gd-home .gd-nav nav a{font-size:7px}
-      body.gd-home .gd-nav nav a:nth-child(2),body.gd-home .gd-nav nav a:nth-child(3),body.gd-home .gd-nav nav a:nth-child(4){display:none}
-      body.gd-home .vha-community-button{font-size:7px;padding:6px}
-      body.gd-home .vha-home-hero{align-items:flex-start;padding:clamp(20px,4vh,34px) 15px}
-      body.gd-home .vha-home-hero:after{background:linear-gradient(90deg,rgba(3,8,4,.87),rgba(3,8,4,.42)),linear-gradient(0deg,rgba(3,8,4,.9),transparent 65%)}
-      body.gd-home .vha-home-copy{width:100%;max-width:100%}
-      body.gd-home .vha-home-copy .gd-kicker{font-size:8px;letter-spacing:1px;margin-bottom:13px}
-      body.gd-home .vha-home-copy h1{font-size:clamp(42px,11.5vw,70px);line-height:.88;margin-bottom:12px}
-      body.gd-home .vha-home-lead{max-width:430px;font-size:12px;line-height:1.5}
-      body.gd-home .vha-home-mantra{font-size:8px;margin:10px 0 14px}
-      body.gd-home .vha-destinations{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-      body.gd-home .vha-destination{min-height:82px;padding:9px}
-      body.gd-home .vha-destination-index{font-size:7px}
-      body.gd-home .vha-destination strong{font-size:10px}
-      body.gd-home .vha-destination small{font-size:9px}
-      body.gd-home .vha-destination:nth-child(4),body.gd-home .vha-destination:nth-child(5){min-height:82px}
-      body.gd-home .vha-home-footnote{font-size:7px;letter-spacing:.4px;margin-top:12px;padding-top:8px}
-      body.gd-home .vha-home-footnote span:last-child{display:none}
-      body.gd-home .gd-radio{right:10px!important;bottom:10px!important;top:auto!important;width:min(220px,58vw);max-height:42vh}
-      body.gd-home .gd-radio-body{padding:9px}
-      body.gd-home .gd-radio-head{padding:9px}
-      body.gd-home .gd-radio-head small{display:none}
-      body.gd-home .gd-radio .gd-stations,body.gd-home .gd-radio .gd-note,body.gd-home .gd-radio .gd-eq{display:none}
-      body.gd-home .vha-radio-hint{left:15px;right:auto;bottom:22px;max-width:38%;font-size:7px}
-    }
-    @media(max-width:390px){
-      body.gd-home .gd-nav nav a:nth-child(5){display:none}
-      body.gd-home .vha-home-copy h1{font-size:41px}
-      body.gd-home .vha-destination{min-height:76px}
-      body.gd-home .vha-destination small{font-size:8px}
-      body.gd-home .gd-radio{width:54vw}
-    }
-    @media(prefers-reduced-motion:reduce){
-      body.gd-home .vha-destination,body.gd-home .vha-destination:before{transition:none}
-      body.gd-home .gd-radio .gd-eq i{animation:none}
-    }
   </style>
-  <link rel="stylesheet" href="/landing-page/tools.css?v=20261029-entrance-redesign-1">
+  <link rel="stylesheet" href="/landing-page/tools.css?v=20261027-font-hud-1">
 </head>
 <body class="gd-home">
 <div class="gd" id="gd-top">
@@ -245,25 +158,25 @@
     <span class="gd-status">● ISLAND ONLINE // OPEN CHANNEL</span>
   </header>
 
-  <main class="vha-entrance">
-    <section class="gd-hero vha-home-hero" id="green-dream" aria-labelledby="vha-home-title">
-      <div class="gd-grid" aria-hidden="true"></div>
-      <div class="gd-tetris-field" aria-hidden="true"><span class="gd-tetromino gd-tetromino-i"><i></i><i></i><i></i><i></i></span><span class="gd-tetromino gd-tetromino-t"><i></i><i></i><i></i><i></i></span><span class="gd-tetromino gd-tetromino-l"><i></i><i></i><i></i><i></i></span><span class="gd-tetromino gd-tetromino-z"><i></i><i></i><i></i><i></i></span><span class="gd-tetromino gd-tetromino-o"><i></i><i></i><i></i><i></i></span></div>
-      <div class="gd-hero-shade" aria-hidden="true"></div>
-      <div class="vha-home-copy">
-        <p class="gd-kicker">VERSE AFTER HOURS <i>/// AN OPEN CHANNEL</i></p>
-        <h1 id="vha-home-title">THE CITY IS LOUD.<br><em>LEAVE A TRACE.</em></h1>
-        <p class="vha-home-lead">A small island in the noise — for sound, stories, strange questions, and people who begin again.</p>
-        <p class="vha-home-mantra">WE PUSH. WE FALL. WE BEGIN AGAIN.</p>
-        <div class="vha-destinations" aria-label="Choose where to begin">
-          <a class="vha-destination vha-destination-primary" href="/landing-page/green-dream/"><span class="vha-destination-index">01 / THE ISLAND</span><strong>GREEN DREAM</strong><small>Pause. Listen. Begin again.</small><b aria-hidden="true">↗</b></a>
-          <a class="vha-destination" href="/landing-page/posts/"><span class="vha-destination-index">02 / THE STORIES</span><strong>TRANSMISSIONS</strong><small>Poems, fragments, signals.</small><b aria-hidden="true">↗</b></a>
-          <a class="vha-destination" href="/landing-page/music.html"><span class="vha-destination-index">03 / THE FREQUENCY</span><strong>MUSIC</strong><small>Find the sound beneath the noise.</small><b aria-hidden="true">↗</b></a>
-          <a class="vha-destination" href="/landing-page/secure-your-soul/"><span class="vha-destination-index">04 / THE ARCHIVE</span><strong>SECURE YOUR SOUL</strong><small>A promise. A mystery. A question.</small><b aria-hidden="true">↗</b></a>
-          <a class="vha-destination" href="/landing-page/community/"><span class="vha-destination-index">05 / THE PEOPLE</span><strong>THE CIRCLE</strong><small>Meet the frequencies between.</small><b aria-hidden="true">↗</b></a>
+  <main>
+    <section class="gd-hero" id="green-dream">
+      <div class="gd-grid" aria-hidden="true"></div><div class="gd-tetris-field" aria-hidden="true"><span class="gd-tetromino gd-tetromino-i"><i></i><i></i><i></i><i></i></span><span class="gd-tetromino gd-tetromino-t"><i></i><i></i><i></i><i></i></span><span class="gd-tetromino gd-tetromino-l"><i></i><i></i><i></i><i></i></span><span class="gd-tetromino gd-tetromino-z"><i></i><i></i><i></i><i></i></span><span class="gd-tetromino gd-tetromino-o"><i></i><i></i><i></i><i></i></span></div><div class="gd-hero-shade" aria-hidden="true"></div>
+      <div class="gd-hero-copy">
+        <p class="gd-kicker">SPECIAL PROJECT <i>/// 001</i></p>
+        <h1>GREEN<br><em>DREAM</em></h1>
+        <p class="gd-sub">WE ARE A BUNCH OF SISYPHUSES.<br>WE PUSH. WE FALL. WE BEGIN AGAIN.</p>
+        <a class="gd-cta" href="posts/">ENTER TRANSMISSIONS <span>↗</span></a>
+        <div class="gd-coordinate">THE RADIO PLAYS ON.<br>A SMALL ISLAND IN THE NOISE.</div>
+        <div class="gd-zen" aria-label="The Green Dream philosophy">
+          <span class="gd-zen-orbit" aria-hidden="true"><i></i><b></b></span>
+          <div class="gd-zen-copy">
+            <p class="gd-zen-kicker">A PLACE TO PAUSE BEFORE THE NEXT CLIMB</p>
+            <p class="gd-zen-pillars"><span>NATURE</span><i>·</i><span>GOD</span><i>·</i><span>HUMANITY</span></p>
+            <p class="gd-zen-line">Let the machine serve life.<br><em>Let life remember what is sacred.</em></p>
+          </div>
         </div>
-        <p class="vha-home-footnote"><span>V/A — VERSE AFTER HOURS</span><span>NO FINAL FORM. NO FINAL WORD.</span></p>
       </div>
+
       <aside class="gd-radio" id="gd-radio" aria-label="Draggable radio player">
         <div class="gd-radio-head" id="gd-drag"><span>◉ V/A RADIO <small>COMPANY WHILE YOU WAIT</small></span><button id="gd-close" aria-label="Minimize radio" aria-expanded="true">−</button></div>
         <div class="gd-radio-body">
@@ -277,8 +190,68 @@
           <small class="gd-note" id="gd-radio-note">Loading the video list from your YouTube playlist…</small>
         </div>
       </aside>
-      <div class="vha-radio-hint" aria-hidden="true">RADIO IS THE HEARTBEAT WHILE YOU EXPLORE <span>◉</span></div>
+      <div class="gd-scroll">SCROLL TO DESCEND <span>↓</span></div>
     </section>
+
+
+    <section class="gd-cv-embed" id="cv-section" aria-labelledby="cv-embed-title">
+      <div class="gd-cv-inner">
+        <div class="gd-cv-heading">
+          <p class="gd-kicker">PERSONNEL FILE <i>/// 002</i></p>
+          <h2 id="cv-embed-title">THE <em>PERSON</em> BEHIND THE PROJECT</h2>
+          <p>HR BUSINESS ANALYSIS · SYSTEMS · PROCESS IMPROVEMENT</p>
+        </div>
+        <div class="gd-cv-profile">
+          <div>
+            <p class="gd-cv-label">PROFILE // EMANUEL ȘTEFANCU</p>
+            <h3>Turning messy processes into <em>clearer systems.</em></h3>
+            <p>I'm an HR Business Analyst with a background in HR Operations and payroll, supporting process and system changes across multi-country service environments. I work across requirements, workflow mapping, business rules, documentation, UAT and defect investigation—connecting what the business needs with what teams can actually deliver.</p>
+            <div class="gd-cv-facts">
+              <div class="gd-cv-fact"><strong>FOCUS</strong><span>HR Business Analysis · HR Systems · HR Process Improvement</span></div>
+              <div class="gd-cv-fact"><strong>ENVIRONMENTS</strong><span>EMEA &amp; LATAM · Multi-country HR services</span></div>
+              <div class="gd-cv-fact"><strong>WORK STYLE</strong><span>Practical, structured, collaborative</span></div>
+              <div class="gd-cv-fact"><strong>LANGUAGES</strong><span>Romanian · English · Italian</span></div>
+            </div>
+            <div class="gd-cv-skills" aria-label="Core skills">
+              <span>Requirements &amp; business rules</span><span>Process mapping</span><span>Gap analysis</span><span>BRDs / DTPs / User Guides</span><span>Change Requests</span><span>UAT / ORT</span><span>Defect triage</span><span>HRIS / HCM</span>
+            </div>
+            <div class="gd-cv-actions">
+              <a class="primary" href="/landing-page/cv/">OPEN FULL CV ↗</a>
+              <a href="/landing-page/cv/#experience">EXPERIENCE DETAILS ↓</a>
+              <button class="gd-contact-open cv-contact-open" type="button" aria-haspopup="dialog" aria-controls="cv-contact-dialog">CONTACT ↗</button>
+            </div>
+          </div>
+          <div>
+            <p class="gd-cv-label">EXPERIENCE LOG // 2017—2026</p>
+            <div class="gd-cv-timeline">
+              <article class="gd-cv-role"><h4>Business Analyst</h4><time>DEC 2023 — MAR 2026</time><p>HR service expansion, requirements and process documentation, Change Requests, UAT/ORT, defect investigation and implementation support.</p></article>
+              <article class="gd-cv-role"><h4>Payroll Analyst</h4><time>MAY 2021 — NOV 2023</time><p>Payroll data exchange, trial/final run validation, discrepancy investigation and process/system changes.</p></article>
+              <article class="gd-cv-role"><h4>HR Analyst</h4><time>NOV 2019 — APR 2021</time><p>Workday HR services, employee data, onboarding updates, case resolution and troubleshooting.</p></article>
+              <article class="gd-cv-role"><h4>Business Analyst</h4><time>SEP 2018 — MAR 2019</time><p>Case Management implementation support, UAT test execution, defect investigation and process documentation.</p></article>
+              <article class="gd-cv-role"><h4>HR Analyst</h4><time>OCT 2017 — AUG 2018</time><p>Recruitment operations, candidate communication, operational reporting and user guidance.</p></article>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="gd-circle-portal" aria-labelledby="gd-circle-title">
+      <div class="gd-circle-inner">
+        <div>
+          <p class="gd-circle-kicker">SHIVA'S GREEN DREAM / THE CIRCLE</p>
+          <h2 id="gd-circle-title">A place for the<br><em>frequencies between.</em></h2>
+          <p>Sound explorers, musicians, visual artists, curious minds, beautiful detours. The Green Dream circle is where the work-in-progress belongs — from the first strange idea to the moment everything falls quiet.</p>
+        </div>
+        <aside class="gd-circle-side">
+          <strong>THE COMMUNITY IS TAKING SHAPE</strong>
+          <p>Find the listening room, the workshop, the visual garden, and the people who might help your next idea grow.</p>
+          <a href="/landing-page/community/">ENTER THE CIRCLE <span aria-hidden="true">↗</span></a>
+        </aside>
+      </div>
+    </section>
+
+
   </main>
   <footer class="gd-footer"><a class="gd-brand" href="#gd-top"><b>V/A</b><span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a><span>THE CITY IS LOUD. LEAVE A TRACE.</span><a href="#gd-top">BACK TO SURFACE ↑</a></footer>
 </div>
