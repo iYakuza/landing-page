@@ -39,7 +39,7 @@ jobs:
               html = html_path.read_text(encoding="utf-8")
 
           csp_match = re.search(
-              r'<meta[^>]+http-equiv=["\\']Content-Security-Policy["\\'][^>]+content=["\\']([^"\\']+)',
+              r"""<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]+content=["']([^"']+)""",
               html,
               re.IGNORECASE,
           )
@@ -53,15 +53,29 @@ jobs:
               if "object-src 'none'" not in csp:
                   errors.append("CSP must keep object-src 'none'.")
 
-          analytics_tags = re.findall(r'<script\\b[^>]*src=["\\'][^"\\']*analytics\\.js[^"\\']*["\\'][^>]*>', html, re.IGNORECASE)
+          analytics_tags = re.findall(
+              r"""<script\b[^>]*src=["'][^"']*analytics\.js[^"']*["'][^>]*>""",
+              html,
+              re.IGNORECASE,
+          )
           if len(analytics_tags) != 1:
               errors.append(f"Expected exactly one analytics.js script tag; found {len(analytics_tags)}.")
 
-          for tag in re.findall(r'<script\\b[^>]*src=["\\']([^"\\']+)["\\'][^>]*>', html, re.IGNORECASE):
-              if tag.startswith(("https://", "http://")) and "iyakuza.github.io" not in tag:
-                  full_tag = next((t for t in re.findall(r'<script\\b[^>]*src=["\\'][^"\\']+["\\'][^>]*>', html, re.IGNORECASE) if tag in t), "")
-                  if not re.search(r'\\bintegrity=["\\']sha(256|384|512)-', full_tag, re.IGNORECASE):
-                      errors.append(f"Third-party script lacks SRI integrity: {tag}")
+          script_tags = re.findall(
+              r"""<script\b[^>]*src=["']([^"']+)["'][^>]*>""",
+              html,
+              re.IGNORECASE,
+          )
+          full_script_tags = re.findall(
+              r"""<script\b[^>]*src=["'][^"']+["'][^>]*>""",
+              html,
+              re.IGNORECASE,
+          )
+          for src in script_tags:
+              if src.startswith(("https://", "http://")) and "iyakuza.github.io" not in src:
+                  full_tag = next((tag for tag in full_script_tags if src in tag), "")
+                  if not re.search(r"""\bintegrity=["']sha(256|384|512)-""", full_tag, re.IGNORECASE):
+                      errors.append(f"Third-party script lacks SRI integrity: {src}")
 
           creator_path = Path("creator-posting.js")
           creator = creator_path.read_text(encoding="utf-8") if creator_path.exists() else ""
@@ -80,7 +94,7 @@ jobs:
               for field in ("Contact:", "Canonical:", "Policy:", "Expires:"):
                   if not re.search(r"^" + re.escape(field), security_txt, re.MULTILINE):
                       errors.append(f"security.txt is missing {field}")
-              expiry = re.search(r"^Expires:\\s*(.+)$", security_txt, re.MULTILINE)
+              expiry = re.search(r"^Expires:\s*(.+)$", security_txt, re.MULTILINE)
               if expiry:
                   try:
                       expiry_date = datetime.fromisoformat(expiry.group(1).replace("Z", "+00:00"))
