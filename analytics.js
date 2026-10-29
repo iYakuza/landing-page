@@ -67,7 +67,10 @@
         Prefer: 'return=minimal'
       },
       body: JSON.stringify(row),
-      keepalive: true
+      keepalive: true,
+      credentials: 'omit',
+      redirect: 'error',
+      referrerPolicy: 'no-referrer'
     }).catch(() => {});
   }
 
