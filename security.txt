@@ -1,0 +1,5 @@
+Contact: https://github.com/iYakuza/landing-page/security/advisories/new
+Preferred-Languages: en, ro
+Canonical: https://iyakuza.github.io/landing-page/.well-known/security.txt
+Policy: https://github.com/iYakuza/landing-page/blob/main/SECURITY.md
+Expires: 2027-10-29T00:00:00.000Z
