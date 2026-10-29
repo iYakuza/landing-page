@@ -90,3 +90,15 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 - Source-level review only. Real keyboard, screen-reader, reduced-motion, mobile, and desktop browser testing remains outstanding.
 
 - Source-level checks run after the accessibility update: JavaScript parses successfully with `new Function`; CSS brace counts are balanced (243/243); the HTML has no duplicate IDs and no missing in-page hash targets; all nine Guided Reading chapter IDs exist. These are static checks, not browser tests.
+
+
+## Homepage entrance redesign — 2026-10-29
+
+- **Reason:** the earlier pass put Secure Your Soul on a separate route while leaving the first screen recognizably the old GREEN DREAM homepage. That was not a sufficiently visible change to the main visitor experience.
+- Rebuilt the homepage main area as one fixed-height entrance screen, keeping the existing GREEN DREAM background image and radio player while removing the long embedded CV and Circle sections from the homepage flow. Those destinations remain linked separately.
+- Reframed the homepage around **VERSE AFTER HOURS / THE CITY IS LOUD. LEAVE A TRACE.** and the project mantra **WE PUSH. WE FALL. WE BEGIN AGAIN.**
+- Added five clear chronological entry cards: Green Dream, Transmissions, Music, Secure Your Soul, and The Circle. The archive, community, and personal profile are now destinations rather than competing long sections on the entrance screen.
+- Tightened the header, added responsive layouts for smaller screens, retained the existing radio player IDs/markup for its current script, updated stylesheet cache-busting, page title, and description.
+- Commit: [7c42f0a](https://github.com/iYakuza/landing-page/commit/7c42f0a320740277d8e98cd239c5521564f93a98) (metadata) and [41c3e7a](https://github.com/iYakuza/landing-page/commit/41c3e7a6e7c771432b55296b4688c39020e302af) (homepage redesign).
+- Source-level verification after the redesign: one main entrance section; all five destination cards present; existing radio markup retained; no duplicate HTML IDs; no missing in-page fragment targets; CSS brace counts balanced (239/239). This does **not** establish that GitHub Pages has deployed the commit or that browser rendering is correct.
+- Still required: verify the live route after deployment; inspect desktop/tablet/mobile rendering and confirm the radio works in-browser. If the new layout is not visible after the commit is deployed, investigate GitHub Pages workflow/build/cache rather than assuming the source change failed.
