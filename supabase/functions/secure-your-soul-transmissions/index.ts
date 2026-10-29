@@ -174,7 +174,7 @@ Deno.serve(async (request: Request) => {
       // Conditional claim ensures only one moderator can publish a pending row.
       // The temporary rejected state is reverted on publication failure.
       const { data: claimed, error: claimError } = await admin.from("sys_transmissions")
-        .update({ status: "rejected", reviewed_at: new Date().toISOString(), reviewed_by: userData.user.id, moderation_note: note || null })
+        .update({ status: "reviewing", reviewed_at: new Date().toISOString(), reviewed_by: userData.user.id, moderation_note: note || null })
         .eq("id", id).eq("status", "pending").select("id").maybeSingle();
       if (claimError || !claimed) return response(409, { error: "transmission_already_reviewed" }, origin, allowedOrigin);
       const post = {
@@ -189,16 +189,16 @@ Deno.serve(async (request: Request) => {
       };
       const { data: createdPost, error: postError } = await admin.from("vha_posts").insert(post).select("id,slug").single();
       if (postError || !createdPost) {
-        await admin.from("sys_transmissions").update({ status: "pending", reviewed_at: null, reviewed_by: null, moderation_note: null }).eq("id", id).eq("status", "rejected");
+        await admin.from("sys_transmissions").update({ status: "pending", reviewed_at: null, reviewed_by: null, moderation_note: null }).eq("id", id).eq("status", "reviewing");
         return response(503, { error: "publication_failed" }, origin, allowedOrigin);
       }
       const { data: finalized, error: updateError } = await admin.from("sys_transmissions").update({
         status: "published", reviewed_at: new Date().toISOString(), reviewed_by: userData.user.id,
         moderation_note: note || null, published_post_id: createdPost.id,
-      }).eq("id", id).eq("status", "rejected").select("id").maybeSingle();
+      }).eq("id", id).eq("status", "reviewing").select("id").maybeSingle();
       if (updateError || !finalized) {
         await admin.from("vha_posts").delete().eq("id", createdPost.id);
-        await admin.from("sys_transmissions").update({ status: "pending", reviewed_at: null, reviewed_by: null, moderation_note: null }).eq("id", id).eq("status", "rejected");
+        await admin.from("sys_transmissions").update({ status: "pending", reviewed_at: null, reviewed_by: null, moderation_note: null }).eq("id", id).eq("status", "reviewing");
         return response(503, { error: "review_record_update_failed" }, origin, allowedOrigin);
       }
       return response(200, { ok: true, decision, post_id: createdPost.id, slug: createdPost.slug }, origin, allowedOrigin);
