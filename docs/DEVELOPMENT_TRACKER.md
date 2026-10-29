@@ -73,3 +73,5 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 - End-to-end submissions and moderator actions have not yet been tested. Conditional pending-row claim and rollback now prevent two moderators from publishing the same pending transmission concurrently (Edge Function version 2). End-to-end testing is still pending. Keep visitor submissions closed until these checks pass.
 
 - Follow-up hardening deployed to Supabase as Edge Function version 2: publication first claims the pending record conditionally, only finalizes the claimed row, and rolls back the post and record if finalization fails. Reject is restricted to pending records; removal is restricted to published records. Source synchronized to GitHub.
+
+- Added explicit `reviewing` status in the database and deployed Edge Function version 3. The publish claim now uses `pending → reviewing → published`, with failure rollback to pending. This avoids using the rejected state as an in-progress lock.
