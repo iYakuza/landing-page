@@ -24,3 +24,5 @@
 .chapter-links a:hover{color:var(--jade)}
 .chapter-links .chapter-next{color:var(--jade);text-align:right}
 @media(max-width:700px){.chapter-links{gap:14px}.chapter-links a{font-size:7px;letter-spacing:.04em}.chapter-navigation{margin-top:42px}}
+
+.chapter-progress-1{width:11.111%}.chapter-progress-2{width:22.222%}.chapter-progress-3{width:33.333%}.chapter-progress-4{width:44.444%}.chapter-progress-5{width:55.555%}.chapter-progress-6{width:66.666%}.chapter-progress-7{width:77.777%}.chapter-progress-8{width:88.888%}.chapter-progress-9{width:100%}
