@@ -42,3 +42,6 @@
 .guided-reading .chapter-navigation{margin-top:auto;padding-top:clamp(30px,5vh,70px)}
 .guided-reading .section-index{margin-bottom:clamp(25px,4vh,46px)}
 @media(max-width:700px){.guided-reader-bar{padding:12px 18px;gap:12px}.guided-reader-status{font-size:8px;letter-spacing:.05em}.guided-reader-exit{font-size:7px;padding:8px}.guided-reading main>section{min-height:calc(100vh - 54px)}.guided-reading .section{justify-content:flex-start}}
+
+
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}.button{transition:none}*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
