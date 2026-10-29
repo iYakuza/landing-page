@@ -11,13 +11,11 @@
 
   function recordPageView() {
     let referrerHost = null;
-    let referrerPath = null;
     try {
       if (document.referrer) {
         const referrer = new URL(document.referrer);
         if (referrer.origin !== location.origin) {
           referrerHost = safe(referrer.hostname, 255);
-          referrerPath = safe(referrer.pathname, 500);
         }
       }
     } catch {}
@@ -46,7 +44,7 @@
       page_path: safe(location.pathname, 500),
       page_title: safe(document.title),
       referrer_host: referrerHost,
-      referrer_path: referrerPath,
+      referrer_path: null,
       campaign_source: safe(params.get('utm_source'), 100) || null,
       campaign_medium: safe(params.get('utm_medium'), 100) || null,
       campaign_name: safe(params.get('utm_campaign'), 100) || null,
