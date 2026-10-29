@@ -113,7 +113,12 @@ Deno.serve(async (request: Request) => {
     const turnstileSecret = Deno.env.get("TURNSTILE_SECRET_KEY") || "";
     const rateSalt = Deno.env.get("SYS_TRANSMISSION_RATE_SALT") || "";
     if (turnstileSecret.length < 10 || rateSalt.length < 32) return response(503, { error: "service_not_configured" }, origin, allowedOrigin);
-    const remoteIp = (request.headers.get("cf-connecting-ip") || "unknown").slice(0, 128);
+    // Direct browser calls to Supabase do not necessarily carry Cloudflare's
+    // client-IP header. Prefer proxy-provided headers and use the final
+    // forwarded address as a fallback; the value is hashed before storage.
+    const forwardedFor = request.headers.get("x-forwarded-for") || "";
+    const forwardedIp = forwardedFor.split(",").map(value => value.trim()).filter(Boolean).at(-1) || "";
+    const remoteIp = (request.headers.get("cf-connecting-ip") || request.headers.get("x-real-ip") || forwardedIp || "unknown").slice(0, 128);
     if (!turnstileToken || !(await verifyTurnstile(turnstileToken, turnstileSecret, remoteIp))) {
       return response(403, { error: "anti_spam_verification_failed" }, origin, allowedOrigin);
     }
