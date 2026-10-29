@@ -25,20 +25,20 @@ This is a standing project-maintenance convention, not an autonomous background 
 
 **Secure Your Soul** is a fictional personality-preservation program presented through a restrained, immersive website. Its public face is an elegant corporate service promising that a person's memories and personality can survive biological death. Beneath that reassuring surface lies a spiritual and existential mystery: does preserving information preserve a person?
 
-**Defining contradiction:** “Arasaka promises that no soul needs to be lost. The archive quietly asks whether a soul can be owned.”
+**Defining contradiction:** “The Institute promises that no soul needs to be lost. The archive quietly asks whether a soul can be owned.”
 
 ### Experience principles
 
 - **Atmosphere over spectacle:** purposeful motion, tactile textures, restrained color, meaningful negative space.
 - **Mystery with structure:** there is more to discover, but navigation remains clear.
 - **Humanity over machinery:** art, grief, love, hope, and redemption counterbalance the institution.
-- **Choice without exclusion:** Street Kid, Corpo, and Nomad are narrative entry paths, not permission levels.
+- **Choice without exclusion:** Community, Institution, and Wanderer are narrative entry paths, not permission levels.
 - **Fiction is clearly framed as fiction:** the real site does not preserve souls or upload personalities.
 - **Security, accessibility, privacy, and trust** are part of the product, not optional polish.
 
 ## 2. Fictional premise and narrative boundaries
 
-Within the fictional world, Arasaka Corporation operates Secure Your Soul, a personality-preservation program led by Saburo Arasaka. A modified form of Soulkiller creates digital personality constructs stored within Mikoshi infrastructure. The website adopts the voice of a polished institutional portal, while deeper layers question whether a construct is a continuation, copy, prisoner, or something unknown.
+Within the fictional world, the Continuity Institute operates Secure Your Soul, a personality-preservation program led by Saburo the Continuity Institute. A modified form of Continuity Process creates digital personality constructs stored within the Continuity Archive infrastructure. The website adopts the voice of a polished institutional portal, while deeper layers question whether a construct is a continuation, copy, prisoner, or something unknown.
 
 ### Two layers of truth
 
@@ -51,7 +51,7 @@ Within the fictional world, Arasaka Corporation operates Secure Your Soul, a per
 - Allow institutional, scientific, spiritual, conspiratorial, and personal interpretations to coexist.
 - Keep emotional stakes human: memory, identity, grief, consent, love, sacrifice, freedom, and release.
 - Use original fictional records and story fragments to build a distinct creative work.
-- Distinguish established Cyberpunk universe references from original website lore when useful.
+- Build a self-contained fictional world with original institutions, terminology, characters, and history.
 - Do not present fictional preservation as a real service or claim the site can digitize a visitor's personality.
 
 **Core question:** A database can contain information about a person without settling the question of what a person is.
@@ -66,17 +66,17 @@ Motifs should tell the story, reveal a belief, or guide the visitor experience�
 | Shards | Fragments of lives; incomplete evidence | Recovered notes, witness statements, logs, audio/text fragments |
 | Murals | Public symbols; hidden messages; art outliving its creator | Visual clues, gallery fragments, narrative discoveries |
 | Zen Master / meditation | Stillness, impermanence, suffering, limits of the self | Quiet interludes and reflective pages |
-| Mikoshi | Digital afterlife, preservation, ownership, captivity, identity | Archive architecture, construct records, access layers |
-| Soulkiller | Transformation of a person into a digital construct | Protocol descriptions and ethical questions |
-| Garry the Prophet | Dismissed witness; error overlapping with insight | Unverified reports and contradictory testimony |
-| Mr. Blue Eyes | Observer, concealed influence, unknown intelligence | Recurring signature or unexplained archive access |
+| the Continuity Archive | Digital afterlife, preservation, ownership, captivity, identity | Archive architecture, construct records, access layers |
+| Continuity Process | Transformation of a person into a digital construct | Protocol descriptions and ethical questions |
+| the Unheard Witness | Dismissed witness; error overlapping with insight | Unverified reports and contradictory testimony |
+| the Silent Observer | Observer, concealed influence, unknown intelligence | Recurring signature or unexplained archive access |
 | Buddhist monks | Liberation, non-attachment, technology versus spiritual freedom | Counter-archive questioning immortality as attachment |
-| Braindance / memory | Experience, recording, reconstruction, distortion | Interactive memory fragments and conflicting perspectives |
+| memory recording / memory | Experience, recording, reconstruction, distortion | Interactive memory fragments and conflicting perspectives |
 | Columbarium / memorials | Remembrance without resurrection | Memorial pages and messages to the absent |
-| Blackwall / frontier | Boundary around the unknowable | Anomalies, missing records, unexplained signals |
+| the Threshold / frontier | Boundary around the unknowable | Anomalies, missing records, unexplained signals |
 | The Moon / The Star | Hope, escape, intimacy, future beyond the city | Open sky, distant destinations, moments of warmth |
-| Badlands / Nomad imagery | Freedom, movement, self-reliance | Frontier visuals and independent transmissions |
-| Corporate ritual | Authority made sacred through seals, ceremony, contracts | Certificates, formal intake, classifications |
+| the open frontier / Wanderer imagery | Freedom, movement, self-reliance | Frontier visuals and independent transmissions |
+| Institutionrate ritual | Authority made sacred through seals, ceremony, contracts | Certificates, formal intake, classifications |
 | Found family | Care that no archive or corporation can manufacture | Community contributions and collaborative art |
 
 ### Literary and philosophical touchstones
@@ -101,7 +101,7 @@ Motifs should tell the story, reveal a belief, or guide the visitor experience�
 | Typography | Readable body type; expressive serif/display titles; restrained monospaced metadata, IDs, timestamps, system labels |
 | Layout | Editorial hierarchy, negative space, clear reading width, chapter transitions, responsive grids |
 | Texture | Subtle grain, paper fibers, soft scanlines, etched lines, restrained noise; never compromise legibility |
-| Imagery | Night City as a shadow, not the whole subject; ruins, murals, memorials, desert horizons, stars, plants, ritual objects |
+| Imagery | the dense city as a shadow, not the whole subject; ruins, murals, memorials, desert horizons, stars, plants, ritual objects |
 | Motion | Slow fades and quiet reveals; restrained parallax only when useful; respect reduced-motion preferences |
 | Sound | Optional and user-controlled; never autoplay. Silence is part of the design |
 | Interaction | Clear focus, hover, active, disabled, and error states |
@@ -116,7 +116,7 @@ Motifs should tell the story, reveal a belief, or guide the visitor experience�
 |---|---|---|
 | Secure Your Soul | Public face of the program | Compelling promise, short introduction, primary action, first narrative question |
 | The Protocol | Explains preservation | Conceptual stages, consent, limitations, official corporate account |
-| The Archive / Mikoshi | Stores records and constructs | Case files, shards, construct logs, classifications, anomalies |
+| The Archive / the Continuity Archive | Stores records and constructs | Case files, shards, construct logs, classifications, anomalies |
 | The Arcana | Symbolic map of transformation | Chapters about beginnings, bargains, collapse, balance, hope, release |
 | The Unknown | Unclassified phenomena | Signals, disputed accounts, unexplained events, gaps, unresolved questions |
 | The Garden / Signals | Human counter-archive | Published poems, music, images, reflections, visitor transmissions |
@@ -128,26 +128,26 @@ Each page should answer one question, raise another, and give visitors a reason 
 
 ## 6. The three lifepaths
 
-Street Kid, Corpo, and Nomad are narrative entry paths expressing different attitudes toward the system. They are not mandatory account types, permissions, or restrictions.
+Community, Institution, and Wanderer are narrative entry paths expressing different attitudes toward the system. They are not mandatory account types, permissions, or restrictions.
 
 | Lifepath | Core attitude | Default route | Signal identity | Experience |
 |---|---|---|---|---|
-| **Street Kid** | Belonging, street-level knowledge, lived experience, culture | Discord / community | Street Signals | Conversation, music, discoveries, theories, collaboration |
-| **Corpo** | Structure, institutional access, records, formal contribution | Website submission and curated archive | Archive Submissions | Essays, artwork, links, research, proposals |
-| **Nomad** | Independence, movement, privacy, life beyond institutions | Low-friction open Signal form | Wilderness Transmissions | Pseudonymous or anonymous messages where feasible, photos, reflections, field notes |
+| **Community** | Belonging, street-level knowledge, lived experience, culture | Discord / community | Community Signals | Conversation, music, discoveries, theories, collaboration |
+| **Institution** | Structure, institutional access, records, formal contribution | Website submission and curated archive | Archive Submissions | Essays, artwork, links, research, proposals |
+| **Wanderer** | Independence, movement, privacy, life beyond institutions | Low-friction open Signal form | Open Transmissions | Pseudonymous or anonymous messages where feasible, photos, reflections, field notes |
 
-**Cross-path principle:** a Street Kid may submit a formal document; a Corpo may join Discord; a Nomad may contribute code. The choice sets tone and gives the visitor an entry narrative, but does not restrict access.
+**Cross-path principle:** a Community may submit a formal document; a Institution may join Discord; a Wanderer may contribute code. The choice sets tone and gives the visitor an entry narrative, but does not restrict access.
 
 ### Suggested first-screen copy
 
 > **SECURE YOUR SOUL**  
-> Arasaka Corporation — Personality Preservation Program  
+> the Continuity Institute — Personality Preservation Program  
 >  
 > Your memories are not your whole self. Your body is not your only vessel. Your story does not have to end here.  
 >  
 > Before proceeding, identify your point of origin.  
 >  
-> **STREET KID / CORPO / NOMAD**
+> **COMMUNITY / INSTITUTION / WANDERER**
 
 Keep fictional claims inside the fictional experience. Do not imply that the real website can upload, preserve, or assess a visitor's soul or personality.
 
@@ -259,8 +259,8 @@ GitHub Pages remains the main site at https://iyakuza.github.io/landing-page/ un
 
 ### Current decisions
 
-- **Identity:** Secure Your Soul; restrained Cyberpunk-inspired corporate archive and spiritual mystery.
-- **Lifepaths:** Street Kid, Corpo, and Nomad as narrative entry paths, not permissions.
+- **Identity:** Secure Your Soul; original dystopian corporate archive and spiritual mystery.
+- **Lifepaths:** Community, Institution, and Wanderer as narrative entry paths, not permissions.
 - **Platform roles:** Discord for social community; website for submissions/archive; GitHub for development.
 - **Main URL:** preserve the current GitHub Pages URL unless explicitly approved otherwise.
 
@@ -293,7 +293,7 @@ GitHub Pages remains the main site at https://iyakuza.github.io/landing-page/ un
 | Date | Decision / change | Status |
 |---|---|---|
 | 2026-10-29 | Establish Secure Your Soul as a restrained corporate personality-preservation program with spiritual mystery beneath the surface | Decision |
-| 2026-10-29 | Use Street Kid, Corpo, and Nomad as optional narrative entry paths | Decision |
+| 2026-10-29 | Use Community, Institution, and Wanderer as optional narrative entry paths | Decision |
 | 2026-10-29 | Discord = social layer; website = Signal intake and curated archive; GitHub = development workshop; Slack optional for private operations | Decision |
 | 2026-10-29 | Preserve existing GitHub Pages primary URL unless explicitly approved otherwise | Decision |
 | 2026-10-29 | Restore the Signal concept with human moderation, explicit consent, and removal route | Proposal / implementation pending |
