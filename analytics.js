@@ -1,2 +1,76 @@
-/* Privacy-first analytics: no IPs, fingerprinting, or submission content. */
-(()=>{'use strict';if(location.pathname.startsWith('/landing-page/cms/')||navigator.doNotTrack==='1'||window.__vhaAnalyticsLoaded)return;window.__vhaAnalyticsLoaded=true;const URL='https://oeyxsqocldlovhsmzcjw.supabase.co';const KEY='sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';const safe=(v,n=250)=>String(v||'').slice(0,n);function send(){if(!window.supabase)return;let host=null,rpath=null;try{if(document.referrer){const r=new URL(document.referrer);if(r.origin!==location.origin){host=safe(r.hostname,255);rpath=safe(r.pathname,500)}}}catch{}let sid;try{sid=sessionStorage.getItem('vha_session');if(!sid){sid=crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);sessionStorage.setItem('vha_session',sid)}}catch{sid='s-'+Date.now().toString(36)+Math.random().toString(36).slice(2)}const w=innerWidth||1024,ua=navigator.userAgent||'';const browser=/Edg\//.test(ua)?'Edge':/Firefox\//.test(ua)?'Firefox':/Chrome\//.test(ua)?'Chrome':/Safari\//.test(ua)?'Safari':'Other';const p=new URLSearchParams(location.search);const row={page_path:safe(location.pathname,500),page_title:safe(document.title),referrer_host:host,referrer_path:rpath,campaign_source:safe(p.get('utm_source'),100)||null,campaign_medium:safe(p.get('utm_medium'),100)||null,campaign_name:safe(p.get('utm_campaign'),100)||null,session_id:sid,event_type:'pageview',viewport_class:w<600?'mobile':w<1024?'tablet':'desktop',device_class:/Mobi|Android/i.test(ua)?'mobile':/iPad|Tablet/i.test(ua)?'tablet':'desktop',browser_class:browser};try{window.supabase.createClient(URL,KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}}).from('vha_site_analytics').insert(row).then(()=>{})}catch{}}function boot(){const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';s.async=true;s.onload=send;document.head.appendChild(s)}if(window.supabase)send();else boot()})();
+/* Privacy-first page-view analytics. No keystrokes, form fields, IP lookup, or fingerprinting. */
+(() => {
+  'use strict';
+  if (location.pathname.startsWith('/landing-page/cms/') ||
+      navigator.doNotTrack === '1' || window.__vhaAnalyticsLoaded) return;
+  window.__vhaAnalyticsLoaded = true;
+
+  const endpoint = 'https://oeyxsqocldlovhsmzcjw.supabase.co/rest/v1/vha_site_analytics';
+  const key = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
+  const safe = (value, limit = 250) => String(value || '').slice(0, limit);
+
+  function recordPageView() {
+    let referrerHost = null;
+    let referrerPath = null;
+    try {
+      if (document.referrer) {
+        const referrer = new URL(document.referrer);
+        if (referrer.origin !== location.origin) {
+          referrerHost = safe(referrer.hostname, 255);
+          referrerPath = safe(referrer.pathname, 500);
+        }
+      }
+    } catch {}
+
+    let sessionId;
+    try {
+      sessionId = sessionStorage.getItem('vha_session');
+      if (!sessionId) {
+        sessionId = crypto.randomUUID
+          ? crypto.randomUUID()
+          : Date.now().toString(36) + Math.random().toString(36).slice(2);
+        sessionStorage.setItem('vha_session', sessionId);
+      }
+    } catch {
+      sessionId = 's-' + Date.now().toString(36) + Math.random().toString(36).slice(2);
+    }
+
+    const width = window.innerWidth || 1024;
+    const userAgent = navigator.userAgent || '';
+    const browser = /Edg\//.test(userAgent) ? 'Edge'
+      : /Firefox\//.test(userAgent) ? 'Firefox'
+      : /Chrome\//.test(userAgent) ? 'Chrome'
+      : /Safari\//.test(userAgent) ? 'Safari' : 'Other';
+    const params = new URLSearchParams(location.search);
+    const row = {
+      page_path: safe(location.pathname, 500),
+      page_title: safe(document.title),
+      referrer_host: referrerHost,
+      referrer_path: referrerPath,
+      campaign_source: safe(params.get('utm_source'), 100) || null,
+      campaign_medium: safe(params.get('utm_medium'), 100) || null,
+      campaign_name: safe(params.get('utm_campaign'), 100) || null,
+      session_id: sessionId,
+      event_type: 'pageview',
+      viewport_class: width < 600 ? 'mobile' : width < 1024 ? 'tablet' : 'desktop',
+      device_class: /Mobi|Android/i.test(userAgent) ? 'mobile'
+        : /iPad|Tablet/i.test(userAgent) ? 'tablet' : 'desktop',
+      browser_class: browser
+    };
+
+    fetch(endpoint, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        apikey: key,
+        Authorization: 'Bearer ' + key,
+        'Content-Type': 'application/json',
+        Prefer: 'return=minimal'
+      },
+      body: JSON.stringify(row),
+      keepalive: true
+    }).catch(() => {});
+  }
+
+  recordPageView();
+})();
