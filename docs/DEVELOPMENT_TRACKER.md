@@ -29,12 +29,13 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 - Added all planned narrative chapter sections: Protocol, Archive/Mikoshi, Arcana, Unknown, Garden/Signals, Circle, Workshop, and Release.
 - Implemented the three lifepath selection interaction. Paths are narrative choices and do not gate access.
 - Added progressive chapter navigation to the nine story sections: chapter count, visual progress indicator, previous/next chapter links, and return-to-entrance at the end. Navigation is generated from a single chapter list to keep ordering maintainable.
+- Added an optional page-by-page Guided Reading mode. Visitors can enter from the hero, read one chapter at a time with a persistent chapter indicator, move through chapters, and exit back to the full archive. The normal scrolling page remains the default when JavaScript is unavailable.
 - Clearly labelled fictional material and made the submission/community limitations visible rather than faking a working backend or invite.
 - Added a navigation link from the existing homepage without replacing its GREEN DREAM content.
 
 ## Verification log
 
-- Source-level checks run after fetching the committed files from GitHub: JavaScript syntax passed; CSS braces balanced; no duplicate HTML IDs; all fragment links target an existing ID; three lifepaths are present; reduced-motion support and skip link are present; no external font imports or fake submission form were found. These checks do not replace a real browser test.
+- Source-level checks run after fetching the committed files from GitHub: JavaScript syntax passed; CSS braces balanced; no duplicate HTML IDs; all fragment links target an existing ID; three lifepaths are present; reduced-motion support and skip link are present; no external font imports or fake submission form were found. Guided Reading is an opt-in enhancement; the full scrolling page remains the default. These checks do not replace a real browser test.
 
 | Check | Result | Evidence |
 |---|---|---|
@@ -55,7 +56,7 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 ## Next highest-priority tasks
 
 1. Verify the route and navigation link on the live GitHub Pages deployment.
-2. Test lifepath selection and chapter progression in a real browser; fix any build/static-safety issues.
+2. Test Guided Reading entry/exit, keyboard focus, chapter progression, lifepath selection, and mobile layout in a real browser; fix any build/static-safety issues.
 3. Design a separate pending-only Signal intake with explicit publication consent, safe text/URL validation, anti-spam controls, and moderator-only review.
 4. Define and implement a realistic removal/correction request route before accepting public contributions.
 5. Configure a real Discord invite only after the destination exists.
