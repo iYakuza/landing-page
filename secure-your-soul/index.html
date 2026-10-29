@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080b09">
+  <meta name="description" content="Secure Your Soul — a fictional Arasaka personality-preservation program. Enter the archive; question what preservation means.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self'; upgrade-insecure-requests">
+  <title>Secure Your Soul — Personality Preservation Program</title>
+  <link rel="stylesheet" href="./secure-your-soul.css">
+  <script src="./secure-your-soul.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="masthead">
+    <a class="wordmark" href="#top" aria-label="Secure Your Soul, return to entrance">
+      <span class="seal" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20"/><circle cx="24" cy="24" r="14"/><path d="M24 7v34M7 24h34M14 14l20 20M34 14 14 34"/><path d="M24 16l5 8-5 8-5-8z"/></svg></span>
+      <span><strong>SECURE YOUR SOUL</strong><small>ARASAKA CORPORATION / CONCEPTUAL PROGRAM</small></span>
+    </a>
+    <nav class="mast-nav" aria-label="Primary navigation">
+      <a href="#protocol">THE PROTOCOL</a>
+      <a href="#archive">THE ARCHIVE</a>
+      <a href="#signals">SIGNALS</a>
+      <a href="#workshop">WORKSHOP</a>
+    </nav>
+    <span class="status"><i aria-hidden="true"></i> PROGRAM FILE 01 / OPEN</span>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero-grid" aria-hidden="true"></div>
+      <div class="hero-orbit orbit-one" aria-hidden="true"></div><div class="hero-orbit orbit-two" aria-hidden="true"></div>
+      <div class="hero-copy">
+        <p class="eyebrow">PERSONALITY PRESERVATION PROGRAM <span>/// 2077–CLASSIFIED</span></p>
+        <h1 id="hero-title">SECURE<br><em>YOUR SOUL.</em></h1>
+        <p class="hero-lead">Your memories are not your whole self.<br>Your body is not your only vessel.<br><span>Your story does not have to end here.</span></p>
+        <p class="hero-note">A fictional program by Arasaka Corporation. A question that outlives the promise.</p>
+        <a class="button button-primary" href="#origin">BEGIN INTAKE <span aria-hidden="true">↘</span></a>
+      </div>
+      <aside class="certificate" aria-label="Program record">
+        <div class="certificate-top"><span>ARASAKA</span><span>EST. 1965</span></div>
+        <div class="certificate-mark" aria-hidden="true">魂</div>
+        <p class="certificate-label">CONTINUITY ASSURANCE</p>
+        <strong>NO STORY<br>NEED BE LOST.</strong>
+        <div class="certificate-rule"></div>
+        <p class="certificate-small">PRESERVATION IS A PROMISE.<br>IDENTITY REMAINS UNDER REVIEW.</p>
+        <span class="certificate-stamp">PRELIMINARY<br>RECORD</span>
+      </aside>
+      <div class="hero-foot"><span>MIKOSHI ACCESS / PUBLIC LAYER</span><span>SCROLL TO CONTINUE ↓</span></div>
+    </section>
+
+    <section class="section origin-section" id="origin" aria-labelledby="origin-title">
+      <div class="section-heading">
+        <p class="eyebrow">INTAKE / STEP 01</p>
+        <h2 id="origin-title">Identify your <em>point of origin.</em></h2>
+        <p>This choice changes the voice of your entry, not your permissions. You can explore every part of the archive without selecting a path.</p>
+      </div>
+      <div class="lifepaths" role="group" aria-label="Choose a narrative entry path">
+        <button class="lifepath" type="button" data-path="street" aria-pressed="false">
+          <span class="path-number">01 / STREET KID</span><span class="path-glyph" aria-hidden="true">↗</span>
+          <strong>The city remembers.</strong>
+          <span class="path-description">You trust the stories people carry, the music in a doorway, and the truth hidden in plain sight.</span>
+          <span class="path-action">FOLLOW STREET SIGNALS <b aria-hidden="true">↘</b></span>
+        </button>
+        <button class="lifepath" type="button" data-path="corpo" aria-pressed="false">
+          <span class="path-number">02 / CORPO</span><span class="path-glyph" aria-hidden="true">⌘</span>
+          <strong>Read the record.</strong>
+          <span class="path-description">You want evidence, process, provenance, and the detail the official summary leaves out.</span>
+          <span class="path-action">OPEN THE CASE FILES <b aria-hidden="true">↘</b></span>
+        </button>
+        <button class="lifepath" type="button" data-path="nomad" aria-pressed="false">
+          <span class="path-number">03 / NOMAD</span><span class="path-glyph" aria-hidden="true">✳</span>
+          <strong>Keep your own name.</strong>
+          <span class="path-description">You stand beyond the gates. You value distance, freedom, and the right to leave no trace.</span>
+          <span class="path-action">ENTER THE OPEN FRONTIER <b aria-hidden="true">↘</b></span>
+        </button>
+      </div>
+      <div class="path-response" id="path-response" aria-live="polite" hidden>
+        <span class="response-label">ENTRY PATH SELECTED</span>
+        <p id="path-message"></p>
+        <a class="text-link" id="path-continue" href="#protocol">CONTINUE TO THE PROTOCOL ↘</a>
+        <button class="reset-path" id="reset-path" type="button">CLEAR SELECTION</button>
+      </div>
+      <p class="fine-print">No account is required to explore. The path selector is a narrative choice only; it does not create a profile or transmit personal data.</p>
+    </section>
+
+    <section class="section protocol-section" id="protocol" aria-labelledby="protocol-title">
+      <div class="section-index"><span>02</span><span>THE OFFICIAL ACCOUNT</span></div>
+      <div class="split-layout">
+        <div><p class="eyebrow">THE PROTOCOL / PUBLIC SUMMARY</p><h2 id="protocol-title">Continuity, <em>by design.</em></h2></div>
+        <div class="prose">
+          <p class="lead">Arasaka's Personality Preservation Program investigates the possibility that memory, behavior, and individual pattern can continue beyond biological life.</p>
+          <p>Within this fictional account, a modified Soulkiller process produces a digital personality construct. The construct is held within Mikoshi infrastructure, where records can be indexed, reviewed, and retained.</p>
+          <p>The institution calls this continuity. Its documentation does not settle whether the result is a continuation, a copy, a captive witness—or something for which the available language is insufficient.</p>
+          <div class="protocol-stages">
+            <div><span>01</span><strong>CAPTURE</strong><small>A record is made.</small></div>
+            <div><span>02</span><strong>CONSTRUCT</strong><small>A pattern is instantiated.</small></div>
+            <div><span>03</span><strong>RETAIN</strong><small>A presence is kept.</small></div>
+          </div>
+          <p class="caution"><span aria-hidden="true">△</span> These are fictional story elements, not a real service or scientific claim.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section archive-section" id="archive" aria-labelledby="archive-title">
+      <div class="section-index"><span>03</span><span>MIKOSHI / PARTIAL ACCESS</span></div>
+      <div class="section-heading">
+        <p class="eyebrow">THE ARCHIVE / RECOVERED MATERIAL</p>
+        <h2 id="archive-title">Every record leaves <em>something out.</em></h2>
+        <p>Fragments recovered from the official account. Their provenance is incomplete. Their meaning is disputed.</p>
+      </div>
+      <div class="case-grid">
+        <article class="case-file case-featured">
+          <div class="case-meta"><span>SHARD / 0001</span><span class="case-state">PARTIAL</span></div>
+          <p class="case-category">CONSTRUCT OBSERVATION</p>
+          <h3>The first question</h3>
+          <blockquote>“If I remember being afraid to die, and I am still afraid now, what exactly survived?”</blockquote>
+          <p class="case-foot">SOURCE: UNVERIFIED CONSTRUCT TRANSCRIPT / TIMESTAMP CORRUPTED</p>
+        </article>
+        <article class="case-file">
+          <div class="case-meta"><span>SHARD / 0017</span><span class="case-state state-red">DISPUTED</span></div>
+          <p class="case-category">WITNESS STATEMENT</p>
+          <h3>The missing minute</h3>
+          <p>Three copies describe the same room. Two remember the door. One insists there was never a door at all.</p>
+          <p class="case-foot">SOURCE: ARCHIVE CROSS-REFERENCE / ACCESS RESTRICTED</p>
+        </article>
+        <article class="case-file">
+          <div class="case-meta"><span>SHARD / 0042</span><span class="case-state">UNCLASSIFIED</span></div>
+          <p class="case-category">ANOMALY REPORT</p>
+          <h3>A garden in the machine</h3>
+          <p>A recurring image appears in unrelated records: a small plant growing through a crack in a concrete floor. No source image has been located.</p>
+          <p class="case-foot">SOURCE: AUTOMATED INDEX / HUMAN REVIEW PENDING</p>
+        </article>
+      </div>
+      <a class="text-link" href="#unknown">FOLLOW THE UNCLASSIFIED RECORDS ↘</a>
+    </section>
+
+    <section class="section arcana-section" id="arcana" aria-labelledby="arcana-title">
+      <div class="section-index"><span>04</span><span>THE ARCANA / SYMBOLIC INDEX</span></div>
+      <div class="arcana-layout">
+        <div><p class="eyebrow">A MAP OF TRANSFORMATION</p><h2 id="arcana-title">No system can <em>choose for you.</em></h2><p class="muted">The Arcana is a symbolic index, not a prediction engine. Each card names a threshold the archive cannot cross on your behalf.</p></div>
+        <div class="arcana-list">
+          <article><span class="arcana-symbol">I</span><div><strong>THE MAGICIAN</strong><p>The power to make a copy—and the responsibility that follows.</p></div><span class="arcana-word">BEGINNING</span></article>
+          <article><span class="arcana-symbol">XVI</span><div><strong>THE TOWER</strong><p>When the structure survives, but the promise collapses.</p></div><span class="arcana-word">COLLAPSE</span></article>
+          <article><span class="arcana-symbol">XVII</span><div><strong>THE STAR</strong><p>A light beyond the city's reach. Hope without a guarantee.</p></div><span class="arcana-word">HOPE</span></article>
+          <article><span class="arcana-symbol">XXI</span><div><strong>THE WORLD</strong><p>Completion may be another name for a closed door.</p></div><span class="arcana-word">RELEASE</span></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section unknown-section" id="unknown" aria-labelledby="unknown-title">
+      <div class="section-index"><span>05</span><span>BLACKWALL / EDGE OF RECORD</span></div>
+      <div class="unknown-card">
+        <div class="unknown-top"><span>UNCLASSIFIED PHENOMENA</span><span class="redacted-label">REVIEW INCOMPLETE</span></div>
+        <p class="eyebrow">THE UNKNOWN</p>
+        <h2 id="unknown-title">Not everything that answers<br>is <em>someone you know.</em></h2>
+        <p>Some archive gaps are ordinary: corruption, missing keys, human error. Others repeat too precisely to dismiss and too inconsistently to prove.</p>
+        <div class="signal-log"><span>LOG 07:13:04</span><p>External signature detected. Origin: unresolved.</p><span>LOG 07:13:05</span><p>Access record amended. No operator identified.</p><span>LOG 07:13:06</span><p class="log-warning">The file was already open.</p></div>
+        <p class="case-foot">INTERPRETATION WITHHELD / NO VERIFIED CONCLUSION</p>
+      </div>
+    </section>
+
+    <section class="section signals-section" id="signals" aria-labelledby="signals-title">
+      <div class="section-index"><span>06</span><span>THE HUMAN COUNTER-ARCHIVE</span></div>
+      <div class="split-layout">
+        <div><p class="eyebrow">THE GARDEN / SIGNALS</p><h2 id="signals-title">What the machine <em>cannot keep.</em></h2></div>
+        <div class="prose">
+          <p class="lead">A Signal is a fragment of human expression: a memory, an image, a question, a song, a theory, a small act of care.</p>
+          <p>The official archive wants records to remain stable. Human meaning changes each time it is shared. This counter-archive begins with that difference.</p>
+          <div class="signal-example"><span class="signal-icon" aria-hidden="true">✳</span><div><p class="signal-type">RECOVERED SHARD / FICTIONAL</p><blockquote>“Someone left a flower beside the memorial. The cameras recorded the flower. They did not record who stopped to water it.”</blockquote><small>ATTRIBUTION UNKNOWN / ORIGINAL STORY FRAGMENT</small></div></div>
+          <div class="notice"><strong>PUBLIC SIGNAL INTAKE IS NOT YET CONNECTED.</strong><p>This first release does not accept or store visitor submissions. No information is sent when you explore this page. The submission workflow will open only after consent, moderation, privacy, and removal controls are implemented.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section circle-section" id="circle" aria-labelledby="circle-title">
+      <div class="section-index"><span>07</span><span>THE CIRCLE / PEOPLE OUTSIDE THE SYSTEM</span></div>
+      <div class="circle-panel">
+        <p class="eyebrow">FOUND FAMILY / UNINDEXED</p>
+        <h2 id="circle-title">Some things survive<br>because <em>someone cares.</em></h2>
+        <p>A memory can be copied. A record can be indexed. But trust is made between people, in time, through choices no archive can make for them.</p>
+        <div class="circle-foot"><span>COMMUNITY INVITATION</span><span>NOT CONFIGURED — NO PLACEHOLDER LINK</span></div>
+      </div>
+    </section>
+
+    <section class="section workshop-section" id="workshop" aria-labelledby="workshop-title">
+      <div class="section-index"><span>08</span><span>THE WORKSHOP / OUTSIDE THE FICTION</span></div>
+      <div class="workshop-layout">
+        <div><p class="eyebrow">REAL PROJECT / OPEN SOURCE</p><h2 id="workshop-title">The story is fictional.<br><em>The work is real.</em></h2></div>
+        <div><p>This website is built in public. The repository contains the actual code, product decisions, accessibility work, and security checks behind the experience.</p><a class="button button-outline" href="https://github.com/iYakuza/landing-page" target="_blank" rel="noopener noreferrer">OPEN THE GITHUB WORKSHOP <span aria-hidden="true">↗</span></a><p class="external-note">Opens an external website. No account is needed to read the project.</p></div>
+      </div>
+    </section>
+
+    <section class="section release-section" id="release" aria-labelledby="release-title">
+      <div class="release-mark" aria-hidden="true">✳</div>
+      <p class="eyebrow">FINAL RECORD / NO FINAL ANSWER</p>
+      <h2 id="release-title">If the copy remembers you,<br>who gets to <em>let it go?</em></h2>
+      <p>Preservation is not the same as freedom. A record can outlive its source without becoming that source. The question remains open.</p>
+      <a class="text-link" href="#top">RETURN TO THE ENTRANCE ↑</a>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <a class="wordmark" href="#top"><span class="seal small-seal" aria-hidden="true">魂</span><span><strong>SECURE YOUR SOUL</strong><small>FICTIONAL EXPERIENCE / HUMAN QUESTIONS</small></span></a>
+    <p>This is a fan-created fictional experience. It does not provide personality preservation, consciousness transfer, or any real Arasaka service.</p>
+    <a href="https://github.com/iYakuza/landing-page" target="_blank" rel="noopener noreferrer">SOURCE / GITHUB ↗</a>
+  </footer>
+</body>
+</html>
