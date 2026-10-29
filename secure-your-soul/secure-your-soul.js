@@ -30,7 +30,7 @@
       track.setAttribute("aria-hidden", "true");
       const fill = document.createElement("span");
       fill.className = "chapter-track-fill";
-      fill.style.width = ((index + 1) / chapters.length * 100) + "%";
+      fill.classList.add("chapter-progress-" + (index + 1));
       track.appendChild(fill);
 
       const links = document.createElement("div");
