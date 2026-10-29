@@ -16,7 +16,7 @@
     apiPromise=new Promise((resolve,reject)=>{
       const old=window.onYouTubeIframeAPIReady;
       window.onYouTubeIframeAPIReady=()=>{if(typeof old==='function')old();resolve()};
-      const tag=document.createElement('script');tag.src='https://www.youtube.com/iframe_api';tag.async=true;tag.dataset.youtubeIframeApi='true';tag.onerror=()=>reject(new Error('YouTube player API could not load.'));document.head.appendChild(tag);
+      const tag=document.createElement('script');tag.src='https://www.youtube.com/iframe_api';tag.async=true;tag.crossOrigin='anonymous';tag.referrerPolicy='no-referrer';tag.dataset.youtubeIframeApi='true';tag.onerror=()=>reject(new Error('YouTube player API could not load.'));document.head.appendChild(tag);
       setTimeout(()=>reject(new Error('YouTube player API timed out.')),15000);
     });return apiPromise;
   }
@@ -52,7 +52,7 @@
             const i=start+offset;
             try{
               const url='https://www.youtube.com/oembed?url='+encodeURIComponent('https://www.youtube.com/watch?v='+id)+'&format=json';
-              const res=await fetch(url,{headers:{Accept:'application/json'}});
+              const res=await fetch(url,{method:'GET',mode:'cors',credentials:'omit',redirect:'error',referrerPolicy:'no-referrer',headers:{Accept:'application/json'}});
               if(res.ok){const data=await res.json();videos[i].title=String(data.title||videos[i].title).slice(0,180)}
             }catch{}
           }));
