@@ -23,7 +23,7 @@ This is a standing project-maintenance convention, not an autonomous background 
 
 ## 1. Product vision
 
-**Secure Your Soul** is a fictional personality-preservation program presented through a restrained, immersive website. Its public face is an elegant corporate service promising that a person's memories and personality can survive biological death. Beneath that reassuring surface lies a spiritual and existential mystery: does preserving information preserve a person?
+**Secure Your Soul** is a fictional personality-preservation program presented through a restrained, immersive website. Its public face is an elegant Institutionrate service promising that a person's memories and personality can survive biological death. Beneath that reassuring surface lies a spiritual and existential mystery: does preserving information preserve a person?
 
 **Defining contradiction:** ‚ÄúThe Institute promises that no soul needs to be lost. The archive quietly asks whether a soul can be owned.‚Äù
 
@@ -42,7 +42,7 @@ Within the fictional world, the Continuity Institute operates Secure Your Soul, 
 
 ### Two layers of truth
 
-- **Official / corporate:** procedure, access, records, classifications, and the preservation promise. Precise, composed, reassuring, controlled.
+- **Official / Institutionrate:** procedure, access, records, classifications, and the preservation promise. Precise, composed, reassuring, controlled.
 - **Hidden / interpretive:** contradictions, witness accounts, spiritual questions, and anomalies. Poetic, uncertain, intimate, unsettling.
 
 ### Narrative rules
@@ -65,7 +65,7 @@ Motifs should tell the story, reveal a belief, or guide the visitor experience‚Ä
 | Tarot / Arcana | Fate, choices, temptation, collapse, reconciliation, hope | Section identities, chapter transitions, symbolic case files |
 | Shards | Fragments of lives; incomplete evidence | Recovered notes, witness statements, logs, audio/text fragments |
 | Murals | Public symbols; hidden messages; art outliving its creator | Visual clues, gallery fragments, narrative discoveries |
-| Zen Master / meditation | Stillness, impermanence, suffering, limits of the self | Quiet interludes and reflective pages |
+| Meditation and stillness | Stillness, impermanence, suffering, limits of the self | Quiet interludes and reflective pages |
 | the Continuity Archive | Digital afterlife, preservation, ownership, captivity, identity | Archive architecture, construct records, access layers |
 | Continuity Process | Transformation of a person into a digital construct | Protocol descriptions and ethical questions |
 | the Unheard Witness | Dismissed witness; error overlapping with insight | Unverified reports and contradictory testimony |
@@ -77,7 +77,7 @@ Motifs should tell the story, reveal a belief, or guide the visitor experience‚Ä
 | The Moon / The Star | Hope, escape, intimacy, future beyond the city | Open sky, distant destinations, moments of warmth |
 | the open frontier / Wanderer imagery | Freedom, movement, self-reliance | Frontier visuals and independent transmissions |
 | Institutionrate ritual | Authority made sacred through seals, ceremony, contracts | Certificates, formal intake, classifications |
-| Found family | Care that no archive or corporation can manufacture | Community contributions and collaborative art |
+| Found family | Care that no archive or Institutionration can manufacture | Community contributions and collaborative art |
 
 ### Literary and philosophical touchstones
 
@@ -92,7 +92,7 @@ Motifs should tell the story, reveal a belief, or guide the visitor experience‚Ä
 
 ## 4. Brand and visual direction
 
-**Creative direction:** corporate archive meets forbidden spiritual manuscript. The site should feel authored, tactile, quiet, and slightly uncanny. Avoid defaulting to bright neon, aggressive glitch effects, generic hacker screens, or dense sci-fi UI on every page.
+**Creative direction:** Institutionrate archive meets forbidden spiritual manuscript. The site should feel authored, tactile, quiet, and slightly uncanny. Avoid defaulting to bright neon, aggressive glitch effects, generic hacker screens, or dense sci-fi UI on every page.
 
 | Element | Guideline |
 |---|---|
@@ -106,7 +106,7 @@ Motifs should tell the story, reveal a belief, or guide the visitor experience‚Ä
 | Sound | Optional and user-controlled; never autoplay. Silence is part of the design |
 | Interaction | Clear focus, hover, active, disabled, and error states |
 
-**Voice:** precise institutional language with poetic undertones; short memorable questions; uncertainty where evidence is uncertain; human emotion beneath the corporate surface. Avoid lore dumps and unexplained jargon.
+**Voice:** precise institutional language with poetic undertones; short memorable questions; uncertainty where evidence is uncertain; human emotion beneath the Institutionrate surface. Avoid lore dumps and unexplained jargon.
 
 **Accessibility rule:** the fiction can be mysterious; the interface must not be. Navigation, forms, consent, error messages, keyboard use, focus states, contrast, responsive behavior, and reduced-motion support must remain clear.
 
@@ -115,7 +115,7 @@ Motifs should tell the story, reveal a belief, or guide the visitor experience‚Ä
 | Page / section | Fictional purpose | Visitor experience |
 |---|---|---|
 | Secure Your Soul | Public face of the program | Compelling promise, short introduction, primary action, first narrative question |
-| The Protocol | Explains preservation | Conceptual stages, consent, limitations, official corporate account |
+| The Protocol | Explains preservation | Conceptual stages, consent, limitations, official Institutionrate account |
 | The Archive / the Continuity Archive | Stores records and constructs | Case files, shards, construct logs, classifications, anomalies |
 | The Arcana | Symbolic map of transformation | Chapters about beginnings, bargains, collapse, balance, hope, release |
 | The Unknown | Unclassified phenomena | Signals, disputed accounts, unexplained events, gaps, unresolved questions |
@@ -259,7 +259,7 @@ GitHub Pages remains the main site at https://iyakuza.github.io/landing-page/ un
 
 ### Current decisions
 
-- **Identity:** Secure Your Soul; original dystopian corporate archive and spiritual mystery.
+- **Identity:** Secure Your Soul; original dystopian Institutionrate archive and spiritual mystery.
 - **Lifepaths:** Community, Institution, and Wanderer as narrative entry paths, not permissions.
 - **Platform roles:** Discord for social community; website for submissions/archive; GitHub for development.
 - **Main URL:** preserve the current GitHub Pages URL unless explicitly approved otherwise.
@@ -292,7 +292,7 @@ GitHub Pages remains the main site at https://iyakuza.github.io/landing-page/ un
 
 | Date | Decision / change | Status |
 |---|---|---|
-| 2026-10-29 | Establish Secure Your Soul as a restrained corporate personality-preservation program with spiritual mystery beneath the surface | Decision |
+| 2026-10-29 | Establish Secure Your Soul as a restrained Institutionrate personality-preservation program with spiritual mystery beneath the surface | Decision |
 | 2026-10-29 | Use Community, Institution, and Wanderer as optional narrative entry paths | Decision |
 | 2026-10-29 | Discord = social layer; website = Signal intake and curated archive; GitHub = development workshop; Slack optional for private operations | Decision |
 | 2026-10-29 | Preserve existing GitHub Pages primary URL unless explicitly approved otherwise | Decision |
@@ -300,4 +300,4 @@ GitHub Pages remains the main site at https://iyakuza.github.io/landing-page/ un
 
 ## North-star statement
 
-A corporate promise of digital immortality conceals a spiritual mystery. Visitors enter through three lifepaths, discover fragments of an uncertain world, and leave Signals that may become part of a human archive. The technology promises preservation; the story asks what preservation means‚Äîand whether freedom matters more.
+A Institutionrate promise of digital immortality conceals a spiritual mystery. Visitors enter through three lifepaths, discover fragments of an uncertain world, and leave Signals that may become part of a human archive. The technology promises preservation; the story asks what preservation means‚Äîand whether freedom matters more.
