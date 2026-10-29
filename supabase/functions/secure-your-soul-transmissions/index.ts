@@ -171,6 +171,12 @@ Deno.serve(async (request: Request) => {
       if (item.status !== "pending" || item.rights_confirmed !== true || item.publication_consent !== true) {
         return response(409, { error: "transmission_not_publishable" }, origin, allowedOrigin);
       }
+      // Conditional claim ensures only one moderator can publish a pending row.
+      // The temporary rejected state is reverted on publication failure.
+      const { data: claimed, error: claimError } = await admin.from("sys_transmissions")
+        .update({ status: "rejected", reviewed_at: new Date().toISOString(), reviewed_by: userData.user.id, moderation_note: note || null })
+        .eq("id", id).eq("status", "pending").select("id").maybeSingle();
+      if (claimError || !claimed) return response(409, { error: "transmission_already_reviewed" }, origin, allowedOrigin);
       const post = {
         title: item.title,
         slug: slugify(item.title),
@@ -182,18 +188,24 @@ Deno.serve(async (request: Request) => {
         media_width: 100,
       };
       const { data: createdPost, error: postError } = await admin.from("vha_posts").insert(post).select("id,slug").single();
-      if (postError || !createdPost) return response(503, { error: "publication_failed" }, origin, allowedOrigin);
-      const { error: updateError } = await admin.from("sys_transmissions").update({
+      if (postError || !createdPost) {
+        await admin.from("sys_transmissions").update({ status: "pending", reviewed_at: null, reviewed_by: null, moderation_note: null }).eq("id", id).eq("status", "rejected");
+        return response(503, { error: "publication_failed" }, origin, allowedOrigin);
+      }
+      const { data: finalized, error: updateError } = await admin.from("sys_transmissions").update({
         status: "published", reviewed_at: new Date().toISOString(), reviewed_by: userData.user.id,
         moderation_note: note || null, published_post_id: createdPost.id,
-      }).eq("id", id).eq("status", "pending");
-      if (updateError) {
+      }).eq("id", id).eq("status", "rejected").select("id").maybeSingle();
+      if (updateError || !finalized) {
         await admin.from("vha_posts").delete().eq("id", createdPost.id);
+        await admin.from("sys_transmissions").update({ status: "pending", reviewed_at: null, reviewed_by: null, moderation_note: null }).eq("id", id).eq("status", "rejected");
         return response(503, { error: "review_record_update_failed" }, origin, allowedOrigin);
       }
       return response(200, { ok: true, decision, post_id: createdPost.id, slug: createdPost.slug }, origin, allowedOrigin);
     }
 
+    if (decision === "reject" && item.status !== "pending") return response(409, { error: "only_pending_transmissions_can_be_rejected" }, origin, allowedOrigin);
+    if (decision === "remove" && item.status !== "published") return response(409, { error: "only_published_transmissions_can_be_removed" }, origin, allowedOrigin);
     if (decision === "remove" && item.published_post_id) {
       const { error: deleteError } = await admin.from("vha_posts").delete().eq("id", item.published_post_id);
       if (deleteError) return response(503, { error: "published_post_removal_failed" }, origin, allowedOrigin);
