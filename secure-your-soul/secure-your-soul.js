@@ -4,7 +4,7 @@
     { id: "origin", name: "POINT OF ORIGIN" },
     { id: "protocol", name: "THE PROTOCOL" },
     { id: "archive", name: "THE ARCHIVE" },
-    { id: "arcana", name: "THE ARCANA" },
+    { id: "symbolic-index", name: "THE SYMBOLIC INDEX" },
     { id: "unknown", name: "THE UNKNOWN" },
     { id: "signals", name: "THE GARDEN / SIGNALS" },
     { id: "circle", name: "THE CIRCLE" },
@@ -181,20 +181,20 @@
   });
 
   const paths = {
-    street: {
-      title: "STREET KID / STREET SIGNALS",
+    community: {
+      title: "COMMUNITY / COMMUNITY SIGNALS",
       message: "You begin with lived experience: fragments, music, murals, and testimony. The community route is not connected yet, so this path continues inside the archive for now.",
       href: "#archive",
-      label: "FOLLOW THE RECOVERED SHARDS ↘"
+      label: "FOLLOW THE RECOVERED FRAGMENTS ↘"
     },
-    corpo: {
-      title: "CORPO / ARCHIVE SUBMISSIONS",
+    institution: {
+      title: "INSTITUTION / ARCHIVE SUBMISSIONS",
       message: "You begin with records, classifications, and the gap between an official statement and its evidence. Explore the case files before drawing a conclusion.",
       href: "#archive",
       label: "OPEN THE CASE FILES ↘"
     },
-    nomad: {
-      title: "NOMAD / WILDERNESS TRANSMISSIONS",
+    wanderer: {
+      title: "WANDERER / OPEN TRANSMISSIONS",
       message: "You begin outside the institution, with freedom and the right to leave no trace. Visitor submission is not connected yet; exploring this page sends no personal data.",
       href: "#signals",
       label: "VISIT THE HUMAN COUNTER-ARCHIVE ↘"
