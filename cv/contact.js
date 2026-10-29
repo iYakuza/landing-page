@@ -109,7 +109,8 @@
   openButton?.addEventListener("click",openDialog);
   closeButton?.addEventListener("click",closeDialog);
   dialog.addEventListener("click",e=>{if(e.target===dialog)closeDialog();});
-  hostDoc.addEventListener("keydown",e=>{if(e.key==="Escape"&&dialog.classList.contains("is-open"))closeDialog();});
+  // Escape is handled only while focus is inside this dialog; no page-wide keystroke listener.
+  dialog.addEventListener("keydown",e=>{if(e.key==="Escape"&&dialog.classList.contains("is-open"))closeDialog();});
   fileInput?.addEventListener("change",()=>{
     const files=[...(fileInput.files||[])],total=files.reduce((s,f)=>s+f.size,0);
     const invalid=files.find(f=>!allowed.has(f.type)||f.size>5*1024*1024);
@@ -125,9 +126,9 @@
       const payload={name:form.elements.name.value.trim(),email:form.elements.email.value.trim(),subject:form.elements.subject.value.trim()||form.dataset.defaultSubject||"Contact about a role",message:form.elements.message.value.trim(),website:form.elements.website.value.trim(),attachments:await Promise.all(files.map(encodeFile))};
       const response=await fetch(endpoint,{method:"POST",mode:"cors",credentials:"omit",redirect:"error",referrerPolicy:"no-referrer",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
       const result=await response.json().catch(()=>({}));
-      if(!response.ok||!result.ok)throw new Error(result.error||"The message could not be sent.");
+      if(!response.ok||!result.ok)throw new Error("SEND_FAILED");
       form.reset();status.textContent="Message sent. Thank you — I’ll be in touch.";
-    }catch(error){status.textContent=error.message||"Something went wrong. Please try again.";}
+    }catch{status.textContent="The message could not be sent. Please check your connection and try again.";}
     finally{submit.disabled=false;submit.textContent="SEND MESSAGE ↗";}
   });
 })();
