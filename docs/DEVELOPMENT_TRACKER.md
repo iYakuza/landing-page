@@ -115,16 +115,16 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 
 ## Original-world boundary — 2026-10-29
 
-- User direction: retain the atmosphere, spiritual and existential questions, visual mood, and philosophy that inspired the project, but remove all direct Cyberpunk 2077 concepts, terminology, characters, institutions, and other recognizable references.
+- User direction: retain the atmosphere, spiritual and existential questions, visual mood, and philosophy that inspired the project, but remove all direct the source game concepts, terminology, characters, institutions, and other recognizable references.
 - The feature page and its interaction labels now use original terminology: the Continuity Institute, the Continuity Archive, the Continuity Process, the Threshold, and three original narrative attitudes—Community, Institution, and Wanderer.
 - Preserve the thematic tensions: digital identity versus personhood, memory versus lived experience, institutional control versus liberation, spiritual uncertainty, hope, redemption, impermanence, and the right to let go.
-- All future writing and visuals must be original and self-contained. Do not reintroduce game names, characters, locations, organizations, technologies, or in-world vocabulary. Tarot, meditation, corporate ritual, fragments, murals, memorials, plants, stars, and the unknown may remain as broad thematic motifs.
+- All future writing and visuals must be original and self-contained. Do not reintroduce game names, characters, locations, organizations, technologies, or in-world vocabulary. Tarot, meditation, Institutionrate ritual, fragments, murals, memorials, plants, stars, and the unknown may remain as broad thematic motifs.
 - Updated feature source: `secure-your-soul/index.html` and `secure-your-soul/secure-your-soul.js`. This change is committed to GitHub; live deployment and browser rendering remain unverified.
 
 
 ## Original-world boundary — 2026-10-29
 
-- Removed direct game-universe names and terminology from the Secure Your Soul feature page and its narrative-path interactions while retaining the corporate-archive / spiritual-manuscript mood.
+- Removed direct game-universe names and terminology from the Secure Your Soul feature page and its narrative-path interactions while retaining the Institutionrate-archive / spiritual-manuscript mood.
 - The feature is now framed as an original fictional world. Do not reintroduce game-specific names, characters, locations, organizations, technologies, or vocabulary.
 - Source commits: [HTML](https://github.com/iYakuza/landing-page/commit/939aabe0f1d799e5126b995c7ae05af8ecf8bb0d), [JavaScript](https://github.com/iYakuza/landing-page/commit/85ba44f02a34f994b76cfceb8e8f18f13b206267).
 - Deployment and browser rendering remain unverified.
