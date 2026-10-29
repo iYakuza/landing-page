@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://iyakuza.github.io/landing-page/sitemap.xml
