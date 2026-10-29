@@ -26,3 +26,19 @@
 @media(max-width:700px){.chapter-links{gap:14px}.chapter-links a{font-size:7px;letter-spacing:.04em}.chapter-navigation{margin-top:42px}}
 
 .chapter-progress-1{width:11.111%}.chapter-progress-2{width:22.222%}.chapter-progress-3{width:33.333%}.chapter-progress-4{width:44.444%}.chapter-progress-5{width:55.555%}.chapter-progress-6{width:66.666%}.chapter-progress-7{width:77.777%}.chapter-progress-8{width:88.888%}.chapter-progress-9{width:100%}
+
+
+/* Optional page-by-page reading mode. Normal scrolling remains the default. */
+.guided-reading{scroll-padding-top:0}
+.guided-reader-bar{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;gap:18px;padding:14px clamp(22px,6vw,90px);border-bottom:1px solid #b6a07855;background:#080b09f5;backdrop-filter:blur(14px)}
+.guided-reader-status{margin:0;color:var(--gold);font:9px/1.5 var(--mono);letter-spacing:.1em}
+.guided-reader-exit{flex:0 0 auto;padding:9px 12px;border:1px solid #a9c7a554;background:transparent;color:var(--bone);font:8px var(--mono);letter-spacing:.08em;cursor:pointer}
+.guided-reader-exit:hover,.guided-reader-exit:focus-visible{border-color:var(--jade);color:var(--jade)}
+.guided-reading-toggle{margin:12px 0 0;cursor:pointer}
+.guided-reading-description{margin:7px 0 0;color:var(--muted);font:8px/1.6 var(--mono);letter-spacing:.04em}
+.guided-reading main>section[hidden],.guided-reading .hero[hidden],.guided-reading .footer[hidden],.guided-reader-bar[hidden]{display:none!important}
+.guided-reading main>section{min-height:calc(100vh - 60px)}
+.guided-reading .section{display:flex;flex-direction:column;justify-content:center}
+.guided-reading .chapter-navigation{margin-top:auto;padding-top:clamp(30px,5vh,70px)}
+.guided-reading .section-index{margin-bottom:clamp(25px,4vh,46px)}
+@media(max-width:700px){.guided-reader-bar{padding:12px 18px;gap:12px}.guided-reader-status{font-size:8px;letter-spacing:.05em}.guided-reader-exit{font-size:7px;padding:8px}.guided-reading main>section{min-height:calc(100vh - 54px)}.guided-reading .section{justify-content:flex-start}}
