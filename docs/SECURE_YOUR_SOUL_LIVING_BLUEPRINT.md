@@ -4,7 +4,7 @@
 
 **Project:** [iYakuza/landing-page](https://github.com/iYakuza/landing-page)  
 **Primary site:** https://iyakuza.github.io/landing-page/  
-**Version:** 1.0 baseline ¬∑ 29 October 2026  
+**Version:** 1.1 ¬∑ 29 October 2026  
 **Status:** Living working document. Proposed features are not necessarily implemented.
 
 **Implementation tracker:** See [DEVELOPMENT_TRACKER.md](./DEVELOPMENT_TRACKER.md) for requirement-by-requirement implementation state, verification evidence, and the next task.
@@ -19,11 +19,11 @@ When a conversation establishes a durable new decision about the website's ident
 4. Mark items as **Decision**, **Proposal**, **Assumption**, or **Open question** so ideas are not mistaken for implemented features.
 5. Update the DOCX booklet when a substantial change is made, and keep the repository source and booklet aligned.
 
-This is a standing project-maintenance convention, not an autonomous background process: edits can be made when the assistant is working on the project in a conversation. The assistant cannot monitor every future conversation or change files when no active task/tool execution is occurring.
+This is a standing project-maintenance convention: whenever work on the project establishes or changes website identity, narrative, experience principles, or structure, update this living source and its formatted DOCX companion in the same workflow. Do not claim synchronization until both repository artifacts are actually updated and verified. This convention applies when the assistant is working on the project in an active conversation; it does not imply background monitoring outside an active workflow.
 
 ## 1. Product vision
 
-**Secure Your Soul** is a fictional personality-preservation program presented through a restrained, immersive website. Its public face is an elegant Institutionrate service promising that a person's memories and personality can survive biological death. Beneath that reassuring surface lies a spiritual and existential mystery: does preserving information preserve a person?
+**Secure Your Soul** is a fictional personality-preservation program presented through a restrained, immersive website. Its public face is an elegant institutional service promising that a person's memories and personality can survive biological death. Beneath that reassuring surface lies a spiritual and existential mystery: does preserving information preserve a person?
 
 **Defining contradiction:** ‚ÄúThe Institute promises that no soul needs to be lost. The archive quietly asks whether a soul can be owned.‚Äù
 
@@ -38,11 +38,11 @@ This is a standing project-maintenance convention, not an autonomous background 
 
 ## 2. Fictional premise and narrative boundaries
 
-Within the fictional world, the Continuity Institute operates Secure Your Soul, a personality-preservation program led by Saburo the Continuity Institute. A modified form of Continuity Process creates digital personality constructs stored within the Continuity Archive infrastructure. The website adopts the voice of a polished institutional portal, while deeper layers question whether a construct is a continuation, copy, prisoner, or something unknown.
+Within the fictional world, the Continuity Institute operates Secure Your Soul, a personality-preservation program led by an unnamed director. A modified form of Continuity Process creates digital personality constructs stored within the Continuity Archive infrastructure. The website adopts the voice of a polished institutional portal, while deeper layers question whether a construct is a continuation, copy, prisoner, or something unknown.
 
 ### Two layers of truth
 
-- **Official / Institutionrate:** procedure, access, records, classifications, and the preservation promise. Precise, composed, reassuring, controlled.
+- **Official / institutional:** procedure, access, records, classifications, and the preservation promise. Precise, composed, reassuring, controlled.
 - **Hidden / interpretive:** contradictions, witness accounts, spiritual questions, and anomalies. Poetic, uncertain, intimate, unsettling.
 
 ### Narrative rules
@@ -76,8 +76,8 @@ Motifs should tell the story, reveal a belief, or guide the visitor experience‚Ä
 | the Threshold / frontier | Boundary around the unknowable | Anomalies, missing records, unexplained signals |
 | The Moon / The Star | Hope, escape, intimacy, future beyond the city | Open sky, distant destinations, moments of warmth |
 | the open frontier / Wanderer imagery | Freedom, movement, self-reliance | Frontier visuals and independent transmissions |
-| Institutionrate ritual | Authority made sacred through seals, ceremony, contracts | Certificates, formal intake, classifications |
-| Found family | Care that no archive or Institutionration can manufacture | Community contributions and collaborative art |
+| institutional ritual | Authority made sacred through seals, ceremony, contracts | Certificates, formal intake, classifications |
+| Found family | Care that no archive or institutionalization can manufacture | Community contributions and collaborative art |
 
 ### Literary and philosophical touchstones
 
@@ -92,7 +92,7 @@ Motifs should tell the story, reveal a belief, or guide the visitor experience‚Ä
 
 ## 4. Brand and visual direction
 
-**Creative direction:** Institutionrate archive meets forbidden spiritual manuscript. The site should feel authored, tactile, quiet, and slightly uncanny. Avoid defaulting to bright neon, aggressive glitch effects, generic hacker screens, or dense sci-fi UI on every page.
+**Creative direction:** institutional archive meets forbidden spiritual manuscript. The site should feel authored, tactile, quiet, and slightly uncanny. Avoid defaulting to bright neon, aggressive glitch effects, generic hacker screens, or dense sci-fi UI on every page.
 
 | Element | Guideline |
 |---|---|
@@ -101,12 +101,12 @@ Motifs should tell the story, reveal a belief, or guide the visitor experience‚Ä
 | Typography | Readable body type; expressive serif/display titles; restrained monospaced metadata, IDs, timestamps, system labels |
 | Layout | Editorial hierarchy, negative space, clear reading width, chapter transitions, responsive grids |
 | Texture | Subtle grain, paper fibers, soft scanlines, etched lines, restrained noise; never compromise legibility |
-| Imagery | the dense city as a shadow, not the whole subject; ruins, murals, memorials, desert horizons, stars, plants, ritual objects |
+| Imagery | urban density as a shadow, not the whole subject; ruins, murals, memorials, desert horizons, stars, plants, ritual objects |
 | Motion | Slow fades and quiet reveals; restrained parallax only when useful; respect reduced-motion preferences |
 | Sound | Optional and user-controlled; never autoplay. Silence is part of the design |
 | Interaction | Clear focus, hover, active, disabled, and error states |
 
-**Voice:** precise institutional language with poetic undertones; short memorable questions; uncertainty where evidence is uncertain; human emotion beneath the Institutionrate surface. Avoid lore dumps and unexplained jargon.
+**Voice:** precise institutional language with poetic undertones; short memorable questions; uncertainty where evidence is uncertain; human emotion beneath the institutional surface. Avoid lore dumps and unexplained jargon.
 
 **Accessibility rule:** the fiction can be mysterious; the interface must not be. Navigation, forms, consent, error messages, keyboard use, focus states, contrast, responsive behavior, and reduced-motion support must remain clear.
 
@@ -115,7 +115,7 @@ Motifs should tell the story, reveal a belief, or guide the visitor experience‚Ä
 | Page / section | Fictional purpose | Visitor experience |
 |---|---|---|
 | Secure Your Soul | Public face of the program | Compelling promise, short introduction, primary action, first narrative question |
-| The Protocol | Explains preservation | Conceptual stages, consent, limitations, official Institutionrate account |
+| The Protocol | Explains preservation | Conceptual stages, consent, limitations, official institutional account |
 | The Archive / the Continuity Archive | Stores records and constructs | Case files, shards, construct logs, classifications, anomalies |
 | The Arcana | Symbolic map of transformation | Chapters about beginnings, bargains, collapse, balance, hope, release |
 | The Unknown | Unclassified phenomena | Signals, disputed accounts, unexplained events, gaps, unresolved questions |
@@ -136,7 +136,7 @@ Community, Institution, and Wanderer are narrative entry paths expressing differ
 | **Institution** | Structure, institutional access, records, formal contribution | Website submission and curated archive | Archive Submissions | Essays, artwork, links, research, proposals |
 | **Wanderer** | Independence, movement, privacy, life beyond institutions | Low-friction open Signal form | Open Transmissions | Pseudonymous or anonymous messages where feasible, photos, reflections, field notes |
 
-**Cross-path principle:** a Community may submit a formal document; a Institution may join Discord; a Wanderer may contribute code. The choice sets tone and gives the visitor an entry narrative, but does not restrict access.
+**Cross-path principle:** a Community may submit a formal document; an Institution may join Discord; a Wanderer may contribute code. The choice sets tone and gives the visitor an entry narrative, but does not restrict access.
 
 ### Suggested first-screen copy
 
@@ -167,9 +167,9 @@ A **Signal** is a fragment of human expression entering the Secure Your Soul wor
 
 | Category | Examples | Potential handling |
 |---|---|---|
-| Street Signal | Question, recommendation, observation, music discovery | May invite community conversation; publish only with consent |
+| Community Signal | Question, recommendation, observation, music discovery | May invite community conversation; publish only with consent |
 | Archive Submission | Essay, artwork, research, story, theory | Editorial review and clear attribution choice |
-| Wilderness Transmission | Personal reflection, photo, note from outside the system | Low-friction intake; pseudonymous option if technically supported |
+| Open Transmission | Personal reflection, photo, note from outside the system | Low-friction intake; pseudonymous option if technically supported |
 | Recovered Shard | Fictional document, diary fragment, invented incident log | Curated in-world content; label as fictional where appropriate |
 | Anomaly Report | Unexplained behavior, contradictory evidence, strange signal | Review for safety and relevance; avoid asserting supernatural claims as fact |
 | Workshop Proposal | Bug report, feature suggestion, code contribution | Route to GitHub issue or contribution guidance |
@@ -259,7 +259,7 @@ GitHub Pages remains the main site at https://iyakuza.github.io/landing-page/ un
 
 ### Current decisions
 
-- **Identity:** Secure Your Soul; original dystopian Institutionrate archive and spiritual mystery.
+- **Identity:** Secure Your Soul; original dystopian institutional archive and spiritual mystery.
 - **Lifepaths:** Community, Institution, and Wanderer as narrative entry paths, not permissions.
 - **Platform roles:** Discord for social community; website for submissions/archive; GitHub for development.
 - **Main URL:** preserve the current GitHub Pages URL unless explicitly approved otherwise.
@@ -292,7 +292,7 @@ GitHub Pages remains the main site at https://iyakuza.github.io/landing-page/ un
 
 | Date | Decision / change | Status |
 |---|---|---|
-| 2026-10-29 | Establish Secure Your Soul as a restrained Institutionrate personality-preservation program with spiritual mystery beneath the surface | Decision |
+| 2026-10-29 | Establish Secure Your Soul as a restrained institutional personality-preservation program with spiritual mystery beneath the surface | Decision |
 | 2026-10-29 | Use Community, Institution, and Wanderer as optional narrative entry paths | Decision |
 | 2026-10-29 | Discord = social layer; website = Signal intake and curated archive; GitHub = development workshop; Slack optional for private operations | Decision |
 | 2026-10-29 | Preserve existing GitHub Pages primary URL unless explicitly approved otherwise | Decision |
@@ -300,4 +300,4 @@ GitHub Pages remains the main site at https://iyakuza.github.io/landing-page/ un
 
 ## North-star statement
 
-A Institutionrate promise of digital immortality conceals a spiritual mystery. Visitors enter through three lifepaths, discover fragments of an uncertain world, and leave Signals that may become part of a human archive. The technology promises preservation; the story asks what preservation means‚Äîand whether freedom matters more.
+A institutional promise of digital immortality conceals a spiritual mystery. Visitors enter through three lifepaths, discover fragments of an uncertain world, and leave Signals that may become part of a human archive. The technology promises preservation; the story asks what preservation means‚Äîand whether freedom matters more.
