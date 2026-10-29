@@ -23,7 +23,7 @@ const quick=addControls();
 quick.addEventListener('click',event=>{event.preventDefault();openStudio(pageCategory())});
 let authBound=false,refreshing=false;
 function hasStoredSession(){try{return Boolean(localStorage.getItem('sb-oeyxsqocldlovhsmzcjw-auth-token'))}catch{return false}}
-async function ensureSupabase(){if(window.supabase?.createClient)return true;if(!hasStoredSession())return false;return new Promise(resolve=>{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';script.async=true;script.onload=()=>resolve(Boolean(window.supabase?.createClient));script.onerror=()=>resolve(false);document.head.appendChild(script)})}
+async function ensureSupabase(){if(window.supabase?.createClient)return true;if(!hasStoredSession())return false;return new Promise(resolve=>{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';script.crossOrigin='anonymous';script.referrerPolicy='no-referrer';script.async=true;script.onload=()=>resolve(Boolean(window.supabase?.createClient));script.onerror=()=>resolve(false);document.head.appendChild(script)})}
 async function refresh(sessionOverride){
  if(refreshing)return;
  refreshing=true;
