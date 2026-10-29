@@ -55,6 +55,111 @@
 
   buildChapterNavigation();
 
+  // Guided reading is an optional, progressively enhanced mode. The full archive
+  // remains available as a normal long page unless the visitor opts in.
+  const main = document.querySelector("main");
+  const hero = document.querySelector(".hero");
+  const footer = document.querySelector(".footer");
+  const entryButton = document.querySelector('.hero-copy a[href="#origin"]');
+  const readerBar = document.createElement("div");
+  readerBar.className = "guided-reader-bar";
+  readerBar.hidden = true;
+  readerBar.setAttribute("aria-label", "Guided story controls");
+
+  const readerStatus = document.createElement("p");
+  readerStatus.className = "guided-reader-status";
+  readerStatus.setAttribute("aria-live", "polite");
+  readerStatus.setAttribute("aria-atomic", "true");
+
+  const exitButton = document.createElement("button");
+  exitButton.type = "button";
+  exitButton.className = "guided-reader-exit";
+  exitButton.textContent = "EXIT CHAPTER MODE";
+  readerBar.append(readerStatus, exitButton);
+  if (main) main.prepend(readerBar);
+
+  const guidedToggle = document.createElement("button");
+  guidedToggle.type = "button";
+  guidedToggle.className = "button button-outline guided-reading-toggle";
+  guidedToggle.textContent = "ENTER CHAPTER MODE";
+  guidedToggle.setAttribute("aria-describedby", "guided-reading-description");
+  if (entryButton) entryButton.insertAdjacentElement("afterend", guidedToggle);
+
+  const guidedDescription = document.createElement("p");
+  guidedDescription.id = "guided-reading-description";
+  guidedDescription.className = "guided-reading-description";
+  guidedDescription.textContent = "Read one chapter at a time. You can exit at any point.";
+  if (guidedToggle) guidedToggle.insertAdjacentElement("afterend", guidedDescription);
+
+  let guidedMode = false;
+  let currentChapterIndex = 0;
+
+  function showChapter(index, focusHeading = true) {
+    currentChapterIndex = Math.max(0, Math.min(index, chapters.length - 1));
+    chapters.forEach((chapter, chapterIndex) => {
+      const section = document.getElementById(chapter.id);
+      if (section) section.hidden = guidedMode && chapterIndex !== currentChapterIndex;
+    });
+    const chapter = chapters[currentChapterIndex];
+    readerStatus.textContent = "CHAPTER " + String(currentChapterIndex + 1).padStart(2, "0") +
+      " / " + String(chapters.length).padStart(2, "0") + " — " + chapter.name;
+    if (guidedMode) {
+      history.replaceState(null, "", "#" + chapter.id);
+      window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      if (focusHeading) {
+        const heading = document.getElementById(chapter.id)?.querySelector("h2");
+        if (heading) {
+          heading.setAttribute("tabindex", "-1");
+          heading.focus({ preventScroll: true });
+        }
+      }
+    }
+  }
+
+  function enterGuidedMode() {
+    guidedMode = true;
+    document.body.classList.add("guided-reading");
+    if (hero) hero.hidden = true;
+    if (footer) footer.hidden = true;
+    if (readerBar) readerBar.hidden = false;
+    showChapter(0);
+    exitButton.focus();
+  }
+
+  function exitGuidedMode() {
+    guidedMode = false;
+    document.body.classList.remove("guided-reading");
+    chapters.forEach((chapter) => {
+      const section = document.getElementById(chapter.id);
+      if (section) section.hidden = false;
+    });
+    if (hero) hero.hidden = false;
+    if (footer) footer.hidden = false;
+    if (readerBar) readerBar.hidden = true;
+    history.replaceState(null, "", "#top");
+    window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    if (entryButton) entryButton.focus({ preventScroll: true });
+  }
+
+  guidedToggle.addEventListener("click", enterGuidedMode);
+  exitButton.addEventListener("click", exitGuidedMode);
+
+  document.querySelectorAll(".chapter-navigation").forEach((nav) => {
+    nav.addEventListener("click", (event) => {
+      if (!guidedMode) return;
+      const link = event.target.closest("a[href^='#']");
+      if (!link) return;
+      event.preventDefault();
+      const targetId = link.getAttribute("href").slice(1);
+      if (targetId === "top") {
+        exitGuidedMode();
+        return;
+      }
+      const nextIndex = chapters.findIndex((chapter) => chapter.id === targetId);
+      if (nextIndex !== -1) showChapter(nextIndex);
+    });
+  });
+
   const paths = {
     street: {
       title: "STREET KID / STREET SIGNALS",
