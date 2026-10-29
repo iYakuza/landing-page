@@ -253,6 +253,9 @@
   }
   function startPresentation() {
     presentationActive=true;
+    // Focus the reader so keyboard navigation is scoped to the presentation, not the whole page.
+    manuscript.setAttribute("tabindex","-1");
+    manuscript.focus({preventScroll:true});
     showManuscriptSlide(getManuscriptIndex(location.pathname));
     manuscript.setAttribute("aria-hidden","false");
     document.body.classList.add("vha-presentation-active");
@@ -269,7 +272,7 @@
     if(document.fullscreenElement){try{await document.exitFullscreen()}catch{}}
   });
   document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement&&presentationActive)stopPresentation()});
-  document.addEventListener("keydown",e=>{
+  manuscript.addEventListener("keydown",e=>{
     if(!presentationActive||e.altKey||e.ctrlKey||e.metaKey)return;
     if(e.target&&(e.target.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)))return;
     if(["ArrowRight","ArrowDown","PageDown"," "].includes(e.key)){e.preventDefault();navigateManuscriptChapter(slideIndex+1)}
@@ -329,7 +332,7 @@ html[data-vha-mood] .vha-main-nav .active,html[data-vha-mood] .vha-main-nav [ari
   const finishDrag=()=>{if(!dragging)return;dragging=false;if(moved){setOpen(false);root.dataset.suppressClick="true";setTimeout(()=>delete root.dataset.suppressClick,0)}};
   trigger.addEventListener("pointerup",finishDrag);trigger.addEventListener("pointercancel",finishDrag);
   trigger.addEventListener("click",e=>{if(root.dataset.suppressClick==="true"){e.preventDefault();e.stopPropagation();return}setOpen(root.dataset.open!=="true")});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape")setOpen(false)});
+  root.addEventListener("keydown",e=>{if(e.key==="Escape")setOpen(false)});
   document.addEventListener("click",e=>{if(!root.contains(e.target))setOpen(false)});
   window.addEventListener("resize",()=>{if(root.dataset.moved==="true"){const rect=root.getBoundingClientRect();root.style.left=clamp(rect.left,0,innerWidth-root.offsetWidth)+"px";root.style.top=clamp(rect.top,0,innerHeight-root.offsetHeight)+"px"}});
   root.querySelectorAll("[data-mood-preset]").forEach(button=>button.addEventListener("click",()=>{const mood=button.dataset.moodPreset;const prompts={calm:"I feel calm and peaceful. Adapt the website to feel serene, spacious, and grounded.",sad:"I feel sad and a little low. Adapt the website to feel gentle, quiet, and comforting.",anxious:"I feel anxious and overwhelmed. Adapt the website to feel steady, soft, and low-stimulation.",happy:"I feel happy and upbeat. Adapt the website to feel warm, bright, and optimistic.",angry:"I feel angry or frustrated. Adapt the website to feel strong, grounded, and controlled.",tired:"I feel tired and drained. Adapt the website to feel restful, muted, and easy on the eyes.",focused:"I feel focused and ready to work. Adapt the website to feel clear, structured, and distraction-free.",hopeful:"I feel hopeful and inspired. Adapt the website to feel fresh, open, and uplifting."};const textarea=root.querySelector("#vha-mood-description");textarea.value=prompts[mood]||"";textarea.focus();root.querySelector(".vha-mood-status").textContent="Prompt ready. Choose Adapt the site to apply this feeling.";root.querySelectorAll("[data-mood-preset]").forEach(b=>b.setAttribute("aria-pressed",String(b===button)));}));
