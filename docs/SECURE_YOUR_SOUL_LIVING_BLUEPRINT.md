@@ -7,6 +7,8 @@
 **Version:** 1.0 baseline · 29 October 2026  
 **Status:** Living working document. Proposed features are not necessarily implemented.
 
+**Implementation tracker:** See [DEVELOPMENT_TRACKER.md](./DEVELOPMENT_TRACKER.md) for requirement-by-requirement implementation state, verification evidence, and the next task.
+
 ## How to maintain this document
 
 When a conversation establishes a durable new decision about the website's identity, story, visual language, information architecture, visitor journeys, community model, Signals, privacy, or requirements:
