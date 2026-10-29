@@ -209,18 +209,35 @@ Deno.serve(async (request: Request) => {
       return response(200, { ok: true, decision, post_id: createdPost.id, slug: createdPost.slug }, origin, allowedOrigin);
     }
 
-    if (decision === "reject" && item.status !== "pending") return response(409, { error: "only_pending_transmissions_can_be_rejected" }, origin, allowedOrigin);
-    if (decision === "remove" && item.status !== "published") return response(409, { error: "only_published_transmissions_can_be_removed" }, origin, allowedOrigin);
-    if (decision === "remove" && item.published_post_id) {
-      const { error: deleteError } = await admin.from("vha_posts").delete().eq("id", item.published_post_id);
-      if (deleteError) return response(503, { error: "published_post_removal_failed" }, origin, allowedOrigin);
+    if (decision === "reject") {
+      if (item.status !== "pending") return response(409, { error: "only_pending_transmissions_can_be_rejected" }, origin, allowedOrigin);
+      const { data: rejected, error: rejectError } = await admin.from("sys_transmissions").update({
+        status: "rejected", reviewed_at: new Date().toISOString(), reviewed_by: userData.user.id,
+        moderation_note: note || null,
+      }).eq("id", id).eq("status", "pending").select("id").maybeSingle();
+      if (rejectError || !rejected) return response(409, { error: "transmission_already_reviewed" }, origin, allowedOrigin);
+      return response(200, { ok: true, decision }, origin, allowedOrigin);
     }
-    const newStatus = decision === "reject" ? "rejected" : "removed";
-    const { error: updateError } = await admin.from("sys_transmissions").update({
-      status: newStatus, reviewed_at: new Date().toISOString(), reviewed_by: userData.user.id,
+
+    if (item.status !== "published") return response(409, { error: "only_published_transmissions_can_be_removed" }, origin, allowedOrigin);
+    const { data: claimedRemoval, error: claimRemovalError } = await admin.from("sys_transmissions").update({
+      status: "reviewing", reviewed_at: new Date().toISOString(), reviewed_by: userData.user.id,
       moderation_note: note || null,
-    }).eq("id", id);
-    if (updateError) return response(503, { error: "review_record_update_failed" }, origin, allowedOrigin);
+    }).eq("id", id).eq("status", "published").select("id").maybeSingle();
+    if (claimRemovalError || !claimedRemoval) return response(409, { error: "transmission_already_reviewed" }, origin, allowedOrigin);
+
+    if (item.published_post_id) {
+      const { error: deleteError } = await admin.from("vha_posts").delete().eq("id", item.published_post_id);
+      if (deleteError) {
+        await admin.from("sys_transmissions").update({ status: "published" }).eq("id", id).eq("status", "reviewing");
+        return response(503, { error: "published_post_removal_failed" }, origin, allowedOrigin);
+      }
+    }
+    const { data: removed, error: removeError } = await admin.from("sys_transmissions").update({
+      status: "removed", reviewed_at: new Date().toISOString(), reviewed_by: userData.user.id,
+      moderation_note: note || null,
+    }).eq("id", id).eq("status", "reviewing").select("id").maybeSingle();
+    if (removeError || !removed) return response(503, { error: "review_record_update_failed" }, origin, allowedOrigin);
     return response(200, { ok: true, decision }, origin, allowedOrigin);
   }
 
