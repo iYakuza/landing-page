@@ -88,3 +88,5 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 - Added optional keyboard navigation to Guided Reading: Left/Right Arrow advances between chapters; Escape exits the mode. Controls are disabled while focus is in editable form controls and do not intercept modified shortcuts.
 - Added a site-wide reduced-motion media query to disable smooth scrolling/transitions/animations for visitors who request reduced motion.
 - Source-level review only. Real keyboard, screen-reader, reduced-motion, mobile, and desktop browser testing remains outstanding.
+
+- Source-level checks run after the accessibility update: JavaScript parses successfully with `new Function`; CSS brace counts are balanced (243/243); the HTML has no duplicate IDs and no missing in-page hash targets; all nine Guided Reading chapter IDs exist. These are static checks, not browser tests.
