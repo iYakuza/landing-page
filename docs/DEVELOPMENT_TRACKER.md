@@ -75,3 +75,5 @@ State labels: **Investigated**, **Planned**, **Implemented**, **Tested**, **Comm
 - Follow-up hardening deployed to Supabase as Edge Function version 2: publication first claims the pending record conditionally, only finalizes the claimed row, and rolls back the post and record if finalization fails. Reject is restricted to pending records; removal is restricted to published records. Source synchronized to GitHub.
 
 - Added explicit `reviewing` status in the database and deployed Edge Function version 3. The publish claim now uses `pending → reviewing → published`, with failure rollback to pending. This avoids using the rejected state as an in-progress lock.
+
+- Edge Function version 4: rate-limit key now checks available proxy client-IP headers (`cf-connecting-ip`, `x-real-ip`, then the last `x-forwarded-for` address) before falling back to `unknown`. The selected value is hashed with a server-side salt before storage. This avoids accidentally applying a single three-submission limit to all visitors when a client-IP header is present. Proxy-header trust and live rate-limit behavior still require deployment-level testing.
