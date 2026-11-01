@@ -161,3 +161,6 @@ body.cms-writing-focus .rich-toolbar [data-toolbar-drag]:focus-visible{outline:1
  body.cms-writing-focus .rich-toolbar button{width:34px;height:34px;min-width:34px;min-height:34px}
  body.cms-writing-focus .rich-content{min-height:calc(100dvh - 150px);padding-bottom:70px}
 }
+
+body.cms-writing-focus .rich-toolbar [data-toolbar-drag]{z-index:0;pointer-events:auto;background:transparent}
+body.cms-writing-focus .rich-toolbar button{position:relative;z-index:1}
