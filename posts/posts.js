@@ -190,9 +190,9 @@
     const styleContent=style?styleSection.content:'<p>No Suno style prompt added yet.</p>';
     const collapsible=(label,content,classes='')=>'<details class="suno-collapsible '+classes+'"><summary class="suno-label">'+(label||'SECTION')+'</summary><div class="suno-section-content">'+content+'</div></details>';
     const reflection=(section)=>section.content?'<section class="suno-reflection">'+collapsible(section.label.replace(/<[^>]*>/g,''),section.content,'suno-reflection-disclosure')+'</section>':'';
-    const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+collapsible(textSection.label.replace(/^<p[^>]*>|<\\/p>$/g,''),textHtml,'suno-text-disclosure')+'</section>';
-    const lyricsHtml='<section class="suno-column suno-column-lyrics">'+collapsible(lyricsLabel.replace(/^<p[^>]*>|<\\/p>$/g,''),lyricsContent,'suno-lyrics-disclosure')+'</section>';
-    const styleHtml='<section class="suno-column suno-column-style">'+collapsible(styleSection.label.replace(/^<p[^>]*>|<\\/p>$/g,''),styleContent,'suno-style-disclosure')+reflection(learnedSection)+reflection(chatgptSection)+'</section>';
+    const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+collapsible(textSection.label.replace(/^<p[^>]*>|<\/p>$/g,''),textHtml,'suno-text-disclosure')+'</section>';
+    const lyricsHtml='<section class="suno-column suno-column-lyrics">'+collapsible(lyricsLabel.replace(/^<p[^>]*>|<\/p>$/g,''),lyricsContent,'suno-lyrics-disclosure')+'</section>';
+    const styleHtml='<section class="suno-column suno-column-style">'+collapsible(styleSection.label.replace(/^<p[^>]*>|<\/p>$/g,''),styleContent,'suno-style-disclosure')+reflection(learnedSection)+reflection(chatgptSection)+'</section>';
     return '<div class="suno-three-grid">'+first+styleHtml+lyricsHtml+'</div>';
   }
   function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,permalinkBack,shapeClass){
