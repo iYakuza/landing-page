@@ -158,17 +158,22 @@
     document.body.classList.add('image-viewer-open');
     viewer.querySelector('[data-viewer-close]')?.focus();
   }
-  function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,permalinkBack,shapeClass){
+  function renderSunoGrid(post,media,titleHtml,excerptHtml){
     const doc=new DOMParser().parseFromString(cleanHtml(post.content_html||''),'text/html');
     const textColumn=doc.querySelector('.suno-text-column');
     const lyrics=doc.querySelector('.suno-lyrics');
     const style=doc.querySelector('.suno-notes');
     style?.querySelector(':scope > .suno-label')?.remove();
+    // Lyrics are always initially collapsed, regardless of the source markup.
+    lyrics?.removeAttribute('open');
     const textHtml=textColumn?textColumn.innerHTML:'<p class="suno-empty-column">No accompanying text added yet.</p>';
     const lyricsHtml=lyrics?lyrics.outerHTML:'<details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS</summary><p>No lyrics added yet.</p></details>';
     const styleHtml=style?style.innerHTML:'<p>No Suno style prompt added yet.</p>';
     const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+'<div class="suno-column-copy">'+textHtml+'</div></section>';
-    return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+'<div class="suno-three-grid">'+first+'<section class="suno-column suno-column-style"><p class="suno-label">03 // SUNO STYLE PROMPT</p><aside class="suno-notes">'+styleHtml+'</aside></section><section class="suno-column suno-column-lyrics">'+lyricsHtml+'</section></div>'+shareActions(post)+permalinkBack+'</article>';
+    return '<div class="suno-three-grid">'+first+'<section class="suno-column suno-column-style"><p class="suno-label">03 // SUNO STYLE PROMPT</p><aside class="suno-notes">'+styleHtml+'</aside></section><section class="suno-column suno-column-lyrics">'+lyricsHtml+'</section></div>';
+  }
+  function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,permalinkBack,shapeClass){
+    return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+renderSunoGrid(post,media,titleHtml,excerptHtml)+shareActions(post)+permalinkBack+'</article>';
   }
   function render(){
     const permalink=Boolean(requestedSlug);
@@ -220,8 +225,12 @@
       const categoryLink='<a class="post-category" href="'+movementHref+'" aria-label="Browse '+safe(displayCategory(post.category))+'">'+safe(displayCategory(post.category))+'</a>';
       const isExpanded=permalink;
       const lead='<div class="post-card-top"><button type="button" class="post-date-toggle" data-post-toggle="'+safe(post.slug)+'" aria-expanded="'+(isExpanded?'true':'false')+'" aria-controls="post-content-'+safe(post.slug)+'"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-disclosure-mark" aria-hidden="true">'+(isExpanded?'−':'+')+'</span></button>'+categoryLink+editButton+shareActions(post)+'</div>';
-      const expandedContent='<div class="post-collapsible" id="post-content-'+safe(post.slug)+'"'+(isExpanded?'':' hidden')+'><h3>'+safe(post.title)+'</h3>'+media+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'</div>';
-      return '<article class="post-card '+shapeClass+' post-archive-composition" id="post-'+safe(post.slug)+'">'+lead+expandedContent+'</article>';
+      const isSuno=/class=["']suno-post-layout["']/.test(post.content_html||'');
+      const expandedBody=isSuno
+        ? renderSunoGrid(post,media,'<h3>'+safe(post.title)+'</h3>',post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')
+        : '<h3>'+safe(post.title)+'</h3>'+media+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body;
+      const expandedContent='<div class="post-collapsible'+(isSuno?' suno-three-column':'')+'" id="post-content-'+safe(post.slug)+'"'+(isExpanded?'':' hidden')+'>'+expandedBody+'</div>';
+      return '<article class="post-card '+shapeClass+' post-archive-composition'+(isSuno?' suno-three-column':'')+'" id="post-'+safe(post.slug)+'">'+lead+expandedContent+'</article>';
     }).join('');
     if(permalink){
       document.title=filtered[0].title+' // VERSE AFTER HOURS';
