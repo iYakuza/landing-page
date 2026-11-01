@@ -63,11 +63,15 @@
   function validMediaUrl(value){
     try{
       const raw=String(value||'').trim();
-      if(raw.startsWith('/landing-page/posts/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes('\\\\'))return raw;
+      if(raw.startsWith('/landing-page/posts/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
       const url=new URL(raw);
-      const ownStorage=url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.includes('/storage/v1/object/public/vha-post-media/')||url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.includes('/storage/v1/object/public/poetry-media/');
+      const ownStorage=url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&(
+        url.pathname.includes('/storage/v1/object/public/vha-post-media/')||
+        url.pathname.includes('/storage/v1/object/public/poetry-media/')
+      );
       const wordpressHost=['emanuelstefancu.wordpress.com','i0.wp.com'].includes(url.hostname);
-      const wordpressMedia=wordpressHost&&url.pathname.includes('/wp-content/uploads/')&&/\\.(jpe?g|png|webp|gif|avif)$/i.test(url.pathname);
+      const extension=url.pathname.split('.').pop().toLowerCase();
+      const wordpressMedia=wordpressHost&&url.pathname.includes('/wp-content/uploads/')&&['jpg','jpeg','png','webp','gif','avif'].includes(extension);
       return url.protocol==='https:'&&(ownStorage||wordpressMedia)?url.href:'';
     }catch{return '';}
   }
