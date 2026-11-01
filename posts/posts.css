@@ -871,9 +871,9 @@ body.post-edit-open{overflow:hidden}
   position:absolute!important;
   z-index:20!important;
   top:calc(100% + 8px)!important;
-  left:calc(33.333% + 7px)!important;
-  width:min(calc(66.666% - 14px),900px)!important;
-  max-width:calc(66.666% - 14px)!important;
+  left:0!important;
+  width:min(calc(200% + 28px),900px)!important;
+  max-width:calc(200% + 28px)!important;
   max-height:70vh!important;
   overflow:auto!important;
   box-sizing:border-box!important;
