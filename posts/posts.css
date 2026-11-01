@@ -1135,35 +1135,27 @@ body.image-viewer-open{overflow:hidden!important}
 }
 
 
-/* SUNO reflections are independent sections, not part of the style prompt. */
-.suno-reflections{
-  display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  gap:clamp(16px,2vw,28px)!important;
-  margin:clamp(24px,3vw,40px) 0 0!important;
-  padding-top:clamp(18px,2vw,28px)!important;
-  border-top:1px solid rgba(66,245,229,.2)!important;
-}
-.suno-reflection-card{
+/* SUNO reflections continue naturally beneath the style prompt in column 2. */
+.suno-three-grid>.suno-column-style>.suno-notes>.suno-reflection{
   display:block!important;
+  position:static!important;
+  width:100%!important;
   min-width:0!important;
-  padding:clamp(16px,2vw,26px)!important;
-  border:1px solid rgba(66,245,229,.18)!important;
-  background:linear-gradient(145deg,#07120f,#080c09)!important;
+  margin:24px 0 0!important;
+  padding:18px 0 0!important;
+  border-top:1px solid rgba(66,245,229,.2)!important;
+  background:transparent!important;
 }
-.suno-reflection-card>.suno-label{
+.suno-three-grid>.suno-column-style>.suno-notes>.suno-reflection>.suno-label{
   display:block!important;
-  margin:0 0 16px!important;
+  margin:0 0 14px!important;
   color:#d8ff3e!important;
   font-size:11px!important;
   letter-spacing:.12em!important;
 }
-.suno-reflection-card p{
+.suno-three-grid>.suno-column-style>.suno-notes>.suno-reflection p{
   color:#b8c8b7!important;
   font-size:13px!important;
   line-height:1.9!important;
   overflow-wrap:anywhere!important;
-}
-@media(max-width:700px){
-  .suno-reflections{grid-template-columns:minmax(0,1fr)!important}
 }
