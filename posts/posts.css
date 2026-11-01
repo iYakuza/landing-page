@@ -1245,3 +1245,21 @@ body.image-viewer-open{overflow:hidden!important}
   width:100%!important;
   min-width:0!important;
 }
+
+
+/* Per-transmission control for opening or closing every collapsible section. */
+.post-sections-toggle{
+  display:inline-flex!important;align-items:center;justify-content:center;gap:7px;
+  min-height:30px;max-width:100%;padding:7px 10px!important;
+  border:1px solid color-mix(in srgb,var(--viewer-accent,#d8ff3e) 55%,transparent)!important;
+  background:color-mix(in srgb,var(--viewer-accent,#d8ff3e) 7%,transparent)!important;
+  color:var(--viewer-accent,#d8ff3e)!important;
+  font:9px/1.2 ui-monospace,monospace!important;letter-spacing:.08em!important;
+  text-align:center;white-space:normal;cursor:pointer;
+}
+.post-sections-toggle:hover,.post-sections-toggle:focus-visible{
+  background:var(--viewer-accent,#d8ff3e)!important;color:var(--viewer-bg,#050906)!important;
+  outline:2px solid var(--viewer-accent,#d8ff3e)!important;outline-offset:2px;
+}
+.post-card-top{flex-wrap:wrap}
+@media(max-width:560px){.post-sections-toggle{font-size:8px!important;padding:7px 8px!important}}
