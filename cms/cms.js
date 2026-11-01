@@ -299,7 +299,7 @@
       toolbarWasDragged=false;
       if(onChain){event.preventDefault();richToolbar.setPointerCapture?.(event.pointerId);}
     });
-    richToolbar.addEventListener('pointermove',event=>{
+    document.addEventListener('pointermove',event=>{
       if(!toolbarDrag||toolbarDrag.id!==event.pointerId)return;
       const dx=event.clientX-toolbarDrag.x,dy=event.clientY-toolbarDrag.y;
       if(!toolbarDrag.started&&Math.hypot(dx,dy)<5)return;
@@ -318,8 +318,8 @@
         setTimeout(()=>{delete richToolbar.dataset.suppressClick;},0);
       }
     };
-    richToolbar.addEventListener('pointerup',finishToolbarDrag);
-    richToolbar.addEventListener('pointercancel',finishToolbarDrag);
+    document.addEventListener('pointerup',finishToolbarDrag);
+    document.addEventListener('pointercancel',finishToolbarDrag);
     richToolbar.addEventListener('click',event=>{
       if(richToolbar.dataset.suppressClick==='true'){event.preventDefault();event.stopImmediatePropagation();}
     },true);
