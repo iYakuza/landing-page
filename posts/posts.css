@@ -1006,3 +1006,17 @@ body.post-edit-open{overflow:hidden}
 .posts-list:has(.post-back) .post-image-open:hover img{transform:scale(1.025)}
 @media(max-width:760px){.posts-list:has(.post-back) .post-detail-grid{grid-template-columns:minmax(0,1fr)!important;gap:22px!important}.posts-list:has(.post-back) .post-detail-copy,.posts-list:has(.post-back) .post-detail-media{grid-column:1!important;grid-row:auto!important}.posts-list:has(.post-back) .post-detail-media{max-width:100%!important}}
 @media(max-width:560px){.suno-three-grid>.suno-column-lyrics{position:relative!important;z-index:5!important}.suno-three-grid>.suno-column-lyrics details[open]>pre{position:absolute!important;left:0!important;top:100%!important;width:min(92vw,760px)!important;max-width:92vw!important;max-height:60vh!important;overflow:auto!important;margin-top:10px!important;z-index:20!important;box-sizing:border-box!important;background:var(--viewer-surface,#080e09)!important;border:1px solid var(--viewer-accent,#d8ff3e)!important;box-shadow:0 12px 34px #000b!important}}
+
+
+/* SUNO MOBILE ORDER: keep the style label and notes above the expandable lyrics panel. */
+@media(max-width:560px){
+  .suno-three-grid{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important}
+  .suno-three-grid>.suno-column-text{grid-column:1!important;grid-row:1!important}
+  .suno-three-grid>.suno-column-style{grid-column:1!important;grid-row:2!important;align-self:start!important}
+  .suno-three-grid>.suno-column-lyrics{grid-column:1!important;grid-row:3!important;align-self:start!important}
+  .suno-three-grid>.suno-column-lyrics details[open]>pre{
+    position:absolute!important;top:calc(100% + 8px)!important;left:0!important;
+    width:min(92vw,760px)!important;max-width:92vw!important;max-height:60vh!important;
+    overflow:auto!important;z-index:40!important;margin:0!important
+  }
+}
