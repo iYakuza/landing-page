@@ -62,9 +62,11 @@
   }
   function validMediaUrl(value){
     try{
-      const url=new URL(String(value||''));
-      const ownStorage=url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&/\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);
-      const wordpressMedia=['emanuelstefancu.wordpress.com','i0.wp.com'].includes(url.hostname)&&/^\/emanuelstefancu\.wordpress\.com\/wp-content\/uploads\/\d{4}\/\d{2}\/[A-Za-z0-9._-]+\.(jpe?g|png|webp|gif|avif)$/i.test(url.pathname) || url.hostname==='emanuelstefancu.wordpress.com'&&/^\/wp-content\/uploads\/\d{4}\/\d{2}\/[A-Za-z0-9._-]+\.(jpe?g|png|webp|gif|avif)$/i.test(url.pathname);
+      const raw=String(value||'').trim();
+      if(raw.startsWith('/landing-page/posts/imported/')&&!raw.includes('..')&&!/[\\\\?#]/.test(raw))return raw;
+      const url=new URL(raw);
+      const ownStorage=url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&/\\/storage\\/v1\\/object\\/public\\/(vha-post-media|poetry-media)\\//.test(url.pathname);
+      const wordpressMedia=['emanuelstefancu.wordpress.com','i0.wp.com'].includes(url.hostname)&&/^\\/emanuelstefancu\\.wordpress\\.com\\/wp-content\\/uploads\\/\\d{4}\\/\\d{2}\\/[A-Za-z0-9._-]+\\.(jpe?g|png|webp|gif|avif)$/i.test(url.pathname) || url.hostname==='emanuelstefancu.wordpress.com'&&/^\\/wp-content\\/uploads\\/\\d{4}\\/\\d{2}\\/[A-Za-z0-9._-]+\\.(jpe?g|png|webp|gif|avif)$/i.test(url.pathname);
       return url.protocol==='https:'&&(ownStorage||wordpressMedia)?url.href:'';
     }catch{return '';}
   }
@@ -145,7 +147,7 @@
         }
         const detailCopy='<div class="post-detail-copy">'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'</div>';
         const detailMedia=media?'<aside class="post-detail-media" aria-label="Transmission media">'+media+'<p class="post-media-caption">TRANSMISSION MEDIA // '+safe(post.media_type||'audio').toUpperCase()+'</p></aside>':'';
-        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div><h3>'+safe(post.title)+'</h3>'+detailMedia+'<div class="post-detail-grid text-only">'+detailCopy+'</div>'+shareActions(post)+permalinkBack+'</article>';
+        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div><h3>'+safe(post.title)+'</h3><div class="post-detail-grid">'+detailCopy+detailMedia+'</div>'+shareActions(post)+permalinkBack+'</article>';
       }
       // Archive cards begin retracted; the date control expands the transmission.
       const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
