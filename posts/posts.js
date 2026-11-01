@@ -96,9 +96,9 @@
     style?.querySelector(':scope > .suno-label')?.remove();
     const textHtml=textColumn?textColumn.innerHTML:'<p class="suno-empty-column">No accompanying text added yet.</p>';
     const lyricsHtml=lyrics?lyrics.outerHTML:'<details class="suno-lyrics"><summary class="suno-label">02 // SUNO.COM LYRICS</summary><p>No lyrics added yet.</p></details>';
-    const styleHtml=style?style.innerHTML:'<p>No style notes added yet.</p>';
+    const styleHtml=style?style.innerHTML:'<p>No Suno style prompt added yet.</p>';
     const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+'<div class="suno-column-copy">'+textHtml+'</div></section>';
-    return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+'<div class="suno-three-grid">'+first+'<section class="suno-column suno-column-lyrics">'+lyricsHtml+'</section><section class="suno-column suno-column-style"><p class="suno-label">03 // SUNO.COM STYLE</p>'+styleHtml+'</section></div>'+shareActions(post)+permalinkBack+'</article>';
+    return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+'<div class="suno-three-grid">'+first+'<section class="suno-column suno-column-lyrics">'+lyricsHtml+'</section><section class="suno-column suno-column-style"><p class="suno-label">03 // SUNO STYLE PROMPT</p>'+styleHtml+'</section></div>'+shareActions(post)+permalinkBack+'</article>';
   }
   function render(){
     const permalink=Boolean(requestedSlug);
