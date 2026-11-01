@@ -131,7 +131,8 @@
       const permalinkBack=permalink?'<p class="post-back"><a href="./">← BACK TO THE ARCHIVE</a></p>':'';
       const mediaUrl=validMediaUrl(post.media_url);
       const mediaWidth=Math.max(20,Math.min(100,Number(post.media_width)||100));
-      const media=mediaUrl?'<div class="post-media" style="--post-media-width:'+mediaWidth+'%">'+(post.media_type==='image'?'<img src="'+safe(mediaUrl)+'" alt="'+safe(post.title)+'" loading="lazy">':post.media_type==='video'?'<video src="'+safe(mediaUrl)+'" controls preload="none" loading="lazy"></video>':'<audio src="'+safe(mediaUrl)+'" controls preload="none"></audio>')+'</div>':'';
+      const fallbackMediaUrl=mediaUrl&&mediaUrl.includes('i0.wp.com/')?'https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg?w=1024':'';
+      const media=mediaUrl?'<div class="post-media" style="--post-media-width:'+mediaWidth+'%">'+(post.media_type==='image'?'<img src="'+safe(mediaUrl)+'"'+(fallbackMediaUrl?' data-fallback-src="'+safe(fallbackMediaUrl)+'"':'')+' alt="'+safe(post.title)+'" loading="lazy">':post.media_type==='video'?'<video src="'+safe(mediaUrl)+'" controls preload="none" loading="lazy"></video>':'<audio src="'+safe(mediaUrl)+'" controls preload="none"></audio>')+'</div>':'';
       const shapeClass=['shape-i','shape-l','shape-square','shape-t','shape-z','shape-j','shape-s'][index%7];
       if(permalink){
         const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
@@ -201,6 +202,13 @@
     canEditPosts=await checkEditorAccess();renderCategories();render();
   }
 
+  list.addEventListener('error',event=>{
+    const image=event.target.closest?.('.post-media img');
+    if(image&&image.dataset.fallbackSrc&&!image.dataset.fallbackAttempted){
+      image.dataset.fallbackAttempted='true';
+      image.src=image.dataset.fallbackSrc;
+    }
+  },true);
   list.addEventListener('click',async event=>{
     const toggleButton=event.target.closest('[data-post-toggle]');
     if(toggleButton){
