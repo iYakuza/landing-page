@@ -250,7 +250,81 @@
     setStatus('UNSAVED');
   }));
   $('insert-link').addEventListener('click',()=>{contentEditor.focus();const url=prompt('Enter an https:// or mailto: link');if(url&&/^(https?:\/\/|mailto:)/i.test(url.trim()))document.execCommand('createLink',false,url.trim());else if(url)message(saveMessage,'Only https:// and mailto: links are allowed.',true);});
+
   contentEditor.addEventListener('input',()=>setStatus('UNSAVED'));
+
+  // Focused writing mode: isolate the body editor and keep its formatting tools as a movable cluster.
+  const focusWritingButton=$('post-content-focus');
+  const richToolbar=document.querySelector('.rich-toolbar');
+  let toolbarDrag=null,toolbarWasDragged=false;
+  function setWritingFocus(active){
+    document.body.classList.toggle('cms-writing-focus',active);
+    focusWritingButton.setAttribute('aria-pressed',String(active));
+    focusWritingButton.setAttribute('aria-label',active?'Exit focused writing mode':'Open focused writing mode');
+    focusWritingButton.title=active?'Return to the full post editor':'Focused writing mode';
+    if(active){requestAnimationFrame(()=>contentEditor.focus());}
+  }
+  focusWritingButton.addEventListener('click',()=>setWritingFocus(!document.body.classList.contains('cms-writing-focus')));
+  document.addEventListener('keydown',event=>{
+    if(event.key==='Escape'&&document.body.classList.contains('cms-writing-focus')){
+      event.preventDefault();setWritingFocus(false);focusWritingButton.focus();
+    }
+  });
+  if(richToolbar){
+    const chain=document.createElement('span');
+    chain.className='toolbar-invisible-chain';
+    chain.dataset.toolbarDrag='';
+    chain.setAttribute('aria-label','Drag the invisible toolbar chain to move all formatting buttons');
+    chain.setAttribute('role','separator');
+    chain.setAttribute('tabindex','0');
+    chain.title='Drag here to move the complete formatting toolbar';
+    richToolbar.prepend(chain);
+    chain.addEventListener('keydown',event=>{
+      if(!document.body.classList.contains('cms-writing-focus'))return;
+      const step=event.shiftKey?24:8;
+      if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;
+      event.preventDefault();
+      const rect=richToolbar.getBoundingClientRect();
+      richToolbar.style.transform='none';
+      richToolbar.style.left=(rect.left+(event.key==='ArrowLeft'?-step:event.key==='ArrowRight'?step:0))+'px';
+      richToolbar.style.top=(rect.top+(event.key==='ArrowUp'?-step:event.key==='ArrowDown'?step:0))+'px';
+    });
+    richToolbar.addEventListener('pointerdown',event=>{
+      if(!document.body.classList.contains('cms-writing-focus'))return;
+      const onChain=event.target.closest('[data-toolbar-drag]');
+      const onButton=event.target.closest('button');
+      if(!onChain&&!onButton)return;
+      const rect=richToolbar.getBoundingClientRect();
+      toolbarDrag={id:event.pointerId,x:event.clientX,y:event.clientY,left:rect.left,top:rect.top,started:!!onChain};
+      toolbarWasDragged=false;
+      if(onChain){event.preventDefault();richToolbar.setPointerCapture?.(event.pointerId);}
+    });
+    richToolbar.addEventListener('pointermove',event=>{
+      if(!toolbarDrag||toolbarDrag.id!==event.pointerId)return;
+      const dx=event.clientX-toolbarDrag.x,dy=event.clientY-toolbarDrag.y;
+      if(!toolbarDrag.started&&Math.hypot(dx,dy)<5)return;
+      toolbarDrag.started=true;toolbarWasDragged=true;event.preventDefault();
+      richToolbar.style.transform='none';
+      const maxLeft=Math.max(8,window.innerWidth-richToolbar.offsetWidth-8);
+      const maxTop=Math.max(8,window.innerHeight-richToolbar.offsetHeight-8);
+      richToolbar.style.left=Math.max(8,Math.min(maxLeft,toolbarDrag.left+dx))+'px';
+      richToolbar.style.top=Math.max(8,Math.min(maxTop,toolbarDrag.top+dy))+'px';
+    });
+    const finishToolbarDrag=event=>{
+      if(!toolbarDrag||toolbarDrag.id!==event.pointerId)return;
+      const dragged=toolbarWasDragged;toolbarDrag=null;
+      if(dragged){
+        richToolbar.dataset.suppressClick='true';
+        setTimeout(()=>{delete richToolbar.dataset.suppressClick;},0);
+      }
+    };
+    richToolbar.addEventListener('pointerup',finishToolbarDrag);
+    richToolbar.addEventListener('pointercancel',finishToolbarDrag);
+    richToolbar.addEventListener('click',event=>{
+      if(richToolbar.dataset.suppressClick==='true'){event.preventDefault();event.stopImmediatePropagation();}
+    },true);
+  }
+
   postForm.addEventListener('submit',event=>{event.preventDefault();savePost('published');});
   $('save-draft').addEventListener('click',()=>savePost('draft'));
   async function savePost(status){
