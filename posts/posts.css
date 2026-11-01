@@ -914,3 +914,6 @@ body.post-edit-open{overflow:hidden}
     margin-top:12px!important;
   }
 }
+
+/* The expanded lyrics panel is intentionally overlaid; allow it to extend beyond the post card. */
+.suno-three-column{overflow:visible!important}
