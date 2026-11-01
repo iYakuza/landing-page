@@ -447,6 +447,49 @@ html[data-vha-mood] .gd-suno-row :is(svg) {
   }
   try{const saved=JSON.parse(localStorage.getItem("vha-mood-palette")||"null");if(saved?.name&&Array.isArray(saved.colors)&&saved.colors.length===4)setMoodTheme(saved.name,saved.colors);}catch{}
   const trigger = root.querySelector(".vha-tools-trigger");
+  const panel = root.querySelector(".vha-tools-panel");
+  const resizeHandle = root.querySelector(".vha-panel-resize");
+  const minPanelWidth = 164;
+  const maxPanelWidth = () => Math.max(minPanelWidth, Math.min(720, innerWidth - (innerWidth <= 600 ? 72 : 84)));
+  const setPanelWidth = width => {
+    const next = clamp(width, minPanelWidth, maxPanelWidth());
+    panel.style.setProperty("--vha-tools-panel-width", next + "px");
+    try { localStorage.setItem("vha-tools-panel-width", String(next)); } catch {}
+  };
+  try {
+    const savedWidth = Number(localStorage.getItem("vha-tools-panel-width"));
+    if (Number.isFinite(savedWidth) && savedWidth >= minPanelWidth) setPanelWidth(savedWidth);
+  } catch {}
+  let resizingPanel = false, resizeStartX = 0, resizeStartWidth = 0;
+  resizeHandle.addEventListener("pointerdown", e => {
+    if (e.button !== 0 && e.pointerType !== "touch") return;
+    e.preventDefault(); e.stopPropagation();
+    resizingPanel = true; resizeStartX = e.clientX;
+    resizeStartWidth = panel.getBoundingClientRect().width;
+    resizeHandle.setPointerCapture?.(e.pointerId);
+    root.dataset.resizing = "true";
+  });
+  resizeHandle.addEventListener("pointermove", e => {
+    if (!resizingPanel) return;
+    e.preventDefault();
+    setPanelWidth(resizeStartWidth - (e.clientX - resizeStartX));
+  });
+  const finishPanelResize = () => {
+    if (!resizingPanel) return;
+    resizingPanel = false; delete root.dataset.resizing;
+  };
+  resizeHandle.addEventListener("pointerup", finishPanelResize);
+  resizeHandle.addEventListener("pointercancel", finishPanelResize);
+  resizeHandle.addEventListener("keydown", e => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+    e.preventDefault();
+    const width = panel.getBoundingClientRect().width;
+    setPanelWidth(e.key === "Home" ? minPanelWidth : e.key === "End" ? maxPanelWidth() : width + (e.key === "ArrowLeft" ? 24 : -24));
+  });
+  window.addEventListener("resize", () => {
+    const width = panel.getBoundingClientRect().width;
+    if (width > maxPanelWidth()) setPanelWidth(maxPanelWidth());
+  });
   const setOpen = open => { root.dataset.open = String(open); trigger.setAttribute("aria-expanded",String(open)); trigger.setAttribute("aria-label",open?"Close viewer tools":"Open viewer tools"); };
   let dragging=false, moved=false, startX=0, startY=0, originX=0, originY=0;
   const clamp=(n,min,max)=>Math.min(Math.max(n,min),max);
