@@ -163,14 +163,21 @@
     const textColumn=doc.querySelector('.suno-text-column');
     const lyrics=doc.querySelector('.suno-lyrics');
     const style=doc.querySelector('.suno-notes');
+    const learned=doc.querySelector('.suno-learned');
+    const chatgptLearned=doc.querySelector('.suno-chatgpt-learned');
+    // Keep reflection sections independent even when the imported source nests them inside .suno-notes.
+    learned?.remove();
+    chatgptLearned?.remove();
     style?.querySelector(':scope > .suno-label')?.remove();
     // Lyrics are always initially collapsed, regardless of the source markup.
     lyrics?.removeAttribute('open');
     const textHtml=textColumn?textColumn.innerHTML:'<p class="suno-empty-column">No accompanying text added yet.</p>';
     const lyricsHtml=lyrics?lyrics.outerHTML:'<details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS</summary><p>No lyrics added yet.</p></details>';
     const styleHtml=style?style.innerHTML:'<p>No Suno style prompt added yet.</p>';
+    const reflectionHtml=(node,heading)=>node?'<section class="suno-reflection-card '+(node.classList.contains('suno-chatgpt-learned')?'suno-reflection-chatgpt':'suno-reflection-user')+'"><h3 class="suno-label">'+heading+'</h3>'+node.innerHTML+'</section>':'';
+    const reflections=reflectionHtml(learned,'WHAT I LEARNED')+reflectionHtml(chatgptLearned,'WHAT CHATGPT LEARNED');
     const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+'<div class="suno-column-copy">'+textHtml+'</div></section>';
-    return '<div class="suno-three-grid">'+first+'<section class="suno-column suno-column-style"><p class="suno-label">03 // SUNO STYLE PROMPT</p><aside class="suno-notes">'+styleHtml+'</aside></section><section class="suno-column suno-column-lyrics">'+lyricsHtml+'</section></div>';
+    return '<div class="suno-three-grid">'+first+'<section class="suno-column suno-column-style"><p class="suno-label">03 // SUNO STYLE PROMPT</p><aside class="suno-notes">'+styleHtml+'</aside></section><section class="suno-column suno-column-lyrics">'+lyricsHtml+'</section></div>'+(reflections?'<div class="suno-reflections">'+reflections+'</div>':'');
   }
   function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,permalinkBack,shapeClass){
     return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+renderSunoGrid(post,media,titleHtml,excerptHtml)+shareActions(post)+permalinkBack+'</article>';
