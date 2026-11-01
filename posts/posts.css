@@ -776,3 +776,25 @@ body.post-edit-open{overflow:hidden}
 .movement-index button:hover,.movement-index button:focus-visible,.movement-index button.movement-current{border-color:var(--theme-accent,#d8ff3e);color:var(--theme-accent,#d8ff3e);background:rgba(182,232,51,.07);outline:none}
 @media(min-width:700px){.post-card-top>.post-share{flex:1 1 100%}}
 @media(max-width:600px){.post-card-top{gap:7px}.post-date-toggle,.post-category{font-size:8px}.post-card-top>.post-share{flex-basis:100%}.post-card-top>.post-share .post-share-action{font-size:7px}}
+
+
+/* Stable Suno columns: opening the lyrics disclosure must never reflow the style column. */
+.suno-three-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-flow:row;align-items:start;justify-items:stretch}
+.suno-three-grid>.suno-column{min-width:0;align-self:start;grid-row:1}
+.suno-three-grid>.suno-column-text{grid-column:1}
+.suno-three-grid>.suno-column-lyrics{grid-column:2}
+.suno-three-grid>.suno-column-style{grid-column:3}
+.suno-three-grid .suno-column-lyrics details{height:auto;max-height:none;overflow:visible}
+.suno-three-grid .suno-column-lyrics details[open]{height:auto;max-height:none;overflow:visible}
+@media(max-width:900px){
+ .suno-three-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .suno-three-grid>.suno-column-text{grid-column:1/-1;grid-row:1}
+ .suno-three-grid>.suno-column-lyrics{grid-column:1;grid-row:2}
+ .suno-three-grid>.suno-column-style{grid-column:2;grid-row:2}
+}
+@media(max-width:560px){
+ .suno-three-grid{grid-template-columns:minmax(0,1fr)}
+ .suno-three-grid>.suno-column-text{grid-column:1;grid-row:1}
+ .suno-three-grid>.suno-column-lyrics{grid-column:1;grid-row:2}
+ .suno-three-grid>.suno-column-style{grid-column:1;grid-row:3}
+}
