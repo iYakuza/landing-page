@@ -132,7 +132,7 @@
       const mediaUrl=validMediaUrl(post.media_url);
       const mediaWidth=Math.max(20,Math.min(100,Number(post.media_width)||100));
       const fallbackMediaUrl=mediaUrl&&mediaUrl.includes('emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg')?'https://i0.wp.com/emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg?w=1024':'';
-      const media=mediaUrl?'<div class="post-media" style="--post-media-width:'+mediaWidth+'%">'+(post.media_type==='image'?'<img src="'+safe(mediaUrl)+'"'+(fallbackMediaUrl?' data-fallback-src="'+safe(fallbackMediaUrl)+'"':'')+' alt="'+safe(post.title)+'" loading="lazy">':post.media_type==='video'?'<video src="'+safe(mediaUrl)+'" controls preload="none" loading="lazy"></video>':'<audio src="'+safe(mediaUrl)+'" controls preload="none"></audio>')+'</div>':'';
+      const media=mediaUrl?'<div class="post-media" style="--post-media-width:'+mediaWidth+'%">'+(post.media_type==='image'?'<a class="post-image-open" href="'+safe(mediaUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="Open full-size image: '+safe(post.title)+'"><img src="'+safe(mediaUrl)+'"'+(fallbackMediaUrl?' data-fallback-src="'+safe(fallbackMediaUrl)+'"':'')+' alt="'+safe(post.title)+'" loading="lazy"></a>':post.media_type==='video'?'<video src="'+safe(mediaUrl)+'" controls preload="none" loading="lazy"></video>':'<audio src="'+safe(mediaUrl)+'" controls preload="none"></audio>')+'</div>':'';
       const shapeClass=['shape-i','shape-l','shape-square','shape-t','shape-z','shape-j','shape-s'][index%7];
       if(permalink){
         const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
@@ -145,7 +145,7 @@
         }
         const detailCopy='<div class="post-detail-copy">'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'</div>';
         const detailMedia=media?'<aside class="post-detail-media" aria-label="Transmission media">'+media+'<p class="post-media-caption">TRANSMISSION MEDIA // '+safe(post.media_type||'audio').toUpperCase()+'</p></aside>':'';
-        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div><h3>'+safe(post.title)+'</h3><div class="post-detail-grid '+(detailMedia?'has-media':'text-only')+'">'+detailCopy+detailMedia+'</div>'+shareActions(post)+permalinkBack+'</article>';
+        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div><h3>'+safe(post.title)+'</h3>'+detailMedia+'<div class="post-detail-grid text-only">'+detailCopy+'</div>'+shareActions(post)+permalinkBack+'</article>';
       }
       // Archive cards begin retracted; the date control expands the transmission.
       const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
@@ -155,7 +155,7 @@
       const categoryLink='<a class="post-category" href="'+movementHref+'" aria-label="Browse '+safe(displayCategory(post.category))+'">'+safe(displayCategory(post.category))+'</a>';
       const isExpanded=permalink;
       const lead='<div class="post-card-top"><button type="button" class="post-date-toggle" data-post-toggle="'+safe(post.slug)+'" aria-expanded="'+(isExpanded?'true':'false')+'" aria-controls="post-content-'+safe(post.slug)+'"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-disclosure-mark" aria-hidden="true">'+(isExpanded?'−':'+')+'</span></button>'+categoryLink+editButton+shareActions(post)+'</div>';
-      const expandedContent='<div class="post-collapsible" id="post-content-'+safe(post.slug)+'"'+(isExpanded?'':' hidden')+'><h3>'+safe(post.title)+'</h3>'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+media+body+'</div>';
+      const expandedContent='<div class="post-collapsible" id="post-content-'+safe(post.slug)+'"'+(isExpanded?'':' hidden')+'><h3>'+safe(post.title)+'</h3>'+media+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'</div>';
       return '<article class="post-card '+shapeClass+' post-archive-composition" id="post-'+safe(post.slug)+'">'+lead+expandedContent+'</article>';
     }).join('');
     if(permalink){
@@ -206,7 +206,7 @@
     const image=event.target.closest?.('.post-media img');
     if(image&&image.dataset.fallbackSrc&&!image.dataset.fallbackAttempted){
       image.dataset.fallbackAttempted='true';
-      image.src=image.dataset.fallbackSrc;
+      image.src=image.dataset.fallbackSrc;image.closest('.post-image-open')?.setAttribute('href',image.dataset.fallbackSrc);
     }
   },true);
   list.addEventListener('click',async event=>{
