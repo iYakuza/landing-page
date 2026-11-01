@@ -1159,3 +1159,70 @@ body.image-viewer-open{overflow:hidden!important}
   line-height:1.9!important;
   overflow-wrap:anywhere!important;
 }
+
+
+/* SUNO section system: consistent headings, with the cool-toned panel limited to content. */
+.suno-three-grid>.suno-column{
+  min-width:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+}
+.suno-three-grid .suno-label{
+  display:block!important;
+  margin:0 0 12px!important;
+  padding:0!important;
+  color:#d8ff3e!important;
+  font:11px/1.5 ui-monospace,monospace!important;
+  font-weight:600!important;
+  letter-spacing:.12em!important;
+  text-transform:uppercase!important;
+  background:transparent!important;
+  border:0!important;
+}
+.suno-three-grid .suno-section-content{
+  display:block!important;
+  min-width:0!important;
+  padding:15px 17px!important;
+  border:1px solid rgba(91,160,183,.2)!important;
+  background:linear-gradient(145deg,rgba(20,57,69,.42),rgba(9,25,34,.58))!important;
+  color:#c5d6d8!important;
+  overflow-wrap:anywhere!important;
+}
+.suno-three-grid .suno-section-content p,
+.suno-three-grid .suno-section-content li{
+  color:#c5d6d8!important;
+  font-size:13px!important;
+  line-height:1.9!important;
+}
+.suno-three-grid .suno-section-content p:last-child{margin-bottom:0!important}
+.suno-three-grid .suno-section-content pre{
+  margin:0!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  color:#d7e5e5!important;
+  white-space:pre-wrap!important;
+  overflow-wrap:anywhere!important;
+  font:clamp(12px,1.2vw,14px)/1.85 ui-monospace,monospace!important;
+}
+.suno-three-grid .suno-style-content .suno-style-prompt{
+  margin:0!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  color:#c5d6d8!important;
+}
+.suno-three-grid .suno-style-content .suno-style-prompt p{margin:0!important}
+.suno-three-grid .suno-reflection{
+  display:block!important;
+  margin:24px 0 0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+}
+.suno-three-grid .suno-reflection>.suno-label{margin-bottom:12px!important}
+.suno-three-grid .suno-reflection>.suno-section-content{margin:0!important}
+@media(max-width:560px){
+  .suno-three-grid .suno-section-content{padding:13px 14px!important}
+}
