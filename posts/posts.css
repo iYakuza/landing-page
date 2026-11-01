@@ -969,3 +969,28 @@ body.post-edit-open{overflow:hidden}
   .suno-three-grid>.suno-column-style{grid-column:1!important;grid-row:3!important}
   .suno-three-grid>.suno-column-lyrics details[open]>pre{position:static!important;width:100%!important;max-width:100%!important;max-height:60vh!important;margin-top:12px!important}
 }
+
+
+/* Clickable full-size post images and non-reflowing Suno lyrics disclosure at every viewport. */
+.post-image-open{display:block;cursor:zoom-in;text-decoration:none!important}
+.post-image-open img{cursor:zoom-in}
+.post-detail-media{display:block;width:100%;max-width:100%;margin:0 0 18px}
+.suno-three-grid>.suno-column-lyrics{position:relative!important;z-index:5!important}
+.suno-three-grid>.suno-column-lyrics details{position:static!important;overflow:visible!important}
+.suno-three-grid>.suno-column-lyrics details[open]>pre{
+  position:absolute!important;z-index:40!important;top:calc(100% + 8px)!important;left:0!important;
+  width:min(calc(200% + 28px),900px)!important;max-width:min(calc(200% + 28px),900px)!important;
+  max-height:70vh!important;overflow:auto!important;box-sizing:border-box!important;margin:0!important;padding:18px!important;
+  border:1px solid rgba(216,255,62,.35)!important;background:var(--theme-surface,#10150f)!important;
+  box-shadow:0 12px 34px #0009!important;white-space:pre-wrap!important;overflow-wrap:anywhere!important;
+}
+@media(max-width:900px){
+  .suno-three-grid>.suno-column-lyrics details[open]>pre{width:min(90vw,760px)!important;max-width:90vw!important;max-height:65vh!important}
+}
+@media(max-width:560px){
+  .suno-three-grid>.suno-column-lyrics{position:relative!important}
+  .suno-three-grid>.suno-column-lyrics details[open]>pre{
+    position:absolute!important;top:calc(100% + 8px)!important;left:0!important;
+    width:min(90vw,560px)!important;max-width:90vw!important;max-height:60vh!important;margin:0!important;
+  }
+}
