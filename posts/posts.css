@@ -872,7 +872,7 @@ body.post-edit-open{overflow:hidden}
   z-index:20!important;
   top:calc(100% + 8px)!important;
   left:calc(33.333% + 7px)!important;
-  width:min(66.666% - 14px,900px)!important;
+  width:min(calc(66.666% - 14px),900px)!important;
   max-width:calc(66.666% - 14px)!important;
   max-height:70vh!important;
   overflow:auto!important;
