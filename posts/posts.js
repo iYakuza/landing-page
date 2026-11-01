@@ -61,7 +61,7 @@
     clean(doc.body);return doc.body.innerHTML;
   }
   function validMediaUrl(value){
-    try{const url=new URL(String(value||''));return url.protocol==='https:'&&url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&(/\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname))?url.href:'';}catch{return '';}
+    try{const url=new URL(String(value||''));const ownStorage=url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&/\\/storage\\/v1\\/object\\/public\\/(vha-post-media|poetry-media)\\//.test(url.pathname);const wordpressMedia=url.hostname==='emanuelstefancu.wordpress.com'&&/^\\/wp-content\\/uploads\\/\\d{4}\\/\\d{2}\\/[A-Za-z0-9._-]+\\.(jpe?g|png|webp|gif|avif)$/i.test(url.pathname);return url.protocol==='https:'&&(ownStorage||wordpressMedia)?url.href:'';}catch{return '';}
   }
   const MOVEMENTS=['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'];
   function displayCategory(value){
