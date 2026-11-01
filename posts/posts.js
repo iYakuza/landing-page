@@ -188,10 +188,11 @@
     const textHtml=textColumn?textSection.content:'<p class="suno-empty-column">No accompanying text added yet.</p>';
     const lyricsContent=lyrics?lyrics.innerHTML:'<p>No lyrics added yet.</p>';
     const styleContent=style?styleSection.content:'<p>No Suno style prompt added yet.</p>';
-    const reflection=(section)=>section.content?'<section class="suno-reflection">'+section.label+'<div class="suno-section-content">'+section.content+'</div></section>':'';
-    const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+textSection.label+'<div class="suno-section-content suno-column-copy">'+textHtml+'</div></section>';
-    const lyricsHtml='<section class="suno-column suno-column-lyrics">'+lyricsLabel+'<div class="suno-section-content suno-lyrics-content">'+lyricsContent+'</div></section>';
-    const styleHtml='<section class="suno-column suno-column-style">'+styleSection.label+'<div class="suno-section-content suno-style-content">'+styleContent+'</div>'+reflection(learnedSection)+reflection(chatgptSection)+'</section>';
+    const collapsible=(label,content,classes='')=>'<details class="suno-collapsible '+classes+'"><summary class="suno-label">'+(label||'SECTION')+'</summary><div class="suno-section-content">'+content+'</div></details>';
+    const reflection=(section)=>section.content?'<section class="suno-reflection">'+collapsible(section.label.replace(/^<p[^>]*>|<\\/p>$/g,''),section.content,'suno-reflection-disclosure')+'</section>':'';
+    const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+collapsible(textSection.label.replace(/^<p[^>]*>|<\\/p>$/g,''),textHtml,'suno-text-disclosure')+'</section>';
+    const lyricsHtml='<section class="suno-column suno-column-lyrics">'+collapsible(lyricsLabel.replace(/^<p[^>]*>|<\\/p>$/g,''),lyricsContent,'suno-lyrics-disclosure')+'</section>';
+    const styleHtml='<section class="suno-column suno-column-style">'+collapsible(styleSection.label.replace(/^<p[^>]*>|<\\/p>$/g,''),styleContent,'suno-style-disclosure')+reflection(learnedSection)+reflection(chatgptSection)+'</section>';
     return '<div class="suno-three-grid">'+first+styleHtml+lyricsHtml+'</div>';
   }
   function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,permalinkBack,shapeClass){
