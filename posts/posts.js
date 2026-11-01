@@ -176,7 +176,8 @@
     learned?.remove();
     chatgptLearned?.remove();
     const textSection=takeSection(textColumn,'<p class="suno-label">01 // THE TEXT</p>');
-    const lyricsLabel=lyrics?.querySelector(':scope > summary')?.outerHTML||'<summary class="suno-label">02 // SUNO STYLE LYRICS</summary>';
+    const lyricsTitle=lyrics?.querySelector(':scope > summary')?.textContent?.trim()||'02 // SUNO STYLE LYRICS';
+    const lyricsLabel='<p class="suno-label">'+safe(lyricsTitle.replace(/\\s+CLICK TO EXPAND$/i,''))+'</p>';
     if(lyrics){
       lyrics.querySelector(':scope > summary')?.remove();
       lyrics.removeAttribute('open');
