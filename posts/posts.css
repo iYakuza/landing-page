@@ -1226,3 +1226,14 @@ body.image-viewer-open{overflow:hidden!important}
 @media(max-width:560px){
   .suno-three-grid .suno-section-content{padding:13px 14px!important}
 }
+
+/* Click-to-collapse section headings across Suno-style post layouts. */
+.suno-three-grid .suno-collapsible{min-width:0;margin:0 0 18px;border:0;background:transparent}
+.suno-three-grid .suno-collapsible>summary.suno-label{display:flex!important;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none;user-select:none;margin:0!important;padding:0 0 10px!important}
+.suno-three-grid .suno-collapsible>summary::-webkit-details-marker{display:none}
+.suno-three-grid .suno-collapsible>summary:after{content:'+';flex:0 0 auto;color:#d8ff3e;font:18px/1 ui-monospace,monospace}
+.suno-three-grid .suno-collapsible[open]>summary:after{content:'−'}
+.suno-three-grid .suno-collapsible>summary:focus-visible{outline:1px solid rgba(216,255,62,.65);outline-offset:4px}
+.suno-three-grid .suno-collapsible>.suno-section-content{margin:0}
+.suno-three-grid .suno-reflection{margin:24px 0 0!important}
+.suno-three-grid .suno-reflection .suno-collapsible{margin-bottom:0}
