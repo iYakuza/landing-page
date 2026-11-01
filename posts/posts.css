@@ -1101,3 +1101,35 @@ body.image-viewer-open{overflow:hidden!important}
   .post-image-viewer-controls{top:10px!important;right:10px!important;gap:5px!important;padding:5px!important}
   .post-image-viewer-controls button{min-width:34px!important;min-height:36px!important;padding:6px!important}
 }
+
+
+/* SUNO LYRICS: expand naturally inside its own column, never in a clipped/scrollable panel. */
+.suno-three-grid>.suno-column-lyrics,
+.suno-three-grid>.suno-column-lyrics details,
+.suno-three-grid>.suno-column-lyrics details[open],
+.suno-three-grid>.suno-column-lyrics details>pre,
+.suno-three-grid>.suno-column-lyrics details[open]>pre{
+  position:static!important;
+  inset:auto!important;
+  top:auto!important;
+  right:auto!important;
+  bottom:auto!important;
+  left:auto!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  width:100%!important;
+  max-width:100%!important;
+  box-sizing:border-box!important;
+}
+.suno-three-grid>.suno-column-lyrics details[open]>pre{
+  display:block!important;
+  margin:12px 0 0!important;
+  white-space:pre-wrap!important;
+  overflow-wrap:anywhere!important;
+  word-break:normal!important;
+}
+.suno-three-grid>.suno-column-lyrics details[open]{
+  padding-bottom:0!important;
+}
