@@ -117,3 +117,47 @@ body{background:#050906;color:var(--cms-ink)}
 .cms-lyrics-field>textarea{margin-bottom:12px}
 .suno-style-prompt,.suno-chatgpt-learned{margin-top:16px;padding-top:12px;border-top:1px solid #d8ff3e22}
 #post-style-prompt,#post-chatgpt-learned{min-height:120px}
+
+
+/* Focused transmission writing mode */
+.transmission-body-heading{align-items:center}
+.transmission-body-actions{display:flex;align-items:center;gap:10px}
+.transmission-body-actions .cms-help{margin:0}
+.transmission-focus-toggle{min-width:34px;min-height:34px;padding:5px 9px;font:700 15px/1 Georgia,serif;letter-spacing:0}
+.transmission-focus-toggle[aria-pressed="true"]{background:var(--cms-acid);color:#10170b}
+body.cms-writing-focus{overflow:hidden!important}
+body.cms-writing-focus .cms-hero,
+body.cms-writing-focus .cms-toolbar,
+body.cms-writing-focus .cms-posts-panel,
+body.cms-writing-focus .community-review,
+body.cms-writing-focus .gd-nav,
+body.cms-writing-focus .gd-footer{display:none!important}
+body.cms-writing-focus .cms-shell{position:fixed;inset:0;z-index:2147482000;min-height:0;height:100dvh;padding:0!important;margin:0!important;overflow:hidden;background:#050906!important}
+body.cms-writing-focus #workspace{height:100%;min-height:0}
+body.cms-writing-focus .cms-layout{display:block;height:100%;padding:0!important;margin:0!important}
+body.cms-writing-focus .cms-editor-panel{position:absolute;inset:0;width:100%;height:100%;box-sizing:border-box;padding:clamp(76px,10vh,112px) clamp(18px,8vw,130px) 28px!important;border:0;background:radial-gradient(ellipse at 50% 0%,#142016 0%,#080d09 48%,#050906 100%);overflow-y:auto}
+body.cms-writing-focus .cms-editor-top,
+body.cms-writing-focus .cms-editor-panel form>*:not(.rich-editor){display:none!important}
+body.cms-writing-focus .transmission-body-heading{position:fixed;top:18px;left:24px;z-index:5;margin:0;padding:0;border:0}
+body.cms-writing-focus .transmission-body-heading>label{margin:0;color:#d8ff3e;font:10px ui-monospace,monospace;letter-spacing:1.2px}
+body.cms-writing-focus .transmission-body-actions .cms-help{display:none}
+body.cms-writing-focus .transmission-focus-toggle{position:fixed;top:14px;right:18px;z-index:10}
+body.cms-writing-focus .rich-editor{position:relative;width:min(100%,1050px);min-height:calc(100dvh - 140px);margin:0 auto;border:0;background:transparent}
+body.cms-writing-focus .rich-content{min-height:calc(100dvh - 160px);padding:24px 0 80px;border:0!important;box-shadow:none!important;color:#edf4e8;font:clamp(16px,1.55vw,20px)/1.95 Georgia,"Times New Roman",serif}
+body.cms-writing-focus .rich-content:focus{outline:0}
+body.cms-writing-focus .rich-content h2{font-size:2em}
+body.cms-writing-focus .rich-content p{margin:0 0 1.2em}
+body.cms-writing-focus .rich-toolbar{position:fixed;z-index:2147482500;top:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;width:max-content;max-width:calc(100vw - 150px);padding:0;border:0;background:transparent;touch-action:none;user-select:none}
+body.cms-writing-focus .rich-toolbar button{width:38px;height:38px;min-width:38px;min-height:38px;padding:0;border:1px solid #d8ff3e65;background:#0b130c;color:#e8f4df;font:11px ui-monospace,monospace;box-shadow:0 5px 18px #0008;cursor:grab;touch-action:none}
+body.cms-writing-focus .rich-toolbar button:active{cursor:grabbing}
+body.cms-writing-focus .rich-toolbar button:hover,
+body.cms-writing-focus .rich-toolbar button:focus-visible{border-color:#d8ff3e;background:#d8ff3e;color:#10170b;outline:0}
+body.cms-writing-focus .rich-toolbar [data-toolbar-drag]{position:absolute;inset:-12px -14px;z-index:-1;cursor:move;touch-action:none}
+body.cms-writing-focus .rich-toolbar [data-toolbar-drag]:focus-visible{outline:1px dashed #d8ff3e}
+@media(max-width:700px){
+ body.cms-writing-focus .cms-editor-panel{padding:86px 18px 18px!important}
+ body.cms-writing-focus .transmission-body-heading{top:18px;left:16px}
+ body.cms-writing-focus .rich-toolbar{top:auto;bottom:14px;left:50%;max-width:calc(100vw - 24px);gap:5px}
+ body.cms-writing-focus .rich-toolbar button{width:34px;height:34px;min-width:34px;min-height:34px}
+ body.cms-writing-focus .rich-content{min-height:calc(100dvh - 150px);padding-bottom:70px}
+}
