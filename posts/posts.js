@@ -103,9 +103,10 @@
   function render(){
     const permalink=Boolean(requestedSlug);
     const term=search.value.trim().toLowerCase(),category=categoryFilter.value;
-    const filtered=permalink
+    const filtered=(permalink
       ? posts.filter(post=>post.slug===requestedSlug)
-      : posts.filter(post=>(!requestedMovement||displayCategory(post.category)===requestedMovement)&&(!category||displayCategory(post.category)===category)&&[post.title,post.category,post.excerpt,post.content_html].join(' ').replace(/<[^>]*>/g,' ').toLowerCase().includes(term));
+      : posts.filter(post=>(!requestedMovement||displayCategory(post.category)===requestedMovement)&&(!category||displayCategory(post.category)===category)&&[post.title,post.category,post.excerpt,post.content_html].join(' ').replace(/<[^>]*>/g,' ').toLowerCase().includes(term)))
+      .sort((a,b)=>new Date(b.published_at||b.created_at)-new Date(a.published_at||a.created_at));
     if(permalink){
       search.closest('label')?.setAttribute('hidden','');
       categoryFilter.closest('label')?.setAttribute('hidden','');
@@ -140,16 +141,16 @@
         const detailMedia=media?'<aside class="post-detail-media" aria-label="Transmission media">'+media+'<p class="post-media-caption">TRANSMISSION MEDIA // '+safe(post.media_type||'audio').toUpperCase()+'</p></aside>':'';
         return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div><h3>'+safe(post.title)+'</h3><div class="post-detail-grid '+(detailMedia?'has-media':'text-only')+'">'+detailCopy+detailMedia+'</div>'+shareActions(post)+permalinkBack+'</article>';
       }
-      // Archive cards preserve the complete post composition: left-side text, right-side Suno-style notes, and uploaded media.
+      // Archive cards begin retracted; the date control expands the transmission.
       const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
       const editButton=canEditPosts&&!post.community?'<a class="post-edit-button vha-editor-action" href="/landing-page/cms/?edit='+encodeURIComponent(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</a>':'';
-      const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div>';
-      if(/class=["']suno-post-layout["']/.test(post.content_html||'')){
-        const titleHtml='<h3><a class="post-title-link" href="?post='+encodeURIComponent(post.slug)+'">'+safe(post.title)+'</a></h3>';
-        const excerptHtml=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
-        return renderSunoColumns(post,media,titleHtml,excerptHtml,lead,'',shapeClass);
-      }
-      return '<article class="post-card '+shapeClass+' post-archive-composition" id="post-'+safe(post.slug)+'">'+lead+'<h3><a class="post-title-link" href="?post='+encodeURIComponent(post.slug)+'">'+safe(post.title)+'</a></h3>'+media+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'<a class="post-open-link" href="?post='+encodeURIComponent(post.slug)+'">OPEN TRANSMISSION ↗</a>'+shareActions(post)+'</article>';
+      const movementSlugs={'THE AWAKENING':'the-awakening','THE DESCENT':'the-descent','THE RECONNECTION':'the-reconnection','THE TRANSFORMATION':'the-transformation','THE RETURN':'the-return'};
+      const movementHref='/landing-page/posts/'+(movementSlugs[displayCategory(post.category)]||'')+'/';
+      const categoryLink='<a class="post-category" href="'+movementHref+'" aria-label="Browse '+safe(displayCategory(post.category))+'">'+safe(displayCategory(post.category))+'</a>';
+      const isExpanded=permalink;
+      const lead='<div class="post-card-top"><button type="button" class="post-date-toggle" data-post-toggle="'+safe(post.slug)+'" aria-expanded="'+(isExpanded?'true':'false')+'" aria-controls="post-content-'+safe(post.slug)+'"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-disclosure-mark" aria-hidden="true">'+(isExpanded?'−':'+')+'</span></button>'+categoryLink+editButton+shareActions(post)+'</div>';
+      const expandedContent='<div class="post-collapsible" id="post-content-'+safe(post.slug)+'"'+(isExpanded?'':' hidden')+'><h3>'+safe(post.title)+'</h3>'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+media+body+'</div>';
+      return '<article class="post-card '+shapeClass+' post-archive-composition" id="post-'+safe(post.slug)+'">'+lead+expandedContent+'</article>';
     }).join('');
     if(permalink){
       document.title=filtered[0].title+' // VERSE AFTER HOURS';
@@ -196,6 +197,19 @@
   }
 
   list.addEventListener('click',async event=>{
+    const toggleButton=event.target.closest('[data-post-toggle]');
+    if(toggleButton){
+      const slug=toggleButton.dataset.postToggle;
+      const content=document.getElementById('post-content-'+slug);
+      if(content){
+        const opening=content.hidden;
+        content.hidden=!opening;
+        toggleButton.setAttribute('aria-expanded',String(opening));
+        const mark=toggleButton.querySelector('.post-disclosure-mark');
+        if(mark)mark.textContent=opening?'−':'+';
+      }
+      return;
+    }
     const shareButton=event.target.closest('[data-share-url]');
     if(shareButton){
       event.preventDefault();
@@ -402,5 +416,26 @@
       finally{submissionButton.disabled=false;}
     });
   }
+  const movementIndex=document.querySelector('.movement-index');
+  movementIndex?.addEventListener('click',event=>{
+    const button=event.target.closest('[data-movement-filter]');
+    if(!button)return;
+    event.preventDefault();
+    const value=button.dataset.movementFilter||'';
+    if(categoryFilter)categoryFilter.value=value;
+    movementIndex.querySelectorAll('[data-movement-filter]').forEach(item=>{
+      const active=item===button;
+      item.classList.toggle('movement-current',active);
+      item.setAttribute('aria-pressed',String(active));
+    });
+    render();
+  });
+  categoryFilter?.addEventListener('change',()=>{
+    movementIndex?.querySelectorAll('[data-movement-filter]').forEach(item=>{
+      const active=item.dataset.movementFilter===categoryFilter.value;
+      item.classList.toggle('movement-current',active);
+      item.setAttribute('aria-pressed',String(active));
+    });
+  });
   search.addEventListener('input',render);categoryFilter.addEventListener('change',render);loadMoreButton?.addEventListener('click',loadMorePosts);load();
 })();
