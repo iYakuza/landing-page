@@ -1,0 +1,89 @@
+name: Import WordPress post media
+
+on:
+  push:
+    paths:
+      - ".github/workflows/import-wp-post.yml"
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: WordPress post slug
+        required: true
+        default: wfh
+      post_id:
+        description: WordPress post ID
+        required: true
+        default: "2989"
+      source_url:
+        description: Original WordPress media URL
+        required: true
+        default: "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg"
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and archive original media
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_SLUG: ${{ inputs.slug }}
+          INPUT_POST_ID: ${{ inputs.post_id }}
+          INPUT_SOURCE_URL: ${{ inputs.source_url }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "push" ]; then
+            SLUG="wfh"
+            POST_ID="2989"
+            SOURCE_URL="https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg"
+          else
+            SLUG="$INPUT_SLUG"
+            POST_ID="$INPUT_POST_ID"
+            SOURCE_URL="$INPUT_SOURCE_URL"
+          fi
+          python - "$SLUG" "$POST_ID" "$SOURCE_URL" <<'PY'
+          import json, pathlib, sys, urllib.parse, urllib.request, hashlib
+          slug, post_id, source_url = sys.argv[1:]
+          if not slug or any(c not in "abcdefghijklmnopqrstuvwxyz0123456789-" for c in slug):
+              raise SystemExit("Invalid post slug")
+          parsed = urllib.parse.urlparse(source_url)
+          if parsed.scheme != "https" or parsed.hostname not in {"emanuelstefancu.wordpress.com", "i0.wp.com"} or "/wp-content/uploads/" not in parsed.path:
+              raise SystemExit("Media URL must be an HTTPS WordPress uploads URL")
+          folder = pathlib.Path("posts/imported") / slug
+          media = folder / "media"
+          media.mkdir(parents=True, exist_ok=True)
+          request = urllib.request.Request(source_url, headers={"User-Agent": "GreenDream-WordPress-Importer/1.0"})
+          with urllib.request.urlopen(request, timeout=60) as response:
+              data = response.read()
+              content_type = response.headers.get_content_type()
+          if not data:
+              raise SystemExit("Downloaded media file is empty")
+          if content_type not in {"image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"}:
+              raise SystemExit("Unexpected media content type: " + content_type)
+          extension = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp", "image/gif": ".gif", "image/avif": ".avif"}[content_type]
+          filename = "featured" + extension
+          (media / filename).write_bytes(data)
+          metadata = {
+              "source": "WordPress.com",
+              "source_post_id": int(post_id),
+              "slug": slug,
+              "media": [{"role": "featured_image", "filename": "media/" + filename, "mime_type": content_type, "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest(), "original_url": source_url}]
+          }
+          (folder / "post.json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+          print(f"Archived {len(data)} bytes to {folder / 'media' / filename}")
+          PY
+      - name: Commit imported files
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add posts/imported/
+          if git diff --cached --quiet; then
+            echo "No imported files changed."
+          else
+            git commit -m "Archive WordPress media for WFH"
+            git push
+          fi
