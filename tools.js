@@ -407,23 +407,25 @@ html[data-vha-mood] .gd-suno-row :is(svg) {
 }
 `;
     const moodProfiles={
-      calm:{radius:"16px",shadow:"0 8px 26px #0002",line:"1.9",spacing:"0.015em",font:'Arial,Helvetica,sans-serif',display:'Arial,Helvetica,sans-serif'},
-      sad:{radius:"9px",shadow:"0 5px 20px #0003",line:"1.85",spacing:"0.01em",font:'Georgia,"Times New Roman",serif',display:'Georgia,"Times New Roman",serif'},
-      anxious:{radius:"10px",shadow:"none",line:"1.8",spacing:"0.01em",font:'Arial,Helvetica,sans-serif',display:'Arial,Helvetica,sans-serif'},
-      happy:{radius:"22px",shadow:"0 10px 30px #0003",line:"1.75",spacing:"0.01em",font:'"Comic Neue","Comic Sans MS",cursive',display:'"Comic Neue","Comic Sans MS",cursive'},
-      angry:{radius:"2px",shadow:"0 4px 18px #0005",line:"1.6",spacing:"0.04em",font:'Arial,Helvetica,sans-serif',display:'"Metal Mania",Impact,fantasy'},
-      romantic:{radius:"20px",shadow:"0 10px 32px #0003",line:"1.9",spacing:"0.01em",font:'Georgia,"Times New Roman",serif',display:'"Great Vibes","Brush Script MT",cursive'},
-      tired:{radius:"13px",shadow:"none",line:"1.95",spacing:"0.005em",font:'Arial,Helvetica,sans-serif',display:'Georgia,"Times New Roman",serif'},
-      focused:{radius:"4px",shadow:"none",line:"1.6",spacing:"0.025em",font:'Arial,Helvetica,sans-serif',display:'Arial,Helvetica,sans-serif'},
-      hopeful:{radius:"22px",shadow:"0 10px 30px #0002",line:"1.85",spacing:"0.015em",font:'"Trebuchet MS",Arial,sans-serif',display:'"Trebuchet MS",Arial,sans-serif'},
-      reflective:{radius:"9px",shadow:"0 8px 24px #0003",line:"1.75",spacing:"0.015em",font:'Georgia,"Times New Roman",serif',display:'Georgia,"Times New Roman",serif'}
+      calm:{radius:"16px",shadow:"0 8px 26px #0002",line:"1.9",spacing:"0.015em",font:'Arial,Helvetica,sans-serif',display:'Arial,Helvetica,sans-serif',gap:"28px",panelPadding:"32px"},
+      sad:{radius:"9px",shadow:"0 5px 20px #0003",line:"1.85",spacing:"0.01em",font:'Georgia,"Times New Roman",serif',display:'Georgia,"Times New Roman",serif',gap:"20px",panelPadding:"26px"},
+      anxious:{radius:"10px",shadow:"none",line:"1.8",spacing:"0.01em",font:'Arial,Helvetica,sans-serif',display:'Arial,Helvetica,sans-serif',gap:"30px",panelPadding:"32px"},
+      happy:{radius:"22px",shadow:"0 10px 30px #0003",line:"1.75",spacing:"0.01em",font:'"Comic Neue","Comic Sans MS",cursive',display:'"Comic Neue","Comic Sans MS",cursive',gap:"22px",panelPadding:"30px"},
+      angry:{radius:"2px",shadow:"0 4px 18px #0005",line:"1.6",spacing:"0.04em",font:'Arial,Helvetica,sans-serif',display:'"Metal Mania",Impact,fantasy',gap:"14px",panelPadding:"22px"},
+      romantic:{radius:"20px",shadow:"0 10px 32px #0003",line:"1.9",spacing:"0.01em",font:'Georgia,"Times New Roman",serif',display:'"Great Vibes","Brush Script MT",cursive',gap:"34px",panelPadding:"36px"},
+      tired:{radius:"13px",shadow:"none",line:"1.95",spacing:"0.005em",font:'Arial,Helvetica,sans-serif',display:'Georgia,"Times New Roman",serif',gap:"30px",panelPadding:"32px"},
+      focused:{radius:"4px",shadow:"none",line:"1.6",spacing:"0.025em",font:'Arial,Helvetica,sans-serif',display:'Arial,Helvetica,sans-serif',gap:"16px",panelPadding:"22px"},
+      hopeful:{radius:"22px",shadow:"0 10px 30px #0002",line:"1.85",spacing:"0.015em",font:'"Trebuchet MS",Arial,sans-serif',display:'"Trebuchet MS",Arial,sans-serif',gap:"30px",panelPadding:"34px"},
+      reflective:{radius:"9px",shadow:"0 8px 24px #0003",line:"1.75",spacing:"0.015em",font:'Georgia,"Times New Roman",serif',display:'Georgia,"Times New Roman",serif',gap:"24px",panelPadding:"30px"}
     };
     const profile=moodProfiles[name]||moodProfiles.reflective;
     let moodStyle=document.getElementById("vha-mood-profile");
     if(!moodStyle){moodStyle=document.createElement("style");moodStyle.id="vha-mood-profile";document.head.appendChild(moodStyle);}
-    moodStyle.textContent=`html[data-vha-mood]{--vha-mood-radius:${profile.radius};--vha-mood-shadow:${profile.shadow};--vha-mood-line:${profile.line};--vha-mood-spacing:${profile.spacing};--vha-mood-font:${profile.font};--vha-mood-display-font:${profile.display}}
+    moodStyle.textContent=`html[data-vha-mood]{--vha-mood-radius:${profile.radius};--vha-mood-shadow:${profile.shadow};--vha-mood-line:${profile.line};--vha-mood-spacing:${profile.spacing};--vha-mood-font:${profile.font};--vha-mood-display-font:${profile.display};--vha-mood-gap:${profile.gap};--vha-mood-panel-padding:${profile.panelPadding}}
       html[data-vha-mood] body,html[data-vha-mood] body *{font-family:var(--vha-mood-font)!important}
       html[data-vha-mood] :is(h1,h2,h3,h4,h5,h6,.gd-hero h1,.gd-section h2,.gd-listening h2,.cv-name,.cv-section h2,.post-title,.posts-title){font-family:var(--vha-mood-display-font)!important}
+      html[data-vha-mood] :is(.gd-movements,.gd-lower,.gd-listening,.cv-columns,.cv-skills,.gd-cvgrid,.posts-grid,#posts-list,.gd-section-head){gap:var(--vha-mood-gap)!important}
+      html[data-vha-mood] :is(.gd-panel,.cv-hero,.cv-contact-panel){padding:var(--vha-mood-panel-padding)!important}
       html[data-vha-mood] .gd-panel,html[data-vha-mood] .gd-card,html[data-vha-mood] .gd-radio,html[data-vha-mood] .gd-move,html[data-vha-mood] .post-card,html[data-vha-mood] .posts-note,html[data-vha-mood] .posts-filters,html[data-vha-mood] .viewer-console,html[data-vha-mood] .song-panel,html[data-vha-mood] .song-player-card,html[data-vha-mood] .cv-card,html[data-vha-mood] .cv-section,html[data-vha-mood] .transmission-card,html[data-vha-mood] .cv-wrap{border-radius:var(--vha-mood-radius)!important;box-shadow:var(--vha-mood-shadow)!important;transition:border-radius .35s ease,box-shadow .35s ease,background-color .35s ease}
       html[data-vha-mood] p,html[data-vha-mood] li,html[data-vha-mood] .post-excerpt,html[data-vha-mood] .gd-copy{line-height:var(--vha-mood-line)!important;letter-spacing:var(--vha-mood-spacing)}
       html[data-vha-mood="calm"] .gd-panel,html[data-vha-mood="calm"] .post-card,html[data-vha-mood="calm"] .cv-card{border-width:1px!important}
