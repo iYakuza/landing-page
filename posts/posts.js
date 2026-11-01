@@ -165,20 +165,33 @@
     const style=doc.querySelector('.suno-notes');
     const learned=doc.querySelector('.suno-learned');
     const chatgptLearned=doc.querySelector('.suno-chatgpt-learned');
+    const takeSection=(element,fallback)=>{
+      if(!element)return {label:fallback,content:''};
+      const label=element.querySelector(':scope > .suno-label');
+      const title=label?.outerHTML||fallback;
+      label?.remove();
+      return {label:title,content:element.innerHTML};
+    };
     // Keep reflection sections independent even when the imported source nests them inside .suno-notes.
     learned?.remove();
     chatgptLearned?.remove();
-    style?.querySelector(':scope > .suno-label')?.remove();
-    // Lyrics are always initially collapsed, regardless of the source markup.
-    lyrics?.removeAttribute('open');
-    const textHtml=textColumn?textColumn.innerHTML:'<p class="suno-empty-column">No accompanying text added yet.</p>';
-    const lyricsHtml=lyrics?lyrics.outerHTML:'<details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS</summary><p>No lyrics added yet.</p></details>';
-    const styleHtml=style?style.innerHTML:'<p>No Suno style prompt added yet.</p>';
-    // Preserve the original section headings exactly once and place both reflections beneath the style prompt.
-    const reflections=(learned?'<section class="suno-reflection">'+learned.innerHTML+'</section>':'')+
-      (chatgptLearned?'<section class="suno-reflection">'+chatgptLearned.innerHTML+'</section>':'');
-    const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+'<div class="suno-column-copy">'+textHtml+'</div></section>';
-    return '<div class="suno-three-grid">'+first+'<section class="suno-column suno-column-style"><p class="suno-label">03 // SUNO STYLE PROMPT</p><aside class="suno-notes">'+styleHtml+reflections+'</aside></section><section class="suno-column suno-column-lyrics">'+lyricsHtml+'</section></div>';
+    const textSection=takeSection(textColumn,'<p class="suno-label">01 // THE TEXT</p>');
+    const lyricsLabel=lyrics?.querySelector(':scope > summary')?.outerHTML||'<summary class="suno-label">02 // SUNO STYLE LYRICS</summary>';
+    if(lyrics){
+      lyrics.querySelector(':scope > summary')?.remove();
+      lyrics.removeAttribute('open');
+    }
+    const styleSection=takeSection(style,'<p class="suno-label">03 // SUNO STYLE PROMPT</p>');
+    const learnedSection=takeSection(learned,'<p class="suno-label">WHAT I LEARNED</p>');
+    const chatgptSection=takeSection(chatgptLearned,'<p class="suno-label">WHAT CHATGPT LEARNED</p>');
+    const textHtml=textColumn?textSection.content:'<p class="suno-empty-column">No accompanying text added yet.</p>';
+    const lyricsContent=lyrics?lyrics.innerHTML:'<p>No lyrics added yet.</p>';
+    const styleContent=style?styleSection.content:'<p>No Suno style prompt added yet.</p>';
+    const reflection=(section)=>section.content?'<section class="suno-reflection">'+section.label+'<div class="suno-section-content">'+section.content+'</div></section>':'';
+    const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+textSection.label+'<div class="suno-section-content suno-column-copy">'+textHtml+'</div></section>';
+    const lyricsHtml='<section class="suno-column suno-column-lyrics">'+lyricsLabel+'<div class="suno-section-content suno-lyrics-content">'+lyricsContent+'</div></section>';
+    const styleHtml='<section class="suno-column suno-column-style">'+styleSection.label+'<div class="suno-section-content suno-style-content">'+styleContent+'</div>'+reflection(learnedSection)+reflection(chatgptSection)+'</section>';
+    return '<div class="suno-three-grid">'+first+styleHtml+lyricsHtml+'</div>';
   }
   function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,permalinkBack,shapeClass){
     return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+renderSunoGrid(post,media,titleHtml,excerptHtml)+shareActions(post)+permalinkBack+'</article>';
