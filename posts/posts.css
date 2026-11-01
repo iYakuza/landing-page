@@ -994,3 +994,15 @@ body.post-edit-open{overflow:hidden}
     width:min(90vw,560px)!important;max-width:90vw!important;max-height:60vh!important;margin:0!important;
   }
 }
+
+
+/* Imported post reader: media floats in the right-hand column; lyrics expansion overlays rather than reflows style notes. */
+.posts-list:has(.post-back) .post-detail-grid{display:grid!important;grid-template-columns:minmax(0,1.35fr) minmax(240px,.65fr)!important;gap:clamp(20px,4vw,48px)!important;align-items:start!important;margin-top:18px!important}
+.posts-list:has(.post-back) .post-detail-media{grid-column:2!important;grid-row:1!important;position:relative!important;top:auto!important;align-self:start!important}
+.posts-list:has(.post-back) .post-detail-copy{grid-column:1!important;grid-row:1!important}
+.posts-list:has(.post-back) .post-detail-media .post-media{margin:0!important}
+.posts-list:has(.post-back) .post-image-open{display:block;cursor:zoom-in}
+.posts-list:has(.post-back) .post-image-open img{cursor:zoom-in;transition:transform .25s ease}
+.posts-list:has(.post-back) .post-image-open:hover img{transform:scale(1.025)}
+@media(max-width:760px){.posts-list:has(.post-back) .post-detail-grid{grid-template-columns:minmax(0,1fr)!important;gap:22px!important}.posts-list:has(.post-back) .post-detail-copy,.posts-list:has(.post-back) .post-detail-media{grid-column:1!important;grid-row:auto!important}.posts-list:has(.post-back) .post-detail-media{max-width:100%!important}}
+@media(max-width:560px){.suno-three-grid>.suno-column-lyrics{position:relative!important;z-index:5!important}.suno-three-grid>.suno-column-lyrics details[open]>pre{position:absolute!important;left:0!important;top:100%!important;width:min(92vw,760px)!important;max-width:92vw!important;max-height:60vh!important;overflow:auto!important;margin-top:10px!important;z-index:20!important;box-sizing:border-box!important;background:var(--viewer-surface,#080e09)!important;border:1px solid var(--viewer-accent,#d8ff3e)!important;box-shadow:0 12px 34px #000b!important}}
