@@ -1237,3 +1237,11 @@ body.image-viewer-open{overflow:hidden!important}
 .suno-three-grid .suno-collapsible>.suno-section-content{margin:0}
 .suno-three-grid .suno-reflection{margin:24px 0 0!important}
 .suno-three-grid .suno-reflection .suno-collapsible{margin-bottom:0}
+
+
+/* ARCHIVE CARD WIDTH: every transmission card fills the complete posts-list track. */
+.posts-list:not(:has(.post-back)) .post-card{
+  grid-column:1 / -1!important;
+  width:100%!important;
+  min-width:0!important;
+}
