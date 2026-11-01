@@ -233,12 +233,13 @@
         if(/class=["']suno-post-layout["']/.test(post.content_html||'')){
           const titleHtml='<h3>'+safe(post.title)+'</h3>';
           const excerptHtml=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
-          const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div>';
+          const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span><button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>'+editButton+'</div>';
           return renderSunoColumns(post,media,titleHtml,excerptHtml,lead,permalinkBack,shapeClass);
         }
         const detailCopy='<div class="post-detail-copy">'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'</div>';
         const detailMedia=media?'<aside class="post-detail-media" aria-label="Transmission media">'+media+'<p class="post-media-caption">TRANSMISSION MEDIA // '+safe(post.media_type||'audio').toUpperCase()+'</p></aside>':'';
-        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div><h3>'+safe(post.title)+'</h3><div class="post-detail-grid">'+detailCopy+detailMedia+'</div>'+shareActions(post)+permalinkBack+'</article>';
+        const sectionsControl=/<details\\b/i.test(post.content_html||'')?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
+        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+sectionsControl+editButton+'</div><h3>'+safe(post.title)+'</h3><div class="post-detail-grid">'+detailCopy+detailMedia+'</div>'+shareActions(post)+permalinkBack+'</article>';
       }
       // Archive cards begin retracted; the date control expands the transmission.
       const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
@@ -247,8 +248,9 @@
       const movementHref='/landing-page/posts/'+(movementSlugs[displayCategory(post.category)]||'')+'/';
       const categoryLink='<a class="post-category" href="'+movementHref+'" aria-label="Browse '+safe(displayCategory(post.category))+'">'+safe(displayCategory(post.category))+'</a>';
       const isExpanded=permalink;
-      const lead='<div class="post-card-top"><button type="button" class="post-date-toggle" data-post-toggle="'+safe(post.slug)+'" aria-expanded="'+(isExpanded?'true':'false')+'" aria-controls="post-content-'+safe(post.slug)+'"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-disclosure-mark" aria-hidden="true">'+(isExpanded?'−':'+')+'</span></button>'+categoryLink+editButton+shareActions(post)+'</div>';
       const isSuno=/class=["']suno-post-layout["']/.test(post.content_html||'');
+      const sectionsControl=(isSuno||/<details\\b/i.test(post.content_html||''))?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
+      const lead='<div class="post-card-top"><button type="button" class="post-date-toggle" data-post-toggle="'+safe(post.slug)+'" aria-expanded="'+(isExpanded?'true':'false')+'" aria-controls="post-content-'+safe(post.slug)+'"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-disclosure-mark" aria-hidden="true">'+(isExpanded?'−':'+')+'</span></button>'+categoryLink+sectionsControl+editButton+shareActions(post)+'</div>';
       const expandedBody=isSuno
         ? renderSunoGrid(post,media,'<h3>'+safe(post.title)+'</h3>',post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')
         : '<h3>'+safe(post.title)+'</h3>'+media+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body;
@@ -329,6 +331,20 @@
       event.preventDefault();
       const image=imageLink.querySelector('img');
       openImageViewer(image?.currentSrc||image?.src||imageLink.href,image?.alt||imageLink.getAttribute('aria-label')||'',imageLink);
+      return;
+    }
+    const sectionsButton=event.target.closest('[data-post-sections-toggle]');
+    if(sectionsButton){
+      const article=sectionsButton.closest('.post-card');
+      if(article){
+        const details=[...article.querySelectorAll('details')];
+        const opening=details.some(section=>!section.open);
+        details.forEach(section=>{section.open=opening;});
+        sectionsButton.setAttribute('aria-expanded',String(opening));
+        sectionsButton.textContent=opening?'RETRACT ALL SECTIONS':'EXPAND ALL SECTIONS';
+        const content=article.querySelector('.post-collapsible');
+        if(content?.hidden){content.hidden=false;const dateToggle=article.querySelector('[data-post-toggle]');dateToggle?.setAttribute('aria-expanded','true');const mark=dateToggle?.querySelector('.post-disclosure-mark');if(mark)mark.textContent='−';}
+      }
       return;
     }
     const toggleButton=event.target.closest('[data-post-toggle]');
