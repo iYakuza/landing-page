@@ -298,7 +298,112 @@ html[data-vha-mood] .cv-wrap,html[data-vha-mood] .cv-hero,html[data-vha-mood] .c
 html[data-vha-mood] .vha-main-nav,html[data-vha-mood] .vha-main-nav>a,html[data-vha-mood] .vha-nav-dropdown,html[data-vha-mood] .vha-nav-dropdown>summary,html[data-vha-mood] .vha-nav-menu,html[data-vha-mood] .vha-nav-menu>a,html[data-vha-mood] .vha-community-button,html[data-vha-mood] .gd-nav,html[data-vha-mood] .gd-nav>a{background-color:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important;box-shadow:none!important}
 html[data-vha-mood] .vha-main-nav>a:hover,html[data-vha-mood] .vha-main-nav>a:focus-visible,html[data-vha-mood] .vha-nav-dropdown>summary:hover,html[data-vha-mood] .vha-nav-menu>a:hover,html[data-vha-mood] .vha-community-button:hover,html[data-vha-mood] .cv-floating-links button:hover,html[data-vha-mood] .cv-actions a:hover,html[data-vha-mood] .cv-actions button:hover{background-color:var(--theme-accent)!important;color:var(--theme-page)!important}
 html[data-vha-mood] .cv-name span,html[data-vha-mood] .cv-kicker,html[data-vha-mood] .cv-role,html[data-vha-mood] .cv-floating-head strong,html[data-vha-mood] .cv-section h2 em{color:var(--theme-accent)!important}
-html[data-vha-mood] .vha-main-nav .active,html[data-vha-mood] .vha-main-nav [aria-current=page]{border-color:var(--theme-accent)!important;color:var(--theme-accent)!important}`;
+html[data-vha-mood] .vha-main-nav .active,html[data-vha-mood] .vha-main-nav [aria-current=page]{border-color:var(--theme-accent)!important;color:var(--theme-accent)!important}
+/* Complete coverage for Green Dream components that use their own fixed colours. */
+html[data-vha-mood] .gd-cv-profile,
+html[data-vha-mood] .gd-cvgrid,
+html[data-vha-mood] .gd-circle-portal,
+html[data-vha-mood] .gd-listening,
+html[data-vha-mood] #gd-listening,
+html[data-vha-mood] .gd-media-row,
+html[data-vha-mood] .gd-suno-row,
+html[data-vha-mood] .gd-nav-dropdown,
+html[data-vha-mood] .gd-nav-dropdown[open] .gd-nav-menu,
+html[data-vha-mood] .vha-nav-dropdown,
+html[data-vha-mood] .vha-nav-dropdown[open] .vha-nav-menu {
+  color:var(--theme-text)!important;
+  background-color:var(--theme-surface)!important;
+  border-color:var(--theme-border)!important;
+  box-shadow:var(--vha-mood-shadow,none)!important;
+}
+html[data-vha-mood] .gd-cv-profile,
+html[data-vha-mood] .gd-circle-portal,
+html[data-vha-mood] .gd-listening,
+html[data-vha-mood] #gd-listening,
+html[data-vha-mood] .gd-media-row,
+html[data-vha-mood] .gd-suno-row,
+html[data-vha-mood] .gd-nav-dropdown .gd-nav-menu,
+html[data-vha-mood] .vha-nav-dropdown .vha-nav-menu {
+  background-image:none!important;
+}
+html[data-vha-mood] .gd-cv-profile *,
+html[data-vha-mood] .gd-cvgrid *,
+html[data-vha-mood] .gd-circle-portal *,
+html[data-vha-mood] .gd-listening *,
+html[data-vha-mood] #gd-listening *,
+html[data-vha-mood] .gd-media-row *,
+html[data-vha-mood] .gd-suno-row *,
+html[data-vha-mood] .gd-nav-dropdown *,
+html[data-vha-mood] .vha-nav-dropdown * {
+  border-color:var(--theme-border)!important;
+}
+html[data-vha-mood] .gd-cv-profile :is(h1,h2,h3,h4,p,span,strong,small,li,label),
+html[data-vha-mood] .gd-cvgrid :is(h1,h2,h3,h4,p,span,strong,small,li,label),
+html[data-vha-mood] .gd-circle-portal :is(h1,h2,h3,h4,p,span,strong,small,li,label),
+html[data-vha-mood] .gd-listening :is(h1,h2,h3,h4,p,span,strong,small,li,label),
+html[data-vha-mood] #gd-listening :is(h1,h2,h3,h4,p,span,strong,small,li,label),
+html[data-vha-mood] .gd-media-row :is(h1,h2,h3,h4,p,span,strong,small,li,label),
+html[data-vha-mood] .gd-suno-row :is(h1,h2,h3,h4,p,span,strong,small,li,label),
+html[data-vha-mood] .gd-nav-dropdown :is(summary,a,span,strong,small),
+html[data-vha-mood] .vha-nav-dropdown :is(summary,a,span,strong,small) {
+  color:var(--theme-text)!important;
+}
+html[data-vha-mood] .gd-cv-profile :is(a,button),
+html[data-vha-mood] .gd-cvgrid :is(a,button),
+html[data-vha-mood] .gd-circle-portal :is(a,button),
+html[data-vha-mood] .gd-listening :is(a,button),
+html[data-vha-mood] #gd-listening :is(a,button),
+html[data-vha-mood] .gd-media-row :is(a,button),
+html[data-vha-mood] .gd-suno-row :is(a,button),
+html[data-vha-mood] .gd-nav-dropdown .gd-nav-menu a,
+html[data-vha-mood] .vha-nav-dropdown .vha-nav-menu a {
+  color:var(--theme-accent)!important;
+  border-color:var(--theme-border)!important;
+}
+html[data-vha-mood] .gd-cv-profile :is(a,button):hover,
+html[data-vha-mood] .gd-cvgrid :is(a,button):hover,
+html[data-vha-mood] .gd-circle-portal :is(a,button):hover,
+html[data-vha-mood] .gd-listening :is(a,button):hover,
+html[data-vha-mood] #gd-listening :is(a,button):hover,
+html[data-vha-mood] .gd-media-row :is(a,button):hover,
+html[data-vha-mood] .gd-suno-row :is(a,button):hover,
+html[data-vha-mood] .gd-nav-dropdown .gd-nav-menu a:hover,
+html[data-vha-mood] .vha-nav-dropdown .vha-nav-menu a:hover {
+  background-color:var(--theme-accent)!important;
+  color:var(--theme-page)!important;
+}
+html[data-vha-mood] .gd-cv-profile :is(button,input,select,textarea),
+html[data-vha-mood] .gd-cvgrid :is(button,input,select,textarea),
+html[data-vha-mood] .gd-circle-portal :is(button,input,select,textarea),
+html[data-vha-mood] .gd-listening :is(button,input,select,textarea),
+html[data-vha-mood] #gd-listening :is(button,input,select,textarea),
+html[data-vha-mood] .gd-media-row :is(button,input,select,textarea),
+html[data-vha-mood] .gd-suno-row :is(button,input,select,textarea) {
+  background-color:var(--theme-surface)!important;
+  color:var(--theme-text)!important;
+  border-color:var(--theme-border)!important;
+}
+html[data-vha-mood] .gd-cv-profile,
+html[data-vha-mood] .gd-circle-portal,
+html[data-vha-mood] .gd-listening,
+html[data-vha-mood] #gd-listening,
+html[data-vha-mood] .gd-media-row,
+html[data-vha-mood] .gd-suno-row,
+html[data-vha-mood] .gd-nav-dropdown .gd-nav-menu,
+html[data-vha-mood] .vha-nav-dropdown .vha-nav-menu {
+  border-radius:var(--vha-mood-radius)!important;
+  transition:background-color .35s ease,color .35s ease,border-color .35s ease,border-radius .35s ease,box-shadow .35s ease;
+}
+html[data-vha-mood] .gd-cv-profile :is(svg),
+html[data-vha-mood] .gd-circle-portal :is(svg),
+html[data-vha-mood] .gd-listening :is(svg),
+html[data-vha-mood] #gd-listening :is(svg),
+html[data-vha-mood] .gd-media-row :is(svg),
+html[data-vha-mood] .gd-suno-row :is(svg) {
+  color:var(--theme-accent)!important;
+  stroke:var(--theme-accent)!important;
+}
+`;
     const moodProfiles={
       calm:{radius:"14px",shadow:"0 8px 26px #0003",line:"1.85",spacing:"0.025em"},
       sad:{radius:"8px",shadow:"0 5px 20px #0004",line:"1.8",spacing:"0.015em"},
