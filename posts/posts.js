@@ -174,10 +174,11 @@
     const textHtml=textColumn?textColumn.innerHTML:'<p class="suno-empty-column">No accompanying text added yet.</p>';
     const lyricsHtml=lyrics?lyrics.outerHTML:'<details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS</summary><p>No lyrics added yet.</p></details>';
     const styleHtml=style?style.innerHTML:'<p>No Suno style prompt added yet.</p>';
-    const reflectionHtml=(node,heading)=>node?'<section class="suno-reflection-card '+(node.classList.contains('suno-chatgpt-learned')?'suno-reflection-chatgpt':'suno-reflection-user')+'"><h3 class="suno-label">'+heading+'</h3>'+node.innerHTML+'</section>':'';
-    const reflections=reflectionHtml(learned,'WHAT I LEARNED')+reflectionHtml(chatgptLearned,'WHAT CHATGPT LEARNED');
+    // Preserve the original section headings exactly once and place both reflections beneath the style prompt.
+    const reflections=(learned?'<section class="suno-reflection">'+learned.innerHTML+'</section>':'')+
+      (chatgptLearned?'<section class="suno-reflection">'+chatgptLearned.innerHTML+'</section>':'');
     const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+'<div class="suno-column-copy">'+textHtml+'</div></section>';
-    return '<div class="suno-three-grid">'+first+'<section class="suno-column suno-column-style"><p class="suno-label">03 // SUNO STYLE PROMPT</p><aside class="suno-notes">'+styleHtml+'</aside></section><section class="suno-column suno-column-lyrics">'+lyricsHtml+'</section></div>'+(reflections?'<div class="suno-reflections">'+reflections+'</div>':'');
+    return '<div class="suno-three-grid">'+first+'<section class="suno-column suno-column-style"><p class="suno-label">03 // SUNO STYLE PROMPT</p><aside class="suno-notes">'+styleHtml+reflections+'</aside></section><section class="suno-column suno-column-lyrics">'+lyricsHtml+'</section></div>';
   }
   function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,permalinkBack,shapeClass){
     return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+renderSunoGrid(post,media,titleHtml,excerptHtml)+shareActions(post)+permalinkBack+'</article>';
