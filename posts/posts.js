@@ -100,6 +100,64 @@
       '<a class="post-share-action" href="mailto:?subject='+encodedTitle+'&body='+encodedUrl+'" aria-label="Share by email">EMAIL</a>'+
       '</div>';
   }
+  let imageViewer=null,viewerImage=null,viewerScale=1,viewerReturnFocus=null;
+  function closeImageViewer(){
+    if(!imageViewer)return;
+    imageViewer.hidden=true;
+    document.body.classList.remove('image-viewer-open');
+    viewerImage.removeAttribute('src');
+    viewerScale=1;
+    viewerReturnFocus?.focus?.();
+    viewerReturnFocus=null;
+  }
+  function updateViewerScale(){
+    if(viewerImage)viewerImage.style.transform='scale('+viewerScale+')';
+    const value=imageViewer?.querySelector('[data-viewer-zoom-value]');
+    if(value)value.textContent=Math.round(viewerScale*100)+'%';
+  }
+  function ensureImageViewer(){
+    if(imageViewer)return imageViewer;
+    imageViewer=document.createElement('div');
+    imageViewer.className='post-image-viewer';
+    imageViewer.hidden=true;
+    imageViewer.setAttribute('role','dialog');
+    imageViewer.setAttribute('aria-modal','true');
+    imageViewer.setAttribute('aria-label','Image viewer');
+    imageViewer.innerHTML='<div class="post-image-viewer-stage" data-viewer-backdrop><img class="post-image-viewer-image" alt=""><div class="post-image-viewer-controls" role="toolbar" aria-label="Image controls"><button type="button" data-viewer-zoom-out aria-label="Zoom out" title="Zoom out">−</button><output data-viewer-zoom-value>100%</output><button type="button" data-viewer-zoom-in aria-label="Zoom in" title="Zoom in">+</button><button type="button" data-viewer-zoom-reset aria-label="Reset zoom" title="Reset zoom">RESET</button><button type="button" data-viewer-close aria-label="Close image viewer" title="Close">×</button></div></div>';
+    document.body.appendChild(imageViewer);
+    viewerImage=imageViewer.querySelector('.post-image-viewer-image');
+    imageViewer.addEventListener('click',event=>{
+      if(event.target===imageViewer||event.target.matches('[data-viewer-backdrop]')){closeImageViewer();return;}
+      if(event.target.closest('[data-viewer-close]')){closeImageViewer();return;}
+      if(event.target.closest('[data-viewer-zoom-in]')){viewerScale=Math.min(5,viewerScale+0.25);updateViewerScale();return;}
+      if(event.target.closest('[data-viewer-zoom-out]')){viewerScale=Math.max(0.5,viewerScale-0.25);updateViewerScale();return;}
+      if(event.target.closest('[data-viewer-zoom-reset]')){viewerScale=1;updateViewerScale();}
+    });
+    imageViewer.addEventListener('wheel',event=>{
+      if(imageViewer.hidden)return;
+      event.preventDefault();
+      viewerScale=Math.max(0.5,Math.min(5,viewerScale+(event.deltaY<0?0.15:-0.15)));
+      updateViewerScale();
+    },{passive:false});
+    document.addEventListener('keydown',event=>{
+      if(imageViewer.hidden)return;
+      if(event.key==='Escape'){event.preventDefault();closeImageViewer();}
+      else if(event.key==='+'||event.key==='='){viewerScale=Math.min(5,viewerScale+0.25);updateViewerScale();}
+      else if(event.key==='-'){viewerScale=Math.max(0.5,viewerScale-0.25);updateViewerScale();}
+      else if(event.key==='0'){viewerScale=1;updateViewerScale();}
+    });
+    return imageViewer;
+  }
+  function openImageViewer(src,alt,trigger){
+    const viewer=ensureImageViewer();
+    viewerReturnFocus=trigger;
+    viewerImage.src=src;
+    viewerImage.alt=alt||'Full-size image';
+    viewerScale=1;updateViewerScale();
+    viewer.hidden=false;
+    document.body.classList.add('image-viewer-open');
+    viewer.querySelector('[data-viewer-close]')?.focus();
+  }
   function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,permalinkBack,shapeClass){
     const doc=new DOMParser().parseFromString(cleanHtml(post.content_html||''),'text/html');
     const textColumn=doc.querySelector('.suno-text-column');
@@ -110,7 +168,7 @@
     const lyricsHtml=lyrics?lyrics.outerHTML:'<details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS</summary><p>No lyrics added yet.</p></details>';
     const styleHtml=style?style.innerHTML:'<p>No Suno style prompt added yet.</p>';
     const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+'<div class="suno-column-copy">'+textHtml+'</div></section>';
-    return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+'<div class="suno-three-grid">'+first+'<section class="suno-column suno-column-lyrics">'+lyricsHtml+'</section><section class="suno-column suno-column-style"><p class="suno-label">03 // SUNO STYLE PROMPT</p><aside class="suno-notes">'+styleHtml+'</aside></section></div>'+shareActions(post)+permalinkBack+'</article>';
+    return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+'<div class="suno-three-grid">'+first+'<section class="suno-column suno-column-style"><p class="suno-label">03 // SUNO STYLE PROMPT</p><aside class="suno-notes">'+styleHtml+'</aside></section><section class="suno-column suno-column-lyrics">'+lyricsHtml+'</section></div>'+shareActions(post)+permalinkBack+'</article>';
   }
   function render(){
     const permalink=Boolean(requestedSlug);
@@ -217,6 +275,13 @@
     }
   },true);
   list.addEventListener('click',async event=>{
+    const imageLink=event.target.closest('.post-image-open');
+    if(imageLink){
+      event.preventDefault();
+      const image=imageLink.querySelector('img');
+      openImageViewer(image?.currentSrc||image?.src||imageLink.href,image?.alt||imageLink.getAttribute('aria-label')||'',imageLink);
+      return;
+    }
     const toggleButton=event.target.closest('[data-post-toggle]');
     if(toggleButton){
       const slug=toggleButton.dataset.postToggle;
