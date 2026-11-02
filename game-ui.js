@@ -111,6 +111,7 @@
     mapButton.setAttribute("aria-label","Enter the constellation");mapButton.title="Enter the constellation";
   }else{
     setConstellationVisible(true);
+    journeyNote.hidden=false;
   }
   mapButton.addEventListener("click",()=>{
     if(document.body.classList.contains("vha-entry-intro")){
