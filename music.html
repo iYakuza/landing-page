@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#050906">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; frame-src https://suno.com https://www.suno.com; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; frame-src https://suno.com https://www.suno.com https://www.youtube-nocookie.com; upgrade-insecure-requests">
   <meta name="description" content="An original sound transmission from Verse After Hours. Listen on Suno.">
   <title>ORIGINAL TRANSMISSION 001 — Verse After Hours</title>
   <link rel="stylesheet" href="green-dream/style.css?v=20261026-song-page-1">
@@ -24,7 +24,22 @@
     .song-link.primary{background:#b6e833;color:#071008;font-weight:bold}
     .song-note{color:#829080;font:10px/1.8 monospace;margin-top:18px}
     .song-footer{border-top:1px solid #b6e83333;padding:24px 5vw;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;color:#8e9c8d;font:9px monospace;letter-spacing:1px}
-    @media(max-width:700px){.song-main{padding-top:6vh}.song-panel-top{align-items:flex-start;flex-direction:column}.song-player-card{align-items:flex-start;flex-direction:column}.song-disc{width:100px;height:100px;flex-basis:100px}.song-title{font-size:clamp(48px,14vw,80px)}}
+    .listening-console{margin:48px 0 28px;padding:clamp(18px,4vw,38px);border:1px solid #b6e83355;background:linear-gradient(145deg,#101a11ed,#070b08f7);box-shadow:0 25px 90px #0007}
+    .listening-console-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:24px}
+    .listening-console-head h2{margin:8px 0;color:#e9f2e8;font-size:clamp(30px,5vw,54px);line-height:.95;letter-spacing:-.055em}
+    .listening-console-head h2 em{font-style:normal;color:#b6e833}
+    .listening-console-head p:last-child{max-width:540px;color:#9eaf9b;font-size:12px;line-height:1.8}
+    .console-state{display:inline-flex;align-items:center;gap:8px;flex:none;padding:8px 10px;border:1px solid #b6e83340;color:#b6e833;font:8px monospace;letter-spacing:1.2px}
+    .console-state i{width:6px;height:6px;border-radius:50%;background:#b6e833;box-shadow:0 0 10px #b6e833}
+    .listening-console-screen{padding:12px;border:1px solid #35462e;background:#030704}
+    .console-screen-top,.console-screen-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:#879985;font:8px/1.5 monospace;letter-spacing:1.1px}
+    .console-screen-top{padding:3px 3px 12px}
+    .console-screen-foot{padding:12px 3px 2px}
+    .listening-console-screen iframe{display:block;width:100%;aspect-ratio:16/9;min-height:220px;border:1px solid #263528;background:#050906}
+    .console-note{display:flex;gap:18px;margin-top:14px;padding-top:14px;border-top:1px solid #b6e83322}
+    .console-note span{flex:none;color:#b6e833;font:8px monospace;letter-spacing:1.1px}
+    .console-note p{margin:0;color:#899889;font-size:11px;line-height:1.7}
+    @media(max-width:700px){.listening-console-head{align-items:flex-start;flex-direction:column}.listening-console-screen iframe{min-height:190px}.console-note{flex-direction:column;gap:6px}.song-main{padding-top:6vh}.song-panel-top{align-items:flex-start;flex-direction:column}.song-player-card{align-items:flex-start;flex-direction:column}.song-disc{width:100px;height:100px;flex-basis:100px}.song-title{font-size:clamp(48px,14vw,80px)}}
   </style>
   <link rel="stylesheet" href="/landing-page/tools.css?v=20261027-font-hud-1">
   <link rel="stylesheet" href="/landing-page/game-ui.css?v=20261102-game-ui-1">
@@ -55,8 +70,17 @@
     <p class="song-kicker">SOUND ARCHIVE // ORIGINAL TRANSMISSION 001</p>
     <h1 class="song-title">A SIGNAL<br><em>IN THE DARK.</em></h1>
     <p class="song-deck">A new sound transmission from Verse After Hours. Take a moment, press play, and let the signal find you.</p>
+    <section class="listening-console" aria-labelledby="listening-title">
+      <div class="listening-console-head"><div><p class="song-kicker">CHANNEL 01 // GREEN DREAM RADIO</p><h2 id="listening-title">THE LISTENING <em>ROOM.</em></h2><p>One continuous channel. Choose a track, leave it running, or return to the wider archive.</p></div><span class="console-state"><i></i> PLAYBACK READY</span></div>
+      <div class="listening-console-screen">
+        <div class="console-screen-top"><span>V/A // LIVE PLAYLIST FEED</span><span>USER-INITIATED · NO AUTOPLAY</span></div>
+        <iframe title="Green Dream Radio playlist" src="https://www.youtube-nocookie.com/embed/videoseries?list=PL-HvxCN6LbEtKhlSDDndY8mdupqTbTlgn&rel=0&modestbranding=1" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+        <div class="console-screen-foot"><span>PLAYLIST // GREEN DREAM</span><span>EXTERNAL PLAYER · YOUTUBE</span></div>
+      </div>
+      <div class="console-note"><span>LISTENING NOTE</span><p>The playlist is embedded from YouTube in privacy-enhanced mode. Playback begins only when you choose a track.</p></div>
+    </section>
     <section class="song-panel" aria-label="Suno music player">
-      <div class="song-panel-top"><span>V/A AUDIO SYSTEM</span><span>HOSTED BY SUNO // USER-INITIATED PLAYBACK</span></div>
+      <div class="song-panel-top"><span>V/A AUDIO SYSTEM // ORIGINAL RELEASE</span><span>HOSTED BY SUNO // USER-INITIATED PLAYBACK</span></div>
       <div class="song-player-card"><div class="song-disc" aria-hidden="true">V/A<span>▶</span></div><div><strong>TRACK SOURCE // SUNO</strong><p>The shared link is a Suno short URL, not a direct audio file. Open the track on Suno to start playback.</p><a class="song-link primary" href="https://suno.com/s/0RJNUsklNXtOiRzv" target="_blank" rel="noopener noreferrer">▶ PLAY TRACK ON SUNO ↗</a></div></div>
       <div class="song-actions">
         <a class="song-link primary" href="https://suno.com/s/0RJNUsklNXtOiRzv" target="_blank" rel="noopener noreferrer">OPEN TRACK ON SUNO ↗</a>
