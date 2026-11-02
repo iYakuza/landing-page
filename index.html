@@ -133,6 +133,19 @@
     .gd-circle-portal a:hover{background:#d8ff85;transform:translateY(-2px)}
     @media(max-width:700px){.gd-circle-inner{grid-template-columns:1fr}.gd-circle-portal:before{width:85vw;right:-38%}.gd-circle-portal .gd-circle-side{padding:20px}}
 
+
+/* SECURE YOUR SOUL — institutional entry chapter. Editorial, tactile, deliberately quiet. */
+.sys-entry{--sys-ink:#e9e4d5;--sys-muted:#a7aa98;--sys-jade:#9aaf83;--sys-gold:#b9a477;position:relative;isolation:isolate;padding:clamp(72px,10vw,142px) clamp(22px,7vw,110px) clamp(58px,8vw,104px);overflow:hidden;color:var(--sys-ink);background:radial-gradient(ellipse at 88% 12%,rgba(113,139,91,.12),transparent 36%),linear-gradient(145deg,#101812 0%,#0a100c 56%,#080d0a 100%);border-top:1px solid rgba(185,164,119,.35);border-bottom:1px solid rgba(185,164,119,.25)}
+.sys-entry:before{content:"";position:absolute;z-index:-1;inset:0;opacity:.18;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(220,220,190,.018) 3px 4px),radial-gradient(ellipse at 18% 70%,rgba(153,175,131,.09),transparent 55%)}
+.sys-entry-heading{max-width:850px;margin:0 auto 56px}.sys-overline{margin:0 0 22px;color:var(--sys-gold);font:9px/1.6 ui-monospace,monospace;letter-spacing:.19em}.sys-overline span{padding:0 8px;color:#697562}.sys-entry-heading h2{margin:0;color:#eee9dc;font:400 clamp(46px,7.4vw,96px)/.94 Georgia,'Times New Roman',serif;letter-spacing:-.055em}.sys-entry-heading h2 em{color:#b9c7a6;font-weight:400}.sys-entry-intro{max-width:570px;margin:24px 0 0;color:#aeb4a4;font:14px/1.9 Georgia,serif}
+.sys-entry-rule{display:flex;justify-content:space-between;gap:18px;max-width:1120px;margin:0 auto 0;padding:12px 0;border-top:1px solid rgba(185,164,119,.35);border-bottom:1px solid rgba(185,164,119,.2);color:#a9a58f;font:8px/1.5 ui-monospace,monospace;letter-spacing:.15em}
+.sys-paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-width:1120px;margin:0 auto;border-bottom:1px solid rgba(185,164,119,.28)}
+.sys-path{position:relative;display:flex;min-height:300px;flex-direction:column;padding:28px clamp(18px,2.5vw,34px) 26px;border-right:1px solid rgba(185,164,119,.22);color:inherit;text-decoration:none;transition:background .25s ease}
+.sys-path:first-child{border-left:1px solid rgba(185,164,119,.22)}.sys-path:hover,.sys-path:focus-visible{background:linear-gradient(180deg,rgba(160,183,137,.09),rgba(160,183,137,.015));outline:1px solid rgba(185,164,119,.55);outline-offset:-1px}
+.sys-path-index{color:#b9a477;font:italic 22px/1 Georgia,serif}.sys-path-label{margin-top:28px;color:#9ba58f;font:8px/1.5 ui-monospace,monospace;letter-spacing:.15em}.sys-path h3{margin:12px 0 12px;color:#eee9dc;font:400 clamp(28px,3vw,39px)/1.1 Georgia,serif;letter-spacing:-.025em}.sys-path p{max-width:270px;margin:0 0 28px;color:#aab1a2;font:12px/1.85 Arial,sans-serif}.sys-path-action{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:auto;padding-top:14px;border-top:1px solid rgba(185,164,119,.24);color:#c3b48f;font:8px/1.5 ui-monospace,monospace;letter-spacing:.12em}.sys-path-action b{font-size:15px;font-weight:400}.sys-path-community .sys-path-index{color:#b5c69f}.sys-path-wanderer .sys-path-index{color:#c2a58e}.sys-entry-footnote{max-width:1120px;margin:18px auto 0;color:#838d7e;font:9px/1.7 ui-monospace,monospace;letter-spacing:.04em}
+@media(max-width:760px){.sys-entry{padding:66px 20px 54px}.sys-entry-heading{margin-bottom:36px}.sys-entry-heading h2{font-size:clamp(45px,12vw,70px)}.sys-entry-rule{font-size:7px}.sys-paths{grid-template-columns:1fr}.sys-path{min-height:0;padding:23px 18px 20px;border-right:1px solid rgba(185,164,119,.22);border-left:1px solid rgba(185,164,119,.22);border-bottom:1px solid rgba(185,164,119,.18)}.sys-path-label{margin-top:15px}.sys-path p{max-width:520px;margin-bottom:18px}.sys-path-action{margin-top:0}}
+@media(prefers-reduced-motion:reduce){.sys-path{transition:none}}
+
   </style>
   <link rel="stylesheet" href="/landing-page/tools.css?v=20261027-font-hud-1">
   <link rel="stylesheet" href="/landing-page/game-ui.css?v=20261102-game-ui-1">
@@ -209,6 +222,29 @@
       </div>
       <div class="ego-cover-index"><span>ONE HUMAN</span><span>AN UNFINISHED RECORD</span><span>NO FINAL FORM</span></div>
       <a class="ego-cover-scroll" href="#green-dream">DESCEND INTO THE WORLD <span aria-hidden="true">↓</span></a>
+    </section>
+    <section class="sys-entry" aria-labelledby="sys-entry-title">
+      <div class="sys-entry-heading">
+        <p class="sys-overline">THE CONTINUITY INSTITUTE <span>／</span> VISITOR ACCESS</p>
+        <h2 id="sys-entry-title">Every life leaves<br><em>more than a record.</em></h2>
+        <p class="sys-entry-intro">A memory can be stored. A voice can be reconstructed. But what remains when the person is no longer here?</p>
+      </div>
+      <div class="sys-entry-rule"><span>SELECT AN ENTRY PATH</span><span>ALL PATHS REMAIN OPEN</span></div>
+      <div class="sys-paths">
+        <a class="sys-path sys-path-community" href="/landing-page/community/">
+          <span class="sys-path-index">I</span><span class="sys-path-label">THE HUMAN NETWORK</span>
+          <h3>Community</h3><p>Meet the people who believe a life is defined by what it leaves in others.</p><span class="sys-path-action">ENTER THE CIRCLE <b>↗</b></span>
+        </a>
+        <a class="sys-path sys-path-institute" href="/landing-page/secure-your-soul/">
+          <span class="sys-path-index">II</span><span class="sys-path-label">OFFICIAL PROGRAM</span>
+          <h3>Institution</h3><p>Understand the Continuity Process, its promise, its procedure, and its unanswered questions.</p><span class="sys-path-action">REVIEW THE PROTOCOL <b>↗</b></span>
+        </a>
+        <a class="sys-path sys-path-wanderer" href="/landing-page/green-dream/">
+          <span class="sys-path-index">III</span><span class="sys-path-label">UNREGISTERED ROUTE</span>
+          <h3>Wanderer</h3><p>Follow fragments, transmissions and places that exist beyond the official record.</p><span class="sys-path-action">FOLLOW THE SIGNAL <b>↗</b></span>
+        </a>
+      </div>
+      <p class="sys-entry-footnote">These routes are invitations, not access levels. You may move freely between them.</p>
     </section>
     <section class="gd-hero" id="green-dream">
       <div class="gd-grid" aria-hidden="true"></div><div class="gd-tetris-field" aria-hidden="true"><span class="gd-tetromino gd-tetromino-i"><i></i><i></i><i></i><i></i></span><span class="gd-tetromino gd-tetromino-t"><i></i><i></i><i></i><i></i></span><span class="gd-tetromino gd-tetromino-l"><i></i><i></i><i></i><i></i></span><span class="gd-tetromino gd-tetromino-z"><i></i><i></i><i></i><i></i></span><span class="gd-tetromino gd-tetromino-o"><i></i><i></i><i></i><i></i></span></div><div class="gd-hero-shade" aria-hidden="true"></div>
