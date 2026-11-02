@@ -110,3 +110,75 @@ body.vha-game-interface:before{
 @media(prefers-reduced-motion:reduce){
   .vha-game-interface *, .vha-game-interface *:before,.vha-game-interface *:after{scroll-behavior:auto!important;transition:none!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
 }
+
+
+/* Navigation HUD / interactive world map */
+.vha-game-hud{display:flex;align-items:center;gap:clamp(6px,1.2vw,16px);min-width:0}
+.vha-game-hud-links{display:flex;align-items:center;gap:4px;min-width:0}
+.vha-game-hud-links a,.vha-map-toggle{
+  display:inline-flex;align-items:center;justify-content:center;min-height:27px;padding:0 9px;
+  border:1px solid transparent;background:transparent;color:#a9b8a4;text-decoration:none;
+  font:9px/1 var(--game-mono);letter-spacing:.09em;white-space:nowrap;cursor:pointer
+}
+.vha-game-hud-links a:hover,.vha-game-hud-links a[aria-current=page],.vha-map-toggle:hover,.vha-map-toggle[aria-expanded=true]{
+  color:var(--game-accent);border-color:var(--game-line);background:rgba(173,214,112,.08)
+}
+.vha-map-toggle{border-color:var(--game-line);color:var(--game-accent);gap:7px}
+.vha-map-toggle svg{width:13px;height:13px;flex:none}
+.vha-world-map{
+  position:fixed;z-index:2000;inset:0;display:grid;place-items:center;padding:clamp(12px,3vw,36px);
+  background:rgba(2,7,4,.82);backdrop-filter:blur(12px)
+}
+.vha-world-map[hidden]{display:none!important}
+.vha-world-map-panel{
+  position:relative;width:min(920px,100%);max-height:min(780px,calc(100dvh - 24px));overflow:auto;
+  border:1px solid var(--game-line-hot);background:
+    radial-gradient(ellipse at 50% 40%,rgba(55,92,57,.22),transparent 60%),
+    linear-gradient(145deg,#0c1810,#050a07 78%);
+  box-shadow:0 28px 100px #000d,0 0 44px rgba(173,214,112,.08);padding:clamp(18px,3vw,34px)
+}
+.vha-world-map-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:18px;border-bottom:1px solid var(--game-line)}
+.vha-world-map-kicker{margin:0 0 7px;color:var(--game-accent);font:9px var(--game-mono);letter-spacing:.18em}
+.vha-world-map-head h2{margin:0;color:var(--game-ink);font:400 clamp(26px,4vw,42px)/1 Georgia,serif;letter-spacing:-.04em}
+.vha-world-map-head p:last-child{margin:8px 0 0;color:var(--game-muted);font-size:12px}
+.vha-world-map-close{width:36px;height:36px;flex:none;border:1px solid var(--game-line);background:#08110b;color:var(--game-accent);font:20px var(--game-mono);cursor:pointer}
+.vha-world-map-plot{position:relative;min-height:280px;margin:22px 0 12px;border:1px solid rgba(160,194,126,.18);overflow:hidden;
+  background-image:linear-gradient(rgba(160,194,126,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(160,194,126,.055) 1px,transparent 1px);
+  background-size:32px 32px}
+.vha-world-map-plot:before,.vha-world-map-plot:after{content:"";position:absolute;inset:12% 8%;border:1px solid rgba(187,164,119,.17);border-radius:48% 52% 44% 56%;transform:rotate(-12deg);pointer-events:none}
+.vha-world-map-plot:after{inset:22% 18%;transform:rotate(24deg);border-color:rgba(160,194,126,.13)}
+.vha-map-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.vha-map-lines path{fill:none;stroke:rgba(185,215,122,.36);stroke-width:1.2;stroke-dasharray:4 6}
+.vha-map-node{
+  position:absolute;z-index:1;display:flex;flex-direction:column;gap:3px;align-items:center;
+  min-width:88px;padding:8px 10px;border:1px solid var(--game-line);background:rgba(5,13,8,.94);
+  color:var(--game-ink);text-decoration:none;text-align:center;transform:translate(-50%,-50%);
+  transition:border-color .2s,background .2s,box-shadow .2s
+}
+.vha-map-node:hover,.vha-map-node:focus-visible{border-color:var(--game-line-hot);background:#17271a;box-shadow:0 0 22px rgba(185,215,122,.13)}
+.vha-map-node .node-symbol{color:var(--game-accent);font:18px/1 Georgia,serif}
+.vha-map-node strong{font:9px var(--game-mono);letter-spacing:.08em}
+.vha-map-node small{color:var(--game-muted);font:8px var(--game-mono)}
+.vha-map-node[data-node=ego]{left:50%;top:49%;border-color:var(--game-line-hot)}
+.vha-map-node[data-node=garden]{left:22%;top:30%}
+.vha-map-node[data-node=archive]{left:78%;top:28%}
+.vha-map-node[data-node=transmissions]{left:22%;top:76%}
+.vha-map-node[data-node=listening]{left:78%;top:75%}
+.vha-map-node[data-node=circle]{left:50%;top:90%}
+.vha-world-map-foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--game-muted);font:9px var(--game-mono);letter-spacing:.08em}
+.vha-world-map-foot b{color:var(--game-gold);font-weight:400}
+@media(max-width:760px){
+ .vha-game-status{align-items:flex-start;flex-wrap:wrap}
+ .vha-game-hud{width:100%;justify-content:space-between}
+ .vha-game-hud-links{overflow-x:auto;max-width:calc(100vw - 100px);scrollbar-width:none}
+ .vha-game-hud-links::-webkit-scrollbar{display:none}
+ .vha-game-hud-links a{padding:0 7px;font-size:8px}
+ .vha-world-map-plot{min-height:390px}
+ .vha-map-node{min-width:78px;padding:7px 6px}
+ .vha-map-node[data-node=garden]{left:23%;top:22%}
+ .vha-map-node[data-node=archive]{left:77%;top:22%}
+ .vha-map-node[data-node=transmissions]{left:23%;top:72%}
+ .vha-map-node[data-node=listening]{left:77%;top:72%}
+ .vha-map-node[data-node=circle]{left:50%;top:91%}
+}
+@media(max-width:420px){.vha-game-status .status-left{gap:7px}.vha-game-hud-links a{font-size:7px;letter-spacing:.03em;padding:0 5px}.vha-map-node{min-width:70px}.vha-map-node small{font-size:7px}}
