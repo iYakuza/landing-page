@@ -122,52 +122,88 @@
     e.currentTarget.setAttribute('aria-label',m?'Expand radio':'Minimize radio');
   });
 
-  const positionKey='vha-green-dream-radio-position-v2';
-  let drag=null,suppressClickUntil=0;
+  const positionKey='vha-green-dream-radio-geometry-v3';
+  let drag=null,resize=null,suppressClickUntil=0;
   head.style.touchAction='none';head.style.userSelect='none';head.style.cursor='grab';
   radio.style.setProperty('position','fixed','important');
   radio.style.setProperty('right','auto','important');radio.style.setProperty('bottom','auto','important');
   radio.style.setProperty('transform','none','important');
   radio.style.setProperty('max-height','calc(100dvh - 16px)','important');
-  radio.style.setProperty('overflow-y','auto','important');radio.style.setProperty('overscroll-behavior','contain','important');
+  radio.style.setProperty('overflow','auto','important');radio.style.setProperty('overscroll-behavior','contain','important');
   radio.style.setProperty('z-index','2147483000','important');
-  function clampPosition(x,y){
-    const maxX=Math.max(8,innerWidth-radio.offsetWidth-8),maxY=Math.max(8,innerHeight-radio.offsetHeight-8);
-    return {x:Math.max(8,Math.min(maxX,x)),y:Math.max(8,Math.min(maxY,y))};
+  const corners=['nw','ne','sw','se'];
+  corners.forEach(corner=>{
+    const handle=document.createElement('span');
+    handle.className='gd-radio-resize';handle.dataset.corner=corner;
+    handle.setAttribute('aria-hidden','true');radio.appendChild(handle);
+    handle.addEventListener('pointerdown',e=>{
+      if(e.pointerType==='mouse'&&e.button!==0)return;
+      e.preventDefault();e.stopPropagation();
+      const r=radio.getBoundingClientRect();
+      resize={id:e.pointerId,corner,startX:e.clientX,startY:e.clientY,left:r.left,top:r.top,width:r.width,height:r.height};
+    });
+  });
+  function clampGeometry(left,top,width,height){
+    const minW=Math.min(220,innerWidth-16),minH=Math.min(150,innerHeight-16);
+    width=Math.max(minW,Math.min(width,innerWidth-16));
+    height=Math.max(minH,Math.min(height,innerHeight-16));
+    left=Math.max(8,Math.min(left,innerWidth-width-8));
+    top=Math.max(8,Math.min(top,innerHeight-height-8));
+    return {left,top,width,height};
   }
-  function setPosition(x,y,persist=false){
-    const p=clampPosition(x,y);
-    radio.style.setProperty('position','fixed','important');
-    radio.style.setProperty('left',p.x+'px','important');radio.style.setProperty('top',p.y+'px','important');
+  function applyGeometry(g,persist=false){
+    const p=clampGeometry(g.left,g.top,g.width,g.height);
+    radio.style.setProperty('left',p.left+'px','important');
+    radio.style.setProperty('top',p.top+'px','important');
+    radio.style.setProperty('width',p.width+'px','important');
+    radio.style.setProperty('height',p.height+'px','important');
     radio.style.setProperty('right','auto','important');radio.style.setProperty('bottom','auto','important');
-    radio.style.setProperty('transform','none','important');
     if(persist){try{localStorage.setItem(positionKey,JSON.stringify(p))}catch{}}
   }
   let saved=null;try{saved=JSON.parse(localStorage.getItem(positionKey)||'null')}catch{}
   const initial=radio.getBoundingClientRect();
-  const initialX=Number.isFinite(saved?.x)?saved.x:innerWidth-initial.width-12;
-  const initialY=Number.isFinite(saved?.y)?saved.y:(innerWidth<=760?innerHeight-initial.height-12:(innerHeight-initial.height)/2);
-  setPosition(initialX,initialY,false);
+  const initialGeometry={
+    left:Number.isFinite(saved?.left)?saved.left:innerWidth-initial.width-12,
+    top:Number.isFinite(saved?.top)?saved.top:(innerWidth<=760?innerHeight-initial.height-12:(innerHeight-initial.height)/2),
+    width:Number.isFinite(saved?.width)?saved.width:Math.min(286,innerWidth-24),
+    height:Number.isFinite(saved?.height)?saved.height:initial.height
+  };
+  radio.style.removeProperty('height');
+  applyGeometry(initialGeometry,false);
   head.addEventListener('dragstart',e=>e.preventDefault());
   head.addEventListener('pointerdown',e=>{
-    if((e.pointerType==='mouse'&&e.button!==0)||e.target.closest('button,select,label,a'))return;
+    if((e.pointerType==='mouse'&&e.button!==0)||e.target.closest('button,select,label,a,.gd-radio-resize'))return;
     const r=radio.getBoundingClientRect();
-    drag={id:e.pointerId,startX:e.clientX,startY:e.clientY,left:r.left,top:r.top,moved:false};
+    drag={id:e.pointerId,startX:e.clientX,startY:e.clientY,left:r.left,top:r.top,width:r.width,height:r.height,moved:false};
     head.style.cursor='grabbing';
   });
   window.addEventListener('pointermove',e=>{
+    if(resize&&e.pointerId===resize.id){
+      const dx=e.clientX-resize.startX,dy=e.clientY-resize.startY;
+      let {left,top,width,height}=resize;
+      if(resize.corner.includes('e'))width+=dx;else{left+=dx;width-=dx}
+      if(resize.corner.includes('s'))height+=dy;else{top+=dy;height-=dy}
+      applyGeometry({left,top,width,height},false);
+      if(e.cancelable)e.preventDefault();
+      return;
+    }
     if(!drag||e.pointerId!==drag.id)return;
     const dx=e.clientX-drag.startX,dy=e.clientY-drag.startY;
     if(!drag.moved&&Math.abs(dx)+Math.abs(dy)>3)drag.moved=true;
-    if(drag.moved){setPosition(drag.left+dx,drag.top+dy,false);if(e.cancelable)e.preventDefault()}
+    if(drag.moved){applyGeometry({...drag,left:drag.left+dx,top:drag.top+dy},false);if(e.cancelable)e.preventDefault()}
   },{passive:false});
-  function endDrag(e){
-    if(!drag||(e&&e.pointerId!==drag.id))return;
-    if(drag.moved){suppressClickUntil=Date.now()+250;const r=radio.getBoundingClientRect();setPosition(r.left,r.top,true)}
+  function finishPointer(e){
+    if(resize&&(!e||e.pointerId===resize.id)){
+      const r=radio.getBoundingClientRect();
+      applyGeometry({left:r.left,top:r.top,width:r.width,height:r.height},true);
+      resize=null;return;
+    }
+    if(!drag|| (e&&e.pointerId!==drag.id))return;
+    if(drag.moved){suppressClickUntil=Date.now()+250;const r=radio.getBoundingClientRect();applyGeometry({left:r.left,top:r.top,width:r.width,height:r.height},true)}
     drag=null;head.style.cursor='grab';
   }
-  window.addEventListener('pointerup',endDrag);window.addEventListener('pointercancel',endDrag);window.addEventListener('blur',()=>endDrag());
+  window.addEventListener('pointerup',finishPointer);window.addEventListener('pointercancel',finishPointer);window.addEventListener('blur',()=>finishPointer());
   head.addEventListener('click',e=>{if(Date.now()<suppressClickUntil){suppressClickUntil=0;e.preventDefault();e.stopImmediatePropagation()}},true);
-  window.addEventListener('resize',()=>{const r=radio.getBoundingClientRect();setPosition(r.left,r.top,true)});
+  window.addEventListener('resize',()=>{const r=radio.getBoundingClientRect();applyGeometry({left:r.left,top:r.top,width:r.width,height:r.height},true)});
   status('Radio ready. Press PLAY to load the Green Dream playlist.');
 })();
