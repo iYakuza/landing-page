@@ -1,0 +1,112 @@
+/* SECURE YOUR SOUL / EGO — shared game-interface layer
+   Presentation only: preserves page content, destinations, forms and existing feature scripts. */
+:root{
+  --game-bg:#070d0a;
+  --game-panel:rgba(8,18,13,.94);
+  --game-panel-soft:rgba(14,28,20,.88);
+  --game-line:rgba(160,194,126,.35);
+  --game-line-hot:rgba(194,224,126,.8);
+  --game-ink:#e5eadc;
+  --game-muted:#9aa995;
+  --game-accent:#b9d77a;
+  --game-gold:#bba477;
+  --game-alert:#c77c70;
+  --game-mono:ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+html{scrollbar-color:#526b48 #08100b}
+body.vha-game-interface{position:relative}
+body.vha-game-interface:before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(ellipse at 50% -20%,rgba(100,145,90,.16),transparent 55%),
+    linear-gradient(90deg,transparent 49.9%,rgba(164,197,130,.025) 50%,transparent 50.1%),
+    repeating-linear-gradient(0deg,rgba(180,205,155,.018) 0 1px,transparent 1px 5px);
+}
+.vha-game-status{
+  position:relative;z-index:1000;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;min-height:25px;padding:4px clamp(12px,3vw,38px);
+  border-bottom:1px solid rgba(170,200,140,.16);
+  background:#050a07;color:var(--game-muted);
+  font:9px/1.3 var(--game-mono);letter-spacing:.13em;text-transform:uppercase;
+}
+.vha-game-status .status-left,.vha-game-status .status-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.vha-game-status .status-dot{width:6px;height:6px;border-radius:50%;background:#9bdc82;box-shadow:0 0 9px #9bdc82;display:inline-block}
+.vha-game-status .status-accent{color:var(--game-accent)}
+.vha-game-interface .vha-main-nav,
+.vha-game-interface .ha-nav,
+.vha-game-interface .mast-nav,
+.vha-game-interface .toplinks{
+  position:relative;isolation:isolate;
+  border:1px solid var(--game-line)!important;
+  background:linear-gradient(180deg,rgba(14,29,20,.97),rgba(5,13,9,.97))!important;
+  box-shadow:0 8px 28px rgba(0,0,0,.3),inset 0 1px rgba(230,245,210,.05);
+}
+.vha-game-interface .vha-main-nav a,
+.vha-game-interface .ha-nav a,
+.vha-game-interface .mast-nav a,
+.vha-game-interface .toplinks a{
+  position:relative;text-decoration:none!important;
+  transition:background .18s,border-color .18s,color .18s,transform .18s;
+}
+.vha-game-interface .vha-main-nav a:hover,
+.vha-game-interface .ha-nav a:hover,
+.vha-game-interface .mast-nav a:hover,
+.vha-game-interface .toplinks a:hover{
+  color:var(--game-accent)!important;
+  background:rgba(173,214,112,.09)!important;
+  box-shadow:inset 0 -2px var(--game-accent),0 0 18px rgba(173,214,112,.08);
+}
+.vha-game-interface .vha-main-nav a.active,
+.vha-game-interface .vha-main-nav a[aria-current="page"],
+.vha-game-interface .ha-nav a[aria-current="page"],
+.vha-game-interface .mast-nav a[aria-current="page"]{
+  color:var(--game-accent)!important;
+  background:linear-gradient(180deg,rgba(173,214,112,.14),rgba(173,214,112,.035))!important;
+  box-shadow:inset 0 -2px var(--game-accent),inset 0 0 18px rgba(173,214,112,.07);
+}
+.vha-game-interface .vha-nav-dropdown .vha-nav-menu{
+  border:1px solid var(--game-line-hot)!important;
+  background:var(--game-panel)!important;
+  box-shadow:0 18px 45px #000b,0 0 22px rgba(173,214,112,.08)!important;
+  backdrop-filter:blur(16px);
+}
+.vha-game-interface .vha-nav-dropdown .vha-nav-menu a{border-bottom:1px solid rgba(170,200,140,.12)}
+.vha-game-interface main,
+.vha-game-interface .posts-main,
+.vha-game-interface .song-main,
+.vha-game-interface .cv-shell,
+.vha-game-interface .ha-shell,
+.vha-game-interface .sy-shell{position:relative}
+.vha-game-interface :is(.post-card,.post-panel,.song-card,.cv-card,.ha-card,.archive-card,.movement-card,.gd-card,.signal-card,.case-file,.protocol-card){
+  border-color:var(--game-line)!important;
+  box-shadow:0 12px 34px rgba(0,0,0,.22),inset 0 1px rgba(220,240,205,.035);
+}
+.vha-game-interface :is(button,.button,.btn,[role="button"]){transition:filter .16s,transform .16s,box-shadow .16s}
+.vha-game-interface :is(button,.button,.btn,[role="button"]):hover{filter:brightness(1.12)}
+.vha-game-interface :is(button,.button,.btn,[role="button"]):active{transform:translateY(1px)}
+.vha-game-interface :is(a,button,input,textarea,select,[tabindex]):focus-visible{
+  outline:2px solid var(--game-accent)!important;outline-offset:3px!important;
+}
+.vha-game-interface .game-page-tag{
+  display:inline-flex;align-items:center;gap:8px;padding:5px 9px;
+  border:1px solid var(--game-line);background:rgba(6,15,10,.8);
+  color:var(--game-accent);font:9px/1.2 var(--game-mono);letter-spacing:.14em;text-transform:uppercase;
+}
+.vha-game-interface .game-page-tag:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 8px currentColor}
+.vha-game-interface .game-corner-frame{position:relative}
+.vha-game-interface .game-corner-frame:after{
+  content:"";position:absolute;inset:0;pointer-events:none;border:1px solid rgba(180,210,145,.12);
+  clip-path:polygon(0 0,18px 0,18px 1px,1px 1px,1px 18px,0 18px,0 calc(100% - 18px),1px calc(100% - 18px),1px calc(100% - 1px),18px calc(100% - 1px),18px 100%,0 100%,100% 100%,calc(100% - 18px) 100%,calc(100% - 18px) calc(100% - 1px),calc(100% - 1px) calc(100% - 1px),calc(100% - 1px) calc(100% - 18px),100% calc(100% - 18px),100% 18px,calc(100% - 1px) 18px,calc(100% - 1px) 1px,calc(100% - 18px) 1px,calc(100% - 18px) 0);
+}
+.vha-game-interface .game-bottomline{
+  display:flex;justify-content:space-between;gap:12px;align-items:center;
+  margin-top:clamp(28px,5vw,64px);padding:10px 0;border-top:1px solid var(--game-line);
+  color:var(--game-muted);font:9px/1.4 var(--game-mono);letter-spacing:.1em;text-transform:uppercase;
+}
+@media(max-width:700px){
+  .vha-game-status{font-size:8px;letter-spacing:.08em}
+  .vha-game-status .status-right{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .vha-game-interface *, .vha-game-interface *:before,.vha-game-interface *:after{scroll-behavior:auto!important;transition:none!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
