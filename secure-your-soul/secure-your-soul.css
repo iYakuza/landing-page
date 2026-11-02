@@ -45,3 +45,7 @@
 
 
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}.button{transition:none}*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+/* Purpose and visitor orientation */
+.hero-copy{max-width:690px}.hero-note{max-width:590px;color:#c4c9bd;font-size:14px;line-height:1.85}.hero-note strong{display:block;margin-bottom:7px;color:var(--gold);font:9px/1.6 var(--mono);letter-spacing:.16em}.hero-instruction{display:flex;gap:14px;align-items:flex-start;max-width:590px;margin:22px 0 28px;padding:13px 15px;border-left:1px solid var(--jade-dim);background:linear-gradient(90deg,#a9c7a50c,transparent);color:#aeb8aa;font-size:12px;line-height:1.75}.hero-instruction span{flex:0 0 auto;padding-top:3px;color:var(--jade);font:9px/1.5 var(--mono);letter-spacing:.12em}.hero-copy .button{margin-top:4px}@media(max-width:700px){.hero-instruction{display:block}.hero-instruction span{display:block;margin-bottom:5px}}
