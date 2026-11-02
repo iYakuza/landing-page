@@ -141,6 +141,45 @@
   let entryIntro=false;
   try{entryIntro=isHome&&sessionStorage.getItem("vha-entry-intro-seen")!=="true"}catch{entryIntro=isHome}
   const journeyNote=map.querySelector(".vha-journey-note");
+  if(journeyNote){
+    journeyNote.setAttribute("role","group");
+    journeyNote.setAttribute("aria-label","Next part of the journey. Drag to reposition.");
+    const positionKey="vha-journey-note-position";
+    try{
+      const saved=JSON.parse(localStorage.getItem(positionKey)||"null");
+      if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)){
+        journeyNote.style.left=Math.max(8,Math.min(innerWidth-journeyNote.offsetWidth-8,saved.x))+"px";
+        journeyNote.style.top=Math.max(8,Math.min(innerHeight-journeyNote.offsetHeight-8,saved.y))+"px";
+        journeyNote.style.transform="none";
+      }
+    }catch{}
+    let dragging=false,moved=false,startX=0,startY=0,originX=0,originY=0;
+    journeyNote.addEventListener("pointerdown",event=>{
+      if(event.target.closest("a,button"))return;
+      dragging=true;moved=false;startX=event.clientX;startY=event.clientY;
+      const rect=journeyNote.getBoundingClientRect();originX=rect.left;originY=rect.top;
+      journeyNote.setPointerCapture(event.pointerId);
+      journeyNote.classList.add("is-dragging");
+    });
+    journeyNote.addEventListener("pointermove",event=>{
+      if(!dragging)return;
+      const dx=event.clientX-startX,dy=event.clientY-startY;
+      if(Math.abs(dx)+Math.abs(dy)>3)moved=true;
+      if(!moved)return;
+      journeyNote.style.left=Math.max(8,Math.min(innerWidth-journeyNote.offsetWidth-8,originX+dx))+"px";
+      journeyNote.style.top=Math.max(8,Math.min(innerHeight-journeyNote.offsetHeight-8,originY+dy))+"px";
+      journeyNote.style.transform="none";
+    });
+    const finishJourneyDrag=()=>{
+      if(!dragging)return;
+      dragging=false;journeyNote.classList.remove("is-dragging");
+      if(moved){
+        try{const rect=journeyNote.getBoundingClientRect();localStorage.setItem(positionKey,JSON.stringify({x:rect.left,y:rect.top}))}catch{}
+      }
+    };
+    journeyNote.addEventListener("pointerup",finishJourneyDrag);
+    journeyNote.addEventListener("pointercancel",finishJourneyDrag);
+  }
   if(entryIntro){
     document.body.classList.add("vha-entry-intro");
     map.hidden=true;mapButton.setAttribute("aria-expanded","false");
