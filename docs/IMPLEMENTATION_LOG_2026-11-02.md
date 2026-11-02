@@ -48,3 +48,30 @@ Production URL remains: https://iyakuza.github.io/landing-page/
 4. Review Signal intake against the blueprint before enabling public publishing: explicit publication consent, validation, moderation, attribution, retention and removal route.
 5. Add a real Discord invite only after one is configured; do not ship placeholder external destinations.
 6. Maintain clear distinction between fictional in-world claims and actual website functionality.
+
+
+## Visual correction — EGO dashboard (2026-11-02)
+The previous shared HUD did not resemble the supplied game-dashboard mock-up. It was a navigation strip and a modal map, not a complete command-centre composition. This was acknowledged and corrected with a page-specific rebuild.
+
+### GUI decomposition implemented
+- Top system bar: island network state, sector and current node.
+- Main hero stage: existing EGO portrait asset retained, layered with original inline SVG moon, mountain silhouettes, tree silhouettes and pagoda geometry.
+- Left identity block: EGO title, declaration, short philosophy line and archive entry action.
+- Right mission panel: objective headline, description, first-path action and compact world stats.
+- Bottom destination rail: Green Dream, Transmissions, Human Archive, V/A Radio and The Circle.
+- Project source link: GitHub repository destination.
+- Lower status labels: one human, unfinished record, no final form.
+- Mobile adaptation: stacked mission panel and 3-column shortcut rail.
+
+### New commits
+- EGO hero HTML: `ad200da3b7b9bb9a558b29b3567f7406980dcb9f`
+- EGO dashboard styling: `c5be17bcbe16b1b27c98f73364e7a3883332de08`
+
+### Visual reference
+The Canva design job has completed and is available as a separate editable reference: https://canva.link/bztcuhso2nrkrd4
+This is not installed website functionality and is not treated as an implemented page.
+
+### Latest verification snapshot
+- Secret scanning: passed on `c5be17b`.
+- Static-site safety, static security posture, CodeQL and Pages deployment: in progress at the last check.
+- No live browser screenshot or cross-device visual comparison has been performed yet.
