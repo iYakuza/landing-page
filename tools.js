@@ -115,12 +115,13 @@
       const open=root.dataset.open!=="true";
       root.dataset.open=String(open);
       root.setAttribute("aria-expanded",String(open));
+      document.dispatchEvent(new CustomEvent("vha-tools-state-change",{detail:{open}}));
     });
   }
   const crystalObserver=new MutationObserver(bindCrystal);
   crystalObserver.observe(root,{childList:true,subtree:true});
-  document.addEventListener("click",event=>{if(root.dataset.open==="true"&&!root.contains(event.target)){root.dataset.open="false";root.setAttribute("aria-expanded","false")}});
-  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&root.dataset.open==="true"){root.dataset.open="false";root.setAttribute("aria-expanded","false")}});
+  document.addEventListener("click",event=>{if(root.dataset.open==="true"&&!root.contains(event.target)){root.dataset.open="false";root.setAttribute("aria-expanded","false");document.dispatchEvent(new CustomEvent("vha-tools-state-change",{detail:{open:false}}))}});
+  document.addEventListener("keydown",event=>{if(event.key==="Escape"&&root.dataset.open==="true"){root.dataset.open="false";root.setAttribute("aria-expanded","false");document.dispatchEvent(new CustomEvent("vha-tools-state-change",{detail:{open:false}}))}});
   const navHud = document.querySelector(".ego-bottom-hud.vha-universal-nav");
   if (navHud) {
     navHud.parentNode.insertBefore(root, navHud);
@@ -559,4 +560,24 @@ html[data-vha-mood] .gd-suno-row :is(svg) {
     else if(tool==="text"){const active=!document.body.classList.contains("vha-tools-large-text");setViewerTextSize(active);button.setAttribute("aria-pressed",String(active))}
     else if(tool==="ui"){const active=!document.body.classList.contains("vha-tools-hide-ui");document.body.classList.toggle("vha-tools-hide-ui",active);button.setAttribute("aria-pressed",String(active))}
   }));
+})();
+
+
+/* Viewer HUD // crystal centred between the page controls. */
+(() => {
+ const style=document.createElement("style");
+ style.id="vha-viewer-tools-centre-style";
+ style.textContent=`
+  #vha-viewer-tools[data-open="true"]{justify-content:space-between!important}
+  #vha-viewer-tools[data-open="true"]>.vha-tools-side{flex:1 1 0!important;min-width:0!important}
+  #vha-viewer-tools[data-open="true"]>.ego-bottom-hud.vha-universal-nav{order:1!important;flex:0 0 58px!important;margin-inline:clamp(8px,2vw,28px)!important}
+  #vha-viewer-tools[data-open="true"]>.vha-tools-side.vha-tools-left{order:0!important}
+  #vha-viewer-tools[data-open="true"]>.vha-tools-side.vha-tools-right{order:2!important}
+  @media(max-width:760px){
+   #vha-viewer-tools[data-open="true"]{justify-content:center!important}
+   #vha-viewer-tools[data-open="true"]>.vha-tools-side{flex:1 1 0!important}
+   #vha-viewer-tools[data-open="true"]>.ego-bottom-hud.vha-universal-nav{order:1!important;flex:0 0 46px!important;margin-inline:3px!important}
+  }
+ `;
+ document.head.appendChild(style);
 })();
