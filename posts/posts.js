@@ -254,7 +254,7 @@
       const recordYear=Number.isNaN(recordDate.getTime())?'UNDATED':String(recordDate.getFullYear());
       const recordMonth=Number.isNaN(recordDate.getTime())?'--':String(recordDate.getMonth()+1).padStart(2,'0');
       const recordDay=Number.isNaN(recordDate.getTime())?'--':String(recordDate.getDate()).padStart(2,'0');
-      const recordCode='VHA-'+recordYear+'-'+recordMonth+recordDay+'-'+String(index+1).padStart(2,'0');
+      const recordCode='VHA-'+recordYear+'-'+recordMonth+recordDay+'-'+slugify(post.slug).slice(0,8).toUpperCase();
       const lead='<div class="post-card-top"><span class="post-record-code">'+recordCode+'</span><button type="button" class="post-date-toggle" data-post-toggle="'+safe(post.slug)+'" aria-expanded="'+(isExpanded?'true':'false')+'" aria-controls="post-content-'+safe(post.slug)+'"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-disclosure-mark" aria-hidden="true">'+(isExpanded?'−':'+')+'</span></button>'+categoryLink+sectionsControl+editButton+shareActions(post)+'</div><div class="post-card-identity"><h3>'+safe(post.title)+'</h3>'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+'</div>';
       const expandedBody=isSuno
         ? renderSunoGrid(post,media,'','')
