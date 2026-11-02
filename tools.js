@@ -549,7 +549,21 @@ html[data-vha-mood] .gd-suno-row :is(svg) {
 
   root.querySelectorAll("[data-tool]").forEach(button=>button.addEventListener("click",async()=>{
     const tool=button.dataset.tool;
-    if(tool==="radio"){window.dispatchEvent(new CustomEvent("vha-radio-toggle"));return}if(tool==="mood"){const open=root.dataset.moodOpen!=="true";root.dataset.moodOpen=String(open);button.setAttribute("aria-expanded",String(open));if(open)root.querySelector("#vha-mood-description").focus();return}
+    if(tool==="radio"){
+      const radio=document.getElementById("gd-radio");
+      if(!radio)return;
+      const hidden=radio.classList.contains("radio-hidden");
+      radio.classList.toggle("radio-hidden",!hidden);
+      radio.setAttribute("aria-hidden",String(!hidden));
+      button.setAttribute("aria-pressed",String(!hidden));
+      const close=radio.querySelector("#gd-close");
+      if(close){
+        close.textContent=hidden?"−":"+";
+        close.setAttribute("aria-expanded",String(hidden));
+        close.setAttribute("aria-label",hidden?"Minimize radio":"Restore radio from Viewer Tools");
+      }
+      return;
+    }if(tool==="mood"){const open=root.dataset.moodOpen!=="true";root.dataset.moodOpen=String(open);button.setAttribute("aria-expanded",String(open));if(open)root.querySelector("#vha-mood-description").focus();return}
     if(tool==="apply-mood"){
       const input=root.querySelector("#vha-mood-description").value.trim();
       const status=root.querySelector(".vha-mood-status");
