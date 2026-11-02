@@ -6,14 +6,19 @@
 
   const path = location.pathname.replace(/\/+$/, "") || "/";
   const pageMap = [
-    ["/secure-your-soul", "CONTINUITY INSTITUTE", "RESTRICTED PROGRAM"],
-    ["/human-archive", "HUMAN ARCHIVE", "PERSONAL RECORDS"],
-    ["/green-dream", "GREEN DREAM", "EXPLORATION ZONE"],
-    ["/posts", "TRANSMISSIONS", "SIGNAL ARCHIVE"],
-    ["/community", "THE CIRCLE", "COMMUNITY CHANNEL"],
-    ["/cv", "PERSONNEL FILE", "IDENTITY SHARD"],
-    ["/music", "LISTENING ROOM", "AUDIO CHANNEL"],
-    ["/cms", "CREATOR WORKSHOP", "PRIVATE ACCESS"]
+    ["/landing-page/secure-your-soul", "SECURE YOUR SOUL", "RESTRICTED PROGRAM"],
+    ["/landing-page/human-archive", "HUMAN ARCHIVE", "PERSONAL RECORDS"],
+    ["/landing-page/green-dream", "GREEN DREAM", "EXPLORATION ZONE"],
+    ["/landing-page/posts/the-awakening", "THE AWAKENING", "MOVEMENT 01"],
+    ["/landing-page/posts/the-descent", "THE DESCENT", "MOVEMENT 02"],
+    ["/landing-page/posts/the-reconnection", "THE RECONNECTION", "MOVEMENT 03"],
+    ["/landing-page/posts/the-transformation", "THE TRANSFORMATION", "MOVEMENT 04"],
+    ["/landing-page/posts/the-return", "THE RETURN", "MOVEMENT 05"],
+    ["/landing-page/posts", "TRANSMISSIONS", "SIGNAL ARCHIVE"],
+    ["/landing-page/community", "THE CIRCLE", "COMMUNITY CHANNEL"],
+    ["/landing-page/cv", "CV", "PERSONNEL FILE"],
+    ["/landing-page/music", "V/A RADIO", "LISTENING ROOM"],
+    ["/landing-page/cms", "CREATOR WORKSHOP", "PRIVATE ACCESS"]
   ];
   const current = pageMap.find(([prefix]) => path.startsWith(prefix)) || ["", "EGO", "PERSONAL NODE"];
   const routes = [
