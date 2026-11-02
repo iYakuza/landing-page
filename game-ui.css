@@ -417,3 +417,29 @@ body.vha-game-interface{padding-bottom:76px!important}
   .vha-world-map-orbit{gap:16px;margin:16px 0 12px;padding:14px 7px}
 }
 @media(prefers-reduced-motion:reduce){.vha-universal-nav .vha-map-toggle,.vha-map-node{transition:none!important}}
+
+/* Crystal-only navigation and constellation presentation */
+.vha-universal-nav{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important}
+.vha-universal-nav>.vha-map-toggle{width:64px!important;height:64px!important;min-width:64px!important;min-height:64px!important;padding:8px!important;border:0!important;border-radius:50%!important;background:transparent!important;box-shadow:none!important;color:#cce6a2!important;gap:0!important}
+.vha-universal-nav .vha-map-toggle>span{display:none!important}
+.vha-universal-nav .vha-map-toggle svg{display:block;width:48px;height:48px;fill:rgba(172,211,128,.13);stroke:currentColor;stroke-width:1.25;stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(185,215,122,.35)) drop-shadow(0 0 14px rgba(185,215,122,.18));transition:filter .2s,transform .2s}
+.vha-universal-nav>.vha-map-toggle:hover,.vha-universal-nav>.vha-map-toggle[aria-expanded=true]{background:transparent!important;color:#efffd9!important;box-shadow:none!important}
+.vha-universal-nav>.vha-map-toggle:hover svg,.vha-universal-nav>.vha-map-toggle[aria-expanded=true] svg{transform:scale(1.09);filter:drop-shadow(0 0 8px rgba(210,245,160,.65)) drop-shadow(0 0 22px rgba(185,215,122,.35))}
+.vha-world-map-orbit{overflow:hidden!important;isolation:isolate;min-height:480px}
+.vha-constellation-lines{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.58}
+.vha-constellation-lines path{fill:none;stroke:rgba(185,215,122,.48);stroke-width:1.15;stroke-dasharray:3 7;vector-effect:non-scaling-stroke}
+.vha-map-core{position:relative;z-index:2;width:76px;height:76px;border:0!important;background:transparent!important;box-shadow:none!important}
+.vha-map-core svg{width:62px;height:62px;fill:rgba(172,211,128,.13);stroke:#cce6a2;stroke-width:1.1;stroke-linejoin:round;filter:drop-shadow(0 0 9px rgba(185,215,122,.35))}
+.vha-map-destinations{z-index:2;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;max-width:900px!important}
+.vha-map-node{position:relative!important;min-height:62px!important;border:0!important;border-bottom:1px solid rgba(160,194,126,.34)!important;background:rgba(5,13,8,.48)!important;backdrop-filter:blur(3px);box-shadow:none!important}
+.vha-map-node:before{content:"";position:absolute;left:50%;top:-7px;width:5px;height:5px;border-radius:50%;background:#c8e59b;box-shadow:0 0 9px #b9d77a;transform:translateX(-50%)}
+.vha-map-node:hover,.vha-map-node:focus-visible,.vha-map-node.is-current{border-color:rgba(185,215,122,.8)!important;background:rgba(25,43,27,.62)!important;box-shadow:0 0 18px rgba(185,215,122,.1)!important}
+@media(max-width:640px){.vha-world-map-orbit{min-height:0}.vha-map-destinations{grid-template-columns:repeat(2,minmax(0,1fr))!important}.vha-constellation-lines{opacity:.3}.vha-universal-nav>.vha-map-toggle{width:56px!important;height:56px!important;min-width:56px!important;min-height:56px!important}.vha-universal-nav .vha-map-toggle svg{width:43px;height:43px}}
+/* Human Archive category-led index */
+.ha-controls{display:grid;grid-template-columns:auto minmax(150px,1fr) auto minmax(120px,.5fr) auto minmax(170px,.8fr) auto;align-items:center;gap:10px}
+.ha-category-group{margin:clamp(24px,4vw,44px) 0}
+.ha-category-heading{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin:0 0 12px;padding:0 0 10px;border-bottom:1px solid rgba(160,194,126,.35)}
+.ha-category-heading h2{margin:0;color:var(--game-accent);font:400 clamp(19px,2.6vw,27px)/1.2 Georgia,serif}
+.ha-category-heading span{color:var(--game-muted);font:9px var(--game-mono);letter-spacing:.12em}
+.ha-category-entries{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(max-width:760px){.ha-controls{grid-template-columns:1fr 1fr}.ha-controls label{align-self:end}.ha-controls .ha-count{grid-column:1/-1}.ha-category-entries{grid-template-columns:1fr}}
