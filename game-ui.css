@@ -331,3 +331,16 @@ body.vha-game-interface{padding-bottom:92px!important}
 @media(prefers-reduced-motion:reduce){
   .ego-bottom-hud.vha-universal-nav nav a{transition:none}
 }
+
+.ego-bottom-hud.vha-universal-nav>.vha-map-toggle{
+  flex:0 0 66px;border:0;border-left:1px solid rgba(182,216,138,.2);
+  background:transparent;color:#b9d77a;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;cursor:pointer;
+  font:20px/1 Georgia,serif;
+}
+.ego-bottom-hud.vha-universal-nav>.vha-map-toggle small{font:8px monospace;letter-spacing:.7px}
+.ego-bottom-hud.vha-universal-nav>.vha-map-toggle:hover,
+.ego-bottom-hud.vha-universal-nav>.vha-map-toggle:focus-visible{background:rgba(185,215,122,.12);color:#e2efcf}
+@media(max-width:760px){
+ .ego-bottom-hud.vha-universal-nav>.vha-map-toggle{flex-basis:48px;font-size:17px}
+}
