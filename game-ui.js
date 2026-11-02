@@ -148,7 +148,7 @@
     try{
       const saved=JSON.parse(localStorage.getItem(positionKey)||"null");
       if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)){
-        journeyNote.style.left=Math.max(8,Math.min(innerWidth-journeyNote.offsetWidth-8,saved.x))+"px";
+        journeyNote.style.left=Math.max(8,Math.min(innerWidth-300,saved.x))+"px";
         journeyNote.style.top=Math.max(8,Math.min(innerHeight-journeyNote.offsetHeight-8,saved.y))+"px";
         journeyNote.style.transform="none";
       }
