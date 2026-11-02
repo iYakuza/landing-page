@@ -344,3 +344,76 @@ body.vha-game-interface{padding-bottom:92px!important}
 @media(max-width:760px){
  .ego-bottom-hud.vha-universal-nav>.vha-map-toggle{flex-basis:48px;font-size:17px}
 }
+
+
+/* MAP-only navigation: destination index */
+body.vha-game-interface{padding-bottom:76px!important}
+.vha-universal-nav{
+  position:fixed!important;z-index:1500!important;left:50%!important;right:auto!important;bottom:14px!important;
+  width:auto!important;min-width:0!important;padding:0!important;transform:translateX(-50%)!important;
+  border:0!important;background:transparent!important;box-shadow:none!important;
+}
+.vha-universal-nav>nav{display:none!important}
+.vha-universal-nav .vha-map-toggle{
+  display:flex!important;align-items:center;justify-content:center;gap:9px;min-width:104px;min-height:42px;
+  padding:0 17px;border:1px solid rgba(185,215,122,.62);border-radius:2px;
+  background:rgba(7,15,9,.94);color:#c4dc98;font:10px/1 var(--game-mono);
+  letter-spacing:.2em;box-shadow:0 8px 28px #0009,0 0 22px rgba(151,190,112,.1);
+  backdrop-filter:blur(12px);cursor:pointer;
+}
+.vha-universal-nav .vha-map-toggle>span:first-child{font-size:17px;line-height:1}
+.vha-universal-nav .vha-map-toggle:hover,.vha-universal-nav .vha-map-toggle[aria-expanded=true]{
+  color:#e5eadf;border-color:#c4dc98;background:#102016;box-shadow:0 0 28px rgba(185,215,122,.2)
+}
+.vha-world-map{z-index:3000!important;overflow-y:auto}
+.vha-world-map-panel{width:min(1000px,100%)!important;max-height:calc(100dvh - 28px)!important}
+.vha-world-map-head{align-items:center!important}
+.vha-world-map-head h2{font-size:clamp(24px,4vw,38px)!important}
+.vha-world-map-orbit{
+  position:relative;display:flex;flex-direction:column;align-items:center;gap:22px;
+  margin:24px 0 18px;padding:18px clamp(8px,2vw,24px) 24px;
+  border:1px solid rgba(160,194,126,.2);
+  background:
+    radial-gradient(ellipse at 50% 10%,rgba(83,124,76,.15),transparent 54%),
+    linear-gradient(rgba(160,194,126,.035) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(160,194,126,.035) 1px,transparent 1px);
+  background-size:auto,30px 30px,30px 30px;
+}
+.vha-map-core{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  width:88px;height:88px;border:1px solid rgba(185,215,122,.7);border-radius:50%;
+  color:#dce9c8;background:radial-gradient(circle,rgba(75,112,67,.35),rgba(5,13,8,.98) 72%);
+  box-shadow:0 0 0 8px rgba(185,215,122,.035),0 0 35px rgba(185,215,122,.13);
+}
+.vha-map-core>span{font-size:22px;line-height:1;color:var(--game-accent)}
+.vha-map-core strong{font:10px var(--game-mono);letter-spacing:.18em}
+.vha-map-core small{font:7px var(--game-mono);letter-spacing:.1em;color:var(--game-muted)}
+.vha-map-destinations{
+  position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;width:100%;max-width:850px;
+}
+.vha-map-node{
+  position:relative!important;left:auto!important;top:auto!important;transform:none!important;
+  display:flex!important;min-width:0!important;min-height:58px;justify-content:center;align-items:center;
+  gap:5px;padding:10px 8px!important;border:1px solid rgba(160,194,126,.27)!important;
+  background:rgba(5,13,8,.91)!important;color:var(--game-ink)!important;
+  text-align:center;text-decoration:none;transition:border-color .18s,background .18s,box-shadow .18s;
+}
+.vha-map-node strong{font:9px/1.35 var(--game-mono)!important;letter-spacing:.09em;color:#dfe8d7}
+.vha-map-node small{font:8px/1.35 var(--game-mono)!important;letter-spacing:.08em;color:#91a18e!important}
+.vha-map-node:hover,.vha-map-node:focus-visible,.vha-map-node.is-current{
+  border-color:rgba(185,215,122,.8)!important;background:rgba(25,43,27,.97)!important;
+  box-shadow:inset 0 0 18px rgba(185,215,122,.07),0 0 18px rgba(185,215,122,.08)
+}
+.vha-map-node.is-current strong{color:var(--game-accent)}
+.vha-world-map-foot{font-size:8px!important;letter-spacing:.1em}
+@media(max-width:640px){
+  .vha-world-map{place-items:start center!important;padding:10px!important}
+  .vha-world-map-panel{max-height:calc(100dvh - 20px)!important;padding:16px!important}
+  .vha-map-destinations{grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+  .vha-map-node{min-height:54px;padding:8px 5px!important}
+  .vha-map-node strong{font-size:8px!important}
+  .vha-map-node small{font-size:7px!important}
+  .vha-world-map-orbit{gap:16px;margin:16px 0 12px;padding:14px 7px}
+}
+@media(prefers-reduced-motion:reduce){.vha-universal-nav .vha-map-toggle,.vha-map-node{transition:none!important}}
