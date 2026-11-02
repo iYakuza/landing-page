@@ -158,3 +158,5 @@ This is not installed website functionality and is not treated as an implemented
 - Preserved and restored the body's previous inline overflow value rather than always clearing it on close.
 - Commit: `d3fc0b8fc735e1e88f554dfea41e3a9853867d05`.
 - This is a progressive accessibility improvement; screen-reader and real-browser testing remain outstanding.
+
+- Follow-up refinement: transmission dossier codes now use the publication date plus a slug-derived token, so they remain stable when search or movement filters change the visible list order. Commit: `fb8b5cc54117a3e5024e35f2c221628b693674c7`; asset version refreshed in `cddbfb93adaf0e8903e346827d76192180bd4356`.
