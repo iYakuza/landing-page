@@ -236,3 +236,18 @@ The prior chapter-based Continuity Institute page was not the supplied GUI mock-
 - Static review confirms the command-centre controls route to existing pages and the map button activates the shared world-map overlay.
 - Inline style attributes were removed from map markers to remain compatible with the page Content Security Policy.
 - GitHub Actions build, static-site safety and security checks are pending for the latest commit; visual browser verification remains outstanding.
+
+
+## Site-wide visual unification — shared interface system (2026-11-02)
+
+- Expanded `game-ui.css` into the site-wide visual layer: deep forest/charcoal surfaces, restrained sage-green accent, muted secondary text, archival gold, consistent borders and panel treatments.
+- Established shared type roles: sans-serif reading text, serif display headings, monospace interface labels and metadata.
+- Standardized navigation headers, cards, panels, forms, controls, focus states and footers while preserving page-specific layouts and feature scripts.
+- Removed the universal `font-family: Arial !important` rule from `tools.css`, which flattened headings and labels into one typeface.
+- Bumped shared stylesheet query versions across standalone HTML pages to avoid stale browser caches.
+- Repository inventory: 18 standalone HTML pages; 17 load shared game UI CSS and JS. The remaining WFH HTML file is an embedded content fragment, not a standalone page.
+- No page content, backend logic, route destinations, CMS data flow or page-specific feature scripts were intentionally changed.
+
+Commits: shared visual layer `b19638940c82846ede1f27c7631170b6ed572252`; type roles `40d333f555fa6126c24043fb9927f1214d6789c2`; page cache refreshes include `7622a02`, `fa9fc88`, `b0c5f74`, `8c3570a`, `969a45a`, `92419d2`, `c6f0822`, `ed29bcf`, `c7ffc1d`, `8775d2a`, `0dc455f`, `fed0849`, `8c26d87`, `a1b934a`, `dd2e948`.
+
+Verification: GitHub Actions and Pages deployment must complete before live visual verification can be claimed. Cross-browser screenshot comparison remains outstanding.
