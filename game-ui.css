@@ -513,3 +513,42 @@ body.vha-game-interface.gd-home main>section:not(.ego-cover):not(.gd-hero){paddi
 body.vha-game-interface.gd-home :is(.sys-entry-heading,.gd-ego-portal,.gd-cv-embed,.gd-circle-portal){margin-block:0!important}
 body.vha-game-interface.gd-home :is(.sys-entry-heading h2,.gd-ego-copy h2,.gd-cv-heading h2,.gd-circle-portal h2){font-size:clamp(28px,4.5vw,58px)!important;line-height:1.03!important}
 body.vha-game-interface.gd-home :is(.sys-entry-intro,.sys-path p,.gd-ego-copy p,.gd-circle-portal p){line-height:1.65!important}
+
+
+/* CONSTELLATION // ghost signal tooltips */
+.vha-star-tooltip{
+  padding:2px 4px!important;
+  border:0!important;
+  background:rgba(5,12,8,.42)!important;
+  color:rgba(226,241,211,.82)!important;
+  font:7px/1.15 var(--game-mono)!important;
+  letter-spacing:.14em!important;
+  text-shadow:0 0 5px rgba(205,238,174,.6),0 0 12px rgba(185,215,122,.24)!important;
+  box-shadow:none!important;
+  backdrop-filter:blur(2px);
+  transform:translate(-50%,0)!important;
+}
+.vha-map-node:hover .vha-star-tooltip,
+.vha-map-node:focus-visible .vha-star-tooltip{
+  animation:vha-ghost-signal 3.2s ease-in-out infinite;
+}
+@keyframes vha-ghost-signal{
+  0%,100%{opacity:.58;text-shadow:0 0 4px rgba(205,238,174,.38),0 0 9px rgba(185,215,122,.16)}
+  50%{opacity:1;text-shadow:0 0 7px rgba(225,248,204,.8),0 0 17px rgba(185,215,122,.42)}
+}
+.vha-journey-note{
+  width:min(280px,calc(100vw - 32px))!important;
+  padding:11px 14px!important;
+  border:1px solid rgba(185,215,122,.2)!important;
+  background:rgba(5,10,7,.7)!important;
+  box-shadow:0 8px 28px rgba(0,0,0,.22)!important;
+  backdrop-filter:blur(10px);
+  text-align:left!important;
+}
+.vha-journey-note>span{font-size:7px!important;letter-spacing:.18em!important;opacity:.72}
+.vha-journey-note strong{font:400 15px/1.2 Georgia,serif!important;letter-spacing:.02em;color:#dce9ce!important}
+.vha-journey-note p{font:9px/1.5 var(--game-mono)!important;color:rgba(190,204,181,.78)!important;margin:5px 0 7px!important}
+.vha-journey-note a{font-size:7px!important;opacity:.78}
+@media(prefers-reduced-motion:reduce){
+  .vha-map-node:hover .vha-star-tooltip,.vha-map-node:focus-visible .vha-star-tooltip{animation:none!important}
+}
