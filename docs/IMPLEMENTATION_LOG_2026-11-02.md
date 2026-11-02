@@ -160,3 +160,29 @@ This is not installed website functionality and is not treated as an implemented
 - This is a progressive accessibility improvement; screen-reader and real-browser testing remain outstanding.
 
 - Follow-up refinement: transmission dossier codes now use the publication date plus a slug-derived token, so they remain stable when search or movement filters change the visible list order. Commit: `fb8b5cc54117a3e5024e35f2c221628b693674c7`; asset version refreshed in `cddbfb93adaf0e8903e346827d76192180bd4356`.
+
+
+## Corrective direction reset — institutional three-path entrance (2026-11-02)
+
+The prior iterations over-indexed on generic green HUD styling and dossier decoration. That did not meet the Blueprint's creative direction. This correction shifts the homepage experience toward the defined visual identity: corporate archive meets forbidden spiritual manuscript; deep charcoal/dark green, bone-white text, muted jade, restrained gold, serif editorial titles, monospaced metadata, tactile grain, meaningful negative space, and clear non-fictional navigation.
+
+### Homepage experience implemented
+- Added an institutional visitor-entry chapter immediately after the personal EGO identity hero.
+- Introduced the three required narrative entry paths: Community, Institution, Wanderer.
+- Each path has a distinct purpose, descriptive copy, and a real existing destination; none is an access gate.
+- Added explicit copy clarifying that paths are invitations and visitors may move freely between them.
+- Built an editorial three-column composition with restrained gold rules, muted jade, serif display type, quiet texture, and a responsive stacked layout.
+- Preserved the existing EGO hero, Green Dream, radio, CV, community and other homepage sections.
+
+### Acceptance alignment
+- Supports FR-02 (three optional entry paths).
+- Reinforces FR-01 (central narrative question) and the Blueprint's mystery-with-structure principle.
+- No claims that the real site preserves a soul or uploads a personality.
+- No backend, schema, RLS, or external service changes.
+
+### Commit
+- `62f9ed4266e8fcf3d87892aab4a124a1795f9eaa`
+
+### Verification
+- CI and Pages deployment triggered for this commit; pending final run status.
+- This change is a structural step toward the Blueprint, not a claim that the whole website now matches the target experience. The rest of the site still needs the same page-specific visual treatment and browser comparison.
