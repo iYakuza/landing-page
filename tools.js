@@ -45,7 +45,7 @@
   const style = document.createElement("style");
   style.id = "vha-viewer-tools-style";
   style.textContent = `
-    #vha-viewer-tools{position:fixed;right:18px;bottom:18px;z-index:2147483008;font-family:var(--vha-font,Arial,Helvetica,sans-serif);font-size:11px;line-height:1.25;color:var(--theme-accent,#d8ff3e);touch-action:pan-y}
+    #vha-viewer-tools{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:2147483008;width:min(1040px,calc(100vw - 24px));display:flex;align-items:center;justify-content:space-between;gap:76px;font-family:var(--vha-font,Arial,Helvetica,sans-serif);font-size:11px;line-height:1.25;color:var(--theme-accent,#d8ff3e);pointer-events:none}
     #vha-viewer-tools *{box-sizing:border-box}
     #vha-viewer-tools .vha-tools-trigger{position:relative;z-index:2;display:grid;place-items:center;width:52px;height:52px;border:1px solid var(--theme-accent,#d8ff3e);border-radius:50%;background:var(--theme-surface,#080e09);color:var(--theme-accent,#d8ff3e);box-shadow:0 0 0 4px color-mix(in srgb,var(--theme-accent,#d8ff3e) 9%,transparent),0 3px 18px #0008;cursor:grab;touch-action:none;user-select:none;transition:background .15s,box-shadow .15s}
     #vha-viewer-tools .vha-tools-trigger:active{cursor:grabbing}
@@ -53,21 +53,18 @@
     #vha-viewer-tools .vha-tools-trigger svg{width:25px;height:25px;stroke:#fff!important;fill:#fff!important;color:#fff!important}#vha-viewer-tools .vha-tools-trigger svg path{stroke:#fff!important;fill:#fff!important}
     #vha-viewer-tools .vha-tools-label{position:absolute;right:0;bottom:calc(100% + 8px);padding:5px 8px;border:1px solid var(--theme-border,var(--theme-accent,#d8ff3e));background:var(--theme-page,#050906);color:var(--theme-accent,#d8ff3e);font-size:9px;font-weight:700;letter-spacing:1px;white-space:nowrap;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .12s,visibility .12s}
     #vha-viewer-tools .vha-tools-trigger:hover + .vha-tools-label{opacity:1;visibility:visible}
-    #vha-viewer-tools .vha-tools-panel{position:absolute;right:calc(100% + 10px);bottom:0;width:var(--vha-tools-panel-width,164px);min-width:164px;max-width:min(720px,calc(100vw - 84px));max-height:min(78vh,760px);overflow:auto;overscroll-behavior:contain;padding:7px 7px 7px 13px;border:1px solid var(--theme-border,var(--theme-accent,#d8ff3e));background:color-mix(in srgb,var(--theme-surface,#080e09) 96%,transparent);color:var(--theme-text,#e8f4df);box-shadow:0 8px 26px #0009;backdrop-filter:blur(10px);display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));align-content:start;gap:3px;opacity:0;visibility:hidden;transform:translateX(5px);transition:opacity .16s,transform .16s,visibility .16s;container-type:inline-size}
-    #vha-viewer-tools[data-open="true"] .vha-tools-panel{opacity:1;visibility:visible;transform:translateX(0)}
     #vha-viewer-tools .vha-tool-row{display:flex;align-items:center;gap:9px;width:100%;min-height:34px;padding:3px 5px;border:0;background:transparent;color:var(--theme-text,#e8f4df);text-align:left;cursor:pointer;font:inherit}
     #vha-viewer-tools .vha-tool-row:hover,#vha-viewer-tools .vha-tool-row:focus-visible{color:var(--theme-accent,#d8ff3e);background:color-mix(in srgb,var(--theme-accent,#d8ff3e) 8%,transparent);outline:1px solid var(--theme-border,var(--theme-accent,#d8ff3e))}
     #vha-viewer-tools .vha-tool-icon{display:grid;place-items:center;flex:0 0 28px;width:28px;height:28px;border:1px solid var(--theme-border,var(--theme-accent,#d8ff3e));color:var(--theme-accent,#d8ff3e);background:var(--theme-page,#050906)}
     #vha-viewer-tools .vha-tool-icon svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
     #vha-viewer-tools .vha-tool-row[aria-pressed="true"] .vha-tool-icon{border-color:var(--theme-accent,#d8ff3e)}
-    #vha-viewer-tools .vha-panel-resize{position:absolute;left:-2px;top:0;bottom:0;width:12px;z-index:5;display:grid;place-items:center;cursor:ew-resize;touch-action:none;color:var(--theme-accent,#d8ff3e);opacity:.7}#vha-viewer-tools .vha-panel-resize::before{content:"";width:3px;height:34px;border-left:1px solid currentColor;border-right:1px solid currentColor;background:color-mix(in srgb,currentColor 18%,transparent)}#vha-viewer-tools .vha-panel-resize:hover,#vha-viewer-tools .vha-panel-resize:focus-visible{opacity:1;outline:1px solid var(--theme-accent,#d8ff3e);outline-offset:-2px}#vha-viewer-tools .vha-mood-box{display:none;border-top:1px solid var(--theme-border,#d8ff3e35);margin-top:4px;padding:8px 3px 2px;gap:6px;grid-column:1/-1}
+    #vha-viewer-tools .vha-tools-side{display:grid;grid-template-columns:repeat(2,minmax(112px,1fr));grid-auto-rows:minmax(34px,auto);gap:3px;min-width:0;flex:1;pointer-events:auto}#vha-viewer-tools .vha-mood-box{display:none;border-top:1px solid var(--theme-border,#d8ff3e35);margin-top:4px;padding:8px 3px 2px;gap:6px;grid-column:1/-1}
     #vha-viewer-tools[data-mood-open="true"] .vha-mood-box{display:grid}
     #vha-viewer-tools .vha-mood-box label{font-size:10px;color:var(--theme-accent,#d8ff3e)}
     #vha-viewer-tools .vha-mood-box textarea{width:100%;min-height:62px;resize:vertical;padding:7px;border:1px solid var(--theme-border,#d8ff3e35);background:var(--theme-page,#050906);color:var(--theme-text,#e8f4df);font:inherit;line-height:1.4}
     #vha-viewer-tools .vha-mood-box textarea:focus-visible{outline:1px solid var(--theme-accent,#d8ff3e)}
     #vha-viewer-tools .vha-mood-box button{min-width:0;max-width:100%;padding:7px;border:1px solid var(--theme-accent,#d8ff3e);background:var(--theme-accent,#d8ff3e);color:var(--theme-page,#050906);font:inherit;font-weight:700;cursor:pointer;overflow-wrap:anywhere}#vha-viewer-tools .vha-mood-presets{display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:4px;min-width:0}#vha-viewer-tools .vha-mood-presets button{min-width:0;max-width:100%;padding:6px 3px;background:transparent;color:var(--theme-text,#e8f4df);font-size:9px;line-height:1.2;text-transform:capitalize;white-space:normal;overflow-wrap:anywhere;word-break:normal}#vha-viewer-tools .vha-mood-presets button:hover,#vha-viewer-tools .vha-mood-presets button:focus-visible{background:var(--theme-accent,#d8ff3e);color:var(--theme-page,#050906)}
     #vha-viewer-tools .vha-mood-status{font-size:9px;color:var(--theme-muted,#9aab9c);min-height:12px}
-    #vha-viewer-tools .vha-tools-help{margin:3px 4px 1px;padding-top:6px;border-top:1px solid var(--theme-border,#d8ff3e35);color:var(--theme-muted,#9aab9c);font-size:8px;letter-spacing:.4px}
     #vha-presentation-bar{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:2147483007;display:none;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--theme-border,var(--theme-accent,#d8ff3e));background:color-mix(in srgb,var(--theme-surface,#080e09) 96%,transparent);color:var(--theme-text,#e8f4df);font:11px/1.2 Arial,Helvetica,sans-serif;box-shadow:0 8px 28px #0009;backdrop-filter:blur(12px);max-width:calc(100vw - 24px)}
     body.vha-presentation-active #vha-presentation-bar{display:flex}
     #vha-presentation-bar button{min-width:34px;min-height:32px;padding:5px 9px;border:1px solid var(--theme-border,var(--theme-accent,#d8ff3e));background:transparent;color:var(--theme-text,#e8f4df);font:inherit;cursor:pointer}
@@ -79,7 +76,9 @@
     body.vha-tools-hide-ui header,body.vha-tools-hide-ui footer,body.vha-tools-hide-ui nav,body.vha-tools-hide-ui .gd-nav,body.vha-tools-hide-ui .gd-footer{opacity:0!important;pointer-events:none!important;transition:opacity .2s}
     body.vha-tools-hide-ui #vha-viewer-tools{opacity:1!important;pointer-events:auto!important}
     body.vha-tools-large-text main,body.vha-tools-large-text .gd{font-size:1.12em}
-    @media(max-width:600px){#vha-viewer-tools{right:12px;bottom:12px}#vha-viewer-tools .vha-tools-trigger{width:46px;height:46px}#vha-viewer-tools .vha-tools-trigger svg{width:22px;height:22px}#vha-viewer-tools .vha-tools-panel{right:calc(100% + 8px);bottom:0;width:var(--vha-tools-panel-width,152px);max-width:calc(100vw - 72px)}#vha-viewer-tools .vha-tool-row{min-height:32px}#vha-viewer-tools .vha-tool-icon{width:26px;height:26px;flex-basis:26px}}
+    #vha-viewer-tools .vha-mood-box{position:absolute;right:0;bottom:calc(100% + 12px);width:min(320px,calc(100vw - 24px));padding:12px;border:1px solid var(--theme-border,var(--theme-accent,#d8ff3e35));background:var(--theme-surface,#080e09);box-shadow:0 8px 26px #0009;pointer-events:auto}
+    @media(max-width:760px){#vha-viewer-tools{width:calc(100vw - 12px);bottom:8px;gap:54px}#vha-viewer-tools .vha-tools-side{grid-template-columns:repeat(2,minmax(82px,1fr));gap:2px}#vha-viewer-tools .vha-tool-row{min-height:32px;gap:5px;padding:2px;font-size:9px}#vha-viewer-tools .vha-tool-icon{width:24px;height:24px;flex-basis:24px}#vha-viewer-tools .vha-tool-icon svg{width:15px;height:15px}}
+    @media(max-width:420px){#vha-viewer-tools{gap:48px}#vha-viewer-tools .vha-tools-side{grid-template-columns:repeat(2,minmax(70px,1fr))}#vha-viewer-tools .vha-tool-row{font-size:8px;gap:3px}#vha-viewer-tools .vha-tool-icon{width:21px;height:21px;flex-basis:21px}}
     @media(prefers-reduced-motion:reduce){#vha-viewer-tools *{transition:none!important}}
   `;
   document.head.appendChild(style);
@@ -95,10 +94,16 @@
   const svg = name => '<svg viewBox="0 0 24 24" aria-hidden="true">'+icons[name]+'</svg>';
   const root = document.createElement("aside");
   root.id = "vha-viewer-tools";
-  root.setAttribute("aria-label","Viewer tools");
-  root.dataset.open = "false";
-  root.innerHTML = '<button class="vha-tools-trigger" type="button" aria-label="Open viewer tools" aria-expanded="false" aria-controls="vha-tools-panel" title="Drag to move; click to open">'+svg("tools")+'</button><div class="vha-tools-label" aria-hidden="true">VIEWER TOOLS</div><div class="vha-tools-panel" id="vha-tools-panel" aria-label="Viewer tools menu"><div class="vha-panel-resize" role="separator" aria-orientation="vertical" aria-label="Drag to resize Viewer controls" tabindex="0" title="Drag left to widen controls"></div><button class="vha-tool-row" type="button" data-tool="fullscreen"><span class="vha-tool-icon">'+svg("fullscreen")+'</span><span>Fullscreen</span></button><button class="vha-tool-row" type="button" data-tool="radio" aria-pressed="false"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path d="M17 9a5 5 0 0 1 0 6M19.5 6.5a9 9 0 0 1 0 11"/></svg></span><span>V/A Radio</span></button><button class="vha-tool-row" type="button" data-tool="dark" aria-pressed="false"><span class="vha-tool-icon">'+svg("moon")+'</span><span>Dark Mode</span></button><button class="vha-tool-row" type="button" data-tool="text" aria-pressed="false"><span class="vha-tool-icon">'+svg("text")+'</span><span>Text Size</span></button><button class="vha-tool-row" type="button" data-tool="ui" aria-pressed="false"><span class="vha-tool-icon">'+svg("ui")+'</span><span>UI Toggle</span></button><button class="vha-tool-row" type="button" data-tool="mood" aria-expanded="false"><span class="vha-tool-icon">'+svg("mood")+'</span><span>Match my mood</span></button><div class="vha-mood-box"><label for="vha-mood-description">How are you feeling right now?</label><textarea id="vha-mood-description" maxlength="500" placeholder="Describe it in your own words…"></textarea><div class="vha-mood-presets" aria-label="Choose a feeling"><button type="button" data-mood-preset="calm">Calm</button><button type="button" data-mood-preset="sad">Sad</button><button type="button" data-mood-preset="anxious">Anxious</button><button type="button" data-mood-preset="happy">Happy</button><button type="button" data-mood-preset="angry">Angry</button><button type="button" data-mood-preset="tired">Tired</button><button type="button" data-mood-preset="focused">Focused</button><button type="button" data-mood-preset="hopeful">Hopeful</button><button type="button" data-mood-preset="romantic">Romantic</button></div><button type="button" data-tool="apply-mood">Adapt the site</button><div class="vha-mood-status" role="status" aria-live="polite"></div></div><button class="vha-tool-row" type="button" data-tool="reset-mood"><span class="vha-tool-icon">'+svg("reset")+'</span><span>Reset mood theme</span></button><a class="vha-tool-row" href="/landing-page/posts/community/" aria-label="Open Signals community"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18v3M8 21h8M12 3v2M5.6 8.6a9 9 0 0 0 0 6.8M18.4 8.6a9 9 0 0 1 0 6.8M2.8 5.8a13 13 0 0 0 0 12.4M21.2 5.8a13 13 0 0 1 0 12.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/></svg></span><span>SIGNALS</span></a><div class="vha-tools-help">VIEWER CONTROLS</div></div>';
-  document.body.appendChild(root);
+  root.setAttribute("aria-label","Viewer controls");
+  root.dataset.moodOpen = "false";
+  root.innerHTML = '<div class="vha-tools-side vha-tools-left" aria-label="Viewer controls left"><button class="vha-tool-row" type="button" data-tool="fullscreen"><span class="vha-tool-icon">'+svg("fullscreen")+'</span><span>Fullscreen</span></button><button class="vha-tool-row" type="button" data-tool="radio" aria-pressed="false"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path d="M17 9a5 5 0 0 1 0 6M19.5 6.5a9 9 0 0 1 0 11"/></svg></span><span>V/A Radio</span></button><button class="vha-tool-row" type="button" data-tool="dark" aria-pressed="false"><span class="vha-tool-icon">'+svg("moon")+'</span><span>Dark Mode</span></button><button class="vha-tool-row" type="button" data-tool="text" aria-pressed="false"><span class="vha-tool-icon">'+svg("text")+'</span><span>Text Size</span></button></div><div class="vha-tools-side vha-tools-right" aria-label="Viewer controls right"><button class="vha-tool-row" type="button" data-tool="ui" aria-pressed="false"><span class="vha-tool-icon">'+svg("ui")+'</span><span>UI Toggle</span></button><button class="vha-tool-row" type="button" data-tool="mood" aria-expanded="false"><span class="vha-tool-icon">'+svg("mood")+'</span><span>Match my mood</span></button><button class="vha-tool-row" type="button" data-tool="reset-mood"><span class="vha-tool-icon">'+svg("reset")+'</span><span>Reset mood theme</span></button><a class="vha-tool-row" href="/landing-page/posts/community/" aria-label="Open Signals community"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18v3M8 21h8M12 3v2M5.6 8.6a9 9 0 0 0 0 6.8M18.4 8.6a9 9 0 0 1 0 6.8M2.8 5.8a13 13 0 0 0 0 12.4M21.2 5.8a13 13 0 0 1 0 12.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/></svg></span><span>SIGNALS</span></a></div><div class="vha-mood-box"><label for="vha-mood-description">How are you feeling right now?</label><textarea id="vha-mood-description" maxlength="500" placeholder="Describe it in your own words…"></textarea><div class="vha-mood-presets" aria-label="Choose a feeling"><button type="button" data-mood-preset="calm">Calm</button><button type="button" data-mood-preset="sad">Sad</button><button type="button" data-mood-preset="anxious">Anxious</button><button type="button" data-mood-preset="happy">Happy</button><button type="button" data-mood-preset="angry">Angry</button><button type="button" data-mood-preset="tired">Tired</button><button type="button" data-mood-preset="focused">Focused</button><button type="button" data-mood-preset="hopeful">Hopeful</button><button type="button" data-mood-preset="romantic">Romantic</button></div><button type="button" data-tool="apply-mood">Adapt the site</button><div class="vha-mood-status" role="status" aria-live="polite"></div></div>';
+  const navHud = document.querySelector(".ego-bottom-hud.vha-universal-nav");
+  if (navHud) {
+    navHud.parentNode.insertBefore(root, navHud);
+    root.appendChild(navHud);
+  } else {
+    document.body.appendChild(root);
+  }
 
   // Fullscreen post reader: permalink views use the actual transmission, not the editorial chapter deck.
   const postReaderStyle=document.createElement("style");
@@ -448,74 +453,6 @@ html[data-vha-mood] .gd-suno-row :is(svg) {
   try{const saved=JSON.parse(localStorage.getItem("vha-mood-palette")||"null");if(saved?.name&&Array.isArray(saved.colors)&&saved.colors.length===4)setMoodTheme(saved.name,saved.colors);}catch{}
   const trigger = root.querySelector(".vha-tools-trigger");
   const panel = root.querySelector(".vha-tools-panel");
-  const resizeHandle = root.querySelector(".vha-panel-resize");
-  const minPanelWidth = 164;
-  const maxPanelWidth = () => Math.max(minPanelWidth, Math.min(720, innerWidth - (innerWidth <= 600 ? 72 : 84)));
-  const setPanelWidth = width => {
-    const next = clamp(width, minPanelWidth, maxPanelWidth());
-    panel.style.setProperty("--vha-tools-panel-width", next + "px");
-    try { localStorage.setItem("vha-tools-panel-width", String(next)); } catch {}
-  };
-  try {
-    const savedWidth = Number(localStorage.getItem("vha-tools-panel-width"));
-    if (Number.isFinite(savedWidth) && savedWidth >= minPanelWidth) setPanelWidth(savedWidth);
-  } catch {}
-  let resizingPanel = false, resizeStartX = 0, resizeStartWidth = 0;
-  resizeHandle.addEventListener("pointerdown", e => {
-    if (e.button !== 0 && e.pointerType !== "touch") return;
-    e.preventDefault(); e.stopPropagation();
-    resizingPanel = true; resizeStartX = e.clientX;
-    resizeStartWidth = panel.getBoundingClientRect().width;
-    resizeHandle.setPointerCapture?.(e.pointerId);
-    root.dataset.resizing = "true";
-  });
-  resizeHandle.addEventListener("pointermove", e => {
-    if (!resizingPanel) return;
-    e.preventDefault();
-    setPanelWidth(resizeStartWidth - (e.clientX - resizeStartX));
-  });
-  const finishPanelResize = () => {
-    if (!resizingPanel) return;
-    resizingPanel = false; delete root.dataset.resizing;
-  };
-  resizeHandle.addEventListener("pointerup", finishPanelResize);
-  resizeHandle.addEventListener("pointercancel", finishPanelResize);
-  resizeHandle.addEventListener("keydown", e => {
-    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
-    e.preventDefault();
-    const width = panel.getBoundingClientRect().width;
-    setPanelWidth(e.key === "Home" ? minPanelWidth : e.key === "End" ? maxPanelWidth() : width + (e.key === "ArrowLeft" ? 24 : -24));
-  });
-  window.addEventListener("resize", () => {
-    const width = panel.getBoundingClientRect().width;
-    if (width > maxPanelWidth()) setPanelWidth(maxPanelWidth());
-  });
-  const setOpen = open => { root.dataset.open = String(open); trigger.setAttribute("aria-expanded",String(open)); trigger.setAttribute("aria-label",open?"Close viewer tools":"Open viewer tools"); };
-  let dragging=false, moved=false, startX=0, startY=0, originX=0, originY=0;
-  const clamp=(n,min,max)=>Math.min(Math.max(n,min),max);
-  trigger.addEventListener("pointerdown",e=>{
-    if(e.button!==0 && e.pointerType!=="touch") return;
-    dragging=true;moved=false;startX=e.clientX;startY=e.clientY;
-    const rect=root.getBoundingClientRect();originX=rect.left;originY=rect.top;
-    trigger.setPointerCapture?.(e.pointerId);
-  });
-  trigger.addEventListener("pointermove",e=>{
-    if(!dragging)return;
-    const dx=e.clientX-startX,dy=e.clientY-startY;
-    if(Math.abs(dx)>4||Math.abs(dy)>4)moved=true;
-    if(!moved)return;
-    const x=clamp(originX+dx,0,innerWidth-root.offsetWidth);
-    const y=clamp(originY+dy,0,innerHeight-root.offsetHeight);
-    root.style.left=x+"px";root.style.top=y+"px";root.style.right="auto";root.style.bottom="auto";root.style.transform="none";
-    root.dataset.moved="true";
-  });
-  const finishDrag=()=>{if(!dragging)return;dragging=false;if(moved){setOpen(false);root.dataset.suppressClick="true";setTimeout(()=>delete root.dataset.suppressClick,0)}};
-  trigger.addEventListener("pointerup",finishDrag);trigger.addEventListener("pointercancel",finishDrag);
-  trigger.addEventListener("click",e=>{if(root.dataset.suppressClick==="true"){e.preventDefault();e.stopPropagation();return}setOpen(root.dataset.open!=="true")});
-  root.addEventListener("keydown",e=>{if(e.key==="Escape")setOpen(false)});
-  document.addEventListener("click",e=>{if(!root.contains(e.target))setOpen(false)});
-  window.addEventListener("resize",()=>{if(root.dataset.moved==="true"){const rect=root.getBoundingClientRect();root.style.left=clamp(rect.left,0,innerWidth-root.offsetWidth)+"px";root.style.top=clamp(rect.top,0,innerHeight-root.offsetHeight)+"px"}});
-  root.querySelectorAll("[data-mood-preset]").forEach(button=>button.addEventListener("click",()=>{const mood=button.dataset.moodPreset;const prompts={calm:"I feel calm and peaceful. Adapt the website to feel serene, spacious, and grounded.",sad:"I feel sad and a little low. Adapt the website to feel gentle, quiet, and comforting.",anxious:"I feel anxious and overwhelmed. Adapt the website to feel steady, soft, and low-stimulation.",happy:"I feel happy and upbeat. Adapt the website to feel warm, bright, and optimistic.",angry:"I feel angry or frustrated. Adapt the website to feel strong, grounded, and controlled.",tired:"I feel tired and drained. Adapt the website to feel restful, muted, and easy on the eyes.",focused:"I feel focused and ready to work. Adapt the website to feel clear, structured, and distraction-free.",hopeful:"I feel hopeful and inspired. Adapt the website to feel fresh, open, and uplifting.",romantic:"I feel romantic, tender and dreamy. Adapt the website with expressive script typography, intimate spacing and a warm, soft atmosphere."};const textarea=root.querySelector("#vha-mood-description");textarea.value=prompts[mood]||"";textarea.focus();root.querySelector(".vha-mood-status").textContent="Prompt ready. Choose Adapt the site to apply this feeling.";root.querySelectorAll("[data-mood-preset]").forEach(b=>b.setAttribute("aria-pressed",String(b===button)));}));
   // Scale actual text-bearing elements rather than only the main wrapper's inherited font size.
   // Many site components define their typography in pixels, so a parent font-size alone has no effect.
   const originalTextSizes = new Map();
