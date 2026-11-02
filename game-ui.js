@@ -17,14 +17,24 @@
   ];
   const current = pageMap.find(([prefix]) => path.startsWith(prefix)) || ["", "EGO", "PERSONAL NODE"];
   const routes = [
-    ["✳","GREEN DREAM","/landing-page/green-dream/"],
-    ["⌁","TRANSMISSIONS","/landing-page/posts/"],
-    ["▤","HUMAN ARCHIVE","/landing-page/human-archive/"],
-    ["♫","V/A RADIO","/landing-page/music.html"],
-    ["◎","THE CIRCLE","/landing-page/community/"],
-    ["◈","CV","/landing-page/cv/"],
-    ["魂","SECURE YOUR SOUL","/landing-page/secure-your-soul/"]
+    ["EGO","PERSONAL NODE","/landing-page/","ego"],
+    ["GREEN DREAM","EXPLORATION ZONE","/landing-page/green-dream/","garden"],
+    ["TRANSMISSIONS","SIGNAL ARCHIVE","/landing-page/posts/","transmissions"],
+    ["THE AWAKENING","MOVEMENT 01","/landing-page/posts/the-awakening/","awakening"],
+    ["THE DESCENT","MOVEMENT 02","/landing-page/posts/the-descent/","descent"],
+    ["THE RECONNECTION","MOVEMENT 03","/landing-page/posts/the-reconnection/","reconnection"],
+    ["THE TRANSFORMATION","MOVEMENT 04","/landing-page/posts/the-transformation/","transformation"],
+    ["THE RETURN","MOVEMENT 05","/landing-page/posts/the-return/","return"],
+    ["HUMAN ARCHIVE","PERSONAL RECORDS","/landing-page/human-archive/","archive"],
+    ["V/A RADIO","LISTENING ROOM","/landing-page/music.html","listening"],
+    ["THE CIRCLE","COMMUNITY CHANNEL","/landing-page/community/","circle"],
+    ["CV","PERSONNEL FILE","/landing-page/cv/","cv"],
+    ["SECURE YOUR SOUL","RESTRICTED PROGRAM","/landing-page/secure-your-soul/","secure"]
   ];
+  const cmsSessionKey="sb-oeyxsqocldlovhsmzcjw-auth-token";
+  let hasSession=false;
+  try{const session=JSON.parse(localStorage.getItem(cmsSessionKey)||"null");hasSession=Boolean(session&&session.access_token)}catch{}
+  if(hasSession||path.startsWith("/landing-page/cms"))routes.push(["CREATOR WORKSHOP","PRIVATE ACCESS","/landing-page/cms/","cms"]);
   // Remove the page-level header entirely. The shared bottom navigation remains the sole global navigation.
   document.querySelectorAll("body header, .masthead, .mast, .ha-nav, .gd-nav, .toplinks, .vha-main-nav").forEach(el=>el.remove());
   document.querySelectorAll(".ego-bottom-hud").forEach(el=>el.remove());
@@ -33,27 +43,26 @@
   bottom.className="ego-bottom-hud vha-universal-nav";
   bottom.setAttribute("role","navigation");
   bottom.setAttribute("aria-label","Main navigation");
-  const nav=document.createElement("nav");
-  nav.setAttribute("aria-label","World destinations");
-  routes.forEach(([symbol,label,href])=>{
-    const a=document.createElement("a");a.href=href;
-    a.innerHTML='<b aria-hidden="true">'+symbol+'</b><span>'+label+'</span>';
-    const target=new URL(href,location.href).pathname.replace(/\/+$/,"")||"/";
-    if(target===path){a.classList.add("active");a.setAttribute("aria-current","page")}
-    nav.appendChild(a);
-  });
-  bottom.appendChild(nav);
   const mapButton=document.createElement("button");
   mapButton.type="button";mapButton.className="vha-map-toggle";
   mapButton.setAttribute("aria-expanded","false");mapButton.setAttribute("aria-controls","vha-world-map");
-  mapButton.innerHTML='<span aria-hidden="true">⌖</span><small>MAP</small>';
+  mapButton.innerHTML='<span aria-hidden="true">⌖</span><span>MAP</span>';
   bottom.appendChild(mapButton);
   document.body.appendChild(bottom);
 
   const map=document.createElement("div");
   map.className="vha-world-map";map.id="vha-world-map";map.hidden=true;
-  map.innerHTML='<section class="vha-world-map-panel" role="dialog" aria-modal="true" aria-labelledby="vha-map-title"><header class="vha-world-map-head"><div><p class="vha-world-map-kicker">SECURE YOUR SOUL / WORLD INDEX</p><h2 id="vha-map-title">Choose where to go.</h2><p>Every route remains open. No path is a permission.</p></div><button class="vha-world-map-close" type="button" aria-label="Close world map">×</button></header><div class="vha-world-map-plot" aria-label="Interactive map of the website sections"><svg class="vha-map-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M50 49 22 30M50 49 78 28M50 49 22 76M50 49 78 75M50 49 50 90"/></svg><a class="vha-map-node" data-node="ego" href="/landing-page/"><span class="node-symbol">◉</span><strong>EGO</strong><small>PERSONAL NODE</small></a><a class="vha-map-node" data-node="garden" href="/landing-page/green-dream/"><span class="node-symbol">✳</span><strong>THE GARDEN</strong><small>EXPLORATION</small></a><a class="vha-map-node" data-node="archive" href="/landing-page/human-archive/"><span class="node-symbol">▤</span><strong>THE ARCHIVE</strong><small>RECORDS</small></a><a class="vha-map-node" data-node="transmissions" href="/landing-page/posts/"><span class="node-symbol">⌁</span><strong>SIGNALS</strong><small>TRANSMISSIONS</small></a><a class="vha-map-node" data-node="listening" href="/landing-page/music.html"><span class="node-symbol">♫</span><strong>LISTENING</strong><small>AUDIO ROOM</small></a><a class="vha-map-node" data-node="circle" href="/landing-page/community/"><span class="node-symbol">◎</span><strong>THE CIRCLE</strong><small>COMMUNITY</small></a></div><div class="vha-world-map-foot"><span><b>INDEX 06</b> / PUBLIC DESTINATIONS</span><span>SELECT A NODE TO TRAVEL</span></div></section>';
+  map.innerHTML='<section class="vha-world-map-panel" role="dialog" aria-modal="true" aria-labelledby="vha-map-title"><header class="vha-world-map-head"><div><p class="vha-world-map-kicker">GREEN DREAM / WORLD INDEX</p><h2 id="vha-map-title">Choose your destination.</h2></div><button class="vha-world-map-close" type="button" aria-label="Close world map">×</button></header><div class="vha-world-map-orbit" aria-label="Website destinations"><div class="vha-map-core"><span>⌖</span><strong>MAP</strong><small>WORLD INDEX</small></div><div class="vha-map-destinations"></div></div><div class="vha-world-map-foot"><span>ALL PATHS REMAIN OPEN</span><span>SELECT A DESTINATION</span></div></section>';
   document.body.appendChild(map);
+  const destinationList=map.querySelector(".vha-map-destinations");
+  routes.forEach(([name,descriptor,href,key])=>{
+    const link=document.createElement("a");link.className="vha-map-node";link.dataset.node=key;link.href=href;
+    const target=new URL(href,location.href).pathname.replace(/\/+$/,"")||"/";
+    if(target===path){link.classList.add("is-current");link.setAttribute("aria-current","page")}
+    link.innerHTML='<strong>'+name+'</strong><small>'+descriptor+'</small>';
+    destinationList.appendChild(link);
+  });
+
   const close=map.querySelector(".vha-world-map-close");
   let mapReturnFocus=null,previousBodyOverflow="";
   function openMap(){
