@@ -33,7 +33,12 @@ Production URL remains: https://iyakuza.github.io/landing-page/
 ## Verification and release record
 - Previous baseline commit `84e9b5fe85f5678c897db836e89b4f2c0b976c3a`: static-site safety, static security posture, secret scanning and CodeQL reported success; Pages deployment was pending at that check.
 - New HUD implementation commits: CSS `208664059203cece9124fb3ccee103cc0a1ceb21`; JS `8b9770c433137b93bcf536b2c5875d77a945fa5b`.
-- Automated checks for the HUD commits: pending verification. Do not treat a successful workflow dispatch as proof that every visual interaction was browser-tested.
+- Static-site safety checks: passed on corrected HUD commit `a5748087fa70a0dbc043f5a2bc54b8082533437a`.
+- Secret scanning: passed on the same commit.
+- Static security posture and CodeQL: still running at the last check.
+- GitHub Pages build/deployment: still pending at the last check.
+- An initial JavaScript syntax check caught an over-escaped path regex in `game-ui.js`; corrected it and reran the safety workflow successfully.
+- Live website fetch was unavailable during verification, so the published UI has not yet been confirmed.
 - No live-browser interaction test has been performed in this iteration.
 
 ## Outstanding work
