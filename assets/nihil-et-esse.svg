@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="t d">
+<title id="t">Nihil et Esse — the human archive</title><desc id="d">An original abstract landscape: a luminous green seed at the meeting point of roots, branches, orbital rings and a distant horizon.</desc>
+<defs>
+ <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#07100a"/><stop offset=".55" stop-color="#101e13"/><stop offset="1" stop-color="#030705"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#d8ff3e" stop-opacity=".48"/><stop offset=".45" stop-color="#7dbb45" stop-opacity=".12"/><stop offset="1" stop-color="#07100a" stop-opacity="0"/></radialGradient>
+ <linearGradient id="line" x2="0" y2="1"><stop stop-color="#d8ff3e" stop-opacity=".8"/><stop offset="1" stop-color="#a4c69a" stop-opacity=".08"/></linearGradient>
+ <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#d8ff3e" stroke-opacity=".08"/></pattern>
+</defs>
+<rect width="1200" height="720" fill="url(#bg)"/><rect width="1200" height="720" fill="url(#grid)"/>
+<circle cx="600" cy="320" r="340" fill="url(#glow)"/>
+<g fill="none" stroke="#b6e833" stroke-opacity=".3"><circle cx="600" cy="320" r="260"/><circle cx="600" cy="320" r="220"/><ellipse cx="600" cy="320" rx="390" ry="150" transform="rotate(-24 600 320)"/><ellipse cx="600" cy="320" rx="390" ry="150" transform="rotate(24 600 320)"/></g>
+<g fill="none" stroke="url(#line)" stroke-width="3" stroke-linecap="round">
+<path d="M600 460 C590 360 560 290 510 225 C470 175 420 145 360 105 M600 460 C610 350 650 270 720 210 C770 165 820 145 885 120 M600 460 C570 360 500 330 420 300 C350 275 300 225 260 180 M600 460 C650 365 730 330 820 305 C900 278 970 220 1020 160"/>
+<path d="M600 460 C585 520 520 560 450 590 M600 460 C620 530 690 565 760 600 M600 460 C600 540 600 600 600 680"/>
+</g>
+<g fill="none" stroke="#d8ff3e" stroke-opacity=".42" stroke-width="2"><path d="M360 105l-20-24m20 24 27-3M885 120l15-28m-15 28-31-5M260 180l-30-4m30 4-7 27M1020 160l31-8m-31 8 4 29"/></g>
+<path d="M600 455 C540 390 530 320 600 255 C670 320 660 390 600 455Z" fill="#b6e833" fill-opacity=".12" stroke="#d8ff3e" stroke-width="2"/>
+<path d="M600 445V275" stroke="#d8ff3e" stroke-width="2" opacity=".8"/>
+<g fill="#d8ff3e"><circle cx="600" cy="255" r="5"/><circle cx="510" cy="225" r="4"/><circle cx="720" cy="210" r="4"/><circle cx="420" cy="300" r="3"/><circle cx="820" cy="305" r="3"/></g>
+<path d="M0 570 Q220 500 430 575 T850 560 T1200 545V720H0Z" fill="#061009" stroke="#5c8c43" stroke-opacity=".5"/>
+<path d="M0 620 Q220 565 430 630 T850 615 T1200 595" fill="none" stroke="#b6e833" stroke-opacity=".24" stroke-width="2"/>
+<g fill="#d8ff3e" opacity=".7" font-family="monospace" font-size="13" letter-spacing="4"><text x="60" y="80">ARCHIVE / 001</text><text x="60" y="650">NOTHING IS EMPTY.</text><text x="925" y="650">BEING IS BECOMING.</text></g>
+</svg>
