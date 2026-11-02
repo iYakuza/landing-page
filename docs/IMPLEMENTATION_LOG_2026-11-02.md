@@ -186,3 +186,28 @@ The prior iterations over-indexed on generic green HUD styling and dossier decor
 ### Verification
 - CI and Pages deployment triggered for this commit; pending final run status.
 - This change is a structural step toward the Blueprint, not a claim that the whole website now matches the target experience. The rest of the site still needs the same page-specific visual treatment and browser comparison.
+
+
+## Secure Your Soul — purpose and entry-path clarification (2026-11-02)
+
+The page previously presented its fictional premise too indirectly. A visitor could reasonably mistake the Institute's language for a real service or fail to understand what the experience asks them to do.
+
+### Changes
+- The hero now explicitly identifies the page as speculative fiction before the visitor begins intake.
+- States the central question in plain language: if a machine remembers everything about you, is it still you?
+- Explains the visitor's role: examine the Institute's case, compare evidence and decide what to believe.
+- Clarifies that exploration does not submit or store visitor information.
+- Renames the primary action from "Begin Intake" to "Explore the Story".
+- Reworked the three paths into genuinely distinct reading routes: Community → Human Counter-Archive, Institution → Official Protocol, Wanderer → Unclassified Record.
+- Reinforces that paths are narrative perspectives, not accounts, permissions or access controls.
+- Added restrained responsive styling for the new orientation copy; no external assets or dependencies.
+
+### Commits
+- Hero and explanation: `e4abeea6951b45cf08c769a9e8ac7d50b2fc9524`
+- Responsive presentation: `adf2be6ab1aacf20073d387c388e2bafcc7a52e0`
+- Distinct entry paths: `aaf44eca4c933eb9126c1abdd828741da10a9ec9`
+
+### Verification
+- GitHub Pages build/deployment was queued for `aaf44ec` at the time of inspection.
+- The live URL could not be fetched by the web preview cache; published appearance and browser interaction remain unverified.
+- Static-site safety and security workflows must be checked after the current deployment run completes.
