@@ -258,3 +258,14 @@ Verification: GitHub Actions and Pages deployment must complete before live visu
 - Refreshed stylesheet cache keys on all affected page routes.
 - CSS commits: Green Dream `9fd125d`, Human Archive portal `9e4d016`, Human Archive archive `a2a18d4`, Transmissions `da746ac`, tools `37a9af0`, CMS `209cc49`.
 - This is a palette and typography alignment pass, not yet a completed browser-based visual acceptance test.
+
+
+## 2026-11-02 — Universal navigation
+- Standardised the global destination navigation on the lower EGO homepage HUD pattern.
+- The shared `game-ui.js` now removes page-specific global navigation variants and injects one consistent bottom navigation bar across the main site sections.
+- Destinations: EGO, Green Dream, Transmissions, Human Archive, V/A Radio, The Circle, CV, and Secure Your Soul; active destination is highlighted.
+- Preserved the world-map interaction by moving its MAP control into the shared bar.
+- The shared bar is fixed at the bottom, responsive on mobile, and reserves page space so content is not obscured.
+- Removed the duplicate homepage lower-nav instance at runtime; the original upper header navigation is also removed, leaving the single shared destination bar.
+- Refreshed shared asset cache keys on the main standalone pages and transmission movement pages.
+- Validation: inspected shared script/CSS and page asset references; GitHub Actions are still running. Live visual QA remains pending deployment.
