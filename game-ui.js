@@ -51,13 +51,13 @@
   const mapButton=document.createElement("button");
   mapButton.type="button";mapButton.className="vha-map-toggle";
   mapButton.setAttribute("aria-expanded","false");mapButton.setAttribute("aria-controls","vha-world-map");
-  mapButton.innerHTML='<span aria-hidden="true">⌖</span><span>MAP</span>';
+  mapButton.setAttribute('aria-label','Open world constellation');mapButton.title='Open world constellation';mapButton.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M24 3 37 16 24 45 11 16 24 3Z"/><path d="M11 16h26M24 3v42M11 16l13 10 13-10"/></svg>';
   bottom.appendChild(mapButton);
   document.body.appendChild(bottom);
 
   const map=document.createElement("div");
   map.className="vha-world-map";map.id="vha-world-map";map.hidden=true;
-  map.innerHTML='<section class="vha-world-map-panel" role="dialog" aria-modal="true" aria-labelledby="vha-map-title"><header class="vha-world-map-head"><div><p class="vha-world-map-kicker">GREEN DREAM / WORLD INDEX</p><h2 id="vha-map-title">Choose your destination.</h2></div><button class="vha-world-map-close" type="button" aria-label="Close world map">×</button></header><div class="vha-world-map-orbit" aria-label="Website destinations"><div class="vha-map-core"><span>⌖</span><strong>MAP</strong><small>WORLD INDEX</small></div><div class="vha-map-destinations"></div></div><div class="vha-world-map-foot"><span>ALL PATHS REMAIN OPEN</span><span>SELECT A DESTINATION</span></div></section>';
+  map.innerHTML='<section class="vha-world-map-panel" role="dialog" aria-modal="true" aria-labelledby="vha-map-title"><header class="vha-world-map-head"><div><p class="vha-world-map-kicker">GREEN DREAM / WORLD INDEX</p><h2 id="vha-map-title">Choose your destination.</h2></div><button class="vha-world-map-close" type="button" aria-label="Close world map">×</button></header><div class="vha-world-map-orbit" aria-label="Website destinations"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path d="M500 70 150 170 360 260 820 160 650 330 180 440 500 540 850 450 500 70M150 170 180 440 820 160 850 450M360 260 650 330 500 540"/></svg><div class="vha-map-core" aria-label="World constellation origin"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3 37 16 24 45 11 16 24 3Z"/><path d="M11 16h26M24 3v42M11 16l13 10 13-10"/></svg></div><div class="vha-map-destinations"></div></div><div class="vha-world-map-foot"><span>ALL PATHS REMAIN OPEN</span><span>SELECT A DESTINATION</span></div></section>';
   document.body.appendChild(map);
   const destinationList=map.querySelector(".vha-map-destinations");
   routes.forEach(([name,descriptor,href,key])=>{
