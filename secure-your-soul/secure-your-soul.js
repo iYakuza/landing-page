@@ -182,22 +182,22 @@
 
   const paths = {
     community: {
-      title: "COMMUNITY / COMMUNITY SIGNALS",
-      message: "You begin with lived experience: fragments, music, murals, and testimony. The community route is not connected yet, so this path continues inside the archive for now.",
-      href: "#archive",
-      label: "FOLLOW THE RECOVERED FRAGMENTS ↘"
+      title: "COMMUNITY / THE HUMAN COUNTER-ARCHIVE",
+      message: "Begin with what people carry for one another: memory, music, care, and stories that change when they are shared. This perspective leads to the Garden and the Circle.",
+      href: "#signals",
+      label: "ENTER THE HUMAN COUNTER-ARCHIVE ↘"
     },
     institution: {
-      title: "INSTITUTION / ARCHIVE SUBMISSIONS",
-      message: "You begin with records, classifications, and the gap between an official statement and its evidence. Explore the case files before drawing a conclusion.",
-      href: "#archive",
-      label: "OPEN THE CASE FILES ↘"
+      title: "INSTITUTION / THE OFFICIAL RECORD",
+      message: "Begin with the Institute’s explanation. Follow its three-stage protocol, then compare the official account with the recovered case files. The evidence is part of the story; it is not proof of a real technology.",
+      href: "#protocol",
+      label: "EXAMINE THE OFFICIAL PROTOCOL ↘"
     },
     wanderer: {
-      title: "WANDERER / OPEN TRANSMISSIONS",
-      message: "You begin outside the institution, with freedom and the right to leave no trace. Visitor submission is not connected yet; exploring this page sends no personal data.",
-      href: "#signals",
-      label: "VISIT THE HUMAN COUNTER-ARCHIVE ↘"
+      title: "WANDERER / OUTSIDE THE SYSTEM",
+      message: "Begin with the unanswered questions. You do not have to trust the Institute, join its archive, or leave a trace. Follow the anomalies and decide where your own boundary lies.",
+      href: "#unknown",
+      label: "FOLLOW THE UNCLASSIFIED RECORD ↘"
     }
   };
   const cards = Array.from(document.querySelectorAll("[data-path]"));
