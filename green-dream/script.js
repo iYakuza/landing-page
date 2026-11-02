@@ -5,6 +5,9 @@
   const close=radio?.querySelector('#gd-close');
   if(!radio||!head||!track||!artist||!play||!eq||!host||!note||!select)return;
   radio.style.setProperty('--acid','#d8ff3e');
+  const hiddenStyle=document.createElement('style');
+  hiddenStyle.textContent='#gd-radio.radio-hidden{visibility:hidden!important;opacity:0!important;pointer-events:none!important}';
+  document.head.appendChild(hiddenStyle);
   if(radio.parentElement!==document.body)document.body.appendChild(radio);
 
   let player=null,playing=false,playlistIds=[],apiPromise=null;
@@ -115,12 +118,19 @@
     if(!Number.isInteger(index)||index<0||index>=playlistIds.length)return;
     if(player){player.playVideoAt(index);setPlaying(true);status('Loading selected playlist track…')}
   });
-  close?.addEventListener('click',e=>{
-    const m=radio.classList.toggle('minimized');
-    e.currentTarget.textContent=m?'+':'−';
-    e.currentTarget.setAttribute('aria-expanded',String(!m));
-    e.currentTarget.setAttribute('aria-label',m?'Expand radio':'Minimize radio');
-  });
+  function setRadioHidden(hidden){
+    radio.classList.toggle('radio-hidden',hidden);
+    radio.setAttribute('aria-hidden',String(hidden));
+    const toolButton=document.querySelector('#vha-viewer-tools [data-tool="radio"]');
+    if(toolButton)toolButton.setAttribute('aria-pressed',String(hidden));
+    if(close){
+      close.textContent=hidden?'+':'−';
+      close.setAttribute('aria-expanded',String(!hidden));
+      close.setAttribute('aria-label',hidden?'Restore radio from Viewer Tools':'Minimize radio');
+    }
+  }
+  close?.addEventListener('click',()=>setRadioHidden(true));
+  window.addEventListener('vha-radio-toggle',()=>setRadioHidden(radio.classList.contains('radio-hidden')));
 
   const positionKey='vha-green-dream-radio-geometry-v3';
   let drag=null,resize=null,suppressClickUntil=0;
