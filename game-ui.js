@@ -49,7 +49,7 @@
   routes.forEach(([symbol,label,href])=>{
     const a=document.createElement("a");a.href=href;
     a.innerHTML='<b aria-hidden="true">'+symbol+'</b><span>'+label+'</span>';
-    const target=new URL(href,location.href).pathname.replace(/\\/+$/,"")||"/";
+    const target=new URL(href,location.href).pathname.replace(/\/+$/,"")||"/";
     if(target===path){a.classList.add("active");a.setAttribute("aria-current","page")}
     nav.appendChild(a);
   });
