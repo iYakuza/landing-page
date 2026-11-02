@@ -251,3 +251,10 @@ The prior chapter-based Continuity Institute page was not the supplied GUI mock-
 Commits: shared visual layer `b19638940c82846ede1f27c7631170b6ed572252`; type roles `40d333f555fa6126c24043fb9927f1214d6789c2`; page cache refreshes include `7622a02`, `fa9fc88`, `b0c5f74`, `8c3570a`, `969a45a`, `92419d2`, `c6f0822`, `ed29bcf`, `c7ffc1d`, `8775d2a`, `0dc455f`, `fed0849`, `8c26d87`, `a1b934a`, `dd2e948`.
 
 Verification: GitHub Actions and Pages deployment must complete before live visual verification can be claimed. Cross-browser screenshot comparison remains outstanding.
+
+
+### Palette alignment follow-up (2026-11-02)
+- Replaced the remaining hard-coded acid-lime accent in the shared page stylesheets with the muted sage accent used by the command-centre mock-up. Updated Green Dream, Human Archive, Transmissions, CMS and shared tools styles; preserved page content and feature behavior.
+- Refreshed stylesheet cache keys on all affected page routes.
+- CSS commits: Green Dream `9fd125d`, Human Archive portal `9e4d016`, Human Archive archive `a2a18d4`, Transmissions `da746ac`, tools `37a9af0`, CMS `209cc49`.
+- This is a palette and typography alignment pass, not yet a completed browser-based visual acceptance test.
