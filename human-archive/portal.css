@@ -17,3 +17,10 @@
 .ego-brand b{color:#d8ff3e!important;border-color:#b6e833!important}
 @media(max-width:760px){.ego-cover{min-height:calc(100svh - 58px);min-height:max(700px,calc(100svh - 58px))}.ego-cover-image{object-position:52% center}.ego-cover-content{width:90vw;padding:clamp(280px,42vh,390px) 0 115px}.ego-cover-content h1{font-size:clamp(78px,21vw,130px)}.ego-cover-kicker{font-size:8px;letter-spacing:1.5px}.ego-cover-declaration{font-size:9px;letter-spacing:1.6px}.ego-cover-index{left:14px;right:14px;bottom:16px;font-size:7px;letter-spacing:.5px;gap:5px}.ego-cover-scroll{display:none}}
 @media(prefers-reduced-motion:reduce){.ego-cover-enter{transition:none}}
+
+.gd-ego-index{align-self:stretch;display:flex;flex-direction:column;justify-content:center;padding:clamp(24px,4vw,48px);background:linear-gradient(145deg,#101d12,#050906 75%);border:1px solid #b6e83355;box-shadow:0 25px 90px #0008}
+.gd-ego-index>p{font:10px monospace;letter-spacing:2px;color:#d8ff3e;margin:0 0 22px}
+.gd-ego-index ul{list-style:none;padding:0;margin:0}
+.gd-ego-index li{display:flex;gap:16px;align-items:baseline;padding:14px 0;border-top:1px solid #b6e83330;color:#dce7d7;font:10px/1.5 monospace;letter-spacing:.7px}
+.gd-ego-index li span{color:#b6e833;font-size:9px}
+.gd-ego-index small{display:block;margin-top:25px;padding-top:16px;border-top:1px solid #b6e83355;color:#8fa18c;font:9px/1.8 monospace;letter-spacing:1px}
