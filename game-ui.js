@@ -55,12 +55,33 @@
   map.innerHTML='<section class="vha-world-map-panel" role="dialog" aria-modal="true" aria-labelledby="vha-map-title"><header class="vha-world-map-head"><div><p class="vha-world-map-kicker">SECURE YOUR SOUL / WORLD INDEX</p><h2 id="vha-map-title">Choose where to go.</h2><p>Every route remains open. No path is a permission.</p></div><button class="vha-world-map-close" type="button" aria-label="Close world map">×</button></header><div class="vha-world-map-plot" aria-label="Interactive map of the website sections"><svg class="vha-map-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M50 49 22 30M50 49 78 28M50 49 22 76M50 49 78 75M50 49 50 90"/></svg><a class="vha-map-node" data-node="ego" href="/landing-page/"><span class="node-symbol">◉</span><strong>EGO</strong><small>PERSONAL NODE</small></a><a class="vha-map-node" data-node="garden" href="/landing-page/green-dream/"><span class="node-symbol">✳</span><strong>THE GARDEN</strong><small>EXPLORATION</small></a><a class="vha-map-node" data-node="archive" href="/landing-page/human-archive/"><span class="node-symbol">▤</span><strong>THE ARCHIVE</strong><small>RECORDS</small></a><a class="vha-map-node" data-node="transmissions" href="/landing-page/posts/"><span class="node-symbol">⌁</span><strong>SIGNALS</strong><small>TRANSMISSIONS</small></a><a class="vha-map-node" data-node="listening" href="/landing-page/music.html"><span class="node-symbol">♫</span><strong>LISTENING</strong><small>AUDIO ROOM</small></a><a class="vha-map-node" data-node="circle" href="/landing-page/community/"><span class="node-symbol">◎</span><strong>THE CIRCLE</strong><small>COMMUNITY</small></a></div><div class="vha-world-map-foot"><span><b>INDEX 06</b> / PUBLIC DESTINATIONS</span><span>SELECT A NODE TO TRAVEL</span></div></section>';
   document.body.appendChild(map);
   const close=map.querySelector(".vha-world-map-close");
-  function openMap(){map.hidden=false;mapButton.setAttribute("aria-expanded","true");document.body.style.overflow="hidden";close.focus()}
-  function closeMap(){map.hidden=true;mapButton.setAttribute("aria-expanded","false");document.body.style.overflow="";mapButton.focus()}
+  let mapReturnFocus=null,previousBodyOverflow="";
+  function openMap(){
+    mapReturnFocus=document.activeElement;
+    previousBodyOverflow=document.body.style.overflow;
+    map.hidden=false;mapButton.setAttribute("aria-expanded","true");
+    document.body.style.overflow="hidden";close.focus();
+  }
+  function closeMap(){
+    map.hidden=true;mapButton.setAttribute("aria-expanded","false");
+    document.body.style.overflow=previousBodyOverflow;
+    if(mapReturnFocus&&typeof mapReturnFocus.focus==="function")mapReturnFocus.focus();
+    else mapButton.focus();
+    mapReturnFocus=null;
+  }
   mapButton.addEventListener("click",openMap);
   close.addEventListener("click",closeMap);
   map.addEventListener("click",e=>{if(e.target===map)closeMap()});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!map.hidden)closeMap()});
+  document.addEventListener("keydown",e=>{
+    if(map.hidden)return;
+    if(e.key==="Escape"){e.preventDefault();closeMap();return}
+    if(e.key!=="Tab")return;
+    const focusable=[...map.querySelectorAll('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.getClientRects().length);
+    if(!focusable.length){e.preventDefault();close.focus();return}
+    const first=focusable[0],last=focusable[focusable.length-1];
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+  });
 
   document.querySelectorAll("nav a[href]").forEach(link=>{
     try{const target=new URL(link.href,location.href);if(target.origin===location.origin&&(target.pathname.replace(/\/+$/,"")||"/")===path){link.classList.add("active");link.setAttribute("aria-current","page")}}catch{}
