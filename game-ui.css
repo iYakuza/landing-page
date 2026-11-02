@@ -552,3 +552,21 @@ body.vha-game-interface.gd-home :is(.sys-entry-intro,.sys-path p,.gd-ego-copy p,
 @media(prefers-reduced-motion:reduce){
   .vha-map-node:hover .vha-star-tooltip,.vha-map-node:focus-visible .vha-star-tooltip{animation:none!important}
 }
+
+
+/* Constellation composition // narrower horizontal orbit around the crystal dock. */
+.vha-constellation-field{inset:0!important}
+.vha-map-destinations{
+  inset-inline:12%!important;
+  width:76%!important;
+}
+.vha-constellation-lines{
+  left:12%!important;width:76%!important;
+}
+@media(max-width:760px){
+  .vha-map-destinations{inset-inline:7%!important;width:86%!important}
+  .vha-constellation-lines{left:7%!important;width:86%!important}
+}
+@media(max-height:560px){
+  .vha-map-destinations{inset-block:5%!important}
+}
