@@ -122,10 +122,28 @@
       journeyNote.hidden=false;
       return;
     }
-    setConstellationVisible(map.hidden);
-    journeyNote.hidden=map.hidden;
+    const toolsOpen=document.getElementById("vha-viewer-tools")?.dataset.open==="true";
+    setConstellationVisible(toolsOpen);
+    journeyNote.hidden=!toolsOpen;
   });
-  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!map.hidden)setConstellationVisible(false)});
+  document.addEventListener("vha-tools-state-change",event=>{
+    const open=Boolean(event.detail?.open);
+    if(document.body.classList.contains("vha-entry-intro")&&open){
+      document.body.classList.remove("vha-entry-intro");
+      document.getElementById("vha-entry-prompt")?.remove();
+      try{sessionStorage.setItem("vha-entry-intro-seen","true")}catch{}
+    }
+    setConstellationVisible(open);
+    journeyNote.hidden=!open;
+  });
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape"&&!map.hidden){
+      setConstellationVisible(false);
+      journeyNote.hidden=true;
+      const tools=document.getElementById("vha-viewer-tools");
+      if(tools){tools.dataset.open="false";tools.setAttribute("aria-expanded","false")}
+    }
+  });
   document.querySelectorAll("nav a[href]").forEach(link=>{
     try{const target=new URL(link.href,location.href);if(target.origin===location.origin&&(target.pathname.replace(/\/+$/,"")||"/")===path){link.classList.add("active");link.setAttribute("aria-current","page")}}catch{}
   });
@@ -137,5 +155,69 @@
   if(footer&&!footer.querySelector(".game-bottomline")){
     const line=document.createElement("div");line.className="game-bottomline";
     line.innerHTML="<span>V/A INTERFACE · BUILD 02</span><span>YOUR STORY REMAINS YOURS</span>";footer.appendChild(line);
+  }
+
+  // Replace the footer return link with a draggable, dismissible surface control.
+  const returnLink=[...document.querySelectorAll("footer a")].find(a=>a.textContent.trim()==="RETURN TO THE SURFACE ↑");
+  if(returnLink){
+    returnLink.remove();
+    const dock=document.createElement("div");
+    dock.id="vha-surface-dock";
+    dock.innerHTML='<a class="vha-surface-link" href="/landing-page/" aria-label="Return to the surface">RETURN TO THE SURFACE <span aria-hidden="true">↑</span></a><button class="vha-surface-hide" type="button" aria-label="Hide return button" title="Hide">×</button>';
+    const restore=document.createElement("button");
+    restore.id="vha-surface-restore";
+    restore.type="button";
+    restore.textContent="↑";
+    restore.setAttribute("aria-label","Show return to the surface button");
+    restore.title="Show return button";
+    document.body.append(dock,restore);
+    const saved=(()=>{try{return JSON.parse(localStorage.getItem("vha-surface-dock-position")||"null")}catch{return null}})();
+    if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)){
+      dock.style.left=Math.max(8,Math.min(innerWidth-150,saved.x))+"px";
+      dock.style.top=Math.max(8,Math.min(innerHeight-48,saved.y))+"px";
+      dock.style.right="auto";dock.style.bottom="auto";
+    }
+    let hidden=false,dragging=false,moved=false,startX=0,startY=0,originX=0,originY=0;
+    const hide=dock.querySelector(".vha-surface-hide");
+    const link=dock.querySelector(".vha-surface-link");
+    hide.addEventListener("click",()=>{hidden=true;dock.hidden=true;restore.hidden=false});
+    restore.addEventListener("click",()=>{hidden=false;dock.hidden=false;restore.hidden=true});
+    dock.addEventListener("pointerdown",event=>{
+      if(event.target.closest("button"))return;
+      dragging=true;moved=false;startX=event.clientX;startY=event.clientY;
+      const rect=dock.getBoundingClientRect();originX=rect.left;originY=rect.top;
+      dock.setPointerCapture(event.pointerId);
+    });
+    dock.addEventListener("pointermove",event=>{
+      if(!dragging)return;
+      const dx=event.clientX-startX,dy=event.clientY-startY;
+      if(Math.abs(dx)+Math.abs(dy)>5)moved=true;
+      if(!moved)return;
+      dock.style.left=Math.max(8,Math.min(innerWidth-dock.offsetWidth-8,originX+dx))+"px";
+      dock.style.top=Math.max(8,Math.min(innerHeight-dock.offsetHeight-8,originY+dy))+"px";
+      dock.style.right="auto";dock.style.bottom="auto";
+    });
+    const stopDrag=()=>{
+      if(!dragging)return;dragging=false;
+      if(moved){try{const rect=dock.getBoundingClientRect();localStorage.setItem("vha-surface-dock-position",JSON.stringify({x:rect.left,y:rect.top}))}catch{}}
+    };
+    dock.addEventListener("pointerup",stopDrag);
+    dock.addEventListener("pointercancel",stopDrag);
+    link.addEventListener("click",event=>{if(moved){event.preventDefault();moved=false}});
+    restore.hidden=true;
+    const style=document.createElement("style");
+    style.id="vha-surface-dock-style";
+    style.textContent=`
+      #vha-surface-dock{position:fixed;z-index:2147482998;right:18px;bottom:22px;display:flex;align-items:center;gap:5px;padding:5px 6px 5px 12px;border:1px solid rgba(185,215,122,.28);background:rgba(5,12,8,.82);box-shadow:0 5px 22px rgba(0,0,0,.28);backdrop-filter:blur(9px);touch-action:none;cursor:grab;user-select:none}
+      #vha-surface-dock:active{cursor:grabbing}
+      #vha-surface-dock[hidden],#vha-surface-restore[hidden]{display:none!important}
+      #vha-surface-dock .vha-surface-link{color:rgba(220,235,207,.82);font:8px/1.3 ui-monospace,monospace;letter-spacing:.13em;text-decoration:none;white-space:nowrap}
+      #vha-surface-dock .vha-surface-link span{color:#c8dca7;margin-left:4px}
+      #vha-surface-dock .vha-surface-hide{width:19px;height:19px;padding:0;border:0;background:transparent;color:rgba(198,211,193,.52);font:15px/1 Arial;cursor:pointer}
+      #vha-surface-dock .vha-surface-hide:hover{color:#e8f4df}
+      #vha-surface-restore{position:fixed;right:12px;bottom:14px;z-index:2147482998;width:27px;height:27px;border:1px solid rgba(185,215,122,.3);background:rgba(5,12,8,.72);color:#c8dca7;font:13px ui-monospace,monospace;backdrop-filter:blur(8px);cursor:pointer}
+      @media(max-width:600px){#vha-surface-dock{right:10px;bottom:12px}#vha-surface-dock .vha-surface-link{font-size:7px}}
+    `;
+    document.head.appendChild(style);
   }
 })();
