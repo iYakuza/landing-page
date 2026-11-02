@@ -75,3 +75,28 @@ This is not installed website functionality and is not treated as an implemented
 - Secret scanning: passed on `c5be17b`.
 - Static-site safety, static security posture, CodeQL and Pages deployment: in progress at the last check.
 - No live browser screenshot or cross-device visual comparison has been performed yet.
+
+
+## Transmissions archive — dossier record treatment (2026-11-02)
+
+### GUI decomposition implemented
+- Stable-looking archive record code derived from the publication date, with a short list ordinal.
+- Metadata row separating record identity, publication date/disclosure control, movement category and existing actions.
+- Persistent title and excerpt preview so each transmission is identifiable before opening.
+- Expanded body remains a separate disclosure region; media and original content are preserved.
+- Restrained dossier treatment: narrow acid-green spine, archival linework, muted metadata, readable title hierarchy and responsive metadata wrapping.
+
+### Functional preservation
+- Supabase queries, public-only published records, newest-first ordering and pagination are unchanged.
+- Search, movement/category filtering, direct post URLs, edit controls, sharing, image viewer and expandable Suno sections are retained.
+- No schema, RLS policy, storage bucket or external service was changed.
+
+### Commits
+- Archive renderer: `d9b8c34a494e4b812ce1b1844e7d0121701e40c3`
+- Dossier styling: `83575788455b793e4dd65dfc57ccdcfc7e5ded22`
+- Asset cache refresh: `1a785a87ffbe5488c6ffa169de8cbcec86ce9a0b`
+
+### Verification
+- The preceding EGO dashboard baseline (`9afdcdf`) has completed successfully across static-site safety, static security posture, secret scanning, CodeQL and Pages deployment.
+- This archive iteration has just been committed; its own Actions and Pages deployment must be checked before calling it verified.
+- Live visual/browser interaction checks remain outstanding; repository code inspection alone does not establish cross-device appearance.
