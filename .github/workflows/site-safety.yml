@@ -36,8 +36,8 @@ jobs:
             echo "Legacy Previous/Next radio controls must not return."
             exit 1
           fi
-          grep -Fq "radio.style.setProperty('left',p.x+'px','important')" green-dream/script.js
-          grep -Fq "radio.style.setProperty('top',p.y+'px','important')" green-dream/script.js
+          grep -Eq "radio.style.setProperty\(\x27left\x27,p\.(x|left)\+\x27px\x27,\x27important\x27\)" green-dream/script.js
+          grep -Eq "radio.style.setProperty\(\x27top\x27,p\.(y|top)\+\x27px\x27,\x27important\x27\)" green-dream/script.js
           grep -Fq "window.addEventListener('pointermove'" green-dream/script.js
           grep -Fq "document.body.appendChild(radio)" green-dream/script.js
 
