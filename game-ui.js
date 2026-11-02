@@ -54,6 +54,8 @@
   mapButton.setAttribute('aria-label','Open world constellation');mapButton.title='Open world constellation';mapButton.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M24 3 37 16 24 45 11 16 24 3Z"/><path d="M11 16h26M24 3v42M11 16l13 10 13-10"/></svg>';
   bottom.appendChild(mapButton);
   document.body.appendChild(bottom);
+  const viewerTools=document.getElementById("vha-viewer-tools");
+  if(viewerTools)viewerTools.insertBefore(bottom,viewerTools.querySelector(".vha-tools-side.vha-tools-right"));
 
   const map=document.createElement("div");
   map.className="vha-world-map";map.id="vha-world-map";map.hidden=true;
