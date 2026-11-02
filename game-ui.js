@@ -50,53 +50,36 @@
   bottom.setAttribute("aria-label","Main navigation");
   const mapButton=document.createElement("button");
   mapButton.type="button";mapButton.className="vha-map-toggle";
-  mapButton.setAttribute("aria-expanded","false");mapButton.setAttribute("aria-controls","vha-world-map");
+  mapButton.setAttribute("aria-expanded","true");mapButton.setAttribute("aria-controls","vha-world-map");
   mapButton.setAttribute('aria-label','Open world constellation');mapButton.title='Open world constellation';mapButton.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M24 3 37 16 24 45 11 16 24 3Z"/><path d="M11 16h26M24 3v42M11 16l13 10 13-10"/></svg>';
   bottom.appendChild(mapButton);
   document.body.appendChild(bottom);
 
   const map=document.createElement("div");
   map.className="vha-world-map";map.id="vha-world-map";map.hidden=true;
-  map.innerHTML='<section class="vha-world-map-panel" role="dialog" aria-modal="true" aria-labelledby="vha-map-title"><header class="vha-world-map-head"><div><p class="vha-world-map-kicker">GREEN DREAM / WORLD INDEX</p><h2 id="vha-map-title">Choose your destination.</h2></div><button class="vha-world-map-close" type="button" aria-label="Close world map">×</button></header><div class="vha-world-map-orbit" aria-label="Website destinations"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path d="M500 70 150 170 360 260 820 160 650 330 180 440 500 540 850 450 500 70M150 170 180 440 820 160 850 450M360 260 650 330 500 540"/></svg><div class="vha-map-core" aria-label="World constellation origin"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3 37 16 24 45 11 16 24 3Z"/><path d="M11 16h26M24 3v42M11 16l13 10 13-10"/></svg></div><div class="vha-map-destinations"></div></div><div class="vha-world-map-foot"><span>ALL PATHS REMAIN OPEN</span><span>SELECT A DESTINATION</span></div></section>';
+  map.innerHTML='<div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path d="M500 70 150 170 360 260 820 160 650 330 180 440 500 540 850 450 500 70M150 170 180 440 820 160 850 450M360 260 650 330 500 540"/></svg><div class="vha-map-destinations"></div></div>';
   document.body.appendChild(map);
   const destinationList=map.querySelector(".vha-map-destinations");
-  routes.forEach(([name,descriptor,href,key])=>{
+  const starPositions=[[50,13],[17,29],[37,43],[81,26],[65,55],[18,72],[50,86],[86,72],[32,17],[69,16],[91,46],[8,49],[50,58],[78,85]];
+  routes.forEach(([name,descriptor,href,key],index)=>{
     const link=document.createElement("a");link.className="vha-map-node";link.dataset.node=key;link.href=href;
     const target=new URL(href,location.href).pathname.replace(/\/+$/,"")||"/";
     if(target===path){link.classList.add("is-current");link.setAttribute("aria-current","page")}
-    link.innerHTML='<strong>'+name+'</strong><small>'+descriptor+'</small>';
+    const position=starPositions[index%starPositions.length];link.style.setProperty("--star-x",position[0]+"%");link.style.setProperty("--star-y",position[1]+"%");
+    link.setAttribute("aria-label",name+" — "+descriptor);link.title=name;
+    link.innerHTML='<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 1 24.8 14.2 39 15.2 28 24.1 31.5 38 20 30.4 8.5 38 12 24.1 1 15.2 15.2 14.2Z"/></svg><span class="vha-star-tooltip" role="tooltip">'+name+'</span>';
     destinationList.appendChild(link);
   });
 
-  const close=map.querySelector(".vha-world-map-close");
-  let mapReturnFocus=null,previousBodyOverflow="";
-  function openMap(){
-    mapReturnFocus=document.activeElement;
-    previousBodyOverflow=document.body.style.overflow;
-    map.hidden=false;mapButton.setAttribute("aria-expanded","true");
-    document.body.style.overflow="hidden";close.focus();
+  function setConstellationVisible(visible){
+    map.hidden=!visible;
+    mapButton.setAttribute("aria-expanded",String(visible));
+    mapButton.setAttribute("aria-label",visible?"Hide website constellation":"Show website constellation");
+    mapButton.title=visible?"Hide website constellation":"Show website constellation";
   }
-  function closeMap(){
-    map.hidden=true;mapButton.setAttribute("aria-expanded","false");
-    document.body.style.overflow=previousBodyOverflow;
-    if(mapReturnFocus&&typeof mapReturnFocus.focus==="function")mapReturnFocus.focus();
-    else mapButton.focus();
-    mapReturnFocus=null;
-  }
-  mapButton.addEventListener("click",openMap);
-  close.addEventListener("click",closeMap);
-  map.addEventListener("click",e=>{if(e.target===map)closeMap()});
-  document.addEventListener("keydown",e=>{
-    if(map.hidden)return;
-    if(e.key==="Escape"){e.preventDefault();closeMap();return}
-    if(e.key!=="Tab")return;
-    const focusable=[...map.querySelectorAll('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.getClientRects().length);
-    if(!focusable.length){e.preventDefault();close.focus();return}
-    const first=focusable[0],last=focusable[focusable.length-1];
-    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
-    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
-  });
-
+  setConstellationVisible(true);
+  mapButton.addEventListener("click",()=>setConstellationVisible(map.hidden));
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!map.hidden)setConstellationVisible(false)});
   document.querySelectorAll("nav a[href]").forEach(link=>{
     try{const target=new URL(link.href,location.href);if(target.origin===location.origin&&(target.pathname.replace(/\/+$/,"")||"/")===path){link.classList.add("active");link.setAttribute("aria-current","page")}}catch{}
   });
