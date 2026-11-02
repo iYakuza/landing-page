@@ -130,7 +130,7 @@
     }
   }
   close?.addEventListener('click',()=>setRadioHidden(true));
-  window.addEventListener('vha-radio-toggle',()=>setRadioHidden(radio.classList.contains('radio-hidden')));
+  window.addEventListener('vha-radio-toggle',()=>setRadioHidden(false));
 
   const positionKey='vha-green-dream-radio-geometry-v3';
   let drag=null,resize=null,suppressClickUntil=0;
@@ -171,14 +171,18 @@
     if(persist){try{localStorage.setItem(positionKey,JSON.stringify(p))}catch{}}
   }
   let saved=null;try{saved=JSON.parse(localStorage.getItem(positionKey)||'null')}catch{}
-  const initial=radio.getBoundingClientRect();
-  const initialGeometry={
-    left:Number.isFinite(saved?.left)?saved.left:innerWidth-initial.width-12,
-    top:Number.isFinite(saved?.top)?saved.top:(innerWidth<=760?innerHeight-initial.height-12:(innerHeight-initial.height)/2),
-    width:Number.isFinite(saved?.width)?saved.width:Math.min(286,innerWidth-24),
-    height:Number.isFinite(saved?.height)?saved.height:initial.height
-  };
   radio.style.removeProperty('height');
+  const initial=radio.getBoundingClientRect();
+  const defaultWidth=Math.min(326,innerWidth-24);
+  const initialWidth=Number.isFinite(saved?.width)?saved.width:defaultWidth;
+  radio.style.setProperty('width',initialWidth+'px','important');
+  const contentHeight=Math.min(radio.scrollHeight,innerHeight-24);
+  const initialGeometry={
+    left:Number.isFinite(saved?.left)?saved.left:innerWidth-initialWidth-12,
+    top:Number.isFinite(saved?.top)?saved.top:(innerWidth<=760?innerHeight-contentHeight-12:(innerHeight-contentHeight)/2),
+    width:initialWidth,
+    height:Number.isFinite(saved?.height)?saved.height:contentHeight
+  };
   applyGeometry(initialGeometry,false);
   head.addEventListener('dragstart',e=>e.preventDefault());
   head.addEventListener('pointerdown',e=>{
