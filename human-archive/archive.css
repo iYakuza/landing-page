@@ -20,3 +20,20 @@
 .ha-empty{border:1px dashed rgba(182,232,51,.25);background:#080e09}
 @media(max-width:760px){.ha-list{grid-template-columns:1fr;gap:8px}.ha-entry{min-height:132px;padding:16px}.ha-entry strong{margin:15px 0}}
 @media(prefers-reduced-motion:reduce){.ha-entry{transition:none}}
+
+/* Archive shelves: uniform record plates and collapsible category drawers. */
+.ha-list{display:block!important;background:transparent!important;border:0!important}
+.ha-category-group{margin:26px 0 34px}
+.ha-category-heading{align-items:center;margin:0 0 14px;padding:0 0 10px}
+.ha-category-toggle{display:inline-flex;align-items:center;gap:12px;min-width:0;padding:4px 0;border:0;background:transparent;color:var(--acid);text-align:left;cursor:pointer}
+.ha-category-toggle:focus-visible{outline:1px solid var(--acid);outline-offset:5px}
+.ha-category-title{font:400 clamp(19px,2.6vw,27px)/1.2 'Playfair Display',serif}
+.ha-category-marker{display:grid;place-items:center;width:22px;height:22px;border:1px solid var(--line);color:var(--acid);font:14px 'DM Mono',monospace}
+.ha-category-total{flex:none;color:var(--muted);font:9px 'DM Mono',monospace;letter-spacing:.12em}
+.ha-category-entries{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:12px}
+.ha-category-entries[hidden]{display:none!important}
+.ha-entry{height:178px;min-height:178px;max-height:178px;padding:16px 18px}
+.ha-entry strong{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;max-width:100%;min-height:3.6em;margin:12px 0;font-size:clamp(16px,1.5vw,20px);line-height:1.2}
+.ha-entry-bottom{margin-top:auto}
+@media(max-width:900px){.ha-category-entries{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.ha-category-entries{grid-template-columns:1fr;gap:9px}.ha-entry{height:154px;min-height:154px;max-height:154px}.ha-category-heading{align-items:center}.ha-category-title{font-size:20px}}
