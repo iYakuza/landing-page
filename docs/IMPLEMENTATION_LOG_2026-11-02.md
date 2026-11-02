@@ -124,3 +124,29 @@ This is not installed website functionality and is not treated as an implemented
 ### Verification
 - This iteration's static safety, security, secret scanning, CodeQL and Pages deployment checks are triggered by the commits and remain to be confirmed.
 - Embedded playlist playback requires a browser test; repository inspection confirms the playlist ID matches the existing Green Dream radio configuration.
+
+
+## Human Archive — personal record vault (2026-11-02)
+
+### GUI decomposition implemented
+- Each legacy record now has a distinct archive identifier derived from its original year and WordPress record ID.
+- Year marker, original date and source context are separated into a clear metadata hierarchy.
+- Titles receive a stronger editorial hierarchy while each record remains a direct link to its original WordPress source.
+- Cards use restrained archival geometry and muted linework, consistent with the Human Archive's role as a personal record vault.
+- Responsive single-column layout retained for narrow screens.
+
+### Functional preservation and hardening
+- Search now matches title, year, date and original record ID.
+- Year filtering, newest-first presentation and original WordPress destinations remain intact.
+- Archive JSON is validated as an array; records are checked for required fields and outbound links are restricted to HTTPS on the original WordPress host before rendering.
+- Links continue to open in a new tab with `noopener noreferrer`.
+- No record data, URLs, or original WordPress content was rewritten.
+
+### Commits
+- Archive renderer: `91308a4beb9ea176a2632171ab410a8581d66c0a`
+- Record-vault styling: `fc916345aa2274d697d1b7a2fe32f36777260693`
+- Asset cache refresh: `8f10adb430ef818554c5b0724372729223e3880a`
+
+### Verification
+- The Human Archive iteration has been committed; latest CI and Pages deployment must be confirmed before release verification.
+- Visual browser review remains outstanding.
