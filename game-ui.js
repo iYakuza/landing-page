@@ -24,31 +24,37 @@
   left.className = "status-left";
   left.innerHTML = '<span class="status-dot" aria-hidden="true"></span><span>NETWORK <b class="status-accent">ONLINE</b></span><span aria-hidden="true">/</span><span></span>';
   left.lastElementChild.textContent = current[1];
-  const hud = document.createElement("div");
-  hud.className = "vha-game-hud";
-  const links = document.createElement("nav");
-  links.className = "vha-game-hud-links";
-  links.setAttribute("aria-label", "World map shortcuts");
   const routes = [
-    ["EGO","/landing-page/"],["GARDEN","/landing-page/green-dream/"],
-    ["ARCHIVE","/landing-page/human-archive/"],["SIGNALS","/landing-page/posts/"],
-    ["LISTEN","/landing-page/music.html"],["CIRCLE","/landing-page/community/"]
+    ["✳","GREEN DREAM","/landing-page/green-dream/"],
+    ["⌁","TRANSMISSIONS","/landing-page/posts/"],
+    ["▤","HUMAN ARCHIVE","/landing-page/human-archive/"],
+    ["♫","V/A RADIO","/landing-page/music.html"],
+    ["◎","THE CIRCLE","/landing-page/community/"],
+    ["◈","CV","/landing-page/cv/"],
+    ["魂","SECURE YOUR SOUL","/landing-page/secure-your-soul/"]
   ];
-  routes.forEach(([label,href]) => {
-    const a=document.createElement("a");a.href=href;a.textContent=label;
-    const target=new URL(href,location.href).pathname.replace(/\/+$/,"")||"/";
-    if(target===path){a.setAttribute("aria-current","page");a.classList.add("is-current")}
-    links.appendChild(a);
-  });
-  const mapButton=document.createElement("button");
-  mapButton.type="button";mapButton.className="vha-map-toggle";mapButton.setAttribute("aria-expanded","false");
-  mapButton.setAttribute("aria-controls","vha-world-map");
-  mapButton.innerHTML='<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M2 5.2 7 3l6 2 5-2v11.8l-5 2-6-2-5 2V5.2Z" stroke="currentColor" stroke-width="1.2"/><path d="M7 3v11m6-9v11" stroke="currentColor" stroke-width="1.2"/></svg><span>MAP</span>';
-  hud.append(links,mapButton);
-  status.append(left,hud);
+  // Remove page-specific global navigation so every destination uses the same shared bar.
+  document.querySelectorAll("header .vha-main-nav, header .ha-links, header .tabs, header .vha-community-button").forEach(el=>el.remove());
+  document.querySelectorAll(".ego-bottom-hud").forEach(el=>el.remove());
   const header=document.querySelector("header,.masthead,.ha-nav");
   if(header&&header.parentNode)header.parentNode.insertBefore(status,header);
   else document.body.insertBefore(status,document.body.firstChild);
+
+  const bottom=document.createElement("div");
+  bottom.className="ego-bottom-hud vha-universal-nav";
+  bottom.setAttribute("role","navigation");
+  bottom.setAttribute("aria-label","Main navigation");
+  const nav=document.createElement("nav");
+  nav.setAttribute("aria-label","World destinations");
+  routes.forEach(([symbol,label,href])=>{
+    const a=document.createElement("a");a.href=href;
+    a.innerHTML='<b aria-hidden="true">'+symbol+'</b><span>'+label+'</span>';
+    const target=new URL(href,location.href).pathname.replace(/\\/+$/,"")||"/";
+    if(target===path){a.classList.add("active");a.setAttribute("aria-current","page")}
+    nav.appendChild(a);
+  });
+  bottom.appendChild(nav);
+  document.body.appendChild(bottom);
 
   const map=document.createElement("div");
   map.className="vha-world-map";map.id="vha-world-map";map.hidden=true;
