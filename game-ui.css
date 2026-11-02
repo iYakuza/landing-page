@@ -502,6 +502,7 @@ body.vha-entry-intro #vha-viewer-tools .vha-map-toggle svg{width:58px!important;
 .vha-map-node[data-node=ego]:hover svg,.vha-map-node[data-node=ego]:focus-visible svg{fill:none!important}
 .vha-map-node[data-node=archive] svg{fill:#d8edb4!important;filter:drop-shadow(0 0 8px rgba(220,255,175,.9)) drop-shadow(0 0 20px rgba(194,230,144,.65))}
 @media(max-width:600px){#vha-entry-prompt{top:calc(50% + 60px)}.vha-journey-note{top:12px;padding:11px 13px}.vha-journey-note strong{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.vha-journey-note:not([hidden]),.vha-journey-note:not([hidden]):hover,.vha-journey-note:not([hidden]):focus-within{animation:none!important;opacity:.82;visibility:visible;transition:none!important}}
 
 /* A quieter, more compact rhythm across the site. */
 body.vha-game-interface:not(.gd-home) main{max-width:1240px;margin-inline:auto;padding-inline:clamp(16px,3.2vw,42px)}
@@ -551,7 +552,27 @@ body.vha-game-interface.gd-home :is(.sys-entry-intro,.sys-path p,.gd-ego-copy p,
   box-shadow:0 8px 28px rgba(0,0,0,.22)!important;
   backdrop-filter:blur(10px);
   text-align:left!important;
+  pointer-events:auto!important;touch-action:none;user-select:none;-webkit-user-select:none;
+  cursor:grab;opacity:0;visibility:hidden;
 }
+.vha-journey-note.is-dragging{cursor:grabbing;animation-play-state:paused!important;opacity:.92!important;visibility:visible!important}
+.vha-journey-note:not([hidden]){animation:vha-journey-ghost-cycle 12s ease-in-out infinite}
+.vha-journey-note:not([hidden]):hover,
+.vha-journey-note:not([hidden]):focus-within{
+  animation:vha-journey-ghost-pulse 3.2s ease-in-out infinite;
+  opacity:.94;visibility:visible;
+}
+@keyframes vha-journey-ghost-cycle{
+  0%,100%{opacity:0;visibility:hidden;transform:translate(-50%,5px)}
+  8%,28%{opacity:.78;visibility:visible;transform:translate(-50%,0)}
+  40%{opacity:0;visibility:hidden;transform:translate(-50%,-2px)}
+}
+@keyframes vha-journey-ghost-pulse{
+  0%,100%{opacity:.58;text-shadow:0 0 4px rgba(205,238,174,.3),0 0 10px rgba(185,215,122,.12)}
+  50%{opacity:.96;text-shadow:0 0 8px rgba(225,248,204,.72),0 0 18px rgba(185,215,122,.34)}
+}
+.vha-journey-note.is-dragging{transform:none!important}
+.vha-journey-note[hidden]{display:none!important}
 .vha-journey-note>span{font-size:7px!important;letter-spacing:.18em!important;opacity:.72}
 .vha-journey-note strong{font:400 15px/1.2 Georgia,serif!important;letter-spacing:.02em;color:#dce9ce!important}
 .vha-journey-note p{font:9px/1.5 var(--game-mono)!important;color:rgba(190,204,181,.78)!important;margin:5px 0 7px!important}
