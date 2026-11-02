@@ -211,3 +211,28 @@ The page previously presented its fictional premise too indirectly. A visitor co
 - GitHub Pages build/deployment was queued for `aaf44ec` at the time of inspection.
 - The live URL could not be fetched by the web preview cache; published appearance and browser interaction remain unverified.
 - Static-site safety and security workflows must be checked after the current deployment run completes.
+
+
+## GUI mock-up correction — Secure Your Soul command centre (2026-11-02)
+
+The prior chapter-based Continuity Institute page was not the supplied GUI mock-up. The authoritative visual reference is the Canva presentation **Green Dream UX System** (design ID `DAHZyXiqx2Y`, 8 pages), titled “Secure Your Soul — Game Interface System for Green Dream / Verse After Hours”. Its structure is a game-style command centre and shared world interface, not a conventional editorial narrative landing page.
+
+### Reference elements translated into the website
+- Shared system/navigation HUD: online network state, current realm/location, world shortcuts and map access.
+- EGO Command Centre: personal node hero, node status, realm alignment, bond stability, dream recall and compact status indicators.
+- Realm Map: visual node map with Dreamroot Sanctum, Veilwood Grove and Silent Shores, plus an active objective panel.
+- Connected destinations: Green Dream exploration, Transmissions mission archive, Human Archive memory vault, Listening Room audio console, Community Hub / The Circle, and Creator Workshop.
+- Reused existing live website destinations and the shared HUD/world-map script; no duplicate backend or fabricated submission workflow.
+- Clearly labels numeric node/status values as mock-up presentation data, not biological, health or consciousness measurements.
+- Responsive desktop-to-mobile layout; CSS-only map drawing; no new external dependencies or generated assets.
+
+### Commits
+- Command-centre markup: `c664ce0ded799fcf54fc4ded8ce9fa3ecb09b07e`
+- GUI styling: `85cf9a779245b1386ce23693f01abaf36e6cbba7`
+- Map control connection: `2be90fb7e6fc387629cc26516b56f2e7cbe0339b`
+- CSP-compatible map markers: `aa98e7cf645e23595ddc6198100d0b1cf8c37be3`, `edf86e5baec516361a0f4c87c41dd50fbc3e137e`
+
+### Verification
+- Static review confirms the command-centre controls route to existing pages and the map button activates the shared world-map overlay.
+- Inline style attributes were removed from map markers to remain compatible with the page Content Security Policy.
+- GitHub Actions build, static-site safety and security checks are pending for the latest commit; visual browser verification remains outstanding.
