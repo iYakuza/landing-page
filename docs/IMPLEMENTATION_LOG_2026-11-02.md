@@ -150,3 +150,11 @@ This is not installed website functionality and is not treated as an implemented
 ### Verification
 - The Human Archive iteration has been committed; latest CI and Pages deployment must be confirmed before release verification.
 - Visual browser review remains outstanding.
+
+
+## World map keyboard containment refinement (2026-11-02)
+- Added a keyboard focus loop while the world map dialog is open, so Tab and Shift+Tab remain inside the modal.
+- Escape still closes the map; focus returns to the element that opened it.
+- Preserved and restored the body's previous inline overflow value rather than always clearing it on close.
+- Commit: `d3fc0b8fc735e1e88f554dfea41e3a9853867d05`.
+- This is a progressive accessibility improvement; screen-reader and real-browser testing remain outstanding.
