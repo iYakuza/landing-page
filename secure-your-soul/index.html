@@ -1,213 +1,37 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#080b09">
-  <meta name="description" content="Secure Your Soul — an original fictional institution promising continuity beyond death. Enter the archive; question what preservation means.">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'self'; upgrade-insecure-requests">
-  <title>Secure Your Soul — The Continuity Archive</title>
-  <link rel="stylesheet" href="./secure-your-soul.css">
-  <script src="./secure-your-soul.js" defer></script>
-  <link rel="stylesheet" href="/landing-page/game-ui.css?v=20261102-game-ui-1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#050906"><meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="description" content="Secure Your Soul — the shared game interface and command centre for Green Dream / Verse After Hours.">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: https://emanuelstefancu.wordpress.com; connect-src 'self'; frame-ancestors 'self'; upgrade-insecure-requests">
+<title>Secure Your Soul — EGO Command Centre</title>
+<link rel="stylesheet" href="./secure-your-soul.css">
+<link rel="stylesheet" href="/landing-page/game-ui.css?v=20261102-game-ui-1">
+<script src="/landing-page/game-ui.js?v=20261102-game-ui-1" defer></script>
+<script src="./secure-your-soul.js" defer></script>
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
-  <header class="masthead">
-    <a class="wordmark" href="#top" aria-label="Secure Your Soul, return to entrance">
-      <span class="seal" aria-hidden="true"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20"/><circle cx="24" cy="24" r="14"/><path d="M24 7v34M7 24h34M14 14l20 20M34 14 14 34"/><path d="M24 16l5 8-5 8-5-8z"/></svg></span>
-      <span><strong>SECURE YOUR SOUL</strong><small>THE CONTINUITY INSTITUTE / FICTIONAL PROGRAM</small></span>
-    </a>
-    <nav class="mast-nav" aria-label="Primary navigation">
-      <a href="#protocol">THE PROTOCOL</a>
-      <a href="#archive">THE ARCHIVE</a>
-      <a href="#signals">SIGNALS</a>
-      <a href="#workshop">WORKSHOP</a>
-    </nav>
-    <span class="status"><i aria-hidden="true"></i> ARCHIVE FILE 01 / OPEN</span>
-  </header>
-
-  <main id="main">
-    <section class="hero" id="top" aria-labelledby="hero-title">
-      <div class="hero-grid" aria-hidden="true"></div>
-      <div class="hero-orbit orbit-one" aria-hidden="true"></div><div class="hero-orbit orbit-two" aria-hidden="true"></div>
-      <div class="hero-copy">
-        <p class="eyebrow">CONTINUITY RESEARCH INITIATIVE <span>/// RECORD 001</span></p>
-        <h1 id="hero-title">SECURE<br><em>YOUR SOUL.</em></h1>
-        <p class="hero-lead">Your memories are not your whole self.<br>Your body is not your only vessel.<br><span>Your story does not have to end here.</span></p>
-        <p class="hero-note"><strong>A WORK OF SPECULATIVE FICTION.</strong> You have entered the public archive of an imaginary institute that claims it can preserve a person beyond death. The story asks one question: if a machine remembers everything about you, is it still you?</p>
-        <p class="hero-instruction"><span>YOUR ROLE</span> Read the Institute’s case, examine the evidence, and decide what you believe. Choose a perspective or explore freely. Nothing is submitted or stored.</p>
-        <a class="button button-primary" href="#origin">EXPLORE THE STORY <span aria-hidden="true">↘</span></a>
-      </div>
-      <aside class="certificate" aria-label="Program record">
-        <div class="certificate-top"><span>THE INSTITUTE</span><span>RECORD 001</span></div>
-        <div class="certificate-mark" aria-hidden="true">魂</div>
-        <p class="certificate-label">CONTINUITY ASSURANCE</p>
-        <strong>NO STORY<br>NEED BE LOST.</strong>
-        <div class="certificate-rule"></div>
-        <p class="certificate-small">PRESERVATION IS A PROMISE.<br>IDENTITY REMAINS UNDER REVIEW.</p>
-        <span class="certificate-stamp">PRELIMINARY<br>RECORD</span>
-      </aside>
-      <div class="hero-foot"><span>CONTINUITY ARCHIVE / PUBLIC LAYER</span><span>SCROLL TO CONTINUE ↓</span></div>
-    </section>
-
-    <section class="section origin-section" id="origin" aria-labelledby="origin-title">
-      <div class="section-heading">
-        <p class="eyebrow">INTAKE / STEP 01</p>
-        <h2 id="origin-title">Identify your <em>point of origin.</em></h2>
-        <p>This choice changes the voice of your entry, not your permissions. You can explore every part of the archive without selecting a path.</p>
-      </div>
-      <div class="lifepaths" role="group" aria-label="Choose a narrative entry path">
-        <button class="lifepath" type="button" data-path="community" aria-pressed="false">
-          <span class="path-number">01 / THE COMMUNITY</span><span class="path-glyph" aria-hidden="true">↗</span>
-          <strong>The city remembers.</strong>
-          <span class="path-description">You trust the stories people carry, the music in a doorway, and the truth hidden in plain sight.</span>
-          <span class="path-action">FOLLOW COMMUNITY SIGNALS <b aria-hidden="true">↘</b></span>
-        </button>
-        <button class="lifepath" type="button" data-path="institution" aria-pressed="false">
-          <span class="path-number">02 / THE INSTITUTION</span><span class="path-glyph" aria-hidden="true">⌘</span>
-          <strong>Read the record.</strong>
-          <span class="path-description">You want evidence, process, provenance, and the detail the official summary leaves out.</span>
-          <span class="path-action">OPEN THE INSTITUTIONAL RECORDS <b aria-hidden="true">↘</b></span>
-        </button>
-        <button class="lifepath" type="button" data-path="wanderer" aria-pressed="false">
-          <span class="path-number">03 / THE WANDERER</span><span class="path-glyph" aria-hidden="true">✳</span>
-          <strong>Keep your own name.</strong>
-          <span class="path-description">You stand beyond the gates. You value distance, freedom, and the right to leave no trace.</span>
-          <span class="path-action">ENTER THE OPEN HORIZON <b aria-hidden="true">↘</b></span>
-        </button>
-      </div>
-      <div class="path-response" id="path-response" aria-live="polite" hidden>
-        <span class="response-label">ENTRY PATH SELECTED</span>
-        <p id="path-message"></p>
-        <a class="text-link" id="path-continue" href="#protocol">CONTINUE TO THE PROTOCOL ↘</a>
-        <button class="reset-path" id="reset-path" type="button">CLEAR SELECTION</button>
-      </div>
-      <p class="fine-print">These are three reading perspectives, not separate accounts or access levels. Your choice only changes where the story points next. No account, submission, or personal data is involved.</p>
-    </section>
-
-    <section class="section protocol-section" id="protocol" aria-labelledby="protocol-title">
-      <div class="section-index"><span>02</span><span>THE OFFICIAL ACCOUNT</span></div>
-      <div class="split-layout">
-        <div><p class="eyebrow">THE PROTOCOL / PUBLIC SUMMARY</p><h2 id="protocol-title">Continuity, <em>by design.</em></h2></div>
-        <div class="prose">
-          <p class="lead">The Continuity Program investigates whether memory, behavior, and individual patterns can continue beyond biological life.</p>
-          <p>Within this fictional account, a process creates a digital construct from recorded memories and behavioral patterns. The construct is held within a vast archive, where records can be indexed, reviewed, and retained.</p>
-          <p>The institution calls this continuity. Its documentation does not settle whether the result is a continuation, a copy, a captive witness—or something for which the available language is insufficient.</p>
-          <div class="protocol-stages">
-            <div><span>01</span><strong>CAPTURE</strong><small>A record is made.</small></div>
-            <div><span>02</span><strong>CONSTRUCT</strong><small>A pattern is instantiated.</small></div>
-            <div><span>03</span><strong>RETAIN</strong><small>A presence is kept.</small></div>
-          </div>
-          <p class="caution"><span aria-hidden="true">△</span> These are fictional story elements, not a real service or scientific claim.</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="section archive-section" id="archive" aria-labelledby="archive-title">
-      <div class="section-index"><span>03</span><span>THE CONTINUITY ARCHIVE / PARTIAL ACCESS</span></div>
-      <div class="section-heading">
-        <p class="eyebrow">THE ARCHIVE / RECOVERED MATERIAL</p>
-        <h2 id="archive-title">Every record leaves <em>something out.</em></h2>
-        <p>Fragments recovered from the official account. Their provenance is incomplete. Their meaning is disputed.</p>
-      </div>
-      <div class="case-grid">
-        <article class="case-file case-featured">
-          <div class="case-meta"><span>SHARD / 0001</span><span class="case-state">PARTIAL</span></div>
-          <p class="case-category">CONSTRUCT OBSERVATION</p>
-          <h3>The first question</h3>
-          <blockquote>“If I remember being afraid to die, and I am still afraid now, what exactly survived?”</blockquote>
-          <p class="case-foot">SOURCE: UNVERIFIED CONSTRUCT TRANSCRIPT / TIMESTAMP CORRUPTED</p>
-        </article>
-        <article class="case-file">
-          <div class="case-meta"><span>SHARD / 0017</span><span class="case-state state-red">DISPUTED</span></div>
-          <p class="case-category">WITNESS STATEMENT</p>
-          <h3>The missing minute</h3>
-          <p>Three copies describe the same room. Two remember the door. One insists there was never a door at all.</p>
-          <p class="case-foot">SOURCE: ARCHIVE CROSS-REFERENCE / ACCESS RESTRICTED</p>
-        </article>
-        <article class="case-file">
-          <div class="case-meta"><span>SHARD / 0042</span><span class="case-state">UNCLASSIFIED</span></div>
-          <p class="case-category">ANOMALY REPORT</p>
-          <h3>A garden in the machine</h3>
-          <p>A recurring image appears in unrelated records: a small plant growing through a crack in a concrete floor. No source image has been located.</p>
-          <p class="case-foot">SOURCE: AUTOMATED INDEX / HUMAN REVIEW PENDING</p>
-        </article>
-      </div>
-      <a class="text-link" href="#unknown">FOLLOW THE UNCLASSIFIED RECORDS ↘</a>
-    </section>
-
-    <section class="section arcana-section" id="symbolic-index" aria-labelledby="symbolic-index-title">
-      <div class="section-index"><span>04</span><span>THE SYMBOLIC INDEX</span></div>
-      <div class="arcana-layout">
-        <div><p class="eyebrow">A MAP OF TRANSFORMATION</p><h2 id="symbolic-index-title">No system can <em>choose for you.</em></h2><p class="muted">The Arcana is a symbolic index, not a prediction engine. Each card names a threshold the archive cannot cross on your behalf.</p></div>
-        <div class="arcana-list">
-          <article><span class="arcana-symbol">I</span><div><strong>THE MAGICIAN</strong><p>The power to make a copy—and the responsibility that follows.</p></div><span class="arcana-word">BEGINNING</span></article>
-          <article><span class="arcana-symbol">XVI</span><div><strong>THE TOWER</strong><p>When the structure survives, but the promise collapses.</p></div><span class="arcana-word">COLLAPSE</span></article>
-          <article><span class="arcana-symbol">XVII</span><div><strong>THE STAR</strong><p>A light beyond the city's reach. Hope without a guarantee.</p></div><span class="arcana-word">HOPE</span></article>
-          <article><span class="arcana-symbol">XXI</span><div><strong>THE WORLD</strong><p>Completion may be another name for a closed door.</p></div><span class="arcana-word">RELEASE</span></article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section unknown-section" id="unknown" aria-labelledby="unknown-title">
-      <div class="section-index"><span>05</span><span>THE THRESHOLD / EDGE OF RECORD</span></div>
-      <div class="unknown-card">
-        <div class="unknown-top"><span>UNCLASSIFIED PHENOMENA</span><span class="redacted-label">REVIEW INCOMPLETE</span></div>
-        <p class="eyebrow">THE UNKNOWN</p>
-        <h2 id="unknown-title">Not everything that answers<br>is <em>someone you know.</em></h2>
-        <p>Some archive gaps are ordinary: corruption, missing keys, human error. Others repeat too precisely to dismiss and too inconsistently to prove.</p>
-        <div class="signal-log"><span>LOG 07:13:04</span><p>External signature detected. Origin: unresolved.</p><span>LOG 07:13:05</span><p>Access record amended. No operator identified.</p><span>LOG 07:13:06</span><p class="log-warning">The file was already open.</p></div>
-        <p class="case-foot">INTERPRETATION WITHHELD / NO VERIFIED CONCLUSION</p>
-      </div>
-    </section>
-
-    <section class="section signals-section" id="signals" aria-labelledby="signals-title">
-      <div class="section-index"><span>06</span><span>THE HUMAN COUNTER-ARCHIVE</span></div>
-      <div class="split-layout">
-        <div><p class="eyebrow">THE GARDEN / SIGNALS</p><h2 id="signals-title">What the machine <em>cannot keep.</em></h2></div>
-        <div class="prose">
-          <p class="lead">A Signal is a fragment of human expression: a memory, an image, a question, a song, a theory, a small act of care.</p>
-          <p>The official archive wants records to remain stable. Human meaning changes each time it is shared. This counter-archive begins with that difference.</p>
-          <div class="signal-example"><span class="signal-icon" aria-hidden="true">✳</span><div><p class="signal-type">RECOVERED SHARD / FICTIONAL</p><blockquote>“Someone left a flower beside the memorial. The cameras recorded the flower. They did not record who stopped to water it.”</blockquote><small>ATTRIBUTION UNKNOWN / ORIGINAL STORY FRAGMENT</small></div></div>
-          <div class="notice"><strong>PUBLIC SIGNAL INTAKE IS NOT YET CONNECTED.</strong><p>This first release does not accept or store visitor submissions. No information is sent when you explore this page. The submission workflow will open only after consent, moderation, privacy, and removal controls are implemented.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section circle-section" id="circle" aria-labelledby="circle-title">
-      <div class="section-index"><span>07</span><span>THE CIRCLE / PEOPLE OUTSIDE THE SYSTEM</span></div>
-      <div class="circle-panel">
-        <p class="eyebrow">FOUND FAMILY / UNINDEXED</p>
-        <h2 id="circle-title">Some things survive<br>because <em>someone cares.</em></h2>
-        <p>A memory can be copied. A record can be indexed. But trust is made between people, in time, through choices no archive can make for them.</p>
-        <div class="circle-foot"><span>COMMUNITY INVITATION</span><span>NOT CONFIGURED — NO PLACEHOLDER LINK</span></div>
-      </div>
-    </section>
-
-    <section class="section workshop-section" id="workshop" aria-labelledby="workshop-title">
-      <div class="section-index"><span>08</span><span>THE WORKSHOP / OUTSIDE THE FICTION</span></div>
-      <div class="workshop-layout">
-        <div><p class="eyebrow">REAL PROJECT / OPEN SOURCE</p><h2 id="workshop-title">The story is fictional.<br><em>The work is real.</em></h2></div>
-        <div><p>This website is built in public. The repository contains the actual code, product decisions, accessibility work, and security checks behind the experience.</p><a class="button button-outline" href="https://github.com/iYakuza/landing-page" target="_blank" rel="noopener noreferrer">OPEN THE GITHUB WORKSHOP <span aria-hidden="true">↗</span></a><p class="external-note">Opens an external website. No account is needed to read the project.</p></div>
-      </div>
-    </section>
-
-    <section class="section release-section" id="release" aria-labelledby="release-title">
-      <div class="release-mark" aria-hidden="true">✳</div>
-      <p class="eyebrow">FINAL RECORD / NO FINAL ANSWER</p>
-      <h2 id="release-title">If the copy remembers you,<br>who gets to <em>let it go?</em></h2>
-      <p>Preservation is not the same as freedom. A record can outlive its source without becoming that source. The question remains open.</p>
-      <a class="text-link" href="#top">RETURN TO THE ENTRANCE ↑</a>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <a class="wordmark" href="#top"><span class="seal small-seal" aria-hidden="true">魂</span><span><strong>SECURE YOUR SOUL</strong><small>FICTIONAL EXPERIENCE / HUMAN QUESTIONS</small></span></a>
-    <p>This is an original fictional experience. It does not provide personality preservation, consciousness transfer, or any real-world continuity service.</p>
-    <a href="https://github.com/iYakuza/landing-page" target="_blank" rel="noopener noreferrer">SOURCE / GITHUB ↗</a>
-  </footer>
-  <script src="/landing-page/game-ui.js?v=20261102-game-ui-1" defer></script>
-</body>
-</html>
+<a class="skip" href="#main">SKIP TO COMMAND CENTRE</a>
+<div class="shell">
+<div class="systemline"><div class="sysleft"><span class="pulse"></span><span>NETWORK <strong>ONLINE</strong></span><span>/</span><span>SECTOR 07 · GRID 42A</span></div><div class="sysright"><span>WORLD LINK <strong>ACTIVE</strong></span><span>SYNC <strong>84%</strong></span><span>BUILD 01.06</span></div></div>
+<header class="mast"><a class="brand" href="/landing-page/" aria-label="Return to EGO home"><span class="brand-mark">魂</span><span><strong>SECURE YOUR SOUL</strong><small>GREEN DREAM / VERSE AFTER HOURS</small></span></a><nav class="tabs" aria-label="Realm navigation"><a href="/landing-page/green-dream/">GREEN DREAM</a><a href="/landing-page/posts/">TRANSMISSIONS</a><a href="/landing-page/human-archive/">HUMAN ARCHIVE</a><a href="/landing-page/music.html">LISTENING ROOM</a><a href="/landing-page/community/">COMMUNITY</a></nav><span class="mast-state">● NODE STABLE</span></header>
+<main id="main">
+<section class="intro"><div><p class="eyebrow">PERSONAL NODE / EGO COMMAND CENTRE</p><h1>Your current state.<br><em>Your next actions.</em></h1></div><p class="intro-copy">One interface. Every realm. Navigate the Green Dream, follow recovered transmissions, revisit the human archive, or enter the listening room. This is the control point for the experience.</p></section>
+<section class="dashboard" aria-label="EGO command centre">
+<div class="panel"><div class="panel-head"><span>01 / PERSONAL NODE</span><strong>NODE STATUS: STABLE</strong></div><div class="node-main"><div class="node-scene"><div class="scene-grid"></div><div class="scene-orbit"></div><div class="scene-copy"><span class="tag">EGO // 001 · PERSONAL NODE</span><h2>Welcome to<br><em>your realm.</em></h2><p>A living record of memory, expression and becoming. Your starting point for the worlds connected to Green Dream.</p><div class="scene-actions"><button class="action" type="button" data-open-map>OPEN REALM MAP ↗</button><a class="action secondary" href="/landing-page/human-archive/">MEMORY VAULT ↗</a></div></div></div><aside class="node-metrics" aria-label="Node indicators"><div class="metric"><label>Realm alignment</label><strong>Stable</strong><small>WORLD LINK ACTIVE</small></div><div class="metric"><label>Bond stability</label><strong>92%</strong><small>CONNECTION FIELD</small></div><div class="metric"><label>Dream recall</label><strong>Active</strong><small>MEMORY CHANNEL</small></div><div class="metric"><label>Emotional state</label><strong>Steady</strong><small>PERSONAL NODE</small></div></aside></div><div class="statusbar"><div class="statuscell"><span>Soul integrity</span><b>92%</b></div><div class="statuscell"><span>Energy reserve</span><b>64%</b></div><div class="statuscell"><span>Mental clarity</span><b>88%</b></div><div class="statuscell"><span>Awareness level</span><b>78%</b></div></div></div>
+<div class="side-stack"><section class="panel realm-map"><div class="panel-head"><span>02 / REALM MAP</span><strong>SCAN COMPLETE</strong></div><div class="map-visual" role="img" aria-label="Stylized realm map showing Dreamroot Sanctum, Veilwood Grove and Silent Shores"><svg viewBox="0 0 400 190" preserveAspectRatio="none" aria-hidden="true"><path d="M0 145 70 118 130 139 195 78 255 99 315 42 400 66M0 55 70 82 130 45 195 78 255 25 315 42 400 15M40 0 70 82 60 190M130 0 130 45 195 78 190 190M255 0 255 25 255 99 300 190M315 0 315 42 350 190" fill="none" stroke="#9cba7750" stroke-width="1"/><path d="M70 82 130 139 195 78 255 99 315 42" fill="none" stroke="#b9d77a" stroke-width="1.4" stroke-dasharray="4 5"/></svg><span class="map-point current" style="left:49%;top:42%"><i></i>DREAMROOT</span><span class="map-point" style="left:20%;top:43%"><i></i>VEILWOOD</span><span class="map-point" style="left:78%;top:72%"><i></i>SILENT SHORES</span></div><div class="map-caption"><span>YOUR CURRENT COORDINATES</span><span>SECTOR 7 · GRID 42A</span></div></section><section class="panel mission"><div class="panel-head"><span>03 / ACTIVE OBJECTIVE</span><strong>18 / 25</strong></div><h3>Protect the Dreamroot.</h3><p>Stabilize the sanctuary and secure the core. Explore the surrounding regions and recover the fragments that explain its origin.</p><div class="progress" aria-label="Exploration progress 72 percent"><span></span></div><div class="mission-foot"><span>EXPLORATION PROGRESS</span><span>72%</span></div></section></div>
+</section>
+<section class="module-grid" aria-label="Connected realms and systems">
+<a class="panel module" href="/landing-page/green-dream/"><span class="module-index">04 / EXPLORATION SANCTUARY</span><h3>Green Dream</h3><p>Roam a living world. Discover hidden places, build your connection and protect what’s real.</p><div class="module-strip"><div class="mini"><b>6 / 8</b><span>Regions discovered</span></div><div class="mini"><b>18</b><span>Lore fragments</span></div><div class="mini"><b>72%</b><span>Exploration</span></div><div class="mini"><b>STABLE</b><span>World status</span></div></div><div class="module-foot"><span>ENTER THE SANCTUARY ↗</span><span>OPEN WORLD</span></div></a>
+<a class="panel module" href="/landing-page/posts/"><span class="module-index">05 / MISSION ARCHIVE</span><h3>Transmissions</h3><p>Recovered transmissions. Documented operations. Follow the five movements and trace each signal's place in the story.</p><div class="module-strip"><div class="mini"><b>01</b><span>The Awakening</span></div><div class="mini"><b>02</b><span>The Descent</span></div><div class="mini"><b>03</b><span>Reconnection</span></div><div class="mini"><b>05</b><span>The Return</span></div></div><div class="module-foot"><span>OPEN TRANSMISSIONS ↗</span><span>RECOVERED SIGNALS</span></div></a>
+<a class="panel module" href="/landing-page/human-archive/"><span class="module-index">06 / MEMORY VAULT</span><h3>Human Archive</h3><p>An archive of human experience: poems, fragments, reflections and ideas. Records remain in their original context.</p><div class="module-strip"><div class="mini"><b>140</b><span>Published records</span></div><div class="mini"><b>2016–26</b><span>Time span</span></div><div class="mini"><b>RO / EN</b><span>Languages</span></div><div class="mini"><b>OPEN</b><span>Access state</span></div></div><div class="module-foot"><span>ACCESS MEMORY VAULT ↗</span><span>PERSONAL RECORDS</span></div></a>
+<a class="panel module" href="/landing-page/music.html"><span class="module-index">07 / AUDIO CONSOLE</span><h3>Listening Room</h3><p>A focused audio space for curated sessions, soundscapes and the Green Dream / Verse After Hours stations.</p><div class="module-strip"><div class="mini"><b>GREEN DREAM</b><span>Station</span></div><div class="mini"><b>VERSE AFTER HOURS</b><span>Station</span></div><div class="mini"><b>PLAYLIST</b><span>Curated audio</span></div><div class="mini"><b>READY</b><span>Console</span></div></div><div class="module-foot"><span>OPEN LISTENING ROOM ↗</span><span>AUDIO CHANNEL</span></div></a>
+<a class="panel module" href="/landing-page/community/"><span class="module-index">08 / COMMUNITY HUB</span><h3>The Circle</h3><p>Connect with sound explorers, visual artists, musicians and curious minds. A shared space for signals and collaboration.</p><div class="module-strip"><div class="mini"><b>COMMUNITY</b><span>Hub</span></div><div class="mini"><b>SIGNALS</b><span>Shared fragments</span></div><div class="mini"><b>CREATORS</b><span>Workshop</span></div><div class="mini"><b>OPEN</b><span>Public space</span></div></div><div class="module-foot"><span>ENTER THE CIRCLE ↗</span><span>COMMUNITY CHANNEL</span></div></a>
+<a class="panel module" href="/landing-page/cms/"><span class="module-index">09 / CREATOR WORKSHOP</span><h3>Build beyond the map.</h3><p>Open the creator terminal to work on environments, assets and systems. Private tools remain behind their existing authentication.</p><div class="module-strip"><div class="mini"><b>PROJECT</b><span>Dream Haven</span></div><div class="mini"><b>MODULES</b><span>Biome Core</span></div><div class="mini"><b>ACCESS</b><span>Private</span></div><div class="mini"><b>SECURE</b><span>Terminal</span></div></div><div class="module-foot"><span>OPEN CREATOR WORKSHOP ↗</span><span>PRIVATE ACCESS</span></div></a>
+</section>
+<div class="disclaimer"><span>INTERFACE STATUS VALUES ARE MOCK-UP PRESENTATION DATA</span><span>NO HEALTH, BIOLOGICAL OR CONSCIOUSNESS MEASUREMENTS ARE TAKEN</span></div>
+</main>
+<footer class="footer"><span>SECURE YOUR SOUL / GAME INTERFACE SYSTEM</span><a href="https://github.com/iYakuza/landing-page" target="_blank" rel="noopener noreferrer">SOURCE / GITHUB ↗</a><span>GREEN DREAM · VERSE AFTER HOURS</span></footer>
+</div>
+</body></html>
