@@ -90,6 +90,45 @@
     link.setAttribute("aria-label",name+" — "+descriptor);link.title=name;
     link.innerHTML=key==="ego"?'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M4 18 20 5l16 13M9 16v18h22V16M16 34V23h8v11"/></svg><span class="vha-star-tooltip" role="tooltip">'+name+'</span>':'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 1 24.8 14.2 39 15.2 28 24.1 31.5 38 20 30.4 8.5 38 12 24.1 1 15.2 15.2 14.2Z"/></svg><span class="vha-star-tooltip" role="tooltip">'+name+'</span>';
     destinationList.appendChild(link);
+
+    // Each ghost label breathes in, lingers briefly, then fades away.
+    const tooltip=link.querySelector(".vha-star-tooltip");
+    if(tooltip){
+      tooltip.setAttribute("aria-label",name+" tooltip — drag to reposition");
+      let holdUntil=0,draggingTip=false,movedTip=false,tipX=0,tipY=0,baseX=0,baseY=0;
+      const reveal=()=>{holdUntil=Date.now()+3000;tooltip.classList.add("is-hovered")};
+      link.addEventListener("pointerenter",reveal);
+      link.addEventListener("focusin",reveal);
+      link.addEventListener("pointerdown",event=>{
+        if(event.target!==tooltip)return;
+        event.preventDefault();event.stopPropagation();
+        draggingTip=true;movedTip=false;tipX=event.clientX;tipY=event.clientY;
+        const rect=tooltip.getBoundingClientRect();baseX=rect.left;baseY=rect.top;
+        tooltip.setPointerCapture(event.pointerId);
+        tooltip.classList.add("is-dragging","is-manual");
+      });
+      tooltip.addEventListener("pointermove",event=>{
+        if(!draggingTip)return;
+        const dx=event.clientX-tipX,dy=event.clientY-tipY;
+        if(Math.abs(dx)+Math.abs(dy)>2)movedTip=true;
+        if(!movedTip)return;
+        const parent=link.getBoundingClientRect();
+        tooltip.style.left=(baseX+dx-parent.left)+"px";
+        tooltip.style.top=(baseY+dy-parent.top)+"px";
+        tooltip.style.transform="none";
+      });
+      const endTipDrag=event=>{
+        if(!draggingTip)return;
+        draggingTip=false;tooltip.classList.remove("is-dragging");
+        if(movedTip){event.preventDefault();event.stopPropagation()}
+        holdUntil=Date.now()+3000;
+      };
+      tooltip.addEventListener("pointerup",endTipDrag);
+      tooltip.addEventListener("pointercancel",endTipDrag);
+      tooltip.addEventListener("click",event=>{event.preventDefault();event.stopPropagation()});
+      // A manual drag remains where the viewer placed it; the pulse continues.
+      tooltip.addEventListener("animationend",()=>{if(Date.now()<holdUntil)tooltip.classList.add("is-hovered")});
+    }
   });
 
   function setConstellationVisible(visible){
