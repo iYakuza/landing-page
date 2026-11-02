@@ -250,12 +250,17 @@
       const isExpanded=permalink;
       const isSuno=/class=["']suno-post-layout["']/.test(post.content_html||'');
       const sectionsControl=(isSuno||/<details\\b/i.test(post.content_html||''))?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
-      const lead='<div class="post-card-top"><button type="button" class="post-date-toggle" data-post-toggle="'+safe(post.slug)+'" aria-expanded="'+(isExpanded?'true':'false')+'" aria-controls="post-content-'+safe(post.slug)+'"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-disclosure-mark" aria-hidden="true">'+(isExpanded?'−':'+')+'</span></button>'+categoryLink+sectionsControl+editButton+shareActions(post)+'</div>';
+      const recordDate=new Date(post.published_at||post.created_at);
+      const recordYear=Number.isNaN(recordDate.getTime())?'UNDATED':String(recordDate.getFullYear());
+      const recordMonth=Number.isNaN(recordDate.getTime())?'--':String(recordDate.getMonth()+1).padStart(2,'0');
+      const recordDay=Number.isNaN(recordDate.getTime())?'--':String(recordDate.getDate()).padStart(2,'0');
+      const recordCode='VHA-'+recordYear+'-'+recordMonth+recordDay+'-'+String(index+1).padStart(2,'0');
+      const lead='<div class="post-card-top"><span class="post-record-code">'+recordCode+'</span><button type="button" class="post-date-toggle" data-post-toggle="'+safe(post.slug)+'" aria-expanded="'+(isExpanded?'true':'false')+'" aria-controls="post-content-'+safe(post.slug)+'"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-disclosure-mark" aria-hidden="true">'+(isExpanded?'−':'+')+'</span></button>'+categoryLink+sectionsControl+editButton+shareActions(post)+'</div><div class="post-card-identity"><h3>'+safe(post.title)+'</h3>'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+'</div>';
       const expandedBody=isSuno
-        ? renderSunoGrid(post,media,'<h3>'+safe(post.title)+'</h3>',post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')
-        : '<h3>'+safe(post.title)+'</h3>'+media+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body;
+        ? renderSunoGrid(post,media,'','')
+        : media+body;
       const expandedContent='<div class="post-collapsible'+(isSuno?' suno-three-column':'')+'" id="post-content-'+safe(post.slug)+'"'+(isExpanded?'':' hidden')+'>'+expandedBody+'</div>';
-      return '<article class="post-card '+shapeClass+' post-archive-composition'+(isSuno?' suno-three-column':'')+'" id="post-'+safe(post.slug)+'">'+lead+expandedContent+'</article>';
+      return '<article class="post-card '+shapeClass+' post-archive-composition'+(isSuno?' suno-three-column':'')+'" id="post-'+safe(post.slug)+'" data-record="'+recordCode+'">'+lead+expandedContent+'</article>';
     }).join('');
     if(permalink){
       document.title=filtered[0].title+' // VERSE AFTER HOURS';
