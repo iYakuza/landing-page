@@ -16,14 +16,6 @@
     ["/cms", "CREATOR WORKSHOP", "PRIVATE ACCESS"]
   ];
   const current = pageMap.find(([prefix]) => path.startsWith(prefix)) || ["", "EGO", "PERSONAL NODE"];
-  const status = document.createElement("div");
-  status.className = "vha-game-status";
-  status.setAttribute("role", "region");
-  status.setAttribute("aria-label", "World navigation and system status");
-  const left = document.createElement("div");
-  left.className = "status-left";
-  left.innerHTML = '<span class="status-dot" aria-hidden="true"></span><span>NETWORK <b class="status-accent">ONLINE</b></span><span aria-hidden="true">/</span><span></span>';
-  left.lastElementChild.textContent = current[1];
   const routes = [
     ["✳","GREEN DREAM","/landing-page/green-dream/"],
     ["⌁","TRANSMISSIONS","/landing-page/posts/"],
@@ -33,12 +25,9 @@
     ["◈","CV","/landing-page/cv/"],
     ["魂","SECURE YOUR SOUL","/landing-page/secure-your-soul/"]
   ];
-  // Remove page-specific global navigation so every destination uses the same shared bar.
-  document.querySelectorAll("header .vha-main-nav, header .ha-links, header .tabs, header .vha-community-button").forEach(el=>el.remove());
+  // Remove the page-level header entirely. The shared bottom navigation remains the sole global navigation.
+  document.querySelectorAll("body header, .masthead, .mast, .ha-nav, .gd-nav, .toplinks, .vha-main-nav").forEach(el=>el.remove());
   document.querySelectorAll(".ego-bottom-hud").forEach(el=>el.remove());
-  const header=document.querySelector("header,.masthead,.ha-nav");
-  if(header&&header.parentNode)header.parentNode.insertBefore(status,header);
-  else document.body.insertBefore(status,document.body.firstChild);
 
   const bottom=document.createElement("div");
   bottom.className="ego-bottom-hud vha-universal-nav";
