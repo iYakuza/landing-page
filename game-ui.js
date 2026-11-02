@@ -59,7 +59,26 @@
 
   const map=document.createElement("div");
   map.className="vha-world-map";map.id="vha-world-map";map.hidden=true;
-  map.innerHTML='<div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path d="M500 70 150 170 360 260 820 160 650 330 180 440 500 540 850 450 500 70M150 170 180 440 820 160 850 450M360 260 650 330 500 540"/></svg><div class="vha-map-destinations"></div></div><div class="vha-journey-note" hidden><span>YOUR FIRST STEP</span><strong>Begin with the Human Archive.</strong><p>Enter the living record — the words, memories and questions behind this place.</p><a href="/landing-page/human-archive/">ENTER THE HUMAN ARCHIVE ↗</a></div>';
+  const journeySteps = [
+    ["/landing-page","HUMAN ARCHIVE","Begin with the traces that came before this place.","/landing-page/human-archive/"],
+    ["/landing-page/human-archive","GREEN DREAM","Leave the memorial and return to the living world.","/landing-page/green-dream/"],
+    ["/landing-page/green-dream","TRANSMISSIONS","Follow the signals left along the way.","/landing-page/posts/"],
+    ["/landing-page/posts","THE AWAKENING","Enter the first movement of the journey.","/landing-page/posts/the-awakening/"],
+    ["/landing-page/posts/the-awakening","THE DESCENT","Continue into the second movement.","/landing-page/posts/the-descent/"],
+    ["/landing-page/posts/the-descent","THE RECONNECTION","Find the thread that leads back.","/landing-page/posts/the-reconnection/"],
+    ["/landing-page/posts/the-reconnection","THE TRANSFORMATION","Move into what comes after reconnection.","/landing-page/posts/the-transformation/"],
+    ["/landing-page/posts/the-transformation","THE RETURN","Follow the final movement home.","/landing-page/posts/the-return/"],
+    ["/landing-page/posts/the-return","THE CIRCLE","The journey opens outward. Find the others.","/landing-page/community/"],
+    ["/landing-page/community","SECURE YOUR SOUL","Enter the restricted layer beneath the surface.","/landing-page/secure-your-soul/"],
+    ["/landing-page/secure-your-soul","PERSONNEL FILE","Return to the human behind the interface.","/landing-page/cv/"],
+    ["/landing-page/cv","V/A RADIO","Stay a while. Let the signal play.","/landing-page/music.html"],
+    ["/landing-page/music","THE SURFACE","Return to the point where the journey began.","/landing-page/"]
+  ];
+  const nextJourney = journeySteps.find(([route]) => path === route);
+  const journeyMarkup = nextJourney
+    ? '<div class="vha-journey-note" hidden><span>NEXT PART OF THE JOURNEY</span><strong>' + nextJourney[1] + '</strong><p>' + nextJourney[2] + '</p><a href="' + nextJourney[3] + '">CONTINUE THE JOURNEY ↗</a></div>'
+    : '<div class="vha-journey-note" hidden><span>THE JOURNEY CONTINUES</span><strong>Choose the next trace.</strong><p>Follow a point in the constellation to continue exploring.</p></div>';
+  map.innerHTML='<div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path d="M500 70 150 170 360 260 820 160 650 330 180 440 500 540 850 450 500 70M150 170 180 440 820 160 850 450M360 260 650 330 500 540"/></svg><div class="vha-map-destinations"></div></div>' + journeyMarkup;
   document.body.appendChild(map);
   const destinationList=map.querySelector(".vha-map-destinations");
   const starPositions=[[50,13],[17,29],[37,43],[81,26],[65,55],[18,72],[50,86],[86,72],[32,17],[69,16],[91,46],[8,49],[50,58],[78,85]];
