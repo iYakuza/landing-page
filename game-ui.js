@@ -4,7 +4,7 @@
   document.documentElement.dataset.gameUiReady = "true";
   document.body.classList.add("vha-game-interface");
 
-  const path = location.pathname.replace(/\\/+$/, "") || "/";
+  const path = location.pathname.replace(/\/+$/, "") || "/";
   const pageMap = [
     ["/secure-your-soul", "CONTINUITY INSTITUTE", "RESTRICTED PROGRAM"],
     ["/human-archive", "HUMAN ARCHIVE", "PERSONAL RECORDS"],
@@ -36,7 +36,7 @@
   ];
   routes.forEach(([label,href]) => {
     const a=document.createElement("a");a.href=href;a.textContent=label;
-    const target=new URL(href,location.href).pathname.replace(/\\/+$/,"")||"/";
+    const target=new URL(href,location.href).pathname.replace(/\/+$/,"")||"/";
     if(target===path){a.setAttribute("aria-current","page");a.classList.add("is-current")}
     links.appendChild(a);
   });
@@ -63,7 +63,7 @@
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!map.hidden)closeMap()});
 
   document.querySelectorAll("nav a[href]").forEach(link=>{
-    try{const target=new URL(link.href,location.href);if(target.origin===location.origin&&(target.pathname.replace(/\\/+$/,"")||"/")===path){link.classList.add("active");link.setAttribute("aria-current","page")}}catch{}
+    try{const target=new URL(link.href,location.href);if(target.origin===location.origin&&(target.pathname.replace(/\/+$/,"")||"/")===path){link.classList.add("active");link.setAttribute("aria-current","page")}}catch{}
   });
   const main=document.querySelector("main,#main,.posts-main,.song-main,.cv-shell,.ha-main,.sy-main");
   if(main&&!main.querySelector(":scope > .game-page-tag")){
