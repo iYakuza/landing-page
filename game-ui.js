@@ -158,6 +158,7 @@
       if(event.target.closest("a,button"))return;
       dragging=true;moved=false;startX=event.clientX;startY=event.clientY;
       const rect=journeyNote.getBoundingClientRect();originX=rect.left;originY=rect.top;
+      journeyNote.style.left=originX+"px";journeyNote.style.top=originY+"px";journeyNote.style.transform="none";
       journeyNote.setPointerCapture(event.pointerId);
       journeyNote.classList.add("is-dragging");
     });
