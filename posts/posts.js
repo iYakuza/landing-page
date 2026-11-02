@@ -90,7 +90,6 @@
     postUrl.searchParams.set('post',post.slug);
     const url=postUrl.href, encodedUrl=encodeURIComponent(url), encodedTitle=encodeURIComponent(post.title||'Verse After Hours');
     return '<div class="post-share" aria-label="Share this post">'+
-      '<span class="post-share-label">SHARE</span>'+
       '<button type="button" class="post-share-action" data-share-url="'+safe(url)+'" data-share-title="'+safe(post.title||'Verse After Hours')+'">↗ SHARE</button>'+
       '<button type="button" class="post-share-action" data-copy-share="'+safe(url)+'">COPY LINK</button>'+
       '<a class="post-share-action" href="https://www.facebook.com/sharer/sharer.php?u='+encodedUrl+'" target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook">FACEBOOK</a>'+
