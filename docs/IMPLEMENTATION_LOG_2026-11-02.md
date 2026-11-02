@@ -100,3 +100,27 @@ This is not installed website functionality and is not treated as an implemented
 - The preceding EGO dashboard baseline (`9afdcdf`) has completed successfully across static-site safety, static security posture, secret scanning, CodeQL and Pages deployment.
 - This archive iteration has just been committed; its own Actions and Pages deployment must be checked before calling it verified.
 - Live visual/browser interaction checks remain outstanding; repository code inspection alone does not establish cross-device appearance.
+
+
+## Listening Room — functional playlist console (2026-11-02)
+
+### GUI decomposition implemented
+- Channel header with room identity, playback state and concise listening guidance.
+- Embedded playlist display framed as a quiet audio console rather than a promotional player card.
+- Privacy-enhanced YouTube embed using the existing Green Dream playlist ID already used by the site's radio implementation.
+- Explicit user-initiated playback; no autoplay parameter.
+- Small source/status footer and listening note explaining the external player.
+- Existing Suno original-track panel and all existing destinations remain below the new console.
+
+### Security and maintenance
+- Added only the exact `youtube-nocookie.com` frame source required by the new embed to this page's CSP.
+- Removed a duplicate analytics.js include found during inspection; the page now loads the analytics script once.
+- Did not alter the Green Dream draggable radio, playlist source, Supabase, or existing radio geometry behavior.
+
+### Commits
+- Listening Room console: `fe9456394ca9968e19422a1a9911792a33771dff`
+- Duplicate analytics include removal: `56109f72c73ce0619b66234e6d7a1ce23c44632c`
+
+### Verification
+- This iteration's static safety, security, secret scanning, CodeQL and Pages deployment checks are triggered by the commits and remain to be confirmed.
+- Embedded playlist playback requires a browser test; repository inspection confirms the playlist ID matches the existing Green Dream radio configuration.
