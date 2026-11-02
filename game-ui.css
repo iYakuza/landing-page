@@ -478,3 +478,38 @@ body .ego-bottom-hud.vha-universal-nav{position:fixed!important;left:50%!importa
 body .ego-bottom-hud.vha-universal-nav::before,body .ego-bottom-hud.vha-universal-nav::after{content:none!important;display:none!important}
 body .ego-bottom-hud.vha-universal-nav>.vha-map-toggle{display:grid!important;place-items:center!important;flex:none!important;width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;pointer-events:auto!important}
 body .ego-bottom-hud.vha-universal-nav>.vha-map-toggle svg{width:48px!important;height:48px!important}
+
+
+/* Guided first entry: the world waits behind the crystal. */
+body.vha-entry-intro{overflow:hidden!important;min-height:100vh}
+body.vha-entry-intro> :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt){filter:blur(8px) brightness(.38)!important;pointer-events:none!important;user-select:none!important}
+body.vha-entry-intro:after{content:"";position:fixed;inset:0;z-index:2147483005;background:rgba(2,8,4,.38);pointer-events:none}
+#vha-entry-prompt{position:fixed;z-index:2147483007;left:50%;top:calc(50% + 66px);width:min(420px,calc(100vw - 36px));transform:translateX(-50%);text-align:center;pointer-events:none;color:#e8f4df;text-shadow:0 2px 12px #000}
+#vha-entry-prompt span,.vha-journey-note>span{display:block;margin-bottom:9px;color:#b9d77a;font:8px/1.4 ui-monospace,monospace;letter-spacing:.2em}
+#vha-entry-prompt strong{display:block;font:400 clamp(17px,2.4vw,22px)/1.25 Georgia,serif;letter-spacing:-.015em}
+#vha-entry-prompt p{margin:9px 0 0;color:#aeb9a8;font:9px/1.5 ui-monospace,monospace;letter-spacing:.1em;text-transform:uppercase}
+body.vha-entry-intro #vha-viewer-tools{left:50%!important;top:50%!important;bottom:auto!important;width:58px!important;height:58px!important;min-height:58px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;transform:translate(-50%,-50%)!important;overflow:visible!important;pointer-events:none!important}
+body.vha-entry-intro #vha-viewer-tools>.vha-tools-side,body.vha-entry-intro #vha-viewer-tools>.vha-mood-box{display:none!important}
+body.vha-entry-intro #vha-viewer-tools>.ego-bottom-hud.vha-universal-nav{position:absolute!important;left:50%!important;top:50%!important;bottom:auto!important;transform:translate(-50%,-50%)!important;pointer-events:auto!important}
+body.vha-entry-intro #vha-viewer-tools .vha-map-toggle{width:58px!important;height:58px!important}
+body.vha-entry-intro #vha-viewer-tools .vha-map-toggle svg{width:58px!important;height:58px!important;filter:drop-shadow(0 0 12px rgba(185,215,122,.8)) drop-shadow(0 0 30px rgba(185,215,122,.45))!important}
+.vha-journey-note{position:fixed;z-index:1402;top:clamp(18px,5vh,54px);left:50%;transform:translateX(-50%);width:min(390px,calc(100vw - 28px));padding:14px 18px;border:1px solid rgba(185,215,122,.38);background:rgba(5,13,8,.88);backdrop-filter:blur(8px);text-align:center;pointer-events:auto;box-shadow:0 8px 28px #0007}
+.vha-journey-note[hidden]{display:none!important}
+.vha-journey-note strong{display:block;color:#e8f4df;font:400 18px/1.2 Georgia,serif}
+.vha-journey-note p{margin:7px 0 10px;color:#aab9a5;font:10px/1.55 Arial,sans-serif}
+.vha-journey-note a{display:inline-block;color:#cfe7a5;font:8px/1.4 ui-monospace,monospace;letter-spacing:.12em;text-decoration:none;border-bottom:1px solid rgba(185,215,122,.5);padding-bottom:3px}
+.vha-map-node[data-node=ego] svg{fill:none!important;stroke:#e2f4c6!important;stroke-width:1.8!important;stroke-linecap:round;stroke-linejoin:round}
+.vha-map-node[data-node=ego]:hover svg,.vha-map-node[data-node=ego]:focus-visible svg{fill:none!important}
+.vha-map-node[data-node=archive] svg{fill:#d8edb4!important;filter:drop-shadow(0 0 8px rgba(220,255,175,.9)) drop-shadow(0 0 20px rgba(194,230,144,.65))}
+@media(max-width:600px){#vha-entry-prompt{top:calc(50% + 60px)}.vha-journey-note{top:12px;padding:11px 13px}.vha-journey-note strong{font-size:16px}}
+
+/* A quieter, more compact rhythm across the site. */
+body.vha-game-interface:not(.gd-home) main{max-width:1240px;margin-inline:auto;padding-inline:clamp(16px,3.2vw,42px)}
+body.vha-game-interface:not(.gd-home) main>section{padding-block:clamp(26px,4vw,54px)!important}
+body.vha-game-interface:not(.gd-home) :is(.post-card,.ha-card,.ha-entry,.archive-card,.cv-card,.signal-card,.song-card,.protocol-card,.case-file){padding:clamp(14px,1.8vw,24px)!important}
+body.vha-game-interface:not(.gd-home) :is(.post-card h1,.post-card h2,.ha-hero h1,.ha-intro h2,.movement-hero h1,.posts-hero h1,.song-hero h1,.cv-hero h1){font-size:clamp(28px,4.8vw,58px)!important;line-height:1.04!important}
+body.vha-game-interface:not(.gd-home) :is(main p,.post-card li,.ha-main li){line-height:1.68}
+body.vha-game-interface.gd-home main>section:not(.ego-cover):not(.gd-hero){padding-block:clamp(28px,4vw,58px)!important}
+body.vha-game-interface.gd-home :is(.sys-entry-heading,.gd-ego-portal,.gd-cv-embed,.gd-circle-portal){margin-block:0!important}
+body.vha-game-interface.gd-home :is(.sys-entry-heading h2,.gd-ego-copy h2,.gd-cv-heading h2,.gd-circle-portal h2){font-size:clamp(28px,4.5vw,58px)!important;line-height:1.03!important}
+body.vha-game-interface.gd-home :is(.sys-entry-intro,.sys-path p,.gd-ego-copy p,.gd-circle-portal p){line-height:1.65!important}
