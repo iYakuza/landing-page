@@ -54,6 +54,11 @@
     nav.appendChild(a);
   });
   bottom.appendChild(nav);
+  const mapButton=document.createElement("button");
+  mapButton.type="button";mapButton.className="vha-map-toggle";
+  mapButton.setAttribute("aria-expanded","false");mapButton.setAttribute("aria-controls","vha-world-map");
+  mapButton.innerHTML='<span aria-hidden="true">⌖</span><small>MAP</small>';
+  bottom.appendChild(mapButton);
   document.body.appendChild(bottom);
 
   const map=document.createElement("div");
