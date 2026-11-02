@@ -110,8 +110,9 @@
     document.body.appendChild(prompt);
     mapButton.setAttribute("aria-label","Enter the constellation");mapButton.title="Enter the constellation";
   }else{
-    setConstellationVisible(true);
-    journeyNote.hidden=false;
+    // The constellation and expanded viewer tools share one state: both begin docked.
+    setConstellationVisible(false);
+    journeyNote.hidden=true;
   }
   mapButton.addEventListener("click",()=>{
     if(document.body.classList.contains("vha-entry-intro")){
