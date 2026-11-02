@@ -37,3 +37,180 @@
 .ha-entry-bottom{margin-top:auto}
 @media(max-width:900px){.ha-category-entries{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.ha-category-entries{grid-template-columns:1fr;gap:9px}.ha-entry{height:154px;min-height:154px;max-height:154px}.ha-category-heading{align-items:center}.ha-category-title{font-size:20px}}
+
+
+/* HUMAN ARCHIVE // memorial architecture
+   A quiet digital columbarium: dark stone, etched metal, restrained ghost-light. */
+:root{
+  --bg:#07090c;
+  --panel:#0c1116;
+  --ink:#e5e8e7;
+  --muted:#89969a;
+  --line:rgba(133,164,171,.22);
+  --acid:#a8c7c2;
+  --jade:#b5a27b;
+}
+.ha-shell{
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(94,132,139,.13),transparent 48%),
+    linear-gradient(180deg,#090d11 0%,#07090c 58%,#090b0e 100%)!important;
+  position:relative;
+  isolation:isolate;
+}
+.ha-shell:before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.24;
+  background:
+    linear-gradient(90deg,transparent 49.9%,rgba(155,188,188,.04) 50%,transparent 50.1%),
+    repeating-linear-gradient(0deg,rgba(200,220,220,.018) 0 1px,transparent 1px 5px);
+}
+.ha-main{width:min(1200px,90vw)!important}
+.ha-ego-hero{
+  position:relative;
+  padding-top:clamp(42px,6vw,76px)!important;
+  padding-bottom:clamp(34px,5vw,58px)!important;
+  gap:clamp(30px,5vw,76px)!important;
+}
+.ha-ego-portrait-wrap{
+  border:1px solid rgba(166,193,188,.34)!important;
+  background:#090e12!important;
+  box-shadow:0 26px 90px rgba(0,0,0,.56),inset 0 0 0 7px rgba(176,197,189,.025)!important;
+}
+.ha-ego-portrait{
+  filter:saturate(.58) contrast(1.05) brightness(.82)!important;
+}
+.ha-ego-portrait-wrap:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(6,10,13,.02) 48%,rgba(6,10,13,.36)),linear-gradient(90deg,rgba(6,10,13,.12),transparent 35%,rgba(6,10,13,.12));
+  box-shadow:inset 0 0 55px rgba(0,0,0,.24);
+}
+.ha-portrait-mark{
+  z-index:1!important;
+  left:16px!important;bottom:16px!important;
+  border:1px solid rgba(185,174,139,.45)!important;
+  background:rgba(7,11,14,.82)!important;
+  color:#c2b58e!important;
+  font-size:8px!important;letter-spacing:.19em!important;
+}
+.ha-ego-copy{position:relative}
+.ha-ego-copy:before{
+  content:"";display:block;width:42px;height:1px;margin:0 0 18px;
+  background:linear-gradient(90deg,#b8a67e,transparent);
+}
+.ha-ego-copy .ha-kicker{
+  color:#b8c9c5!important;font-size:8px!important;letter-spacing:.2em!important;
+}
+.ha-ego-copy h1{
+  color:#e3e7e3!important;
+  font:400 clamp(70px,10vw,126px)/.82 Georgia,serif!important;
+  letter-spacing:-.075em!important;
+  text-shadow:0 0 28px rgba(166,202,198,.12);
+}
+.ha-ego-copy h1 em{color:#b8a67e!important}
+.ha-ego-declaration{
+  color:#b8a67e!important;font-size:9px!important;letter-spacing:.2em!important;
+}
+.ha-ego-copy .ha-lead{
+  max-width:560px!important;color:#aeb9b9!important;
+  font-size:13px!important;line-height:1.9!important;
+}
+.ha-ego-line{
+  padding-left:14px;border-left:1px solid rgba(184,166,126,.5);
+  color:#d0d7d3!important;font-size:14px!important;
+}
+.ha-ego-line em{color:#9db9b5!important}
+.ha-meta{
+  gap:14px 22px!important;padding-top:17px;
+  border-top:1px solid rgba(145,171,171,.17);
+  color:#7f8c90!important;font-size:8px!important;
+}
+.ha-meta strong{color:#c4b58f!important}
+.ha-divider{
+  background:linear-gradient(90deg,transparent,rgba(154,182,178,.28),transparent)!important;
+  margin:12px 0 32px!important;
+}
+.ha-memorial-intro{
+  position:relative;grid-template-columns:.9fr 1.1fr!important;
+  gap:clamp(24px,5vw,80px)!important;
+  padding:12px 0 44px!important;
+}
+.ha-memorial-intro:before{
+  content:"MEMORIAL / RECORDS / 001—140";
+  display:block;grid-column:1/-1;
+  color:#829a99;font:7px/1.5 'DM Mono',monospace;letter-spacing:.22em;
+  padding-bottom:10px;border-bottom:1px solid rgba(145,171,171,.15);
+}
+.ha-memorial-intro h2{
+  color:#dce2df!important;font:400 clamp(29px,4.2vw,48px)/1.05 Georgia,serif!important;
+}
+.ha-memorial-intro h2 em{color:#b8a67e!important}
+.ha-memorial-intro p{
+  max-width:650px;color:#9ca9a9!important;font-size:12px!important;line-height:1.9!important;
+}
+.ha-controls{
+  border-top:1px solid rgba(145,171,171,.25)!important;
+  border-bottom:1px solid rgba(145,171,171,.25)!important;
+  background:linear-gradient(90deg,rgba(110,145,148,.055),transparent 72%)!important;
+}
+.ha-controls label{color:#b8c9c5!important}
+.ha-controls input,.ha-controls select{
+  border-color:rgba(154,184,181,.27)!important;
+  background:linear-gradient(180deg,#0c1216,#080d11)!important;
+  color:#dce3df!important;
+}
+.ha-count{color:#89989a!important}
+.ha-category-heading{
+  border-bottom-color:rgba(145,171,171,.25)!important;
+}
+.ha-category-title{color:#c0d0ca!important}
+.ha-category-marker{
+  border-color:rgba(154,184,181,.25)!important;
+  color:#c1b38e!important;background:rgba(10,15,18,.6)!important;
+}
+.ha-category-total{color:#78888b!important}
+.ha-category-entries{gap:10px!important}
+.ha-entry{
+  position:relative;isolation:isolate;overflow:hidden;
+  border:1px solid rgba(143,171,170,.2)!important;
+  border-left:1px solid rgba(184,166,126,.38)!important;
+  background:
+    linear-gradient(145deg,rgba(125,157,157,.055),transparent 58%),
+    linear-gradient(180deg,#10171b,#0a0f13)!important;
+  box-shadow:inset 0 1px rgba(235,242,235,.025),0 12px 32px rgba(0,0,0,.2)!important;
+}
+.ha-entry:before{
+  width:100%!important;height:100%!important;opacity:.22!important;
+  background:repeating-linear-gradient(0deg,transparent 0 5px,rgba(171,196,190,.035) 5px 6px)!important;
+  clip-path:none!important;
+}
+.ha-entry:after{
+  content:"";position:absolute;z-index:-1;right:12px;top:12px;width:18px;height:18px;
+  border-top:1px solid rgba(184,166,126,.45);border-right:1px solid rgba(184,166,126,.45);
+  pointer-events:none;
+}
+.ha-entry:hover,.ha-entry:focus-visible{
+  transform:translateY(-1px)!important;
+  border-color:rgba(172,207,199,.5)!important;
+  border-left-color:#b8a67e!important;
+  background:linear-gradient(145deg,rgba(125,157,157,.09),transparent 62%),#111a1e!important;
+  box-shadow:0 14px 34px rgba(0,0,0,.3),0 0 20px rgba(142,185,180,.06)!important;
+}
+.ha-entry-code,.ha-entry-bottom small{color:#7f9293!important}
+.ha-entry-year{color:#b8a67e!important}
+.ha-entry strong{color:#dce3df!important}
+.ha-entry-bottom{border-top-color:rgba(145,171,171,.15)!important}
+.ha-entry-bottom span{color:#a9c4bd!important}
+.ha-empty{color:#9ca9a9!important;background:#0a1014!important;border-color:rgba(145,171,171,.2)!important}
+.ha-foot{
+  border-top-color:rgba(145,171,171,.2)!important;
+  background:rgba(5,8,11,.65);
+  color:#78888b!important;
+}
+.ha-foot a{color:#b8c9c5!important}
+@media(max-width:760px){
+  .ha-memorial-intro{grid-template-columns:1fr!important;gap:16px!important}
+  .ha-memorial-intro:before{grid-column:1}
+  .ha-ego-copy h1{font-size:clamp(68px,18vw,112px)!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .ha-entry{transition:none!important}
+}
