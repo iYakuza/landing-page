@@ -83,7 +83,7 @@
   const journeyNote=map.querySelector(".vha-journey-note");
   if(entryIntro){
     document.body.classList.add("vha-entry-intro");
-    map.hidden=true;
+    map.hidden=true;mapButton.setAttribute("aria-expanded","false");
     const prompt=document.createElement("div");prompt.id="vha-entry-prompt";
     prompt.innerHTML="<span>AN UNFINISHED RECORD</span><strong>Every journey begins with a single point.</strong><p>Touch the crystal to enter.</p>";
     document.body.appendChild(prompt);
