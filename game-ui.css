@@ -563,9 +563,9 @@ body.vha-game-interface.gd-home :is(.sys-entry-intro,.sys-path p,.gd-ego-copy p,
   opacity:.94;visibility:visible;
 }
 @keyframes vha-journey-ghost-cycle{
-  0%,100%{opacity:0;visibility:hidden;transform:translate(-50%,5px)}
-  8%,28%{opacity:.78;visibility:visible;transform:translate(-50%,0)}
-  40%{opacity:0;visibility:hidden;transform:translate(-50%,-2px)}
+  0%,100%{opacity:0;visibility:hidden}
+  8%,28%{opacity:.78;visibility:visible}
+  40%{opacity:0;visibility:hidden}
 }
 @keyframes vha-journey-ghost-pulse{
   0%,100%{opacity:.58;text-shadow:0 0 4px rgba(205,238,174,.3),0 0 10px rgba(185,215,122,.12)}
