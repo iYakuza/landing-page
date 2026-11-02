@@ -1,6 +1,6 @@
 (()=>{'use strict';
 const search=document.getElementById('ha-search'),year=document.getElementById('ha-year'),category=document.getElementById('ha-category'),list=document.getElementById('ha-list'),count=document.getElementById('ha-count');
-let records=[];
+let records=[];const expandedCategories=new Set();
 const categoryOrder=['Nimic și Ființă','This notion','Dialog monolog','Gânduri','Cântec','Belief','Snob','PERSONAL PROJECTS','Haiku'];
 const clean=value=>String(value??'').normalize('NFKC').toLocaleLowerCase().trim();
 function makeEntry(record,index){
@@ -20,8 +20,8 @@ function render(){
  groups.forEach(name=>{
   const items=visible.filter(r=>(r.categories||[]).includes(name)).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);if(!items.length)return;
   const section=document.createElement('section');section.className='ha-category-group';section.dataset.category=name;
-  const heading=document.createElement('div');heading.className='ha-category-heading';const h=document.createElement('h2');h.textContent=name;const total=document.createElement('span');total.textContent=String(items.length).padStart(2,'0')+' RECORDS';heading.append(h,total);section.append(heading);
-  const entries=document.createElement('div');entries.className='ha-category-entries';items.forEach((r,i)=>{const card=makeEntry(r,i);if(card)entries.append(card)});section.append(entries);fragment.append(section);
+  const heading=document.createElement('div');heading.className='ha-category-heading';const toggle=document.createElement('button');toggle.type='button';toggle.className='ha-category-toggle';toggle.setAttribute('aria-expanded',String(expandedCategories.has(name)));const h=document.createElement('span');h.className='ha-category-title';h.textContent=name;const marker=document.createElement('span');marker.className='ha-category-marker';marker.setAttribute('aria-hidden','true');marker.textContent=expandedCategories.has(name)?'−':'+';const total=document.createElement('span');total.className='ha-category-total';total.textContent=String(items.length).padStart(2,'0')+' RECORDS';toggle.append(h,marker);heading.append(toggle,total);section.append(heading);
+  const entries=document.createElement('div');entries.className='ha-category-entries';entries.hidden=!expandedCategories.has(name);items.forEach((r,i)=>{const card=makeEntry(r,i);if(card)entries.append(card)});toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));entries.hidden=!open;marker.textContent=open?'−':'+';if(open)expandedCategories.add(name);else expandedCategories.delete(name)});section.append(entries);fragment.append(section);
  });
  list.append(fragment);
 }
@@ -29,7 +29,7 @@ async function init(){
  try{
   const response=await fetch('archive-data.json',{credentials:'same-origin',cache:'no-store'});if(!response.ok)throw new Error('Archive index unavailable');const data=await response.json();if(!Array.isArray(data))throw new Error('Invalid archive index');
   records=data.filter(r=>r&&typeof r.title==='string'&&typeof r.year==='string'&&typeof r.date==='string'&&Number.isFinite(Number(r.id))&&typeof r.url==='string'&&Array.isArray(r.categories));
-  categoryOrder.filter(name=>records.some(r=>r.categories.includes(name))).forEach(name=>{const option=document.createElement('option');option.value=name;option.textContent=name;category.append(option)});render();
+  categoryOrder.filter(name=>records.some(r=>r.categories.includes(name))).forEach(name=>{expandedCategories.add(name);const option=document.createElement('option');option.value=name;option.textContent=name;category.append(option)});render();
  }catch(error){console.error('Human Archive index failed:',error);list.textContent='THE INDEX COULD NOT BE LOADED. THE ORIGINAL WORDPRESS ARCHIVE REMAINS AVAILABLE BELOW.';count.textContent='INDEX OFFLINE';}
 }
 search.addEventListener('input',render);year.addEventListener('change',render);category.addEventListener('change',render);init();
