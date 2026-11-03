@@ -36,10 +36,17 @@ jobs:
             echo "Legacy Previous/Next radio controls must not return."
             exit 1
           fi
-          grep -Fq "radio.style.setProperty('left',p.left+'px','important')" green-dream/script.js
-          grep -Fq "radio.style.setProperty('top',p.top+'px','important')" green-dream/script.js
+          grep -Fq "radio.style.setProperty('left',left+'px','important')" green-dream/script.js
+          grep -Fq "radio.style.setProperty('top',top+'px','important')" green-dream/script.js
           grep -Fq "window.addEventListener('pointermove'" green-dream/script.js
           grep -Fq "document.body.appendChild(radio)" green-dream/script.js
+          grep -Fq 'data-constellation="orion"' game-ui.js
+          grep -Fq 'data-constellation="ursa-major"' game-ui.js
+          grep -Fq 'data-constellation="cassiopeia"' game-ui.js
+          grep -Fq 'data-constellation="cygnus"' game-ui.js
+          grep -Fq 'data-constellation="scorpius"' game-ui.js
+          grep -Fq 'function applyConstellationPreset(name)' game-ui.js
+          grep -Fq 'button.addEventListener("click"' game-ui.js
 
       - name: Check baseline browser security policy
         shell: bash
