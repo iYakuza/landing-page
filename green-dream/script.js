@@ -131,7 +131,12 @@
   }
   close?.addEventListener('click',()=>setRadioHidden(true));
   window.addEventListener('vha-radio-toggle',()=>setRadioHidden(false));
-  document.addEventListener('vha-crystal-mode-change',event=>setRadioHidden(!event.detail?.open));
+  const syncRadioVisibility=()=>setRadioHidden(!document.body.classList.contains('vha-crystal-open'));
+  document.addEventListener('vha-crystal-mode-change',syncRadioVisibility);
+  // Keep the radio in sync even if another interface path changes crystal mode.
+  const crystalModeObserver=new MutationObserver(syncRadioVisibility);
+  crystalModeObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
+  syncRadioVisibility();
 
   const positionKey='vha-green-dream-radio-geometry-v3';
   let drag=null,resize=null,suppressClickUntil=0;
