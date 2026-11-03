@@ -406,7 +406,7 @@
     try{
       const response=await fetch("https://ego-mood-ai.stefancu-emanuel.workers.dev",{
         method:"POST",
-        headers:{"Content-Type":"application/json"},
+        headers:{"Content-Type":"text/plain;charset=UTF-8"},
         body:JSON.stringify({description:input})
       });
       const result=await response.json().catch(()=>({}));
