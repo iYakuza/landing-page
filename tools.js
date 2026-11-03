@@ -148,7 +148,7 @@
   }
   const crystalObserver=new MutationObserver(bindCrystal);
   crystalObserver.observe(root,{childList:true,subtree:true});
-  document.addEventListener("click",event=>{if(root.dataset.open==="true"&&!root.contains(event.target)&&!event.target.closest(".vha-journey-note,#vha-world-map")){root.dataset.open="false";root.setAttribute("aria-expanded","false");document.dispatchEvent(new CustomEvent("vha-tools-state-change",{detail:{open:false}}))}});
+  document.addEventListener("click",event=>{const dragClickUntil=Number(document.body.dataset.vhaStarDragClickUntil||0);if(Date.now()<dragClickUntil)return;if(root.dataset.open==="true"&&!root.contains(event.target)&&!event.target.closest(".vha-journey-note,#vha-world-map")){root.dataset.open="false";root.setAttribute("aria-expanded","false");document.dispatchEvent(new CustomEvent("vha-tools-state-change",{detail:{open:false}}))}});
   document.addEventListener("keydown",event=>{if(event.key==="Escape"&&root.dataset.open==="true"){root.dataset.open="false";root.setAttribute("aria-expanded","false");document.dispatchEvent(new CustomEvent("vha-tools-state-change",{detail:{open:false}}))}});
   const navHud = document.querySelector(".ego-bottom-hud.vha-universal-nav");
   if (navHud) {
