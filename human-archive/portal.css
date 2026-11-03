@@ -75,3 +75,10 @@
 }
 .ego-bottom-hud.vha-universal-nav::before,.ego-bottom-hud.vha-universal-nav::after{content:none!important;display:none!important}
 .ego-bottom-hud.vha-universal-nav>.vha-map-toggle{flex:none!important;margin:0!important}
+
+
+/* Homepage opening without the premise panel: let EGO stand on its own. */
+.ego-dashboard{grid-template-columns:minmax(0,1fr);justify-items:center;gap:0}
+.ego-command .ego-cover-content{width:min(900px,88vw);max-width:900px;text-align:center}
+.ego-command .ego-cover-line{margin-left:auto;margin-right:auto;text-align:center}
+@media(max-width:650px){.ego-command{min-height:760px;padding:12px 14px 18px}.ego-dashboard{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:20px 0}.ego-command .ego-cover-content{width:90vw;text-align:center;padding:30px 0 0}.ego-command .ego-cover-line{margin-left:auto;margin-right:auto;text-align:center}}
