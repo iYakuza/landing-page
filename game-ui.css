@@ -654,3 +654,9 @@ body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-ent
 #gd-radio .gd-radio-resize:after{content:"";position:absolute;left:4px;top:5px;width:2px;height:20px;background:rgba(216,255,62,.6);box-shadow:0 0 5px rgba(216,255,62,.25)}
 #gd-radio .gd-track{overflow-wrap:anywhere}
 @media(max-width:640px){.vha-constellation-presets{top:12px;left:12px;right:12px;max-width:none}.vha-constellation-presets small{font-size:6px}}
+
+
+/* Keep the constellation selector above the star field and explicitly interactive. */
+.vha-constellation-presets{pointer-events:auto!important;z-index:2200!important}
+.vha-constellation-presets button{position:relative;z-index:1;pointer-events:auto!important}
+.vha-constellation-presets button.is-selected{border-color:rgba(216,255,62,.9);color:#e5ffad;background:rgba(45,68,29,.88);box-shadow:0 0 12px rgba(216,255,62,.12)}
