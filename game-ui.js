@@ -95,6 +95,36 @@
     }).filter(Boolean);
     if(points.length)constellationRoute.setAttribute("d",points.map((point,index)=>(index?"L":"M")+point[0].toFixed(1)+" "+point[1].toFixed(1)).join(" "));
   }
+  let activeStar=null;
+  window.addEventListener("pointermove",event=>{
+    const drag=activeStar;
+    if(!drag||event.pointerId!==drag.pointerId)return;
+    const dx=event.clientX-drag.startX,dy=event.clientY-drag.startY;
+    if(!drag.moved&&Math.hypot(dx,dy)<5)return;
+    drag.moved=true;
+    const rect=constellationField.getBoundingClientRect();
+    const x=Math.max(3,Math.min(97,((event.clientX-rect.left)/rect.width)*100));
+    const y=Math.max(4,Math.min(96,((event.clientY-rect.top)/rect.height)*100));
+    drag.node.style.setProperty("--star-x",x.toFixed(2)+"%");
+    drag.node.style.setProperty("--star-y",y.toFixed(2)+"%");
+    updateConstellationRoute();
+    if(event.cancelable)event.preventDefault();
+  },{passive:false});
+  window.addEventListener("pointerup",finishConstellationDrag);
+  window.addEventListener("pointercancel",finishConstellationDrag);
+  function finishConstellationDrag(event){
+    const drag=activeStar;
+    if(!drag||(event&&event.pointerId!==drag.pointerId))return;
+    activeStar=null;
+    drag.node.classList.remove("is-dragging");
+    if(drag.moved){
+      drag.node.dataset.dragged="true";
+      const x=parseFloat(drag.node.style.getPropertyValue("--star-x"));
+      const y=parseFloat(drag.node.style.getPropertyValue("--star-y"));
+      savedStarPositions[drag.key]={x,y};
+      try{localStorage.setItem(constellationPositionKey,JSON.stringify(savedStarPositions))}catch{}
+    }
+  }
   routes.forEach(([name,descriptor,href,key],index)=>{
     const link=document.createElement("a");link.className="vha-map-node";link.dataset.node=key;link.href=href;
     const target=new URL(href,location.href).pathname.replace(/\/+$/,"")||"/";
@@ -107,88 +137,42 @@
     link.innerHTML=key==="ego"?'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M4 18 20 5l16 13M9 16v18h22V16M16 34V23h8v11"/></svg><span class="vha-star-tooltip" role="tooltip">'+name+'</span>':'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 1 24.8 14.2 39 15.2 28 24.1 31.5 38 20 30.4 8.5 38 12 24.1 1 15.2 15.2 14.2Z"/></svg><span class="vha-star-tooltip" role="tooltip">'+name+'</span>';
     destinationList.appendChild(link);
 
-    // Dragging a star rearranges the constellation; the route follows in sequence.
-    let draggingStar=false,starMoved=false,starStartX=0,starStartY=0,starOriginX=position[0],starOriginY=position[1];
+    // Drag by pointer position relative to the full-screen constellation field.
+    // This avoids cumulative percentage drift and keeps movement aligned with the visible map.
     link.style.touchAction="none";
     link.addEventListener("pointerdown",event=>{
       if(event.button!==undefined&&event.button!==0)return;
+      event.preventDefault();
       event.stopPropagation();
-      draggingStar=true;starMoved=false;starStartX=event.clientX;starStartY=event.clientY;
-      starOriginX=parseFloat(link.style.getPropertyValue("--star-x"))||position[0];
-      starOriginY=parseFloat(link.style.getPropertyValue("--star-y"))||position[1];
+      activeStar={node:link,key,pointerId:event.pointerId,moved:false,startX:event.clientX,startY:event.clientY};
       link.setPointerCapture(event.pointerId);
       link.classList.add("is-dragging");
-    });
-    link.addEventListener("pointermove",event=>{
-      if(!draggingStar)return;
-      const dx=event.clientX-starStartX,dy=event.clientY-starStartY;
-      if(Math.abs(dx)+Math.abs(dy)>3)starMoved=true;
-      if(!starMoved)return;
-      const bounds=destinationList.getBoundingClientRect();
-      const x=Math.max(3,Math.min(97,starOriginX+(dx/bounds.width)*100));
-      const y=Math.max(4,Math.min(96,starOriginY+(dy/bounds.height)*100));
-      link.style.setProperty("--star-x",x+"%");
-      link.style.setProperty("--star-y",y+"%");
-      updateConstellationRoute();
-    });
-    const finishStarDrag=()=>{
-      if(!draggingStar)return;
-      draggingStar=false;link.classList.remove("is-dragging");
-      if(starMoved){
-        link.dataset.dragged="true";
-        const x=parseFloat(link.style.getPropertyValue("--star-x"));
-        const y=parseFloat(link.style.getPropertyValue("--star-y"));
-        savedStarPositions[key]={x,y};
-        try{localStorage.setItem(constellationPositionKey,JSON.stringify(savedStarPositions))}catch{}
-      }
-    };
-    link.addEventListener("pointerup",finishStarDrag);
-    link.addEventListener("pointercancel",finishStarDrag);
-    link.addEventListener("click",event=>{
-      if(link.dataset.dragged==="true"){event.preventDefault();event.stopPropagation();delete link.dataset.dragged}
     });
 
     // Each ghost label breathes in, lingers briefly, then fades away.
     const tooltip=link.querySelector(".vha-star-tooltip");
     if(tooltip){
       tooltip.setAttribute("aria-label",name+" tooltip — drag to reposition");
-      let holdUntil=0,draggingTip=false,movedTip=false,tipX=0,tipY=0,baseX=0,baseY=0;
-      const reveal=()=>{holdUntil=Date.now()+3000;tooltip.classList.add("is-hovered")};
+      const reveal=()=>{tooltip.classList.add("is-hovered")};
       link.addEventListener("pointerenter",reveal);
       link.addEventListener("focusin",reveal);
-      link.addEventListener("pointerdown",event=>{
-        if(event.target!==tooltip)return;
-        event.preventDefault();event.stopPropagation();
-        draggingTip=true;movedTip=false;tipX=event.clientX;tipY=event.clientY;
-        const rect=tooltip.getBoundingClientRect();baseX=rect.left;baseY=rect.top;
-        tooltip.setPointerCapture(event.pointerId);
-        tooltip.classList.add("is-dragging","is-manual");
-      });
-      tooltip.addEventListener("pointermove",event=>{
-        if(!draggingTip)return;
-        const dx=event.clientX-tipX,dy=event.clientY-tipY;
-        if(Math.abs(dx)+Math.abs(dy)>2)movedTip=true;
-        if(!movedTip)return;
-        const parent=link.getBoundingClientRect();
-        tooltip.style.left=(baseX+dx-parent.left)+"px";
-        tooltip.style.top=(baseY+dy-parent.top)+"px";
-        tooltip.style.transform="none";
-      });
-      const endTipDrag=event=>{
-        if(!draggingTip)return;
-        draggingTip=false;tooltip.classList.remove("is-dragging");
-        if(movedTip){event.preventDefault();event.stopPropagation()}
-        holdUntil=Date.now()+3000;
-      };
-      tooltip.addEventListener("pointerup",endTipDrag);
-      tooltip.addEventListener("pointercancel",endTipDrag);
-      tooltip.addEventListener("click",event=>{event.preventDefault();event.stopPropagation()});
-      // A manual drag remains where the viewer placed it; the pulse continues.
-      tooltip.addEventListener("animationend",()=>{if(Date.now()<holdUntil)tooltip.classList.add("is-hovered")});
     }
   });
   updateConstellationRoute();
 
+  // V/A Radio is a shared site component, not a Green Dream-only element.
+  if(!document.getElementById("gd-radio")){
+    const radio=document.createElement("aside");
+    radio.className="gd-radio";
+    radio.id="gd-radio";
+    radio.setAttribute("aria-label","Draggable radio player");
+    radio.innerHTML='<div class="gd-radio-head" id="gd-drag"><span>◉ V/A RADIO <small>LIVE SIGNAL</small></span><button id="gd-close" aria-label="Minimize radio" aria-expanded="true">−</button></div><div class="gd-radio-body"><div class="gd-eq paused" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p class="gd-tiny">NOW TRANSMITTING</p><strong class="gd-track" id="gd-track">Green Dream Playlist</strong><small class="gd-artist" id="gd-artist">Choose a video to play</small><div class="gd-controls"><button id="gd-play" aria-label="Play radio">▶ PLAY</button></div><div class="gd-stations gd-video-picker"><label for="gd-video-select">PLAYLIST // SELECT A VIDEO</label><select id="gd-video-select" aria-label="Choose a video from the Green Dream playlist"><option value="">Loading playlist titles…</option></select></div><div class="gd-player" id="gd-player" hidden></div><small class="gd-note" id="gd-radio-note">Loading the video list from your YouTube playlist…</small></div>';
+    document.body.appendChild(radio);
+    const playerScript=document.createElement("script");
+    playerScript.src="/landing-page/green-dream/script.js?v=20261103-radio-global-1";
+    playerScript.async=false;
+    document.body.appendChild(playerScript);
+  }
   function setConstellationVisible(visible){
     document.body.classList.toggle("vha-crystal-open",visible);
     document.dispatchEvent(new CustomEvent("vha-crystal-mode-change",{detail:{open:visible}}));
