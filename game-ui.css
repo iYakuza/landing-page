@@ -617,3 +617,22 @@ body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-ent
 .vha-map-node.is-dragging svg{transform:scale(1.35)!important;filter:drop-shadow(0 0 10px rgba(220,255,175,.95)) drop-shadow(0 0 24px rgba(194,230,144,.7))!important}
 .vha-map-node[data-dragged="true"]{cursor:grab!important}
 @media(max-width:640px){.vha-constellation-lines{opacity:.48!important}}
+
+
+/* Global V/A Radio component */
+#gd-radio{position:fixed!important;right:12px;top:50%;left:auto;bottom:auto;width:min(326px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain;z-index:2147483000!important;color:#e1e9dc;background:rgba(7,16,9,.96);border:1px solid rgba(207,255,62,.52);box-shadow:0 12px 55px rgba(0,0,0,.6),0 0 24px rgba(185,215,122,.08);backdrop-filter:blur(14px);transform:translateY(-50%)}
+#gd-radio.radio-hidden{visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+#gd-radio .gd-radio-head{display:flex;justify-content:space-between;align-items:center;padding:13px 14px;border-bottom:1px solid rgba(185,215,122,.28);color:#d8ff3e;font:11px/1.4 ui-monospace,monospace;letter-spacing:1px;cursor:grab;touch-action:none;user-select:none}
+#gd-radio .gd-radio-head small{display:block;font-size:8px;color:#a0b09e;margin-top:5px}
+#gd-radio .gd-radio-head button,#gd-radio .gd-controls button{background:transparent;color:#d8ff3e;border:1px solid rgba(185,215,122,.35);padding:6px 10px;cursor:pointer}
+#gd-radio .gd-radio-body{padding:16px;font-family:ui-monospace,monospace}
+#gd-radio .gd-eq{height:30px;display:flex;align-items:center;gap:4px;margin-bottom:12px}
+#gd-radio .gd-eq i{width:5px;height:10px;background:#d8ff3e;animation:gd-wave .8s ease-in-out infinite alternate}
+#gd-radio .gd-eq i:nth-child(3n){height:24px;animation-delay:.3s}#gd-radio .gd-eq i:nth-child(2n){height:17px;animation-delay:.15s}#gd-radio .gd-eq.paused i{animation-play-state:paused}
+#gd-radio .gd-tiny,#gd-radio .gd-note{font-size:8px;letter-spacing:1.2px;color:#9ba997;display:block}
+#gd-radio .gd-track{display:block;font-size:15px;line-height:1.4;margin:8px 0 4px;color:#e1e9dc}
+#gd-radio .gd-artist{font-size:10px;color:#a8b6a5}
+#gd-radio .gd-controls{display:flex;gap:8px;margin:14px 0}#gd-radio .gd-controls button{flex:1;padding:9px;font-size:10px}
+#gd-radio .gd-stations{display:grid;grid-template-columns:1fr;gap:5px}#gd-radio .gd-stations label{font-size:8px;color:#aab9a6;letter-spacing:1px}#gd-radio .gd-stations select{width:100%;margin-top:5px;padding:8px;background:#0a160d;color:#dce8d5;border:1px solid rgba(125,150,107,.35);font:10px ui-monospace,monospace}
+#gd-radio .gd-note{font-size:7px;line-height:1.6;margin-top:13px}#gd-radio .gd-player{margin-top:12px;aspect-ratio:16/9;background:#000}#gd-radio .gd-player iframe{display:block;width:100%;height:100%;border:0}#gd-radio .gd-player[hidden]{display:none}
+@media(max-width:640px){#gd-radio{width:min(300px,calc(100vw - 20px));max-height:calc(100dvh - 20px)}}
