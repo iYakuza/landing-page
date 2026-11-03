@@ -601,7 +601,7 @@ body.vha-game-interface.gd-home :is(.sys-entry-intro,.sys-path p,.gd-ego-copy p,
 
 
 /* Crystal focus: soften the page behind the constellation and keep the crystal/interface sharp. */
-body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt){
+body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt):not(#gd-radio){
   filter:blur(7px) brightness(.48)!important;
   pointer-events:none!important;
   user-select:none!important;
