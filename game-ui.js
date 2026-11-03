@@ -118,7 +118,8 @@
     activeStar=null;
     drag.node.classList.remove("is-dragging");
     if(drag.moved){
-      suppressStarClickUntil=Date.now()+300;
+      suppressStarClickUntil=Date.now()+450;
+      document.body.dataset.vhaStarDragClickUntil=String(suppressStarClickUntil);
       const x=parseFloat(drag.node.style.getPropertyValue("--star-x"));
       const y=parseFloat(drag.node.style.getPropertyValue("--star-y"));
       savedStarPositions[drag.key]={x,y};
