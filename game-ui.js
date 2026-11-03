@@ -126,7 +126,8 @@
     }
   }
   routes.forEach(([name,descriptor,href,key],index)=>{
-    const link=document.createElement("a");link.className="vha-map-node";link.dataset.node=key;link.href=href;
+    const link=document.createElement("a");link.className="vha-map-node";link.dataset.node=key;link.href=href;link.draggable=false;
+    link.addEventListener("dragstart",event=>event.preventDefault());
     const target=new URL(href,location.href).pathname.replace(/\/+$/,"")||"/";
     if(target===path){link.classList.add("is-current");link.setAttribute("aria-current","page")}
     const position=savedStarPositions[key]&&Number.isFinite(savedStarPositions[key].x)&&Number.isFinite(savedStarPositions[key].y)
