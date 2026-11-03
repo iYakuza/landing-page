@@ -142,7 +142,6 @@
     link.style.touchAction="none";
     link.addEventListener("pointerdown",event=>{
       if(event.button!==undefined&&event.button!==0)return;
-      event.preventDefault();
       event.stopPropagation();
       activeStar={node:link,key,pointerId:event.pointerId,moved:false,startX:event.clientX,startY:event.clientY};
       link.setPointerCapture(event.pointerId);
