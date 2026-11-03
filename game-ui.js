@@ -84,7 +84,7 @@
   const constellationField=map.querySelector(".vha-constellation-field");
   const constellationRoute=map.querySelector(".vha-constellation-route");
   const starPositions=[[50,13],[17,29],[37,43],[81,26],[65,55],[18,72],[50,86],[86,72],[32,17],[69,16],[91,46],[8,49],[50,58],[78,85]];
-  const constellationPositionKey="vha-constellation-star-positions-v2";
+  const constellationPositionKey="stars-v2";
   let savedStarPositions={};
   try{savedStarPositions=JSON.parse(localStorage.getItem(constellationPositionKey)||"{}")||{}}catch{}
   function updateConstellationRoute(){
