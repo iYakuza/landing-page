@@ -136,11 +136,11 @@
   syncRadioVisibility();
 
   const positionKey='vha-green-dream-radio-position-v4';
-  let drag=null,suppressClickUntil=0;
+  let drag=null,resize=null,suppressClickUntil=0;
   head.style.touchAction='none';head.style.userSelect='none';head.style.cursor='grab';
   radio.style.setProperty('position','fixed','important');
   radio.style.setProperty('right','auto','important');radio.style.setProperty('bottom','auto','important');
-  radio.style.setProperty('width','min(326px, calc(100vw - 24px))','important');
+  if(Number.isFinite(saved?.width))radio.style.setProperty('width',Math.max(240,Math.min(saved.width,innerWidth-16))+'px','important');
   radio.style.setProperty('height','auto','important');
   radio.style.setProperty('max-height','none','important');
   radio.style.setProperty('overflow','visible','important');
@@ -153,8 +153,20 @@
     top=Math.max(8,Math.min(top,innerHeight-height-8));
     radio.style.setProperty('left',left+'px','important');
     radio.style.setProperty('top',top+'px','important');
-    if(persist){try{localStorage.setItem(positionKey,JSON.stringify({left,top}))}catch{}}
+    if(persist){try{localStorage.setItem(positionKey,JSON.stringify({left,top,width}))}catch{}}
   }
+  ['nw','ne','sw','se'].forEach(corner=>{
+    const handle=document.createElement('span');
+    handle.className='gd-radio-resize';handle.dataset.corner=corner;
+    handle.setAttribute('role','separator');handle.setAttribute('aria-label','Resize radio width');
+    radio.appendChild(handle);
+    handle.addEventListener('pointerdown',event=>{
+      if(event.pointerType==='mouse'&&event.button!==0)return;
+      event.preventDefault();event.stopPropagation();
+      const rect=radio.getBoundingClientRect();
+      resize={id:event.pointerId,corner,startX:event.clientX,left:rect.left,right:rect.right,top:rect.top};
+    });
+  });
   let saved=null;try{saved=JSON.parse(localStorage.getItem(positionKey)||'null')}catch{}
   requestAnimationFrame(()=>{
     const width=radio.offsetWidth,height=radio.offsetHeight;
@@ -169,12 +181,27 @@
     head.style.cursor='grabbing';
   });
   window.addEventListener('pointermove',e=>{
+    if(resize&&e.pointerId===resize.id){
+      const dx=e.clientX-resize.startX;
+      const width=Math.max(240,Math.min(innerWidth-16,resize.right-resize.left+(resize.corner.includes('e')?dx:-dx)));
+      radio.style.setProperty('width',width+'px','important');
+      const left=resize.corner.includes('w')?resize.right-width:resize.left;
+      applyPosition(left,resize.top,false);
+      if(e.cancelable)e.preventDefault();
+      return;
+    }
     if(!drag||e.pointerId!==drag.id)return;
     const dx=e.clientX-drag.startX,dy=e.clientY-drag.startY;
     if(!drag.moved&&Math.abs(dx)+Math.abs(dy)>3)drag.moved=true;
     if(drag.moved){applyPosition(drag.left+dx,drag.top+dy,false);if(e.cancelable)e.preventDefault()}
   },{passive:false});
   function finishPointer(e){
+    if(resize&&(!e||e.pointerId===resize.id)){
+      const rect=radio.getBoundingClientRect();
+      applyPosition(rect.left,rect.top,true);
+      resize=null;
+      return;
+    }
     if(!drag||(e&&e.pointerId!==drag.id))return;
     if(drag.moved){suppressClickUntil=Date.now()+250;const rect=radio.getBoundingClientRect();applyPosition(rect.left,rect.top,true)}
     drag=null;head.style.cursor='grab';
