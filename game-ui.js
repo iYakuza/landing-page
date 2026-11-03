@@ -106,6 +106,8 @@
     const y=Math.max(4,Math.min(96,drag.startYPercent+(dy/drag.fieldHeight)*100));
     drag.node.style.setProperty("--star-x",x.toFixed(2)+"%");
     drag.node.style.setProperty("--star-y",y.toFixed(2)+"%");
+    drag.node.style.setProperty("left",x.toFixed(2)+"%","important");
+    drag.node.style.setProperty("top",y.toFixed(2)+"%","important");
     updateConstellationRoute();
     if(event.cancelable)event.preventDefault();
   },{passive:false});
