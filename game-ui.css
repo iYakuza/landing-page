@@ -636,3 +636,17 @@ body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-ent
 #gd-radio .gd-stations{display:grid;grid-template-columns:1fr;gap:5px}#gd-radio .gd-stations label{font-size:8px;color:#aab9a6;letter-spacing:1px}#gd-radio .gd-stations select{width:100%;margin-top:5px;padding:8px;background:#0a160d;color:#dce8d5;border:1px solid rgba(125,150,107,.35);font:10px ui-monospace,monospace}
 #gd-radio .gd-note{font-size:7px;line-height:1.6;margin-top:13px}#gd-radio .gd-player{margin-top:12px;aspect-ratio:16/9;background:#000}#gd-radio .gd-player iframe{display:block;width:100%;height:100%;border:0}#gd-radio .gd-player[hidden]{display:none}
 @media(max-width:640px){#gd-radio{width:min(300px,calc(100vw - 20px));max-height:calc(100dvh - 20px)}}
+
+
+/* Crystal constellation presets */
+.vha-constellation-presets{position:fixed;z-index:2100;top:clamp(14px,3vh,30px);left:clamp(14px,3vw,34px);max-width:min(420px,calc(100vw - 28px));padding:12px 14px;border:1px solid rgba(185,215,122,.2);background:rgba(4,11,7,.72);backdrop-filter:blur(10px);color:#cbd9bd;font:9px/1.5 ui-monospace,monospace;letter-spacing:.12em}
+.vha-constellation-presets>span{display:block;margin-bottom:8px;color:#d8ff3e;font-size:8px;letter-spacing:.2em}
+.vha-constellation-presets>div{display:flex;flex-wrap:wrap;gap:5px}
+.vha-constellation-presets button{padding:6px 8px;border:1px solid rgba(185,215,122,.22);background:rgba(12,24,15,.7);color:#cbd9bd;font:8px ui-monospace,monospace;letter-spacing:.08em;cursor:pointer}
+.vha-constellation-presets button:hover,.vha-constellation-presets button[aria-pressed=true]{border-color:rgba(216,255,62,.72);color:#e5ffad;background:rgba(35,54,25,.72)}
+.vha-constellation-presets small{display:block;margin-top:8px;color:rgba(203,217,189,.58);font-size:7px;letter-spacing:.08em}
+#gd-radio{height:auto!important;max-height:none!important;overflow:visible!important;overscroll-behavior:visible!important;box-sizing:border-box}
+#gd-radio .gd-radio-body{height:auto;overflow:visible}
+#gd-radio .gd-player{width:100%;max-width:100%}
+#gd-radio .gd-radio-resize{display:none!important}
+@media(max-width:640px){.vha-constellation-presets{top:12px;left:12px;right:12px;max-width:none}.vha-constellation-presets small{font-size:6px}}
