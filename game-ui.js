@@ -78,18 +78,75 @@
   const journeyMarkup = nextJourney
     ? '<div class="vha-journey-note" hidden><span>NEXT PART OF THE JOURNEY</span><strong>' + nextJourney[1] + '</strong><p>' + nextJourney[2] + '</p><a href="' + nextJourney[3] + '">CONTINUE THE JOURNEY ↗</a></div>'
     : '<div class="vha-journey-note" hidden><span>THE JOURNEY CONTINUES</span><strong>Choose the next trace.</strong><p>Follow a point in the constellation to continue exploring.</p></div>';
-  map.innerHTML='<div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path d="M500 70 150 170 360 260 820 160 650 330 180 440 500 540 850 450 500 70M150 170 180 440 820 160 850 450M360 260 650 330 500 540"/></svg><div class="vha-map-destinations"></div></div>' + journeyMarkup;
+  map.innerHTML='<div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path class="vha-constellation-route" d=""/></svg><div class="vha-map-destinations"></div></div>' + journeyMarkup;
   document.body.appendChild(map);
   const destinationList=map.querySelector(".vha-map-destinations");
+  const constellationField=map.querySelector(".vha-constellation-field");
+  const constellationRoute=map.querySelector(".vha-constellation-route");
   const starPositions=[[50,13],[17,29],[37,43],[81,26],[65,55],[18,72],[50,86],[86,72],[32,17],[69,16],[91,46],[8,49],[50,58],[78,85]];
+  const constellationPositionKey="vha-constellation-star-positions";
+  let savedStarPositions={};
+  try{savedStarPositions=JSON.parse(localStorage.getItem(constellationPositionKey)||"{}")||{}}catch{}
+  function updateConstellationRoute(){
+    const points=[...destinationList.querySelectorAll(".vha-map-node")].map(node=>{
+      const x=parseFloat(node.style.getPropertyValue("--star-x"))*10;
+      const y=parseFloat(node.style.getPropertyValue("--star-y"))*6.2;
+      return Number.isFinite(x)&&Number.isFinite(y)?[x,y]:null;
+    }).filter(Boolean);
+    if(points.length)constellationRoute.setAttribute("d",points.map((point,index)=>(index?"L":"M")+point[0].toFixed(1)+" "+point[1].toFixed(1)).join(" "));
+  }
   routes.forEach(([name,descriptor,href,key],index)=>{
     const link=document.createElement("a");link.className="vha-map-node";link.dataset.node=key;link.href=href;
     const target=new URL(href,location.href).pathname.replace(/\/+$/,"")||"/";
     if(target===path){link.classList.add("is-current");link.setAttribute("aria-current","page")}
-    const position=starPositions[index%starPositions.length];link.style.setProperty("--star-x",position[0]+"%");link.style.setProperty("--star-y",position[1]+"%");
+    const position=savedStarPositions[key]&&Number.isFinite(savedStarPositions[key].x)&&Number.isFinite(savedStarPositions[key].y)
+      ?[Math.max(3,Math.min(97,savedStarPositions[key].x)),Math.max(4,Math.min(96,savedStarPositions[key].y))]
+      :starPositions[index%starPositions.length];
+    link.style.setProperty("--star-x",position[0]+"%");link.style.setProperty("--star-y",position[1]+"%");
     link.setAttribute("aria-label",name+" — "+descriptor);link.title=name;
     link.innerHTML=key==="ego"?'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M4 18 20 5l16 13M9 16v18h22V16M16 34V23h8v11"/></svg><span class="vha-star-tooltip" role="tooltip">'+name+'</span>':'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 1 24.8 14.2 39 15.2 28 24.1 31.5 38 20 30.4 8.5 38 12 24.1 1 15.2 15.2 14.2Z"/></svg><span class="vha-star-tooltip" role="tooltip">'+name+'</span>';
     destinationList.appendChild(link);
+
+    // Dragging a star rearranges the constellation; the route follows in sequence.
+    let draggingStar=false,starMoved=false,starStartX=0,starStartY=0,starOriginX=position[0],starOriginY=position[1];
+    link.style.touchAction="none";
+    link.addEventListener("pointerdown",event=>{
+      if(event.button!==undefined&&event.button!==0)return;
+      event.preventDefault();event.stopPropagation();
+      draggingStar=true;starMoved=false;starStartX=event.clientX;starStartY=event.clientY;
+      starOriginX=parseFloat(link.style.getPropertyValue("--star-x"))||position[0];
+      starOriginY=parseFloat(link.style.getPropertyValue("--star-y"))||position[1];
+      link.setPointerCapture(event.pointerId);
+      link.classList.add("is-dragging");
+    });
+    link.addEventListener("pointermove",event=>{
+      if(!draggingStar)return;
+      const dx=event.clientX-starStartX,dy=event.clientY-starStartY;
+      if(Math.abs(dx)+Math.abs(dy)>3)starMoved=true;
+      if(!starMoved)return;
+      const bounds=constellationField.getBoundingClientRect();
+      const x=Math.max(3,Math.min(97,starOriginX+(dx/bounds.width)*100));
+      const y=Math.max(4,Math.min(96,starOriginY+(dy/bounds.height)*100));
+      link.style.setProperty("--star-x",x+"%");
+      link.style.setProperty("--star-y",y+"%");
+      updateConstellationRoute();
+    });
+    const finishStarDrag=()=>{
+      if(!draggingStar)return;
+      draggingStar=false;link.classList.remove("is-dragging");
+      if(starMoved){
+        link.dataset.dragged="true";
+        const x=parseFloat(link.style.getPropertyValue("--star-x"));
+        const y=parseFloat(link.style.getPropertyValue("--star-y"));
+        savedStarPositions[key]={x,y};
+        try{localStorage.setItem(constellationPositionKey,JSON.stringify(savedStarPositions))}catch{}
+      }
+    };
+    link.addEventListener("pointerup",finishStarDrag);
+    link.addEventListener("pointercancel",finishStarDrag);
+    link.addEventListener("click",event=>{
+      if(link.dataset.dragged==="true"){event.preventDefault();event.stopPropagation();delete link.dataset.dragged}
+    });
 
     // Each ghost label breathes in, lingers briefly, then fades away.
     const tooltip=link.querySelector(".vha-star-tooltip");
@@ -130,6 +187,7 @@
       tooltip.addEventListener("animationend",()=>{if(Date.now()<holdUntil)tooltip.classList.add("is-hovered")});
     }
   });
+  updateConstellationRoute();
 
   function setConstellationVisible(visible){
     document.body.classList.toggle("vha-crystal-open",visible);
