@@ -184,14 +184,13 @@
     "cygnus":[[50,10],[50,28],[50,47],[50,68],[50,88],[27,35],[73,35],[15,23],[85,23],[31,58],[69,58],[35,82],[65,82]],
     "scorpius":[[18,17],[34,24],[48,37],[59,53],[67,70],[62,84],[48,91],[79,84],[86,68],[81,49],[70,34],[48,15],[29,8]]
   };
-  const presetButtons=[...map.querySelectorAll("[data-constellation]")];
+  const presetButtons=[...map.querySelectorAll(".vha-constellation-presets [data-constellation]")];
   function applyConstellationPreset(name){
     const pattern=constellationPatterns[name];
     const nodes=[...destinationList.querySelectorAll(".vha-map-node")];
     if(!pattern||!nodes.length)return;
     nodes.forEach((node,index)=>{
       const [x,y]=pattern[index%pattern.length];
-      // Write the actual positioned properties as well as the drag/save variables.
       node.style.setProperty("--star-x",x+"%");
       node.style.setProperty("--star-y",y+"%");
       node.style.setProperty("left",x+"%","important");
@@ -199,18 +198,28 @@
       savedStarPositions[node.dataset.node]={x,y};
     });
     try{localStorage.setItem(constellationPositionKey,JSON.stringify(savedStarPositions))}catch{}
-    presetButtons.forEach(item=>item.setAttribute("aria-pressed",String(item.dataset.constellation===name)));
+    presetButtons.forEach(item=>{
+      const selected=item.dataset.constellation===name;
+      item.setAttribute("aria-pressed",String(selected));
+      item.classList.toggle("is-selected",selected);
+    });
     updateConstellationRoute();
     map.dataset.activeConstellation=name;
   }
-  // Delegate in capture phase so the preset action survives other page-level click handlers.
-  map.addEventListener("click",event=>{
-    const button=event.target.closest("[data-constellation]");
-    if(!button||!map.contains(button))return;
-    event.preventDefault();
-    event.stopPropagation();
-    applyConstellationPreset(button.dataset.constellation);
-  },true);
+  // Bind directly to each visible control; avoid relying on event bubbling through the map overlay.
+  presetButtons.forEach(button=>{
+    button.addEventListener("click",event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      applyConstellationPreset(button.dataset.constellation);
+    });
+    button.addEventListener("keydown",event=>{
+      if(event.key==="Enter"||event.key===" "){
+        event.preventDefault();
+        applyConstellationPreset(button.dataset.constellation);
+      }
+    });
+  });
 
   // V/A Radio is a shared site component, not a Green Dream-only element.
   if(!document.getElementById("gd-radio")){
