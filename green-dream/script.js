@@ -136,6 +136,7 @@
   syncRadioVisibility();
 
   const positionKey='vha-green-dream-radio-position-v4';
+  let saved=null;try{saved=JSON.parse(localStorage.getItem(positionKey)||'null')}catch{}
   let drag=null,resize=null,suppressClickUntil=0;
   head.style.touchAction='none';head.style.userSelect='none';head.style.cursor='grab';
   radio.style.setProperty('position','fixed','important');
@@ -167,7 +168,6 @@
       resize={id:event.pointerId,corner,startX:event.clientX,left:rect.left,right:rect.right,top:rect.top};
     });
   });
-  let saved=null;try{saved=JSON.parse(localStorage.getItem(positionKey)||'null')}catch{}
   requestAnimationFrame(()=>{
     const width=radio.offsetWidth,height=radio.offsetHeight;
     applyPosition(Number.isFinite(saved?.left)?saved.left:innerWidth-width-12,
