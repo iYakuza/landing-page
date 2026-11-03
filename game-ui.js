@@ -95,16 +95,15 @@
     }).filter(Boolean);
     if(points.length)constellationRoute.setAttribute("d",points.map((point,index)=>(index?"L":"M")+point[0].toFixed(1)+" "+point[1].toFixed(1)).join(" "));
   }
-  let activeStar=null;
+  let activeStar=null,suppressStarClickUntil=0;
   window.addEventListener("pointermove",event=>{
     const drag=activeStar;
     if(!drag||event.pointerId!==drag.pointerId)return;
     const dx=event.clientX-drag.startX,dy=event.clientY-drag.startY;
-    if(!drag.moved&&Math.hypot(dx,dy)<5)return;
-    drag.moved=true;
-    const rect=constellationField.getBoundingClientRect();
-    const x=Math.max(3,Math.min(97,((event.clientX-rect.left)/rect.width)*100));
-    const y=Math.max(4,Math.min(96,((event.clientY-rect.top)/rect.height)*100));
+    if(!drag.moved&&Math.abs(dx)+Math.abs(dy)>3)drag.moved=true;
+    if(!drag.moved)return;
+    const x=Math.max(3,Math.min(97,drag.startXPercent+(dx/drag.fieldWidth)*100));
+    const y=Math.max(4,Math.min(96,drag.startYPercent+(dy/drag.fieldHeight)*100));
     drag.node.style.setProperty("--star-x",x.toFixed(2)+"%");
     drag.node.style.setProperty("--star-y",y.toFixed(2)+"%");
     updateConstellationRoute();
@@ -112,13 +111,14 @@
   },{passive:false});
   window.addEventListener("pointerup",finishConstellationDrag);
   window.addEventListener("pointercancel",finishConstellationDrag);
+  window.addEventListener("blur",()=>finishConstellationDrag());
   function finishConstellationDrag(event){
     const drag=activeStar;
     if(!drag||(event&&event.pointerId!==drag.pointerId))return;
     activeStar=null;
     drag.node.classList.remove("is-dragging");
     if(drag.moved){
-      drag.node.dataset.dragged="true";
+      suppressStarClickUntil=Date.now()+300;
       const x=parseFloat(drag.node.style.getPropertyValue("--star-x"));
       const y=parseFloat(drag.node.style.getPropertyValue("--star-y"));
       savedStarPositions[drag.key]={x,y};
@@ -141,12 +141,24 @@
     // This avoids cumulative percentage drift and keeps movement aligned with the visible map.
     link.style.touchAction="none";
     link.addEventListener("pointerdown",event=>{
-      if(event.button!==undefined&&event.button!==0)return;
+      if(event.pointerType==="mouse"&&event.button!==0)return;
       event.stopPropagation();
-      activeStar={node:link,key,pointerId:event.pointerId,moved:false,startX:event.clientX,startY:event.clientY};
-      link.setPointerCapture(event.pointerId);
+      const fieldRect=constellationField.getBoundingClientRect();
+      activeStar={
+        node:link,key,pointerId:event.pointerId,moved:false,
+        startX:event.clientX,startY:event.clientY,
+        startXPercent:parseFloat(link.style.getPropertyValue("--star-x")),
+        startYPercent:parseFloat(link.style.getPropertyValue("--star-y")),
+        fieldWidth:fieldRect.width,fieldHeight:fieldRect.height
+      };
       link.classList.add("is-dragging");
     });
+    link.addEventListener("click",event=>{
+      if(Date.now()<suppressStarClickUntil){
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    },true);
 
     // Each ghost label breathes in, lingers briefly, then fades away.
     const tooltip=link.querySelector(".vha-star-tooltip");
