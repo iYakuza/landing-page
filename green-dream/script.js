@@ -131,99 +131,61 @@
   }
   close?.addEventListener('click',()=>setRadioHidden(true));
   window.addEventListener('vha-radio-toggle',()=>setRadioHidden(false));
-  const syncRadioVisibility=()=>setRadioHidden(!document.body.classList.contains('vha-crystal-open'));
+  const syncRadioVisibility=()=>setRadioHidden(true);
   document.addEventListener('vha-crystal-mode-change',syncRadioVisibility);
-  // Keep the radio in sync even if another interface path changes crystal mode.
-  const crystalModeObserver=new MutationObserver(syncRadioVisibility);
-  crystalModeObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
   syncRadioVisibility();
 
-  const positionKey='vha-green-dream-radio-geometry-v3';
-  let drag=null,resize=null,suppressClickUntil=0;
+  const positionKey='vha-green-dream-radio-position-v4';
+  let drag=null,suppressClickUntil=0;
   head.style.touchAction='none';head.style.userSelect='none';head.style.cursor='grab';
   radio.style.setProperty('position','fixed','important');
   radio.style.setProperty('right','auto','important');radio.style.setProperty('bottom','auto','important');
+  radio.style.setProperty('width','min(326px, calc(100vw - 24px))','important');
+  radio.style.setProperty('height','auto','important');
+  radio.style.setProperty('max-height','none','important');
+  radio.style.setProperty('overflow','visible','important');
+  radio.style.setProperty('overscroll-behavior','visible','important');
   radio.style.setProperty('transform','none','important');
-  radio.style.setProperty('max-height','calc(100dvh - 16px)','important');
-  radio.style.setProperty('overflow','auto','important');radio.style.setProperty('overscroll-behavior','contain','important');
   radio.style.setProperty('z-index','2147483000','important');
-  const corners=['nw','ne','sw','se'];
-  corners.forEach(corner=>{
-    const handle=document.createElement('span');
-    handle.className='gd-radio-resize';handle.dataset.corner=corner;
-    handle.setAttribute('aria-hidden','true');radio.appendChild(handle);
-    handle.addEventListener('pointerdown',e=>{
-      if(e.pointerType==='mouse'&&e.button!==0)return;
-      e.preventDefault();e.stopPropagation();
-      const r=radio.getBoundingClientRect();
-      resize={id:e.pointerId,corner,startX:e.clientX,startY:e.clientY,left:r.left,top:r.top,width:r.width,height:r.height};
-    });
-  });
-  function clampGeometry(left,top,width,height){
-    const minW=Math.min(220,innerWidth-16),minH=Math.min(150,innerHeight-16);
-    width=Math.max(minW,Math.min(width,innerWidth-16));
-    height=Math.max(minH,Math.min(height,innerHeight-16));
+  function applyPosition(left,top,persist=false){
+    const width=radio.offsetWidth,height=radio.offsetHeight;
     left=Math.max(8,Math.min(left,innerWidth-width-8));
     top=Math.max(8,Math.min(top,innerHeight-height-8));
-    return {left,top,width,height};
-  }
-  function applyGeometry(g,persist=false){
-    const p=clampGeometry(g.left,g.top,g.width,g.height);
-    radio.style.setProperty('left',p.left+'px','important');
-    radio.style.setProperty('top',p.top+'px','important');
-    radio.style.setProperty('width',p.width+'px','important');
-    radio.style.setProperty('height',p.height+'px','important');
-    radio.style.setProperty('right','auto','important');radio.style.setProperty('bottom','auto','important');
-    if(persist){try{localStorage.setItem(positionKey,JSON.stringify(p))}catch{}}
+    radio.style.setProperty('left',left+'px','important');
+    radio.style.setProperty('top',top+'px','important');
+    if(persist){try{localStorage.setItem(positionKey,JSON.stringify({left,top}))}catch{}}
   }
   let saved=null;try{saved=JSON.parse(localStorage.getItem(positionKey)||'null')}catch{}
-  radio.style.removeProperty('height');
-  const initial=radio.getBoundingClientRect();
-  const defaultWidth=Math.min(326,innerWidth-24);
-  const initialWidth=Number.isFinite(saved?.width)?saved.width:defaultWidth;
-  radio.style.setProperty('width',initialWidth+'px','important');
-  const contentHeight=Math.min(radio.scrollHeight,innerHeight-24);
-  const initialGeometry={
-    left:Number.isFinite(saved?.left)?saved.left:innerWidth-initialWidth-12,
-    top:Number.isFinite(saved?.top)?saved.top:(innerWidth<=760?innerHeight-contentHeight-12:(innerHeight-contentHeight)/2),
-    width:initialWidth,
-    height:Number.isFinite(saved?.height)?saved.height:contentHeight
-  };
-  applyGeometry(initialGeometry,false);
+  requestAnimationFrame(()=>{
+    const width=radio.offsetWidth,height=radio.offsetHeight;
+    applyPosition(Number.isFinite(saved?.left)?saved.left:innerWidth-width-12,
+      Number.isFinite(saved?.top)?saved.top:(innerWidth<=760?innerHeight-height-12:(innerHeight-height)/2));
+  });
   head.addEventListener('dragstart',e=>e.preventDefault());
   head.addEventListener('pointerdown',e=>{
-    if((e.pointerType==='mouse'&&e.button!==0)||e.target.closest('button,select,label,a,.gd-radio-resize'))return;
-    const r=radio.getBoundingClientRect();
-    drag={id:e.pointerId,startX:e.clientX,startY:e.clientY,left:r.left,top:r.top,width:r.width,height:r.height,moved:false};
+    if((e.pointerType==='mouse'&&e.button!==0)||e.target.closest('button,select,label,a'))return;
+    const rect=radio.getBoundingClientRect();
+    drag={id:e.pointerId,startX:e.clientX,startY:e.clientY,left:rect.left,top:rect.top,moved:false};
     head.style.cursor='grabbing';
   });
   window.addEventListener('pointermove',e=>{
-    if(resize&&e.pointerId===resize.id){
-      const dx=e.clientX-resize.startX,dy=e.clientY-resize.startY;
-      let {left,top,width,height}=resize;
-      if(resize.corner.includes('e'))width+=dx;else{left+=dx;width-=dx}
-      if(resize.corner.includes('s'))height+=dy;else{top+=dy;height-=dy}
-      applyGeometry({left,top,width,height},false);
-      if(e.cancelable)e.preventDefault();
-      return;
-    }
     if(!drag||e.pointerId!==drag.id)return;
     const dx=e.clientX-drag.startX,dy=e.clientY-drag.startY;
     if(!drag.moved&&Math.abs(dx)+Math.abs(dy)>3)drag.moved=true;
-    if(drag.moved){applyGeometry({...drag,left:drag.left+dx,top:drag.top+dy},false);if(e.cancelable)e.preventDefault()}
+    if(drag.moved){applyPosition(drag.left+dx,drag.top+dy,false);if(e.cancelable)e.preventDefault()}
   },{passive:false});
   function finishPointer(e){
-    if(resize&&(!e||e.pointerId===resize.id)){
-      const r=radio.getBoundingClientRect();
-      applyGeometry({left:r.left,top:r.top,width:r.width,height:r.height},true);
-      resize=null;return;
-    }
-    if(!drag|| (e&&e.pointerId!==drag.id))return;
-    if(drag.moved){suppressClickUntil=Date.now()+250;const r=radio.getBoundingClientRect();applyGeometry({left:r.left,top:r.top,width:r.width,height:r.height},true)}
+    if(!drag||(e&&e.pointerId!==drag.id))return;
+    if(drag.moved){suppressClickUntil=Date.now()+250;const rect=radio.getBoundingClientRect();applyPosition(rect.left,rect.top,true)}
     drag=null;head.style.cursor='grab';
   }
-  window.addEventListener('pointerup',finishPointer);window.addEventListener('pointercancel',finishPointer);window.addEventListener('blur',()=>finishPointer());
+  window.addEventListener('pointerup',finishPointer);
+  window.addEventListener('pointercancel',finishPointer);
+  window.addEventListener('blur',()=>finishPointer());
   head.addEventListener('click',e=>{if(Date.now()<suppressClickUntil){suppressClickUntil=0;e.preventDefault();e.stopImmediatePropagation()}},true);
-  window.addEventListener('resize',()=>{const r=radio.getBoundingClientRect();applyGeometry({left:r.left,top:r.top,width:r.width,height:r.height},true)});
+  window.addEventListener('resize',()=>{
+    const rect=radio.getBoundingClientRect();
+    applyPosition(rect.left,rect.top,true);
+  });
   status('Radio ready. Press PLAY to load the Green Dream playlist.');
 })();
