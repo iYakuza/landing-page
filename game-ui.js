@@ -112,7 +112,7 @@
     link.style.touchAction="none";
     link.addEventListener("pointerdown",event=>{
       if(event.button!==undefined&&event.button!==0)return;
-      event.preventDefault();event.stopPropagation();
+      event.stopPropagation();
       draggingStar=true;starMoved=false;starStartX=event.clientX;starStartY=event.clientY;
       starOriginX=parseFloat(link.style.getPropertyValue("--star-x"))||position[0];
       starOriginY=parseFloat(link.style.getPropertyValue("--star-y"))||position[1];
