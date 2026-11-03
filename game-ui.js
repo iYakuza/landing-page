@@ -132,6 +132,7 @@
   });
 
   function setConstellationVisible(visible){
+    document.body.classList.toggle("vha-crystal-open",visible);
     map.hidden=!visible;
     mapButton.setAttribute("aria-expanded",String(visible));
     mapButton.setAttribute("aria-label",visible?"Hide website constellation":"Show website constellation");
