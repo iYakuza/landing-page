@@ -1,5 +1,5 @@
 (() => {
-  const root=document.querySelector('.gd'); if(!root)return;
+  const root=document;
   const playlistId='PL-HvxCN6LbEtKhlSDDndY8mdupqTbTlgn';
   const radio=root.querySelector('#gd-radio'),head=root.querySelector('#gd-drag'),track=root.querySelector('#gd-track'),artist=root.querySelector('#gd-artist'),play=root.querySelector('#gd-play'),eq=root.querySelector('.gd-eq'),host=root.querySelector('#gd-player'),note=root.querySelector('#gd-radio-note'),select=root.querySelector('#gd-video-select');
   const close=radio?.querySelector('#gd-close');
