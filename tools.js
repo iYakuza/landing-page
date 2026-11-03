@@ -134,7 +134,7 @@
   root.setAttribute("aria-label","Viewer controls");
   root.dataset.moodOpen = "false";
   root.dataset.open = "false";
-  root.innerHTML = '<div class="vha-tools-side vha-tools-left" aria-label="Viewer controls left"><button class="vha-tool-row" type="button" data-tool="fullscreen"><span class="vha-tool-icon">'+svg("fullscreen")+'</span><span>Fullscreen</span></button><button class="vha-tool-row" type="button" data-tool="radio" aria-pressed="false"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path d="M17 9a5 5 0 0 1 0 6M19.5 6.5a9 9 0 0 1 0 11"/></svg></span><span>V/A Radio</span></button><button class="vha-tool-row" type="button" data-tool="text" aria-pressed="false"><span class="vha-tool-icon">'+svg("text")+'</span><span>Text Size</span></button></div><div class="vha-tools-side vha-tools-right" aria-label="Viewer controls right"><button class="vha-tool-row" type="button" data-tool="mood" aria-expanded="false"><span class="vha-tool-icon">'+svg("mood")+'</span><span>Match my mood</span></button><button class="vha-tool-row" type="button" data-tool="reset-mood"><span class="vha-tool-icon">'+svg("reset")+'</span><span>Reset mood theme</span></button><a class="vha-tool-row" href="/landing-page/posts/community/" aria-label="Open Signals community"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18v3M8 21h8M12 3v2M5.6 8.6a9 9 0 0 0 0 6.8M18.4 8.6a9 9 0 0 1 0 6.8M2.8 5.8a13 13 0 0 0 0 12.4M21.2 5.8a13 13 0 0 1 0 12.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/></svg></span><span>SIGNALS</span></a></div><div class="vha-mood-box"><label for="vha-mood-description">How are you feeling right now?</label><textarea id="vha-mood-description" maxlength="500" placeholder="Describe it in your own words…"></textarea><div class="vha-mood-presets" aria-label="Choose a feeling"><button type="button" data-mood-preset="calm">Calm</button><button type="button" data-mood-preset="sad">Sad</button><button type="button" data-mood-preset="anxious">Anxious</button><button type="button" data-mood-preset="happy">Happy</button><button type="button" data-mood-preset="angry">Angry</button><button type="button" data-mood-preset="tired">Tired</button><button type="button" data-mood-preset="focused">Focused</button><button type="button" data-mood-preset="hopeful">Hopeful</button><button type="button" data-mood-preset="romantic">Romantic</button></div><button type="button" data-tool="apply-mood">Adapt the site</button><div class="vha-mood-status" role="status" aria-live="polite"></div></div>';
+  root.innerHTML = '<div class="vha-tools-side vha-tools-left" aria-label="Viewer controls left"><button class="vha-tool-row" type="button" data-tool="fullscreen"><span class="vha-tool-icon">'+svg("fullscreen")+'</span><span>Fullscreen</span></button><button class="vha-tool-row" type="button" data-tool="radio" aria-pressed="false"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path d="M17 9a5 5 0 0 1 0 6M19.5 6.5a9 9 0 0 1 0 11"/></svg></span><span>V/A Radio</span></button><button class="vha-tool-row" type="button" data-tool="text" aria-pressed="false"><span class="vha-tool-icon">'+svg("text")+'</span><span>Text Size</span></button></div><div class="vha-tools-side vha-tools-right" aria-label="Viewer controls right"><button class="vha-tool-row" type="button" data-tool="mood" aria-expanded="false"><span class="vha-tool-icon">'+svg("mood")+'</span><span>Match my mood</span></button><button class="vha-tool-row" type="button" data-tool="reset-mood"><span class="vha-tool-icon">'+svg("reset")+'</span><span>Reset mood theme</span></button><a class="vha-tool-row" href="/landing-page/posts/community/" aria-label="Open Signals community"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18v3M8 21h8M12 3v2M5.6 8.6a9 9 0 0 0 0 6.8M18.4 8.6a9 9 0 0 1 0 6.8M2.8 5.8a13 13 0 0 0 0 12.4M21.2 5.8a13 13 0 0 1 0 12.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/></svg></span><span>SIGNALS</span></a></div><div class="vha-mood-box"><label for="vha-mood-description">Describe what is happening inside you.</label><textarea id="vha-mood-description" maxlength="900" placeholder="Write freely. Mixed feelings, fragments, images, contradictions — all welcome."></textarea><button type="button" data-tool="apply-mood">Generate a visual response</button><div class="vha-mood-status" role="status" aria-live="polite"></div></div>';
   function bindCrystal(){
     const crystal=root.querySelector(".ego-bottom-hud.vha-universal-nav .vha-map-toggle");
     if(!crystal||crystal.dataset.toolsBound==="true")return;
@@ -344,196 +344,82 @@
       startPresentation();
     }
   } catch {}
-  function setMoodTheme(name,colors){
-    const [page,surface,textColor,accent]=colors,html=document.documentElement;
-    html.style.setProperty("--theme-page",page);html.style.setProperty("--theme-surface",surface);html.style.setProperty("--theme-raised",surface);html.style.setProperty("--theme-text",textColor);html.style.setProperty("--theme-muted",textColor+"b0");html.style.setProperty("--theme-accent",accent);html.style.setProperty("--theme-secondary",accent);html.style.setProperty("--theme-border",accent+"70");html.style.setProperty("--theme-glow",accent+"35");
-    html.dataset.vhaMood=name;document.body.style.backgroundColor=page;document.body.style.color=textColor;
-    let fontLink=document.getElementById("vha-mood-fonts");
-    if(!fontLink){fontLink=document.createElement("link");fontLink.id="vha-mood-fonts";fontLink.rel="stylesheet";fontLink.href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Great+Vibes&family=Metal+Mania&display=swap";document.head.appendChild(fontLink);}
+  const moodFontStacks={
+    serif:'Georgia,"Times New Roman",serif',
+    sans:'Arial,Helvetica,sans-serif',
+    mono:'ui-monospace,SFMono-Regular,Consolas,monospace',
+    humanist:'"Trebuchet MS",Arial,sans-serif'
+  };
+  function setMoodTheme(theme){
+    const html=document.documentElement;
+    const palette={page:theme.page,surface:theme.surface,text:theme.text,muted:theme.muted,accent:theme.accent,border:theme.border,glow:theme.glow};
+    Object.entries(palette).forEach(([key,value])=>{
+      const variable=key==="page"?"--theme-page":key==="surface"?"--theme-surface":key==="text"?"--theme-text":key==="muted"?"--theme-muted":key==="accent"?"--theme-accent":key==="border"?"--theme-border":"--theme-glow";
+      html.style.setProperty(variable,value);
+    });
+    html.style.setProperty("--theme-raised",theme.surface);
+    html.style.setProperty("--theme-secondary",theme.accent);
+    html.dataset.vhaMood="generated";
+    document.body.style.backgroundColor=theme.page;
+    document.body.style.color=theme.text;
     let globalStyle=document.getElementById("vha-mood-global-overrides");
     if(!globalStyle){globalStyle=document.createElement("style");globalStyle.id="vha-mood-global-overrides";document.head.appendChild(globalStyle);}
-    globalStyle.textContent=`html[data-vha-mood],html[data-vha-mood] body,html[data-vha-mood] body>*,html[data-vha-mood] body>div,html[data-vha-mood] #app,html[data-vha-mood] #root,html[data-vha-mood] main,html[data-vha-mood] .gd,html[data-vha-mood] .gd-main,html[data-vha-mood] .gd-shell,html[data-vha-mood] .gd-page,html[data-vha-mood] .posts-main,html[data-vha-mood] .posts-content,html[data-vha-mood] .posts-page,html[data-vha-mood] .song-page,html[data-vha-mood] .cv-page,html[data-vha-mood] .cv-shell,html[data-vha-mood] .page-shell,html[data-vha-mood] .site-shell,html[data-vha-mood] .hero,html[data-vha-mood] .gd-hero{background-color:var(--theme-page)!important;color:var(--theme-text)!important}html[data-vha-mood] header,html[data-vha-mood] footer,html[data-vha-mood] nav,html[data-vha-mood] section,html[data-vha-mood] article,html[data-vha-mood] aside:not(#vha-viewer-tools),html[data-vha-mood] .gd-nav,html[data-vha-mood] .gd-footer,html[data-vha-mood] .gd-panel,html[data-vha-mood] .gd-card,html[data-vha-mood] .gd-radio,html[data-vha-mood] .gd-move,html[data-vha-mood] .post-card,html[data-vha-mood] .posts-note,html[data-vha-mood] .posts-filters,html[data-vha-mood] .viewer-console,html[data-vha-mood] .song-panel,html[data-vha-mood] .song-player-card,html[data-vha-mood] .cv-card,html[data-vha-mood] .cv-section,html[data-vha-mood] .transmission-card{background-color:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important}html[data-vha-mood] h1,html[data-vha-mood] h2,html[data-vha-mood] h3,html[data-vha-mood] p,html[data-vha-mood] li,html[data-vha-mood] label,html[data-vha-mood] .gd-brand strong,html[data-vha-mood] .gd-brand small{color:var(--theme-text)!important}html[data-vha-mood] a:not(.vha-tools-trigger),html[data-vha-mood] em,html[data-vha-mood] .gd-kicker,html[data-vha-mood] .gd-status,html[data-vha-mood] .post-category{color:var(--theme-accent)!important;border-color:var(--theme-border)!important}html[data-vha-mood] input,html[data-vha-mood] textarea,html[data-vha-mood] select,html[data-vha-mood] [contenteditable=true]{background:var(--theme-surface)!important;background-image:none!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important}
-/* Explicitly theme high-specificity components on the CV and shared navigation. */
-html[data-vha-mood] .cv-wrap,html[data-vha-mood] .cv-hero,html[data-vha-mood] .cv-section,html[data-vha-mood] .cv-targets,html[data-vha-mood] .cv-floating-nav,html[data-vha-mood] .cv-floating-head,html[data-vha-mood] .cv-contact-panel,html[data-vha-mood] .cv-skills span,html[data-vha-mood] .cv-quicklinks,html[data-vha-mood] .cv-actions,html[data-vha-mood] .cv-actions a,html[data-vha-mood] .cv-actions button,html[data-vha-mood] .cv-floating-links button{background-color:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important}
-html[data-vha-mood] .vha-main-nav,html[data-vha-mood] .vha-main-nav>a,html[data-vha-mood] .vha-nav-dropdown,html[data-vha-mood] .vha-nav-dropdown>summary,html[data-vha-mood] .vha-nav-menu,html[data-vha-mood] .vha-nav-menu>a,html[data-vha-mood] .vha-community-button,html[data-vha-mood] .gd-nav,html[data-vha-mood] .gd-nav>a{background-color:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important;box-shadow:none!important}
-html[data-vha-mood] .vha-main-nav>a:hover,html[data-vha-mood] .vha-main-nav>a:focus-visible,html[data-vha-mood] .vha-nav-dropdown>summary:hover,html[data-vha-mood] .vha-nav-menu>a:hover,html[data-vha-mood] .vha-community-button:hover,html[data-vha-mood] .cv-floating-links button:hover,html[data-vha-mood] .cv-actions a:hover,html[data-vha-mood] .cv-actions button:hover{background-color:var(--theme-accent)!important;color:var(--theme-page)!important}
-html[data-vha-mood] .cv-name span,html[data-vha-mood] .cv-kicker,html[data-vha-mood] .cv-role,html[data-vha-mood] .cv-floating-head strong,html[data-vha-mood] .cv-section h2 em{color:var(--theme-accent)!important}
-html[data-vha-mood] .vha-main-nav .active,html[data-vha-mood] .vha-main-nav [aria-current=page]{border-color:var(--theme-accent)!important;color:var(--theme-accent)!important}
-/* Complete coverage for Green Dream components that use their own fixed colours. */
-html[data-vha-mood] .gd-cv-profile,
-html[data-vha-mood] .gd-cvgrid,
-html[data-vha-mood] .gd-circle-portal,
-html[data-vha-mood] .gd-listening,
-html[data-vha-mood] #gd-listening,
-html[data-vha-mood] .gd-media-row,
-html[data-vha-mood] .gd-suno-row,
-html[data-vha-mood] .gd-nav-dropdown,
-html[data-vha-mood] .gd-nav-dropdown[open] .gd-nav-menu,
-html[data-vha-mood] .vha-nav-dropdown,
-html[data-vha-mood] .vha-nav-dropdown[open] .vha-nav-menu {
-  color:var(--theme-text)!important;
-  background-color:var(--theme-surface)!important;
-  border-color:var(--theme-border)!important;
-  box-shadow:var(--vha-mood-shadow,none)!important;
-}
-html[data-vha-mood] .gd-cv-profile,
-html[data-vha-mood] .gd-circle-portal,
-html[data-vha-mood] .gd-listening,
-html[data-vha-mood] #gd-listening,
-html[data-vha-mood] .gd-media-row,
-html[data-vha-mood] .gd-suno-row,
-html[data-vha-mood] .gd-nav-dropdown .gd-nav-menu,
-html[data-vha-mood] .vha-nav-dropdown .vha-nav-menu {
-  background-image:none!important;
-}
-html[data-vha-mood] .gd-cv-profile *,
-html[data-vha-mood] .gd-cvgrid *,
-html[data-vha-mood] .gd-circle-portal *,
-html[data-vha-mood] .gd-listening *,
-html[data-vha-mood] #gd-listening *,
-html[data-vha-mood] .gd-media-row *,
-html[data-vha-mood] .gd-suno-row *,
-html[data-vha-mood] .gd-nav-dropdown *,
-html[data-vha-mood] .vha-nav-dropdown * {
-  border-color:var(--theme-border)!important;
-}
-html[data-vha-mood] .gd-cv-profile :is(h1,h2,h3,h4,p,span,strong,small,li,label),
-html[data-vha-mood] .gd-cvgrid :is(h1,h2,h3,h4,p,span,strong,small,li,label),
-html[data-vha-mood] .gd-circle-portal :is(h1,h2,h3,h4,p,span,strong,small,li,label),
-html[data-vha-mood] .gd-listening :is(h1,h2,h3,h4,p,span,strong,small,li,label),
-html[data-vha-mood] #gd-listening :is(h1,h2,h3,h4,p,span,strong,small,li,label),
-html[data-vha-mood] .gd-media-row :is(h1,h2,h3,h4,p,span,strong,small,li,label),
-html[data-vha-mood] .gd-suno-row :is(h1,h2,h3,h4,p,span,strong,small,li,label),
-html[data-vha-mood] .gd-nav-dropdown :is(summary,a,span,strong,small),
-html[data-vha-mood] .vha-nav-dropdown :is(summary,a,span,strong,small) {
-  color:var(--theme-text)!important;
-}
-html[data-vha-mood] .gd-cv-profile :is(a,button),
-html[data-vha-mood] .gd-cvgrid :is(a,button),
-html[data-vha-mood] .gd-circle-portal :is(a,button),
-html[data-vha-mood] .gd-listening :is(a,button),
-html[data-vha-mood] #gd-listening :is(a,button),
-html[data-vha-mood] .gd-media-row :is(a,button),
-html[data-vha-mood] .gd-suno-row :is(a,button),
-html[data-vha-mood] .gd-nav-dropdown .gd-nav-menu a,
-html[data-vha-mood] .vha-nav-dropdown .vha-nav-menu a {
-  color:var(--theme-accent)!important;
-  border-color:var(--theme-border)!important;
-}
-html[data-vha-mood] .gd-cv-profile :is(a,button):hover,
-html[data-vha-mood] .gd-cvgrid :is(a,button):hover,
-html[data-vha-mood] .gd-circle-portal :is(a,button):hover,
-html[data-vha-mood] .gd-listening :is(a,button):hover,
-html[data-vha-mood] #gd-listening :is(a,button):hover,
-html[data-vha-mood] .gd-media-row :is(a,button):hover,
-html[data-vha-mood] .gd-suno-row :is(a,button):hover,
-html[data-vha-mood] .gd-nav-dropdown .gd-nav-menu a:hover,
-html[data-vha-mood] .vha-nav-dropdown .vha-nav-menu a:hover {
-  background-color:var(--theme-accent)!important;
-  color:var(--theme-page)!important;
-}
-html[data-vha-mood] .gd-cv-profile :is(button,input,select,textarea),
-html[data-vha-mood] .gd-cvgrid :is(button,input,select,textarea),
-html[data-vha-mood] .gd-circle-portal :is(button,input,select,textarea),
-html[data-vha-mood] .gd-listening :is(button,input,select,textarea),
-html[data-vha-mood] #gd-listening :is(button,input,select,textarea),
-html[data-vha-mood] .gd-media-row :is(button,input,select,textarea),
-html[data-vha-mood] .gd-suno-row :is(button,input,select,textarea) {
-  background-color:var(--theme-surface)!important;
-  color:var(--theme-text)!important;
-  border-color:var(--theme-border)!important;
-}
-html[data-vha-mood] .gd-cv-profile,
-html[data-vha-mood] .gd-circle-portal,
-html[data-vha-mood] .gd-listening,
-html[data-vha-mood] #gd-listening,
-html[data-vha-mood] .gd-media-row,
-html[data-vha-mood] .gd-suno-row,
-html[data-vha-mood] .gd-nav-dropdown .gd-nav-menu,
-html[data-vha-mood] .vha-nav-dropdown .vha-nav-menu {
-  border-radius:var(--vha-mood-radius)!important;
-  transition:background-color .35s ease,color .35s ease,border-color .35s ease,border-radius .35s ease,box-shadow .35s ease;
-}
-html[data-vha-mood] .gd-cv-profile :is(svg),
-html[data-vha-mood] .gd-circle-portal :is(svg),
-html[data-vha-mood] .gd-listening :is(svg),
-html[data-vha-mood] #gd-listening :is(svg),
-html[data-vha-mood] .gd-media-row :is(svg),
-html[data-vha-mood] .gd-suno-row :is(svg) {
-  color:var(--theme-accent)!important;
-  stroke:var(--theme-accent)!important;
-}
-`;
-    const moodProfiles={
-      calm:{radius:"16px",shadow:"0 8px 26px #0002",line:"1.9",spacing:"0.015em",font:'Arial,Helvetica,sans-serif',display:'Arial,Helvetica,sans-serif',gap:"28px",panelPadding:"32px"},
-      sad:{radius:"9px",shadow:"0 5px 20px #0003",line:"1.85",spacing:"0.01em",font:'Georgia,"Times New Roman",serif',display:'Georgia,"Times New Roman",serif',gap:"20px",panelPadding:"26px"},
-      anxious:{radius:"10px",shadow:"none",line:"1.8",spacing:"0.01em",font:'Arial,Helvetica,sans-serif',display:'Arial,Helvetica,sans-serif',gap:"30px",panelPadding:"32px"},
-      happy:{radius:"22px",shadow:"0 10px 30px #0003",line:"1.75",spacing:"0.01em",font:'"Comic Neue","Comic Sans MS",cursive',display:'"Comic Neue","Comic Sans MS",cursive',gap:"22px",panelPadding:"30px"},
-      angry:{radius:"2px",shadow:"0 4px 18px #0005",line:"1.6",spacing:"0.04em",font:'Arial,Helvetica,sans-serif',display:'"Metal Mania",Impact,fantasy',gap:"14px",panelPadding:"22px"},
-      romantic:{radius:"20px",shadow:"0 10px 32px #0003",line:"1.9",spacing:"0.01em",font:'Georgia,"Times New Roman",serif',display:'"Great Vibes","Brush Script MT",cursive',gap:"34px",panelPadding:"36px"},
-      tired:{radius:"13px",shadow:"none",line:"1.95",spacing:"0.005em",font:'Arial,Helvetica,sans-serif',display:'Georgia,"Times New Roman",serif',gap:"30px",panelPadding:"32px"},
-      focused:{radius:"4px",shadow:"none",line:"1.6",spacing:"0.025em",font:'Arial,Helvetica,sans-serif',display:'Arial,Helvetica,sans-serif',gap:"16px",panelPadding:"22px"},
-      hopeful:{radius:"22px",shadow:"0 10px 30px #0002",line:"1.85",spacing:"0.015em",font:'"Trebuchet MS",Arial,sans-serif',display:'"Trebuchet MS",Arial,sans-serif',gap:"30px",panelPadding:"34px"},
-      reflective:{radius:"9px",shadow:"0 8px 24px #0003",line:"1.75",spacing:"0.015em",font:'Georgia,"Times New Roman",serif',display:'Georgia,"Times New Roman",serif',gap:"24px",panelPadding:"30px"}
-    };
-    const profile=moodProfiles[name]||moodProfiles.reflective;
+    globalStyle.textContent=`html[data-vha-mood],html[data-vha-mood] body,html[data-vha-mood] body>*,html[data-vha-mood] body>div,html[data-vha-mood] #app,html[data-vha-mood] #root,html[data-vha-mood] main,html[data-vha-mood] .gd,html[data-vha-mood] .gd-main,html[data-vha-mood] .gd-shell,html[data-vha-mood] .gd-page,html[data-vha-mood] .posts-main,html[data-vha-mood] .posts-content,html[data-vha-mood] .posts-page,html[data-vha-mood] .song-page,html[data-vha-mood] .cv-page,html[data-vha-mood] .cv-shell,html[data-vha-mood] .page-shell,html[data-vha-mood] .site-shell,html[data-vha-mood] .hero,html[data-vha-mood] .gd-hero{background-color:var(--theme-page)!important;color:var(--theme-text)!important}html[data-vha-mood] header,html[data-vha-mood] footer,html[data-vha-mood] nav,html[data-vha-mood] section,html[data-vha-mood] article,html[data-vha-mood] aside:not(#vha-viewer-tools),html[data-vha-mood] .gd-nav,html[data-vha-mood] .gd-footer,html[data-vha-mood] .gd-panel,html[data-vha-mood] .gd-card,html[data-vha-mood] .gd-radio,html[data-vha-mood] .gd-move,html[data-vha-mood] .post-card,html[data-vha-mood] .posts-note,html[data-vha-mood] .posts-filters,html[data-vha-mood] .viewer-console,html[data-vha-mood] .song-panel,html[data-vha-mood] .song-player-card,html[data-vha-mood] .cv-card,html[data-vha-mood] .cv-section,html[data-vha-mood] .transmission-card{background-color:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important}html[data-vha-mood] h1,html[data-vha-mood] h2,html[data-vha-mood] h3,html[data-vha-mood] p,html[data-vha-mood] li,html[data-vha-mood] label,html[data-vha-mood] .gd-brand strong,html[data-vha-mood] .gd-brand small{color:var(--theme-text)!important}html[data-vha-mood] a:not(.vha-tools-trigger),html[data-vha-mood] em,html[data-vha-mood] .gd-kicker,html[data-vha-mood] .gd-status,html[data-vha-mood] .post-category{color:var(--theme-accent)!important;border-color:var(--theme-border)!important}html[data-vha-mood] input,html[data-vha-mood] textarea,html[data-vha-mood] select,html[data-vha-mood] [contenteditable=true]{background:var(--theme-surface)!important;background-image:none!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important}`;
+    const font=key=>moodFontStacks[key]||moodFontStacks.sans;
+    const radius=Math.min(28,Math.max(0,Number(theme.radius)||0));
+    const shadow=Math.min(.45,Math.max(0,Number(theme.shadow)||0));
     let moodStyle=document.getElementById("vha-mood-profile");
     if(!moodStyle){moodStyle=document.createElement("style");moodStyle.id="vha-mood-profile";document.head.appendChild(moodStyle);}
-    moodStyle.textContent=`html[data-vha-mood]{--vha-mood-radius:${profile.radius};--vha-mood-shadow:${profile.shadow};--vha-mood-line:${profile.line};--vha-mood-spacing:${profile.spacing};--vha-mood-font:${profile.font};--vha-mood-display-font:${profile.display};--vha-mood-gap:${profile.gap};--vha-mood-panel-padding:${profile.panelPadding}}
+    moodStyle.textContent=`html[data-vha-mood]{--vha-mood-radius:${radius}px;--vha-mood-shadow:0 8px ${12+Math.round(shadow*56)}px rgba(0,0,0,${shadow});--vha-mood-line:${theme.lineHeight};--vha-mood-spacing:${theme.letterSpacing}em;--vha-mood-font:${font(theme.bodyFont)};--vha-mood-display-font:${font(theme.displayFont)};--vha-mood-gap:${theme.gap}px;--vha-mood-panel-padding:${theme.padding}px}
       html[data-vha-mood] body,html[data-vha-mood] body *{font-family:var(--vha-mood-font)!important}
       html[data-vha-mood] :is(h1,h2,h3,h4,h5,h6,.gd-hero h1,.gd-section h2,.gd-listening h2,.cv-name,.cv-section h2,.post-title,.posts-title){font-family:var(--vha-mood-display-font)!important}
       html[data-vha-mood] :is(.gd-movements,.gd-lower,.gd-listening,.cv-columns,.cv-skills,.gd-cvgrid,.posts-grid,#posts-list,.gd-section-head){gap:var(--vha-mood-gap)!important}
       html[data-vha-mood] :is(.gd-panel,.cv-hero,.cv-contact-panel){padding:var(--vha-mood-panel-padding)!important}
       html[data-vha-mood] .gd-panel,html[data-vha-mood] .gd-card,html[data-vha-mood] .gd-radio,html[data-vha-mood] .gd-move,html[data-vha-mood] .post-card,html[data-vha-mood] .posts-note,html[data-vha-mood] .posts-filters,html[data-vha-mood] .viewer-console,html[data-vha-mood] .song-panel,html[data-vha-mood] .song-player-card,html[data-vha-mood] .cv-card,html[data-vha-mood] .cv-section,html[data-vha-mood] .transmission-card,html[data-vha-mood] .cv-wrap{border-radius:var(--vha-mood-radius)!important;box-shadow:var(--vha-mood-shadow)!important;transition:border-radius .35s ease,box-shadow .35s ease,background-color .35s ease}
-      html[data-vha-mood] p,html[data-vha-mood] li,html[data-vha-mood] .post-excerpt,html[data-vha-mood] .gd-copy{line-height:var(--vha-mood-line)!important;letter-spacing:var(--vha-mood-spacing)}
-      html[data-vha-mood="calm"] .gd-panel,html[data-vha-mood="calm"] .post-card,html[data-vha-mood="calm"] .cv-card{border-width:1px!important}
-      html[data-vha-mood="sad"] .gd-kicker,html[data-vha-mood="sad"] .post-category{opacity:.82}
-      html[data-vha-mood="anxious"] *,html[data-vha-mood="anxious"] *::before,html[data-vha-mood="anxious"] *::after,html[data-vha-mood="tired"] *,html[data-vha-mood="tired"] *::before,html[data-vha-mood="tired"] *::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.12s!important}
-      html[data-vha-mood="happy"] button,html[data-vha-mood="happy"] .gd-button,html[data-vha-mood="happy"] .post-card{border-radius:var(--vha-mood-radius)!important}
-      html[data-vha-mood="angry"] h1,html[data-vha-mood="angry"] h2,html[data-vha-mood="angry"] h3{font-weight:800!important;letter-spacing:.045em}
-      html[data-vha-mood="focused"] .gd-panel,html[data-vha-mood="focused"] .post-card,html[data-vha-mood="focused"] .cv-card{border-width:1px!important}
-      html[data-vha-mood="focused"] a:not(.vha-tools-trigger){text-decoration-thickness:1px;text-underline-offset:3px}
-      html[data-vha-mood="tired"] p,html[data-vha-mood="tired"] li{font-size:1.035em}
-      html[data-vha-mood="hopeful"] .gd-panel,html[data-vha-mood="hopeful"] .post-card,html[data-vha-mood="hopeful"] .cv-card{border-width:1px!important}`;
-    try{localStorage.setItem("vha-mood-palette",JSON.stringify({name,colors}));}catch{}
+      html[data-vha-mood] p,html[data-vha-mood] li,html[data-vha-mood] .post-excerpt,html[data-vha-mood] .gd-copy{line-height:var(--vha-mood-line)!important;letter-spacing:var(--vha-mood-spacing)}`;
+    try{localStorage.setItem("vha-mood-ai-theme-v1",JSON.stringify(theme));}catch{}
   }
   function resetMoodTheme(){
     const html=document.documentElement;
     ["--theme-page","--theme-surface","--theme-raised","--theme-text","--theme-muted","--theme-accent","--theme-secondary","--theme-border","--theme-glow"].forEach(k=>html.style.removeProperty(k));
-    delete html.dataset.vhaMood;document.body.style.removeProperty("background-color");document.body.style.removeProperty("color");document.getElementById("vha-mood-global-overrides")?.remove();document.getElementById("vha-mood-profile")?.remove();document.getElementById("vha-mood-fonts")?.remove();
-    try{localStorage.removeItem("vha-mood-palette");}catch{}
+    delete html.dataset.vhaMood;
+    document.body.style.removeProperty("background-color");
+    document.body.style.removeProperty("color");
+    document.getElementById("vha-mood-global-overrides")?.remove();
+    document.getElementById("vha-mood-profile")?.remove();
+    document.getElementById("vha-mood-fonts")?.remove();
+    try{localStorage.removeItem("vha-mood-ai-theme-v1");localStorage.removeItem("vha-mood-palette");}catch{}
   }
-  try{const saved=JSON.parse(localStorage.getItem("vha-mood-palette")||"null");if(saved?.name&&Array.isArray(saved.colors)&&saved.colors.length===4)setMoodTheme(saved.name,saved.colors);}catch{}
-  const moodDefinitions=[
-    {name:"calm",words:["calm","peaceful","relaxed","serene","grounded","at ease"],colors:["#07110f","#0b1b17","#b8d8c6","#83b9a0"]},
-    {name:"sad",words:["sad","down","grief","grieving","lonely","heartbroken","blue","empty"],colors:["#0a0d18","#11182a","#d7deef","#9aaed0"]},
-    {name:"anxious",words:["anxious","anxiety","worried","overwhelmed","stressed","panic","uneasy","nervous"],colors:["#111019","#1a1728","#e0d8f4","#b6a4e0"]},
-    {name:"happy",words:["happy","joy","joyful","excited","great","delighted","content","cheerful"],colors:["#101007","#1b1a0b","#f5edbd","#e3d46a"]},
-    {name:"romantic",words:["romantic","in love","love","loving","tender","affectionate","intimate","dreamy","yearning"],colors:["#160d17","#251326","#f4dfeb","#d99abd"]},
-    {name:"angry",words:["angry","furious","mad","frustrated","irritated","rage"],colors:["#160b0b","#26100e","#f1d2c7","#ec8067"]},
-    {name:"tired",words:["tired","exhausted","sleepy","drained","burnt out","burned out","fatigued"],colors:["#0d1013","#171d22","#d2dce0","#9eafb8"]},
-    {name:"focused",words:["focused","productive","determined","motivated","ready to work","concentrate"],colors:["#080f12","#0d1b20","#d0e6e9","#72c4cc"]},
-    {name:"hopeful",words:["hopeful","optimistic","inspired","curious","looking forward","encouraged"],colors:["#0b1008","#14200d","#e1efc8","#a8d66b"]}
-  ];
-  function applyMoodDescription(value,forcedMood){
+  function restoreMoodTheme(){
+    try{
+      const theme=JSON.parse(localStorage.getItem("vha-mood-ai-theme-v1")||"null");
+      if(theme&&/^#[0-9a-f]{6}$/i.test(theme.page||"")&&/^#[0-9a-f]{6}$/i.test(theme.surface||"")&&/^#[0-9a-f]{6}$/i.test(theme.text||"")&&/^#[0-9a-f]{6}$/i.test(theme.accent||""))setMoodTheme(theme);
+    }catch{}
+  }
+  async function generateMoodTheme(value){
     const input=String(value||"").trim();
     const status=root.querySelector(".vha-mood-status");
-    if(!input&&!forcedMood){status.textContent="Tell me a little about how you feel first.";return false}
-    const t=input.toLowerCase();
-    const ranked=moodDefinitions.map(m=>({...m,score:m.words.reduce((score,word)=>score+(t.includes(word)?(word.includes(" ")?2:1):0),0)})).sort((a,b)=>b.score-a.score);
-    const match=forcedMood?moodDefinitions.find(m=>m.name===forcedMood):(ranked[0]?.score>0?ranked[0]:null);
-    const palette=match||{name:"reflective",colors:["#050906","#080e09","#e8f4df","#d8ff3e"]};
-    setMoodTheme(palette.name,palette.colors);
-    const moodName=palette.name;
-    const article=["anxious","angry"].includes(moodName)?"an":"a";
-    status.textContent=match?"The website is now tuned for "+article+" "+moodName+" mood. Colours, typography, spacing and visual treatment have been adjusted across pages.":"No clear mood was detected, so a reflective theme was applied. Try one of the presets or describe your mood.";
-    root.querySelectorAll("[data-mood-preset]").forEach(button=>{
-      const selected=button.dataset.moodPreset===moodName;
-      button.setAttribute("aria-pressed",String(selected));
-      button.classList.toggle("is-selected",selected);
-    });
-    return true;
+    if(input.length<3){status.textContent="Write a little more about what is going on for you.";return}
+    const applyButton=root.querySelector('[data-tool="apply-mood"]');
+    if(applyButton){applyButton.disabled=true;applyButton.textContent="Generating…";}
+    status.textContent="Reading your words and composing a new visual atmosphere…";
+    try{
+      const response=await fetch("https://ego-mood-ai.stefancu-emanuel.workers.dev",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({description:input})
+      });
+      const result=await response.json().catch(()=>({}));
+      if(!response.ok||!result.ok||!result.theme)throw new Error(result.error||"The AI service could not complete the request.");
+      setMoodTheme(result.theme);
+      status.textContent="Generated for: "+result.theme.mood+". "+result.theme.interpretation;
+    }catch(error){
+      status.textContent=error instanceof Error?error.message:"The AI could not generate a theme just now. Please try again.";
+    }finally{
+      if(applyButton){applyButton.disabled=false;applyButton.textContent="Generate a visual response";}
+    }
   }
+  restoreMoodTheme();
   const trigger = root.querySelector(".vha-tools-trigger");
   const panel = root.querySelector(".vha-tools-panel");
   // Scale actual text-bearing elements rather than only the main wrapper's inherited font size.
@@ -567,12 +453,6 @@ html[data-vha-mood] .gd-suno-row :is(svg) {
     document.body.classList.toggle("vha-tools-large-text", enabled);
   }
 
-  root.querySelectorAll("[data-mood-preset]").forEach(button=>button.addEventListener("click",()=>{
-    const mood=button.dataset.moodPreset;
-    const description=root.querySelector("#vha-mood-description");
-    if(description)description.value=mood;
-    applyMoodDescription(mood,mood);
-  }));
   root.querySelectorAll("[data-tool]").forEach(button=>button.addEventListener("click",async()=>{
     const tool=button.dataset.tool;
     if(tool==="radio"){
@@ -598,7 +478,7 @@ html[data-vha-mood] .gd-suno-row :is(svg) {
       return;
     }
     if(tool==="apply-mood"){
-      applyMoodDescription(root.querySelector("#vha-mood-description").value);
+      await generateMoodTheme(root.querySelector("#vha-mood-description").value);
       return;
     }
     if(tool==="reset-mood"){
