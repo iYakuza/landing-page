@@ -131,6 +131,7 @@
   }
   close?.addEventListener('click',()=>setRadioHidden(true));
   window.addEventListener('vha-radio-toggle',()=>setRadioHidden(false));
+  document.addEventListener('vha-crystal-mode-change',event=>setRadioHidden(!event.detail?.open));
 
   const positionKey='vha-green-dream-radio-geometry-v3';
   let drag=null,resize=null,suppressClickUntil=0;
