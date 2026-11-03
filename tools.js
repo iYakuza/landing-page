@@ -504,6 +504,36 @@ html[data-vha-mood] .gd-suno-row :is(svg) {
     try{localStorage.removeItem("vha-mood-palette");}catch{}
   }
   try{const saved=JSON.parse(localStorage.getItem("vha-mood-palette")||"null");if(saved?.name&&Array.isArray(saved.colors)&&saved.colors.length===4)setMoodTheme(saved.name,saved.colors);}catch{}
+  const moodDefinitions=[
+    {name:"calm",words:["calm","peaceful","relaxed","serene","grounded","at ease"],colors:["#07110f","#0b1b17","#b8d8c6","#83b9a0"]},
+    {name:"sad",words:["sad","down","grief","grieving","lonely","heartbroken","blue","empty"],colors:["#0a0d18","#11182a","#d7deef","#9aaed0"]},
+    {name:"anxious",words:["anxious","anxiety","worried","overwhelmed","stressed","panic","uneasy","nervous"],colors:["#111019","#1a1728","#e0d8f4","#b6a4e0"]},
+    {name:"happy",words:["happy","joy","joyful","excited","great","delighted","content","cheerful"],colors:["#101007","#1b1a0b","#f5edbd","#e3d46a"]},
+    {name:"romantic",words:["romantic","in love","love","loving","tender","affectionate","intimate","dreamy","yearning"],colors:["#160d17","#251326","#f4dfeb","#d99abd"]},
+    {name:"angry",words:["angry","furious","mad","frustrated","irritated","rage"],colors:["#160b0b","#26100e","#f1d2c7","#ec8067"]},
+    {name:"tired",words:["tired","exhausted","sleepy","drained","burnt out","burned out","fatigued"],colors:["#0d1013","#171d22","#d2dce0","#9eafb8"]},
+    {name:"focused",words:["focused","productive","determined","motivated","ready to work","concentrate"],colors:["#080f12","#0d1b20","#d0e6e9","#72c4cc"]},
+    {name:"hopeful",words:["hopeful","optimistic","inspired","curious","looking forward","encouraged"],colors:["#0b1008","#14200d","#e1efc8","#a8d66b"]}
+  ];
+  function applyMoodDescription(value,forcedMood){
+    const input=String(value||"").trim();
+    const status=root.querySelector(".vha-mood-status");
+    if(!input&&!forcedMood){status.textContent="Tell me a little about how you feel first.";return false}
+    const t=input.toLowerCase();
+    const ranked=moodDefinitions.map(m=>({...m,score:m.words.reduce((score,word)=>score+(t.includes(word)?(word.includes(" ")?2:1):0),0)})).sort((a,b)=>b.score-a.score);
+    const match=forcedMood?moodDefinitions.find(m=>m.name===forcedMood):(ranked[0]?.score>0?ranked[0]:null);
+    const palette=match||{name:"reflective",colors:["#050906","#080e09","#e8f4df","#d8ff3e"]};
+    setMoodTheme(palette.name,palette.colors);
+    const moodName=palette.name;
+    const article=["anxious","angry"].includes(moodName)?"an":"a";
+    status.textContent=match?"The website is now tuned for "+article+" "+moodName+" mood. Colours, typography, spacing and visual treatment have been adjusted across pages.":"No clear mood was detected, so a reflective theme was applied. Try one of the presets or describe your mood.";
+    root.querySelectorAll("[data-mood-preset]").forEach(button=>{
+      const selected=button.dataset.moodPreset===moodName;
+      button.setAttribute("aria-pressed",String(selected));
+      button.classList.toggle("is-selected",selected);
+    });
+    return true;
+  }
   const trigger = root.querySelector(".vha-tools-trigger");
   const panel = root.querySelector(".vha-tools-panel");
   // Scale actual text-bearing elements rather than only the main wrapper's inherited font size.
@@ -537,6 +567,12 @@ html[data-vha-mood] .gd-suno-row :is(svg) {
     document.body.classList.toggle("vha-tools-large-text", enabled);
   }
 
+  root.querySelectorAll("[data-mood-preset]").forEach(button=>button.addEventListener("click",()=>{
+    const mood=button.dataset.moodPreset;
+    const description=root.querySelector("#vha-mood-description");
+    if(description)description.value=mood;
+    applyMoodDescription(mood,mood);
+  }));
   root.querySelectorAll("[data-tool]").forEach(button=>button.addEventListener("click",async()=>{
     const tool=button.dataset.tool;
     if(tool==="radio"){
@@ -553,30 +589,16 @@ html[data-vha-mood] .gd-suno-row :is(svg) {
         close.setAttribute("aria-label",hidden?"Minimize radio":"Restore radio from Viewer Tools");
       }
       return;
-    }if(tool==="mood"){const open=root.dataset.moodOpen!=="true";root.dataset.moodOpen=String(open);button.setAttribute("aria-expanded",String(open));if(open)root.querySelector("#vha-mood-description").focus();return}
+    }if(tool==="mood"){
+      const open=root.dataset.moodOpen!=="true";
+      root.dataset.moodOpen=String(open);
+      button.setAttribute("aria-expanded",String(open));
+      const description=root.querySelector("#vha-mood-description");
+      if(open)requestAnimationFrame(()=>description?.focus());
+      return;
+    }
     if(tool==="apply-mood"){
-      const input=root.querySelector("#vha-mood-description").value.trim();
-      const status=root.querySelector(".vha-mood-status");
-      if(!input){status.textContent="Tell me a little about how you feel first.";return}
-      const t=input.toLowerCase();
-      const moods=[
-        {name:"calm",words:["calm","peaceful","relaxed","serene","grounded","at ease"],colors:["#07110f","#0b1b17","#b8d8c6","#83b9a0"]},
-        {name:"sad",words:["sad","down","grief","grieving","lonely","heartbroken","blue","empty"],colors:["#0a0d18","#11182a","#d7deef","#9aaed0"]},
-        {name:"anxious",words:["anxious","anxiety","worried","overwhelmed","stressed","panic","uneasy","nervous"],colors:["#111019","#1a1728","#e0d8f4","#b6a4e0"]},
-        {name:"happy",words:["happy","joy","joyful","excited","great","delighted","content","cheerful"],colors:["#101007","#1b1a0b","#f5edbd","#e3d46a"]},
-        {name:"romantic",words:["romantic","in love","love","loving","tender","affectionate","intimate","dreamy","yearning"],colors:["#160d17","#251326","#f4dfeb","#d99abd"]},
-        {name:"angry",words:["angry","furious","mad","frustrated","irritated","rage"],colors:["#160b0b","#26100e","#f1d2c7","#ec8067"]},
-        {name:"tired",words:["tired","exhausted","sleepy","drained","burnt out","burned out","fatigued"],colors:["#0d1013","#171d22","#d2dce0","#9eafb8"]},
-        {name:"focused",words:["focused","productive","determined","motivated","ready to work","concentrate"],colors:["#080f12","#0d1b20","#d0e6e9","#72c4cc"]},
-        {name:"hopeful",words:["hopeful","optimistic","inspired","curious","looking forward","encouraged"],colors:["#0b1008","#14200d","#e1efc8","#a8d66b"]}
-      ];
-      const ranked=moods.map(m=>({...m,score:m.words.reduce((score,word)=>score+(t.includes(word)?(word.includes(" ") ? 2 : 1):0),0)})).sort((a,b)=>b.score-a.score);
-      const match=ranked[0]?.score>0?ranked[0]:null;
-      const palette=match||{name:"reflective",colors:["#050906","#080e09","#e8f4df","#d8ff3e"]};
-      setMoodTheme(palette.name,palette.colors);
-      const moodName=match?.name||"reflective";
-      const article=["anxious","angry"].includes(moodName)?"an":"a";
-      status.textContent=match?"The website is now tuned for "+article+" "+moodName+" mood. Colours, typography, spacing and visual treatment have been adjusted across pages.":"No clear mood was detected, so a reflective theme was applied. Try words such as calm, anxious, happy or focused.";
+      applyMoodDescription(root.querySelector("#vha-mood-description").value);
       return;
     }
     if(tool==="reset-mood"){
