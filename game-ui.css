@@ -608,3 +608,12 @@ body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-ent
   transition:filter .28s ease!important;
 }
 @media(prefers-reduced-motion:reduce){body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt){transition:none!important}}
+
+/* Constellation: clearer, still quiet connections and tactile star movement. */
+.vha-constellation-lines{opacity:.62!important;filter:drop-shadow(0 0 3px rgba(185,215,122,.28))}
+.vha-constellation-lines path{stroke:rgba(198,226,151,.72)!important;stroke-width:1.35!important;stroke-dasharray:3 6!important;filter:drop-shadow(0 0 2px rgba(185,215,122,.35))}
+.vha-map-node{cursor:grab!important;touch-action:none!important;user-select:none!important;-webkit-user-select:none!important}
+.vha-map-node.is-dragging{cursor:grabbing!important;z-index:8!important}
+.vha-map-node.is-dragging svg{transform:scale(1.35)!important;filter:drop-shadow(0 0 10px rgba(220,255,175,.95)) drop-shadow(0 0 24px rgba(194,230,144,.7))!important}
+.vha-map-node[data-dragged="true"]{cursor:grab!important}
+@media(max-width:640px){.vha-constellation-lines{opacity:.48!important}}
