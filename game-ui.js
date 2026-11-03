@@ -124,7 +124,7 @@
       const dx=event.clientX-starStartX,dy=event.clientY-starStartY;
       if(Math.abs(dx)+Math.abs(dy)>3)starMoved=true;
       if(!starMoved)return;
-      const bounds=constellationField.getBoundingClientRect();
+      const bounds=destinationList.getBoundingClientRect();
       const x=Math.max(3,Math.min(97,starOriginX+(dx/bounds.width)*100));
       const y=Math.max(4,Math.min(96,starOriginY+(dy/bounds.height)*100));
       link.style.setProperty("--star-x",x+"%");
