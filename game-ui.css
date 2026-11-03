@@ -598,3 +598,13 @@ body.vha-game-interface.gd-home :is(.sys-entry-intro,.sys-path p,.gd-ego-copy p,
 @media(max-height:560px){
   .vha-map-destinations{inset-block:5%!important}
 }
+
+
+/* Crystal focus: soften the page behind the constellation and keep the crystal/interface sharp. */
+body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt){
+  filter:blur(7px) brightness(.48)!important;
+  pointer-events:none!important;
+  user-select:none!important;
+  transition:filter .28s ease!important;
+}
+@media(prefers-reduced-motion:reduce){body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt){transition:none!important}}
