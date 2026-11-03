@@ -89,6 +89,37 @@
     #vha-viewer-tools[data-open="true"]>.ego-bottom-hud.vha-universal-nav{order:2!important}
     @media(max-width:760px){#vha-viewer-tools{width:52px;height:52px;min-height:52px}#vha-viewer-tools>.ego-bottom-hud.vha-universal-nav{flex-basis:52px!important;width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important}#vha-viewer-tools[data-open="true"]{width:calc(100vw - 12px);min-height:54px;height:auto;bottom:6px;gap:4px;padding:4px 5px;overflow-x:auto;justify-content:flex-start;scrollbar-width:thin}#vha-viewer-tools[data-open="true"]>.vha-tools-side{flex:0 0 auto;gap:2px}#vha-viewer-tools[data-open="true"]>.ego-bottom-hud.vha-universal-nav{flex-basis:46px!important;width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important}}
     @media(prefers-reduced-motion:reduce){#vha-viewer-tools *{transition:none!important}}
+    /* Soft glass crystal dock: quiet contrast, translucent forest tones, and generous breathing room. */
+    #vha-viewer-tools{
+      width:min(880px,calc(100vw - 32px))!important;min-height:66px!important;height:auto!important;
+      padding:7px 16px!important;gap:12px!important;border:1px solid rgba(174,199,157,.18)!important;
+      border-radius:22px!important;background:rgba(7,16,11,.68)!important;
+      background:color-mix(in srgb,var(--theme-surface,#0a130d) 76%,transparent)!important;
+      box-shadow:0 10px 38px rgba(0,0,0,.22),inset 0 1px 0 rgba(231,241,222,.055)!important;
+      -webkit-backdrop-filter:blur(26px) saturate(118%)!important;backdrop-filter:blur(26px) saturate(118%)!important;
+      transition:width .45s cubic-bezier(.2,.7,.2,1),min-height .35s ease,background .35s ease,border-color .35s ease,box-shadow .35s ease!important;
+    }
+    #vha-viewer-tools[data-open="true"]{width:min(880px,calc(100vw - 32px))!important}
+    #vha-viewer-tools .vha-tools-side{gap:5px!important}
+    #vha-viewer-tools .vha-tool-row{min-height:46px!important;padding:5px 9px!important;gap:7px!important;border-radius:13px!important;color:rgba(224,233,218,.78)!important;font-size:10px!important;letter-spacing:.025em!important;transition:background .25s ease,color .25s ease,opacity .25s ease!important}
+    #vha-viewer-tools .vha-tool-row:hover,#vha-viewer-tools .vha-tool-row:focus-visible{color:var(--theme-text,#e8f4df)!important;background:rgba(173,196,151,.085)!important;outline:1px solid rgba(173,196,151,.16)!important}
+    #vha-viewer-tools .vha-tool-icon{width:26px!important;height:26px!important;flex-basis:26px!important;border:1px solid rgba(174,199,157,.18)!important;border-radius:9px!important;background:rgba(5,12,8,.32)!important;color:rgba(196,216,176,.86)!important}
+    #vha-viewer-tools .vha-tool-icon svg{width:15px!important;height:15px!important}
+    #vha-viewer-tools>.ego-bottom-hud.vha-universal-nav{flex-basis:58px!important;width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important;margin-inline:12px!important}
+    #vha-viewer-tools .vha-map-toggle{border-radius:50%!important;background:radial-gradient(circle at 50% 35%,rgba(177,207,151,.13),rgba(8,17,11,.18) 72%)!important;filter:drop-shadow(0 0 10px rgba(164,194,138,.16))!important;transition:filter .35s ease,transform .35s ease!important}
+    #vha-viewer-tools .vha-map-toggle:hover{filter:drop-shadow(0 0 15px rgba(164,194,138,.28))!important;transform:scale(1.035)}
+    #vha-viewer-tools .vha-map-toggle svg{filter:drop-shadow(0 0 5px rgba(190,214,165,.18))!important}
+    @media(max-width:760px){
+      #vha-viewer-tools{width:calc(100vw - 18px)!important;min-height:58px!important;padding:5px 7px!important;gap:4px!important;border-radius:18px!important}
+      #vha-viewer-tools[data-open="true"]{width:calc(100vw - 18px)!important;max-width:none!important;overflow-x:auto!important;scrollbar-width:none!important}
+      #vha-viewer-tools[data-open="true"]::-webkit-scrollbar{display:none}
+      #vha-viewer-tools .vha-tools-side{gap:1px!important}
+      #vha-viewer-tools .vha-tool-row{min-height:42px!important;padding:3px 5px!important;gap:4px!important;font-size:8px!important}
+      #vha-viewer-tools .vha-tool-icon{width:22px!important;height:22px!important;flex-basis:22px!important;border-radius:7px!important}
+      #vha-viewer-tools>.ego-bottom-hud.vha-universal-nav{margin-inline:3px!important;flex-basis:48px!important;width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important}
+    }
+    @media(prefers-reduced-motion:reduce){#vha-viewer-tools,#vha-viewer-tools *{transition:none!important}}
+
   `;
   document.head.appendChild(style);
   const icons = {
@@ -97,7 +128,6 @@
     fullscreen:'<path d="M8 3H3v5M3 3l7 7M16 3h5v5m0-5-7 7M3 16v5h5m-5 0 7-7m13 2v5h-5m5 0-7-7"/>',
     moon:'<path d="M20.9 13A9 9 0 0 1 11 3.1 9 9 0 1 0 20.9 13Z"/>',
     text:'<path d="M4 7V4h16v3M12 4v16M8 20h8"/>',
-    ui:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
     reset:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
   };
   const svg = name => '<svg viewBox="0 0 24 24" aria-hidden="true">'+icons[name]+'</svg>';
@@ -106,7 +136,7 @@
   root.setAttribute("aria-label","Viewer controls");
   root.dataset.moodOpen = "false";
   root.dataset.open = "false";
-  root.innerHTML = '<div class="vha-tools-side vha-tools-left" aria-label="Viewer controls left"><button class="vha-tool-row" type="button" data-tool="fullscreen"><span class="vha-tool-icon">'+svg("fullscreen")+'</span><span>Fullscreen</span></button><button class="vha-tool-row" type="button" data-tool="radio" aria-pressed="false"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path d="M17 9a5 5 0 0 1 0 6M19.5 6.5a9 9 0 0 1 0 11"/></svg></span><span>V/A Radio</span></button><button class="vha-tool-row" type="button" data-tool="text" aria-pressed="false"><span class="vha-tool-icon">'+svg("text")+'</span><span>Text Size</span></button></div><div class="vha-tools-side vha-tools-right" aria-label="Viewer controls right"><button class="vha-tool-row" type="button" data-tool="ui" aria-pressed="false"><span class="vha-tool-icon">'+svg("ui")+'</span><span>UI Toggle</span></button><button class="vha-tool-row" type="button" data-tool="mood" aria-expanded="false"><span class="vha-tool-icon">'+svg("mood")+'</span><span>Match my mood</span></button><button class="vha-tool-row" type="button" data-tool="reset-mood"><span class="vha-tool-icon">'+svg("reset")+'</span><span>Reset mood theme</span></button><a class="vha-tool-row" href="/landing-page/posts/community/" aria-label="Open Signals community"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18v3M8 21h8M12 3v2M5.6 8.6a9 9 0 0 0 0 6.8M18.4 8.6a9 9 0 0 1 0 6.8M2.8 5.8a13 13 0 0 0 0 12.4M21.2 5.8a13 13 0 0 1 0 12.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/></svg></span><span>SIGNALS</span></a></div><div class="vha-mood-box"><label for="vha-mood-description">How are you feeling right now?</label><textarea id="vha-mood-description" maxlength="500" placeholder="Describe it in your own words…"></textarea><div class="vha-mood-presets" aria-label="Choose a feeling"><button type="button" data-mood-preset="calm">Calm</button><button type="button" data-mood-preset="sad">Sad</button><button type="button" data-mood-preset="anxious">Anxious</button><button type="button" data-mood-preset="happy">Happy</button><button type="button" data-mood-preset="angry">Angry</button><button type="button" data-mood-preset="tired">Tired</button><button type="button" data-mood-preset="focused">Focused</button><button type="button" data-mood-preset="hopeful">Hopeful</button><button type="button" data-mood-preset="romantic">Romantic</button></div><button type="button" data-tool="apply-mood">Adapt the site</button><div class="vha-mood-status" role="status" aria-live="polite"></div></div>';
+  root.innerHTML = '<div class="vha-tools-side vha-tools-left" aria-label="Viewer controls left"><button class="vha-tool-row" type="button" data-tool="fullscreen"><span class="vha-tool-icon">'+svg("fullscreen")+'</span><span>Fullscreen</span></button><button class="vha-tool-row" type="button" data-tool="radio" aria-pressed="false"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path d="M17 9a5 5 0 0 1 0 6M19.5 6.5a9 9 0 0 1 0 11"/></svg></span><span>V/A Radio</span></button><button class="vha-tool-row" type="button" data-tool="text" aria-pressed="false"><span class="vha-tool-icon">'+svg("text")+'</span><span>Text Size</span></button></div><div class="vha-tools-side vha-tools-right" aria-label="Viewer controls right"><button class="vha-tool-row" type="button" data-tool="mood" aria-expanded="false"><span class="vha-tool-icon">'+svg("mood")+'</span><span>Match my mood</span></button><button class="vha-tool-row" type="button" data-tool="reset-mood"><span class="vha-tool-icon">'+svg("reset")+'</span><span>Reset mood theme</span></button><a class="vha-tool-row" href="/landing-page/posts/community/" aria-label="Open Signals community"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18v3M8 21h8M12 3v2M5.6 8.6a9 9 0 0 0 0 6.8M18.4 8.6a9 9 0 0 1 0 6.8M2.8 5.8a13 13 0 0 0 0 12.4M21.2 5.8a13 13 0 0 1 0 12.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/></svg></span><span>SIGNALS</span></a></div><div class="vha-mood-box"><label for="vha-mood-description">How are you feeling right now?</label><textarea id="vha-mood-description" maxlength="500" placeholder="Describe it in your own words…"></textarea><div class="vha-mood-presets" aria-label="Choose a feeling"><button type="button" data-mood-preset="calm">Calm</button><button type="button" data-mood-preset="sad">Sad</button><button type="button" data-mood-preset="anxious">Anxious</button><button type="button" data-mood-preset="happy">Happy</button><button type="button" data-mood-preset="angry">Angry</button><button type="button" data-mood-preset="tired">Tired</button><button type="button" data-mood-preset="focused">Focused</button><button type="button" data-mood-preset="hopeful">Hopeful</button><button type="button" data-mood-preset="romantic">Romantic</button></div><button type="button" data-tool="apply-mood">Adapt the site</button><div class="vha-mood-status" role="status" aria-live="polite"></div></div>';
   function bindCrystal(){
     const crystal=root.querySelector(".ego-bottom-hud.vha-universal-nav .vha-map-toggle");
     if(!crystal||crystal.dataset.toolsBound==="true")return;
@@ -558,7 +588,6 @@ html[data-vha-mood] .gd-suno-row :is(svg) {
     }
     if(tool==="fullscreen"){if(hasPostPermalink()&&document.querySelector("#posts-list > .post-card")){if(document.body.classList.contains("vha-post-fullscreen"))stopPostReader();else startPostReader()}else{try{if(!document.fullscreenElement){await document.documentElement.requestFullscreen();startPresentation()}else{stopPresentation();await document.exitFullscreen()}}catch{startPresentation();alert("Browser fullscreen is unavailable here. Presentation navigation is still active; use the arrows or Space to move through the page.")}}}
     else if(tool==="text"){const active=!document.body.classList.contains("vha-tools-large-text");setViewerTextSize(active);button.setAttribute("aria-pressed",String(active))}
-    else if(tool==="ui"){const active=!document.body.classList.contains("vha-tools-hide-ui");document.body.classList.toggle("vha-tools-hide-ui",active);button.setAttribute("aria-pressed",String(active))}
   }));
 })();
 
