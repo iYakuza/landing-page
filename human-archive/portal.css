@@ -183,3 +183,9 @@ body.gd-home .ego-footer>span{color:#778674}
 @media(prefers-reduced-motion:reduce){
  body.gd-home .ego-record-paths a{transition:none}
 }
+
+/* Final hero layout: one uninterrupted field, no dashboard grid. */
+body.gd-home .ego-command .ego-cover-content{width:min(760px,72vw);max-width:760px;margin:0;padding:0;text-align:left}
+body.gd-home .ego-command .ego-cover-content h1{margin-left:-.06em}
+@media(max-width:900px){body.gd-home .ego-command .ego-cover-content{width:min(720px,88vw)}}
+@media(max-width:600px){body.gd-home .ego-command .ego-cover-content{width:100%}}
