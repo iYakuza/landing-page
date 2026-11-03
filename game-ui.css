@@ -645,8 +645,12 @@ body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-ent
 .vha-constellation-presets button{padding:6px 8px;border:1px solid rgba(185,215,122,.22);background:rgba(12,24,15,.7);color:#cbd9bd;font:8px ui-monospace,monospace;letter-spacing:.08em;cursor:pointer}
 .vha-constellation-presets button:hover,.vha-constellation-presets button[aria-pressed=true]{border-color:rgba(216,255,62,.72);color:#e5ffad;background:rgba(35,54,25,.72)}
 .vha-constellation-presets small{display:block;margin-top:8px;color:rgba(203,217,189,.58);font-size:7px;letter-spacing:.08em}
-#gd-radio{height:auto!important;max-height:none!important;overflow:visible!important;overscroll-behavior:visible!important;box-sizing:border-box}
+#gd-radio{width:fit-content;min-width:min(280px,calc(100vw - 24px));max-width:min(326px,calc(100vw - 24px));height:auto!important;max-height:none!important;overflow:visible!important;overscroll-behavior:visible!important;box-sizing:border-box}
 #gd-radio .gd-radio-body{height:auto;overflow:visible}
 #gd-radio .gd-player{width:100%;max-width:100%}
-#gd-radio .gd-radio-resize{display:none!important}
+#gd-radio .gd-radio-resize{position:absolute;z-index:5;top:50%;width:10px;height:30px;transform:translateY(-50%);cursor:ew-resize;touch-action:none}
+#gd-radio .gd-radio-resize[data-corner=nw],#gd-radio .gd-radio-resize[data-corner=sw]{left:-5px}
+#gd-radio .gd-radio-resize[data-corner=ne],#gd-radio .gd-radio-resize[data-corner=se]{right:-5px}
+#gd-radio .gd-radio-resize:after{content:"";position:absolute;left:4px;top:5px;width:2px;height:20px;background:rgba(216,255,62,.6);box-shadow:0 0 5px rgba(216,255,62,.25)}
+#gd-radio .gd-track{overflow-wrap:anywhere}
 @media(max-width:640px){.vha-constellation-presets{top:12px;left:12px;right:12px;max-width:none}.vha-constellation-presets small{font-size:6px}}
