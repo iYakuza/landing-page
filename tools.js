@@ -89,15 +89,13 @@
     #vha-viewer-tools[data-open="true"]>.ego-bottom-hud.vha-universal-nav{order:2!important}
     @media(max-width:760px){#vha-viewer-tools{width:52px;height:52px;min-height:52px}#vha-viewer-tools>.ego-bottom-hud.vha-universal-nav{flex-basis:52px!important;width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important}#vha-viewer-tools[data-open="true"]{width:calc(100vw - 12px);min-height:54px;height:auto;bottom:6px;gap:4px;padding:4px 5px;overflow-x:auto;justify-content:flex-start;scrollbar-width:thin}#vha-viewer-tools[data-open="true"]>.vha-tools-side{flex:0 0 auto;gap:2px}#vha-viewer-tools[data-open="true"]>.ego-bottom-hud.vha-universal-nav{flex-basis:46px!important;width:46px!important;height:46px!important;min-width:46px!important;min-height:46px!important}}
     @media(prefers-reduced-motion:reduce){#vha-viewer-tools *{transition:none!important}}
-    /* Soft glass crystal dock: quiet contrast, translucent forest tones, and generous breathing room. */
+    /* Floating controls: keep the tools, remove the enclosing dock. */
     #vha-viewer-tools{
-      width:min(880px,calc(100vw - 32px))!important;min-height:66px!important;height:auto!important;
-      padding:7px 16px!important;gap:12px!important;border:1px solid rgba(174,199,157,.18)!important;
-      border-radius:22px!important;background:rgba(7,16,11,.68)!important;
-      background:color-mix(in srgb,var(--theme-surface,#0a130d) 76%,transparent)!important;
-      box-shadow:0 10px 38px rgba(0,0,0,.22),inset 0 1px 0 rgba(231,241,222,.055)!important;
-      -webkit-backdrop-filter:blur(26px) saturate(118%)!important;backdrop-filter:blur(26px) saturate(118%)!important;
-      transition:width .45s cubic-bezier(.2,.7,.2,1),min-height .35s ease,background .35s ease,border-color .35s ease,box-shadow .35s ease!important;
+      width:min(880px,calc(100vw - 32px))!important;min-height:0!important;height:auto!important;
+      padding:0!important;gap:12px!important;border:0!important;border-radius:0!important;
+      background:transparent!important;box-shadow:none!important;
+      -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+      transition:width .45s cubic-bezier(.2,.7,.2,1)!important;
     }
     #vha-viewer-tools[data-open="true"]{width:min(880px,calc(100vw - 32px))!important}
     #vha-viewer-tools .vha-tools-side{gap:5px!important}
@@ -110,7 +108,7 @@
     #vha-viewer-tools .vha-map-toggle:hover{filter:drop-shadow(0 0 15px rgba(164,194,138,.28))!important;transform:scale(1.035)}
     #vha-viewer-tools .vha-map-toggle svg{filter:drop-shadow(0 0 5px rgba(190,214,165,.18))!important}
     @media(max-width:760px){
-      #vha-viewer-tools{width:calc(100vw - 18px)!important;min-height:58px!important;padding:5px 7px!important;gap:4px!important;border-radius:18px!important}
+      #vha-viewer-tools{width:calc(100vw - 18px)!important;min-height:0!important;padding:0!important;gap:4px!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
       #vha-viewer-tools[data-open="true"]{width:calc(100vw - 18px)!important;max-width:none!important;overflow-x:auto!important;scrollbar-width:none!important}
       #vha-viewer-tools[data-open="true"]::-webkit-scrollbar{display:none}
       #vha-viewer-tools .vha-tools-side{gap:1px!important}
