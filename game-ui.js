@@ -78,7 +78,7 @@
   const journeyMarkup = nextJourney
     ? '<div class="vha-journey-note" hidden><span>NEXT PART OF THE JOURNEY</span><strong>' + nextJourney[1] + '</strong><p>' + nextJourney[2] + '</p><a href="' + nextJourney[3] + '">CONTINUE THE JOURNEY ↗</a></div>'
     : '<div class="vha-journey-note" hidden><span>THE JOURNEY CONTINUES</span><strong>Choose the next trace.</strong><p>Follow a point in the constellation to continue exploring.</p></div>';
-  map.innerHTML='<div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path class="vha-constellation-route" d=""/></svg><div class="vha-map-destinations"></div></div>' + journeyMarkup;
+  map.innerHTML='<div class="vha-constellation-presets" role="group" aria-label="Choose a real constellation"><span>STAR PATTERNS</span><div><button type="button" data-constellation="orion" aria-pressed="false">ORION</button><button type="button" data-constellation="ursa-major" aria-pressed="false">URSA MAJOR</button><button type="button" data-constellation="cassiopeia" aria-pressed="false">CASSIOPEIA</button><button type="button" data-constellation="cygnus" aria-pressed="false">CYGNUS</button><button type="button" data-constellation="scorpius" aria-pressed="false">SCORPIUS</button></div><small>SCHEMATIC STAR ARRANGEMENTS · DRAG TO CUSTOMISE</small></div><div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path class="vha-constellation-route" d=""/></svg><div class="vha-map-destinations"></div></div>' + journeyMarkup;
   document.body.appendChild(map);
   const destinationList=map.querySelector(".vha-map-destinations");
   const constellationField=map.querySelector(".vha-constellation-field");
@@ -172,6 +172,30 @@
     }
   });
   updateConstellationRoute();
+
+  // Real constellation silhouettes, represented as schematic 2D star positions.
+  // Every destination remains present; selecting a pattern rearranges all of them.
+  const constellationPatterns={
+    "orion":[[18,30],[30,45],[42,59],[50,48],[58,59],[70,45],[82,30],[50,18],[35,17],[65,17],[24,72],[76,72],[50,84]],
+    "ursa-major":[[14,32],[27,24],[41,29],[54,39],[67,48],[79,61],[88,75],[63,71],[48,61],[34,53],[21,47],[12,62],[77,23]],
+    "cassiopeia":[[12,36],[28,18],[44,40],[61,17],[78,39],[88,60],[70,77],[51,62],[33,82],[17,67],[43,8],[65,91],[90,22]],
+    "cygnus":[[50,10],[50,28],[50,47],[50,68],[50,88],[27,35],[73,35],[15,23],[85,23],[31,58],[69,58],[35,82],[65,82]],
+    "scorpius":[[18,17],[34,24],[48,37],[59,53],[67,70],[62,84],[48,91],[79,84],[86,68],[81,49],[70,34],[48,15],[29,8]]
+  };
+  const presetButtons=[...map.querySelectorAll("[data-constellation]")];
+  presetButtons.forEach(button=>button.addEventListener("click",()=>{
+    const pattern=constellationPatterns[button.dataset.constellation];
+    if(!pattern)return;
+    [...destinationList.querySelectorAll(".vha-map-node")].forEach((node,index)=>{
+      const [x,y]=pattern[index%pattern.length];
+      node.style.setProperty("--star-x",x+"%");
+      node.style.setProperty("--star-y",y+"%");
+      savedStarPositions[node.dataset.node]={x,y};
+    });
+    try{localStorage.setItem(constellationPositionKey,JSON.stringify(savedStarPositions))}catch{}
+    presetButtons.forEach(item=>item.setAttribute("aria-pressed",String(item===button)));
+    updateConstellationRoute();
+  }));
 
   // V/A Radio is a shared site component, not a Green Dream-only element.
   if(!document.getElementById("gd-radio")){
