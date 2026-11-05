@@ -84,7 +84,7 @@
   const destinationList=map.querySelector(".vha-map-destinations");
   const constellationField=map.querySelector(".vha-constellation-field");
   const constellationRoute=map.querySelector(".vha-constellation-route");
-  const starPositions=[[50,13],[17,29],[37,43],[81,26],[65,55],[18,72],[50,86],[86,72],[32,17],[69,16],[91,46],[8,49],[50,58],[78,85]];
+  const starPositions=[[50,12],[31,20],[43,32],[69,19],[61,43],[32,58],[50,70],[70,59],[39,15],[60,14],[75,36],[24,39],[50,48],[64,68]];
   const constellationPositionKey="stars-v2";
   let savedStarPositions={};
   try{savedStarPositions=JSON.parse(localStorage.getItem(constellationPositionKey)||"{}")||{}}catch{}
@@ -179,11 +179,11 @@
   // Real constellation silhouettes, represented as schematic 2D star positions.
   // Every destination remains present; selecting a pattern rearranges all of them.
   const constellationPatterns={
-    "orion":[[18,30],[30,45],[42,59],[50,48],[58,59],[70,45],[82,30],[50,18],[35,17],[65,17],[24,72],[76,72],[50,84]],
-    "ursa-major":[[14,32],[27,24],[41,29],[54,39],[67,48],[79,61],[88,75],[63,71],[48,61],[34,53],[21,47],[12,62],[77,23]],
-    "cassiopeia":[[12,36],[28,18],[44,40],[61,17],[78,39],[88,60],[70,77],[51,62],[33,82],[17,67],[43,8],[65,91],[90,22]],
-    "cygnus":[[50,10],[50,28],[50,47],[50,68],[50,88],[27,35],[73,35],[15,23],[85,23],[31,58],[69,58],[35,82],[65,82]],
-    "scorpius":[[18,17],[34,24],[48,37],[59,53],[67,70],[62,84],[48,91],[79,84],[86,68],[81,49],[70,34],[48,15],[29,8]]
+    "orion":[[25,24],[33,35],[42,47],[50,39],[58,47],[67,35],[75,24],[50,15],[39,15],[61,15],[30,62],[70,62],[50,72]],
+    "ursa-major":[[20,29],[30,23],[41,27],[52,35],[63,43],[72,55],[80,68],[61,64],[48,55],[36,49],[25,44],[19,58],[70,22]],
+    "cassiopeia":[[20,38],[31,23],[43,41],[56,22],[69,40],[77,56],[65,68],[51,57],[38,71],[24,59],[44,14],[61,73],[78,26]],
+    "cygnus":[[50,10],[50,24],[50,40],[50,57],[50,72],[34,30],[66,30],[25,20],[75,20],[37,49],[63,49],[39,67],[61,67]],
+    "scorpius":[[25,15],[36,21],[47,32],[57,45],[64,58],[61,70],[51,76],[73,69],[78,56],[74,42],[65,30],[48,14],[34,10]]
   };
   const presetButtons=[...map.querySelectorAll(".vha-constellation-presets [data-constellation]")];
   function applyConstellationPreset(name){
