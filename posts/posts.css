@@ -1336,3 +1336,11 @@ body.image-viewer-open{overflow:hidden!important}
 .post-archive-composition>.suno-post-title-row h3{flex:1;min-width:0;margin:0!important}
 .post-archive-composition>.suno-post-title-row .post-sections-toggle{flex:0 0 auto;align-self:center}
 @media(max-width:560px){.post-archive-composition>.suno-post-title-row{align-items:flex-start;gap:8px}.post-archive-composition>.suno-post-title-row .post-sections-toggle{max-width:45%;white-space:normal}}
+
+ 
+/* Archive expand control sits on the post title line, not in the metadata strip. */
+.posts-list:not(:has(.post-back)) .post-card-identity{max-width:100%!important}
+.posts-list:not(:has(.post-back)) .post-card-title-row{display:flex;align-items:center;justify-content:space-between;gap:18px;width:100%;min-width:0}
+.posts-list:not(:has(.post-back)) .post-card-title-row h3{flex:1 1 auto;min-width:0;max-width:none!important;margin:0!important}
+.posts-list:not(:has(.post-back)) .post-card-title-row .post-sections-toggle{flex:0 0 auto;white-space:nowrap}
+@media(max-width:560px){.posts-list:not(:has(.post-back)) .post-card-title-row{align-items:flex-start;gap:10px}.posts-list:not(:has(.post-back)) .post-card-title-row .post-sections-toggle{max-width:46%;white-space:normal;font-size:8px!important}}
