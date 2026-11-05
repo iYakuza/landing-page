@@ -1808,3 +1808,18 @@ body.vha-patterns-open .vha-constellation-presets{display:block!important}
   #vha-viewer-tools{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr)!important}
   #vha-viewer-tools>.ego-bottom-hud.vha-universal-nav{grid-column:2!important;margin-inline:0!important}
 }
+
+
+/* Entry screen: place the Crystal and its caption on the same viewport centreline. */
+body.vha-entry-intro #vha-viewer-tools{
+  position:fixed!important;left:50%!important;right:auto!important;top:50%!important;bottom:auto!important;
+  width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important;
+  margin:0!important;padding:0!important;transform:translate(-50%,-50%)!important;
+  display:block!important;overflow:visible!important;
+}
+body.vha-entry-intro #vha-viewer-tools>.ego-bottom-hud.vha-universal-nav{
+  position:absolute!important;left:50%!important;right:auto!important;top:50%!important;bottom:auto!important;
+  width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important;
+  margin:0!important;transform:translate(-50%,-50%)!important;
+}
+body.vha-entry-intro #vha-entry-prompt{left:50%!important;right:auto!important;transform:translateX(-50%)!important;text-align:center!important}
