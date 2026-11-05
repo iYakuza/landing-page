@@ -42,6 +42,47 @@
   if(hasSession||path.startsWith("/landing-page/cms"))routes.push(["CREATOR WORKSHOP","PRIVATE ACCESS","/landing-page/cms/","cms"]);
   // Remove the page-level header entirely. The shared bottom navigation remains the sole global navigation.
   document.querySelectorAll("body header, .masthead, .mast, .ha-nav, .gd-nav, .toplinks, .vha-main-nav").forEach(el=>el.remove());
+  // Shared reference-matched top navigation. The crystal constellation remains the
+  // independent bottom control; this header restores the exact five destinations
+  // shown in the supplied GUI reference on every public page.
+  const referenceHeader=document.createElement("header");
+  referenceHeader.className="vha-reference-header";
+  referenceHeader.innerHTML=`
+    <a class="vha-reference-brand" href="/landing-page/" aria-label="Verse After Hours home">
+      <img src="/landing-page/assets/va-logo.svg" width="72" height="56" alt="">
+      <span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span>
+    </a>
+    <nav class="vha-reference-links" aria-label="Main navigation">
+      <a href="/landing-page/" data-route="home">HOME</a>
+      <a href="/landing-page/posts/" data-route="poetry">POETRY &amp; MEDIA</a>
+      <a href="/landing-page/music.html" data-route="music">LISTENING ROOM</a>
+      <a href="/landing-page/green-dream/" data-route="green">GREEN DREAM</a>
+      <a href="/landing-page/human-archive/" data-route="about">ABOUT</a>
+    </nav>
+    <span class="vha-reference-status"><i></i> NOCTURNE PROTOCOL // OPEN CHANNEL</span>
+    <button class="vha-reference-menu" type="button" aria-label="Open navigation" aria-controls="vha-reference-mobile" aria-expanded="false"><span></span><span></span><span></span></button>
+    <nav class="vha-reference-mobile" id="vha-reference-mobile" aria-label="Mobile navigation" hidden>
+      <a href="/landing-page/">HOME</a><a href="/landing-page/posts/">POETRY &amp; MEDIA</a><a href="/landing-page/music.html">LISTENING ROOM</a><a href="/landing-page/green-dream/">GREEN DREAM</a><a href="/landing-page/human-archive/">ABOUT</a>
+    </nav>`;
+  const currentPath=location.pathname.replace(/\/+$/,"")||"/landing-page";
+  const activeRoute=currentPath==="/landing-page"||currentPath==="/"? "home":
+    currentPath.startsWith("/landing-page/posts")?"poetry":
+    currentPath.startsWith("/landing-page/music")?"music":
+    currentPath.startsWith("/landing-page/green-dream")?"green":
+    currentPath.startsWith("/landing-page/human-archive")||currentPath.startsWith("/landing-page/cv")?"about":"";
+  referenceHeader.querySelectorAll(".vha-reference-links a").forEach(link=>{
+    if(link.dataset.route===activeRoute){link.setAttribute("aria-current","page");}
+  });
+  const menu=referenceHeader.querySelector(".vha-reference-menu");
+  const mobile=referenceHeader.querySelector(".vha-reference-mobile");
+  menu.addEventListener("click",()=>{
+    const open=menu.getAttribute("aria-expanded")!=="true";
+    menu.setAttribute("aria-expanded",String(open));
+    menu.setAttribute("aria-label",open?"Close navigation":"Open navigation");
+    mobile.hidden=!open;
+  });
+  document.body.insertBefore(referenceHeader,document.body.firstChild);
+
   document.querySelectorAll(".ego-bottom-hud").forEach(el=>el.remove());
 
   const bottom=document.createElement("div");
