@@ -216,11 +216,17 @@
       close.setAttribute('aria-label',hidden?'Restore radio from Viewer Tools':'Minimize radio');
     }
   }
+  document.addEventListener('click',event=>{
+    const link=event.target.closest('a[href="#gd-radio"],a[href="/landing-page/#gd-radio"]');
+    if(link)setRadioHidden(false);
+  });
+  window.addEventListener('hashchange',()=>{if(location.hash==="#gd-radio")setRadioHidden(false)});
   close?.addEventListener('click',()=>setRadioHidden(true));
   window.addEventListener('vha-radio-toggle',()=>setRadioHidden(false));
   const syncRadioVisibility=()=>setRadioHidden(true);
   document.addEventListener('vha-crystal-mode-change',syncRadioVisibility);
   syncRadioVisibility();
+  if(location.hash==="#gd-radio")setRadioHidden(false);
 
   const positionKey=radio.dataset.positionKey||'vha-green-dream-radio-position-v4';
   let saved=null;try{saved=JSON.parse(localStorage.getItem(positionKey)||'null')}catch{}
