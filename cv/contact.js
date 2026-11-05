@@ -75,7 +75,7 @@
 
   // In the embedded CV, put the modal in the top-level page so fixed positioning
   // follows the actual browser viewport rather than the tall iframe document.
-  if (embedded) {
+  {
     const modalStyle = hostDoc.createElement("style");
     modalStyle.textContent = `
       .cv-contact-dialog{position:fixed;inset:0;z-index:2147483000;display:none;align-items:center;justify-content:center;padding:clamp(12px,3vw,30px);background:rgba(1,8,11,.86);backdrop-filter:blur(12px) brightness(.65);box-sizing:border-box}
@@ -87,7 +87,6 @@
       .cv-contact-panel>p:not(.gd-kicker){max-width:560px;font-size:12px;line-height:1.8;color:#a9c0c4;margin:12px 0 20px}
       .cv-contact-panel h2{font-size:clamp(30px,5vw,48px);line-height:.98;margin:0 52px 10px 0;letter-spacing:-.055em;font-weight:800}
       .cv-contact-panel h2 em{font-style:normal;color:#00eaf5}
-      .cv-contact-panel h2{font-size:clamp(23px,3vw,32px);line-height:1;margin:4px 44px 8px 0;letter-spacing:-.04em}
       .cv-contact-panel h2 em{font-style:normal;color:#00eaf5}
       .cv-contact-panel p{font-size:11px;line-height:1.5;color:#a9c0c4;margin:7px 0}
       .cv-contact-close{position:absolute;right:20px;top:20px;width:36px;height:36px;background:rgba(0,234,245,.04);border:1px solid rgba(0,234,245,.35);color:#00eaf5;font-size:24px;cursor:pointer;transition:background .18s,border-color .18s}
@@ -110,7 +109,7 @@
       @media(max-width:560px){.cv-contact-form{grid-template-columns:1fr;gap:12px}.cv-contact-field.full,.cv-contact-submit{grid-column:1}.cv-contact-panel{padding:22px 17px}.cv-contact-panel .gd-kicker{font-size:8px;letter-spacing:1px;margin-bottom:14px}.cv-contact-panel h2{font-size:clamp(28px,9vw,38px);margin-right:38px}.cv-contact-panel>p:not(.gd-kicker){font-size:11px}.cv-contact-panel textarea{min-height:90px}.cv-contact-hint{font-size:9px!important}.cv-contact-close{right:14px;top:14px;width:32px;height:32px}}
     `;
     hostDoc.head.appendChild(modalStyle);
-    hostDoc.body.appendChild(dialog);
+    if (embedded) hostDoc.body.appendChild(dialog);
   }
   function openDialog(){previousFocus=hostDoc.activeElement;dialog.classList.add("is-open");hostDoc.body.style.overflow="hidden";hostDoc.getElementById("cv-contact-name")?.focus();}
   function closeDialog(){dialog.classList.remove("is-open");hostDoc.body.style.overflow="";previousFocus?.focus?.();}
