@@ -52,6 +52,7 @@
     const open = map.dataset.patternsOpen !== "true";
     map.dataset.patternsOpen = String(open);
     button.setAttribute("aria-expanded", String(open));
+    document.body.classList.toggle("vha-patterns-open", open);
   });
   window.VHACrystal?.registerTool({
     id: "star-patterns",
