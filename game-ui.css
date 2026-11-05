@@ -702,3 +702,19 @@ body.vha-game-interface a:hover{color:#00eaf5}
 body.vha-game-interface :is(.post-card,.ha-entry,.gd-move,.gd-panel,.song-panel,.listening-console,.cv-card,.cms-panel){box-shadow:0 14px 42px rgba(0,0,0,.42),inset 0 0 20px rgba(0,234,245,.035)}
 body.vha-game-interface :is(.posts-content,.gd-section,.gd-lower,.gd-listening,.ha-main,.song-main){background:rgba(1,9,14,.76)!important}
 @media(max-width:760px){body.vha-game-interface:not(.va-home){background-attachment:scroll!important}body.vha-game-interface :is(.posts-content,.gd-section,.gd-lower,.gd-listening){padding-left:5vw!important;padding-right:5vw!important}}
+
+/* Shared control and text treatment: all public-page controls use the same reference language. */
+body.vha-game-interface button:not(.vha-map-toggle){min-height:32px;border:1px solid rgba(0,234,245,.58);border-radius:0;background:rgba(1,11,16,.9);color:#00eaf5;font:700 9px/1.2 ui-monospace,Consolas,monospace;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:background .16s,color .16s,border-color .16s,box-shadow .16s}
+body.vha-game-interface button:not(.vha-map-toggle):hover,body.vha-game-interface button:not(.vha-map-toggle):focus-visible{border-color:#f0f500;background:rgba(240,245,0,.12);color:#f0f500;box-shadow:0 0 14px rgba(0,234,245,.14)}
+body.vha-game-interface button[type=submit],body.vha-game-interface input[type=submit]{border-color:#f0f500;background:#f0f500;color:#061014;font-weight:800}
+body.vha-game-interface button[type=submit]:hover,body.vha-game-interface input[type=submit]:hover{background:#fff56a;color:#061014}
+body.vha-game-interface :is(h1,h2,h3,h4){font-family:"Arial Narrow",Impact,Arial,sans-serif;letter-spacing:.015em}
+body.vha-game-interface :is(p,li,label,small){text-wrap:pretty}
+body.vha-game-interface :is(.posts-intro,.song-deck,.ha-lead,.ha-intro p,.gd-archive-note,.gd-listening p){color:#c0d0d2}
+body.vha-game-interface :is(.post-body,.cv-content,.cms-content,.sy-content){color:#d6e4e5;line-height:1.75}
+body.vha-game-interface :is(.post-body h2,.post-body h3,.cv-content h2,.cv-content h3){color:#f0d85a}
+body.vha-game-interface :is(.post-details,.movement-index,.posts-filters,.ha-controls,.console-screen-top,.console-screen-foot){border-color:rgba(0,234,245,.38)!important}
+body.vha-game-interface :is(.post-details summary,.movement-index a,.posts-admin-link,.ha-category-toggle){color:#00eaf5}
+body.vha-game-interface :is(.post-details summary:hover,.movement-index a:hover,.posts-admin-link:hover,.ha-category-toggle:hover){color:#f0f500}
+body.vha-game-interface :is(.posts-empty,.ha-empty,.va-empty){border-color:rgba(0,234,245,.42);color:#a9c4c8}
+body.vha-game-interface :is(.cv-contact-panel,.post-edit-dialog,.vha-mood-box){border-color:#00eaf5!important;background:rgba(1,11,16,.98)!important;color:#e3eff0}
