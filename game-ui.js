@@ -3,6 +3,14 @@
   if (document.documentElement.dataset.gameUiReady === "true") return;
   document.documentElement.dataset.gameUiReady = "true";
   document.body.classList.add("vha-game-interface");
+  // A dedicated viewport layer avoids body pseudo-element and nested stacking-context bugs.
+  let crystalBlurLayer=document.getElementById("vha-crystal-blur-layer");
+  if(!crystalBlurLayer){
+    crystalBlurLayer=document.createElement("div");
+    crystalBlurLayer.id="vha-crystal-blur-layer";
+    crystalBlurLayer.setAttribute("aria-hidden","true");
+    document.body.appendChild(crystalBlurLayer);
+  }
 
   const path = location.pathname.replace(/\/+$/, "") || "/";
   const pageMap = [
@@ -240,6 +248,7 @@
   }
   function setConstellationVisible(visible){
     document.body.classList.toggle("vha-crystal-open",visible);
+    crystalBlurLayer.hidden=!visible;
     document.dispatchEvent(new CustomEvent("vha-crystal-mode-change",{detail:{open:visible}}));
     map.hidden=!visible;
     mapButton.setAttribute("aria-expanded",String(visible));
