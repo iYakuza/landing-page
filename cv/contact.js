@@ -82,8 +82,8 @@
       .cv-contact-dialog.is-open{display:flex}
       .cv-contact-panel{position:relative;width:min(720px,100%);max-height:min(880px,calc(100dvh - 32px));overflow:auto;background:linear-gradient(145deg,rgba(7,28,36,.99),rgba(3,17,22,.99));color:#dce9e9;border:1px solid rgba(0,234,245,.55);box-shadow:0 28px 100px rgba(0,0,0,.72),0 0 42px rgba(0,234,245,.08);padding:clamp(22px,3.2vw,38px);box-sizing:border-box}
       .cv-contact-panel:before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,transparent,#00eaf5 18%,#e9ed00 78%,transparent)}
-      .cv-contact-panel .gd-kicker{display:flex;align-items:center;gap:8px;margin:0 42px 14px 0;color:#00eaf5;font:700 clamp(6px,1.05vw,8px)/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:clamp(.2px,.12vw,1px);white-space:nowrap}
-      .cv-contact-panel .gd-kicker:after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba(0,234,245,.55),transparent)}
+      .cv-contact-panel :is(.gd-kicker,.cv-kicker){display:flex;align-items:center;gap:8px;margin:0 42px 14px 0;color:#00eaf5;font:700 clamp(6px,1.05vw,8px)/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:clamp(.2px,.12vw,1px);white-space:nowrap}
+      .cv-contact-panel :is(.gd-kicker,.cv-kicker):after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba(0,234,245,.55),transparent)}
       .cv-contact-panel>p:not(.gd-kicker){max-width:560px;font-size:12px;line-height:1.8;color:#a9c0c4;margin:12px 0 20px}
       .cv-contact-panel h2{font-size:clamp(30px,5vw,48px);line-height:.98;margin:0 52px 10px 0;letter-spacing:-.055em;font-weight:800}
       .cv-contact-panel h2 em{font-style:normal;color:#00eaf5}
@@ -106,7 +106,7 @@
       .cv-contact-submit button:disabled{opacity:.6;cursor:wait}
       .cv-contact-status{font-size:11px!important;color:#e9ed00!important;margin:0}
       .cv-contact-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
-      @media(max-width:560px){.cv-contact-form{grid-template-columns:1fr;gap:12px}.cv-contact-field.full,.cv-contact-submit{grid-column:1}.cv-contact-panel{padding:22px 17px}.cv-contact-panel .gd-kicker{font-size:6px;letter-spacing:.25px;gap:5px;margin:0 38px 12px 0}.cv-contact-panel h2{font-size:clamp(28px,9vw,38px);margin-right:38px}.cv-contact-panel>p:not(.gd-kicker){font-size:11px}.cv-contact-panel textarea{min-height:90px}.cv-contact-hint{font-size:9px!important}.cv-contact-close{right:14px;top:14px;width:32px;height:32px}}
+      @media(max-width:560px){.cv-contact-form{grid-template-columns:1fr;gap:12px}.cv-contact-field.full,.cv-contact-submit{grid-column:1}.cv-contact-panel{padding:22px 17px}.cv-contact-panel :is(.gd-kicker,.cv-kicker){font-size:6px;letter-spacing:.25px;gap:5px;margin:0 38px 12px 0}.cv-contact-panel h2{font-size:clamp(28px,9vw,38px);margin-right:38px}.cv-contact-panel>p:not(.gd-kicker){font-size:11px}.cv-contact-panel textarea{min-height:90px}.cv-contact-hint{font-size:9px!important}.cv-contact-close{right:14px;top:14px;width:32px;height:32px}}
     `;
     hostDoc.head.appendChild(modalStyle);
     if (embedded) hostDoc.body.appendChild(dialog);
