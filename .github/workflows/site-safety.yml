@@ -32,14 +32,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if grep -nE 'gd-prev|gd-next|Previous station|Next station' index.html green-dream/index.html green-dream/script.js; then
+          if grep -nE 'gd-prev|gd-next|Previous station|Next station' index.html green-dream/index.html shared/crystal/tools/radio.js; then
             echo "Legacy Previous/Next radio controls must not return."
             exit 1
           fi
-          grep -Fq "radio.style.setProperty('left',left+'px','important')" green-dream/script.js
-          grep -Fq "radio.style.setProperty('top',top+'px','important')" green-dream/script.js
-          grep -Fq "window.addEventListener('pointermove'" green-dream/script.js
-          grep -Fq "document.body.appendChild(radio)" green-dream/script.js
+          grep -Fq "radio.style.setProperty('left',left+'px','important')" shared/crystal/tools/radio.js
+          grep -Fq "radio.style.setProperty('top',top+'px','important')" shared/crystal/tools/radio.js
+          grep -Fq "window.addEventListener('pointermove'" shared/crystal/tools/radio.js
+          grep -Fq "document.body.appendChild(radio)" shared/crystal/tools/radio.js
           grep -Fq 'data-constellation="orion"' shared/crystal/tools/constellation.js
           grep -Fq 'data-constellation="ursa-major"' shared/crystal/tools/constellation.js
           grep -Fq 'data-constellation="cassiopeia"' shared/crystal/tools/constellation.js
