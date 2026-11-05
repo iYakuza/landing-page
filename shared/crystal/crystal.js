@@ -13,6 +13,11 @@
   const svg = name => '<svg viewBox="0 0 24 24" aria-hidden="true">'+icons[name]+'</svg>';
   const root = document.createElement("aside");
   root.id = "vha-viewer-tools";
+  // A three-column grid locks the crystal to the exact viewport centre as the tool rail expands.
+  root.style.setProperty("display","grid","important");
+  root.style.setProperty("grid-template-columns","minmax(0,1fr) 58px minmax(0,1fr)","important");
+  root.style.setProperty("align-items","center","important");
+  root.style.setProperty("justify-items","stretch","important");
   root.setAttribute("aria-label","Viewer controls");
   root.dataset.moodOpen = "false";
   root.dataset.open = "false";
