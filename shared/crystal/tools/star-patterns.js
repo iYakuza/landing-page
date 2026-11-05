@@ -51,6 +51,23 @@
     document.querySelector('#vha-viewer-tools [data-tool="patterns"]')?.setAttribute("aria-expanded", "false");
   });
   bindPicker();
+  function positionPickerAboveButton(){
+    const button=document.querySelector('#vha-viewer-tools [data-tool="patterns"]');
+    const picker=document.querySelector("#vha-viewer-tools > .vha-constellation-presets");
+    if(!button||!picker)return;
+    const anchor=button.getBoundingClientRect();
+    const box=picker.getBoundingClientRect();
+    const width=box.width||220,height=box.height||220;
+    const left=Math.max(8,Math.min(innerWidth-width-8,anchor.left+anchor.width/2-width/2));
+    const top=Math.max(8,anchor.top-height-12);
+    picker.style.setProperty("position","fixed","important");
+    picker.style.setProperty("left",left+"px","important");
+    picker.style.setProperty("right","auto","important");
+    picker.style.setProperty("top",top+"px","important");
+    picker.style.setProperty("bottom","auto","important");
+    picker.style.setProperty("transform","none","important");
+    picker.style.setProperty("max-height",Math.max(120,anchor.top-20)+"px","important");
+  }
   document.addEventListener("click", event => {
     const button = event.target.closest('#vha-viewer-tools [data-tool="patterns"]');
     if (!button) return;
@@ -60,6 +77,7 @@
     map.dataset.patternsOpen = String(open);
     button.setAttribute("aria-expanded", String(open));
     document.body.classList.toggle("vha-patterns-open", open);
+    if(open)requestAnimationFrame(positionPickerAboveButton);
   });
   window.VHACrystal?.registerTool({
     id: "star-patterns",
