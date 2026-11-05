@@ -1596,3 +1596,40 @@ body.vha-game-interface:has(#vha-world-map[data-patterns-open="true"]) .vha-cons
 @media(max-width:640px){
  body.vha-game-interface .vha-constellation-presets{bottom:94px!important;width:164px!important;max-height:48vh!important}
 }
+
+
+/* Crystal focus: blur the complete page through a dedicated glass layer.
+   The crystal dock, constellation and pattern picker sit above this layer. */
+body.vha-crystal-open::after{
+  content:"";position:fixed;inset:0;z-index:2147482990!important;
+  background:rgba(1,8,11,.38);
+  -webkit-backdrop-filter:blur(8px) brightness(.55);
+  backdrop-filter:blur(8px) brightness(.55);
+  pointer-events:none!important;
+}
+body.vha-crystal-open> :not(#vha-viewer-tools):not(#vha-world-map):not(.vha-constellation-presets):not(#vha-entry-prompt){
+  filter:none!important;pointer-events:auto!important;user-select:auto!important;
+}
+body.vha-crystal-open #vha-world-map{z-index:2147482995!important}
+body.vha-crystal-open #vha-viewer-tools{z-index:2147483000!important}
+body.vha-crystal-open .vha-constellation-presets{
+  position:fixed!important;left:50%!important;right:auto!important;top:auto!important;
+  bottom:clamp(112px,16vh,156px)!important;transform:translateX(-50%)!important;
+  z-index:2147483005!important;display:none!important;
+  width:min(220px,calc(100vw - 28px))!important;max-height:min(54vh,440px)!important;
+  overflow-y:auto!important;overscroll-behavior:contain!important;
+  pointer-events:auto!important;
+}
+body.vha-crystal-open #vha-world-map[data-patterns-open="true"]~.vha-constellation-presets,
+body.vha-crystal-open:has(#vha-world-map[data-patterns-open="true"]) .vha-constellation-presets{
+  display:block!important;
+}
+body.vha-crystal-open .vha-constellation-presets button{pointer-events:auto!important}
+@media(max-width:640px){
+  body.vha-crystal-open .vha-constellation-presets{
+    bottom:104px!important;width:min(190px,calc(100vw - 24px))!important;max-height:46vh!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  body.vha-crystal-open::after{-webkit-backdrop-filter:blur(5px) brightness(.6);backdrop-filter:blur(5px) brightness(.6)}
+}
