@@ -551,3 +551,12 @@ body.va-home .va-footer-motto{display:none!important}
   body.va-home .va-footer-nav a{font-size:7px!important}
   body.va-home .va-footer-credit{text-align:left!important;font-size:7px!important}
 }
+
+
+/* Minimal landing composition: only the entry title and crystal remain. */
+body.gd-home.va-home{background:#031116!important}
+body.gd-home.va-home .va-shell{display:none!important}
+body.gd-home.va-home #gd-radio,
+body.gd-home.va-home .va-back-top,
+body.gd-home.va-home .cv-contact-dialog,
+body.gd-home.va-home .cv-contact-open{display:none!important}
