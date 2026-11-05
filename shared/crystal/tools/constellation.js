@@ -29,23 +29,23 @@
   ];
   const current = pageMap.find(([prefix]) => path.startsWith(prefix)) || ["", "EGO", "PERSONAL NODE"];
   const routes = [
-    ["EGO","PERSONAL NODE","/landing-page/","ego"],
-    ["GREEN DREAM","EXPLORATION ZONE","/landing-page/green-dream/","garden"],
-    ["TRANSMISSIONS","SIGNAL ARCHIVE","/landing-page/posts/","transmissions"],
-    ["THE AWAKENING","MOVEMENT 01","/landing-page/posts/the-awakening/","awakening"],
-    ["THE DESCENT","MOVEMENT 02","/landing-page/posts/the-descent/","descent"],
-    ["THE RECONNECTION","MOVEMENT 03","/landing-page/posts/the-reconnection/","reconnection"],
-    ["THE TRANSFORMATION","MOVEMENT 04","/landing-page/posts/the-transformation/","transformation"],
-    ["THE RETURN","MOVEMENT 05","/landing-page/posts/the-return/","return"],
-    ["HUMAN ARCHIVE","PERSONAL RECORDS","/landing-page/human-archive/","archive"],
-    ["THE CIRCLE","COMMUNITY CHANNEL","/landing-page/community/","circle"],
-    ["CV","PERSONNEL FILE","/landing-page/cv/","cv"],
-    ["SECURE YOUR SOUL","RESTRICTED PROGRAM","/landing-page/secure-your-soul/","secure"]
+    ["EGO","PERSONAL NODE","/landing-page/","ego","main"],
+    ["HUMAN ARCHIVE","PERSONAL RECORDS","/landing-page/human-archive/","archive","main"],
+    ["GREEN DREAM","EXPLORATION ZONE","/landing-page/green-dream/","garden","main"],
+    ["TRANSMISSIONS","SIGNAL ARCHIVE","/landing-page/posts/","transmissions","main"],
+    ["THE AWAKENING","MOVEMENT 01","/landing-page/posts/the-awakening/","awakening","movement"],
+    ["THE DESCENT","MOVEMENT 02","/landing-page/posts/the-descent/","descent","movement"],
+    ["THE RECONNECTION","MOVEMENT 03","/landing-page/posts/the-reconnection/","reconnection","movement"],
+    ["THE TRANSFORMATION","MOVEMENT 04","/landing-page/posts/the-transformation/","transformation","movement"],
+    ["THE RETURN","MOVEMENT 05","/landing-page/posts/the-return/","return","movement"],
+    ["THE CIRCLE","COMMUNITY CHANNEL","/landing-page/community/","circle","main"],
+    ["SECURE YOUR SOUL","RESTRICTED PROGRAM","/landing-page/secure-your-soul/","secure","main"],
+    ["CV","PERSONNEL FILE","/landing-page/cv/","cv","main"]
   ];
   const cmsSessionKey="sb-oeyxsqocldlovhsmzcjw-auth-token";
   let hasSession=false;
   try{const session=JSON.parse(localStorage.getItem(cmsSessionKey)||"null");hasSession=Boolean(session&&session.access_token)}catch{}
-  if(hasSession||path.startsWith("/landing-page/cms"))routes.push(["CREATOR WORKSHOP","PRIVATE ACCESS","/landing-page/cms/","cms"]);
+  if(hasSession||path.startsWith("/landing-page/cms"))routes.push(["CREATOR WORKSHOP","PRIVATE ACCESS","/landing-page/cms/","cms","admin"]);
   // Remove the page-level header entirely. The shared bottom navigation remains the sole global navigation.
   document.querySelectorAll("body header, .masthead, .mast, .ha-nav, .gd-nav, .toplinks, .vha-main-nav").forEach(el=>el.remove());
   // Crystal constellation is the sole global navigation. No conventional header is injected.
@@ -84,25 +84,41 @@
   const journeyMarkup = nextJourney
     ? '<div class="vha-journey-note" hidden><span>NEXT PART OF THE JOURNEY</span><strong>' + nextJourney[1] + '</strong><p>' + nextJourney[2] + '</p><a href="' + nextJourney[3] + '">CONTINUE THE JOURNEY ↗</a></div>'
     : '<div class="vha-journey-note" hidden><span>THE JOURNEY CONTINUES</span><strong>Choose the next trace.</strong><p>Follow a point in the constellation to continue exploring.</p></div>';
-  map.innerHTML='<div class="vha-constellation-presets" role="group" aria-label="Choose a real constellation"><span>STAR PATTERNS</span><div><button type="button" data-constellation="orion" aria-pressed="false">ORION</button><button type="button" data-constellation="ursa-major" aria-pressed="false">URSA MAJOR</button><button type="button" data-constellation="cassiopeia" aria-pressed="false">CASSIOPEIA</button><button type="button" data-constellation="cygnus" aria-pressed="false">CYGNUS</button><button type="button" data-constellation="scorpius" aria-pressed="false">SCORPIUS</button></div><small>SCHEMATIC STAR ARRANGEMENTS · DRAG TO CUSTOMISE</small></div><div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path class="vha-constellation-route" d=""/></svg><div class="vha-map-destinations"></div></div>' + journeyMarkup;
+  map.innerHTML='<div class="vha-constellation-presets" role="group" aria-label="Choose a constellation pattern"><span>STAR PATTERNS</span><div><button type="button" data-constellation="orion" aria-pressed="false">ORION</button><button type="button" data-constellation="ursa-major" aria-pressed="false">URSA MAJOR</button><button type="button" data-constellation="cassiopeia" aria-pressed="false">CASSIOPEIA</button><button type="button" data-constellation="cygnus" aria-pressed="false">CYGNUS</button><button type="button" data-constellation="scorpius" aria-pressed="false">SCORPIUS</button><button type="button" data-constellation="hello-smile" aria-pressed="false">HELLO / SMILE</button><button type="button" data-constellation="heart-signal" aria-pressed="false">HEART SIGNAL</button><button type="button" data-constellation="north-star" aria-pressed="false">NORTH STAR</button><button type="button" data-constellation="after-hours" aria-pressed="false">AFTER HOURS</button><button type="button" data-constellation="waveform" aria-pressed="false">WAVEFORM</button></div><small>REAL CONSTELLATIONS + ORIGINAL STAR SIGNS · DRAG TO CUSTOMISE</small></div><div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path class="vha-constellation-route vha-route-main" d=""/><path class="vha-constellation-route vha-route-movements" d=""/></svg><div class="vha-map-destinations"></div></div>' + journeyMarkup;
   document.body.appendChild(map);
   // Detach the pattern menu from the full-screen map so it can sit directly above the crystal dock.
   const patternPicker=map.querySelector(".vha-constellation-presets");
   if(patternPicker){const crystalDock=document.getElementById("vha-viewer-tools");(crystalDock||document.body).appendChild(patternPicker);}
   const destinationList=map.querySelector(".vha-map-destinations");
   const constellationField=map.querySelector(".vha-constellation-field");
-  const constellationRoute=map.querySelector(".vha-constellation-route");
-  const starPositions=[[50,12],[31,20],[43,32],[69,19],[61,43],[32,58],[50,70],[70,59],[39,15],[60,14],[75,36],[24,39],[50,48],[64,68]];
-  const constellationPositionKey="stars-v2";
+  const constellationRoutes={
+    main:["ego","archive","garden","transmissions","circle","secure","cv"],
+    movements:["transmissions","awakening","descent","reconnection","transformation","return","circle"]
+  };
+  const constellationPaths={
+    main:map.querySelector(".vha-route-main"),
+    movements:map.querySelector(".vha-route-movements")
+  };
+  const defaultStarPositions={
+    ego:[34,6],archive:[34,18],garden:[34,30],transmissions:[34,42],
+    awakening:[67,47],descent:[74,55],reconnection:[78,63],transformation:[74,71],return:[67,79],
+    circle:[34,84],secure:[34,92],cv:[34,98],cms:[88,12]
+  };
+  const constellationPositionKey="stars-v3-journey-tree";
   let savedStarPositions={};
   try{savedStarPositions=JSON.parse(localStorage.getItem(constellationPositionKey)||"{}")||{}}catch{}
   function updateConstellationRoute(){
-    const points=[...destinationList.querySelectorAll(".vha-map-node")].map(node=>{
-      const x=parseFloat(node.style.getPropertyValue("--star-x"))*10;
-      const y=parseFloat(node.style.getPropertyValue("--star-y"))*6.2;
-      return Number.isFinite(x)&&Number.isFinite(y)?[x,y]:null;
-    }).filter(Boolean);
-    if(points.length)constellationRoute.setAttribute("d",points.map((point,index)=>(index?"L":"M")+point[0].toFixed(1)+" "+point[1].toFixed(1)).join(" "));
+    Object.entries(constellationRoutes).forEach(([group,keys])=>{
+      const points=keys.map(key=>{
+        const node=destinationList.querySelector('[data-node="'+key+'"]');
+        if(!node)return null;
+        const x=parseFloat(node.style.getPropertyValue("--star-x"))*10;
+        const y=parseFloat(node.style.getPropertyValue("--star-y"))*6.2;
+        return Number.isFinite(x)&&Number.isFinite(y)?[x,y]:null;
+      }).filter(Boolean);
+      const route=constellationPaths[group];
+      if(route&&points.length)route.setAttribute("d",points.map((point,index)=>(index?"L":"M")+point[0].toFixed(1)+" "+point[1].toFixed(1)).join(" "));
+    });
   }
   let activeStar=null,suppressStarClickUntil=0;
   window.addEventListener("pointermove",event=>{
@@ -137,14 +153,14 @@
       try{localStorage.setItem(constellationPositionKey,JSON.stringify(savedStarPositions))}catch{}
     }
   }
-  routes.forEach(([name,descriptor,href,key],index)=>{
-    const link=document.createElement("a");link.className="vha-map-node";link.dataset.node=key;link.href=href;link.draggable=false;
+  routes.forEach(([name,descriptor,href,key,group],index)=>{
+    const link=document.createElement("a");link.className="vha-map-node";link.dataset.node=key;link.dataset.routeGroup=group||"admin";link.href=href;link.draggable=false;
     link.addEventListener("dragstart",event=>event.preventDefault());
     const target=new URL(href,location.href).pathname.replace(/\/+$/,"")||"/";
     if(target===path){link.classList.add("is-current");link.setAttribute("aria-current","page")}
     const position=savedStarPositions[key]&&Number.isFinite(savedStarPositions[key].x)&&Number.isFinite(savedStarPositions[key].y)
       ?[Math.max(3,Math.min(97,savedStarPositions[key].x)),Math.max(4,Math.min(96,savedStarPositions[key].y))]
-      :starPositions[index%starPositions.length];
+      :defaultStarPositions[key]||[88,88];
     link.style.setProperty("--star-x",position[0]+"%");link.style.setProperty("--star-y",position[1]+"%");
     link.setAttribute("aria-label",name+" — "+descriptor);link.title=name;
     link.innerHTML=key==="ego"?'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M4 18 20 5l16 13M9 16v18h22V16M16 34V23h8v11"/></svg><span class="vha-star-tooltip" role="tooltip">'+name+'</span>':'<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 1 24.8 14.2 39 15.2 28 24.1 31.5 38 20 30.4 8.5 38 12 24.1 1 15.2 15.2 14.2Z"/></svg><span class="vha-star-tooltip" role="tooltip">'+name+'</span>';
