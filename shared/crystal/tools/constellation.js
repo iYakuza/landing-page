@@ -93,7 +93,7 @@
   const constellationField=map.querySelector(".vha-constellation-field");
   const constellationRoutes={
     main:["ego","archive","garden","transmissions","circle","secure","cv"],
-    movements:["transmissions","awakening","descent","reconnection","transformation","return","circle"]
+    movements:["transmissions","awakening","descent","reconnection","transformation","return"]
   };
   const constellationPaths={
     main:map.querySelector(".vha-route-main"),
