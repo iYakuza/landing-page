@@ -25,7 +25,6 @@
     ["/landing-page/posts", "TRANSMISSIONS", "SIGNAL ARCHIVE"],
     ["/landing-page/community", "THE CIRCLE", "COMMUNITY CHANNEL"],
     ["/landing-page/cv", "CV", "PERSONNEL FILE"],
-    ["/landing-page/music", "V/A RADIO", "LISTENING ROOM"],
     ["/landing-page/cms", "CREATOR WORKSHOP", "PRIVATE ACCESS"]
   ];
   const current = pageMap.find(([prefix]) => path.startsWith(prefix)) || ["", "EGO", "PERSONAL NODE"];
@@ -39,7 +38,6 @@
     ["THE TRANSFORMATION","MOVEMENT 04","/landing-page/posts/the-transformation/","transformation"],
     ["THE RETURN","MOVEMENT 05","/landing-page/posts/the-return/","return"],
     ["HUMAN ARCHIVE","PERSONAL RECORDS","/landing-page/human-archive/","archive"],
-    ["V/A RADIO","LISTENING ROOM","/landing-page/music.html","listening"],
     ["THE CIRCLE","COMMUNITY CHANNEL","/landing-page/community/","circle"],
     ["CV","PERSONNEL FILE","/landing-page/cv/","cv"],
     ["SECURE YOUR SOUL","RESTRICTED PROGRAM","/landing-page/secure-your-soul/","secure"]
@@ -80,8 +78,7 @@
     ["/landing-page/posts/the-return","THE CIRCLE","The journey opens outward. Find the others.","/landing-page/community/"],
     ["/landing-page/community","SECURE YOUR SOUL","Enter the restricted layer beneath the surface.","/landing-page/secure-your-soul/"],
     ["/landing-page/secure-your-soul","PERSONNEL FILE","Return to the human behind the interface.","/landing-page/cv/"],
-    ["/landing-page/cv","V/A RADIO","Stay a while. Let the signal play.","/landing-page/music.html"],
-    ["/landing-page/music","THE SURFACE","Return to the point where the journey began.","/landing-page/"]
+    ["/landing-page/cv","THE SURFACE","Return to where the journey began.","/landing-page/"]
   ];
   const nextJourney = journeySteps.find(([route]) => path === route);
   const journeyMarkup = nextJourney
