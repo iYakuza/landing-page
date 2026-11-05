@@ -1,6 +1,6 @@
 # Shared Crystal
 
-The Crystal is a reusable site-wide component. Existing pages load it through the shared `game-ui.js` entry point; that entry point loads the runtime and tool modules from this directory. New pages should include the shared site styles and one script entry point, not copy Crystal markup or tool behaviour.
+The Crystal is a reusable site-wide component. Existing pages use the backwards-compatible `game-ui.js` entry point, which delegates to this runtime. New pages can load the Crystal loader directly. New pages should include the shared site styles and one script entry point, not copy Crystal markup or tool behaviour.
 
 ## Structure
 
@@ -21,7 +21,7 @@ Include the shared site stylesheet and the single entry script:
 
 ```html
 <link rel="stylesheet" href="/landing-page/game-ui.css">
-<script src="/landing-page/game-ui.js" defer></script>
+<script src="/landing-page/shared/crystal/crystal-loader.js" defer></script>
 ```
 
 The entry script loads the runtime, navigation and tools in dependency order. Do not add per-tool scripts or duplicate the Crystal HTML.
