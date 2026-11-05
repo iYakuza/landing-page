@@ -39,7 +39,7 @@
   `;
   if(!document.getElementById("vha-radio-theme"))document.head.appendChild(radioTheme);
   const hiddenStyle=document.createElement('style');
-  hiddenStyle.textContent='#gd-radio.radio-hidden{visibility:hidden!important;opacity:0!important;pointer-events:none!important}';
+  hiddenStyle.textContent='#gd-radio.radio-hidden{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}#gd-radio.vha-radio-floating{box-sizing:border-box!important}#gd-radio.vha-radio-floating .gd-radio-body{max-height:calc(64vh - 48px)!important;overflow:auto!important}';
   document.head.appendChild(hiddenStyle);
   if(radio.parentElement!==document.body)document.body.appendChild(radio);
 
@@ -208,105 +208,45 @@
   function setRadioHidden(hidden){
     radio.classList.toggle('radio-hidden',hidden);
     radio.setAttribute('aria-hidden',String(hidden));
+    radio.hidden=hidden;
     const toolButton=document.querySelector('#vha-viewer-tools [data-tool="radio"]');
-    if(toolButton)toolButton.setAttribute('aria-pressed',String(hidden));
+    if(toolButton)toolButton.setAttribute('aria-pressed',String(!hidden));
     if(close){
       close.textContent=hidden?'+':'−';
       close.setAttribute('aria-expanded',String(!hidden));
-      close.setAttribute('aria-label',hidden?'Restore radio from Viewer Tools':'Minimize radio');
+      close.setAttribute('aria-label',hidden?'Open V/A Radio':'Close V/A Radio');
     }
   }
+
+  // The player is a floating Crystal panel, not a draggable page widget.
+  radio.classList.add('vha-radio-floating');
+  radio.style.setProperty('position','fixed','important');
+  radio.style.setProperty('left','50%','important');
+  radio.style.setProperty('right','auto','important');
+  radio.style.setProperty('top','auto','important');
+  radio.style.setProperty('bottom','calc(14px + 58px + 18px)','important');
+  radio.style.setProperty('transform','translateX(-50%)','important');
+  radio.style.setProperty('width','min(360px, calc(100vw - 24px))','important');
+  radio.style.setProperty('max-width','calc(100vw - 24px)','important');
+  radio.style.setProperty('max-height','min(64vh, 620px)','important');
+  radio.style.setProperty('overflow-y','auto','important');
+  radio.style.setProperty('overscroll-behavior','contain','important');
+  radio.style.setProperty('z-index','2147483010','important');
+  radio.style.setProperty('margin','0','important');
+
+  close?.addEventListener('click',()=>setRadioHidden(true));
+  window.addEventListener('vha-radio-toggle',()=>{
+    setRadioHidden(!radio.classList.contains('radio-hidden'));
+  });
+  document.addEventListener('vha-crystal-mode-change',()=>setRadioHidden(true));
   document.addEventListener('click',event=>{
     const link=event.target.closest('a[href="#gd-radio"],a[href="/landing-page/#gd-radio"]');
     if(link)setRadioHidden(false);
   });
   window.addEventListener('hashchange',()=>{if(location.hash==="#gd-radio")setRadioHidden(false)});
-  close?.addEventListener('click',()=>setRadioHidden(true));
-  window.addEventListener('vha-radio-toggle',()=>setRadioHidden(false));
-  const syncRadioVisibility=()=>setRadioHidden(true);
-  document.addEventListener('vha-crystal-mode-change',syncRadioVisibility);
-  syncRadioVisibility();
+  setRadioHidden(true);
   if(location.hash==="#gd-radio")setRadioHidden(false);
 
-  const positionKey=radio.dataset.positionKey||'vha-green-dream-radio-position-v4';
-  let saved=null;try{saved=JSON.parse(localStorage.getItem(positionKey)||'null')}catch{}
-  let drag=null,resize=null,suppressClickUntil=0;
-  head.style.touchAction='none';head.style.userSelect='none';head.style.cursor='grab';
-  radio.style.setProperty('position','fixed','important');
-  radio.style.setProperty('right','auto','important');radio.style.setProperty('bottom','auto','important');
-  if(Number.isFinite(saved?.width))radio.style.setProperty('width',Math.max(240,Math.min(saved.width,innerWidth-16))+'px','important');
-  radio.style.setProperty('height','auto','important');
-  radio.style.setProperty('max-height','none','important');
-  radio.style.setProperty('overflow','visible','important');
-  radio.style.setProperty('overscroll-behavior','visible','important');
-  radio.style.setProperty('transform','none','important');
-  radio.style.setProperty('z-index','2147483000','important');
-  function applyPosition(left,top,persist=false){
-    const width=radio.offsetWidth,height=radio.offsetHeight;
-    left=Math.max(8,Math.min(left,innerWidth-width-8));
-    top=Math.max(8,Math.min(top,innerHeight-height-8));
-    radio.style.setProperty('left',left+'px','important');
-    radio.style.setProperty('top',top+'px','important');
-    if(persist){try{localStorage.setItem(positionKey,JSON.stringify({left,top,width}))}catch{}}
-  }
-  ['nw','ne','sw','se'].forEach(corner=>{
-    const handle=document.createElement('span');
-    handle.className='gd-radio-resize';handle.dataset.corner=corner;
-    handle.setAttribute('role','separator');handle.setAttribute('aria-label','Resize radio width');
-    radio.appendChild(handle);
-    handle.addEventListener('pointerdown',event=>{
-      if(event.pointerType==='mouse'&&event.button!==0)return;
-      event.preventDefault();event.stopPropagation();
-      const rect=radio.getBoundingClientRect();
-      resize={id:event.pointerId,corner,startX:event.clientX,left:rect.left,right:rect.right,top:rect.top};
-    });
-  });
-  requestAnimationFrame(()=>{
-    const width=radio.offsetWidth,height=radio.offsetHeight;
-    applyPosition(Number.isFinite(saved?.left)?saved.left:innerWidth-width-12,
-      Number.isFinite(saved?.top)?saved.top:(innerWidth<=760?innerHeight-height-12:(Number.isFinite(Number(radio.dataset.defaultTop))?Number(radio.dataset.defaultTop):(innerHeight-height)/2)));
-  });
-  head.addEventListener('dragstart',e=>e.preventDefault());
-  head.addEventListener('pointerdown',e=>{
-    if((e.pointerType==='mouse'&&e.button!==0)||e.target.closest('button,select,label,a'))return;
-    const rect=radio.getBoundingClientRect();
-    drag={id:e.pointerId,startX:e.clientX,startY:e.clientY,left:rect.left,top:rect.top,moved:false};
-    head.style.cursor='grabbing';
-  });
-  window.addEventListener('pointermove',e=>{
-    if(resize&&e.pointerId===resize.id){
-      const dx=e.clientX-resize.startX;
-      const width=Math.max(240,Math.min(innerWidth-16,resize.right-resize.left+(resize.corner.includes('e')?dx:-dx)));
-      radio.style.setProperty('width',width+'px','important');
-      const left=resize.corner.includes('w')?resize.right-width:resize.left;
-      applyPosition(left,resize.top,false);
-      if(e.cancelable)e.preventDefault();
-      return;
-    }
-    if(!drag||e.pointerId!==drag.id)return;
-    const dx=e.clientX-drag.startX,dy=e.clientY-drag.startY;
-    if(!drag.moved&&Math.abs(dx)+Math.abs(dy)>3)drag.moved=true;
-    if(drag.moved){applyPosition(drag.left+dx,drag.top+dy,false);if(e.cancelable)e.preventDefault()}
-  },{passive:false});
-  function finishPointer(e){
-    if(resize&&(!e||e.pointerId===resize.id)){
-      const rect=radio.getBoundingClientRect();
-      applyPosition(rect.left,rect.top,true);
-      resize=null;
-      return;
-    }
-    if(!drag||(e&&e.pointerId!==drag.id))return;
-    if(drag.moved){suppressClickUntil=Date.now()+250;const rect=radio.getBoundingClientRect();applyPosition(rect.left,rect.top,true)}
-    drag=null;head.style.cursor='grab';
-  }
-  window.addEventListener('pointerup',finishPointer);
-  window.addEventListener('pointercancel',finishPointer);
-  window.addEventListener('blur',()=>finishPointer());
-  head.addEventListener('click',e=>{if(Date.now()<suppressClickUntil){suppressClickUntil=0;e.preventDefault();e.stopImmediatePropagation()}},true);
-  window.addEventListener('resize',()=>{
-    const rect=radio.getBoundingClientRect();
-    applyPosition(rect.left,rect.top,true);
-  });
   status('Preparing the Green Dream playlist…');
   start(false);
 })();
