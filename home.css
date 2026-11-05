@@ -560,3 +560,24 @@ body.gd-home.va-home #gd-radio,
 body.gd-home.va-home .va-back-top,
 body.gd-home.va-home .cv-contact-dialog,
 body.gd-home.va-home .cv-contact-open{display:none!important}
+
+
+/* The former hero copy and CV shard are gone; the cover image now belongs to the whole page. */
+body.gd-home.va-home{
+  background-color:#031014!important;
+  background-image:url("https://s3.amazonaws.com/webflow-prod-assets/6addea7bd523f1bb0d979e74/6addec82f950f25096fdeeb8_green_dream_wide_cover.jpg")!important;
+  background-position:center 35%!important;
+  background-size:cover!important;
+  background-attachment:fixed!important;
+  background-repeat:no-repeat!important;
+}
+.va-home .va-hero{
+  display:block!important;
+  width:100%!important;
+  max-width:none!important;
+  min-height:clamp(220px,38vh,430px)!important;
+  margin:0!important;
+  padding:0!important;
+  background:linear-gradient(180deg,rgba(0,10,14,.08),rgba(0,10,14,.22))!important;
+}
+.va-home .va-hero:before,.va-home .va-hero:after{display:none!important}
