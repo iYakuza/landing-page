@@ -62,6 +62,8 @@
     #vha-viewer-tools .vha-tools-side{display:flex;align-items:center;justify-content:space-evenly;gap:3px;min-width:0;flex:1 1 0;pointer-events:auto}#vha-viewer-tools .vha-mood-box{display:none;border-top:1px solid var(--theme-border,#d8ff3e35);margin-top:4px;padding:8px 3px 2px;gap:6px;grid-column:1/-1}
     #vha-viewer-tools[data-mood-open="true"] .vha-mood-box{display:grid}
     #vha-viewer-tools .vha-mood-box label{font-size:10px;color:var(--theme-accent,#d8ff3e)}
+    #vha-viewer-tools .vha-mood-box select{width:100%;min-height:34px;padding:7px;border:1px solid var(--theme-border,#d8ff3e35);background:var(--theme-page,#050906);color:var(--theme-text,#e8f4df);font:inherit;line-height:1.4}#vha-viewer-tools .vha-mood-box select:focus-visible{outline:1px solid var(--theme-accent,#d8ff3e)}
+    #vha-viewer-tools .vha-mood-box button[data-tool="generate-prompt"]{background:transparent;color:var(--theme-accent,#d8ff3e)}
     #vha-viewer-tools .vha-mood-box textarea{width:100%;min-height:62px;resize:vertical;padding:7px;border:1px solid var(--theme-border,#d8ff3e35);background:var(--theme-page,#050906);color:var(--theme-text,#e8f4df);font:inherit;line-height:1.4}
     #vha-viewer-tools .vha-mood-box textarea:focus-visible{outline:1px solid var(--theme-accent,#d8ff3e)}
     #vha-viewer-tools .vha-mood-box button{min-width:0;max-width:100%;padding:7px;border:1px solid var(--theme-accent,#d8ff3e);background:var(--theme-accent,#d8ff3e);color:var(--theme-page,#050906);font:inherit;font-weight:700;cursor:pointer;overflow-wrap:anywhere}#vha-viewer-tools .vha-mood-box button:disabled{opacity:.58;cursor:wait}
@@ -134,7 +136,7 @@
   root.setAttribute("aria-label","Viewer controls");
   root.dataset.moodOpen = "false";
   root.dataset.open = "false";
-  root.innerHTML = '<div class="vha-tools-side vha-tools-left" aria-label="Viewer controls left"><button class="vha-tool-row" type="button" data-tool="fullscreen"><span class="vha-tool-icon">'+svg("fullscreen")+'</span><span>Fullscreen</span></button><button class="vha-tool-row" type="button" data-tool="radio" aria-pressed="false"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path d="M17 9a5 5 0 0 1 0 6M19.5 6.5a9 9 0 0 1 0 11"/></svg></span><span>V/A Radio</span></button><button class="vha-tool-row" type="button" data-tool="text" aria-pressed="false"><span class="vha-tool-icon">'+svg("text")+'</span><span>Text Size</span></button></div><div class="vha-tools-side vha-tools-right" aria-label="Viewer controls right"><button class="vha-tool-row" type="button" data-tool="mood" aria-expanded="false"><span class="vha-tool-icon">'+svg("mood")+'</span><span>Match my mood</span></button><button class="vha-tool-row" type="button" data-tool="reset-mood"><span class="vha-tool-icon">'+svg("reset")+'</span><span>Reset mood theme</span></button><a class="vha-tool-row" href="/landing-page/posts/community/" aria-label="Open Signals community"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18v3M8 21h8M12 3v2M5.6 8.6a9 9 0 0 0 0 6.8M18.4 8.6a9 9 0 0 1 0 6.8M2.8 5.8a13 13 0 0 0 0 12.4M21.2 5.8a13 13 0 0 1 0 12.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/></svg></span><span>SIGNALS</span></a></div><div class="vha-mood-box"><label for="vha-mood-description">Describe what is happening inside you.</label><textarea id="vha-mood-description" maxlength="900" placeholder="Write freely. Mixed feelings, fragments, images, contradictions — all welcome."></textarea><button type="button" data-tool="apply-mood">Generate a visual response</button><div class="vha-mood-status" role="status" aria-live="polite"></div></div>';
+  root.innerHTML = '<div class="vha-tools-side vha-tools-left" aria-label="Viewer controls left"><button class="vha-tool-row" type="button" data-tool="fullscreen"><span class="vha-tool-icon">'+svg("fullscreen")+'</span><span>Fullscreen</span></button><button class="vha-tool-row" type="button" data-tool="radio" aria-pressed="false"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path d="M17 9a5 5 0 0 1 0 6M19.5 6.5a9 9 0 0 1 0 11"/></svg></span><span>V/A Radio</span></button><button class="vha-tool-row" type="button" data-tool="text" aria-pressed="false"><span class="vha-tool-icon">'+svg("text")+'</span><span>Text Size</span></button></div><div class="vha-tools-side vha-tools-right" aria-label="Viewer controls right"><button class="vha-tool-row" type="button" data-tool="mood" aria-expanded="false"><span class="vha-tool-icon">'+svg("mood")+'</span><span>Match my mood</span></button><button class="vha-tool-row" type="button" data-tool="reset-mood"><span class="vha-tool-icon">'+svg("reset")+'</span><span>Reset mood theme</span></button><a class="vha-tool-row" href="/landing-page/posts/community/" aria-label="Open Signals community"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18v3M8 21h8M12 3v2M5.6 8.6a9 9 0 0 0 0 6.8M18.4 8.6a9 9 0 0 1 0 6.8M2.8 5.8a13 13 0 0 0 0 12.4M21.2 5.8a13 13 0 0 1 0 12.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/></svg></span><span>SIGNALS</span></a></div><div class="vha-mood-box"><label for="vha-mood-emotion">What emotion is closest to what you feel?</label><select id="vha-mood-emotion"><option value="">Choose an emotion</option><option value="joy">Joy</option><option value="sadness">Sadness</option><option value="anger">Anger</option><option value="fear">Fear</option><option value="anxiety">Anxiety</option><option value="love">Love</option><option value="longing">Longing</option><option value="calm">Calm</option><option value="confusion">Confusion</option><option value="numbness">Numbness</option><option value="hope">Hope</option><option value="gratitude">Gratitude</option><option value="loneliness">Loneliness</option><option value="overwhelm">Overwhelm</option><option value="curiosity">Curiosity</option><option value="nostalgia">Nostalgia</option><option value="frustration">Frustration</option><option value="tenderness">Tenderness</option><option value="anticipation">Anticipation</option><option value="mixed feelings">Mixed feelings</option></select><button type="button" data-tool="generate-prompt">Generate a fresh prompt</button><label for="vha-mood-description">Describe what is happening inside you.</label><textarea id="vha-mood-description" maxlength="900" placeholder="Your generated prompt will appear here. You can change it, add to it, or write freely."></textarea><button type="button" data-tool="apply-mood">Generate a visual response</button><div class="vha-mood-status" role="status" aria-live="polite"></div></div>';
   function bindCrystal(){
     const crystal=root.querySelector(".ego-bottom-hud.vha-universal-nav .vha-map-toggle");
     if(!crystal||crystal.dataset.toolsBound==="true")return;
@@ -396,6 +398,30 @@
       if(theme&&/^#[0-9a-f]{6}$/i.test(theme.page||"")&&/^#[0-9a-f]{6}$/i.test(theme.surface||"")&&/^#[0-9a-f]{6}$/i.test(theme.text||"")&&/^#[0-9a-f]{6}$/i.test(theme.accent||""))setMoodTheme(theme);
     }catch{}
   }
+  async function generateMoodPrompt(emotion){
+    const status=root.querySelector(".vha-mood-status");
+    const promptButton=root.querySelector('[data-tool="generate-prompt"]');
+    const description=root.querySelector("#vha-mood-description");
+    if(!emotion){status.textContent="Choose an emotion first, then generate a prompt.";return}
+    if(promptButton){promptButton.disabled=true;promptButton.textContent="Composing…";}
+    status.textContent="Finding words for this feeling…";
+    try{
+      const response=await fetch("https://ego-mood-ai.stefancu-emanuel.workers.dev",{
+        method:"POST",
+        headers:{"Content-Type":"text/plain;charset=UTF-8"},
+        body:JSON.stringify({mode:"prompt",emotion})
+      });
+      const result=await response.json().catch(()=>({}));
+      if(!response.ok||!result.ok||!result.prompt)throw new Error(result.error||"The AI could not compose a prompt just now.");
+      description.value=result.prompt;
+      description.focus();
+      status.textContent="A new prompt for "+emotion+". Edit it, add to it, or make it your own.";
+    }catch(error){
+      status.textContent=error instanceof Error?error.message:"The AI could not compose a prompt just now. Please try again.";
+    }finally{
+      if(promptButton){promptButton.disabled=false;promptButton.textContent="Generate another prompt";}
+    }
+  }
   async function generateMoodTheme(value){
     const input=String(value||"").trim();
     const status=root.querySelector(".vha-mood-status");
@@ -475,6 +501,10 @@
       button.setAttribute("aria-expanded",String(open));
       const description=root.querySelector("#vha-mood-description");
       if(open)requestAnimationFrame(()=>description?.focus());
+      return;
+    }
+    if(tool==="generate-prompt"){
+      await generateMoodPrompt(root.querySelector("#vha-mood-emotion").value);
       return;
     }
     if(tool==="apply-mood"){
