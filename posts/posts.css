@@ -477,11 +477,6 @@
 }
 
 
-/* Transmissions navigation: discreet fixed return-to-top control. */
-.posts-back-top{position:fixed;right:22px;bottom:22px;z-index:50;display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(5,9,6,.9);border:1px solid #b9d77a70;color:#b9d77a;text-decoration:none;font:10px ui-monospace,monospace;letter-spacing:.8px;backdrop-filter:blur(10px);box-shadow:0 6px 24px #0005}
-.posts-back-top:hover{background:#b9d77a;color:#071008}
-.posts-back-top:first-letter{font-size:15px}
-@media(max-width:560px){.posts-back-top{right:12px;bottom:12px;padding:9px 10px}.posts-back-top span{font-size:8px}}
 /* The CV remains a single full-width panel after Poetry moved into its own archive. */
 .gd-lower{grid-template-columns:minmax(0,1fr)!important}
 
@@ -1328,3 +1323,9 @@ body.image-viewer-open{overflow:hidden!important}
   .suno-post-title-row{align-items:flex-start;gap:9px}
   .suno-post-title-row>.post-sections-toggle{max-width:46%;font-size:8px!important}
 }
+
+/* Suno composition title and expand control share a dedicated row below metadata. */
+.suno-post-title-row{display:flex;align-items:center;justify-content:space-between;gap:14px;min-width:0;margin:18px 0 12px}
+.suno-post-title-row>h3{min-width:0;flex:1;margin:0!important;color:#edf4e8;font-size:clamp(22px,3vw,32px);line-height:1.08;letter-spacing:-1px}
+.suno-post-title-row>.post-sections-toggle{flex:0 0 auto}
+@media(max-width:560px){.suno-post-title-row{align-items:flex-start;gap:9px}.suno-post-title-row>.post-sections-toggle{max-width:46%;font-size:8px!important}}
