@@ -20,19 +20,19 @@
   radioTheme.id="vha-radio-theme";
   radioTheme.textContent=`
     #gd-radio{--radio-cyan:#00eaf5;--radio-yellow:#e9ed00;box-sizing:border-box!important;color:#dce9e9!important;background:linear-gradient(155deg,rgba(5,25,32,.98),rgba(2,12,17,.98))!important;border:1px solid rgba(0,234,245,.68)!important;border-radius:3px!important;box-shadow:0 16px 52px rgba(0,0,0,.58),0 0 26px rgba(0,234,245,.1)!important;backdrop-filter:blur(18px)!important;clip-path:none!important;font-family:ui-monospace,Consolas,monospace!important}
-    #gd-radio .gd-radio-head{display:flex!important;align-items:center!important;justify-content:space-between!important;padding:11px 13px!important;border-bottom:1px solid rgba(0,234,245,.25)!important;background:linear-gradient(90deg,rgba(0,234,245,.07),transparent)!important;color:#e9ed00!important;font:700 10px/1.3 ui-monospace,Consolas,monospace!important;letter-spacing:1.3px!important}
+    #gd-radio .gd-radio-head{display:flex!important;align-items:center!important;justify-content:space-between!important;padding:8px 10px!important;border-bottom:1px solid rgba(0,234,245,.25)!important;background:linear-gradient(90deg,rgba(0,234,245,.07),transparent)!important;color:#e9ed00!important;font:700 10px/1.3 ui-monospace,Consolas,monospace!important;letter-spacing:1.3px!important}
     #gd-radio .gd-radio-head small{display:block!important;margin-top:3px!important;color:#00eaf5!important;font-size:7px!important;letter-spacing:1.6px!important}
     #gd-radio .gd-radio-head button{width:25px!important;height:25px!important;padding:0!important;border:1px solid rgba(0,234,245,.38)!important;background:rgba(0,234,245,.05)!important;color:#00eaf5!important;font:17px/1 ui-monospace,monospace!important}
     #gd-radio *,#gd-radio *::before,#gd-radio *::after{box-sizing:border-box!important;min-width:0}
-    #gd-radio .gd-radio-body{display:block!important;width:100%!important;min-width:0!important;padding:13px!important;overflow-wrap:anywhere!important}
+    #gd-radio .gd-radio-body{display:block!important;width:100%!important;min-width:0!important;padding:10px!important;overflow-wrap:anywhere!important}
     #gd-radio .gd-eq i{background:#00eaf5!important;box-shadow:0 0 9px rgba(0,234,245,.35)!important}
     #gd-radio .gd-tiny,#gd-radio .gd-video-picker label{color:#00eaf5!important;font:8px/1.5 ui-monospace,Consolas,monospace!important;letter-spacing:1.4px!important}
-    #gd-radio .gd-track{display:block!important;color:#eaf5f6!important;font:600 13px/1.45 Arial,Helvetica,sans-serif!important;overflow-wrap:anywhere!important}
+    #gd-radio .gd-track{display:block!important;color:#eaf5f6!important;font:600 12px/1.4 Arial,Helvetica,sans-serif!important;overflow-wrap:anywhere!important}
     #gd-radio .gd-artist,#gd-radio .gd-note{color:#91aeb4!important;font:8px/1.55 ui-monospace,Consolas,monospace!important}
     #gd-radio .gd-controls button{min-height:32px!important;border:1px solid #00eaf5!important;background:rgba(0,234,245,.09)!important;color:#00eaf5!important;font:700 9px ui-monospace,Consolas,monospace!important;letter-spacing:1px!important}
     #gd-radio .gd-controls button:first-child{background:#00eaf5!important;color:#031116!important}
     #gd-radio .gd-video-picker{display:grid!important;grid-template-columns:1fr!important;gap:6px!important;margin:12px 0!important;padding-top:10px!important;border-top:1px solid rgba(0,234,245,.22)!important}
-    #gd-radio #gd-video-select{width:100%!important;min-width:0!important;max-width:100%!important;min-height:34px!important;padding:7px 9px!important;border:1px solid rgba(0,234,245,.42)!important;border-radius:0!important;background:#031116!important;color:#dce9e9!important;font:9px/1.45 ui-monospace,Consolas,monospace!important}
+    #gd-radio #gd-video-select{width:100%!important;min-width:0!important;max-width:100%!important;min-height:30px!important;padding:5px 8px!important;border:1px solid rgba(0,234,245,.42)!important;border-radius:0!important;background:#031116!important;color:#dce9e9!important;font:9px/1.45 ui-monospace,Consolas,monospace!important}
     #gd-radio #gd-video-select option{background:#031116!important;color:#dce9e9!important}
     #gd-radio .gd-note{display:block!important;margin-top:8px!important;overflow-wrap:anywhere!important}
     #gd-radio .gd-player{display:block!important;width:100%!important;max-width:100%!important;aspect-ratio:16/9!important;height:auto!important;min-width:0!important;overflow:hidden!important}
@@ -44,7 +44,7 @@
   const hiddenStyle=document.createElement('style');
   hiddenStyle.textContent=`
     #gd-radio.radio-hidden{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
-    #gd-radio.vha-radio-floating{box-sizing:border-box!important;width:fit-content!important;min-width:min(320px,calc(100vw - 24px))!important;max-width:min(420px,calc(100vw - 24px))!important;height:auto!important;max-height:calc(100dvh - 24px)!important;overflow-x:hidden!important;overflow-y:auto!important}
+    #gd-radio.vha-radio-floating{box-sizing:border-box!important;width:fit-content!important;min-width:min(280px,calc(100vw - 24px))!important;max-width:min(360px,calc(100vw - 24px))!important;min-height:170px!important;max-height:calc(100dvh - 24px)!important;overflow:auto!important;resize:both!important}
     #gd-radio.vha-radio-floating .gd-radio-head{cursor:grab!important;touch-action:none!important;user-select:none!important}
     #gd-radio.vha-radio-floating.gd-radio-dragging .gd-radio-head{cursor:grabbing!important}
     #gd-radio.vha-radio-floating .gd-radio-body{max-height:none!important;overflow:visible!important}
@@ -216,6 +216,17 @@
     host.style.height=height+'px';
     player.setSize?.(width,height);
   });
+  const syncPlayerSize=()=>{
+    if(host.hidden||host.style.position==='absolute'||!player)return;
+    const width=Math.max(1,host.clientWidth||radio.clientWidth-20);
+    const height=Math.round(width*9/16);
+    host.style.height=height+'px';
+    player.setSize?.(width,height);
+  };
+  if('ResizeObserver' in window){
+    const radioResizeObserver=new ResizeObserver(syncPlayerSize);
+    radioResizeObserver.observe(radio);
+  }
   play.addEventListener('click',()=>{
     if(playing){player?.pauseVideo();setPlaying(false);status('Playback paused.')}
     else start();
@@ -252,8 +263,11 @@
   radio.style.setProperty('bottom','calc(14px + 58px + 18px)','important');
   radio.style.setProperty('transform','translateX(-50%)','important');
   radio.style.setProperty('width','fit-content','important');
-  radio.style.setProperty('min-width','min(320px, calc(100vw - 24px))','important');
-  radio.style.setProperty('max-width','min(420px, calc(100vw - 24px))','important');
+  radio.style.setProperty('min-width','min(280px, calc(100vw - 24px))','important');
+  radio.style.setProperty('max-width','min(360px, calc(100vw - 24px))','important');
+  radio.style.setProperty('min-height','170px','important');
+  radio.style.setProperty('resize','both','important');
+  radio.style.setProperty('overflow','auto','important');
   radio.style.setProperty('height','auto','important');
   radio.style.setProperty('max-height','calc(100dvh - 24px)','important');
   radio.style.setProperty('overflow-y','auto','important');
