@@ -606,7 +606,7 @@
       root.querySelector("#vha-mood-description").value="";
       root.querySelector(".vha-mood-status").textContent="Default website theme restored across the website.";return;
     }
-    if(tool==="presentation"){if(hasPostPermalink()&&document.querySelector("#posts-list > .post-card")){if(document.body.classList.contains("vha-post-fullscreen"))stopPostReader();else startPostReader()}else{try{if(!document.fullscreenElement){await document.documentElement.requestFullscreen();startPresentation()}else{stopPresentation();await document.exitFullscreen()}}catch{startPresentation();alert("Browser fullscreen is unavailable here. Presentation navigation is still active; use the arrows or Space to move through the page.")}}}
+    if(tool==="presentation"){if(hasPostPermalink()&&document.querySelector("#posts-list > .post-card")){if(document.body.classList.contains("vha-post-fullscreen"))stopPostReader();else startPostReader()}else{if(presentationActive)stopPresentation();else startPresentation()}}
     else if(tool==="text"){const active=!document.body.classList.contains("vha-tools-large-text");setViewerTextSize(active);button.setAttribute("aria-pressed",String(active))}
   }));
 })();
