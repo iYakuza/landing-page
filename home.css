@@ -592,3 +592,9 @@ body.gd-home.va-home .va-lower-grid{grid-template-columns:minmax(0,2.7fr) minmax
 .va-cv-summary .va-cv-summary-systems{color:#8fb9c0}
 .va-cv-summary .va-action{justify-self:start;min-height:30px;margin:2px 0 0;padding:0 11px;font-size:8px}
 @media(max-width:760px){body.gd-home.va-home .va-lower-grid{grid-template-columns:1fr!important}.va-cv-summary{padding:11px}}
+
+
+/* Keep the CV profile card visible as part of the landing-page movement rail. */
+body.va-home .va-movement-aside{align-content:start!important;align-items:start!important}
+body.va-home .va-cv-summary{width:100%!important;max-width:none!important;min-width:0!important;position:relative!important;z-index:1!important;visibility:visible!important;opacity:1!important}
+body.va-home .va-cv-summary h3{max-width:100%;overflow-wrap:anywhere}
