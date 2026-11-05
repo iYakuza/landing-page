@@ -2,14 +2,6 @@
 (() => {
   if (document.documentElement.dataset.gameUiReady === "true") return;
   document.documentElement.dataset.gameUiReady = "true";
-  // Load the shared Crystal runtime once; the legacy site shell below remains
-  // the compatibility adapter while individual tools are migrated.
-  if (!window.__vhaCrystalLoaderStarted) {
-    const crystalLoader = document.createElement("script");
-    crystalLoader.src = "/landing-page/shared/crystal/crystal-loader.js?v=20261105-architecture-1";
-    crystalLoader.async = false;
-    document.head.appendChild(crystalLoader);
-  }
   document.body.classList.add("vha-game-interface");
   // A dedicated viewport layer avoids body pseudo-element and nested stacking-context bugs.
   let crystalBlurLayer=document.getElementById("vha-crystal-blur-layer");
@@ -195,67 +187,9 @@
   });
   updateConstellationRoute();
 
-  // Real constellation silhouettes, represented as schematic 2D star positions.
-  // Every destination remains present; selecting a pattern rearranges all of them.
-  const constellationPatterns={
-    "orion":[[25,24],[33,35],[42,47],[50,39],[58,47],[67,35],[75,24],[50,15],[39,15],[61,15],[30,62],[70,62],[50,72]],
-    "ursa-major":[[20,29],[30,23],[41,27],[52,35],[63,43],[72,55],[80,68],[61,64],[48,55],[36,49],[25,44],[19,58],[70,22]],
-    "cassiopeia":[[20,38],[31,23],[43,41],[56,22],[69,40],[77,56],[65,68],[51,57],[38,71],[24,59],[44,14],[61,73],[78,26]],
-    "cygnus":[[50,10],[50,24],[50,40],[50,57],[50,72],[34,30],[66,30],[25,20],[75,20],[37,49],[63,49],[39,67],[61,67]],
-    "scorpius":[[25,15],[36,21],[47,32],[57,45],[64,58],[61,70],[51,76],[73,69],[78,56],[74,42],[65,30],[48,14],[34,10]]
-  };
-  const presetButtons=[...map.querySelectorAll(".vha-constellation-presets [data-constellation]")];
-  function applyConstellationPreset(name){
-    const pattern=constellationPatterns[name];
-    const nodes=[...destinationList.querySelectorAll(".vha-map-node")];
-    if(!pattern||!nodes.length)return;
-    nodes.forEach((node,index)=>{
-      const [x,y]=pattern[index%pattern.length];
-      node.style.setProperty("--star-x",x+"%");
-      node.style.setProperty("--star-y",y+"%");
-      node.style.setProperty("left",x+"%","important");
-      node.style.setProperty("top",y+"%","important");
-      savedStarPositions[node.dataset.node]={x,y};
-    });
-    try{localStorage.setItem(constellationPositionKey,JSON.stringify(savedStarPositions))}catch{}
-    presetButtons.forEach(item=>{
-      const selected=item.dataset.constellation===name;
-      item.setAttribute("aria-pressed",String(selected));
-      item.classList.toggle("is-selected",selected);
-    });
-    updateConstellationRoute();
-    map.dataset.activeConstellation=name;
-  }
-  // Bind directly to each visible control; avoid relying on event bubbling through the map overlay.
-  presetButtons.forEach(button=>{
-    button.addEventListener("click",event=>{
-      event.preventDefault();
-      event.stopPropagation();
-      applyConstellationPreset(button.dataset.constellation);
-    });
-    button.addEventListener("keydown",event=>{
-      if(event.key==="Enter"||event.key===" "){
-        event.preventDefault();
-        applyConstellationPreset(button.dataset.constellation);
-      }
-    });
-  });
-
-  // V/A Radio is a shared site component, not a Green Dream-only element.
-  if(!document.getElementById("gd-radio")){
-    const radio=document.createElement("aside");
-    radio.className="gd-radio";
-    radio.id="gd-radio";
-    radio.setAttribute("aria-label","Draggable radio player");
-    radio.innerHTML='<div class="gd-radio-head" id="gd-drag"><span>◉ V/A RADIO <small>LIVE SIGNAL</small></span><button id="gd-close" aria-label="Minimize radio" aria-expanded="true">−</button></div><div class="gd-radio-body"><div class="gd-eq paused" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><p class="gd-tiny">NOW TRANSMITTING</p><strong class="gd-track" id="gd-track">Green Dream Playlist</strong><small class="gd-artist" id="gd-artist">Choose a video to play</small><div class="gd-controls"><button id="gd-play" aria-label="Play radio">▶ PLAY</button></div><div class="gd-stations gd-video-picker"><label for="gd-video-select">PLAYLIST // SELECT A VIDEO</label><select id="gd-video-select" aria-label="Choose a video from the Green Dream playlist"><option value="">Loading playlist titles…</option></select></div><div class="gd-player" id="gd-player" hidden></div><small class="gd-note" id="gd-radio-note">Loading the video list from your YouTube playlist…</small></div>';
-    document.body.appendChild(radio);
-    const playerScript=document.createElement("script");
-    playerScript.src="/landing-page/green-dream/script.js?v=20261103-radio-content-3";
-    playerScript.async=false;
-    document.body.appendChild(playerScript);
-  }
   function setConstellationVisible(visible){
     document.body.classList.toggle("vha-crystal-open",visible);
+    window.VHACrystal?.setOpen(visible,"constellation");
     crystalBlurLayer.hidden=!visible;
     document.dispatchEvent(new CustomEvent("vha-crystal-mode-change",{detail:{open:visible}}));
     map.hidden=!visible;
@@ -263,6 +197,8 @@
     mapButton.setAttribute("aria-label",visible?"Hide website constellation":"Show website constellation");
     mapButton.title=visible?"Hide website constellation":"Show website constellation";
   }
+  map.vhaConstellation = { updateRoute: updateConstellationRoute, storageKey: constellationPositionKey, getSavedPositions: () => savedStarPositions };
+  document.dispatchEvent(new CustomEvent("vha-constellation-ready",{detail:{map}}));
   const isHome=path==="/landing-page"||path==="/";
   let entryIntro=false;
   entryIntro=isHome
@@ -378,6 +314,7 @@
     restore.title="Show return button";
     document.body.append(dock,restore);
     const saved=(()=>{try{return JSON.parse(localStorage.getItem("vha-surface-dock-position")||"null")}catch{return null}})();
+window.VHACrystal?.registerTool({id:"constellation",label:"CONSTELLATION",description:"Open or close the website navigation constellation.",presentation:"overlay",run:()=>document.querySelector(".vha-map-toggle")?.click()});
     if(saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)){
       dock.style.left=Math.max(8,Math.min(innerWidth-150,saved.x))+"px";
       dock.style.top=Math.max(8,Math.min(innerHeight-48,saved.y))+"px";
