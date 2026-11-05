@@ -1,5 +1,6 @@
 /* Verse After Hours — saved theme manager and same-origin theme receiver */
 (() => {
+  const root = document.documentElement;
   function applyTheme(theme) {
     if (!theme || !theme.colors || !theme.typography || !theme.layout || !theme.details) return;
     const c = theme.colors;
