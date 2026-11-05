@@ -14,10 +14,7 @@
   const root = document.createElement("aside");
   root.id = "vha-viewer-tools";
   // A three-column grid locks the crystal to the exact viewport centre as the tool rail expands.
-  root.style.setProperty("display","grid","important");
-  root.style.setProperty("grid-template-columns","minmax(0,1fr) 58px minmax(0,1fr)","important");
-  root.style.setProperty("align-items","center","important");
-  root.style.setProperty("justify-items","stretch","important");
+  root.style.setProperty("display","block","important");
   root.setAttribute("aria-label","Viewer controls");
   root.dataset.moodOpen = "false";
   root.dataset.open = "false";
@@ -33,6 +30,13 @@
       document.dispatchEvent(new CustomEvent("vha-tools-state-change",{detail:{open}}));
     });
   }
+  root.querySelector('[data-tool="radio"]')?.addEventListener("click",()=>{
+    // Close the constellation first, then reveal the radio after its close-state sync runs.
+    root.dataset.open="false";
+    root.setAttribute("aria-expanded","false");
+    document.dispatchEvent(new CustomEvent("vha-tools-state-change",{detail:{open:false}}));
+    window.dispatchEvent(new Event("vha-radio-toggle"));
+  });
   const crystalObserver=new MutationObserver(bindCrystal);
   crystalObserver.observe(root,{childList:true,subtree:true});
   document.addEventListener("click",event=>{const dragClickUntil=Number(document.body.dataset.vhaStarDragClickUntil||0);if(Date.now()<dragClickUntil)return;if(root.dataset.open==="true"&&!root.contains(event.target)&&!event.target.closest(".vha-journey-note,#vha-world-map,.vha-constellation-presets,#gd-radio")){root.dataset.open="false";root.setAttribute("aria-expanded","false");document.dispatchEvent(new CustomEvent("vha-tools-state-change",{detail:{open:false}}))}});
@@ -41,13 +45,13 @@
   if (navHud) {
     navHud.parentNode.insertBefore(root, navHud);
     root.insertBefore(navHud,root.querySelector(".vha-tools-side.vha-tools-right"));
-    navHud.style.setProperty("grid-column","2","important");
-    navHud.style.setProperty("grid-row","1","important");
-    navHud.style.setProperty("margin-inline","0","important");
-    root.querySelector(".vha-tools-side.vha-tools-left")?.style.setProperty("grid-column","1","important");
-    root.querySelector(".vha-tools-side.vha-tools-left")?.style.setProperty("grid-row","1","important");
-    root.querySelector(".vha-tools-side.vha-tools-right")?.style.setProperty("grid-column","3","important");
-    root.querySelector(".vha-tools-side.vha-tools-right")?.style.setProperty("grid-row","1","important");
+    navHud.style.setProperty("position","absolute","important");
+    navHud.style.setProperty("left","50%","important");
+    navHud.style.setProperty("top","50%","important");
+    navHud.style.setProperty("right","auto","important");
+    navHud.style.setProperty("bottom","auto","important");
+    navHud.style.setProperty("transform","translate(-50%,-50%)","important");
+    navHud.style.setProperty("margin","0","important");
   } else {
     document.body.appendChild(root);
   }
