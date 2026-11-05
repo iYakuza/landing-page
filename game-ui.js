@@ -49,7 +49,7 @@
   referenceHeader.className="vha-reference-header";
   referenceHeader.innerHTML=`
     <a class="vha-reference-brand" href="/landing-page/" aria-label="Verse After Hours home">
-      <img src="/landing-page/assets/va-logo.svg" width="72" height="56" alt="">
+      <img src="/landing-page/assets/va-logo.svg?v=20261105-reference-logo-1" width="72" height="56" alt="">
       <span><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span>
     </a>
     <nav class="vha-reference-links" aria-label="Main navigation">
