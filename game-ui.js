@@ -81,6 +81,9 @@
     : '<div class="vha-journey-note" hidden><span>THE JOURNEY CONTINUES</span><strong>Choose the next trace.</strong><p>Follow a point in the constellation to continue exploring.</p></div>';
   map.innerHTML='<div class="vha-constellation-presets" role="group" aria-label="Choose a real constellation"><span>STAR PATTERNS</span><div><button type="button" data-constellation="orion" aria-pressed="false">ORION</button><button type="button" data-constellation="ursa-major" aria-pressed="false">URSA MAJOR</button><button type="button" data-constellation="cassiopeia" aria-pressed="false">CASSIOPEIA</button><button type="button" data-constellation="cygnus" aria-pressed="false">CYGNUS</button><button type="button" data-constellation="scorpius" aria-pressed="false">SCORPIUS</button></div><small>SCHEMATIC STAR ARRANGEMENTS · DRAG TO CUSTOMISE</small></div><div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path class="vha-constellation-route" d=""/></svg><div class="vha-map-destinations"></div></div>' + journeyMarkup;
   document.body.appendChild(map);
+  // Detach the pattern menu from the full-screen map so it can sit directly above the crystal dock.
+  const patternPicker=map.querySelector(".vha-constellation-presets");
+  if(patternPicker)document.body.appendChild(patternPicker);
   const destinationList=map.querySelector(".vha-map-destinations");
   const constellationField=map.querySelector(".vha-constellation-field");
   const constellationRoute=map.querySelector(".vha-constellation-route");
