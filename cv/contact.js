@@ -114,6 +114,7 @@
   function openDialog(){previousFocus=hostDoc.activeElement;dialog.classList.add("is-open");hostDoc.body.style.overflow="hidden";hostDoc.getElementById("cv-contact-name")?.focus();}
   function closeDialog(){dialog.classList.remove("is-open");hostDoc.body.style.overflow="";previousFocus?.focus?.();}
   openButton?.addEventListener("click",openDialog);
+  document.querySelectorAll(".va-cv-contact-trigger").forEach(button=>button.addEventListener("click",openDialog));
   closeButton?.addEventListener("click",closeDialog);
   dialog.addEventListener("click",e=>{if(e.target===dialog)closeDialog();});
   // Escape is handled only while focus is inside this dialog; no page-wide keystroke listener.
