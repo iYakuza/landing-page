@@ -2,6 +2,14 @@
 (() => {
   if (document.documentElement.dataset.gameUiReady === "true") return;
   document.documentElement.dataset.gameUiReady = "true";
+  // Load the shared Crystal runtime once; the legacy site shell below remains
+  // the compatibility adapter while individual tools are migrated.
+  if (!window.__vhaCrystalLoaderStarted) {
+    const crystalLoader = document.createElement("script");
+    crystalLoader.src = "/landing-page/shared/crystal/crystal-loader.js?v=20261105-architecture-1";
+    crystalLoader.async = false;
+    document.head.appendChild(crystalLoader);
+  }
   document.body.classList.add("vha-game-interface");
   // A dedicated viewport layer avoids body pseudo-element and nested stacking-context bugs.
   let crystalBlurLayer=document.getElementById("vha-crystal-blur-layer");
