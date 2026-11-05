@@ -42,8 +42,25 @@
       return '<a class="va-poem-card" href="'+href+'">'+media+'<span class="va-poem-copy"><strong>'+safe(post.title)+'</strong><time datetime="'+safe(post.published_at||post.created_at||'')+'">'+dateLabel(post.published_at||post.created_at)+'</time><small>'+safe(post.category||'TRANSMISSION')+'</small></span></a>';
     }).join('');
   }
+  let supabaseSdkPromise=null;
+  function ensureSupabaseSdk(){
+    if(window.supabase?.createClient)return Promise.resolve(true);
+    if(supabaseSdkPromise)return supabaseSdkPromise;
+    supabaseSdkPromise=new Promise(resolve=>{
+      const script=document.createElement('script');
+      script.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';
+      script.async=true;
+      script.crossOrigin='anonymous';
+      script.referrerPolicy='no-referrer';
+      script.onload=()=>resolve(Boolean(window.supabase?.createClient));
+      script.onerror=()=>resolve(false);
+      document.head.appendChild(script);
+    });
+    return supabaseSdkPromise;
+  }
   async function loadPosts(){
     const grid=document.getElementById('latest-poetry');
+    if(!await ensureSupabaseSdk()){if(grid)grid.innerHTML='<p class="va-empty">The poetry archive is temporarily unavailable. <a href="/landing-page/posts/">Browse all transmissions ↗</a></p>';return;}
     const client=window.supabase?.createClient('https://oeyxsqocldlovhsmzcjw.supabase.co','sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h');
     if(!client){if(grid)grid.innerHTML='<p class="va-empty">The poetry archive is temporarily unavailable. <a href="/landing-page/posts/">Browse all transmissions ↗</a></p>';return;}
     const {data,error}=await client.from('vha_posts').select('title,slug,category,media_url,media_type,published_at,created_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).limit(12);
