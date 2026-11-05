@@ -37,7 +37,7 @@
   const postReaderClose=document.createElement("button");
   postReaderClose.id="vha-post-reader-close";postReaderClose.type="button";
   postReaderClose.innerHTML="&#8592; BACK TO ARCHIVE";
-  postReaderClose.setAttribute("aria-label","Exit fullscreen transmission and return to archive");
+  postReaderClose.setAttribute("aria-label","Exit presentation reader and return to archive");
   document.body.appendChild(postReaderClose);
   function hasPostPermalink(){return Boolean(new URLSearchParams(location.search).get("post"))}
   function startPostReader(){
