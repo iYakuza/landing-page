@@ -364,19 +364,30 @@
     const sourcePage=validHex(theme.page)?theme.page:"#101810";
     const light=luminance(sourcePage)>.42;
     let page=sourcePage;
-    if(light&&luminance(page)<.22){for(let i=0;i<100&&luminance(page)<.22;i++)page=mix(page,"white",.035)}
-    if(!light&&luminance(page)>.15){for(let i=0;i<100&&luminance(page)>.15;i++)page=mix(page,"black",.035)}
+    // Keep page and panel backgrounds in one luminance family so one readable
+    // foreground can serve both, while retaining a visible surface separation.
+    if(light&&luminance(page)<.42){for(let i=0;i<100&&luminance(page)<.42;i++)page=mix(page,"white",.035)}
+    if(!light&&luminance(page)>.08){for(let i=0;i<100&&luminance(page)>.08;i++)page=mix(page,"black",.035)}
     const sourceSurface=validHex(theme.surface)?theme.surface:page;
     let surface=sourceSurface;
-    if(contrast(surface,page)<1.18){const target=light?"black":"white";for(let i=1;i<=100;i++){const candidate=mix(sourceSurface,target,i/100);if(contrast(candidate,page)>=1.18){surface=candidate;break}}}
+    const pageLum=luminance(page),surfaceLum=luminance(surface);
+    if(light){
+      const minSurface=.30,maxSurface=pageLum/1.18;
+      if(surfaceLum>maxSurface){for(let i=0;i<100&&luminance(surface)>maxSurface;i++)surface=mix(surface,"black",.035)}
+      else if(surfaceLum<minSurface){for(let i=0;i<100&&luminance(surface)<minSurface;i++)surface=mix(surface,"white",.035)}
+    }else{
+      const minSurface=pageLum*1.18,maxSurface=.10;
+      if(surfaceLum<minSurface){for(let i=0;i<100&&luminance(surface)<minSurface;i++)surface=mix(surface,"white",.035)}
+      else if(surfaceLum>maxSurface){for(let i=0;i<100&&luminance(surface)>maxSurface;i++)surface=mix(surface,"black",.035)}
+    }
     const safeForeground=(hex,bgs,min=4.5)=>{let c=validHex(hex)?hex:(light?"#111511":"#f7f8f5");if(bgs.every(bg=>contrast(c,bg)>=min))return c;const target=light?"black":"white";for(let i=1;i<=100;i++){const candidate=mix(c,target,i/100);if(bgs.every(bg=>contrast(candidate,bg)>=min))return candidate}return target==="black"?"#000000":"#ffffff"};
-    const text=safeForeground(light?"#111511":"#f7f8f5",[page,surface],7);
-    const accent=safeForeground(theme.accent,[page,surface],4.5);
-    const muted=safeForeground(theme.muted,[page,surface],4.5);
-    const border=safeForeground(theme.border||accent,[page,surface],3);
-    const glow=safeForeground(theme.glow||accent,[page,surface],3);
-    const onAccent=safeForeground(light?"#111511":"#ffffff",[accent],4.5);
     const raised=light?mix(surface,"white",.16):mix(surface,"black",.18);
+    const text=safeForeground(light?"#111511":"#f7f8f5",[page,surface,raised],7);
+    const accent=safeForeground(theme.accent,[page,surface,raised],4.5);
+    const muted=safeForeground(theme.muted,[page,surface,raised],4.5);
+    const border=safeForeground(theme.border||accent,[page,surface,raised],3);
+    const glow=safeForeground(theme.glow||accent,[page,surface,raised],3);
+    const onAccent=contrast("#000000",accent)>=contrast("#ffffff",accent)?"#000000":"#ffffff";
     const palette={page,surface,text,muted,accent,border,glow};
     Object.entries(palette).forEach(([key,value])=>{
       const variable=key==="page"?"--theme-page":key==="surface"?"--theme-surface":key==="text"?"--theme-text":key==="muted"?"--theme-muted":key==="accent"?"--theme-accent":key==="border"?"--theme-border":"--theme-glow";
