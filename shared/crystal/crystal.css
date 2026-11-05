@@ -1,0 +1,9 @@
+/* Shared Crystal runtime tokens. Visual component rules continue to live in game-ui.css
+   during the compatibility phase; migrated Crystal styles belong here. */
+:root {
+  --vha-crystal-night: #031116;
+  --vha-crystal-cyan: #00eaf5;
+  --vha-crystal-acid: #e9ed00;
+  --vha-crystal-text: #dce9e9;
+  --vha-crystal-muted: #9eb8bd;
+}
