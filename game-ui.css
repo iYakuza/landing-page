@@ -1582,3 +1582,17 @@ body.vha-game-interface .cms-shell .cms-button:not(.primary){
   background:transparent!important;color:#dce9e9!important;
 }
 body.vha-game-interface .cms-shell .cms-button:hover{background:#e9ed00!important;color:#031116!important;border-color:#e9ed00!important}
+
+/* The picker is a body-level overlay, so the crystal button remains visible beneath it. */
+body.vha-game-interface #vha-world-map{z-index:1400!important}
+body.vha-game-interface .vha-constellation-presets{
+  position:fixed!important;left:50%!important;right:auto!important;top:auto!important;
+  bottom:clamp(104px,14vh,142px)!important;transform:translateX(-50%)!important;
+  z-index:2147483010!important;display:none!important;
+  width:min(190px,calc(100vw - 30px))!important;max-height:min(54vh,440px)!important;
+  overflow-y:auto!important;overscroll-behavior:contain!important;
+}
+body.vha-game-interface:has(#vha-world-map[data-patterns-open="true"]) .vha-constellation-presets{display:block!important}
+@media(max-width:640px){
+ body.vha-game-interface .vha-constellation-presets{bottom:94px!important;width:164px!important;max-height:48vh!important}
+}
