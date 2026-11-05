@@ -257,7 +257,7 @@
   }
   const isHome=path==="/landing-page"||path==="/";
   let entryIntro=false;
-  try{entryIntro=isHome&&sessionStorage.getItem("vha-entry-intro-seen")!=="true"}catch{entryIntro=isHome}
+  entryIntro=isHome
   const journeyNote=map.querySelector(".vha-journey-note");
   if(journeyNote){
     journeyNote.setAttribute("role","group");
@@ -303,7 +303,7 @@
     document.body.classList.add("vha-entry-intro");
     map.hidden=true;mapButton.setAttribute("aria-expanded","false");
     const prompt=document.createElement("div");prompt.id="vha-entry-prompt";
-    prompt.innerHTML="<span>AN UNFINISHED RECORD</span><strong>Every journey begins with a single point.</strong><p>Touch the crystal to enter.</p>";
+    prompt.innerHTML="<span>AN UNFINISHED RECORD</span>";
     document.body.appendChild(prompt);
     mapButton.setAttribute("aria-label","Enter the constellation");mapButton.title="Enter the constellation";
   }else{
