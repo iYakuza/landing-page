@@ -3,7 +3,7 @@
   if (window.__vhaCrystalBootstrap) return;
   window.__vhaCrystalBootstrap = true;
   const script = document.createElement("script");
-  script.src = "/landing-page/shared/crystal/crystal-loader.js?v=20261105-end-to-end-9";
+  script.src = "/landing-page/shared/crystal/crystal-loader.js?v=20261105-crystal-layout-11";
   script.async = false;
   document.head.appendChild(script);
 })();
