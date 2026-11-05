@@ -553,13 +553,6 @@ body.va-home .va-footer-motto{display:none!important}
 }
 
 
-/* Minimal landing composition: only the entry title and crystal remain. */
-body.gd-home.va-home{background:#031116!important}
-body.gd-home.va-home .va-shell{display:none!important}
-body.gd-home.va-home #gd-radio,
-body.gd-home.va-home .va-back-top,
-body.gd-home.va-home .cv-contact-dialog,
-body.gd-home.va-home .cv-contact-open{display:none!important}
 
 
 /* The former hero copy and CV shard are gone; the cover image now belongs to the whole page. */
@@ -581,3 +574,21 @@ body.gd-home.va-home{
   background:linear-gradient(180deg,rgba(0,10,14,.08),rgba(0,10,14,.22))!important;
 }
 .va-home .va-hero:before,.va-home .va-hero:after{display:none!important}
+
+
+/* The landing page is a real homepage again: restore its content and radio shell. */
+body.gd-home.va-home .va-shell{display:block!important}
+body.gd-home.va-home #gd-radio{display:block}
+body.gd-home.va-home .va-lower-grid{grid-template-columns:minmax(0,2.7fr) minmax(210px,.92fr)!important}
+.va-cv-summary{
+  display:grid;gap:8px;margin-top:8px;padding:13px 12px 12px;
+  border:1px solid rgba(0,234,245,.42);
+  background:linear-gradient(145deg,rgba(0,15,22,.88),rgba(0,8,14,.78));
+  box-shadow:inset 0 0 18px rgba(0,234,245,.035);
+}
+.va-cv-summary .va-cv-summary-kicker{margin:0;color:var(--va-cyan);font:700 8px/1.4 ui-monospace,Consolas,monospace;letter-spacing:.14em}
+.va-cv-summary h3{margin:0;color:var(--va-yellow);font:700 clamp(15px,1.4vw,19px)/1.15 "Arial Narrow",Impact,Arial,sans-serif;letter-spacing:.025em}
+.va-cv-summary p{margin:0;color:#c4d9dc;font:9px/1.55 ui-monospace,Consolas,monospace}
+.va-cv-summary .va-cv-summary-systems{color:#8fb9c0}
+.va-cv-summary .va-action{justify-self:start;min-height:30px;margin:2px 0 0;padding:0 11px;font-size:8px}
+@media(max-width:760px){body.gd-home.va-home .va-lower-grid{grid-template-columns:1fr!important}.va-cv-summary{padding:11px}}
