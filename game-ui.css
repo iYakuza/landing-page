@@ -718,3 +718,125 @@ body.vha-game-interface :is(.post-details summary,.movement-index a,.posts-admin
 body.vha-game-interface :is(.post-details summary:hover,.movement-index a:hover,.posts-admin-link:hover,.ha-category-toggle:hover){color:#f0f500}
 body.vha-game-interface :is(.posts-empty,.ha-empty,.va-empty){border-color:rgba(0,234,245,.42);color:#a9c4c8}
 body.vha-game-interface :is(.cv-contact-panel,.post-edit-dialog,.vha-mood-box){border-color:#00eaf5!important;background:rgba(1,11,16,.98)!important;color:#e3eff0}
+
+
+/* GREEN DREAM unified palette — global controls, crystal navigation and every page */
+:root{
+ color-scheme:dark;
+ --gd-bg:#031116;--gd-panel:#061820;--gd-panel-raised:#09212a;
+ --gd-cyan:#00eaf5;--gd-yellow:#e9ed00;--gd-text:#dce9e9;--gd-muted:#9eb8bd;
+ scrollbar-color:#087985 #031116;
+}
+html,html:has(body.vha-game-interface){background:#031116!important;color-scheme:dark;scrollbar-color:#087985 #031116;scrollbar-width:thin}
+*{scrollbar-color:#087985 #031116;scrollbar-width:thin}
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:#031116;border-left:1px solid rgba(0,234,245,.12)}
+*::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#087985,#07515d);border:2px solid #031116;border-radius:0}
+*::-webkit-scrollbar-thumb:hover{background:#00aeba}
+body.vha-game-interface{
+ --game-bg:#031116!important;--game-panel:rgba(4,19,26,.96)!important;
+ --game-panel-soft:rgba(7,29,37,.92)!important;
+ --game-line:rgba(0,234,245,.34)!important;
+ --game-line-hot:rgba(0,234,245,.82)!important;
+ --game-ink:#dce9e9!important;--game-muted:#9eb8bd!important;
+ --game-accent:#00eaf5!important;--game-gold:#e9ed00!important;
+ background-color:#031116!important;color:#dce9e9!important;
+}
+body.vha-game-interface:before{
+ background:
+ radial-gradient(ellipse at 50% -18%,rgba(0,234,245,.075),transparent 55%),
+ radial-gradient(ellipse at 88% 75%,rgba(0,110,125,.08),transparent 42%),
+ repeating-linear-gradient(0deg,rgba(0,234,245,.012) 0 1px,transparent 1px 5px)!important;
+}
+body.vha-game-interface:not(.va-home){
+ background:#031116!important;
+}
+body.vha-game-interface:not(.va-home):before{
+ background:
+ radial-gradient(ellipse at 70% 18%,rgba(0,120,135,.14),transparent 48%),
+ linear-gradient(90deg,rgba(1,12,17,.96),rgba(2,16,22,.91) 55%,rgba(1,10,15,.97)),
+ linear-gradient(0deg,rgba(1,10,15,.94),rgba(1,10,15,.38))!important;
+}
+body.vha-game-interface :is(.gd,.ha-shell,.song-page,.posts-main,.cv-shell,.cms-shell,.sy-shell,.wrap){
+ background:transparent!important;color:#dce9e9!important;
+}
+body.vha-game-interface :is(.song-panel,.listening-console,.song-player-card,.listening-console-screen,.console-screen-top,.console-screen-foot){
+ background:linear-gradient(145deg,rgba(5,25,33,.97),rgba(2,13,19,.98))!important;
+ border-color:rgba(0,234,245,.42)!important;color:#dce9e9!important;
+}
+body.vha-game-interface :is(.song-kicker,.song-title em,.song-panel-top,.song-player-card strong,.song-disc,.song-link,.console-state,.console-note span){
+ color:#00eaf5!important;
+}
+body.vha-game-interface .song-title{color:#e7f1ef!important}
+body.vha-game-interface .song-title em{color:#e9ed00!important}
+body.vha-game-interface :is(.song-deck,.song-player-card p,.listening-console-head p:last-child,.console-note p){color:#b4c8cb!important}
+body.vha-game-interface .song-disc{
+ border-color:rgba(0,234,245,.72)!important;
+ background:repeating-radial-gradient(circle,#031116 0 5px,#09232b 6px 7px)!important;
+ box-shadow:0 0 32px rgba(0,234,245,.14)!important;
+}
+body.vha-game-interface .song-disc span{
+ border-color:#00eaf5!important;background:#031116!important;color:#e9ed00!important;
+}
+body.vha-game-interface .song-link{
+ border-color:rgba(0,234,245,.7)!important;background:rgba(0,234,245,.045)!important;
+ color:#00eaf5!important;
+}
+body.vha-game-interface .song-link.primary{
+ background:#00eaf5!important;color:#031116!important;border-color:#00eaf5!important;
+}
+body.vha-game-interface .song-note{color:#8faeb4!important}
+body.vha-game-interface .console-state{border-color:rgba(0,234,245,.38)!important}
+body.vha-game-interface .console-state i{background:#e9ed00!important;box-shadow:0 0 10px #e9ed00!important}
+body.vha-game-interface .listening-console-screen iframe{background:#020b10!important;border-color:rgba(0,234,245,.38)!important}
+body.vha-game-interface :is(.song-footer,.gd-footer,.ha-foot,.footer){
+ background:rgba(2,13,19,.96)!important;border-color:rgba(0,234,245,.3)!important;color:#9eb8bd!important;
+}
+body.vha-game-interface :is(.song-panel,.listening-console,.song-player-card,.listening-console-screen){
+ box-shadow:0 18px 48px rgba(0,0,0,.38),inset 0 0 24px rgba(0,234,245,.025)!important;
+}
+body.vha-game-interface :is(.song-page,.song-main,.song-panel,.listening-console,.listening-console-screen){border-radius:0!important}
+body.vha-game-interface :is(.song-panel,.listening-console,.song-player-card){clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,10px 100%,0 calc(100% - 10px))}
+body.vha-game-interface :is(input,select,textarea){
+ background:#031116!important;color:#dce9e9!important;border-color:rgba(0,234,245,.48)!important;
+ accent-color:#00eaf5;color-scheme:dark;
+}
+body.vha-game-interface :is(input,select,textarea)::placeholder{color:#78969c!important}
+body.vha-game-interface :is(button,.button,.btn):hover{border-color:#e9ed00!important;color:#e9ed00!important}
+body.vha-game-interface button[type=submit],body.vha-game-interface input[type=submit]{
+ background:#e9ed00!important;border-color:#e9ed00!important;color:#031116!important;
+}
+.vha-universal-nav>.vha-map-toggle,
+body .ego-bottom-hud.vha-universal-nav>.vha-map-toggle{
+ color:#00eaf5!important;
+}
+.vha-universal-nav>.vha-map-toggle svg,
+body .ego-bottom-hud.vha-universal-nav>.vha-map-toggle svg{
+ fill:rgba(0,234,245,.12)!important;stroke:#00eaf5!important;
+ filter:drop-shadow(0 0 7px rgba(0,234,245,.6)) drop-shadow(0 0 18px rgba(0,234,245,.28))!important;
+}
+.vha-universal-nav>.vha-map-toggle:hover svg,
+.vha-universal-nav>.vha-map-toggle[aria-expanded=true] svg{
+ fill:rgba(233,237,0,.15)!important;stroke:#e9ed00!important;
+ filter:drop-shadow(0 0 9px rgba(233,237,0,.72)) drop-shadow(0 0 22px rgba(0,234,245,.34))!important;
+}
+.vha-constellation-lines path{stroke:rgba(0,234,245,.55)!important}
+.vha-map-node svg{fill:rgba(0,234,245,.22)!important;stroke:#9df8fc!important;filter:drop-shadow(0 0 6px rgba(0,234,245,.65)) drop-shadow(0 0 14px rgba(0,234,245,.25))!important}
+.vha-map-node:hover svg,.vha-map-node:focus-visible svg,.vha-map-node.is-current svg{
+ fill:rgba(233,237,0,.22)!important;stroke:#e9ed00!important;filter:drop-shadow(0 0 8px rgba(233,237,0,.7)) drop-shadow(0 0 18px rgba(0,234,245,.3))!important;
+}
+.vha-constellation-presets,.vha-journey-note{
+ border-color:rgba(0,234,245,.34)!important;background:rgba(2,15,21,.84)!important;color:#dce9e9!important;
+}
+.vha-constellation-presets>span,.vha-journey-note>span{color:#e9ed00!important}
+.vha-constellation-presets button{border-color:rgba(0,234,245,.38)!important;background:rgba(3,17,22,.88)!important;color:#b9d1d4!important}
+.vha-constellation-presets button:hover,.vha-constellation-presets button[aria-pressed=true],.vha-constellation-presets button.is-selected{
+ border-color:#e9ed00!important;color:#e9ed00!important;background:rgba(233,237,0,.08)!important;
+}
+#vha-entry-prompt{color:#dce9e9!important}
+#vha-entry-prompt span{color:#00eaf5!important}
+#vha-entry-prompt p{color:#9eb8bd!important}
+.vha-journey-note strong{color:#e7f1ef!important}
+.vha-journey-note p{color:#a9c2c6!important}
+.vha-journey-note a{color:#00eaf5!important;border-color:rgba(0,234,245,.48)!important}
+@media(prefers-reduced-motion:reduce){html:focus-within{scroll-behavior:auto}}
