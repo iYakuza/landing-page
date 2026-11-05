@@ -1,34 +1,35 @@
 # Shared Crystal
 
-The Crystal is a site-wide component loaded by the existing shared `game-ui.js` entry point. Pages that already load the shared site interface receive the Crystal runtime automatically; new pages should include the same shared site entry point rather than recreating Crystal markup.
+The Crystal is a reusable site-wide component. Existing pages load it through the shared `game-ui.js` entry point; that entry point loads the runtime and tool modules from this directory. New pages should include the shared site styles and one script entry point, not copy Crystal markup or tool behaviour.
 
 ## Structure
 
-- `crystal.js` — lifecycle API and central tool registry.
-- `crystal.css` — shared Crystal design tokens; component-specific styling is being consolidated here from the legacy global stylesheet.
-- `crystal-loader.js` — one-time loader for the runtime and tool modules.
-- `tools/registry.js` — registry bootstrap.
-- `tools/star-patterns.js` — Star Patterns registration.
-- `tools/mood.js` — Mood registration.
-- `tools/radio.js` — V/A Radio registration.
-- `tools/constellation.js` — Constellation registration.
-- `tools/presentation.js` — Presentation registration (not browser fullscreen).
+- `runtime.js` — lifecycle API, open/closed state, and central tool registry.
+- `crystal.js` — Crystal interface, tool dock, accessibility controls, and UI lifecycle.
+- `crystal.css` — shared Crystal dock and tool styling.
+- `crystal-loader.js` — ordered one-time loader for the runtime and tools.
+- `tools/registry.js` — central registration for shared navigation tools.
+- `tools/constellation.js` — constellation navigation renderer, routes, drag behaviour, saved positions, and page integration.
+- `tools/star-patterns.js` — pattern picker control and preset application.
+- `tools/mood.js` — mood prompts, AI theme generation, contrast safeguards, persistence, and reset.
+- `tools/radio.js` — V/A Radio player integration and Crystal visibility control.
+- `tools/presentation.js` — in-page editorial presentation and post reader. It does not use browser fullscreen.
 
-## Add a page
+## Add Crystal to a new page
 
-Load the shared site interface, which currently loads the Crystal runtime:
+Include the shared site stylesheet and the single entry script:
 
 ```html
 <link rel="stylesheet" href="/landing-page/game-ui.css">
 <script src="/landing-page/game-ui.js" defer></script>
 ```
 
-Do not copy the Crystal HTML, CSS, or tool implementations into a page.
+The entry script loads the runtime, navigation and tools in dependency order. Do not add per-tool scripts or duplicate the Crystal HTML.
 
-## Register a tool
+## Tool registration
 
-A tool module registers one object with `window.VHACrystal.registerTool({ id, label, description, presentation, run })`. The runtime exposes `getTools()`, `getTool(id)`, `runTool(id)`, `setOpen(value)`, and `isOpen()`.
+A tool registers with `window.VHACrystal.registerTool({ id, label, description, presentation, run })`. The runtime exposes `getTools()`, `getTool(id)`, `runTool(id)`, `setOpen(value)`, `isOpen()`, and `refresh()`.
 
-## Migration status
+## Styling boundary
 
-This is the compatibility foundation. The existing constellation renderer, radio player, mood engine, and presentation reader are still executed by their established site scripts; the new modules currently register and delegate to those existing controls. Their implementation and styling will be moved into the matching tool modules in controlled steps so current behaviour is not lost. Until that extraction is complete, update the legacy execution code as well as the corresponding module when changing a tool's internal behaviour.
+Crystal dock and tool styles are in `crystal.css`. The constellation field, site-wide navigation and legacy page-theme selectors remain in `game-ui.css`, because that stylesheet also contains the shared visual system for the website. New Crystal-only styles belong in `crystal.css`.
