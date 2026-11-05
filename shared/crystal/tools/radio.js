@@ -43,6 +43,9 @@
   document.head.appendChild(hiddenStyle);
   if(radio.parentElement!==document.body)document.body.appendChild(radio);
 
+  const playerTarget=document.createElement("div");
+  playerTarget.id="gd-radio-player-frame";
+  host.replaceChildren(playerTarget);
   let player=null,playing=false,playlistIds=[],apiPromise=null;
   const status=s=>{note.textContent=s};
   function setPlaying(value){
@@ -154,7 +157,7 @@
     playerPromise=(async()=>{
       const YT=await loadApi();
       await new Promise((resolve,reject)=>{
-        player=new YT.Player(host,{
+        player=new YT.Player(playerTarget,{
           width:'1',height:'1',
           playerVars:{listType:'playlist',list:playlistId,autoplay:0,playsinline:1,rel:0,enablejsapi:1,origin:location.origin},
           events:{
