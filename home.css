@@ -1,5 +1,6 @@
 :root{--va-cyan:#00eaf5;--va-yellow:#f0f500;--va-ink:#020a0d;--va-panel:rgba(2,13,19,.94);--va-line:rgba(0,234,245,.72);--va-copy:#d9edf1;--va-muted:#9bb7bd}
 *{box-sizing:border-box}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 html{scroll-behavior:smooth}
 body.gd-home.va-home{margin:0;min-height:100vh;overflow-x:hidden;background:#031014 url("https://s3.amazonaws.com/webflow-prod-assets/6addea7bd523f1bb0d979e74/6addec82f950f25096fdeeb8_green_dream_wide_cover.jpg") center 35%/cover fixed no-repeat;color:var(--va-copy);font-family:Arial,Helvetica,sans-serif}
 body.gd-home.va-home:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,rgba(0,10,14,.82),rgba(0,13,17,.25) 55%,rgba(0,9,14,.38)),linear-gradient(0deg,rgba(0,9,14,.88),transparent 55%,rgba(0,9,14,.35))}
@@ -18,7 +19,7 @@ body.gd-home.va-home .va-shell{position:relative;isolation:isolate;min-height:10
 .va-header-status{position:absolute;right:5.5vw;top:0;transform:translateY(-1px);padding:6px 18px 7px;border:1px solid rgba(0,234,245,.45);border-top:0;background:rgba(0,9,13,.92);color:var(--va-cyan);font:8px/1 ui-monospace,Consolas,monospace;letter-spacing:.13em}
 .va-menu-toggle{width:34px;height:34px;padding:7px;border:0;background:transparent;color:var(--va-copy);display:grid;align-content:center;gap:5px;cursor:pointer}
 .va-menu-toggle span{display:block;width:19px;height:1px;background:currentColor}
-.va-hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 212px;gap:clamp(28px,5vw,82px);align-items:center;min-height:350px;padding:56px 6vw 36px 4.5vw;background-image:linear-gradient(90deg,rgba(0,12,16,.74),rgba(0,13,16,.13) 65%,rgba(0,11,15,.12)),linear-gradient(0deg,rgba(0,10,14,.55),transparent 40%),url("https://s3.amazonaws.com/webflow-prod-assets/6addea7bd523f1bb0d979e74/6addec82f950f25096fdeeb8_green_dream_wide_cover.jpg");background-size:cover;background-position:center 52%;isolation:isolate}
+.va-hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 212px;gap:clamp(28px,5vw,82px);align-items:center;width:100%;max-width:1140px;min-height:350px;padding:56px 0 36px 4.5vw;background-image:linear-gradient(90deg,rgba(0,12,16,.74),rgba(0,13,16,.13) 65%,rgba(0,11,15,.12)),linear-gradient(0deg,rgba(0,10,14,.55),transparent 40%),url("https://s3.amazonaws.com/webflow-prod-assets/6addea7bd523f1bb0d979e74/6addec82f950f25096fdeeb8_green_dream_wide_cover.jpg");background-size:cover;background-position:center 52%;isolation:isolate}
 .va-hero:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:linear-gradient(rgba(0,234,245,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(0,234,245,.045) 1px,transparent 1px);background-size:52px 52px;mask-image:linear-gradient(90deg,#000,transparent 78%)}
 .va-hero:after{content:"";position:absolute;left:3.2vw;top:25%;bottom:24%;width:2px;background:linear-gradient(transparent,var(--va-cyan),transparent);box-shadow:0 0 12px var(--va-cyan);pointer-events:none}
 .va-hero-copy{max-width:650px;position:relative;z-index:2}
@@ -39,7 +40,7 @@ body.gd-home.va-home .va-shell{position:relative;isolation:isolate;min-height:10
 .va-cv-shard .va-action{width:100%;min-height:32px;margin:0;font-size:9px}
 .va-cv-note{margin:12px 0 0;color:#d6e7e9;font:9px/1.65 ui-monospace,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase}
 .va-cv-note span{display:block}
-.va-movements-layout{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(190px,.8fr);gap:27px;padding:0 3.2vw 20px;align-items:stretch}
+.va-movements-layout{display:grid;grid-template-columns:minmax(0,2fr) minmax(190px,1fr);gap:27px;max-width:1280px;margin:0 0 0 3.2vw;padding:0 0 20px;align-items:stretch}
 .va-movement-area{min-width:0;padding:0 0 16px;border:1px solid rgba(0,234,245,.36);border-top:0;background:linear-gradient(180deg,rgba(0,12,17,.23),rgba(0,11,15,.76))}
 .va-section-heading{display:flex;align-items:center;gap:14px;min-height:31px;margin:0 0 7px;padding:0 14px;color:var(--va-cyan);font:700 10px/1 ui-monospace,Consolas,monospace;letter-spacing:.15em;text-transform:uppercase}
 .va-section-heading:after{content:"";height:1px;flex:1;background:linear-gradient(90deg,rgba(0,234,245,.8),rgba(0,234,245,.05))}
@@ -55,7 +56,7 @@ body.gd-home.va-home .va-shell{position:relative;isolation:isolate;min-height:10
 .va-movement-aside strong{font:10px/1.6 ui-monospace,Consolas,monospace;letter-spacing:.1em;text-transform:uppercase}
 .va-movement-aside p{margin:0;color:#d1e0e1;font:10px/1.55 ui-monospace,Consolas,monospace}
 .va-movement-aside .va-action{align-self:flex-start;min-height:30px;margin:0;padding:0 12px;font-size:8px}
-.va-lower-grid{display:grid;grid-template-columns:minmax(0,2.7fr) minmax(210px,.92fr) minmax(230px,1.03fr);gap:16px;padding:0 3.2vw 20px;align-items:stretch}
+.va-lower-grid{display:grid;grid-template-columns:minmax(0,2.7fr) minmax(210px,.92fr) minmax(230px,1.03fr);gap:16px;max-width:1280px;margin:0 0 0 3.2vw;padding:0 0 20px;align-items:stretch}
 .va-lower-panel{min-width:0;min-height:184px;border:1px solid rgba(0,234,245,.48);background:linear-gradient(145deg,rgba(0,14,19,.88),rgba(0,8,13,.82));box-shadow:0 9px 28px rgba(0,0,0,.18);clip-path:polygon(0 0,calc(100% - 13px) 0,100% 13px,100% 100%,0 100%)}
 .va-lower-panel .va-section-heading{margin-bottom:8px}
 .va-poetry-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;padding:0 12px 12px}
@@ -141,7 +142,7 @@ body.gd-home.va-home .va-shell{position:relative;isolation:isolate;min-height:10
  .va-brand{gap:9px}
  .va-brand-copy strong{font-size:14px}
  .va-brand-copy small{font-size:7px}
- .va-hero{display:block;min-height:0;padding:42px 5vw 24px;background-position:57% center}
+ .va-hero{display:block;max-width:none;min-height:0;padding:42px 5vw 24px;background-position:57% center}
  .va-hero-copy{max-width:100%;padding-right:0}
  .va-hero h1{font-size:clamp(42px,12vw,60px)}
  .va-hero-intro{font-size:10px;max-width:75%}
@@ -149,7 +150,7 @@ body.gd-home.va-home .va-shell{position:relative;isolation:isolate;min-height:10
  .va-cv-shard{min-height:220px}
  .va-cv-icon{height:78px}
  .va-cv-note{max-width:180px;margin-left:auto;text-align:left}
- .va-movements-layout{grid-template-columns:1fr;padding:0 4vw 18px}
+ .va-movements-layout{grid-template-columns:1fr;max-width:none;margin:0;padding:0 4vw 18px}
  .va-movement-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;padding:0 7px}
  .va-movement-card{aspect-ratio:.62;padding:7px 5px 8px}
  .va-movement-number{font-size:11px;margin-bottom:5px}
@@ -157,7 +158,7 @@ body.gd-home.va-home .va-shell{position:relative;isolation:isolate;min-height:10
  .va-movement-aside{padding:14px 10px;border-left:0;border-top:1px solid rgba(0,234,245,.35);gap:8px}
  .va-movement-aside strong{font-size:9px}
  .va-movement-aside p{font-size:9px}
- .va-lower-grid{grid-template-columns:1fr;padding:0 4vw 18px}
+ .va-lower-grid{grid-template-columns:1fr;max-width:none;margin:0;padding:0 4vw 18px}
  .va-poetry-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .va-poem-image,.va-poem-art{height:90px}
  .va-lower-panel{min-height:0}
