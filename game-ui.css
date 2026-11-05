@@ -1633,3 +1633,36 @@ body.vha-crystal-open .vha-constellation-presets button{pointer-events:auto!impo
 @media(prefers-reduced-motion:reduce){
   body.vha-crystal-open::after{-webkit-backdrop-filter:blur(5px) brightness(.6);backdrop-filter:blur(5px) brightness(.6)}
 }
+
+
+/* Crystal focus — blur the actual landing-page layout.
+   The homepage is nested in .va-shell, not made of body-level content nodes. */
+body.vha-crystal-open .va-shell>header,
+body.vha-crystal-open .va-shell>main,
+body.vha-crystal-open .va-shell>footer{
+  filter:blur(7px) brightness(.48)!important;
+  transition:filter .32s ease!important;
+  pointer-events:none!important;
+  user-select:none!important;
+}
+body.vha-crystal-open .va-shell>#gd-radio{
+  filter:none!important;
+  pointer-events:auto!important;
+}
+body:not(.vha-crystal-open) .va-shell>header,
+body:not(.vha-crystal-open) .va-shell>main,
+body:not(.vha-crystal-open) .va-shell>footer{
+  filter:none;
+  transition:filter .32s ease;
+}
+body.vha-crystal-open::after{
+  z-index:1390!important;
+  background:rgba(1,8,11,.10)!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+@media(prefers-reduced-motion:reduce){
+  body.vha-crystal-open .va-shell>header,
+  body.vha-crystal-open .va-shell>main,
+  body.vha-crystal-open .va-shell>footer{transition:none!important}
+}
