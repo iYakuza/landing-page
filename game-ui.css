@@ -1784,3 +1784,33 @@ body.vha-crystal-open > .vha-constellation-presets{
 }
 body.vha-entry-intro > .vha-constellation-presets{z-index:2147483647!important}
 body.vha-crystal-open > .vha-constellation-presets{z-index:2147483647!important}
+
+
+/* Crystal alignment and detached Star Patterns picker — final layer corrections. */
+#vha-viewer-tools{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 58px minmax(0,1fr)!important;
+  align-items:center!important;
+  justify-items:stretch!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+}
+#vha-viewer-tools>.vha-tools-side.vha-tools-left{grid-column:1!important;grid-row:1!important}
+#vha-viewer-tools>.ego-bottom-hud.vha-universal-nav{grid-column:2!important;grid-row:1!important;margin-inline:0!important}
+#vha-viewer-tools>.vha-tools-side.vha-tools-right{grid-column:3!important;grid-row:1!important}
+body.vha-crystal-open> :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt):not(.vha-constellation-presets){
+  filter:blur(7px) brightness(.48)!important;
+  pointer-events:none!important;
+  user-select:none!important;
+}
+.vha-constellation-presets{
+  position:fixed!important;
+  z-index:2147483012!important;
+  pointer-events:auto!important;
+}
+body.vha-patterns-open .vha-constellation-presets{display:block!important}
+body:not(.vha-patterns-open) .vha-constellation-presets{display:none!important}
+@media(max-width:760px){
+  #vha-viewer-tools{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr)!important}
+  #vha-viewer-tools>.ego-bottom-hud.vha-universal-nav{grid-column:2!important;margin-inline:0!important}
+}
