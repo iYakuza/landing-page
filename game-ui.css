@@ -1666,3 +1666,50 @@ body.vha-crystal-open::after{
   body.vha-crystal-open .va-shell>main,
   body.vha-crystal-open .va-shell>footer{transition:none!important}
 }
+
+
+/* CRYSTAL BLUR RESET — one predictable full-viewport effect for every page.
+   Disable all previous element-filter experiments; blur only the backdrop layer. */
+body.vha-crystal-open> *,
+body.vha-crystal-open .va-shell>header,
+body.vha-crystal-open .va-shell>main,
+body.vha-crystal-open .va-shell>footer{
+  filter:none!important;
+  -webkit-filter:none!important;
+  pointer-events:auto!important;
+  user-select:auto!important;
+  transition:none!important;
+}
+body.vha-crystal-open::after{
+  content:""!important;
+  display:block!important;
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147482990!important;
+  pointer-events:none!important;
+  background:rgba(2,12,16,.22)!important;
+  -webkit-backdrop-filter:blur(9px) brightness(.58)!important;
+  backdrop-filter:blur(9px) brightness(.58)!important;
+  -webkit-mask-image:none!important;
+  mask-image:none!important;
+}
+body.vha-crystal-open #vha-world-map{
+  position:fixed!important;
+  z-index:2147482995!important;
+}
+body.vha-crystal-open #vha-viewer-tools{
+  position:fixed!important;
+  z-index:2147483000!important;
+}
+body.vha-crystal-open .vha-constellation-presets{
+  z-index:2147483007!important;
+}
+body.vha-crystal-open #gd-radio{
+  z-index:2147482988!important;
+}
+@media(prefers-reduced-motion:reduce){
+  body.vha-crystal-open::after{
+    -webkit-backdrop-filter:blur(6px) brightness(.64)!important;
+    backdrop-filter:blur(6px) brightness(.64)!important;
+  }
+}
