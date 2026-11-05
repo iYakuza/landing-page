@@ -1061,3 +1061,26 @@ body.vha-game-interface .vha-universal-nav>.vha-map-toggle[aria-expanded=true] s
 @media(prefers-reduced-motion:reduce){
  body.vha-game-interface :is(.post-card,.gd-move,.cv-floating-nav,.vha-map-toggle){transition:none!important}
 }
+
+
+/* Final selector corrections for archive controls and the transmissions return link. */
+body.vha-game-interface button.ha-category-toggle,
+body.vha-game-interface button.ha-category-toggle:hover,
+body.vha-game-interface button.ha-category-toggle:focus-visible{
+  min-height:0!important;padding:4px 0!important;
+  border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+  color:#00eaf5!important;
+}
+body.vha-game-interface .ha-category-marker{
+  border:0!important;background:transparent!important;box-shadow:none!important;
+}
+body.vha-game-interface .posts-back-top{
+  border:1px solid rgba(0,234,245,.65)!important;
+  background:rgba(3,17,22,.96)!important;color:#00eaf5!important;
+  box-shadow:0 8px 28px rgba(0,0,0,.4),0 0 18px rgba(0,234,245,.09)!important;
+}
+body.vha-game-interface .posts-back-top:hover,
+body.vha-game-interface .posts-back-top:focus-visible{
+  background:#e9ed00!important;border-color:#e9ed00!important;color:#031116!important;
+}
