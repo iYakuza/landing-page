@@ -1329,3 +1329,10 @@ body.image-viewer-open{overflow:hidden!important}
 .suno-post-title-row>h3{min-width:0;flex:1;margin:0!important;color:#edf4e8;font-size:clamp(22px,3vw,32px);line-height:1.08;letter-spacing:-1px}
 .suno-post-title-row>.post-sections-toggle{flex:0 0 auto}
 @media(max-width:560px){.suno-post-title-row{align-items:flex-start;gap:9px}.suno-post-title-row>.post-sections-toggle{max-width:46%;font-size:8px!important}}
+
+/* Dedicated composition heading row, structurally separate from metadata. */
+.post-archive-composition>.post-card-top{display:flex;align-items:center}
+.post-archive-composition>.suno-post-title-row{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;margin:22px 0 16px}
+.post-archive-composition>.suno-post-title-row h3{flex:1;min-width:0;margin:0!important}
+.post-archive-composition>.suno-post-title-row .post-sections-toggle{flex:0 0 auto;align-self:center}
+@media(max-width:560px){.post-archive-composition>.suno-post-title-row{align-items:flex-start;gap:8px}.post-archive-composition>.suno-post-title-row .post-sections-toggle{max-width:45%;white-space:normal}}
