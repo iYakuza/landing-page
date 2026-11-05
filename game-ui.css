@@ -840,3 +840,224 @@ body .ego-bottom-hud.vha-universal-nav>.vha-map-toggle svg{
 .vha-journey-note p{color:#a9c2c6!important}
 .vha-journey-note a{color:#00eaf5!important;border-color:rgba(0,234,245,.48)!important}
 @media(prefers-reduced-motion:reduce){html:focus-within{scroll-behavior:auto}}
+
+
+/* -------------------------------------------------------------------------
+   PALETTE REFINEMENT — named page surfaces and controls
+   Midnight teal / electric cyan / acid yellow-green
+   ------------------------------------------------------------------------- */
+:root{
+  --gd-bg:#031116;
+  --gd-panel:#061820;
+  --gd-panel-raised:#09212a;
+  --gd-cyan:#00eaf5;
+  --gd-yellow:#e9ed00;
+  --gd-text:#dce9e9;
+  --gd-muted:#9eb8bd;
+}
+body.vha-game-interface{
+  background-color:#031116!important;
+  color:#dce9e9!important;
+}
+body.vha-game-interface :is(.ha-shell,.shell,.cv-page,.gd,.posts-main){
+  background-color:transparent!important;
+  color:#dce9e9!important;
+}
+
+/* Human Archive: remove the framed +/- control; retain a quiet text indicator. */
+body.vha-game-interface .ha-category-marker{
+  width:auto!important;height:auto!important;min-width:0!important;
+  padding:0!important;border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+  color:#00eaf5!important;font:12px/1 ui-monospace,Consolas,monospace!important;
+}
+body.vha-game-interface .ha-category-toggle{
+  background:transparent!important;border:0!important;box-shadow:none!important;
+}
+body.vha-game-interface .ha-category-toggle:hover .ha-category-marker,
+body.vha-game-interface .ha-category-toggle:focus-visible .ha-category-marker{
+  color:#e9ed00!important;
+}
+
+/* Community and transmissions: unify all large section plates and generated post tiles. */
+body.vha-game-interface :is(.posts-hero,.posts-content,.posts-note,.transmit-panel,
+  .transmit-copy,.transmit-form,.posts-filters,.theme-prompt,.viewer-console,
+  .posts-list .post-card,.post-edit-dialog,.post-edit-dialog-head){
+  background-color:rgba(3,17,22,.94)!important;
+  color:#dce9e9!important;
+  border-color:rgba(0,234,245,.34)!important;
+}
+body.vha-game-interface :is(.posts-hero,.posts-content,.posts-note,.transmit-panel){
+  background-image:linear-gradient(145deg,rgba(0,234,245,.055),transparent 42%),
+    linear-gradient(180deg,rgba(5,24,32,.96),rgba(3,17,22,.98))!important;
+}
+body.vha-game-interface :is(.post-card,.posts-filters,.viewer-console,.transmit-form,.theme-prompt){
+  background-image:linear-gradient(135deg,rgba(0,234,245,.045),transparent 58%)!important;
+}
+body.vha-game-interface .post-card:before{
+  background:#00eaf5!important;
+  box-shadow:-12px 0 rgba(0,234,245,.35),0 12px rgba(0,234,245,.35)!important;
+}
+body.vha-game-interface .post-card:after{
+  background:#9eb8bd!important;
+  box-shadow:7px 0 #9eb8bd,0 -7px #9eb8bd,7px -7px #9eb8bd!important;
+}
+body.vha-game-interface :is(.posts-hero h1,.posts-content h2,.posts-note h2,
+  .transmit-copy h2,.transmit-form h2,.viewer-console-head h2,.post-card h3){
+  color:#dce9e9!important;
+}
+body.vha-game-interface :is(.posts-hero h1 em,.posts-content h2 em,.posts-note h2 em,
+  .transmit-copy h2 em,.transmit-form h2 em,.gd-kicker,.posts-meta,
+  .post-card-top,.post-card a,.posts-admin-link,.post-details summary){
+  color:#e9ed00!important;
+}
+body.vha-game-interface :is(.posts-intro,.posts-note p,.transmit-panel p,
+  .post-card p,.posts-meta,.posts-filters label){
+  color:#9eb8bd!important;
+}
+body.vha-game-interface :is(.posts-search input,.posts-filters select,
+  .transmit-form input,.transmit-form textarea,.transmit-form select){
+  background:#031116!important;color:#dce9e9!important;border-color:rgba(0,234,245,.5)!important;
+}
+body.vha-game-interface .posts-note{border-top:1px solid rgba(0,234,245,.28)!important}
+body.vha-game-interface :is(.back-to-top,#back-to-top,.scroll-top,#scroll-top,.post-back-top){
+  border:1px solid rgba(0,234,245,.65)!important;
+  background:rgba(3,17,22,.96)!important;color:#00eaf5!important;
+  box-shadow:0 8px 28px rgba(0,0,0,.4),0 0 18px rgba(0,234,245,.09)!important;
+}
+body.vha-game-interface :is(.back-to-top,#back-to-top,.scroll-top,#scroll-top,.post-back-top):hover{
+  background:#e9ed00!important;border-color:#e9ed00!important;color:#031116!important;
+}
+
+/* Secure Your Soul: every dashboard/module surface uses the same teal glass treatment. */
+body.vha-game-interface :is(.shell,.dashboard,.side-stack,.panel,.node-scene,
+  .node-metrics,.metric,.realm-map,.map-visual,.mission,.module,.module-strip,
+  .mini,.statusbar,.statuscell,.disclaimer,.footer){
+  color:#dce9e9!important;
+}
+body.vha-game-interface :is(.panel,.mission,.module,.realm-map){
+  background:linear-gradient(145deg,rgba(6,24,32,.97),rgba(3,17,22,.98))!important;
+  border-color:rgba(0,234,245,.38)!important;
+  box-shadow:0 16px 42px rgba(0,0,0,.4),inset 0 1px rgba(0,234,245,.035)!important;
+}
+body.vha-game-interface .node-scene{
+  background:radial-gradient(ellipse at 65% 65%,rgba(0,110,125,.22),transparent 50%),
+    linear-gradient(180deg,#09212a,#031116)!important;
+}
+body.vha-game-interface :is(.node-metrics,.mini){
+  background:rgba(2,13,19,.82)!important;border-color:rgba(0,234,245,.25)!important;
+}
+body.vha-game-interface :is(.panel-head,.statusbar,.statuscell,.metric,.module-foot){
+  border-color:rgba(0,234,245,.25)!important;
+}
+body.vha-game-interface :is(.module-index,.module-foot,.metric strong,.statuscell b,
+  .panel-head strong,.eyebrow,.tag,.action,.progress span){
+  color:#00eaf5!important;
+}
+body.vha-game-interface .brand-mark{
+  border-color:#00eaf5!important;color:#e9ed00!important;background:transparent!important;
+}
+
+/* CV: hero plate, section separators and floating section navigator. */
+body.vha-game-interface .cv-hero{
+  background:linear-gradient(145deg,rgba(6,24,32,.97),rgba(3,17,22,.98))!important;
+  border-color:rgba(0,234,245,.52)!important;
+  box-shadow:0 20px 55px rgba(0,0,0,.38),inset 0 0 28px rgba(0,234,245,.035)!important;
+}
+body.vha-game-interface .cv-kicker,
+body.vha-game-interface .cv-role,
+body.vha-game-interface .cv-targets strong,
+body.vha-game-interface .cv-date,
+body.vha-game-interface .cv-section h2 em{color:#e9ed00!important}
+body.vha-game-interface .cv-name span{color:#00eaf5!important}
+body.vha-game-interface .cv-section{border-bottom-color:rgba(0,234,245,.25)!important}
+body.vha-game-interface .cv-skills span,
+body.vha-game-interface .cv-quicklinks a{
+  border-color:rgba(0,234,245,.32)!important;background:rgba(5,24,32,.72)!important;color:#c8dcde!important;
+}
+body.vha-game-interface .cv-floating-nav{
+  background:linear-gradient(145deg,rgba(5,25,33,.98),rgba(2,13,19,.99))!important;
+  border:1px solid rgba(0,234,245,.58)!important;
+  box-shadow:0 16px 44px rgba(0,0,0,.55),0 0 22px rgba(0,234,245,.09)!important;
+  color:#dce9e9!important;backdrop-filter:blur(16px)!important;
+}
+body.vha-game-interface :is(.cv-floating-head,.cv-floating-links){
+  background:transparent!important;border-color:rgba(0,234,245,.25)!important;color:#dce9e9!important;
+}
+body.vha-game-interface .cv-floating-links button{
+  background:transparent!important;border:0!important;border-bottom:1px solid rgba(0,234,245,.15)!important;
+  color:#b8cdd0!important;
+}
+body.vha-game-interface .cv-floating-links button:hover,
+body.vha-game-interface .cv-floating-links button:focus-visible{
+  color:#e9ed00!important;background:rgba(0,234,245,.07)!important;
+}
+body.vha-game-interface .cv-floating-collapse{
+  background:transparent!important;border:1px solid rgba(0,234,245,.4)!important;color:#00eaf5!important;
+}
+
+/* Green Dream home + five movement archives: eliminate olive/purple/brown legacy plates. */
+body.vha-game-interface :is(.gd-section,.gd-lower,.gd-archive-layout,.gd-listening,
+  .gd-media,.gd-poetry-float,.gd-cv,.gd-panel,.tetris-room-intro,.tetris-listening-arena,
+  .gd-move,.gd-movement-archive details,.gd-media-row){
+  background-color:rgba(3,17,22,.94)!important;
+  border-color:rgba(0,234,245,.3)!important;
+  color:#dce9e9!important;
+}
+body.vha-game-interface :is(.gd-section,.gd-lower,.gd-archive-layout,.gd-listening,
+  .gd-media,.gd-poetry-float,.gd-cv,.gd-panel,.tetris-room-intro,.tetris-listening-arena){
+  background-image:linear-gradient(145deg,rgba(0,234,245,.045),transparent 48%),
+    linear-gradient(180deg,rgba(5,24,32,.96),rgba(3,17,22,.98))!important;
+}
+body.vha-game-interface .gd-move,
+body.vha-game-interface .gd-move:is(.move1,.move2,.move3,.move4,.move5){
+  background:linear-gradient(145deg,rgba(7,35,44,.98),rgba(3,17,22,.99))!important;
+  border:1px solid rgba(0,234,245,.36)!important;
+}
+body.vha-game-interface .gd-move:before{background:radial-gradient(ellipse at 65% 35%,rgba(0,234,245,.12),transparent 62%)!important}
+body.vha-game-interface :is(.gd-media,.gd-poetry-float,.gd-cv,.gd-panel,.gd-move,.gd-listening){
+  box-shadow:0 14px 38px rgba(0,0,0,.32),inset 0 1px rgba(0,234,245,.025)!important;
+}
+body.vha-game-interface :is(.gd-kicker,.gd-cvgrid span,.gd-move small,.gd-media-number,
+  .gd-media-play,.gd-poem>span,.gd-poem>a,.gd-listening h2 em,.tetris-room-intro h3 em){
+  color:#e9ed00!important;
+}
+body.vha-game-interface :is(.gd-section-head>p,.gd-archive-note,.gd-media-track small,
+  .gd-movement-posts small,.gd-smallprint,.gd-listening p:not(.gd-kicker)){
+  color:#9eb8bd!important;
+}
+body.vha-game-interface .gd-movement-archive details{border-top-color:rgba(0,234,245,.25)!important}
+body.vha-game-interface .gd-movement-archive summary{color:#dce9e9!important}
+body.vha-game-interface .gd-movement-archive summary:after{color:#00eaf5!important}
+body.vha-game-interface .gd-media-row{border-top-color:rgba(0,234,245,.25)!important}
+body.vha-game-interface .gd-media-track strong{color:#dce9e9!important}
+body.vha-game-interface .gd-media-play{border-color:rgba(0,234,245,.5)!important;background:transparent!important}
+body.vha-game-interface .gd-media-play:hover,
+body.vha-game-interface .gd-media-row.is-playing .gd-media-play{
+  background:#e9ed00!important;color:#031116!important;border-color:#e9ed00!important;
+}
+
+/* Crystal navigation: no circular disc, halo, or filled glass behind the crystal glyph. */
+body.vha-game-interface .ego-bottom-hud.vha-universal-nav,
+body.vha-game-interface .vha-universal-nav{
+  background:transparent!important;background-color:transparent!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+}
+body.vha-game-interface .ego-bottom-hud.vha-universal-nav>.vha-map-toggle,
+body.vha-game-interface .vha-universal-nav>.vha-map-toggle{
+  background:transparent!important;background-color:transparent!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+  outline-offset:5px!important;
+}
+body.vha-game-interface .vha-universal-nav>.vha-map-toggle svg{
+  fill:none!important;stroke:#00eaf5!important;stroke-width:1.35!important;
+  filter:drop-shadow(0 0 7px rgba(0,234,245,.68)) drop-shadow(0 0 18px rgba(0,234,245,.3))!important;
+}
+body.vha-game-interface .vha-universal-nav>.vha-map-toggle:hover svg,
+body.vha-game-interface .vha-universal-nav>.vha-map-toggle[aria-expanded=true] svg{
+  fill:none!important;stroke:#e9ed00!important;
+  filter:drop-shadow(0 0 9px rgba(233,237,0,.75)) drop-shadow(0 0 20px rgba(0,234,245,.35))!important;
+}
+@media(prefers-reduced-motion:reduce){
+ body.vha-game-interface :is(.post-card,.gd-move,.cv-floating-nav,.vha-map-toggle){transition:none!important}
+}
