@@ -43,6 +43,13 @@
     });
   }
   document.addEventListener("vha-constellation-ready", bindPicker);
+  document.addEventListener("vha-crystal-mode-change", event => {
+    if (event.detail?.open) return;
+    const map = document.getElementById("vha-world-map");
+    if (map) map.dataset.patternsOpen = "false";
+    document.body.classList.remove("vha-patterns-open");
+    document.querySelector('#vha-viewer-tools [data-tool="patterns"]')?.setAttribute("aria-expanded", "false");
+  });
   bindPicker();
   document.addEventListener("click", event => {
     const button = event.target.closest('#vha-viewer-tools [data-tool="patterns"]');
