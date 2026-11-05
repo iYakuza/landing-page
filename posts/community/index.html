@@ -24,6 +24,66 @@
     .vha-community-button{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px!important;border:1px solid #d8ff3e!important;color:#d8ff3e!important;text-decoration:none!important;font:9px/1.2 ui-monospace,monospace!important;letter-spacing:1px!important;white-space:nowrap;background:#b6e8330a;transition:background .15s,color .15s}
     .vha-community-button:hover,.vha-community-button:focus-visible{background:#d8ff3e!important;color:#071009!important;outline:2px solid #d8ff3e;outline-offset:3px}
     @media(max-width:760px){.vha-community-button{font-size:8px!important;padding:7px 8px!important}}
+
+    /* Compact community composition: hero, uplink and gallery read as one connected surface. */
+    .posts-main{min-height:0!important}
+    .posts-hero{
+      display:grid!important;grid-template-columns:minmax(0,1fr) minmax(130px,.34fr)!important;
+      align-items:center!important;gap:9px 28px!important;
+      min-height:0!important;padding:34px 6vw 22px!important;
+    }
+    .posts-hero:after{display:none!important}
+    .posts-hero>.gd-kicker,.posts-hero>h1,.posts-hero>.posts-intro,.posts-hero>.posts-meta{grid-column:1!important}
+    .posts-hero>.gd-kicker{margin:0!important}
+    .posts-hero h1{font-size:clamp(44px,7.5vw,88px)!important;line-height:.86!important}
+    .posts-intro{max-width:680px!important;margin:0!important;font-size:12px!important;line-height:1.65!important}
+    .posts-meta{padding-top:10px!important;font-size:8px!important}
+    .hero-pixel-art{position:relative!important;grid-column:2!important;grid-row:1/5!important;top:auto!important;right:auto!important;align-self:center!important;justify-self:center!important;width:min(170px,100%)!important;margin:0!important}
+    .transmit-panel{grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr)!important;gap:clamp(18px,3vw,42px)!important;padding:26px 6vw!important}
+    .transmit-copy h2{font-size:clamp(28px,4vw,43px)!important;line-height:.98!important}
+    .transmit-copy>p:not(.gd-kicker){font-size:11px!important;line-height:1.65!important;margin:9px 0!important}
+    .transmit-form{padding:16px!important}
+    .transmit-form input:not([type=checkbox]):not([type=file]),.transmit-form textarea,.transmit-form select{margin-bottom:10px!important;padding:9px 10px!important;font-size:12px!important}
+    .transmit-form textarea{min-height:88px!important}
+    .transmit-form>label,.transmit-form .transmit-upload>label,.transmit-two-col label{margin-bottom:6px!important;font-size:9px!important}
+    .transmit-upload p{margin:4px 0 10px!important;font-size:10px!important;line-height:1.5!important}
+    .transmit-consent{margin:8px 0!important;font-size:10px!important;line-height:1.5!important}
+    .transmit-submit{margin-top:5px!important}
+    .posts-content{padding:28px 6vw 42px!important}
+    .posts-heading{align-items:center!important;margin-bottom:12px!important}
+    .posts-content h2{font-size:clamp(28px,4vw,44px)!important}
+    .posts-search input{min-height:34px!important;padding:7px 10px!important}
+    .movement-index{margin:8px 0!important}
+    .posts-filters{margin:8px 0 12px!important;padding:8px 10px!important}
+    .posts-filters select{padding:8px 10px!important;min-height:32px!important}
+    .posts-list:not(:has(.post-back)){gap:12px!important}
+    .posts-list:not(:has(.post-back)) .post-card{padding:17px!important}
+    .posts-list:not(:has(.post-back)) .post-card-identity{padding-top:12px!important}
+    .posts-list:not(:has(.post-back)) .post-card-identity h3{font-size:clamp(20px,2.4vw,29px)!important}
+    .posts-list:not(:has(.post-back)) .post-collapsible{margin-top:14px!important;padding-top:12px!important}
+    .posts-note{gap:24px!important;padding:28px 6vw!important}
+    .posts-note-mark{width:72px!important}
+    .posts-note h2{font-size:clamp(26px,3.8vw,40px)!important}
+    .posts-note p:not(.gd-kicker){font-size:11px!important;line-height:1.65!important}
+    @media(max-width:700px){
+      .posts-hero{grid-template-columns:minmax(0,1fr) 92px!important;gap:8px 12px!important;padding:24px 5vw 18px!important}
+      .posts-hero h1{font-size:clamp(40px,10vw,68px)!important}
+      .posts-intro{font-size:11px!important}
+      .hero-pixel-art{grid-column:2!important;grid-row:1/4!important;width:88px!important}
+      .posts-meta{flex-direction:column!important;gap:4px!important}
+      .transmit-panel{grid-template-columns:1fr!important;gap:14px!important;padding:22px 5vw!important}
+      .transmit-copy h2{font-size:clamp(29px,8vw,42px)!important}
+      .transmit-form{padding:14px!important}
+      .posts-content{padding:22px 5vw 30px!important}
+      .posts-heading{align-items:flex-start!important;flex-direction:column!important;gap:10px!important}
+      .posts-search,.posts-search input{width:100%!important}
+      .posts-list:not(:has(.post-back)){gap:9px!important}
+      .posts-list:not(:has(.post-back)) .post-card{padding:14px!important}
+      .posts-note{align-items:flex-start!important;flex-direction:row!important;gap:16px!important;padding:22px 5vw!important}
+      .posts-note-mark{width:54px!important;font-size:20px!important;letter-spacing:-2px!important}
+    }
+    @media(max-width:380px){.posts-hero{grid-template-columns:minmax(0,1fr) 70px!important}.hero-pixel-art{width:68px!important}.posts-hero h1{font-size:39px!important}}
+ 
   </style>
   <link rel="stylesheet" href="/landing-page/game-ui.css?v=20261105-palette-refinement-5">
 </head>
