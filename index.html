@@ -1,247 +1,86 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#050906">
-  <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.youtube.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://s3.amazonaws.com https://oeyxsqocldlovhsmzcjw.supabase.co https://emanuelstefancu.wordpress.com; media-src 'self' blob: https://oeyxsqocldlovhsmzcjw.supabase.co; connect-src 'self' https://oeyxsqocldlovhsmzcjw.supabase.co wss://oeyxsqocldlovhsmzcjw.supabase.co https://www.youtube.com https://ego-mood-ai.stefancu-emanuel.workers.dev; frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com; upgrade-insecure-requests">
-  <meta name="description" content="EGO is a digital testament to a human life: an evolving archive of memories, thoughts, creations and perspective.">
-  <title>EGO — A TESTAMENT TO EXISTENCE</title>
-  <link rel="stylesheet" href="green-dream/style.css?v=20261102-palette-3">
-  <link rel="stylesheet" href="human-archive/portal.css?v=20261103-ego-home-rework-1">
-  <style>
-    .vha-community-button{display:inline-flex;align-items:center;justify-content:center;padding:8px 10px;border:1px solid #d8ff3e;color:#d8ff3e;text-decoration:none;font:9px/1.2 ui-monospace,monospace;letter-spacing:1px;white-space:nowrap;background:#b6e8330a;transition:background .15s,color .15s}
-    .vha-community-button:hover,.vha-community-button:focus-visible{background:#d8ff3e;color:#050906;outline-offset:3px}
-    @media(max-width:760px){.vha-community-button{padding:7px 8px;font-size:8px;letter-spacing:.5px}}
-
-    /* After Hours Duel: interactive game section on the landing page */
-    .gd-home .gd-listening{display:block!important;width:100%;box-sizing:border-box;padding:clamp(42px,6vw,80px) 6vw;background:linear-gradient(110deg,#101c11,#070a08);border-top:1px solid #d8ff3e25}
-    .gd-home .gd-listening-intro{display:block;width:100%;max-width:760px;margin:0 0 30px}
-    .gd-home .gd-listening h2{font-size:clamp(30px,5vw,60px);letter-spacing:-2px;line-height:.95;margin:0}
-    .gd-home .gd-listening h2 em{font-style:normal;color:#d8ff3e}
-    .gd-home .gd-listening p:not(.gd-kicker){font-size:13px;line-height:1.9;color:#aebbad;max-width:680px}
-    .gd-home .tetris-room-intro{display:block;width:100%;max-width:none;box-sizing:border-box;margin:30px 0 0;padding-top:25px;border-top:1px solid #d8ff3e30}
-    .gd-home .tetris-room-intro h3{font-size:clamp(30px,5vw,56px);line-height:.95;letter-spacing:-.06em;margin:0 0 14px;color:#e9f2e8}
-    .gd-home .tetris-room-intro h3 em{font-style:normal;color:#d8ff3e}
-    .gd-home .tetris-room-intro p:not(.gd-kicker){max-width:680px;color:#aebbad;font-size:12px;line-height:1.8}
-    .gd-home .tetris-listening-arena{display:block;position:relative;clear:both;width:100%;height:min(72vh,720px);min-height:540px;margin:24px 0 0;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#132015 0%,#050906 72%);border:1px solid #d8ff3e36;isolation:isolate}
-    .gd-home #falling-tetris-bg{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:block!important;visibility:visible!important;opacity:.94!important;mix-blend-mode:screen!important;pointer-events:none!important;background:transparent!important;z-index:0!important}
-    .gd-home #tetris-arena-controls{position:absolute!important;z-index:20!important;top:10px!important;left:12px!important;right:auto!important;bottom:auto!important;width:calc(100% - 24px)!important;max-width:none!important;display:flex;align-items:center;justify-content:flex-start;gap:6px 9px;flex-wrap:wrap;box-sizing:border-box;padding:7px 10px!important;background:rgba(4,9,6,.88)!important;border:1px solid rgba(182,232,51,.3)!important;border-radius:5px;backdrop-filter:blur(12px);box-shadow:0 8px 28px rgba(0,0,0,.35);font:10px/1.25 ui-monospace,monospace}
-    .gd-home #tetris-drag-handle{cursor:grab!important;user-select:none;touch-action:none;padding:4px 3px;color:#b6e833;font-weight:800;letter-spacing:.04em;white-space:nowrap}
-    .gd-home #tetris-drag-handle:active{cursor:grabbing!important}
-    .gd-home .tetris-arena-brand span{margin-left:5px;color:#a8b59f;font-weight:400}
-    .gd-home #tetris-mode{max-width:148px;padding:5px 7px;background:rgba(9,19,12,.95);color:#d8f6b6;border:1px solid rgba(182,232,51,.25);border-radius:3px;font:10px ui-monospace,monospace}
-    .gd-home #tetris-status{flex:1;min-width:95px;color:#9fb68f;font-size:9px}
-    .gd-home .tetris-actions{display:flex;gap:4px}
-    .gd-home .tetris-actions button{min-width:28px;padding:5px 8px;background:rgba(182,232,51,.12);color:#c9f68b;border:1px solid rgba(182,232,51,.3);border-radius:3px;font:bold 13px ui-monospace,monospace;cursor:pointer}
-    .gd-home .tetris-actions button+button{background:transparent;color:#a8b59f;border-color:rgba(220,240,220,.18)}
-    .gd-home .tetris-controls-help{display:flex;flex-basis:100%;justify-content:space-between;gap:16px;width:100%;box-sizing:border-box;padding-top:6px;border-top:1px solid #d8ff3e20;color:#859383;font-size:9px}
-    .gd-home .tetris-controls-help b{color:#b6e833}
-    .gd-home .tetris-online-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:16px 0 0;padding:12px;border:1px solid rgba(182,232,51,.22);background:rgba(3,8,5,.62);font:11px/1.5 monospace;color:#d8f6b6}
-    .gd-home .tetris-online-bar button{border:1px solid #b6e833;background:transparent;color:#d8f6b6;padding:9px 11px;font:inherit;cursor:pointer;letter-spacing:.04em}
-    .gd-home .tetris-online-bar button:hover{background:rgba(182,232,51,.12)}
-    .gd-home .tetris-online-bar input{width:110px;min-width:0;background:#050906;border:1px solid rgba(182,232,51,.4);color:#f2f4e8;padding:9px;font:inherit}
-    .gd-home .tetris-online-bar #tetris-online-status{flex:1 1 100%;color:#b6e833}
-    .gd-home .tetris-online-bar [hidden]{display:none!important}
-    @media(max-width:760px){.gd-home .gd-listening{padding:48px 5vw}.gd-home .tetris-listening-arena{height:650px;min-height:540px}.gd-home #tetris-arena-controls{left:8px!important;top:8px!important;width:calc(100% - 16px)!important;gap:4px 6px;padding:6px!important}.gd-home #tetris-mode{max-width:124px;font-size:9px}.gd-home .tetris-controls-help{font-size:7px;gap:6px}.gd-home .tetris-arena-brand span{font-size:9px}.gd-home .tetris-online-bar{gap:6px}.gd-home .tetris-online-bar button{font-size:10px;padding:8px}.gd-home .tetris-online-bar input{width:90px}}
-    .gd-cv-embed{background:linear-gradient(180deg,#080e09,#050906 45%);border-top:1px solid #b6e83355;padding:clamp(38px,6vw,76px) 0;color:#e9f2e8}
-    .gd-cv-inner{width:min(1100px,90vw);margin:0 auto}
-    .gd-cv-heading{margin:0 0 30px}
-    .gd-cv-heading h2{font-size:clamp(28px,5vw,54px);line-height:1.05;letter-spacing:-.045em;margin:12px 0}
-    .gd-cv-heading h2 em{font-style:normal;color:#b6e833}
-    .gd-cv-heading>p:last-child{font:10px/1.8 monospace;letter-spacing:1px;color:#aebbad}
-    .gd-cv-profile{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(220px,.8fr);gap:clamp(20px,4vw,48px);padding:clamp(20px,4vw,38px);border:1px solid #b6e83355;background:linear-gradient(135deg,#101a11,#070b08)}
-    .gd-cv-profile h3{font-size:clamp(23px,3vw,34px);line-height:1.1;margin:0 0 14px;letter-spacing:-.04em}
-    .gd-cv-profile h3 em{font-style:normal;color:#b6e833}
-    .gd-cv-profile p{font-size:13px;line-height:1.85;color:#c0cbbd;margin:0 0 14px}
-    .gd-cv-label{font:10px/1.6 monospace;letter-spacing:1.2px;color:#b6e833;margin:0 0 10px!important}
-    .gd-cv-facts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
-    .gd-cv-fact{border-top:1px solid #b6e83345;padding-top:10px}
-    .gd-cv-fact strong{display:block;font:700 10px/1.5 monospace;color:#d8ff3e;letter-spacing:.5px}
-    .gd-cv-fact span{display:block;font-size:11px;line-height:1.6;color:#aebbad;margin-top:4px}
-    .gd-cv-skills{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
-    .gd-cv-skills span{border:1px solid #b6e83340;background:#0a120b;padding:7px 9px;font:9px/1.4 monospace;letter-spacing:.2px;color:#d9e6d4}
-    .gd-cv-timeline{border-left:1px solid #b6e83360;padding-left:18px;margin:0 0 22px}
-    .gd-cv-role{position:relative;margin:0 0 22px}
-    .gd-cv-role:before{content:"";position:absolute;left:-23px;top:5px;width:8px;height:8px;background:#b6e833;box-shadow:0 0 12px #b6e83370}
-    .gd-cv-role h4{font-size:14px;margin:0 0 4px}
-    .gd-cv-role time{display:block;font:9px/1.6 monospace;letter-spacing:.5px;color:#b6e833}
-    .gd-cv-role p{font-size:11px;line-height:1.7;margin:5px 0 0;color:#aebbad}
-    .gd-cv-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
-    .gd-cv-actions a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border:1px solid #b6e833;color:#d8ff3e;font:10px/1.3 monospace;letter-spacing:.7px;text-decoration:none}
-    .gd-cv-actions a.primary{background:#b6e833;color:#071007;font-weight:bold}
-    .gd-cv-actions a:hover{background:#d8ff3e;color:#050906}
-    @media(max-width:700px){.gd-cv-profile{grid-template-columns:1fr}.gd-cv-facts{gap:12px}.gd-cv-heading{margin-bottom:22px}.gd-cv-profile p{font-size:12px}}
-    /* Keep the landing hero as the first screen, then allow the CV below it to scroll normally. */
-    html:has(body.gd-home){height:auto;min-height:100%;overflow-x:hidden;overflow-y:auto}
-    body.gd-home{height:auto!important;min-height:100vh!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:auto!important}
-    body.gd-home>.gd{position:relative!important;inset:auto!important;width:100%!important;height:auto!important;min-height:100vh!important;margin:0;display:block!important;overflow:visible!important}
-    body.gd-home .gd>main{display:block!important;width:100%!important;height:auto!important;max-height:none!important;min-height:0!important;overflow:visible!important}
-    body.gd-home .gd-hero{display:flex;width:100%;height:auto!important;min-height:min(820px,calc(100vh - 60px))!important;max-height:none!important;overflow:hidden}
-    body.gd-home .gd-cv-embed{position:relative;display:block;width:100%;clear:both}
-    @media(max-width:650px){body.gd-home .gd-hero{min-height:760px!important}}
-
-    .gd-cv-actions .gd-contact-open{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border:1px solid #b6e833;color:#d8ff3e;background:transparent;font:10px/1.3 monospace;letter-spacing:.7px;text-decoration:none;cursor:pointer}
-    .gd-cv-actions .gd-contact-open:hover{background:#d8ff3e;color:#050906}
-    .cv-contact-dialog{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:12px;background:rgba(0,0,0,.78);backdrop-filter:blur(8px);box-sizing:border-box}
-    .cv-contact-dialog.is-open{display:flex}
-    .cv-contact-panel{position:relative;width:min(680px,100%);max-height:calc(100vh - 24px);overflow:auto;background:#081009;color:#e9f2e8;border:1px solid #b6e833;box-shadow:0 25px 90px #000b;padding:clamp(16px,2.4vw,26px);box-sizing:border-box}
-    .cv-contact-panel h2{font-size:clamp(23px,3vw,32px);line-height:1;margin:4px 44px 8px 0;letter-spacing:-.04em}
-    .cv-contact-panel h2 em{font-style:normal;color:#b6e833}
-    .cv-contact-panel p{font-size:11px;line-height:1.5;color:#aebbad;margin:7px 0}
-    .cv-contact-close{position:absolute;right:16px;top:16px;width:32px;height:32px;background:transparent;border:1px solid #b6e83366;color:#d8ff3e;font-size:24px;cursor:pointer}
-    .cv-contact-form{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:14px}
-    .cv-contact-field{display:flex;flex-direction:column;gap:4px;min-width:0}
-    .cv-contact-field.full{grid-column:1/-1}
-    .cv-contact-field label{font:10px monospace;letter-spacing:.8px;color:#b6e833}
-    .cv-contact-field input,.cv-contact-field textarea{width:100%;box-sizing:border-box;border:1px solid #b6e83355;background:#050906;color:#e9f2e8;padding:9px 10px;font:13px/1.4 inherit;min-height:36px;border-radius:0}
-    .cv-contact-field textarea{min-height:86px;resize:vertical}
-    .cv-contact-field input:focus,.cv-contact-field textarea:focus{outline:2px solid #b6e833;outline-offset:1px}
-    .cv-contact-field input[type=file]{font:11px monospace}
-    .cv-contact-hint{font:10px/1.6 monospace!important;color:#91a18e!important;margin:0}
-    .cv-contact-submit{grid-column:1/-1;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-    .cv-contact-submit button{background:#b6e833;color:#071007;border:1px solid #b6e833;padding:10px 14px;font:bold 10px monospace;letter-spacing:.8px;cursor:pointer}
-    .cv-contact-submit button:disabled{opacity:.6;cursor:wait}
-    .cv-contact-status{font-size:11px!important;color:#d8ff3e!important;margin:0}
-    .cv-contact-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
-    @media(max-width:560px){.cv-contact-form{grid-template-columns:1fr;gap:9px}.cv-contact-field.full,.cv-contact-submit{grid-column:1}.cv-contact-panel{padding:16px}.cv-contact-panel h2{font-size:24px;margin-right:35px}.cv-contact-panel textarea{min-height:72px}.cv-contact-hint{font-size:9px!important}}
-
-    .gd-cv-actions .gd-contact-open{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border:1px solid #b6e833;color:#d8ff3e;background:transparent;font:10px/1.3 monospace;letter-spacing:.7px;text-decoration:none;cursor:pointer}
-    .gd-cv-actions .gd-contact-open:hover{background:#d8ff3e;color:#050906}
-    .cv-contact-dialog{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:12px;background:rgba(0,0,0,.78);backdrop-filter:blur(8px);box-sizing:border-box}.cv-contact-dialog.is-open{display:flex}
-    .cv-contact-panel{position:relative;width:min(680px,100%);max-height:calc(100vh - 24px);overflow:auto;background:#081009;color:#e9f2e8;border:1px solid #b6e833;box-shadow:0 25px 90px #000b;padding:clamp(16px,2.4vw,26px);box-sizing:border-box}
-    .cv-contact-panel h2{font-size:clamp(23px,3vw,32px);line-height:1;margin:4px 44px 8px 0;letter-spacing:-.04em}.cv-contact-panel h2 em{font-style:normal;color:#b6e833}.cv-contact-panel p{font-size:11px;line-height:1.5;color:#aebbad;margin:7px 0}
-    .cv-contact-close{position:absolute;right:16px;top:16px;width:32px;height:32px;background:transparent;border:1px solid #b6e83366;color:#d8ff3e;font-size:24px;cursor:pointer}
-    .cv-contact-form{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:14px}.cv-contact-field{display:flex;flex-direction:column;gap:4px;min-width:0}.cv-contact-field.full{grid-column:1/-1}.cv-contact-field label{font:10px monospace;letter-spacing:.8px;color:#b6e833}
-    .cv-contact-field input,.cv-contact-field textarea{width:100%;box-sizing:border-box;border:1px solid #b6e83355;background:#050906;color:#e9f2e8;padding:9px 10px;font:13px/1.4 inherit;min-height:36px;border-radius:0}.cv-contact-field textarea{min-height:86px;resize:vertical}.cv-contact-field input:focus,.cv-contact-field textarea:focus{outline:2px solid #b6e833;outline-offset:1px}.cv-contact-field input[type=file]{font:11px monospace}
-    .cv-contact-hint{font:10px/1.6 monospace!important;color:#91a18e!important;margin:0}.cv-contact-submit{grid-column:1/-1;display:flex;gap:12px;align-items:center;flex-wrap:wrap}.cv-contact-submit button{background:#b6e833;color:#071007;border:1px solid #b6e833;padding:10px 14px;font:bold 10px monospace;letter-spacing:.8px;cursor:pointer}.cv-contact-submit button:disabled{opacity:.6;cursor:wait}.cv-contact-status{font-size:11px!important;color:#d8ff3e!important;margin:0}.cv-contact-honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
-    @media(max-width:560px){.cv-contact-form{grid-template-columns:1fr;gap:9px}.cv-contact-field.full,.cv-contact-submit{grid-column:1}.cv-contact-panel{padding:16px}.cv-contact-panel h2{font-size:24px;margin-right:35px}.cv-contact-panel textarea{min-height:72px}.cv-contact-hint{font-size:9px!important}}
-
-    /* Shiva's Green Dream — community doorway */
-    .gd-circle-portal{position:relative;isolation:isolate;overflow:hidden;padding:clamp(54px,8vw,100px) 6vw;border-top:1px solid #bca36b55;border-bottom:1px solid #bca36b38;background:radial-gradient(ellipse at 84% 50%,#24452a70,transparent 38%),linear-gradient(120deg,#080f0a,#0e1b11 60%,#07100b);color:#eee9dc}
-    .gd-circle-portal:before{content:"";position:absolute;z-index:-1;right:-8%;top:50%;width:min(42vw,500px);aspect-ratio:1;border:1px solid #bca36b2b;border-radius:50%;transform:translateY(-50%);box-shadow:0 0 0 38px #bca36b08,0 0 0 76px #bca36b05}
-    .gd-circle-inner{width:min(1100px,100%);margin:auto;display:grid;grid-template-columns:1.25fr .75fr;gap:clamp(24px,5vw,70px);align-items:center}
-    .gd-circle-kicker{font:10px/1.5 monospace;letter-spacing:2px;color:#b9d76a}
-    .gd-circle-portal h2{font:400 clamp(38px,6vw,72px)/.96 Georgia,serif;letter-spacing:-.055em;margin:18px 0}
-    .gd-circle-portal h2 em{color:#b9d76a;font-weight:400}
-    .gd-circle-portal p{max-width:630px;color:#b6c2b2;font-size:13px;line-height:1.9}
-    .gd-circle-portal .gd-circle-side{padding:24px;border:1px solid #bca36b55;background:#07100bc9;backdrop-filter:blur(8px)}
-    .gd-circle-side strong{display:block;font:10px/1.7 monospace;letter-spacing:1px;color:#bca36b}
-    .gd-circle-side p{font-size:12px;margin:12px 0 18px}
-    .gd-circle-portal a{display:inline-flex;align-items:center;gap:12px;min-height:44px;padding:0 14px;border:1px solid #b9d76a;background:#b9d76a;color:#07100b;text-decoration:none;font:700 10px monospace;letter-spacing:1px;transition:background .2s,transform .2s}
-    .gd-circle-portal a:hover{background:#d8ff85;transform:translateY(-2px)}
-    @media(max-width:700px){.gd-circle-inner{grid-template-columns:1fr}.gd-circle-portal:before{width:85vw;right:-38%}.gd-circle-portal .gd-circle-side{padding:20px}}
-
-
-/* SECURE YOUR SOUL — institutional entry chapter. Editorial, tactile, deliberately quiet. */
-.sys-entry{--sys-ink:#e9e4d5;--sys-muted:#a7aa98;--sys-jade:#9aaf83;--sys-gold:#b9a477;position:relative;isolation:isolate;padding:clamp(72px,10vw,142px) clamp(22px,7vw,110px) clamp(58px,8vw,104px);overflow:hidden;color:var(--sys-ink);background:radial-gradient(ellipse at 88% 12%,rgba(113,139,91,.12),transparent 36%),linear-gradient(145deg,#101812 0%,#0a100c 56%,#080d0a 100%);border-top:1px solid rgba(185,164,119,.35);border-bottom:1px solid rgba(185,164,119,.25)}
-.sys-entry:before{content:"";position:absolute;z-index:-1;inset:0;opacity:.18;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(220,220,190,.018) 3px 4px),radial-gradient(ellipse at 18% 70%,rgba(153,175,131,.09),transparent 55%)}
-.sys-entry-heading{max-width:850px;margin:0 auto 56px}.sys-overline{margin:0 0 22px;color:var(--sys-gold);font:9px/1.6 ui-monospace,monospace;letter-spacing:.19em}.sys-overline span{padding:0 8px;color:#697562}.sys-entry-heading h2{margin:0;color:#eee9dc;font:400 clamp(46px,7.4vw,96px)/.94 Georgia,'Times New Roman',serif;letter-spacing:-.055em}.sys-entry-heading h2 em{color:#b9c7a6;font-weight:400}.sys-entry-intro{max-width:570px;margin:24px 0 0;color:#aeb4a4;font:14px/1.9 Georgia,serif}
-.sys-entry-rule{display:flex;justify-content:space-between;gap:18px;max-width:1120px;margin:0 auto 0;padding:12px 0;border-top:1px solid rgba(185,164,119,.35);border-bottom:1px solid rgba(185,164,119,.2);color:#a9a58f;font:8px/1.5 ui-monospace,monospace;letter-spacing:.15em}
-.sys-paths{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-width:1120px;margin:0 auto;border-bottom:1px solid rgba(185,164,119,.28)}
-.sys-path{position:relative;display:flex;min-height:300px;flex-direction:column;padding:28px clamp(18px,2.5vw,34px) 26px;border-right:1px solid rgba(185,164,119,.22);color:inherit;text-decoration:none;transition:background .25s ease}
-.sys-path:first-child{border-left:1px solid rgba(185,164,119,.22)}.sys-path:hover,.sys-path:focus-visible{background:linear-gradient(180deg,rgba(160,183,137,.09),rgba(160,183,137,.015));outline:1px solid rgba(185,164,119,.55);outline-offset:-1px}
-.sys-path-index{color:#b9a477;font:italic 22px/1 Georgia,serif}.sys-path-label{margin-top:28px;color:#9ba58f;font:8px/1.5 ui-monospace,monospace;letter-spacing:.15em}.sys-path h3{margin:12px 0 12px;color:#eee9dc;font:400 clamp(28px,3vw,39px)/1.1 Georgia,serif;letter-spacing:-.025em}.sys-path p{max-width:270px;margin:0 0 28px;color:#aab1a2;font:12px/1.85 Arial,sans-serif}.sys-path-action{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:auto;padding-top:14px;border-top:1px solid rgba(185,164,119,.24);color:#c3b48f;font:8px/1.5 ui-monospace,monospace;letter-spacing:.12em}.sys-path-action b{font-size:15px;font-weight:400}.sys-path-community .sys-path-index{color:#b5c69f}.sys-path-wanderer .sys-path-index{color:#c2a58e}.sys-entry-footnote{max-width:1120px;margin:18px auto 0;color:#838d7e;font:9px/1.7 ui-monospace,monospace;letter-spacing:.04em}
-@media(max-width:760px){.sys-entry{padding:66px 20px 54px}.sys-entry-heading{margin-bottom:36px}.sys-entry-heading h2{font-size:clamp(45px,12vw,70px)}.sys-entry-rule{font-size:7px}.sys-paths{grid-template-columns:1fr}.sys-path{min-height:0;padding:23px 18px 20px;border-right:1px solid rgba(185,164,119,.22);border-left:1px solid rgba(185,164,119,.22);border-bottom:1px solid rgba(185,164,119,.18)}.sys-path-label{margin-top:15px}.sys-path p{max-width:520px;margin-bottom:18px}.sys-path-action{margin-top:0}}
-@media(prefers-reduced-motion:reduce){.sys-path{transition:none}}
-
-  </style>
-  <link rel="stylesheet" href="/landing-page/tools.css?v=20261102-palette-3">
-  <link rel="stylesheet" href="/landing-page/game-ui.css?v=20261103-constellation-fix-6">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#020a0d"><meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.youtube.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://s3.amazonaws.com https://oeyxsqocldlovhsmzcjw.supabase.co https://emanuelstefancu.wordpress.com https://i0.wp.com; media-src 'self' blob: https://oeyxsqocldlovhsmzcjw.supabase.co; connect-src 'self' https://oeyxsqocldlovhsmzcjw.supabase.co wss://oeyxsqocldlovhsmzcjw.supabase.co https://www.youtube.com https://ego-mood-ai.stefancu-emanuel.workers.dev; frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com; upgrade-insecure-requests">
+<meta name="description" content="Verse After Hours — poetry, sound, nocturnal thoughts and the Green Dream, a journey through five movements.">
+<title>VERSE AFTER HOURS — GREEN DREAM</title>
+<link rel="preconnect" href="https://s3.amazonaws.com"><link rel="preconnect" href="https://oeyxsqocldlovhsmzcjw.supabase.co">
+<link rel="stylesheet" href="/landing-page/green-dream/style.css?v=20261102-palette-3">
+<link rel="stylesheet" href="/landing-page/home.css?v=20261105-reference-reconstruction-1">
+<link rel="stylesheet" href="/landing-page/tools.css?v=20261105-mood-contrast-regression-2">
+<link rel="stylesheet" href="/landing-page/game-ui.css?v=20261103-constellation-fix-6">
 </head>
-<body class="gd-home">
-<div class="gd" id="gd-top">
-  <main>
-    <section class="ego-cover ego-command" aria-labelledby="ego-cover-title">
-      <img class="ego-cover-image" src="https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/11/emanuel-ego-portrait.png" alt="Emanuel with his cat, surrounded by a quiet synthesis of nature, knowledge and technology." fetchpriority="high">
-      <div class="ego-cover-shade" aria-hidden="true"></div>
-
-        <div class="ego-cover-content">
-          <p class="ego-cover-kicker">A PERSONAL RECORD / IN PROGRESS</p>
-          <h1 id="ego-cover-title">EGO<span>.</span></h1>
-          <p class="ego-cover-declaration">A LIFE, IN FRAGMENTS.<br>A PERSPECTIVE, STILL BECOMING.</p>
-          <p class="ego-cover-line">Not a copy of the person. A place where the traces can continue to speak.</p>
-        </div>
-
-      <div class="ego-cover-index"><span>ONE HUMAN</span><span>MEMORY / EXPRESSION / CONTINUITY</span><span>NO FINAL FORM</span></div>
-    </section>
-
-
-    <section class="gd-cv-embed" id="cv-section" aria-labelledby="cv-embed-title">
-      <div class="gd-cv-inner">
-        <div class="gd-cv-heading">
-          <p class="gd-kicker">BEYOND THE ARCHIVE <i>/// THE HUMAN</i></p>
-          <h2 id="cv-embed-title">THE LIFE <em>OUTSIDE</em> THE RECORD</h2>
-          <p>WORK · CRAFT · THE EVERYDAY SELF</p>
-        </div>
-        <div class="gd-cv-profile">
-          <div>
-            <p class="gd-cv-label">PROFILE // EMANUEL ȘTEFANCU</p>
-            <h3>Turning messy processes into <em>clearer systems.</em></h3>
-            <p>I'm an HR Business Analyst with a background in HR Operations and payroll, supporting process and system changes across multi-country service environments. I work across requirements, workflow mapping, business rules, documentation, UAT and defect investigation—connecting what the business needs with what teams can actually deliver.</p>
-            <div class="gd-cv-facts">
-              <div class="gd-cv-fact"><strong>FOCUS</strong><span>HR Business Analysis · HR Systems · HR Process Improvement</span></div>
-              <div class="gd-cv-fact"><strong>ENVIRONMENTS</strong><span>EMEA &amp; LATAM · Multi-country HR services</span></div>
-              <div class="gd-cv-fact"><strong>WORK STYLE</strong><span>Practical, structured, collaborative</span></div>
-              <div class="gd-cv-fact"><strong>LANGUAGES</strong><span>Romanian · English · Italian</span></div>
-            </div>
-            <div class="gd-cv-skills" aria-label="Core skills">
-              <span>Requirements &amp; business rules</span><span>Process mapping</span><span>Gap analysis</span><span>BRDs / DTPs / User Guides</span><span>Change Requests</span><span>UAT / ORT</span><span>Defect triage</span><span>HRIS / HCM</span>
-            </div>
-            <div class="gd-cv-actions">
-              <a class="primary" href="/landing-page/cv/">OPEN FULL CV ↗</a>
-              <a href="/landing-page/cv/#experience">EXPERIENCE DETAILS ↓</a>
-              <button class="gd-contact-open cv-contact-open" type="button" aria-haspopup="dialog" aria-controls="cv-contact-dialog">CONTACT ↗</button>
-            </div>
-          </div>
-          <div>
-            <p class="gd-cv-label">EXPERIENCE LOG // 2017—2026</p>
-            <div class="gd-cv-timeline">
-              <article class="gd-cv-role"><h4>Business Analyst</h4><time>DEC 2023 — MAR 2026</time><p>HR service expansion, requirements and process documentation, Change Requests, UAT/ORT, defect investigation and implementation support.</p></article>
-              <article class="gd-cv-role"><h4>Payroll Analyst</h4><time>MAY 2021 — NOV 2023</time><p>Payroll data exchange, trial/final run validation, discrepancy investigation and process/system changes.</p></article>
-              <article class="gd-cv-role"><h4>HR Analyst</h4><time>NOV 2019 — APR 2021</time><p>Workday HR services, employee data, onboarding updates, case resolution and troubleshooting.</p></article>
-              <article class="gd-cv-role"><h4>Business Analyst</h4><time>SEP 2018 — MAR 2019</time><p>Case Management implementation support, UAT test execution, defect investigation and process documentation.</p></article>
-              <article class="gd-cv-role"><h4>HR Analyst</h4><time>OCT 2017 — AUG 2018</time><p>Recruitment operations, candidate communication, operational reporting and user guidance.</p></article>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-
-
-
-  </main>
-  <footer class="gd-footer ego-footer"><span>ONE LIFE. MANY EXPRESSIONS. NO FINAL FORM.</span></footer>
-</div>
-
-<div class="cv-contact-dialog" id="cv-contact-dialog" role="dialog" aria-modal="true" aria-labelledby="cv-contact-title">
-  <div class="cv-contact-panel">
-    <button class="cv-contact-close" type="button" aria-label="Close contact form">×</button>
-    <p class="gd-kicker">INCOMING TRANSMISSION /// CONTACT</p>
-    <h2 id="cv-contact-title">SEND A <em>TRANSMISSION.</em></h2>
-    <p>Have a thought, a question, or something you would like to share? Send me a message. Attachments are optional.</p>
-    <form class="cv-contact-form" id="cv-contact-form" data-default-subject="Website contact — Verse After Hours">
-      <div class="cv-contact-field"><label for="cv-contact-name">YOUR NAME *</label><input id="cv-contact-name" name="name" autocomplete="name" maxlength="120" required></div>
-      <div class="cv-contact-field"><label for="cv-contact-email">YOUR EMAIL *</label><input id="cv-contact-email" name="email" type="email" autocomplete="email" maxlength="254" required></div>
-      <div class="cv-contact-field full"><label for="cv-contact-subject">SUBJECT</label><input id="cv-contact-subject" name="subject" maxlength="180" placeholder="What would you like to talk about?"></div>
-      <div class="cv-contact-field full"><label for="cv-contact-message">MESSAGE *</label><textarea id="cv-contact-message" name="message" maxlength="10000" required placeholder="Write your message…"></textarea></div>
-      <div class="cv-contact-field full"><label for="cv-contact-files">ATTACHMENTS (OPTIONAL)</label><input id="cv-contact-files" name="attachments" type="file" multiple><p class="cv-contact-hint">Up to 5 files · 5 MB each · 10 MB total. PDF, DOC/DOCX, TXT, PNG, JPG, XLS/XLSX accepted.</p></div>
-      <div class="cv-contact-honeypot" aria-hidden="true"><label for="cv-contact-website">Leave this empty</label><input id="cv-contact-website" name="website" tabindex="-1" autocomplete="off"></div>
-      <div class="cv-contact-submit"><button type="submit">SEND MESSAGE ↗</button><p class="cv-contact-status" id="cv-contact-status" role="status" aria-live="polite"></p></div>
-    </form>
-  </div>
-</div>
-
-<script src="green-dream/script.js?v=20261103-radio-content-3"></script>
+<body class="gd-home va-home">
+<div class="gd va-shell" id="gd-top">
+<header class="va-topbar">
+<a class="va-brand" href="/landing-page/" aria-label="Verse After Hours home">
+<svg class="va-brand-mark" viewBox="0 0 100 78" aria-hidden="true"><path d="M8 62 12 9 23 9 25 42 50 5 61 7 31 70 18 70 18 34 8 62Z" fill="currentColor"/><path d="m48 69 29-62 12 1-28 62H48Zm18-1 20-42 7 1-18 41h-9Z" fill="currentColor"/><path d="m18 17 8 0 0 10-8 0Zm39-4 7 0-6 12-7 0Z" fill="#020a0d"/></svg>
+<span class="va-brand-copy"><strong>VERSE AFTER HOURS</strong><small>POETRY // SOUND // NOCTURNAL THOUGHTS</small></span></a>
+<nav class="va-main-nav" aria-label="Main navigation"><a href="/landing-page/">HOME</a><a href="/landing-page/posts/">POETRY &amp; MEDIA</a><a href="/landing-page/music.html">LISTENING ROOM</a><a href="#green-dream" aria-current="page">GREEN DREAM</a><a href="/landing-page/human-archive/">ABOUT</a></nav>
+<button class="va-menu-toggle" type="button" aria-label="Open navigation" aria-controls="va-mobile-nav" aria-expanded="false"><span></span><span></span><span></span></button>
+<div class="va-header-status">NOCTURNE PROTOCOL // OPEN CHANNEL</div>
+<nav class="va-mobile-nav" id="va-mobile-nav" aria-label="Mobile navigation"><a href="/landing-page/">HOME</a><a href="/landing-page/posts/">POETRY &amp; MEDIA</a><a href="/landing-page/music.html">LISTENING ROOM</a><a href="#green-dream">GREEN DREAM</a><a href="/landing-page/human-archive/">ABOUT</a></nav>
+</header>
+<main>
+<section class="va-hero" id="green-dream" aria-labelledby="green-dream-title">
+<div class="va-hero-copy"><p class="va-kicker">SPECIAL PROJECT</p><h1 id="green-dream-title">GREEN DREAM</h1>
+<p class="va-hero-intro"><span>A JOURNEY THROUGH FIVE MOVEMENTS.</span><span>A RETURN TO THE ESSENCE.</span><span>A STATE OF REAWAKENING.</span></p>
+<a class="va-action" href="/landing-page/cv/">VIEW THE CV <span aria-hidden="true">→</span></a></div>
+<aside class="va-cv-column" aria-label="CV document"><div class="va-cv-shard">
+<span class="va-cv-file">CV_StefancuEmanuel</span><span class="va-cv-subfile">HR_Business_Analysis // 2026</span><p class="va-cv-label">DATASHARD</p>
+<svg class="va-cv-icon" viewBox="0 0 180 120" role="img" aria-label="Technical document illustration"><g fill="none" stroke="currentColor" stroke-width="1.2"><path d="M28 17h78l20 20v68H28z" opacity=".55"/><path d="M106 17v21h20" opacity=".8"/><path d="M48 34h70v65H48z"/><path d="M62 48h40M62 58h48M62 68h32M62 78h45M62 88h25"/><path d="M20 28V9h20M137 94h18v17h-18M37 108H18V90"/><path d="M42 23h5M42 28h5M42 33h5M119 44h7M119 50h7M119 56h7"/></g><path d="M84 43 108 67 84 91 60 67Z" fill="none" stroke="#f0f500" stroke-width=".8" opacity=".6"/></svg>
+<a class="va-action" href="/landing-page/cv/">OPEN CV <span aria-hidden="true">→</span></a></div>
+<p class="va-cv-note"><span>FIVE MOVEMENTS.</span><span>FIVE STATES.</span><span>ONE JOURNEY.</span><br>The Green Dream is a meditative exploration of consciousness, technology and nature. A return to balance. A future we can still choose.</p></aside>
+</section>
+<aside class="gd-radio" id="gd-radio" aria-label="V/A Radio player">
+<div class="gd-radio-head" id="gd-drag"><span>V/A RADIO <small>LIVE SIGNAL</small></span><button id="gd-close" type="button" aria-label="Minimize radio" aria-expanded="true">×</button></div>
+<div class="gd-radio-body"><div class="gd-eq paused" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<p class="gd-tiny">NOW TRANSMITTING</p><strong class="gd-track" id="gd-track">Green Dream Playlist</strong><small class="gd-artist" id="gd-artist">Choose a video to play</small>
+<div class="gd-controls"><button id="gd-play" type="button" aria-label="Play radio">▶ PLAY</button></div>
+<div class="gd-stations gd-video-picker"><label for="gd-video-select">PLAYLIST // SELECT A VIDEO</label><select id="gd-video-select" aria-label="Choose a video from the Green Dream playlist"><option value="">Loading playlist titles…</option></select></div>
+<div class="gd-player" id="gd-player" hidden></div><small class="gd-note" id="gd-radio-note">Loading the video list from your YouTube playlist…</small></div></aside>
+<section class="va-movements-layout" aria-labelledby="va-movements-title">
+<div class="va-movement-area"><h2 class="va-section-heading" id="va-movements-title">THE FIVE MOVEMENTS</h2><div class="va-movement-grid">
+<a class="va-movement-card" href="/landing-page/posts/the-awakening/" aria-label="Movement 1: The Awakening"><svg class="va-movement-art" viewBox="0 0 280 360" aria-hidden="true"><use href="/landing-page/green-dream/movements.svg#awakening"></use></svg><span class="va-movement-number">01</span><span class="va-movement-name">THE AWAKENING</span></a>
+<a class="va-movement-card" href="/landing-page/posts/the-descent/" aria-label="Movement 2: The Descent"><svg class="va-movement-art" viewBox="0 0 280 360" aria-hidden="true"><use href="/landing-page/green-dream/movements.svg#descent"></use></svg><span class="va-movement-number">02</span><span class="va-movement-name">THE DESCENT</span></a>
+<a class="va-movement-card" href="/landing-page/posts/the-reconnection/" aria-label="Movement 3: The Reconnection"><svg class="va-movement-art" viewBox="0 0 280 360" aria-hidden="true"><use href="/landing-page/green-dream/movements.svg#reconnection"></use></svg><span class="va-movement-number">03</span><span class="va-movement-name">THE RECONNECTION</span></a>
+<a class="va-movement-card" href="/landing-page/posts/the-transformation/" aria-label="Movement 4: The Transformation"><svg class="va-movement-art" viewBox="0 0 280 360" aria-hidden="true"><use href="/landing-page/green-dream/movements.svg#transformation"></use></svg><span class="va-movement-number">04</span><span class="va-movement-name">THE TRANSFORMATION</span></a>
+<a class="va-movement-card" href="/landing-page/posts/the-return/" aria-label="Movement 5: The Return"><svg class="va-movement-art" viewBox="0 0 280 360" aria-hidden="true"><use href="/landing-page/green-dream/movements.svg#return"></use></svg><span class="va-movement-number">05</span><span class="va-movement-name">THE RETURN</span></a>
+</div></div>
+<aside class="va-movement-aside"><strong>FIVE MOVEMENTS.<br>FIVE STATES.<br>ONE JOURNEY.</strong><p>The Green Dream is a meditative exploration of consciousness, technology and nature. A return to balance. A future we can still choose.</p><a class="va-action" href="/landing-page/green-dream/">EXPLORE MORE <span aria-hidden="true">→</span></a></aside>
+</section>
+<section class="va-lower-grid" aria-label="Latest poetry, subscription and listening room">
+<section class="va-lower-panel va-latest" aria-labelledby="va-latest-title"><h2 class="va-section-heading" id="va-latest-title">LATEST POETRY</h2><div class="va-poetry-grid" id="latest-poetry" aria-live="polite"><p class="va-empty">Connecting to the transmission archive…</p></div></section>
+<section class="va-lower-panel va-subscribe" aria-labelledby="va-subscribe-title"><h2 class="va-section-heading" id="va-subscribe-title">SUBSCRIBE</h2><p class="va-subscribe-copy">Get new poems, updates and signals from the night.</p>
+<form class="va-subscribe-form" id="va-subscribe-form"><label class="sr-only" for="va-subscribe-email">Your email address</label><input id="va-subscribe-email" name="email" type="email" placeholder="your@email.com" autocomplete="email" required><button type="submit">SUBSCRIBE <span aria-hidden="true">→</span></button></form>
+<p class="va-subscribe-status" id="va-subscribe-status" role="status" aria-live="polite">No spam. Just transmissions.</p></section>
+<section class="va-lower-panel va-listening" aria-labelledby="va-listening-title"><svg class="va-headphones" viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M7 26v-4a17 17 0 0 1 34 0v4M7 25h7v15H9a2 2 0 0 1-2-2V25Zm34 0h-7v15h5a2 2 0 0 0 2-2V25Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M14 39h5m10 0h5" stroke="currentColor" stroke-width="2"/></svg><div><h3 id="va-listening-title">LISTENING ROOM</h3><p>A space for sound, focus and lost hours.</p><a class="va-action" href="/landing-page/music.html">ENTER THE ROOM <span aria-hidden="true">→</span></a></div></section>
+</section>
+</main>
+<footer class="va-footer"><svg class="va-footer-mark" viewBox="0 0 100 78" aria-hidden="true"><path d="M8 62 12 9 23 9 25 42 50 5 61 7 31 70 18 70 18 34 8 62Z M48 69 77 7 89 8 61 70H48Z M66 68 86 27 93 28 75 69Z" fill="currentColor"/></svg>
+<div class="va-footer-tag">THE CITY IS LOUD. LEAVE A TRACE.</div>
+<nav class="va-footer-nav" aria-label="Footer navigation"><a href="/landing-page/">HOME</a><a href="/landing-page/posts/">POETRY &amp; MEDIA</a><a href="/landing-page/music.html">LISTENING ROOM</a><a href="#green-dream">GREEN DREAM</a><a href="/landing-page/human-archive/">ABOUT</a></nav>
+<div class="va-footer-credit">CREATED BY CHATGPT — AI COLLABORATOR<br>CREATIVE DIRECTION / DESIGN SYSTEM / FRONT-END CODE</div><div class="va-footer-motto">FEELINGS<br>ARE NOT<br>BUGS.</div>
+<button class="cv-contact-open" type="button" aria-haspopup="dialog" aria-controls="cv-contact-dialog" hidden>CONTACT</button></footer></div>
+<button class="va-back-top" type="button" aria-label="Back to top">↑</button>
+<div class="cv-contact-dialog" id="cv-contact-dialog" role="dialog" aria-modal="true" aria-labelledby="cv-contact-title"><div class="cv-contact-panel">
+<button class="cv-contact-close" type="button" aria-label="Close contact form">×</button><p class="gd-kicker">INCOMING TRANSMISSION /// CONTACT</p><h2 id="cv-contact-title">SEND A <em>TRANSMISSION.</em></h2><p>Have a thought, a question, or something you would like to share? Send me a message. Attachments are optional.</p>
+<form class="cv-contact-form" id="cv-contact-form" data-default-subject="Website contact — Verse After Hours">
+<div class="cv-contact-field"><label for="cv-contact-name">YOUR NAME *</label><input id="cv-contact-name" name="name" autocomplete="name" maxlength="120" required></div>
+<div class="cv-contact-field"><label for="cv-contact-email">YOUR EMAIL *</label><input id="cv-contact-email" name="email" type="email" autocomplete="email" maxlength="254" required></div>
+<div class="cv-contact-field full"><label for="cv-contact-subject">SUBJECT</label><input id="cv-contact-subject" name="subject" maxlength="180" placeholder="What would you like to talk about?"></div>
+<div class="cv-contact-field full"><label for="cv-contact-message">MESSAGE *</label><textarea id="cv-contact-message" name="message" maxlength="10000" required placeholder="Write your message…"></textarea></div>
+<div class="cv-contact-field full"><label for="cv-contact-files">ATTACHMENTS (OPTIONAL)</label><input id="cv-contact-files" name="attachments" type="file" multiple><p class="cv-contact-hint">Up to 5 files · 5 MB each · 10 MB total. PDF, DOC/DOCX, TXT, PNG, JPG, XLS/XLSX accepted.</p></div>
+<div class="cv-contact-honeypot" aria-hidden="true"><label for="cv-contact-website">Leave this empty</label><input id="cv-contact-website" name="website" tabindex="-1" autocomplete="off"></div>
+<div class="cv-contact-submit"><button type="submit">SEND MESSAGE ↗</button><p class="cv-contact-status" id="cv-contact-status" role="status" aria-live="polite"></p></div></form></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+<script src="/landing-page/green-dream/script.js?v=20261105-home-radio-1"></script>
+<script src="/landing-page/home.js?v=20261105-reference-reconstruction-1"></script>
 <script src="/landing-page/cv/contact.js?v=20261029-security-5" defer></script>
-
-
 <script src="/landing-page/tools.js?v=20261105-mood-contrast-regression-2"></script>
 <script src="/landing-page/creator-posting.js?v=20261029-security-5"></script>
-
 <script src="/landing-page/analytics.js?v=20261029-security-5" defer></script>
-  <script src="/landing-page/game-ui.js?v=20261103-constellation-fix-6" defer></script>
-</body>
-</html>
+<script src="/landing-page/game-ui.js?v=20261103-constellation-fix-6" defer></script>
+</body></html>
