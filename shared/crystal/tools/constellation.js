@@ -88,7 +88,7 @@
   document.body.appendChild(map);
   // Detach the pattern menu from the full-screen map so it can sit directly above the crystal dock.
   const patternPicker=map.querySelector(".vha-constellation-presets");
-  if(patternPicker)document.body.appendChild(patternPicker);
+  if(patternPicker){const crystalDock=document.getElementById("vha-viewer-tools");(crystalDock||document.body).appendChild(patternPicker);}
   const destinationList=map.querySelector(".vha-map-destinations");
   const constellationField=map.querySelector(".vha-constellation-field");
   const constellationRoute=map.querySelector(".vha-constellation-route");
