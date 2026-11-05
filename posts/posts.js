@@ -230,9 +230,9 @@
         const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
         const editButton=canEditPosts&&!post.community?'<a class="post-edit-button vha-editor-action" href="/landing-page/cms/?edit='+encodeURIComponent(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</a>':'';
         if(/class=["']suno-post-layout["']/.test(post.content_html||'')){
-          const titleHtml='<h3>'+safe(post.title)+'</h3>';
+          const titleHtml='<div class="suno-post-title-row"><h3>'+safe(post.title)+'</h3><button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button></div>';
           const excerptHtml=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
-          const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span><button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>'+editButton+'</div>';
+          const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div>';
           return renderSunoColumns(post,media,titleHtml,excerptHtml,lead,permalinkBack,shapeClass);
         }
         const detailCopy='<div class="post-detail-copy">'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'</div>';
