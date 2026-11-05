@@ -1713,3 +1713,22 @@ body.vha-crystal-open #gd-radio{
     backdrop-filter:blur(6px) brightness(.64)!important;
   }
 }
+
+
+/* Single crystal backdrop layer: real viewport overlay, independent of body pseudo stacking. */
+body.vha-crystal-open::after{content:none!important;display:none!important}
+#vha-crystal-blur-layer{
+  position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;
+  height:100dvh!important;z-index:2147482990!important;display:none;
+  pointer-events:none!important;background:rgba(2,12,16,.22)!important;
+  -webkit-backdrop-filter:blur(9px) brightness(.58)!important;
+  backdrop-filter:blur(9px) brightness(.58)!important;
+}
+body.vha-crystal-open #vha-crystal-blur-layer{display:block!important}
+body.vha-crystal-open #vha-viewer-tools{position:fixed!important;z-index:2147483000!important}
+body.vha-crystal-open #vha-world-map{position:fixed!important;z-index:2147482995!important}
+body.vha-crystal-open .vha-constellation-presets{z-index:2147483007!important}
+body.vha-crystal-open #gd-radio{z-index:2147482988!important}
+@media(prefers-reduced-motion:reduce){
+  #vha-crystal-blur-layer{-webkit-backdrop-filter:blur(6px) brightness(.64)!important;backdrop-filter:blur(6px) brightness(.64)!important}
+}
