@@ -316,3 +316,12 @@ body.vha-patterns-open #vha-viewer-tools>.vha-constellation-presets{display:bloc
 
 /* The active page is the white focal star in the constellation. */
 .vha-map-node.is-current svg{fill:#fff!important;stroke:#fff!important;filter:drop-shadow(0 0 9px rgba(255,255,255,.98)) drop-shadow(0 0 22px rgba(255,255,255,.72))!important}
+
+
+/* Star Patterns is a detached Crystal-dock panel: its own explicit open state wins. */
+body.vha-crystal-open.vha-patterns-open #vha-viewer-tools>.vha-constellation-presets,
+body.vha-patterns-open #vha-viewer-tools>.vha-constellation-presets{
+  display:block!important;visibility:visible!important;opacity:1!important;
+  pointer-events:auto!important;
+}
+#vha-viewer-tools>.vha-constellation-presets[aria-hidden="true"]{display:none!important}
