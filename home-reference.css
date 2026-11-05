@@ -1,0 +1,146 @@
+/* GREEN DREAM reference reconstruction — authored from GUI.png */
+:root{--va-cyan:#00eaf5;--va-yellow:#e9ed00;--va-copy:#dce9e9;--va-muted:#9eb8bd;--va-ink:#031116}
+body.gd-home.va-home{background-color:#031116;background-position:center 38%;background-size:cover;background-attachment:fixed}
+body.gd-home.va-home:before{background:linear-gradient(90deg,rgba(0,10,14,.72),rgba(0,13,17,.12) 56%,rgba(0,9,14,.25)),linear-gradient(0deg,rgba(0,9,14,.88),transparent 55%,rgba(0,9,14,.28))}
+.va-home .va-shell{min-height:100vh;background:linear-gradient(180deg,rgba(0,9,14,.10),rgba(0,9,14,.08) 55%,rgba(0,9,14,.74))}
+.va-home .va-topbar{height:82px;min-height:82px;padding:0 3.1vw;display:flex;gap:0;align-items:center;background:linear-gradient(180deg,rgba(1,12,17,.92),rgba(1,12,17,.55));border-bottom:1px solid rgba(0,234,245,.62);box-shadow:none}
+.va-home .va-brand{width:406px;flex:0 0 406px;gap:15px}
+.va-home .va-brand-mark{width:82px;height:72px;flex:0 0 82px;object-fit:contain;filter:drop-shadow(0 0 7px rgba(233,237,0,.16))}
+.va-home .va-brand-copy strong{font-family:"Arial Narrow",Impact,sans-serif;font-size:20px;letter-spacing:.065em;color:var(--va-yellow)}
+.va-home .va-brand-copy small{font-size:9px;letter-spacing:.09em;color:var(--va-cyan)}
+.va-home .va-main-nav{height:42px;flex:0 1 630px;margin-left:67px;padding:0 26px;display:flex;align-items:center;justify-content:space-between;gap:18px;border:1px solid rgba(0,234,245,.52);background:rgba(0,12,17,.25);clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+.va-home .va-main-nav a{font-size:10px;letter-spacing:.035em}
+.va-home .va-main-nav a[aria-current=page]{color:var(--va-yellow)}
+.va-home .va-header-status{top:0;right:5vw;padding:6px 18px 7px;border:1px solid rgba(0,234,245,.5);border-top:0;background:rgba(0,9,13,.9);color:var(--va-cyan);font-size:8px;letter-spacing:.12em}
+.va-home .va-header-status:before{display:none}
+.va-home .va-menu-toggle{margin-left:auto;flex:0 0 28px;width:28px;height:30px;padding:5px;gap:5px}
+.va-home .va-menu-toggle span{width:18px;background:#dce9e9}
+.va-home main{width:100%;max-width:none;margin:0;padding:0 3.125vw}
+.va-home .va-hero{height:351px;min-height:351px;max-width:none;margin:0;padding:0 349px 0 0;display:grid;grid-template-columns:minmax(0,640px) 210px;justify-content:space-between;align-items:center;gap:0;border:0;background:transparent}
+.va-home .va-hero:before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(90deg,rgba(0,10,14,.35),transparent 65%)}
+.va-home .va-hero:after{left:0;top:20%;bottom:20%;width:2px}
+.va-home .va-hero-copy{max-width:640px;padding:0 0 0 20px}
+.va-home .va-kicker{margin:0 0 12px;font-size:10px;letter-spacing:.18em;color:var(--va-cyan)}
+.va-home .va-hero h1{margin:0 0 17px;font-family:"Arial Narrow",Impact,Arial,sans-serif;font-size:clamp(46px,3.5vw,56px);font-weight:800;line-height:.96;letter-spacing:.025em;color:var(--va-yellow);text-shadow:0 0 18px rgba(233,237,0,.14)}
+.va-home .va-hero-intro{display:grid;gap:3px;margin:0 0 18px;font:14px/1.55 ui-monospace,Consolas,monospace;letter-spacing:.07em;color:#e5f0ef}
+.va-home .va-hero-intro span:first-child{color:#e5f0ef}
+.va-home .va-action{min-height:38px;padding:0 17px;border:1px solid var(--va-cyan);background:rgba(0,11,16,.7);color:var(--va-cyan);clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px))}
+.va-home .va-cv-column{width:210px;margin:0;align-self:center}
+.va-home .va-cv-shard{height:274px;min-height:274px;padding:12px 12px 11px;border:1px solid var(--va-cyan);background:linear-gradient(145deg,rgba(0,15,22,.97),rgba(0,8,14,.96));box-shadow:0 0 24px rgba(0,234,245,.15),inset 0 0 22px rgba(0,234,245,.06);clip-path:polygon(0 0,calc(100% - 24px) 0,100% 24px,100% 100%,0 100%)}
+.va-home .va-cv-shard:before{left:0;top:14px;bottom:14px;width:2px;background:linear-gradient(180deg,var(--va-yellow),var(--va-cyan));box-shadow:0 0 9px var(--va-cyan)}
+.va-home .va-cv-shard-head{padding-bottom:8px;font-size:8px}
+.va-home .va-cv-fileline{display:block;padding:9px 0 5px;border:0;color:#eaf6f7;font:9px/1.5 ui-monospace,Consolas,monospace}
+.va-home .va-cv-fileline span:last-child{color:var(--va-cyan)}
+.va-home .va-cv-preview{height:142px;display:grid;place-items:center;color:var(--va-cyan);filter:drop-shadow(0 0 5px rgba(0,234,245,.35))}
+.va-home .va-cv-preview svg{width:100%;height:100%}
+.va-home .va-cv-shard>.va-action{width:82%;min-height:31px;margin:0 9%;font-size:9px}
+.va-home .va-movements-layout{width:1049px;max-width:calc(100% - 0px);height:269px;min-height:269px;margin:0;padding:0;display:grid;grid-template-columns:831px 190px;gap:28px;align-items:center;border:0}
+.va-home .va-movement-area{height:269px;min-width:0;padding:0 0 16px;border:1px solid rgba(0,234,245,.42);border-top:1px solid rgba(0,234,245,.42);background:linear-gradient(180deg,rgba(0,12,17,.18),rgba(0,11,15,.6));clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,0 100%)}
+.va-home .va-section-heading{height:32px;min-height:32px;margin:0 0 0;padding:0 20px;font-size:10px;letter-spacing:.16em}
+.va-home .va-movement-grid{height:211px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px;padding:0 20px}
+.va-home .va-movement-card{height:211px;min-height:0;aspect-ratio:auto;padding:10px 9px 12px;border:1px solid rgba(0,234,245,.78);background:rgba(0,12,16,.82);clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px));}
+.va-home .va-movement-card:nth-child(2){border-color:rgba(255,79,133,.8)}
+.va-home .va-movement-card:nth-child(5){border-color:rgba(233,237,0,.85)}
+.va-home .va-movement-card:before{background:linear-gradient(0deg,rgba(0,5,8,.94),rgba(0,5,8,.03) 58%,rgba(0,5,8,.02))}
+.va-home .va-movement-art{width:100%;height:100%;object-fit:cover}
+.va-home .va-movement-number{margin-bottom:7px;font-size:14px;color:var(--va-yellow)}
+.va-home .va-movement-name{font-size:10px;line-height:1.25;color:#f5f7d8}
+.va-home .va-movement-aside{height:239px;padding:22px 20px;gap:14px;border:0;border-left:1px solid rgba(0,234,245,.55);background:transparent}
+.va-home .va-movement-aside strong{font-size:10px;line-height:1.6;color:#e4eff0}
+.va-home .va-movement-aside p{font-size:10px;line-height:1.5}
+.va-home .va-movement-aside .va-action{min-height:30px;font-size:8px}
+.va-home .va-lower-grid{width:1246px;max-width:100%;height:188px;min-height:188px;margin:35px 0 0;padding:0;display:grid;grid-template-columns:702px 240px 267px;gap:18px;align-items:stretch}
+.va-home .va-lower-panel{height:188px;min-height:188px;border:1px solid rgba(0,234,245,.5);background:linear-gradient(145deg,rgba(0,14,19,.86),rgba(0,8,13,.84));box-shadow:none;clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,0 100%)}
+.va-home .va-lower-panel .va-section-heading{height:29px;min-height:29px;margin:0 0 0;padding:0 18px;font-size:10px}
+.va-home .va-poetry-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:0 18px 10px}
+.va-home .va-poem-card{height:132px;border:1px solid rgba(0,234,245,.45);background:rgba(0,8,13,.9)}
+.va-home .va-poem-image,.va-home .va-poem-art{height:67px;min-height:67px;object-fit:cover}
+.va-home .va-poem-copy{gap:3px;padding:6px 7px}
+.va-home .va-poem-copy strong{font-size:9px}
+.va-home .va-poem-copy time,.va-home .va-poem-copy small{font-size:7px}
+.va-home .va-subscribe{padding:0 0 8px}
+.va-home .va-subscribe-copy{margin:0 16px 10px;font-size:10px;line-height:1.5}
+.va-home .va-subscribe-form{gap:8px;margin:0 16px}
+.va-home .va-subscribe-form input,.va-home .va-subscribe-form button{min-height:29px;font-size:8px}
+.va-home .va-subscribe-status{margin:7px 16px 0;font-size:8px}
+.va-home .va-listening{grid-template-columns:44px minmax(0,1fr);gap:14px;padding:18px 16px}
+.va-home .va-listening h3{font-size:12px}
+.va-home .va-listening p{font-size:9px;line-height:1.5}
+.va-home .va-listening .va-action{min-height:30px;font-size:8px}
+.va-home .va-footer{height:63px;min-height:63px;margin-top:16px;padding:5px 3.1vw;display:grid;grid-template-columns:60px 290px minmax(400px,1fr) 260px 55px;gap:16px;border-top:1px solid rgba(0,234,245,.48);background:rgba(0,8,12,.88)}
+.va-home .va-footer-mark{width:52px;height:52px;object-fit:contain}
+.va-home .va-footer-tag{font-size:8px;letter-spacing:.12em}
+.va-home .va-footer-nav{gap:clamp(10px,1.5vw,23px);padding:0 18px}
+.va-home .va-footer-nav a{font-size:8px}
+.va-home .va-footer-credit{font-size:7px;line-height:1.6}
+.va-home .va-footer-motto{display:block;font-size:8px;line-height:1.35}
+.va-home .va-back-top{right:22px;bottom:22px;width:42px;height:44px}
+.va-home .gd-radio{top:53px!important;right:1.45vw!important;left:auto!important;width:250px!important;max-height:360px!important;overflow:auto!important;border:1px solid rgba(0,234,245,.75);background:rgba(1,13,19,.96);box-shadow:0 0 20px rgba(0,234,245,.12),0 12px 34px rgba(0,0,0,.42);clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%)}
+.va-home .gd-radio .gd-radio-head{height:40px;padding:9px 13px;border-bottom:1px solid rgba(0,234,245,.4);font:700 12px ui-monospace,Consolas,monospace;letter-spacing:.12em}
+.va-home .gd-radio .gd-radio-body{padding:10px 13px}
+.va-home .gd-radio .gd-track{font-size:11px}
+.va-home .gd-radio .gd-controls{display:flex;justify-content:center}
+.va-home .gd-radio .gd-controls button{min-height:30px}
+.va-home .va-home :is(a,button,input,select):focus-visible{outline:2px solid var(--va-yellow);outline-offset:3px}
+@media(max-width:1350px){
+ .va-home .va-topbar{padding:0 2.5vw}
+ .va-home .va-brand{width:350px;flex-basis:350px}
+ .va-home .va-main-nav{margin-left:28px;gap:12px}
+ .va-home .va-hero{padding-right:300px;grid-template-columns:minmax(0,1fr) 210px}
+ .va-home .va-movements-layout{width:100%;grid-template-columns:minmax(0,1fr) 190px}
+ .va-home .va-lower-grid{width:100%;grid-template-columns:minmax(0,2.6fr) minmax(205px,.9fr) minmax(225px,1fr)}
+ .va-home .va-footer{grid-template-columns:52px minmax(170px,1fr) minmax(330px,1.5fr) minmax(180px,1fr)}
+}
+@media(max-width:1000px){
+ .va-home .va-topbar{height:76px;min-height:76px}
+ .va-home .va-brand{width:auto;flex:1 1 auto}
+ .va-home .va-main-nav{display:none}
+ .va-home .va-menu-toggle{margin-left:auto}
+ .va-home main{padding:0 24px}
+ .va-home .va-hero{height:auto;min-height:340px;padding:38px 250px 28px 0;grid-template-columns:minmax(0,1fr) 200px}
+ .va-home .va-cv-column{width:200px}
+ .va-home .va-cv-shard{height:250px;min-height:250px}
+ .va-home .va-movements-layout{height:auto;min-height:0;grid-template-columns:minmax(0,1fr) 180px;gap:18px}
+ .va-home .va-movement-area{height:auto;min-height:245px}
+ .va-home .va-movement-grid{height:auto;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;padding:0 10px}
+ .va-home .va-movement-card{height:190px}
+ .va-home .va-lower-grid{height:auto;min-height:0;grid-template-columns:minmax(0,1fr) minmax(190px,.8fr);gap:12px}
+ .va-home .va-lower-panel{height:auto;min-height:188px}
+ .va-home .va-listening{grid-column:1/-1;min-height:130px}
+ .va-home .va-footer{height:auto;min-height:76px;grid-template-columns:48px 1fr 1.5fr}
+ .va-home .va-footer-credit{grid-column:2/-1;text-align:left}
+ .va-home .va-footer-motto{display:none}
+ .va-home .gd-radio{top:auto!important;bottom:16px!important;right:16px!important;width:220px!important;max-height:42vh!important}
+}
+@media(max-width:620px){
+ .va-home main{padding:0 16px}
+ .va-home .va-topbar{height:72px;min-height:72px;padding:7px 16px}
+ .va-home .va-brand-mark{width:50px;height:48px;flex-basis:50px}
+ .va-home .va-brand-copy strong{font-size:12px}
+ .va-home .va-brand-copy small{font-size:6px}
+ .va-home .va-hero{height:auto;min-height:0;display:grid;grid-template-columns:1fr;gap:20px;padding:34px 0 26px}
+ .va-home .va-hero-copy{padding:0 0 0 12px}
+ .va-home .va-hero h1{font-size:clamp(42px,11vw,60px)}
+ .va-home .va-hero-intro{font-size:10px}
+ .va-home .va-cv-column{width:min(100%,250px);margin-left:auto}
+ .va-home .va-cv-shard{height:274px;min-height:274px}
+ .va-home .va-movements-layout{grid-template-columns:1fr;gap:12px;padding:0 0 18px}
+ .va-home .va-movement-area{height:auto;min-height:0;padding-bottom:12px}
+ .va-home .va-movement-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:0 12px}
+ .va-home .va-movement-card{height:auto;aspect-ratio:.78}
+ .va-home .va-movement-aside{height:auto;min-height:190px;padding:18px;border:1px solid rgba(0,234,245,.35)}
+ .va-home .va-lower-grid{grid-template-columns:1fr;gap:12px;margin-top:12px;padding-bottom:18px}
+ .va-home .va-lower-panel{height:auto;min-height:180px}
+ .va-home .va-poetry-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .va-home .va-poem-card{height:150px}
+ .va-home .va-poem-image,.va-home .va-poem-art{height:88px}
+ .va-home .va-listening{grid-column:auto;min-height:140px}
+ .va-home .va-footer{grid-template-columns:45px minmax(0,1fr);gap:9px;padding:12px 16px}
+ .va-home .va-footer-tag{font-size:7px}
+ .va-home .va-footer-nav{grid-column:1/-1;grid-row:auto;flex-wrap:wrap;gap:11px;padding:11px 0 0;border:0;border-top:1px solid rgba(0,234,245,.2)}
+ .va-home .va-footer-credit{grid-column:1/-1;text-align:left;font-size:6px}
+ .va-home .va-footer-motto{display:block}
+ .va-home .gd-radio{position:relative!important;top:auto!important;right:auto!important;bottom:auto!important;width:100%!important;max-width:none!important;max-height:none!important;margin:0 0 16px;overflow:visible!important;clip-path:none}
+ .va-home .va-back-top{right:12px;bottom:12px}
+}
+@media(prefers-reduced-motion:reduce){.va-home *,.va-home *:before,.va-home *:after{transition-duration:.01ms!important;animation-duration:.01ms!important;scroll-behavior:auto!important}}
