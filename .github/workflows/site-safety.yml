@@ -45,8 +45,8 @@ jobs:
           grep -Fq 'data-constellation="cassiopeia"' shared/crystal/tools/constellation.js
           grep -Fq 'data-constellation="cygnus"' shared/crystal/tools/constellation.js
           grep -Fq 'data-constellation="scorpius"' shared/crystal/tools/constellation.js
-          grep -Fq 'function applyConstellationPreset(name)' shared/crystal/tools/constellation.js
-          grep -Fq 'button.addEventListener("click"' shared/crystal/tools/constellation.js
+          grep -Fq 'function applyPattern(button)' shared/crystal/tools/star-patterns.js
+          grep -Fq 'button.addEventListener("click"' shared/crystal/tools/star-patterns.js
 
       - name: Check baseline browser security policy
         shell: bash
