@@ -377,7 +377,7 @@
     const glow=safeForeground(theme.glow||accent,[page,surface],3);
     const onAccent=safeForeground(light?"#111511":"#ffffff",[accent],4.5);
     const raised=light?mix(surface,"white",.16):mix(surface,"black",.18);
-    const palette={page,surface,raised,text,muted,accent,border,glow,onAccent};
+    const palette={page,surface,text,muted,accent,border,glow};
     Object.entries(palette).forEach(([key,value])=>{
       const variable=key==="page"?"--theme-page":key==="surface"?"--theme-surface":key==="text"?"--theme-text":key==="muted"?"--theme-muted":key==="accent"?"--theme-accent":key==="border"?"--theme-border":"--theme-glow";
       html.style.setProperty(variable,value);
