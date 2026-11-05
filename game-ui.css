@@ -1809,7 +1809,6 @@ body.vha-crystal-open> :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entr
   pointer-events:auto!important;
 }
 body.vha-patterns-open .vha-constellation-presets{display:block!important}
-body:not(.vha-patterns-open) .vha-constellation-presets{display:none!important}
 @media(max-width:760px){
   #vha-viewer-tools{grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr)!important}
   #vha-viewer-tools>.ego-bottom-hud.vha-universal-nav{grid-column:2!important;margin-inline:0!important}
