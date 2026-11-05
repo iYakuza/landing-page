@@ -135,7 +135,7 @@
   document.addEventListener('vha-crystal-mode-change',syncRadioVisibility);
   syncRadioVisibility();
 
-  const positionKey='vha-green-dream-radio-position-v4';
+  const positionKey=radio.dataset.positionKey||'vha-green-dream-radio-position-v4';
   let saved=null;try{saved=JSON.parse(localStorage.getItem(positionKey)||'null')}catch{}
   let drag=null,resize=null,suppressClickUntil=0;
   head.style.touchAction='none';head.style.userSelect='none';head.style.cursor='grab';
@@ -171,7 +171,7 @@
   requestAnimationFrame(()=>{
     const width=radio.offsetWidth,height=radio.offsetHeight;
     applyPosition(Number.isFinite(saved?.left)?saved.left:innerWidth-width-12,
-      Number.isFinite(saved?.top)?saved.top:(innerWidth<=760?innerHeight-height-12:(innerHeight-height)/2));
+      Number.isFinite(saved?.top)?saved.top:(innerWidth<=760?innerHeight-height-12:(Number.isFinite(Number(radio.dataset.defaultTop))?Number(radio.dataset.defaultTop):(innerHeight-height)/2)));
   });
   head.addEventListener('dragstart',e=>e.preventDefault());
   head.addEventListener('pointerdown',e=>{
