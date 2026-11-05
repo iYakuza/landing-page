@@ -360,23 +360,31 @@
     const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
     const mix=(hex,target,amount)=>{const c=rgb(hex)||[80,100,80],t=target==="white"?255:0;return "#"+c.map(n=>Math.round(n+(t-n)*amount).toString(16).padStart(2,"0")).join("")};
     const makeBackground=(hex,isLight)=>{let c=/^#[0-9a-f]{6}$/i.test(hex||"")?hex:"#101810";for(let i=0;i<=100;i++){const l=luminance(c);if(isLight?l>=.22:l<=.15)return c;c=mix(c,isLight?"white":"black",.035)}return isLight?"#f4f5f0":"#101810"};
-    const sourcePage=/^#[0-9a-f]{6}$/i.test(theme.page||"")?theme.page:"#101810";
-    const light=luminance(sourcePage)>.48;
-    const page=makeBackground(sourcePage,light);
-    const surface=makeBackground(/^#[0-9a-f]{6}$/i.test(theme.surface||"")?theme.surface:page,light);
-    const text=light?"#111511":"#f5f7f2";
-    const safeForeground=(hex,bgs,min=4.5)=>{let c=/^#[0-9a-f]{6}$/i.test(hex||"")?hex:(light?"#315b37":"#c9f58a");if(bgs.every(bg=>contrast(c,bg)>=min))return c;const target=light?"black":"white";for(let i=1;i<=100;i++){const candidate=mix(c,target,i/100);if(bgs.every(bg=>contrast(candidate,bg)>=min))return candidate}return light?"#111511":"#ffffff"};
+    const validHex=value=>/^#[0-9a-f]{6}$/i.test(String(value||""));
+    const sourcePage=validHex(theme.page)?theme.page:"#101810";
+    const light=luminance(sourcePage)>.42;
+    let page=sourcePage;
+    if(light&&luminance(page)<.22){for(let i=0;i<100&&luminance(page)<.22;i++)page=mix(page,"white",.035)}
+    if(!light&&luminance(page)>.15){for(let i=0;i<100&&luminance(page)>.15;i++)page=mix(page,"black",.035)}
+    const sourceSurface=validHex(theme.surface)?theme.surface:page;
+    let surface=sourceSurface;
+    if(contrast(surface,page)<1.18){const target=light?"black":"white";for(let i=1;i<=100;i++){const candidate=mix(sourceSurface,target,i/100);if(contrast(candidate,page)>=1.18){surface=candidate;break}}}
+    const safeForeground=(hex,bgs,min=4.5)=>{let c=validHex(hex)?hex:(light?"#111511":"#f7f8f5");if(bgs.every(bg=>contrast(c,bg)>=min))return c;const target=light?"black":"white";for(let i=1;i<=100;i++){const candidate=mix(c,target,i/100);if(bgs.every(bg=>contrast(candidate,bg)>=min))return candidate}return target==="black"?"#000000":"#ffffff"};
+    const text=safeForeground(light?"#111511":"#f7f8f5",[page,surface],7);
     const accent=safeForeground(theme.accent,[page,surface],4.5);
     const muted=safeForeground(theme.muted,[page,surface],4.5);
-    const border=safeForeground(theme.border||theme.accent,[page,surface],3);
+    const border=safeForeground(theme.border||accent,[page,surface],3);
     const glow=safeForeground(theme.glow||accent,[page,surface],3);
-    const palette={page,surface,text,muted,accent,border,glow};
+    const onAccent=safeForeground(light?"#111511":"#ffffff",[accent],4.5);
+    const raised=light?mix(surface,"white",.16):mix(surface,"black",.18);
+    const palette={page,surface,raised,text,muted,accent,border,glow,onAccent};
     Object.entries(palette).forEach(([key,value])=>{
       const variable=key==="page"?"--theme-page":key==="surface"?"--theme-surface":key==="text"?"--theme-text":key==="muted"?"--theme-muted":key==="accent"?"--theme-accent":key==="border"?"--theme-border":"--theme-glow";
       html.style.setProperty(variable,value);
     });
-    html.style.setProperty("--theme-raised",surface);
+    html.style.setProperty("--theme-raised",raised);
     html.style.setProperty("--theme-secondary",accent);
+    html.style.setProperty("--theme-on-accent",onAccent);
     html.dataset.vhaMood="generated";
     html.style.colorScheme=light?"light":"dark";
     document.body.style.backgroundColor=page;
@@ -405,6 +413,23 @@
       html[data-vha-mood] .vha-map-node svg{stroke:var(--theme-accent)!important;filter:drop-shadow(0 0 5px color-mix(in srgb,var(--theme-accent) 55%,transparent))!important}
       html[data-vha-mood] .vha-star-tooltip{color:var(--theme-text)!important;background:color-mix(in srgb,var(--theme-surface) 88%,transparent)!important;text-shadow:none!important}\n      html[data-vha-mood] .ego-bottom-hud :is(button,a):hover,html[data-vha-mood] .ego-bottom-hud :is(button,a):focus-visible{background-color:var(--theme-accent)!important;color:var(--theme-page)!important}
     `;
+    globalStyle.textContent+="\n"+
+      "html[data-vha-mood] body *{text-shadow:none!important}\n"+
+      "html[data-vha-mood] body :is(h1,h2,h3,h4,h5,h6,p,li,dt,dd,blockquote,figcaption,label,legend,summary,small,strong,b,em,i,span,div,section,article,aside,header,footer,nav,main,th,td,caption){color:var(--theme-text)!important}\n"+
+      "html[data-vha-mood] body :is(header,footer,nav,section,article,aside,main,form,fieldset,details,.gd-panel,.gd-card,.gd-radio,.gd-move,.post-card,.posts-note,.posts-filters,.viewer-console,.song-panel,.song-player-card,.cv-card,.cv-section,.transmission-card,.cv-wrap,.vha-journey-note,.vha-constellation-presets){background-color:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important}\n"+
+      "html[data-vha-mood] body :is(main,.gd-main,.gd-shell,.gd-page,.posts-main,.posts-content,.posts-page,.song-page,.cv-page,.cv-shell,.page-shell,.site-shell){background-color:var(--theme-page)!important}\n"+
+      "html[data-vha-mood] :is(button,[role=button],input[type=button],input[type=submit],input[type=reset],.vha-constellation-presets button){background:var(--theme-surface)!important;color:var(--theme-text)!important;border:1px solid var(--theme-border)!important;opacity:1!important}\n"+
+      "html[data-vha-mood] :is(button,[role=button],input[type=button],input[type=submit],input[type=reset],.vha-constellation-presets button):hover,html[data-vha-mood] :is(button,[role=button],input[type=button],input[type=submit],input[type=reset],.vha-constellation-presets button):focus-visible{background:var(--theme-accent)!important;color:var(--theme-on-accent)!important;border-color:var(--theme-accent)!important}\n"+
+      "html[data-vha-mood] :is(a,a:visited){color:var(--theme-accent)!important;text-decoration-color:var(--theme-accent)!important}\n"+
+      "html[data-vha-mood] :is(input,textarea,select,[contenteditable=true]){background:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important}\n"+
+      "html[data-vha-mood] :is(table,thead,tbody,tfoot,tr,th,td){background-color:var(--theme-surface)!important;color:var(--theme-text)!important;border-color:var(--theme-border)!important}\n"+
+      "html[data-vha-mood] th{background-color:var(--theme-raised)!important}\n"+
+      "html[data-vha-mood] .vha-tool-row,html[data-vha-mood] .vha-tool-icon{color:var(--theme-text)!important}\n"+
+      "html[data-vha-mood] .vha-tool-icon svg,html[data-vha-mood] .vha-tools-trigger svg{stroke:var(--theme-accent)!important;fill:none!important}\n"+
+      "html[data-vha-mood] .vha-constellation-lines path,html[data-vha-mood] .vha-constellation-route{stroke:var(--theme-accent)!important;stroke-opacity:1!important;stroke-width:2px!important}\n"+
+      "html[data-vha-mood] .vha-star-tooltip{color:var(--theme-text)!important;background:var(--theme-surface)!important}\n"+
+      "html[data-vha-mood] .vha-mood-box,html[data-vha-mood] .vha-mood-box *{color:var(--theme-text)!important}\n"+
+      "html[data-vha-mood] .vha-mood-box button[data-tool=apply-mood]{background:var(--theme-accent)!important;color:var(--theme-on-accent)!important}";
     const font=key=>moodFontStacks[key]||moodFontStacks.sans;
     const radius=Math.min(28,Math.max(0,Number(theme.radius)||0));
     const shadow=Math.min(.45,Math.max(0,Number(theme.shadow)||0));
