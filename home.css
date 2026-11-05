@@ -177,3 +177,26 @@ body.gd-home.va-home .va-shell{position:relative;isolation:isolate;min-height:10
  .va-hero-intro{max-width:100%}
 }
 @media(prefers-reduced-motion:reduce){.va-home *,.va-home *:before,.va-home *:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* Reference CV shard — compact data panel instead of a generic document placeholder. */
+.va-hero{max-width:none;grid-template-columns:minmax(0,1fr) 278px;gap:clamp(26px,4vw,62px);padding-right:calc(4vw + 280px);min-height:360px}
+.va-cv-column{width:278px;margin-right:0}
+.va-cv-shard{min-height:0;padding:12px 12px 11px;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,0 100%)}
+.va-cv-shard-head{display:flex;justify-content:space-between;align-items:center;padding:0 0 8px;border-bottom:1px solid rgba(0,234,245,.45);color:var(--va-cyan);font:700 9px/1.3 ui-monospace,Consolas,monospace;letter-spacing:.1em}
+.va-cv-shard-head span:last-child{color:var(--va-yellow);font-size:16px}
+.va-cv-fileline{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid rgba(0,234,245,.28);color:#eaf6f7;font:8px/1.45 ui-monospace,Consolas,monospace;overflow-wrap:anywhere}
+.va-cv-file-icon{display:grid;place-items:center;flex:0 0 30px;height:30px;border:1px solid var(--va-cyan);color:var(--va-cyan);font-size:19px}
+.va-cv-data{display:grid;gap:4px;padding:7px 0 5px;border-bottom:1px solid rgba(0,234,245,.18)}
+.va-cv-data>small,.va-cv-two small{color:var(--va-cyan);font:700 7px/1.3 ui-monospace,Consolas,monospace;letter-spacing:.12em}
+.va-cv-data>strong{color:#eaf6f7;font:600 9px/1.4 ui-monospace,Consolas,monospace}
+.va-cv-data>span,.va-cv-two span{color:#b7cdd0;font:7px/1.45 ui-monospace,Consolas,monospace}
+.va-cv-tags{display:flex;flex-wrap:wrap;gap:4px}
+.va-cv-tags i{padding:3px 5px;border:1px solid rgba(0,234,245,.42);color:#dcebed;font:7px/1 ui-monospace,Consolas,monospace;font-style:normal}
+.va-cv-two{grid-template-columns:1fr 1fr;gap:9px}
+.va-cv-two>div{display:grid;gap:4px;align-content:start}
+.va-cv-shard>.va-action{width:100%;min-height:28px;margin-top:8px;font-size:8px}
+.va-cv-note{margin-top:9px;font-size:8px;line-height:1.55}
+.va-cv-note span{color:var(--va-yellow);font-weight:700}
+@media(max-width:1180px){.va-hero{padding-right:calc(3vw + 235px);grid-template-columns:minmax(0,1fr) 235px}.va-cv-column{width:235px}}
+@media(max-width:900px){.va-hero{padding-right:5vw;grid-template-columns:minmax(0,1fr) 225px}.va-cv-column{width:225px}}
+@media(max-width:620px){.va-hero{padding-right:5vw;display:grid;grid-template-columns:1fr;gap:20px}.va-cv-column{width:min(100%,300px);margin:0 0 0 auto}.va-cv-note{max-width:300px}}
