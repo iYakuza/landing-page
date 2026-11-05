@@ -141,7 +141,7 @@
     const link=document.createElement("a");link.className="vha-map-node";link.dataset.node=key;link.href=href;link.draggable=false;
     link.addEventListener("dragstart",event=>event.preventDefault());
     const target=new URL(href,location.href).pathname.replace(/\/+$/,"")||"/";
-    if(target===path){link.classList.add("is-current");link.setAttribute("aria-current","page")}
+    if(target===path){link.setAttribute("aria-current","page")}if(nextJourney&&target===(new URL(nextJourney[3],location.href).pathname.replace(/\\/+$/, "")||"/"))link.classList.add("is-next");
     const position=savedStarPositions[key]&&Number.isFinite(savedStarPositions[key].x)&&Number.isFinite(savedStarPositions[key].y)
       ?[Math.max(3,Math.min(97,savedStarPositions[key].x)),Math.max(4,Math.min(96,savedStarPositions[key].y))]
       :starPositions[index%starPositions.length];
