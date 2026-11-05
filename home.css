@@ -649,3 +649,8 @@ body.gd-home.va-home main>.va-cv-summary-main{
 .va-cv-actions a:hover,.va-cv-actions button:hover{background:#e9ed00;border-color:#e9ed00;color:#031116}
 @media(max-width:720px){.va-cv-profile{grid-template-columns:1fr}.va-cv-facts{gap:10px}.va-cv-heading{margin-bottom:18px}}
 @media(max-width:420px){body.gd-home.va-home main>.va-cv-summary-main{width:calc(100% - 24px)!important;padding:13px!important}.va-cv-profile{padding:14px!important}.va-cv-facts{grid-template-columns:1fr 1fr}.va-cv-actions>*{flex:1 1 100%}}
+
+/* Eight profile skills: equal 4-column by 2-row grid. */
+body.gd-home.va-home main>.va-cv-summary-main .va-cv-skills{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(2,minmax(52px,auto));align-items:stretch;gap:7px}
+body.gd-home.va-home main>.va-cv-summary-main .va-cv-skills span{display:flex;align-items:center;justify-content:center;min-width:0;min-height:52px;padding:8px;text-align:center;overflow-wrap:anywhere}
+@media(max-width:700px){body.gd-home.va-home main>.va-cv-summary-main .va-cv-skills{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(48px,auto))}}
