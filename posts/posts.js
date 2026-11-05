@@ -194,8 +194,8 @@
     const styleHtml='<section class="suno-column suno-column-style">'+collapsible(styleSection.label.replace(/^<p[^>]*>|<\/p>$/g,''),styleContent,'suno-style-disclosure')+reflection(learnedSection)+reflection(chatgptSection)+'</section>';
     return '<div class="suno-three-grid">'+first+styleHtml+lyricsHtml+'</div>';
   }
-  function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,permalinkBack,shapeClass){
-    return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+renderSunoGrid(post,media,titleHtml,excerptHtml)+shareActions(post)+permalinkBack+'</article>';
+  function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,titleRow,permalinkBack,shapeClass){
+    return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+titleRow+renderSunoGrid(post,media,titleHtml,excerptHtml)+shareActions(post)+permalinkBack+'</article>';
   }
   function render(){
     const permalink=Boolean(requestedSlug);
@@ -232,8 +232,9 @@
         if(/class=["']suno-post-layout["']/.test(post.content_html||'')){
           const titleHtml='';
           const excerptHtml=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
-          const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div><div class="suno-post-title-row"><h3>'+safe(post.title)+'</h3><button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button></div>';
-          return renderSunoColumns(post,media,titleHtml,excerptHtml,lead,permalinkBack,shapeClass);
+          const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div>';
+          const titleRow='<div class="suno-post-title-row"><h3>'+safe(post.title)+'</h3><button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button></div>';
+          return renderSunoColumns(post,media,titleHtml,excerptHtml,lead,titleRow,permalinkBack,shapeClass);
         }
         const detailCopy='<div class="post-detail-copy">'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'</div>';
         const detailMedia=media?'<aside class="post-detail-media" aria-label="Transmission media">'+media+'<p class="post-media-caption">TRANSMISSION MEDIA // '+safe(post.media_type||'audio').toUpperCase()+'</p></aside>':'';
