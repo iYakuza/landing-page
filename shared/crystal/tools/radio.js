@@ -209,6 +209,9 @@
     radio.classList.toggle('radio-hidden',hidden);
     radio.setAttribute('aria-hidden',String(hidden));
     radio.hidden=hidden;
+    radio.style.setProperty('display',hidden?'none':'block','important');
+    radio.style.setProperty('visibility',hidden?'hidden':'visible','important');
+    radio.style.setProperty('pointer-events',hidden?'none':'auto','important');
     const toolButton=document.querySelector('#vha-viewer-tools [data-tool="radio"]');
     if(toolButton)toolButton.setAttribute('aria-pressed',String(!hidden));
     if(close){
@@ -231,14 +234,13 @@
   radio.style.setProperty('max-height','min(64vh, 620px)','important');
   radio.style.setProperty('overflow-y','auto','important');
   radio.style.setProperty('overscroll-behavior','contain','important');
-  radio.style.setProperty('z-index','2147483010','important');
+  radio.style.setProperty('z-index','2147483647','important');
   radio.style.setProperty('margin','0','important');
 
   close?.addEventListener('click',()=>setRadioHidden(true));
   window.addEventListener('vha-radio-toggle',()=>{
     setRadioHidden(!radio.classList.contains('radio-hidden'));
   });
-  document.addEventListener('vha-crystal-mode-change',()=>setRadioHidden(true));
   document.addEventListener('click',event=>{
     const link=event.target.closest('a[href="#gd-radio"],a[href="/landing-page/#gd-radio"]');
     if(link)setRadioHidden(false);
