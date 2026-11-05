@@ -1,10 +1,10 @@
-/* Constellation tool registration. Navigation and star positioning are in the shared map engine. */
+/* Shared constellation navigation module. */
 (() => {
   window.VHACrystal?.registerTool({
     id: "constellation",
     label: "CONSTELLATION",
     description: "Open or close the website's navigable star map.",
     presentation: "overlay",
-    run: () => document.querySelector('.vha-map-toggle')?.click()
+    run: () => document.querySelector(".vha-map-toggle")?.click()
   });
 })();
