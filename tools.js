@@ -376,9 +376,16 @@
       if(surfaceLum>maxSurface){for(let i=0;i<100&&luminance(surface)>maxSurface;i++)surface=mix(surface,"black",.035)}
       else if(surfaceLum<minSurface){for(let i=0;i<100&&luminance(surface)<minSurface;i++)surface=mix(surface,"white",.035)}
     }else{
-      const minSurface=pageLum*1.18,maxSurface=.10;
-      if(surfaceLum<minSurface){for(let i=0;i<100&&luminance(surface)<minSurface;i++)surface=mix(surface,"white",.035)}
-      else if(surfaceLum>maxSurface){for(let i=0;i<100&&luminance(surface)>maxSurface;i++)surface=mix(surface,"black",.035)}
+      const maxSurface=.10;
+      if(luminance(surface)>maxSurface){for(let i=0;i<100&&luminance(surface)>maxSurface;i++)surface=mix(surface,"black",.035)}
+      if(contrast(surface,page)<1.18){
+        const target=luminance(surface)>=pageLum?"white":"black";
+        for(let i=0;i<100&&contrast(surface,page)<1.18;i++){
+          const candidate=mix(surface,target,.035);
+          if(luminance(candidate)<=maxSurface)surface=candidate;
+          else break;
+        }
+      }
     }
     const safeForeground=(hex,bgs,min=4.5)=>{let c=validHex(hex)?hex:(light?"#111511":"#f7f8f5");if(bgs.every(bg=>contrast(c,bg)>=min))return c;const target=light?"black":"white";for(let i=1;i<=100;i++){const candidate=mix(c,target,i/100);if(bgs.every(bg=>contrast(candidate,bg)>=min))return candidate}return target==="black"?"#000000":"#ffffff"};
     const raised=light?mix(surface,"white",.16):mix(surface,"black",.18);
