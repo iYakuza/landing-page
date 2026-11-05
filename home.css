@@ -356,3 +356,147 @@ body.gd-home.va-home .va-shell{position:relative;isolation:isolate;min-height:10
  .va-home .ego-bottom-hud.vha-universal-nav{left:12px;bottom:12px}
  .va-home .ego-bottom-hud.vha-universal-nav .vha-map-toggle{width:42px;height:42px}
 }
+
+
+/* -------------------------------------------------------------------------
+   HOMEPAGE STRUCTURE REPAIR — restore normal document flow and use the width.
+   Earlier Green Dream single-screen rules were constraining the whole homepage
+   to one viewport and clipping the sections below the hero.
+   ------------------------------------------------------------------------- */
+html:has(body.va-home),body.gd-home.va-home{
+  height:auto!important;min-height:100%!important;overflow-x:hidden!important;overflow-y:auto!important;
+  overscroll-behavior:auto!important;
+}
+body.gd-home.va-home>.gd.va-shell,
+body.gd-home.va-home>.gd{
+  position:relative!important;inset:auto!important;display:flex!important;
+  flex-direction:column!important;width:100%!important;height:auto!important;
+  min-height:100vh!important;min-height:100svh!important;min-height:100dvh!important;
+  max-height:none!important;margin:0!important;overflow:visible!important;
+}
+body.va-home .va-shell{overflow:visible!important}
+body.va-home main{
+  display:block!important;flex:1 0 auto!important;width:100%!important;
+  max-width:1600px!important;margin:0 auto!important;
+  padding:0 clamp(22px,4vw,68px)!important;overflow:visible!important;
+}
+body.va-home .va-hero{
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(250px,320px)!important;
+  gap:clamp(36px,7vw,110px)!important;align-items:center!important;
+  width:100%!important;max-width:none!important;min-height:420px!important;
+  margin:0!important;padding:clamp(48px,6vw,86px) clamp(10px,2vw,30px)!important;
+  padding-right:clamp(10px,2vw,30px)!important;
+  background-position:center 46%!important;
+}
+body.va-home .va-hero-copy{max-width:720px!important;min-width:0!important}
+body.va-home .va-hero h1{font-size:clamp(54px,6.5vw,96px)!important}
+body.va-home .va-cv-column{width:100%!important;max-width:320px!important;justify-self:end!important}
+body.va-home .va-cv-shard{min-height:0!important;padding:18px!important}
+body.va-home .va-cv-note{max-width:none!important;font-size:9px!important;line-height:1.7!important}
+
+/* Radio is a proper full-width section in document flow, not a floating overlay
+   covering the CV shard or squeezing the hero. */
+body.va-home .gd-radio{
+  position:relative!important;inset:auto!important;transform:none!important;
+  display:grid!important;grid-template-columns:minmax(190px,.7fr) minmax(0,2fr)!important;
+  align-items:center!important;gap:0!important;
+  width:100%!important;max-width:none!important;min-width:0!important;
+  max-height:none!important;height:auto!important;overflow:visible!important;
+  margin:0!important;border:1px solid rgba(0,234,245,.48)!important;
+  border-left:0!important;border-right:0!important;border-radius:0!important;
+  clip-path:none!important;background:linear-gradient(100deg,rgba(3,17,22,.96),rgba(5,28,35,.94))!important;
+  box-shadow:0 12px 34px rgba(0,0,0,.24)!important;
+}
+body.va-home .gd-radio-head{min-height:100%;display:flex!important;align-items:center!important;padding:16px 22px!important;border:0!important;border-right:1px solid rgba(0,234,245,.24)!important}
+body.va-home .gd-radio-body{
+  display:grid!important;grid-template-columns:minmax(130px,.8fr) minmax(170px,1fr) minmax(220px,1.3fr);
+  align-items:center!important;gap:12px 20px!important;padding:14px 22px!important;
+}
+body.va-home .gd-radio-body>*{min-width:0!important}
+body.va-home .gd-radio-body .gd-eq{grid-row:1/3;grid-column:1}
+body.va-home .gd-radio-body .gd-tiny{grid-column:2;grid-row:1;margin:0!important}
+body.va-home .gd-radio-body .gd-track{grid-column:2;grid-row:2}
+body.va-home .gd-radio-body .gd-artist{grid-column:2;grid-row:3}
+body.va-home .gd-radio-body .gd-controls{grid-column:3;grid-row:1}
+body.va-home .gd-radio-body .gd-stations{grid-column:3;grid-row:2/4;display:grid!important;grid-template-columns:1fr;gap:6px}
+body.va-home .gd-radio-body .gd-player,body.va-home .gd-radio-body .gd-note{grid-column:1/-1}
+body.va-home .gd-radio.minimized{width:100%!important}
+body.va-home .gd-radio.minimized .gd-radio-body{display:none!important}
+
+/* Movements: a wide five-part sequence, with supporting copy in its own rail. */
+body.va-home .va-movements-layout{
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(210px,270px)!important;
+  gap:clamp(18px,2.6vw,38px)!important;width:100%!important;max-width:none!important;
+  margin:0!important;padding:clamp(30px,4vw,54px) 0!important;
+}
+body.va-home .va-movement-area{min-width:0!important;padding:14px 0 18px!important}
+body.va-home .va-movement-grid{
+  display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:clamp(9px,1.2vw,18px)!important;padding:0 clamp(12px,1.5vw,22px)!important;
+}
+body.va-home .va-movement-card{
+  width:100%!important;min-width:0!important;min-height:clamp(190px,23vw,310px)!important;
+  aspect-ratio:.72!important;padding:14px 12px 16px!important;
+}
+body.va-home .va-movement-name{font-size:clamp(9px,.82vw,12px)!important;line-height:1.35!important}
+body.va-home .va-movement-aside{min-width:0!important;padding:clamp(20px,2.5vw,34px)!important}
+
+/* Latest writing, subscribe and listening room share a balanced three-column row. */
+body.va-home .va-lower-grid{
+  display:grid!important;grid-template-columns:minmax(0,1.7fr) minmax(230px,.8fr) minmax(240px,.9fr)!important;
+  gap:clamp(12px,1.5vw,22px)!important;width:100%!important;max-width:none!important;
+  margin:0!important;padding:8px 0 clamp(32px,4vw,56px)!important;
+}
+body.va-home .va-lower-panel{min-width:0!important;min-height:220px!important;height:100%!important}
+body.va-home .va-poetry-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;padding:0 14px 14px!important}
+body.va-home .va-poem-image,body.va-home .va-poem-art{height:clamp(90px,9vw,140px)!important}
+body.va-home .va-subscribe{padding:0 0 18px!important}
+body.va-home .va-subscribe-form{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:10px!important}
+body.va-home .va-subscribe-form input,body.va-home .va-subscribe-form button{min-height:42px!important}
+body.va-home .va-listening{display:grid!important;grid-template-columns:44px minmax(0,1fr)!important;align-content:center!important}
+body.va-home .va-footer{width:100%!important;flex:0 0 auto!important}
+
+/* Tablet: keep the hero side-by-side; give the movement cards real width. */
+@media(max-width:1050px){
+ body.va-home main{padding:0 24px!important}
+ body.va-home .va-hero{grid-template-columns:minmax(0,1fr) 250px!important;gap:28px!important;min-height:370px!important}
+ body.va-home .va-cv-column{max-width:250px!important}
+ body.va-home .va-movements-layout{grid-template-columns:minmax(0,1fr)!important}
+ body.va-home .va-movement-aside{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) auto!important;align-items:center!important;gap:18px!important}
+ body.va-home .va-lower-grid{grid-template-columns:minmax(0,1.4fr) minmax(220px,.9fr)!important}
+ body.va-home .va-listening{grid-column:1/-1!important;min-height:140px!important}
+ body.va-home .va-radio{max-width:none!important}
+}
+@media(max-width:760px){
+ body.va-home main{padding:0 18px!important}
+ body.va-home .va-hero{grid-template-columns:minmax(0,1fr) minmax(210px,260px)!important;gap:20px!important;min-height:0!important;padding:36px 0 30px!important}
+ body.va-home .va-hero h1{font-size:clamp(42px,8vw,66px)!important}
+ body.va-home .va-hero-intro{font-size:9px!important}
+ body.va-home .va-cv-column{max-width:260px!important}
+ body.va-home .gd-radio{grid-template-columns:1fr!important}
+ body.va-home .gd-radio-head{min-height:0!important;border-right:0!important;border-bottom:1px solid rgba(0,234,245,.24)!important}
+ body.va-home .gd-radio-body{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;padding:14px!important}
+ body.va-home .gd-radio-body .gd-eq{grid-row:1/3;grid-column:1}
+ body.va-home .gd-radio-body .gd-tiny{grid-column:2;grid-row:1}
+ body.va-home .gd-radio-body .gd-track{grid-column:2;grid-row:2}
+ body.va-home .gd-radio-body .gd-artist{grid-column:2;grid-row:3}
+ body.va-home .gd-radio-body .gd-controls{grid-column:1;grid-row:3}
+ body.va-home .gd-radio-body .gd-stations{grid-column:2;grid-row:4}
+ body.va-home .va-movement-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+ body.va-home .va-movement-card{min-height:210px!important}
+ body.va-home .va-lower-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+ body.va-home .va-latest{grid-column:1/-1}
+ body.va-home .va-listening{grid-column:1/-1!important}
+}
+@media(max-width:540px){
+ body.va-home main{padding:0 14px!important}
+ body.va-home .va-hero{grid-template-columns:1fr!important;gap:20px!important;padding:30px 0 24px!important}
+ body.va-home .va-cv-column{width:100%!important;max-width:360px!important;justify-self:end!important}
+ body.va-home .va-movement-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ body.va-home .va-movement-card{min-height:0!important;aspect-ratio:.9!important}
+ body.va-home .va-movement-aside{display:flex!important}
+ body.va-home .va-lower-grid{grid-template-columns:1fr!important}
+ body.va-home .va-latest,body.va-home .va-listening{grid-column:auto!important}
+ body.va-home .gd-radio-body{grid-template-columns:1fr!important}
+ body.va-home .gd-radio-body>*{grid-column:1!important;grid-row:auto!important}
+}
