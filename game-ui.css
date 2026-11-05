@@ -482,7 +482,7 @@ body .ego-bottom-hud.vha-universal-nav>.vha-map-toggle svg{width:48px!important;
 
 /* Guided first entry: the world waits behind the crystal. */
 body.vha-entry-intro{overflow:hidden!important;min-height:100vh}
-body.vha-entry-intro> :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt){filter:blur(8px) brightness(.38)!important;pointer-events:none!important;user-select:none!important}
+body.vha-entry-intro> :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt):not(.vha-constellation-presets){filter:blur(8px) brightness(.38)!important;pointer-events:none!important;user-select:none!important}
 body.vha-entry-intro:after{content:"";position:fixed;inset:0;z-index:2147483005;background:rgba(2,8,4,.38);pointer-events:none}
 #vha-entry-prompt{position:fixed;z-index:2147483007;left:50%;top:calc(50% + 66px);width:min(420px,calc(100vw - 36px));transform:translateX(-50%);text-align:center;pointer-events:none;color:#e8f4df;text-shadow:0 2px 12px #000}
 #vha-entry-prompt span,.vha-journey-note>span{display:block;margin-bottom:9px;color:#b9d77a;font:8px/1.4 ui-monospace,monospace;letter-spacing:.2em}
@@ -601,7 +601,7 @@ body.vha-game-interface.gd-home :is(.sys-entry-intro,.sys-path p,.gd-ego-copy p,
 
 
 /* Crystal focus: soften the page behind the constellation and keep the crystal/interface sharp. */
-body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt):not(#gd-radio){
+body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt):not(#gd-radio):not(.vha-constellation-presets){
   filter:blur(7px) brightness(.48)!important;
   pointer-events:none!important;
   user-select:none!important;
@@ -1756,3 +1756,31 @@ body.vha-crystal-open .vha-constellation-presets{
 body.vha-crystal-open .vha-constellation-presets *{
   filter:none!important;-webkit-filter:none!important;opacity:1!important;
 }
+
+
+/* Landing page entry background: restore the blue matrix field, without the cover image. */
+body.gd-home.va-home{background:#031116!important}
+body.gd-home.va-home:before{
+  content:""!important;position:fixed!important;inset:0!important;z-index:-1!important;pointer-events:none!important;
+  background:
+    radial-gradient(ellipse at 50% 42%,rgba(0,132,190,.18),transparent 58%),
+    linear-gradient(rgba(0,190,235,.075) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,190,235,.075) 1px,transparent 1px),
+    repeating-linear-gradient(0deg,rgba(0,190,235,.025) 0 1px,transparent 1px 4px)!important;
+  background-size:auto,48px 48px,48px 48px,auto!important;
+}
+body.va-home .va-shell{display:none!important}
+body.va-home #gd-radio,
+body.va-home .va-back-top,
+body.va-home .cv-contact-dialog,
+body.va-home .cv-contact-open{display:none!important}
+
+/* The pattern selector is a foreground control, never a page element to blur. */
+body.vha-entry-intro > .vha-constellation-presets,
+body.vha-crystal-open > .vha-constellation-presets{
+  filter:none!important;-webkit-filter:none!important;opacity:1!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+  pointer-events:auto!important;user-select:auto!important;
+}
+body.vha-entry-intro > .vha-constellation-presets{z-index:2147483647!important}
+body.vha-crystal-open > .vha-constellation-presets{z-index:2147483647!important}
