@@ -23,7 +23,8 @@
     #gd-radio .gd-radio-head{display:flex!important;align-items:center!important;justify-content:space-between!important;padding:11px 13px!important;border-bottom:1px solid rgba(0,234,245,.25)!important;background:linear-gradient(90deg,rgba(0,234,245,.07),transparent)!important;color:#e9ed00!important;font:700 10px/1.3 ui-monospace,Consolas,monospace!important;letter-spacing:1.3px!important}
     #gd-radio .gd-radio-head small{display:block!important;margin-top:3px!important;color:#00eaf5!important;font-size:7px!important;letter-spacing:1.6px!important}
     #gd-radio .gd-radio-head button{width:25px!important;height:25px!important;padding:0!important;border:1px solid rgba(0,234,245,.38)!important;background:rgba(0,234,245,.05)!important;color:#00eaf5!important;font:17px/1 ui-monospace,monospace!important}
-    #gd-radio .gd-radio-body{padding:13px!important}
+    #gd-radio *,#gd-radio *::before,#gd-radio *::after{box-sizing:border-box!important;min-width:0}
+    #gd-radio .gd-radio-body{display:block!important;width:100%!important;min-width:0!important;padding:13px!important;overflow-wrap:anywhere!important}
     #gd-radio .gd-eq i{background:#00eaf5!important;box-shadow:0 0 9px rgba(0,234,245,.35)!important}
     #gd-radio .gd-tiny,#gd-radio .gd-video-picker label{color:#00eaf5!important;font:8px/1.5 ui-monospace,Consolas,monospace!important;letter-spacing:1.4px!important}
     #gd-radio .gd-track{display:block!important;color:#eaf5f6!important;font:600 13px/1.45 Arial,Helvetica,sans-serif!important;overflow-wrap:anywhere!important}
@@ -33,7 +34,9 @@
     #gd-radio .gd-video-picker{display:grid!important;grid-template-columns:1fr!important;gap:6px!important;margin:12px 0!important;padding-top:10px!important;border-top:1px solid rgba(0,234,245,.22)!important}
     #gd-radio #gd-video-select{width:100%!important;min-width:0!important;max-width:100%!important;min-height:34px!important;padding:7px 9px!important;border:1px solid rgba(0,234,245,.42)!important;border-radius:0!important;background:#031116!important;color:#dce9e9!important;font:9px/1.45 ui-monospace,Consolas,monospace!important}
     #gd-radio #gd-video-select option{background:#031116!important;color:#dce9e9!important}
-    #gd-radio .gd-note{display:block!important;margin-top:8px!important}
+    #gd-radio .gd-note{display:block!important;margin-top:8px!important;overflow-wrap:anywhere!important}
+    #gd-radio .gd-player{display:block!important;width:100%!important;max-width:100%!important;aspect-ratio:16/9!important;height:auto!important;min-width:0!important;overflow:hidden!important}
+    #gd-radio .gd-player iframe{display:block!important;width:100%!important;max-width:100%!important;height:100%!important;border:0!important}
     #gd-radio .gd-radio-resize:after{background:#00eaf5!important;box-shadow:0 0 6px rgba(0,234,245,.45)!important}
     @media(max-width:640px){#gd-radio .gd-radio-body{padding:10px!important}#gd-radio .gd-radio-head{padding:9px 10px!important}}
   `;
@@ -45,6 +48,8 @@
     #gd-radio.vha-radio-floating .gd-radio-head{cursor:grab!important;touch-action:none!important;user-select:none!important}
     #gd-radio.vha-radio-floating.gd-radio-dragging .gd-radio-head{cursor:grabbing!important}
     #gd-radio.vha-radio-floating .gd-radio-body{max-height:none!important;overflow:visible!important}
+    #gd-radio.vha-radio-floating .gd-radio-head>span{min-width:0!important;overflow-wrap:anywhere!important}
+    #gd-radio.vha-radio-floating .gd-player{aspect-ratio:16/9!important}
     #gd-radio.vha-radio-floating #gd-video-select{box-sizing:border-box!important}
   `;
   document.head.appendChild(hiddenStyle);
@@ -140,8 +145,11 @@
   function showPlayer(show){
     host.hidden=false;
     if(show){
-      host.style.position='relative';host.style.left='auto';host.style.width='100%';host.style.height='126px';host.style.opacity='1';host.style.pointerEvents='auto';host.style.overflow='visible';
-      player?.setSize?.(host.clientWidth||280,126);
+      host.style.position='relative';host.style.left='auto';host.style.width='100%';host.style.height='auto';host.style.aspectRatio='16 / 9';host.style.opacity='1';host.style.pointerEvents='auto';host.style.overflow='hidden';
+      const width=Math.max(1,host.clientWidth||radio.clientWidth-28);
+      const height=Math.round(width*9/16);
+      host.style.height=height+'px';
+      player?.setSize?.(width,height);
     }else{
       host.style.position='absolute';host.style.left='-10000px';host.style.width='1px';host.style.height='1px';host.style.opacity='0';host.style.pointerEvents='none';host.style.overflow='hidden';
     }
@@ -201,6 +209,13 @@
       setPlaying(false);
     }finally{play.disabled=false}
   }
+  window.addEventListener('resize',()=>{
+    if(host.hidden||host.style.position==='absolute'||!player)return;
+    const width=Math.max(1,host.clientWidth||radio.clientWidth-28);
+    const height=Math.round(width*9/16);
+    host.style.height=height+'px';
+    player.setSize?.(width,height);
+  });
   play.addEventListener('click',()=>{
     if(playing){player?.pauseVideo();setPlaying(false);status('Playback paused.')}
     else start();
