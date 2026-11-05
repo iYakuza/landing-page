@@ -378,6 +378,7 @@
     html.style.setProperty("--theme-raised",theme.surface);
     html.style.setProperty("--theme-secondary",theme.accent);
     html.dataset.vhaMood="generated";
+    html.style.colorScheme=light?"light":"dark";
     document.body.style.backgroundColor=theme.page;
     document.body.style.color=theme.text;
     let globalStyle=document.getElementById("vha-mood-global-overrides");
@@ -418,6 +419,7 @@
     const html=document.documentElement;
     ["--theme-page","--theme-surface","--theme-raised","--theme-text","--theme-muted","--theme-accent","--theme-secondary","--theme-border","--theme-glow"].forEach(k=>html.style.removeProperty(k));
     delete html.dataset.vhaMood;
+    html.style.removeProperty("color-scheme");
     document.body.style.removeProperty("background-color");
     document.body.style.removeProperty("color");
     document.getElementById("vha-mood-global-overrides")?.remove();
