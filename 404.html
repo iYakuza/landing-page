@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#031116">
+  <meta name="robots" content="noindex">
+  <title>404 — SIGNAL NOT FOUND | Verse After Hours</title>
+  <link rel="stylesheet" href="/landing-page/game-ui.css?v=20261105-crystal-layout-13">
+  <style>
+    :root{color-scheme:dark;--cyan:#00eaf5;--acid:#e9ed00;--ink:#031116;--muted:#9eb8bd}
+    *{box-sizing:border-box}
+    html,body{min-height:100%;margin:0}
+    body{min-height:100vh;display:grid;place-items:center;overflow:hidden;padding:28px;background:radial-gradient(ellipse at 50% 45%,rgba(0,145,180,.18),transparent 48%),linear-gradient(145deg,#061820,#02090d 72%);color:#dce9e9;font-family:ui-monospace,Consolas,monospace}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.34;background-image:linear-gradient(rgba(0,234,245,.075) 1px,transparent 1px),linear-gradient(90deg,rgba(0,234,245,.075) 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse at center,#000 10%,transparent 78%)}
+    .error-shell{position:relative;width:min(760px,100%);padding:clamp(25px,6vw,58px);border:1px solid rgba(0,234,245,.48);background:linear-gradient(145deg,rgba(5,25,32,.96),rgba(2,12,17,.97));box-shadow:0 24px 90px #0009,inset 0 0 40px rgba(0,234,245,.035);clip-path:polygon(0 0,calc(100% - 30px) 0,100% 30px,100% 100%,30px 100%,0 calc(100% - 30px));}
+    .eyebrow{margin:0 0 25px;color:var(--cyan);font-size:9px;letter-spacing:.2em}
+    .code{display:flex;align-items:flex-start;gap:clamp(14px,3vw,28px);margin:0;color:var(--acid);font:800 clamp(82px,20vw,170px)/.78 "Arial Narrow",Impact,sans-serif;letter-spacing:-.07em;text-shadow:0 0 35px rgba(233,237,0,.13)}
+    .code span{padding-top:8px;color:var(--cyan);font:10px/1.6 ui-monospace,monospace;letter-spacing:.16em}
+    h1{margin:30px 0 12px;color:#eef7f7;font:700 clamp(19px,4vw,28px)/1.15 "Arial Narrow",Arial,sans-serif;letter-spacing:.08em}
+    .message{max-width:520px;margin:0;color:#a9c1c6;font:11px/1.8 ui-monospace,monospace}
+    .coordinates{display:flex;flex-wrap:wrap;gap:8px 20px;margin:26px 0 0;padding:15px 0;border-top:1px solid rgba(0,234,245,.22);border-bottom:1px solid rgba(0,234,245,.22);color:#72949c;font-size:8px;letter-spacing:.1em}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:25px}
+    .actions a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border:1px solid var(--cyan);color:var(--cyan);background:rgba(0,234,245,.055);font-size:9px;font-weight:700;letter-spacing:.1em;text-decoration:none;transition:background .18s,color .18s}
+    .actions a.primary{border-color:var(--acid);background:var(--acid);color:#061014}
+    .actions a:hover,.actions a:focus-visible{background:var(--cyan);color:#031116;outline:2px solid var(--cyan);outline-offset:3px}
+    .foot{margin:30px 0 0;color:#64838a;font-size:8px;letter-spacing:.14em}
+    @media(max-width:480px){body{padding:15px}.error-shell{padding:25px 20px}.code{font-size:94px}.actions{display:grid}.actions a{width:100%}}
+  </style>
+</head>
+<body>
+  <main class="error-shell">
+    <p class="eyebrow">VERSE AFTER HOURS // ROUTE INTERRUPTED</p>
+    <p class="code">404 <span>COORDINATE<br>NOT FOUND</span></p>
+    <h1>THIS SIGNAL DOESN’T LEAD ANYWHERE.</h1>
+    <p class="message">The page you’re looking for may have moved, changed its address, or faded from the archive. The rest of the constellation is still here.</p>
+    <div class="coordinates"><span>STATUS // LOST IN TRANSMISSION</span><span>NETWORK // OPEN</span><span>DESTINATION // UNKNOWN</span></div>
+    <nav class="actions" aria-label="Suggested destinations">
+      <a class="primary" href="/landing-page/">RETURN TO THE SURFACE ↗</a>
+      <a href="/landing-page/posts/">EXPLORE THE ARCHIVE</a>
+      <a href="/landing-page/green-dream/">ENTER GREEN DREAM</a>
+      <a href="/landing-page/cv/">OPEN CV</a>
+    </nav>
+    <p class="foot">THE CITY IS LOUD. LEAVE A TRACE.</p>
+  </main>
+  <script src="/landing-page/game-ui.js?v=20261105-crystal-layout-13" defer></script>
+</body>
+</html>
