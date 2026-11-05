@@ -500,3 +500,54 @@ body.va-home .va-footer{width:100%!important;flex:0 0 auto!important}
  body.va-home .gd-radio-body{grid-template-columns:1fr!important}
  body.va-home .gd-radio-body>*{grid-column:1!important;grid-row:auto!important}
 }
+
+
+/* Landing footer: explicit responsive grid, with no fixed-width collisions. */
+body.va-home .va-shell{overflow:visible!important;overflow-x:clip!important}
+body.va-home .va-footer{
+  display:grid!important;
+  grid-template-columns:56px minmax(150px,.85fr) minmax(260px,1.45fr) minmax(190px,1fr)!important;
+  grid-template-areas:"mark tagline nav credit";
+  align-items:center!important;justify-content:stretch!important;
+  gap:clamp(12px,1.8vw,24px)!important;
+  width:100%!important;min-width:0!important;min-height:112px!important;
+  height:auto!important;margin:0!important;padding:20px clamp(18px,3.5vw,52px)!important;
+  border-top:1px solid rgba(0,234,245,.48)!important;
+  background:linear-gradient(100deg,rgba(2,14,19,.99),rgba(3,20,26,.97))!important;
+  clip-path:none!important;overflow:visible!important;
+}
+body.va-home .va-footer-mark{grid-area:mark;display:block!important;width:52px!important;height:52px!important;max-width:100%;object-fit:contain}
+body.va-home .va-footer-tag{grid-area:tagline;min-width:0!important;font-size:clamp(7px,.68vw,9px)!important;line-height:1.7!important;overflow-wrap:anywhere}
+body.va-home .va-footer-nav{
+  grid-area:nav;display:flex!important;align-items:center!important;justify-content:center!important;
+  flex-wrap:wrap!important;gap:10px clamp(10px,1.2vw,18px)!important;
+  min-width:0!important;padding:8px 14px!important;
+  border-left:1px solid rgba(0,234,245,.25)!important;border-right:1px solid rgba(0,234,245,.25)!important;
+}
+body.va-home .va-footer-nav a{font-size:8px!important;line-height:1.6!important;white-space:normal!important}
+body.va-home .va-footer-credit{
+  grid-area:credit;min-width:0!important;text-align:right!important;
+  font-size:7px!important;line-height:1.8!important;overflow-wrap:anywhere
+}
+body.va-home .va-footer-motto{display:none!important}
+@media(max-width:1050px){
+  body.va-home .va-footer{
+    grid-template-columns:52px minmax(0,1fr) minmax(0,1fr)!important;
+    grid-template-areas:"mark tagline credit" "nav nav nav";
+    gap:12px 16px!important;padding:18px 24px!important;
+  }
+  body.va-home .va-footer-nav{justify-content:flex-start!important;padding:12px 0 0!important;border:0!important;border-top:1px solid rgba(0,234,245,.22)!important}
+  body.va-home .va-footer-credit{text-align:right!important}
+}
+@media(max-width:620px){
+  body.va-home .va-footer{
+    grid-template-columns:44px minmax(0,1fr)!important;
+    grid-template-areas:"mark tagline" "nav nav" "credit credit";
+    gap:10px 12px!important;padding:16px 16px 22px!important;
+  }
+  body.va-home .va-footer-mark{width:42px!important;height:42px!important}
+  body.va-home .va-footer-tag{font-size:8px!important}
+  body.va-home .va-footer-nav{gap:8px 14px!important;padding-top:12px!important}
+  body.va-home .va-footer-nav a{font-size:7px!important}
+  body.va-home .va-footer-credit{text-align:left!important;font-size:7px!important}
+}
