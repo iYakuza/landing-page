@@ -1769,11 +1769,6 @@ body.gd-home.va-home:before{
     repeating-linear-gradient(0deg,rgba(0,190,235,.025) 0 1px,transparent 1px 4px)!important;
   background-size:auto,48px 48px,48px 48px,auto!important;
 }
-body.va-home .va-shell{display:none!important}
-body.va-home #gd-radio,
-body.va-home .va-back-top,
-body.va-home .cv-contact-dialog,
-body.va-home .cv-contact-open{display:none!important}
 
 /* The pattern selector is a foreground control, never a page element to blur. */
 body.vha-entry-intro > .vha-constellation-presets,
