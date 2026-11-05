@@ -34,7 +34,7 @@
     const map = document.getElementById("vha-world-map");
     if (!map || map.dataset.starPatternsBound === "true") return;
     map.dataset.starPatternsBound = "true";
-    map.querySelectorAll(".vha-constellation-presets [data-constellation]").forEach(button => {
+    document.querySelectorAll(".vha-constellation-presets [data-constellation]").forEach(button => {
       button.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
