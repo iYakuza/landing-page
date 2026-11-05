@@ -203,7 +203,7 @@
   select.addEventListener('change',()=>{
     const index=Number(select.value);
     if(!Number.isInteger(index)||index<0||index>=playlistIds.length)return;
-    if(player){player.playVideoAt(index);setPlaying(true);status('Loading selected playlist track…')}
+    if(player){showPlayer(true);player.playVideoAt(index);setPlaying(true);status('Loading selected playlist track…')}
   });
   function setRadioHidden(hidden){
     radio.classList.toggle('radio-hidden',hidden);
