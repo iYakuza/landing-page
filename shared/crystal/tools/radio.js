@@ -39,7 +39,14 @@
   `;
   if(!document.getElementById("vha-radio-theme"))document.head.appendChild(radioTheme);
   const hiddenStyle=document.createElement('style');
-  hiddenStyle.textContent='#gd-radio.radio-hidden{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}#gd-radio.vha-radio-floating{box-sizing:border-box!important}#gd-radio.vha-radio-floating .gd-radio-body{max-height:calc(64vh - 48px)!important;overflow:auto!important}';
+  hiddenStyle.textContent=`
+    #gd-radio.radio-hidden{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+    #gd-radio.vha-radio-floating{box-sizing:border-box!important;width:fit-content!important;min-width:min(320px,calc(100vw - 24px))!important;max-width:min(420px,calc(100vw - 24px))!important;height:auto!important;max-height:calc(100dvh - 24px)!important;overflow-x:hidden!important;overflow-y:auto!important}
+    #gd-radio.vha-radio-floating .gd-radio-head{cursor:grab!important;touch-action:none!important;user-select:none!important}
+    #gd-radio.vha-radio-floating.gd-radio-dragging .gd-radio-head{cursor:grabbing!important}
+    #gd-radio.vha-radio-floating .gd-radio-body{max-height:none!important;overflow:visible!important}
+    #gd-radio.vha-radio-floating #gd-video-select{box-sizing:border-box!important}
+  `;
   document.head.appendChild(hiddenStyle);
   if(radio.parentElement!==document.body)document.body.appendChild(radio);
 
@@ -229,13 +236,46 @@
   radio.style.setProperty('top','auto','important');
   radio.style.setProperty('bottom','calc(14px + 58px + 18px)','important');
   radio.style.setProperty('transform','translateX(-50%)','important');
-  radio.style.setProperty('width','min(360px, calc(100vw - 24px))','important');
-  radio.style.setProperty('max-width','calc(100vw - 24px)','important');
-  radio.style.setProperty('max-height','min(64vh, 620px)','important');
+  radio.style.setProperty('width','fit-content','important');
+  radio.style.setProperty('min-width','min(320px, calc(100vw - 24px))','important');
+  radio.style.setProperty('max-width','min(420px, calc(100vw - 24px))','important');
+  radio.style.setProperty('height','auto','important');
+  radio.style.setProperty('max-height','calc(100dvh - 24px)','important');
   radio.style.setProperty('overflow-y','auto','important');
   radio.style.setProperty('overscroll-behavior','contain','important');
   radio.style.setProperty('z-index','2147483647','important');
   radio.style.setProperty('margin','0','important');
+
+  // Drag by the header; controls inside the panel remain independently interactive.
+  let dragState=null;
+  head.addEventListener('pointerdown',event=>{
+    if(event.button!==0||event.target.closest('button,a,input,select,textarea'))return;
+    const rect=radio.getBoundingClientRect();
+    dragState={pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,left:rect.left,top:rect.top};
+    radio.style.setProperty('left',rect.left+'px','important');
+    radio.style.setProperty('top',rect.top+'px','important');
+    radio.style.setProperty('right','auto','important');
+    radio.style.setProperty('bottom','auto','important');
+    radio.style.setProperty('transform','none','important');
+    radio.classList.add('gd-radio-dragging');
+    head.setPointerCapture?.(event.pointerId);
+    event.preventDefault();
+  });
+  head.addEventListener('pointermove',event=>{
+    if(!dragState||event.pointerId!==dragState.pointerId)return;
+    const rect=radio.getBoundingClientRect();
+    const left=Math.max(8,Math.min(window.innerWidth-rect.width-8,dragState.left+event.clientX-dragState.startX));
+    const top=Math.max(8,Math.min(window.innerHeight-rect.height-8,dragState.top+event.clientY-dragState.startY));
+    radio.style.setProperty('left',left+'px','important');
+    radio.style.setProperty('top',top+'px','important');
+  });
+  const finishRadioDrag=event=>{
+    if(!dragState||event.pointerId!==dragState.pointerId)return;
+    dragState=null;
+    radio.classList.remove('gd-radio-dragging');
+  };
+  head.addEventListener('pointerup',finishRadioDrag);
+  head.addEventListener('pointercancel',finishRadioDrag);
 
   close?.addEventListener('click',()=>setRadioHidden(true));
   window.addEventListener('vha-radio-toggle',()=>{
