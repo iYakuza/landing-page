@@ -36,8 +36,8 @@ jobs:
             echo "Legacy Previous/Next radio controls must not return."
             exit 1
           fi
-          # V/A Radio must be a fixed floating panel controlled by the Crystal,
-          # not the retired draggable page widget.
+          # V/A Radio must remain a Crystal-controlled floating panel,
+          # with content-sized dimensions and header-based pointer dragging.
           grep -Fq "radio.classList.add('vha-radio-floating')" shared/crystal/tools/radio.js
           grep -Fq "radio.style.setProperty('position','fixed','important')" shared/crystal/tools/radio.js
           grep -Fq "radio.style.setProperty('left','50%','important')" shared/crystal/tools/radio.js
