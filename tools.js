@@ -367,7 +367,7 @@
     // Keep page and panel backgrounds in one luminance family so one readable
     // foreground can serve both, while retaining a visible surface separation.
     if(light&&luminance(page)<.42){for(let i=0;i<100&&luminance(page)<.42;i++)page=mix(page,"white",.035)}
-    if(!light&&luminance(page)>.08){for(let i=0;i<100&&luminance(page)>.08;i++)page=mix(page,"black",.035)}
+    if(!light&&luminance(page)>.07){for(let i=0;i<100&&luminance(page)>.07;i++)page=mix(page,"black",.035)}
     const sourceSurface=validHex(theme.surface)?theme.surface:page;
     let surface=sourceSurface;
     const pageLum=luminance(page),surfaceLum=luminance(surface);
