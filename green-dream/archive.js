@@ -11,7 +11,7 @@
   const archive = document.getElementById('movement-archive');
   const playlist = document.getElementById('gd-media-playlist');
   const player = document.getElementById('gd-archive-player');
-  if (!archive || !playlist || !player) return;
+  if (!archive) return;
   const safe = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   function safeMediaUrl(value) {
     try {
@@ -40,6 +40,7 @@
       ).join('') : '<p class="gd-smallprint">No posts assigned to this movement yet.</p>';
       return '<details><summary><span>0' + (index + 1) + ' / ' + safe(movement) + '</span><span>' + items.length + '</span></summary><div class="gd-movement-posts">' + content + '</div></details>';
     }).join('');
+    if (!playlist || !player) return;
     const tracks = posts.filter(post => post.media_type === 'audio' && safeMediaUrl(post.media_url))
       .map(post => ({...post, url:safeMediaUrl(post.media_url)}));
     const sunoRow = '<a class="gd-media-row gd-suno-row" href="https://suno.com/s/0RJNUsklNXtOiRzv" target="_blank" rel="noopener noreferrer"><span class="gd-media-number">01</span><div class="gd-media-track"><strong>GREEN DREAM // ORIGINAL TRANSMISSION</strong><small>SUNO // OPEN TRACK PLAYER ↗</small></div><span class="gd-suno-open" aria-hidden="true">↗</span></a>';
@@ -123,7 +124,7 @@
     const client = window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
     if (!client) {
       archive.innerHTML = '<p class="gd-smallprint">The poetry archive is temporarily unavailable.</p>';
-      playlist.innerHTML = '<p class="gd-archive-empty">The audio library is temporarily unavailable.</p>';
+      if (playlist) playlist.innerHTML = '<p class="gd-archive-empty">The audio library is temporarily unavailable.</p>';
       return;
     }
     const {data, error} = await client.from('vha_posts')
@@ -132,7 +133,7 @@
       .order('published_at',{ascending:false,nullsFirst:false});
     if (error) {
       archive.innerHTML = '<p class="gd-smallprint">Could not load the poetry archive. Please try again later.</p>';
-      playlist.innerHTML = '<p class="gd-archive-empty">Could not load the audio library. Please try again later.</p>';
+      if (playlist) playlist.innerHTML = '<p class="gd-archive-empty">Could not load the audio library. Please try again later.</p>';
       return;
     }
     render(data || []);
