@@ -91,3 +91,17 @@
  .va-home .gd-radio{width:100%!important;max-width:none!important;position:relative!important;top:auto!important;left:auto!important;margin:0 0 20px}
 }
 @media(prefers-reduced-motion:reduce){.va-home *{scroll-behavior:auto!important;transition:none!important}}
+
+
+/* Homepage now uses the Green Dream cover as a page-wide visual field. */
+.va-home .va-hero{
+  display:block!important;
+  grid-template-columns:none!important;
+  width:100%!important;
+  max-width:none!important;
+  min-height:clamp(220px,38vh,430px)!important;
+  margin:0!important;
+  padding:0!important;
+  background:linear-gradient(180deg,rgba(0,10,14,.08),rgba(0,10,14,.22))!important;
+}
+.va-home .va-hero:before,.va-home .va-hero:after{display:none!important}
