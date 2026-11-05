@@ -422,7 +422,7 @@
       html[data-vha-mood] .vha-constellation-lines{opacity:1!important;filter:drop-shadow(0 0 2px color-mix(in srgb,var(--theme-accent) 35%,transparent))!important}
       html[data-vha-mood] .vha-constellation-lines path,html[data-vha-mood] .vha-constellation-route{stroke:var(--theme-accent)!important;stroke-opacity:1!important;stroke-width:1.8px!important;stroke-dasharray:3 5!important;filter:drop-shadow(0 0 2px color-mix(in srgb,var(--theme-accent) 45%,transparent))!important}
       html[data-vha-mood] .vha-map-node svg{stroke:var(--theme-accent)!important;filter:drop-shadow(0 0 5px color-mix(in srgb,var(--theme-accent) 55%,transparent))!important}
-      html[data-vha-mood] .vha-star-tooltip{color:var(--theme-text)!important;background:color-mix(in srgb,var(--theme-surface) 88%,transparent)!important;text-shadow:none!important}\n      html[data-vha-mood] .ego-bottom-hud :is(button,a):hover,html[data-vha-mood] .ego-bottom-hud :is(button,a):focus-visible{background-color:var(--theme-accent)!important;color:var(--theme-page)!important}
+      html[data-vha-mood] .vha-star-tooltip{color:var(--theme-text)!important;background:color-mix(in srgb,var(--theme-surface) 88%,transparent)!important;text-shadow:none!important}\n      html[data-vha-mood] .ego-bottom-hud :is(button,a):hover,html[data-vha-mood] .ego-bottom-hud :is(button,a):focus-visible{background-color:var(--theme-accent)!important;color:var(--theme-on-accent)!important}
     `;
     globalStyle.textContent+="\n"+
       "html[data-vha-mood] body *{text-shadow:none!important}\n"+
@@ -440,7 +440,8 @@
       "html[data-vha-mood] .vha-constellation-lines path,html[data-vha-mood] .vha-constellation-route{stroke:var(--theme-accent)!important;stroke-opacity:1!important;stroke-width:2px!important}\n"+
       "html[data-vha-mood] .vha-star-tooltip{color:var(--theme-text)!important;background:var(--theme-surface)!important}\n"+
       "html[data-vha-mood] .vha-mood-box,html[data-vha-mood] .vha-mood-box *{color:var(--theme-text)!important}\n"+
-      "html[data-vha-mood] .vha-mood-box button[data-tool=apply-mood]{background:var(--theme-accent)!important;color:var(--theme-on-accent)!important}";
+      "html[data-vha-mood] .vha-mood-box button[data-tool=apply-mood]{background:var(--theme-accent)!important;color:var(--theme-on-accent)!important}\n"+
+      "html[data-vha-mood] :is(small,figcaption,caption,time,.muted,.text-muted,[data-muted=true],.vha-mood-status,#vha-presentation-hint){color:var(--theme-muted)!important}";
     const font=key=>moodFontStacks[key]||moodFontStacks.sans;
     const radius=Math.min(28,Math.max(0,Number(theme.radius)||0));
     const shadow=Math.min(.45,Math.max(0,Number(theme.shadow)||0));
