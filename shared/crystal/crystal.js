@@ -37,10 +37,18 @@
   crystalObserver.observe(root,{childList:true,subtree:true});
   document.addEventListener("click",event=>{const dragClickUntil=Number(document.body.dataset.vhaStarDragClickUntil||0);if(Date.now()<dragClickUntil)return;if(root.dataset.open==="true"&&!root.contains(event.target)&&!event.target.closest(".vha-journey-note,#vha-world-map,#gd-radio")){root.dataset.open="false";root.setAttribute("aria-expanded","false");document.dispatchEvent(new CustomEvent("vha-tools-state-change",{detail:{open:false}}))}});
   document.addEventListener("keydown",event=>{if(event.key==="Escape"&&root.dataset.open==="true"){root.dataset.open="false";root.setAttribute("aria-expanded","false");document.dispatchEvent(new CustomEvent("vha-tools-state-change",{detail:{open:false}}))}});
+  root.addEventListener("vha-layout-ready",()=>{});
   const navHud = document.querySelector(".ego-bottom-hud.vha-universal-nav");
   if (navHud) {
     navHud.parentNode.insertBefore(root, navHud);
     root.insertBefore(navHud,root.querySelector(".vha-tools-side.vha-tools-right"));
+    navHud.style.setProperty("grid-column","2","important");
+    navHud.style.setProperty("grid-row","1","important");
+    navHud.style.setProperty("margin-inline","0","important");
+    root.querySelector(".vha-tools-side.vha-tools-left")?.style.setProperty("grid-column","1","important");
+    root.querySelector(".vha-tools-side.vha-tools-left")?.style.setProperty("grid-row","1","important");
+    root.querySelector(".vha-tools-side.vha-tools-right")?.style.setProperty("grid-column","3","important");
+    root.querySelector(".vha-tools-side.vha-tools-right")?.style.setProperty("grid-row","1","important");
   } else {
     document.body.appendChild(root);
   }
