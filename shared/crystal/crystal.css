@@ -244,3 +244,71 @@ body.vha-patterns-open #vha-viewer-tools>.vha-constellation-presets{display:bloc
   #vha-viewer-tools .vha-tool-icon{width:21px!important;height:21px!important;flex-basis:21px!important}
   #vha-viewer-tools .vha-constellation-presets{bottom:calc(100% + 10px)!important;width:180px!important;max-height:45vh!important}
 }
+
+
+/* Unified Crystal geometry — one centred three-column dock in every state. */
+#vha-viewer-tools{
+  position:fixed!important;left:50%!important;right:auto!important;top:auto!important;bottom:14px!important;
+  transform:translateX(-50%)!important;display:grid!important;
+  grid-template-columns:0fr 58px 0fr!important;grid-template-rows:58px!important;
+  align-items:center!important;justify-items:center!important;
+  width:58px!important;height:58px!important;min-height:58px!important;
+  gap:0!important;padding:0!important;margin:0!important;
+  border:0!important;border-radius:0!important;background:transparent!important;
+  box-shadow:none!important;backdrop-filter:none!important;overflow:visible!important;
+  z-index:2147483008!important;
+}
+#vha-viewer-tools>.ego-bottom-hud.vha-universal-nav{
+  grid-column:2!important;grid-row:1!important;position:relative!important;
+  inset:auto!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  transform:none!important;margin:0!important;justify-self:center!important;align-self:center!important;
+  display:grid!important;place-items:center!important;z-index:5!important;
+  width:58px!important;height:58px!important;min-width:58px!important;min-height:58px!important;
+}
+#vha-viewer-tools>.ego-bottom-hud.vha-universal-nav .vha-map-toggle{
+  position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+  transform:none!important;margin:0!important;justify-self:center!important;align-self:center!important;
+}
+#vha-viewer-tools>.vha-tools-side{
+  position:static!important;inset:auto!important;transform:none!important;
+  display:none!important;align-items:center!important;justify-content:space-evenly!important;
+  width:100%!important;min-width:0!important;height:100%!important;gap:4px!important;
+}
+#vha-viewer-tools>.vha-tools-side.vha-tools-left{grid-column:1!important;grid-row:1!important}
+#vha-viewer-tools>.vha-tools-side.vha-tools-right{grid-column:3!important;grid-row:1!important}
+#vha-viewer-tools[data-open="true"]{
+  grid-template-columns:minmax(0,1fr) 68px minmax(0,1fr)!important;
+  grid-template-rows:68px!important;
+  width:min(1000px,calc(100vw - 28px))!important;height:68px!important;min-height:68px!important;
+  padding:0 12px!important;gap:8px!important;
+  border:1px solid rgba(174,199,157,.22)!important;border-radius:22px!important;
+  background:rgba(5,12,8,.82)!important;box-shadow:0 12px 38px rgba(0,0,0,.34)!important;
+  -webkit-backdrop-filter:blur(14px)!important;backdrop-filter:blur(14px)!important;
+}
+#vha-viewer-tools[data-open="true"]>.vha-tools-side{display:flex!important}
+#vha-viewer-tools[data-open="true"]>.ego-bottom-hud.vha-universal-nav{
+  grid-column:2!important;grid-row:1!important;width:58px!important;height:58px!important;
+  min-width:58px!important;min-height:58px!important;
+}
+#vha-viewer-tools[data-open="true"]>.vha-tools-side .vha-tool-row{
+  flex:1 1 0!important;min-width:0!important;max-width:190px!important;
+  justify-content:center!important;white-space:nowrap!important;
+}
+#vha-viewer-tools .vha-mood-box{z-index:2147483646!important}
+#vha-viewer-tools>.vha-constellation-presets{z-index:2147483647!important}
+@media(max-width:760px){
+  #vha-viewer-tools{bottom:8px!important;grid-template-columns:0fr 52px 0fr!important;grid-template-rows:52px!important;width:52px!important;height:52px!important}
+  #vha-viewer-tools>.ego-bottom-hud.vha-universal-nav,
+  #vha-viewer-tools[data-open="true"]>.ego-bottom-hud.vha-universal-nav{
+    width:52px!important;height:52px!important;min-width:52px!important;min-height:52px!important
+  }
+  #vha-viewer-tools[data-open="true"]{
+    grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr)!important;
+    grid-template-rows:60px!important;width:calc(100vw - 12px)!important;height:60px!important;
+    min-height:60px!important;padding:0 5px!important;gap:2px!important;border-radius:16px!important
+  }
+  #vha-viewer-tools[data-open="true"]>.vha-tools-side{gap:1px!important}
+  #vha-viewer-tools[data-open="true"]>.vha-tools-side .vha-tool-row{
+    min-height:42px!important;padding:2px 3px!important;gap:3px!important;font-size:7px!important
+  }
+}
