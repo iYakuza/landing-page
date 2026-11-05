@@ -185,3 +185,10 @@ body.cms-writing-focus .rich-toolbar button{
     padding:0 9px;
   }
 }
+
+/* Owner Studio palette alignment; shared game-ui.css supplies the full visual treatment. */
+.cms-hero{background:linear-gradient(135deg,#061820,#031116)!important;border-color:rgba(0,234,245,.38)!important}
+.cms-media-field,.post-composition{background:linear-gradient(145deg,#071f27,#031116)!important;border-color:rgba(0,234,245,.42)!important;color:#dce9e9!important}
+.cms-media-preview{background:#031116!important;border-color:rgba(0,234,245,.35)!important}
+.cms-lyrics-field{background:#031116!important;border-color:rgba(0,234,245,.28)!important}
+.cms-media-field :is(label,strong),.post-composition>label{color:#e9ed00!important}
