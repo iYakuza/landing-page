@@ -30,10 +30,7 @@
     });
   }
   root.querySelector('[data-tool="radio"]')?.addEventListener("click",()=>{
-    // Close the constellation first, then reveal the radio after its close-state sync runs.
-    root.dataset.open="false";
-    root.setAttribute("aria-expanded","false");
-    document.dispatchEvent(new CustomEvent("vha-tools-state-change",{detail:{open:false}}));
+    // Reveal the radio without closing Crystal; both panels remain independently usable.
     window.dispatchEvent(new Event("vha-radio-toggle"));
   });
   const crystalObserver=new MutationObserver(bindCrystal);
