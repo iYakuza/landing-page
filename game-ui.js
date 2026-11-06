@@ -3,7 +3,7 @@
   if (window.__vhaCrystalBootstrap) return;
   window.__vhaCrystalBootstrap = true;
   const script = document.createElement("script");
-  script.src = "/landing-page/shared/crystal/crystal-loader.js?v=20261106-star-patterns-header-inline-7";
+  script.src = "/landing-page/shared/crystal/crystal-loader.js?v=20261106-creator-workshop-star-1";
   script.async = false;
   document.head.appendChild(script);
 })();
