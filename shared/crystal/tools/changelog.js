@@ -138,7 +138,7 @@
 
   const changelogStyle=document.createElement("style");
   changelogStyle.id="vha-changelog-style";
-  changelogStyle.textContent=\
+  changelogStyle.textContent=
     '.vha-changelog-panel{position:fixed;left:50%;bottom:104px;touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;transform:translateX(-50%);z-index:2147483647;width:min(520px,calc(100vw - 28px));max-height:min(68vh,620px);overflow:auto;padding:18px 20px 16px;border:1px solid rgba(174,199,157,.28);border-radius:15px;background:rgba(5,12,8,.96);color:#e4eddf;box-shadow:0 18px 60px rgba(0,0,0,.55);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);font-family:ui-monospace,SFMono-Regular,Consolas,monospace}' +
     '.vha-changelog-panel[hidden]{display:none!important}.vha-changelog-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding-bottom:13px;border-bottom:1px solid rgba(174,199,157,.2)}' +
     '.vha-changelog-kicker{display:block;font-size:8px;letter-spacing:.18em;color:#a9c28e}.vha-changelog-header h2{margin:5px 0 0;font:500 20px/1.2 Georgia,serif;color:#e8f1df}' +
