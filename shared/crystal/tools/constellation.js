@@ -81,7 +81,7 @@
   const journeyMarkup = nextJourney
     ? '<div class="vha-journey-note" hidden><span>NEXT PART OF THE JOURNEY</span><strong>' + nextJourney[1] + '</strong><p>' + nextJourney[2] + '</p><a href="' + nextJourney[3] + '">CONTINUE THE JOURNEY ↗</a></div>'
     : '<div class="vha-journey-note" hidden><span>THE JOURNEY CONTINUES</span><strong>Choose the next trace.</strong><p>Follow a point in the constellation to continue exploring.</p></div>';
-  map.innerHTML='<div class="vha-constellation-presets" role="group" aria-label="Choose a constellation pattern"><div class="vha-patterns-head" style="display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;width:100%!important;margin:0 0 9px!important;padding:0 0 8px!important;border-bottom:1px solid rgba(185,215,122,.3)!important;"><label for="vha-pattern-select" style="display:block!important;flex:1 1 auto!important;min-width:0!important;">STAR PATTERNS</label><button type="button" class="vha-patterns-minimize" aria-label="Close star patterns" title="Close" style="display:grid!important;place-items:center!important;flex:0 0 26px!important;width:26px!important;min-width:26px!important;height:24px!important;margin:0 0 0 auto!important;padding:0!important;align-self:center!important;">×</button></div><select id="vha-pattern-select" class="vha-patterns-select" aria-label="Choose a star pattern"><option value="" selected disabled>Choose a constellation…</option><option value="orion">ORION</option><option value="ursa-major">URSA MAJOR</option><option value="cassiopeia">CASSIOPEIA</option><option value="cygnus">CYGNUS</option><option value="scorpius">SCORPIUS</option><option value="hello-smile">HELLO / SMILE</option><option value="heart-signal">HEART SIGNAL</option><option value="north-star">NORTH STAR</option><option value="after-hours">AFTER HOURS</option><option value="waveform">WAVEFORM</option></select><small>REAL CONSTELLATIONS + ORIGINAL STAR SIGNS · DRAG TO CUSTOMISE</small></div><div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path class="vha-constellation-route vha-route-main" d=""/><path class="vha-constellation-route vha-route-movements" d=""/></svg><div class="vha-map-destinations"></div></div>' + journeyMarkup;
+  map.innerHTML='<div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path class="vha-constellation-route vha-route-main" d=""/><path class="vha-constellation-route vha-route-movements" d=""/></svg><div class="vha-map-destinations"></div></div>' + journeyMarkup;
   document.body.appendChild(map);
   // Owner shortcut: independent of the selected constellation pattern.
   // The CMS itself enforces editor permissions after navigation.
@@ -92,9 +92,6 @@
   creator.title="Creator Workshop";
   creator.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 3 5.2 14.1L44 18l-11.1 9.2L36.5 43 24 34.8 11.5 43l3.6-15.8L4 18l14.8-.9L24 3Z"/></svg><span>CREATOR WORKSHOP</span>';
   document.body.appendChild(creator);
-  // Detach the pattern menu from the full-screen map so it can sit directly above the crystal dock.
-  const patternPicker=map.querySelector(".vha-constellation-presets");
-  if(patternPicker){const crystalDock=document.getElementById("vha-viewer-tools");(crystalDock||document.body).appendChild(patternPicker);}
   const destinationList=map.querySelector(".vha-map-destinations");
   const constellationField=map.querySelector(".vha-constellation-field");
   const constellationRoutes={
