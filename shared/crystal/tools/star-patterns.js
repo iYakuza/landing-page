@@ -12,10 +12,10 @@
     "after-hours": [[50,10],[36,20],[27,36],[25,54],[34,71],[50,83],[43,65],[42,49],[46,33],[56,20],[68,16],[78,22]],
     "waveform": [[8,50],[16,50],[24,50],[32,50],[40,50],[48,50],[56,50],[64,50],[72,50],[80,50],[88,50],[96,50]]
   };
-  function applyPattern(button) {
+  function applyPattern(patternName) {
     const map = document.getElementById("vha-world-map");
-    const pattern = patterns[button.dataset.constellation];
-    const nodes = [...(map?.querySelectorAll(".vha-map-node") || [])];
+    const pattern = patterns[patternName];
+    const nodes = [...(map?.querySelectorAll(".vha-map-node") || [])].filter(node => node.dataset.node !== "creator");
     if (!map || !pattern || !nodes.length) return;
     const saved = map.vhaConstellation?.getSavedPositions?.() || {};
     nodes.forEach((node, index) => {
@@ -27,13 +27,20 @@
       saved[node.dataset.node] = { x, y };
     });
     try { localStorage.setItem(map.vhaConstellation?.storageKey || "stars-v2", JSON.stringify(saved)); } catch {}
-    button.closest(".vha-constellation-presets")?.querySelectorAll("[data-constellation]").forEach(item => {
-      const selected = item === button;
-      item.setAttribute("aria-pressed", String(selected));
-      item.classList.toggle("is-selected", selected);
-    });
+    const creator = map.querySelector('.vha-map-node[data-node="creator"]');
+    if (creator) {
+      creator.style.setProperty("--star-x", "88%");
+      creator.style.setProperty("--star-y", "18%");
+      creator.style.setProperty("left", "88%", "important");
+      creator.style.setProperty("top", "18%", "important");
+      saved.creator = { x: 88, y: 18 };
+      try { localStorage.setItem(map.vhaConstellation?.storageKey || "stars-v2", JSON.stringify(saved)); } catch {}
+    }
+    const picker = document.querySelector(".vha-constellation-presets");
+    const select = picker?.querySelector(".vha-patterns-select");
+    if (select) select.value = patternName;
     map.vhaConstellation?.updateRoute?.();
-    map.dataset.activeConstellation = button.dataset.constellation;
+    map.dataset.activeConstellation = patternName;
   }
   function positionPickerAboveButton(){
     const button=document.querySelector('#vha-viewer-tools [data-tool="patterns"]');
@@ -95,16 +102,23 @@
     const map=document.getElementById("vha-world-map");
     if(!map||map.dataset.starPatternsBound==="true")return;
     map.dataset.starPatternsBound="true";
-    const minimize= document.querySelector(".vha-patterns-minimize");
-    if(minimize&&!minimize.dataset.bound){
-      minimize.dataset.bound="true";
-      minimize.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();setPickerOpen(false);});
-    }
-    document.querySelectorAll(".vha-constellation-presets [data-constellation]").forEach(button=>{
-      button.addEventListener("click",event=>{
-        event.preventDefault();event.stopPropagation();applyPattern(button);
+    const minimize = document.querySelector(".vha-patterns-minimize");
+    if (minimize && !minimize.dataset.bound) {
+      minimize.dataset.bound = "true";
+      minimize.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        setPickerOpen(false);
       });
-    });
+    }
+    const select = document.querySelector(".vha-patterns-select");
+    if (select && !select.dataset.bound) {
+      select.dataset.bound = "true";
+      select.addEventListener("change", event => {
+        event.stopPropagation();
+        if (select.value) applyPattern(select.value);
+      });
+    }
     // The trigger is dynamically moved into the Crystal dock. Bind it at document
     // capture level so no dock handler or detached-map event can swallow the click.
     if(!document.documentElement.dataset.vhaPatternsClickBound){
