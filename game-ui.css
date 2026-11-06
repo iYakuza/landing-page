@@ -1841,3 +1841,26 @@ body.vha-crystal-open>#gd-radio *{pointer-events:auto}
 .vha-map-node[data-route-group="movement"]{transform:translate(-50%,-50%) scale(.82)!important;opacity:.88}
 .vha-map-node[data-route-group="movement"] svg{width:23px;height:23px}
 .vha-map-node[data-node="transmissions"] .vha-star-tooltip:after{content:" · PARENT"}
+
+
+/* STAR PATTERNS FOREGROUND FIX
+   The picker is a direct child of body. Keep it above the crystal blur
+   layer and explicitly remove any inherited/filter-based blur. */
+body.vha-crystal-open > .vha-constellation-presets,
+body.vha-patterns-open > .vha-constellation-presets{
+  position:fixed!important;
+  z-index:2147483647!important;
+  filter:none!important;
+  -webkit-filter:none!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  isolation:isolate!important;
+}
+body.vha-crystal-open > #vha-crystal-blur-layer{
+  z-index:1000!important;
+}
+body.vha-crystal-open::after{
+  content:none!important;
+  display:none!important;
+}
