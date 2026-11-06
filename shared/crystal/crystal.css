@@ -325,3 +325,23 @@ body.vha-patterns-open #vha-viewer-tools>.vha-constellation-presets{
   pointer-events:auto!important;
 }
 #vha-viewer-tools>.vha-constellation-presets[aria-hidden="true"]{display:none!important}
+
+
+/* Star Patterns is a detached floating panel; keep it visible above its trigger. */
+body.vha-patterns-open>.vha-constellation-presets{
+  position:fixed!important;display:block!important;visibility:visible!important;opacity:1!important;
+  z-index:2147483647!important;width:min(220px,calc(100vw - 24px))!important;
+  max-height:min(58vh,440px)!important;overflow-y:auto!important;
+  padding:10px!important;border:1px solid var(--theme-border,rgba(185,215,122,.45))!important;
+  background:color-mix(in srgb,var(--theme-surface,#080e09) 97%,transparent)!important;
+  box-shadow:0 12px 34px #000b!important;backdrop-filter:blur(12px)!important;
+  pointer-events:auto!important;transform:none!important;
+}
+.vha-patterns-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid var(--theme-border,rgba(185,215,122,.3));}
+.vha-patterns-head>span{font:700 10px/1.2 var(--vha-font,Arial,sans-serif);letter-spacing:.14em;color:var(--theme-accent,#d8ff3e);}
+.vha-patterns-minimize{width:25px;height:23px;padding:0;border:1px solid var(--theme-border,rgba(185,215,122,.4));background:transparent;color:var(--theme-text,#e8f4df);font:18px/1 Arial,sans-serif;cursor:pointer;}
+.vha-patterns-minimize:hover{border-color:var(--theme-accent,#d8ff3e);color:var(--theme-accent,#d8ff3e);}
+.vha-creator-workshop-star{position:fixed!important;top:18px!important;right:20px!important;z-index:2147483646!important;display:flex;align-items:center;gap:7px;padding:8px 10px;border:1px solid var(--theme-border,rgba(185,215,122,.35));background:color-mix(in srgb,var(--theme-surface,#080e09) 90%,transparent);color:var(--theme-accent,#d8ff3e);text-decoration:none;font:700 9px/1.2 var(--vha-font,Arial,sans-serif);letter-spacing:.12em;box-shadow:0 5px 20px #0008;backdrop-filter:blur(10px);}
+.vha-creator-workshop-star svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.5;flex:none;}
+.vha-creator-workshop-star:hover{border-color:var(--theme-accent,#d8ff3e);background:var(--theme-raised,#101910);}
+@media(max-width:600px){.vha-creator-workshop-star{top:10px!important;right:10px!important;padding:7px 8px;font-size:8px}.vha-creator-workshop-star svg{width:17px;height:17px}}
