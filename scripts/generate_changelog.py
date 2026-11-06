@@ -127,7 +127,12 @@ elif re.search(r"\b(add|introduc|creat|launch|feat|implement|new)\b", text):
 elif re.search(r"\b(poem|poetry|article|post|content|writing|music)\b", text):
     category = "CONTENT"
 
-if "visitor-friendly changelog" in text or ("structured" in text and "changelog" in text):
+if "same-origin" in text or ("published site" in text and "changelog" in text):
+    title = "A self-contained live changelog"
+    detail = "The activity feed now reads its published update file directly from the website, avoiding per-visitor GitHub API requests while continuing to refresh automatically."
+    component = "Latest Changelog"
+    category = "IMPROVEMENT"
+elif "visitor-friendly changelog" in text or ("structured" in text and "changelog" in text):
     title = "A more meaningful project activity feed"
     detail = "The activity feed now turns related development work into clear visitor-facing updates, while keeping the original commits available for anyone who wants the technical details."
     component = "Latest Changelog"
