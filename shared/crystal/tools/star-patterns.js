@@ -44,6 +44,14 @@
     const select = document.querySelector('#vha-viewer-tools [data-tool="patterns"]');
     if (!select || select.dataset.patternsBound === "true") return;
     select.dataset.patternsBound = "true";
+    // Ursa Major is the first-visit layout. Preserve a visitor's previously
+    // saved arrangement when one exists, rather than overwriting their choice.
+    const map = document.getElementById("vha-world-map");
+    const saved = map?.vhaConstellation?.getSavedPositions?.() || {};
+    if (map && !Object.keys(saved).length) {
+      applyPattern("ursa-major");
+      select.value = "ursa-major";
+    }
     select.addEventListener("change", () => {
       if (select.value) applyPattern(select.value);
     });
