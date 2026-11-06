@@ -1,0 +1,18 @@
+/* VERSE AFTER HOURS — shared typography system
+   Primary: a clean, contemporary humanist sans for all reading and interface text.
+   Accent: a restrained monospace for metadata, codes and instrument-style readouts.
+*/
+:root{
+  --va-font-sans:"Avenir Next","Segoe UI",Arial,sans-serif;
+  --va-font-mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  --va-font-display:var(--va-font-sans);
+}
+html,body{font-family:var(--va-font-sans)!important}
+body *{font-family:var(--va-font-sans)!important}
+body :is(h1,h2,h3,h4,h5,h6){font-family:var(--va-font-display)!important}
+body :is(code,pre,kbd,samp),
+body :is([class*="kicker"],[class*="eyebrow"],[class*="meta"],[class*="status"],[class*="code"],[class*="year"],[class*="tiny"],[class*="timestamp"],[class*="mono"],[class*="index"],[data-mono="true"]),
+body :is([class*="kicker"],[class*="eyebrow"],[class*="meta"],[class*="status"],[class*="code"],[class*="year"],[class*="tiny"],[class*="timestamp"],[class*="mono"],[class*="index"],[data-mono="true"]) *{
+  font-family:var(--va-font-mono)!important;
+}
+body :is(button,input,select,textarea){font-family:var(--va-font-sans)!important}
