@@ -3,7 +3,7 @@
   if (window.__vhaCrystalBootstrap) return;
   window.__vhaCrystalBootstrap = true;
   const script = document.createElement("script");
-  script.src = "/landing-page/shared/crystal/crystal-loader.js?v=20261106-journey-tree-patterns-fix-1";
+  script.src = "/landing-page/shared/crystal/crystal-loader.js?v=20261106-star-patterns-capture-fix-2";
   script.async = false;
   document.head.appendChild(script);
 })();
