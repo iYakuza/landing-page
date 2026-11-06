@@ -1,0 +1,40 @@
+name: Publish visitor-friendly changelog
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "changelog.json"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: visitor-changelog
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Summarize project changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Build the visitor-facing changelog
+        env:
+          GITHUB_REPOSITORY: \${{ github.repository }}
+        run: python3 scripts/generate_changelog.py "$GITHUB_EVENT_PATH" changelog.json
+
+      - name: Publish updated feed
+        run: |
+          if git diff --quiet -- changelog.json; then
+            echo "No visitor-facing changes to publish."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add changelog.json
+          git commit -m "Publish visitor-friendly changelog"
+          git push
