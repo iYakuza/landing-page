@@ -716,3 +716,43 @@ body.gd-home .gd-radio{
   #gd-radio{width:min(270px,calc(100vw - 20px))!important;min-width:210px!important}
   #gd-radio .gd-radio-body{padding:9px!important}
 }
+
+/* POETRY INDEX: keep the five movements in one clean vertical column. */
+.gd-poetry-float .gd-movement-archive{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  width:100%!important;
+}
+.gd-poetry-float .gd-movement-archive details{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+}
+.gd-poetry-float .gd-movement-archive details>summary{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:6px!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  white-space:normal!important;
+}
+.gd-poetry-float .gd-movement-archive details>summary>span:first-child{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  white-space:normal!important;
+}
+.gd-poetry-float .gd-movement-archive details>summary>span:nth-child(2){
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:0!important;
+  margin-left:auto!important;
+  text-align:right!important;
+}
+.gd-poetry-float .gd-movement-archive details>summary::after{
+  flex:0 0 auto!important;
+  margin-left:2px!important;
+}
+
