@@ -33,7 +33,7 @@ if not meaningful_files:
     raise SystemExit(0)
 
 subjects = [str(commit.get("message") or "").strip().splitlines()[0].lower() for commit in commits]
-if subjects and all(re.search(r"\brefresh\b.*\bcache\b|\brefresh crystal interaction stylesheet\b", subject) for subject in subjects):
+if subjects and all(re.search(r"\brefresh\b.*\bcache\b|\brefresh crystal interaction stylesheet\b|\bsyntax\b", subject) for subject in subjects):
     print("Only cache-busting maintenance commits changed; no public entry generated.")
     raise SystemExit(0)
 
