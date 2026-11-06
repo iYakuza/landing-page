@@ -85,7 +85,7 @@
     changelogPanel.hidden=!open;
     changelogButton.setAttribute("aria-expanded",String(open));
     changelogButton.classList.toggle("is-active",open);
-    if(open){refreshChangelog();if(!refreshTimer)refreshTimer=setInterval(refreshChangelog,60000)}
+    if(open){refreshChangelog();if(!refreshTimer)refreshTimer=setInterval(refreshChangelog,300000)}
     else if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null}
   }
   changelogButton.addEventListener("click",()=>setChangelogOpen(changelogPanel.hidden));
