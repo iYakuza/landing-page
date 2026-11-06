@@ -55,15 +55,20 @@
     picker.style.setProperty("overflow-y","auto","important");
   }
   function setPickerOpen(open){
+    dockPicker();
     const map=document.getElementById("vha-world-map");
     const picker=document.querySelector(".vha-constellation-presets");
     const trigger=document.querySelector('#vha-viewer-tools [data-tool="patterns"]');
-    if(!map||!picker||!trigger)return;
-    map.dataset.patternsOpen=String(open);
+    if(!picker||!trigger)return;
+    if(map)map.dataset.patternsOpen=String(open);
     document.body.classList.toggle("vha-patterns-open",open);
     trigger.setAttribute("aria-expanded",String(open));
     picker.setAttribute("aria-hidden",String(!open));
     picker.style.setProperty("display",open?"block":"none","important");
+    picker.style.setProperty("visibility",open?"visible":"hidden","important");
+    picker.style.setProperty("opacity",open?"1":"0","important");
+    picker.style.setProperty("z-index","2147483647","important");
+    picker.style.setProperty("pointer-events",open?"auto":"none","important");
     if(open)requestAnimationFrame(positionPickerAboveButton);
   }
   function dockPicker(){
