@@ -37,7 +37,7 @@
   }
   function positionPickerAboveButton(){
     const button=document.querySelector('#vha-viewer-tools [data-tool="patterns"]');
-    const picker=document.querySelector("#vha-viewer-tools > .vha-constellation-presets");
+    const picker=document.querySelector(".vha-constellation-presets");
     if(!button||!picker)return;
     const anchor=button.getBoundingClientRect();
     const box=picker.getBoundingClientRect();
@@ -56,7 +56,7 @@
   }
   function setPickerOpen(open){
     const map=document.getElementById("vha-world-map");
-    const picker=document.querySelector("#vha-viewer-tools > .vha-constellation-presets");
+    const picker=document.querySelector(".vha-constellation-presets");
     const trigger=document.querySelector('#vha-viewer-tools [data-tool="patterns"]');
     if(!map||!picker||!trigger)return;
     map.dataset.patternsOpen=String(open);
@@ -66,7 +66,13 @@
     picker.style.setProperty("display",open?"block":"none","important");
     if(open)requestAnimationFrame(positionPickerAboveButton);
   }
+  function dockPicker(){
+    const picker=document.querySelector(".vha-constellation-presets");
+    const dock=document.getElementById("vha-viewer-tools");
+    if(picker&&dock&&picker.parentElement!==dock)dock.appendChild(picker);
+  }
   function bindPicker(){
+    dockPicker();
     const map=document.getElementById("vha-world-map");
     if(!map||map.dataset.starPatternsBound==="true")return;
     map.dataset.starPatternsBound="true";
@@ -90,6 +96,8 @@
     }
   }
   document.addEventListener("vha-constellation-ready",bindPicker);
+  document.addEventListener("vha-crystal-ready",dockPicker);
+  document.addEventListener("vha-crystal-state-change",dockPicker);
   document.addEventListener("vha-crystal-mode-change",event=>{
     if(event.detail?.open)return;
     setPickerOpen(false);
@@ -100,6 +108,11 @@
     label: "STAR PATTERNS",
     description: "Choose and save a constellation arrangement.",
     presentation: "panel",
-    run: () => document.querySelector('[data-tool="patterns"]')?.click()
+    run: () => {
+      dockPicker();
+      const trigger=document.querySelector('#vha-viewer-tools [data-tool="patterns"]');
+      if(trigger)trigger.click();
+      else setPickerOpen(true);
+    }
   });
 })();
