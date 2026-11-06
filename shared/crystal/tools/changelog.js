@@ -80,7 +80,7 @@
   // The blur layer is a sibling backdrop, never an ancestor of this tool.
   const blurLayer=document.getElementById("vha-crystal-blur-layer");
   if(blurLayer){
-    blurLayer.style.setProperty("z-index","2147483000","important");
+    blurLayer.style.setProperty("z-index","1000","important");
     blurLayer.style.setProperty("pointer-events","none","important");
   }
   changelogPanel.style.setProperty("z-index","2147483647","important");
