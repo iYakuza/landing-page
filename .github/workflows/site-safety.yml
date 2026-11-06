@@ -48,13 +48,22 @@ jobs:
           grep -Fq "head.addEventListener('pointerdown'" shared/crystal/tools/radio.js
           grep -Fq "head.addEventListener('pointermove'" shared/crystal/tools/radio.js
           grep -Fq "radio.style.setProperty('resize','both','important')" shared/crystal/tools/radio.js
-          grep -Fq 'data-constellation="orion"' shared/crystal/tools/constellation.js
-          grep -Fq 'data-constellation="ursa-major"' shared/crystal/tools/constellation.js
-          grep -Fq 'data-constellation="cassiopeia"' shared/crystal/tools/constellation.js
-          grep -Fq 'data-constellation="cygnus"' shared/crystal/tools/constellation.js
-          grep -Fq 'data-constellation="scorpius"' shared/crystal/tools/constellation.js
-          grep -Fq 'function applyPattern(button)' shared/crystal/tools/star-patterns.js
-          grep -Fq 'button.addEventListener("click"' shared/crystal/tools/star-patterns.js
+          # Constellation navigation is data-driven: route groups, draggable nodes,
+          # persistent positions and ready events are the current public contract.
+          grep -Fq 'constellationRoutes={' shared/crystal/tools/constellation.js
+          grep -Fq 'constellationPositionKey="stars-v3-journey-tree"' shared/crystal/tools/constellation.js
+          grep -Fq 'link.dataset.node=key' shared/crystal/tools/constellation.js
+          grep -Fq 'document.dispatchEvent(new CustomEvent("vha-constellation-ready"' shared/crystal/tools/constellation.js
+          grep -Fq 'map.vhaConstellation = { updateRoute:' shared/crystal/tools/constellation.js
+          # Star Patterns must use the native dropdown, preserve visitor layouts,
+          # and apply Ursa Major as the first-visit default.
+          for pattern in orion ursa-major cassiopeia cygnus scorpius; do
+            grep -Fq "\"$pattern\":" shared/crystal/tools/star-patterns.js
+          done
+          grep -Fq 'function applyPattern(patternName)' shared/crystal/tools/star-patterns.js
+          grep -Fq 'select.addEventListener("change"' shared/crystal/tools/star-patterns.js
+          grep -Fq 'applyPattern("ursa-major")' shared/crystal/tools/star-patterns.js
+          grep -Fq 'saved.creator = { x: 88, y: 18 }' shared/crystal/tools/star-patterns.js
 
       - name: Check baseline browser security policy
         shell: bash
