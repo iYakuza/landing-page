@@ -601,7 +601,7 @@ body.vha-game-interface.gd-home :is(.sys-entry-intro,.sys-path p,.gd-ego-copy p,
 
 
 /* Crystal focus: soften the page behind the constellation and keep the crystal/interface sharp. */
-body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt):not(#gd-radio):not(.vha-constellation-presets){
+body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt):not(#gd-radio):not(.vha-constellation-presets):not(.vha-changelog-panel){
   filter:blur(7px) brightness(.48)!important;
   pointer-events:none!important;
   user-select:none!important;
@@ -1101,7 +1101,7 @@ body.vha-game-interface .posts-back-top:focus-visible{
 
 /* Crystal open: soften the whole scene, including the fixed cover image.
    The clear oval is reserved for the face in the centre of the home cover. */
-body.vha-crystal-open> :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt){
+body.vha-crystal-open> :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt):not(.vha-changelog-panel){
   filter:blur(7px) brightness(.48)!important;
   pointer-events:none!important;user-select:none!important;
   transition:filter .28s ease!important;
