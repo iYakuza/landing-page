@@ -75,12 +75,19 @@
         event.preventDefault();event.stopPropagation();applyPattern(button);
       });
     });
-    const trigger=document.querySelector('#vha-viewer-tools [data-tool="patterns"]');
-    if(trigger)trigger.addEventListener("click",event=>{
-      event.preventDefault();
-      event.stopPropagation();
-      setPickerOpen(map.dataset.patternsOpen!=="true");
-    });
+    // The trigger is dynamically moved into the Crystal dock. Bind it at document
+    // capture level so no dock handler or detached-map event can swallow the click.
+    if(!document.documentElement.dataset.vhaPatternsClickBound){
+      document.documentElement.dataset.vhaPatternsClickBound="true";
+      document.addEventListener("click",event=>{
+        const trigger=event.target.closest('#vha-viewer-tools [data-tool="patterns"]');
+        if(!trigger)return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        const expanded=trigger.getAttribute("aria-expanded")==="true";
+        setPickerOpen(!expanded);
+      },true);
+    }
   }
   document.addEventListener("vha-constellation-ready",bindPicker);
   document.addEventListener("vha-crystal-mode-change",event=>{
