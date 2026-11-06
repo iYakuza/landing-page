@@ -9,19 +9,7 @@
       "mime_type": "image/jpeg",
       "bytes": 241665,
       "sha256": "918ef789ca2f0c0f9c82bb598312cea6c9211f57b552809a803c6cc46a77636b",
-      "original_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg",
-      "local_path": "/landing-page/posts/imported/wfh/media/featured.jpg",
-      "width": 1184,
-      "height": 896
+      "original_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg"
     }
-  ],
-  "title": "WFH",
-  "date": "2026-10-15T06:01:18",
-  "date_gmt": "2026-10-15T03:01:18",
-  "status": "publish",
-  "source_url": "https://emanuelstefancu.wordpress.com/2026/10/15/wfh/",
-  "category_ids": [
-    20174
-  ],
-  "content_file": "text/content.html"
+  ]
 }
