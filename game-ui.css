@@ -1864,3 +1864,8 @@ body.vha-crystal-open::after{
   content:none!important;
   display:none!important;
 }
+
+
+/* Crystal entry caption: the title stays primary; the project description is a quiet second line. */
+#vha-entry-prompt .vha-entry-subline{display:block!important;max-width:360px!important;margin:12px auto 0!important;color:#c5d1bd!important;font:10px/1.65 Arial,Helvetica,sans-serif!important;letter-spacing:.025em!important;text-transform:none!important}
+@media(max-width:600px){#vha-entry-prompt .vha-entry-subline{max-width:300px!important;font-size:9px!important;line-height:1.55!important}}
