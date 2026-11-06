@@ -1,6 +1,8 @@
 /* Standalone Latest Changelog tool for Crystal mode. */
 (() => {
   if (!window.VHACrystal || document.querySelector(".vha-changelog-panel")) return;
+  const root = window.VHACrystal.root;
+  if (!root) throw new Error("Crystal viewer tools must be ready before Latest Changelog.");
   // Changelog is an independent Crystal tool, isolated from the viewer shell.
   const changelogEntries = [
     { timestamp: "2026-11-06T19:19:13Z", type: "FEATURE", title: "Introduced the Latest Changelog", detail: "Added a Crystal panel that records recent site updates with precise timestamps, change categories, concise explanations and a character quote." },
