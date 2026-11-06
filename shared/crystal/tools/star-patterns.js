@@ -45,7 +45,7 @@
     const left=Math.max(8,Math.min(innerWidth-width-8,anchor.left+anchor.width/2-width/2));
     const available=Math.max(120,anchor.top-20);
     const top=Math.max(8,anchor.top-Math.min(height,available)-12);
-    picker.style.setProperty("position","absolute","important");
+    picker.style.setProperty("position","fixed","important");
     picker.style.setProperty("left",left+"px","important");
     picker.style.setProperty("right","auto","important");
     picker.style.setProperty("top",top+"px","important");
@@ -68,14 +68,16 @@
     picker.style.setProperty("visibility",open?"visible":"hidden","important");
     picker.style.setProperty("opacity",open?"1":"0","important");
     picker.style.setProperty("z-index","2147483647","important");
+    picker.style.setProperty("filter","none","important");
+    picker.style.setProperty("-webkit-filter","none","important");
     picker.style.setProperty("pointer-events",open?"auto":"none","important");
     if(open)requestAnimationFrame(positionPickerAboveButton);
   }
   function placePickerInBody(){
     const picker=document.querySelector(".vha-constellation-presets");
-    const overlay=document.getElementById("vha-crystal-blur-layer");
-    const host=overlay||document.body;
-    if(picker&&host&&picker.parentElement!==host)host.appendChild(picker);
+    // Like V/A Radio, this is an independent floating panel attached to body.
+    // Never nest it inside the blur layer: backdrop-filter creates its own stacking context.
+    if(picker&&document.body&&picker.parentElement!==document.body)document.body.appendChild(picker);
   }
   function bindPicker(){
     placePickerInBody();
