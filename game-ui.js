@@ -3,7 +3,7 @@
   if (window.__vhaCrystalBootstrap) return;
   window.__vhaCrystalBootstrap = true;
   const script = document.createElement("script");
-  script.src = "/landing-page/shared/crystal/crystal-loader.js?v=20261106-star-patterns-owner-shortcut-2";
+  script.src = "/landing-page/shared/crystal/crystal-loader.js?v=20261106-star-patterns-owner-shortcut-3";
   script.async = false;
   document.head.appendChild(script);
 })();
