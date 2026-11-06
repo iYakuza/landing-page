@@ -1918,6 +1918,38 @@ body.vha-crystal-open::after{
     padding:3px 5px!important;
   }
   body.vha-game-interface #vha-viewer-tools>.vha-tools-side::-webkit-scrollbar{display:none!important}
+  /* A soft edge cue tells visitors that each tool bank continues horizontally. */
+  body.vha-game-interface #vha-viewer-tools[data-open="true"]>.vha-tools-side{
+    position:relative!important;
+    padding-right:17px!important;
+    background:linear-gradient(90deg,transparent 72%,rgba(5,12,8,.72) 100%)!important;
+  }
+  body.vha-game-interface #vha-viewer-tools[data-open="true"]>.vha-tools-side::after{
+    content:"›"!important;
+    position:absolute!important;
+    z-index:8!important;
+    right:2px!important;
+    top:50%!important;
+    transform:translateY(-50%)!important;
+    display:grid!important;
+    place-items:center!important;
+    width:15px!important;
+    height:27px!important;
+    border-radius:8px!important;
+    background:rgba(5,12,8,.68)!important;
+    color:rgba(205,224,185,.9)!important;
+    font:20px/1 Arial,sans-serif!important;
+    text-shadow:0 0 8px rgba(185,215,122,.28)!important;
+    pointer-events:none!important;
+    animation:vha-scroll-cue 1.8s ease-in-out infinite!important;
+  }
+  @keyframes vha-scroll-cue{
+    0%,100%{opacity:.45;transform:translate(0,-50%)!important}
+    50%{opacity:1;transform:translate(3px,-50%)!important}
+  }
+  @media(prefers-reduced-motion:reduce){
+    body.vha-game-interface #vha-viewer-tools[data-open="true"]>.vha-tools-side::after{animation:none!important;opacity:.8!important}
+  }
   body.vha-game-interface #vha-viewer-tools .vha-tool-row{
     flex:0 0 auto!important;
     width:max-content!important;
