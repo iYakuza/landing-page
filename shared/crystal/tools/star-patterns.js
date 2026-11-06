@@ -38,21 +38,32 @@
   function positionPickerAboveButton(){
     const button=document.querySelector('#vha-viewer-tools [data-tool="patterns"]');
     const picker=document.querySelector(".vha-constellation-presets");
-    if(!button||!picker)return;
+    if(!button||!picker||picker.getAttribute("aria-hidden")==="true")return;
+    if(picker.parentElement!==document.body)document.body.appendChild(picker);
     const anchor=button.getBoundingClientRect();
-    const box=picker.getBoundingClientRect();
-    const width=box.width||220,height=box.height||360;
-    const left=Math.max(8,Math.min(innerWidth-width-8,anchor.left+anchor.width/2-width/2));
-    const available=Math.max(120,anchor.top-20);
-    const top=Math.max(8,anchor.top-Math.min(height,available)-12);
+    const width=Math.min(240,innerWidth-20);
+    picker.style.setProperty("box-sizing","border-box","important");
+    picker.style.setProperty("width",width+"px","important");
+    picker.style.setProperty("max-width","calc(100vw - 20px)","important");
+    picker.style.setProperty("max-height","min(58vh,440px)","important");
     picker.style.setProperty("position","fixed","important");
-    picker.style.setProperty("left",left+"px","important");
-    picker.style.setProperty("right","auto","important");
-    picker.style.setProperty("top",top+"px","important");
-    picker.style.setProperty("bottom","auto","important");
+    picker.style.setProperty("display","block","important");
+    picker.style.setProperty("visibility","visible","important");
+    picker.style.setProperty("opacity","1","important");
+    picker.style.setProperty("z-index","2147483647","important");
     picker.style.setProperty("transform","none","important");
-    picker.style.setProperty("max-height",available+"px","important");
-    picker.style.setProperty("overflow-y","auto","important");
+    picker.style.setProperty("bottom","auto","important");
+    picker.style.setProperty("right","auto","important");
+    picker.style.setProperty("left","0px","important");
+    picker.style.setProperty("top","0px","important");
+    const height=picker.getBoundingClientRect().height||360;
+    const available=Math.max(100,anchor.top-14);
+    picker.style.setProperty("max-height",Math.min(available,innerHeight*.58,440)+"px","important");
+    const measuredHeight=picker.getBoundingClientRect().height||Math.min(height,available);
+    const left=Math.max(10,Math.min(innerWidth-width-10,anchor.left+anchor.width/2-width/2));
+    const top=Math.max(8,anchor.top-measuredHeight-10);
+    picker.style.setProperty("left",left+"px","important");
+    picker.style.setProperty("top",top+"px","important");
   }
   function setPickerOpen(open){
     placePickerInBody();
@@ -71,7 +82,7 @@
     picker.style.setProperty("filter","none","important");
     picker.style.setProperty("-webkit-filter","none","important");
     picker.style.setProperty("pointer-events",open?"auto":"none","important");
-    if(open)requestAnimationFrame(positionPickerAboveButton);
+    if(open){requestAnimationFrame(()=>requestAnimationFrame(positionPickerAboveButton));}
   }
   function placePickerInBody(){
     const picker=document.querySelector(".vha-constellation-presets");
@@ -111,6 +122,8 @@
   document.addEventListener("vha-constellation-ready",bindPicker);
   document.addEventListener("vha-crystal-ready",placePickerInBody);
   document.addEventListener("vha-crystal-state-change",placePickerInBody);
+  window.addEventListener("resize",()=>{if(document.body.classList.contains("vha-patterns-open"))positionPickerAboveButton()});
+  window.addEventListener("scroll",()=>{if(document.body.classList.contains("vha-patterns-open"))positionPickerAboveButton()},{passive:true});
   document.addEventListener("vha-crystal-mode-change",event=>{
     if(event.detail?.open)return;
     setPickerOpen(false);
