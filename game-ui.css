@@ -1871,20 +1871,35 @@ body.vha-crystal-open::after{
 @media(max-width:600px){#vha-entry-prompt .vha-entry-subline{max-width:300px!important;font-size:9px!important;line-height:1.55!important}}
 
 
-/* Crystal mobile dock: keep the central crystal fixed while each tool bank scrolls horizontally. */
+/* Crystal mobile dock: show only the crystal until it is tapped. */
 @media(max-width:760px){
   body.vha-game-interface #vha-viewer-tools,
-  body.vha-game-interface #vha-viewer-tools[data-open="true"]{
+  body.vha-game-interface #vha-viewer-tools[data-open="false"]{
     display:grid!important;
-    grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr)!important;
+    grid-template-columns:0fr 48px 0fr!important;
+    grid-template-rows:48px!important;
     align-items:center!important;
     justify-items:stretch!important;
-    width:calc(100vw - 12px)!important;
-    max-width:calc(100vw - 12px)!important;
-    gap:2px!important;
+    width:52px!important;
+    max-width:52px!important;
+    height:52px!important;
+    min-height:52px!important;
+    gap:0!important;
     overflow:visible!important;
   }
+  body.vha-game-interface #vha-viewer-tools[data-open="true"]{
+    grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr)!important;
+    grid-template-rows:60px!important;
+    width:calc(100vw - 12px)!important;
+    max-width:calc(100vw - 12px)!important;
+    height:60px!important;
+    min-height:60px!important;
+    gap:2px!important;
+  }
   body.vha-game-interface #vha-viewer-tools>.vha-tools-side{
+    display:none!important;
+  }
+  body.vha-game-interface #vha-viewer-tools[data-open="true"]>.vha-tools-side{
     display:flex!important;
     flex:0 0 auto!important;
     min-width:0!important;
