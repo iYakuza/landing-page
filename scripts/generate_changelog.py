@@ -77,7 +77,12 @@ elif re.search(r"\b(poem|poetry|article|post|content|writing|music)\b", text):
     category = "CONTENT"
 
 # Specific, verified summaries for recurring project areas.
-if "ursa major" in text or ("star-pattern" in paths and "default" in text):
+if "visitor-friendly changelog" in text or ("structured" in text and "changelog" in text):
+    title = "A more meaningful project activity feed"
+    detail = "The activity feed now turns related development work into clear visitor-facing updates, while keeping the original commits available for anyone who wants the technical details."
+    component = "Latest Changelog"
+    category = "FEATURE"
+elif "ursa major" in text or ("star-pattern" in paths and "default" in text):
     title = "Ursa Major now welcomes first-time visitors"
     detail = "New visitors now enter Crystal mode with Ursa Major selected by default. Existing saved constellation arrangements are preserved."
     component = "Star Patterns"
