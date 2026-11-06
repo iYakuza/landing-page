@@ -260,7 +260,7 @@
     document.body.classList.add("vha-entry-intro");
     map.hidden=true;mapButton.setAttribute("aria-expanded","false");
     const prompt=document.createElement("div");prompt.id="vha-entry-prompt";
-    prompt.innerHTML="<span>AN UNFINISHED RECORD</span>";
+    prompt.innerHTML="<span>AN UNFINISHED RECORD</span><small class=\"vha-entry-subline\">A personal project exploring identity, creativity, knowledge and technology.</small>";
     document.body.appendChild(prompt);
     mapButton.setAttribute("aria-label","Enter the constellation");mapButton.title="Enter the constellation";
   }else{
