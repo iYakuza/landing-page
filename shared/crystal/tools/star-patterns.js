@@ -55,7 +55,7 @@
     picker.style.setProperty("overflow-y","auto","important");
   }
   function setPickerOpen(open){
-    dockPicker();
+    placePickerInBody();
     const map=document.getElementById("vha-world-map");
     const picker=document.querySelector(".vha-constellation-presets");
     const trigger=document.querySelector('#vha-viewer-tools [data-tool="patterns"]');
@@ -71,13 +71,12 @@
     picker.style.setProperty("pointer-events",open?"auto":"none","important");
     if(open)requestAnimationFrame(positionPickerAboveButton);
   }
-  function dockPicker(){
+  function placePickerInBody(){
     const picker=document.querySelector(".vha-constellation-presets");
-    const dock=document.getElementById("vha-viewer-tools");
-    if(picker&&dock&&picker.parentElement!==dock)dock.appendChild(picker);
+    if(picker&&document.body&&picker.parentElement!==document.body)document.body.appendChild(picker);
   }
   function bindPicker(){
-    dockPicker();
+    placePickerInBody();
     const map=document.getElementById("vha-world-map");
     if(!map||map.dataset.starPatternsBound==="true")return;
     map.dataset.starPatternsBound="true";
@@ -114,7 +113,7 @@
     description: "Choose and save a constellation arrangement.",
     presentation: "panel",
     run: () => {
-      dockPicker();
+      placePickerInBody();
       const trigger=document.querySelector('#vha-viewer-tools [data-tool="patterns"]');
       if(trigger)trigger.click();
       else setPickerOpen(true);
