@@ -41,7 +41,6 @@
     ["THE CIRCLE","COMMUNITY CHANNEL","/landing-page/community/","circle","main"],
     ["SECURE YOUR SOUL","RESTRICTED PROGRAM","/landing-page/secure-your-soul/","secure","main"],
     ["CV","PERSONNEL FILE","/landing-page/cv/","cv","main"],
-    ["CREATOR WORKSHOP","PRIVATE ACCESS","/landing-page/cms/","creator","admin"]
   ];
   // Remove the page-level header entirely. The shared bottom navigation remains the sole global navigation.
   document.querySelectorAll("body header, .masthead, .mast, .ha-nav, .gd-nav, .toplinks, .vha-main-nav").forEach(el=>el.remove());
@@ -83,15 +82,6 @@
     : '<div class="vha-journey-note" hidden><span>THE JOURNEY CONTINUES</span><strong>Choose the next trace.</strong><p>Follow a point in the constellation to continue exploring.</p></div>';
   map.innerHTML='<div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path class="vha-constellation-route vha-route-main" d=""/><path class="vha-constellation-route vha-route-movements" d=""/></svg><div class="vha-map-destinations"></div></div>' + journeyMarkup;
   document.body.appendChild(map);
-  // Owner shortcut: independent of the selected constellation pattern.
-  // The CMS itself enforces editor permissions after navigation.
-  const creator=document.createElement("a");
-  creator.className="vha-creator-workshop-star";
-  creator.href="/landing-page/cms/";
-  creator.setAttribute("aria-label","Open Creator Workshop");
-  creator.title="Creator Workshop";
-  creator.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 3 5.2 14.1L44 18l-11.1 9.2L36.5 43 24 34.8 11.5 43l3.6-15.8L4 18l14.8-.9L24 3Z"/></svg><span>CREATOR WORKSHOP</span>';
-  document.body.appendChild(creator);
   const destinationList=map.querySelector(".vha-map-destinations");
   const constellationField=map.querySelector(".vha-constellation-field");
   const constellationRoutes={
@@ -106,7 +96,6 @@
     ego:[34,6],archive:[34,18],garden:[34,30],transmissions:[34,42],
     awakening:[67,47],descent:[74,55],reconnection:[78,63],transformation:[74,71],return:[67,79],
     circle:[34,84],secure:[34,92],cv:[34,98],
-    creator:[88,18]
   };
   const constellationPositionKey="stars-v3-journey-tree";
   let savedStarPositions={};
