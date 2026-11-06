@@ -21,6 +21,8 @@
 
   // Latest Changelog: a transparent, timestamped record of recent Crystal updates.
   const changelogEntries = [
+    { timestamp: "2026-11-06T19:19:13Z", type: "FEATURE", title: "Introduced the Latest Changelog", detail: "Added a Crystal panel that records recent site updates with precise timestamps, change categories, concise explanations and a character quote." },
+
     { timestamp: "2026-11-06T19:12:33Z", type: "FIX", title: "Removed the obsolete Star Patterns popup", detail: "Kept pattern selection in the Crystal dock dropdown instead of maintaining a duplicate popup." },
     { timestamp: "2026-11-06T19:12:21Z", type: "IMPROVEMENT", title: "Connected the Star Patterns dropdown", detail: "Selecting a pattern now applies its constellation arrangement immediately." },
     { timestamp: "2026-11-06T19:12:06Z", type: "IMPROVEMENT", title: "Replaced the Star Patterns button", detail: "Introduced a native dropdown with ten selectable constellation layouts." },
