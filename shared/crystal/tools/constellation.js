@@ -85,14 +85,30 @@
     : '<div class="vha-journey-note" hidden><span>THE JOURNEY CONTINUES</span><strong>Choose the next trace.</strong><p>Follow a point in the constellation to continue exploring.</p></div>';
   map.innerHTML='<div class="vha-constellation-presets" role="group" aria-label="Choose a constellation pattern"><div class="vha-patterns-head"><span>STAR PATTERNS</span><button type="button" class="vha-patterns-minimize" aria-label="Minimize star patterns" title="Minimize">−</button></div><div><button type="button" data-constellation="orion" aria-pressed="false">ORION</button><button type="button" data-constellation="ursa-major" aria-pressed="false">URSA MAJOR</button><button type="button" data-constellation="cassiopeia" aria-pressed="false">CASSIOPEIA</button><button type="button" data-constellation="cygnus" aria-pressed="false">CYGNUS</button><button type="button" data-constellation="scorpius" aria-pressed="false">SCORPIUS</button><button type="button" data-constellation="hello-smile" aria-pressed="false">HELLO / SMILE</button><button type="button" data-constellation="heart-signal" aria-pressed="false">HEART SIGNAL</button><button type="button" data-constellation="north-star" aria-pressed="false">NORTH STAR</button><button type="button" data-constellation="after-hours" aria-pressed="false">AFTER HOURS</button><button type="button" data-constellation="waveform" aria-pressed="false">WAVEFORM</button></div><small>REAL CONSTELLATIONS + ORIGINAL STAR SIGNS · DRAG TO CUSTOMISE</small></div><div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path class="vha-constellation-route vha-route-main" d=""/><path class="vha-constellation-route vha-route-movements" d=""/></svg><div class="vha-map-destinations"></div></div>' + journeyMarkup;
   document.body.appendChild(map);
-  // Always-visible owner shortcut. The CMS itself enforces authentication and editor access.
-  const creator=document.createElement("a");
-  creator.className="vha-creator-workshop-star";
-  creator.href="/landing-page/cms/";
-  creator.setAttribute("aria-label","Open Creator Workshop");
-  creator.title="Creator Workshop";
-  creator.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 3 5.2 14.1L44 18l-11.1 9.2L36.5 43 24 34.8 11.5 43l3.6-15.8L4 18l14.8-.9L24 3Z"/></svg><span>CREATOR WORKSHOP</span>';
-  document.body.appendChild(creator);
+  // The private owner shortcut is independent of constellation patterns.
+  // Show it for an authenticated CMS session; the CMS still enforces editor permissions.
+  function syncCreatorWorkshopShortcut(){
+    let authenticated=false;
+    try{
+      const session=JSON.parse(localStorage.getItem(cmsSessionKey)||"null");
+      authenticated=Boolean(session&&session.access_token);
+    }catch{}
+    let creator=document.querySelector(".vha-creator-workshop-star");
+    if(!authenticated){creator?.remove();return;}
+    if(!creator){
+      creator=document.createElement("a");
+      creator.className="vha-creator-workshop-star";
+      creator.href="/landing-page/cms/";
+      creator.setAttribute("aria-label","Open Creator Workshop");
+      creator.title="Creator Workshop";
+      creator.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 3 5.2 14.1L44 18l-11.1 9.2L36.5 43 24 34.8 11.5 43l3.6-15.8L4 18l14.8-.9L24 3Z"/></svg><span>CREATOR WORKSHOP</span>';
+      document.body.appendChild(creator);
+    }
+  }
+  syncCreatorWorkshopShortcut();
+  window.addEventListener("storage",event=>{
+    if(!event.key||event.key===cmsSessionKey)syncCreatorWorkshopShortcut();
+  });
   // Detach the pattern menu from the full-screen map so it can sit directly above the crystal dock.
   const patternPicker=map.querySelector(".vha-constellation-presets");
   if(patternPicker){const crystalDock=document.getElementById("vha-viewer-tools");(crystalDock||document.body).appendChild(patternPicker);}
