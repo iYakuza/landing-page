@@ -25,8 +25,7 @@
   const timeFormatter=new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"Europe/Rome"});
   let refreshTimer=null;
   let lastEntries=[];
-  let etag="";
-  const feedUrl="https://api.github.com/repos/iYakuza/landing-page/contents/changelog.json?ref=main";
+  const feedUrl="/landing-page/changelog.json";
 
   function safeText(value,fallback){
     return typeof value==="string"&&value.trim()?value.trim():fallback;
@@ -87,25 +86,11 @@
     });
   }
 
-  function decodeContent(encoded){
-    const binary=atob(String(encoded||"").replace(/\s/g,""));
-    const bytes=Uint8Array.from(binary,char=>char.charCodeAt(0));
-    return new TextDecoder().decode(bytes);
-  }
-
   async function refreshChangelog(){
     try{
-      const headers={Accept:"application/vnd.github+json"};
-      if(etag)headers["If-None-Match"]=etag;
-      const response=await fetch(feedUrl,{headers,cache:"no-store"});
-      if(response.status===304){
-        changelogStatus.textContent="LIVE · No new updates";
-        return;
-      }
+      const response=await fetch(feedUrl,{cache:"no-store"});
       if(!response.ok)throw new Error("Project log returned "+response.status);
-      etag=response.headers.get("ETag")||etag;
-      const file=await response.json();
-      const data=JSON.parse(decodeContent(file.content));
+      const data=await response.json();
       if(!data||!Array.isArray(data.entries))throw new Error("Project log format is invalid");
       lastEntries=data.entries;
       renderEntries(lastEntries);
