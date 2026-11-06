@@ -3,7 +3,7 @@
   if (window.__vhaCrystalBootstrap) return;
   window.__vhaCrystalBootstrap = true;
   const script = document.createElement("script");
-  script.src = "/landing-page/shared/crystal/crystal-loader.js?v=20261106-star-patterns-select-2";
+  script.src = "/landing-page/shared/crystal/crystal-loader.js?v=20261106-latest-changelog-1";
   script.async = false;
   document.head.appendChild(script);
 })();
