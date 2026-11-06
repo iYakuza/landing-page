@@ -1869,3 +1869,69 @@ body.vha-crystal-open::after{
 /* Crystal entry caption: the title stays primary; the project description is a quiet second line. */
 #vha-entry-prompt .vha-entry-subline{display:block!important;max-width:360px!important;margin:12px auto 0!important;color:#c5d1bd!important;font:10px/1.65 Arial,Helvetica,sans-serif!important;letter-spacing:.025em!important;text-transform:none!important}
 @media(max-width:600px){#vha-entry-prompt .vha-entry-subline{max-width:300px!important;font-size:9px!important;line-height:1.55!important}}
+
+
+/* Crystal mobile dock: keep the central crystal fixed while each tool bank scrolls horizontally. */
+@media(max-width:760px){
+  body.vha-game-interface #vha-viewer-tools,
+  body.vha-game-interface #vha-viewer-tools[data-open="true"]{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) 48px minmax(0,1fr)!important;
+    align-items:center!important;
+    justify-items:stretch!important;
+    width:calc(100vw - 12px)!important;
+    max-width:calc(100vw - 12px)!important;
+    gap:2px!important;
+    overflow:visible!important;
+  }
+  body.vha-game-interface #vha-viewer-tools>.vha-tools-side{
+    display:flex!important;
+    flex:0 0 auto!important;
+    min-width:0!important;
+    width:100%!important;
+    max-width:100%!important;
+    gap:10px!important;
+    flex-wrap:nowrap!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    justify-content:flex-start!important;
+    align-items:center!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior-x:contain!important;
+    touch-action:pan-x!important;
+    scrollbar-width:none!important;
+    padding:3px 5px!important;
+  }
+  body.vha-game-interface #vha-viewer-tools>.vha-tools-side::-webkit-scrollbar{display:none!important}
+  body.vha-game-interface #vha-viewer-tools .vha-tool-row{
+    flex:0 0 auto!important;
+    width:max-content!important;
+    min-width:max-content!important;
+    white-space:nowrap!important;
+    min-height:42px!important;
+    padding:3px 5px!important;
+    gap:5px!important;
+    font-size:8px!important;
+  }
+  body.vha-game-interface #vha-viewer-tools .vha-tool-row>span:last-child{white-space:nowrap!important}
+  body.vha-game-interface #vha-viewer-tools .vha-patterns-dropdown{flex:0 0 auto!important}
+  body.vha-game-interface #vha-viewer-tools .vha-patterns-dropdown select{
+    width:104px!important;max-width:104px!important;min-width:104px!important;
+    white-space:nowrap!important;font-size:8px!important;
+  }
+  body.vha-game-interface #vha-viewer-tools>.ego-bottom-hud.vha-universal-nav{
+    grid-column:2!important;grid-row:1!important;
+    flex:0 0 48px!important;width:48px!important;height:48px!important;
+    min-width:48px!important;min-height:48px!important;margin:0!important;
+    position:relative!important;left:auto!important;top:auto!important;
+    transform:none!important;
+  }
+  body.vha-game-interface #vha-viewer-tools>.vha-tools-side.vha-tools-left{grid-column:1!important;grid-row:1!important}
+  body.vha-game-interface #vha-viewer-tools>.vha-tools-side.vha-tools-right{grid-column:3!important;grid-row:1!important}
+  body.vha-game-interface #vha-viewer-tools .vha-map-toggle,
+  body.vha-game-interface #vha-viewer-tools .vha-map-toggle:hover,
+  body.vha-game-interface #vha-viewer-tools .vha-map-toggle:focus-visible{
+    width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;
+  }
+  body.vha-game-interface #vha-viewer-tools .vha-map-toggle svg{width:38px!important;height:38px!important}
+}
