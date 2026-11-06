@@ -86,6 +86,10 @@
   changelogPanel.style.setProperty("z-index","2147483647","important");
   changelogPanel.style.setProperty("position","fixed","important");
   changelogPanel.style.setProperty("isolation","isolate","important");
+  changelogPanel.style.setProperty("filter","none","important");
+  changelogPanel.style.setProperty("-webkit-filter","none","important");
+  changelogPanel.style.setProperty("opacity","1","important");
+  changelogPanel.style.setProperty("visibility","visible","important");
   document.body.appendChild(changelogPanel);
   window.VHACrystal.registerTool({
     id:"latest-changelog",
