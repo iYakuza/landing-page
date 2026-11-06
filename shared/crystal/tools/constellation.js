@@ -285,7 +285,7 @@
   });
   document.addEventListener("click",event=>{
     if(map.hidden)return;
-    if(event.target.closest("#vha-viewer-tools,.vha-map-node,.vha-journey-note,.vha-constellation-presets,#gd-radio,.vha-creator-workshop-star"))return;
+    if(event.target.closest("#vha-viewer-tools,.vha-map-node,.vha-journey-note,.vha-constellation-presets,#gd-radio,.vha-creator-workshop-star,.vha-changelog-panel"))return;
     setConstellationVisible(false);
     journeyNote.hidden=true;
     const tools=document.getElementById("vha-viewer-tools");
