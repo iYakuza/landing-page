@@ -39,4 +39,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add changelog.json
           git commit -m "Publish visitor-friendly changelog"
-          git push
+          git pull --rebase origin main
+          git push origin HEAD:main
