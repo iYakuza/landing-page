@@ -24,7 +24,7 @@ jobs:
 
       - name: Build the visitor-facing changelog
         env:
-          GITHUB_REPOSITORY: \${{ github.repository }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: python3 scripts/generate_changelog.py "$GITHUB_EVENT_PATH" changelog.json
 
       - name: Publish updated feed
