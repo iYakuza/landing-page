@@ -40,7 +40,8 @@
     ["THE RETURN","MOVEMENT 05","/landing-page/posts/the-return/","return","movement"],
     ["THE CIRCLE","COMMUNITY CHANNEL","/landing-page/community/","circle","main"],
     ["SECURE YOUR SOUL","RESTRICTED PROGRAM","/landing-page/secure-your-soul/","secure","main"],
-    ["CV","PERSONNEL FILE","/landing-page/cv/","cv","main"]
+    ["CV","PERSONNEL FILE","/landing-page/cv/","cv","main"],
+    ["CREATOR WORKSHOP","PRIVATE ACCESS","/landing-page/cms/","creator","admin"]
   ];
   // Remove the page-level header entirely. The shared bottom navigation remains the sole global navigation.
   document.querySelectorAll("body header, .masthead, .mast, .ha-nav, .gd-nav, .toplinks, .vha-main-nav").forEach(el=>el.remove());
@@ -107,7 +108,8 @@
   const defaultStarPositions={
     ego:[34,6],archive:[34,18],garden:[34,30],transmissions:[34,42],
     awakening:[67,47],descent:[74,55],reconnection:[78,63],transformation:[74,71],return:[67,79],
-    circle:[34,84],secure:[34,92],cv:[34,98]
+    circle:[34,84],secure:[34,92],cv:[34,98],
+    creator:[88,18]
   };
   const constellationPositionKey="stars-v3-journey-tree";
   let savedStarPositions={};
