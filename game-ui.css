@@ -2046,3 +2046,30 @@ body.vha-crystal-open .vha-changelog-panel{
 @media(prefers-reduced-motion:reduce){
   body.vha-game-interface #vha-viewer-tools .vha-scroll-cue{transition:none!important}
 }
+
+
+/* Creator Workshop shortcut: a compact, independent star pinned to the upper-right. */
+.vha-creator-workshop-star{
+  position:fixed!important;top:clamp(14px,2.5vh,26px)!important;right:clamp(14px,2.5vw,28px)!important;
+  z-index:1502!important;display:inline-flex!important;align-items:center!important;gap:7px!important;
+  max-width:calc(100vw - 28px);padding:6px 9px!important;
+  border:1px solid rgba(185,215,122,.26)!important;background:rgba(4,12,7,.72)!important;
+  color:rgba(226,241,211,.82)!important;text-decoration:none!important;
+  font:8px/1.2 var(--game-mono)!important;letter-spacing:.13em!important;
+  box-shadow:0 4px 18px rgba(0,0,0,.24)!important;backdrop-filter:blur(8px);
+  pointer-events:auto!important;
+}
+.vha-creator-workshop-star svg{
+  display:block!important;flex:0 0 22px!important;width:22px!important;height:22px!important;
+  fill:rgba(190,222,144,.22)!important;stroke:#d7efb0!important;stroke-width:1.2!important;
+  filter:drop-shadow(0 0 6px rgba(194,230,144,.5));
+}
+.vha-creator-workshop-star:hover,.vha-creator-workshop-star:focus-visible{
+  color:#e7ffc0!important;border-color:rgba(220,255,175,.62)!important;
+  background:rgba(12,25,14,.9)!important;
+}
+.vha-creator-workshop-star:hover svg{fill:rgba(220,255,175,.48)!important;transform:scale(1.08)}
+@media(max-width:480px){
+  .vha-creator-workshop-star{top:10px!important;right:10px!important;padding:5px 7px!important;font-size:7px!important}
+  .vha-creator-workshop-star svg{width:19px!important;height:19px!important;flex-basis:19px!important}
+}
