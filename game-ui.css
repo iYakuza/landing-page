@@ -1793,7 +1793,7 @@ body.vha-crystal-open > .vha-constellation-presets{z-index:2147483647!important}
 #vha-viewer-tools>.vha-tools-side.vha-tools-left{grid-column:1!important;grid-row:1!important}
 #vha-viewer-tools>.ego-bottom-hud.vha-universal-nav{grid-column:2!important;grid-row:1!important;margin-inline:0!important}
 #vha-viewer-tools>.vha-tools-side.vha-tools-right{grid-column:3!important;grid-row:1!important}
-body.vha-crystal-open> :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt):not(.vha-constellation-presets):not(#gd-radio){
+body.vha-crystal-open> :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-entry-prompt):not(.vha-constellation-presets):not(#gd-radio):not(.vha-changelog-panel){
   filter:blur(7px) brightness(.48)!important;
   pointer-events:none!important;
   user-select:none!important;
