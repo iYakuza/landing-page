@@ -45,7 +45,6 @@
   const cmsSessionKey="sb-oeyxsqocldlovhsmzcjw-auth-token";
   let hasSession=false;
   try{const session=JSON.parse(localStorage.getItem(cmsSessionKey)||"null");hasSession=Boolean(session&&session.access_token)}catch{}
-  if(hasSession||path.startsWith("/landing-page/cms"))routes.push(["CREATOR WORKSHOP","PRIVATE ACCESS","/landing-page/cms/","cms","admin"]);
   // Remove the page-level header entirely. The shared bottom navigation remains the sole global navigation.
   document.querySelectorAll("body header, .masthead, .mast, .ha-nav, .gd-nav, .toplinks, .vha-main-nav").forEach(el=>el.remove());
   // Crystal constellation is the sole global navigation. No conventional header is injected.
@@ -84,8 +83,18 @@
   const journeyMarkup = nextJourney
     ? '<div class="vha-journey-note" hidden><span>NEXT PART OF THE JOURNEY</span><strong>' + nextJourney[1] + '</strong><p>' + nextJourney[2] + '</p><a href="' + nextJourney[3] + '">CONTINUE THE JOURNEY ↗</a></div>'
     : '<div class="vha-journey-note" hidden><span>THE JOURNEY CONTINUES</span><strong>Choose the next trace.</strong><p>Follow a point in the constellation to continue exploring.</p></div>';
-  map.innerHTML='<div class="vha-constellation-presets" role="group" aria-label="Choose a constellation pattern"><span>STAR PATTERNS</span><div><button type="button" data-constellation="orion" aria-pressed="false">ORION</button><button type="button" data-constellation="ursa-major" aria-pressed="false">URSA MAJOR</button><button type="button" data-constellation="cassiopeia" aria-pressed="false">CASSIOPEIA</button><button type="button" data-constellation="cygnus" aria-pressed="false">CYGNUS</button><button type="button" data-constellation="scorpius" aria-pressed="false">SCORPIUS</button><button type="button" data-constellation="hello-smile" aria-pressed="false">HELLO / SMILE</button><button type="button" data-constellation="heart-signal" aria-pressed="false">HEART SIGNAL</button><button type="button" data-constellation="north-star" aria-pressed="false">NORTH STAR</button><button type="button" data-constellation="after-hours" aria-pressed="false">AFTER HOURS</button><button type="button" data-constellation="waveform" aria-pressed="false">WAVEFORM</button></div><small>REAL CONSTELLATIONS + ORIGINAL STAR SIGNS · DRAG TO CUSTOMISE</small></div><div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path class="vha-constellation-route vha-route-main" d=""/><path class="vha-constellation-route vha-route-movements" d=""/></svg><div class="vha-map-destinations"></div></div>' + journeyMarkup;
+  map.innerHTML='<div class="vha-constellation-presets" role="group" aria-label="Choose a constellation pattern"><div class="vha-patterns-head"><span>STAR PATTERNS</span><button type="button" class="vha-patterns-minimize" aria-label="Minimize star patterns" title="Minimize">−</button></div><div><button type="button" data-constellation="orion" aria-pressed="false">ORION</button><button type="button" data-constellation="ursa-major" aria-pressed="false">URSA MAJOR</button><button type="button" data-constellation="cassiopeia" aria-pressed="false">CASSIOPEIA</button><button type="button" data-constellation="cygnus" aria-pressed="false">CYGNUS</button><button type="button" data-constellation="scorpius" aria-pressed="false">SCORPIUS</button><button type="button" data-constellation="hello-smile" aria-pressed="false">HELLO / SMILE</button><button type="button" data-constellation="heart-signal" aria-pressed="false">HEART SIGNAL</button><button type="button" data-constellation="north-star" aria-pressed="false">NORTH STAR</button><button type="button" data-constellation="after-hours" aria-pressed="false">AFTER HOURS</button><button type="button" data-constellation="waveform" aria-pressed="false">WAVEFORM</button></div><small>REAL CONSTELLATIONS + ORIGINAL STAR SIGNS · DRAG TO CUSTOMISE</small></div><div class="vha-constellation-field" aria-label="Website constellation"><svg class="vha-constellation-lines" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true"><path class="vha-constellation-route vha-route-main" d=""/><path class="vha-constellation-route vha-route-movements" d=""/></svg><div class="vha-map-destinations"></div></div>' + journeyMarkup;
   document.body.appendChild(map);
+  // The Creator Workshop is a private owner shortcut, not a public constellation destination.
+  if(hasSession||path.startsWith("/landing-page/cms")){
+    const creator=document.createElement("a");
+    creator.className="vha-creator-workshop-star";
+    creator.href="/landing-page/cms/";
+    creator.setAttribute("aria-label","Open Creator Workshop");
+    creator.title="Creator Workshop";
+    creator.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 3 5.2 14.1L44 18l-11.1 9.2L36.5 43 24 34.8 11.5 43l3.6-15.8L4 18l14.8-.9L24 3Z"/></svg><span>CREATOR WORKSHOP</span>';
+    document.body.appendChild(creator);
+  }
   // Detach the pattern menu from the full-screen map so it can sit directly above the crystal dock.
   const patternPicker=map.querySelector(".vha-constellation-presets");
   if(patternPicker){const crystalDock=document.getElementById("vha-viewer-tools");(crystalDock||document.body).appendChild(patternPicker);}
@@ -102,7 +111,7 @@
   const defaultStarPositions={
     ego:[34,6],archive:[34,18],garden:[34,30],transmissions:[34,42],
     awakening:[67,47],descent:[74,55],reconnection:[78,63],transformation:[74,71],return:[67,79],
-    circle:[34,84],secure:[34,92],cv:[34,98],cms:[88,12]
+    circle:[34,84],secure:[34,92],cv:[34,98]
   };
   const constellationPositionKey="stars-v3-journey-tree";
   let savedStarPositions={};
@@ -210,6 +219,14 @@
     mapButton.setAttribute("aria-label",visible?"Hide website constellation":"Show website constellation");
     mapButton.title=visible?"Hide website constellation":"Show website constellation";
   }
+  map.addEventListener("click",event=>{
+    if(event.target.closest(".vha-map-node,.vha-journey-note,.vha-constellation-presets"))return;
+    if(activeStar)return;
+    setConstellationVisible(false);
+    journeyNote?.setAttribute("hidden","");
+    const tools=document.getElementById("vha-viewer-tools");
+    if(tools){tools.dataset.open="false";tools.setAttribute("aria-expanded","false");}
+  });
   map.vhaConstellation = { updateRoute: updateConstellationRoute, storageKey: constellationPositionKey, getSavedPositions: () => savedStarPositions };
   document.dispatchEvent(new CustomEvent("vha-constellation-ready",{detail:{map}}));
   const isHome=path==="/landing-page"||path==="/";
@@ -281,6 +298,14 @@
     setConstellationVisible(toolsOpen);
     journeyNote.hidden=!toolsOpen;
   });
+  document.addEventListener("click",event=>{
+    if(map.hidden)return;
+    if(event.target.closest("#vha-viewer-tools,.vha-map-node,.vha-journey-note,.vha-constellation-presets,#gd-radio,.vha-creator-workshop-star"))return;
+    setConstellationVisible(false);
+    journeyNote.hidden=true;
+    const tools=document.getElementById("vha-viewer-tools");
+    if(tools){tools.dataset.open="false";tools.setAttribute("aria-expanded","false");}
+  },true);
   document.addEventListener("vha-tools-state-change",event=>{
     const open=Boolean(event.detail?.open);
     if(document.body.classList.contains("vha-entry-intro")&&open){
