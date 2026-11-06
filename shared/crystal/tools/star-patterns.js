@@ -84,6 +84,11 @@
     const map=document.getElementById("vha-world-map");
     if(!map||map.dataset.starPatternsBound==="true")return;
     map.dataset.starPatternsBound="true";
+    const minimize= document.querySelector(".vha-patterns-minimize");
+    if(minimize&&!minimize.dataset.bound){
+      minimize.dataset.bound="true";
+      minimize.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();setPickerOpen(false);});
+    }
     document.querySelectorAll(".vha-constellation-presets [data-constellation]").forEach(button=>{
       button.addEventListener("click",event=>{
         event.preventDefault();event.stopPropagation();applyPattern(button);
