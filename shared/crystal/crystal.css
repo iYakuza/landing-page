@@ -378,3 +378,24 @@ body:not(.vha-crystal-open) .vha-creator-workshop-star{display:none!important;vi
   opacity:1!important;pointer-events:auto!important;
 }
 @media(max-width:600px){.vha-creator-workshop-star{top:10px!important;right:10px!important}}
+
+
+/* Native Star Patterns dropdown. */
+body>.vha-constellation-presets .vha-patterns-select{
+  display:block!important;width:100%!important;min-height:38px!important;margin:0!important;
+  padding:8px 34px 8px 10px!important;border:1px solid rgba(185,215,122,.35)!important;
+  border-radius:7px!important;background:rgba(5,12,8,.92)!important;
+  color:var(--theme-text,#e8f4df)!important;
+  font:10px/1.3 var(--vha-font,Arial,sans-serif)!important;letter-spacing:.08em!important;
+  cursor:pointer!important;outline:none!important;
+}
+body>.vha-constellation-presets .vha-patterns-select:focus-visible{
+  border-color:var(--theme-accent,#d8ff3e)!important;
+  box-shadow:0 0 0 2px rgba(185,215,122,.16)!important;
+}
+body>.vha-constellation-presets .vha-patterns-select option{
+  background:#08110b!important;color:#e8f4df!important;
+}
+body>.vha-constellation-presets>small{
+  display:block!important;margin-top:9px!important;
+}
