@@ -100,8 +100,8 @@
     }
   }
   document.addEventListener("vha-constellation-ready",bindPicker);
-  document.addEventListener("vha-crystal-ready",dockPicker);
-  document.addEventListener("vha-crystal-state-change",dockPicker);
+  document.addEventListener("vha-crystal-ready",placePickerInBody);
+  document.addEventListener("vha-crystal-state-change",placePickerInBody);
   document.addEventListener("vha-crystal-mode-change",event=>{
     if(event.detail?.open)return;
     setPickerOpen(false);
