@@ -138,7 +138,7 @@ else:
     detail = detail[:520]
 
 timestamp = max(
-    (c.get("timestamp") or c.get("author", {}).get("date") or "" for c in commits),
+    (c.get("timestamp") or (c.get("author") or {}).get("date") or "" for c in commits),
     default=""
 )
 if not timestamp:
