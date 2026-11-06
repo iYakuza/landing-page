@@ -4,6 +4,7 @@ import json
 import os
 import re
 import sys
+import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -22,6 +23,12 @@ def changed_files(commit):
     return sorted(set((commit.get("added") or []) + (commit.get("modified") or []) + (commit.get("removed") or [])))
 
 all_files = sorted(set(path for commit in commits for path in changed_files(commit)))
+
+# Some push payloads omit per-commit file lists. Recover the complete change set from Git.
+if not all_files and before and after:
+    diff = subprocess.run(["git", "diff", "--name-only", before, after], capture_output=True, text=True, check=False)
+    if diff.returncode == 0:
+        all_files = sorted(set(line.strip() for line in diff.stdout.splitlines() if line.strip()))
 ignored = (
     "changelog.json",
     "scripts/generate_changelog.py",
