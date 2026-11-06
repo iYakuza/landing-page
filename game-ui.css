@@ -1935,3 +1935,17 @@ body.vha-crystal-open::after{
   }
   body.vha-game-interface #vha-viewer-tools .vha-map-toggle svg{width:38px!important;height:38px!important}
 }
+
+
+/* Latest Changelog is a foreground Crystal tool, not part of the blurred page backdrop. */
+body.vha-crystal-open > .vha-changelog-panel,
+body.vha-crystal-open .vha-changelog-panel{
+  position:fixed!important;
+  z-index:2147483647!important;
+  isolation:isolate!important;
+  filter:none!important;
+  -webkit-filter:none!important;
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+}
