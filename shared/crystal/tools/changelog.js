@@ -26,7 +26,6 @@
   const timeFormatter=new Intl.DateTimeFormat("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false,timeZone:"Europe/Rome"});
   const changelogStatus=changelogPanel.querySelector(".vha-changelog-status");
   let refreshTimer=null;
-  let lastCommitSha="";
   function renderEntries(entries){
     changelogList.replaceChildren();
     entries.forEach(entry=>{
@@ -44,8 +43,8 @@
     });
   }
   function classifyCommit(message){
-    if(/\\b(fix|bug|repair|correct|resolve)\\b/i.test(message))return "FIX";
-    if(/\\b(add|introduc|creat|launch|feat|implement)\\b/i.test(message))return "FEATURE";
+    if(/\b(fix|bug|repair|correct|resolve)\b/i.test(message))return "FIX";
+    if(/\b(add|introduc|creat|launch|feat|implement)\b/i.test(message))return "FEATURE";
     return "IMPROVEMENT";
   }
   async function refreshChangelog(){
@@ -59,8 +58,8 @@
       if(!Array.isArray(commits))throw new Error("Unexpected repository feed response");
       const entries=commits.map(commit=>{
         const message=String(commit.commit?.message||"Website update").trim();
-        const parts=message.split(/\\r?\\n/);
-        const title=parts.shift().replace(/^(feat|fix|chore|docs|style|refactor|perf|test)(\\([^)]*\\))?:\\s*/i,"").trim();
+        const parts=message.split(/\r?\n/);
+        const title=parts.shift().replace(/^(feat|fix|chore|docs|style|refactor|perf|test)(\([^)]*\))?:\s*/i,"").trim();
         const detail=parts.join(" ").trim()||"Website source updated.";
         return {
           timestamp:commit.commit?.author?.date||commit.commit?.committer?.date||new Date().toISOString(),
@@ -72,7 +71,6 @@
       });
       if(entries.length){
         renderEntries(entries);
-        lastCommitSha=entries[0].sha;
         changelogStatus.textContent="LIVE · "+entries.length+" recent updates";
       }else{
         changelogStatus.textContent="No repository updates found.";
