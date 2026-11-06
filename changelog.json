@@ -1,7 +1,44 @@
 {
   "version": 1,
-  "updated_at": "2026-11-06T21:16:20Z",
+  "updated_at": "2026-11-06T21:28:34Z",
   "entries": [
+    {
+      "id": "visitor-friendly-activity-feed",
+      "timestamp": "2026-11-06T21:28:34Z",
+      "category": "FEATURE",
+      "component": "Latest Changelog",
+      "title": "A changelog that tells the story, not just the commits",
+      "description": "Related development changes are now grouped into readable updates, with a clear explanation for visitors and expandable links to the original commits. The feed is generated automatically whenever project changes are pushed.",
+      "commit_count": 3,
+      "files": [
+        "scripts/generate_changelog.py",
+        ".github/workflows/changelog.yml",
+        "shared/crystal/tools/changelog.js"
+      ],
+      "commits": [
+        {
+          "message": "Add automatic visitor-friendly changelog generator",
+          "url": "https://github.com/iYakuza/landing-page/commit/cfc2a868635ecc0a4a8c954739c851f113f83b7a",
+          "files": [
+            "scripts/generate_changelog.py"
+          ]
+        },
+        {
+          "message": "Automate visitor-friendly changelog publishing",
+          "url": "https://github.com/iYakuza/landing-page/commit/5f64609a990a72bbc6bb3dd61dc659a344b60460",
+          "files": [
+            ".github/workflows/changelog.yml"
+          ]
+        },
+        {
+          "message": "Display structured visitor-friendly changelog entries",
+          "url": "https://github.com/iYakuza/landing-page/commit/80516bcd7d2410d7abeee193bbb782c54fbb64cb",
+          "files": [
+            "shared/crystal/tools/changelog.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "0ddec8641a88fa47a8621eefbc4c5bfdcae91170",
       "timestamp": "2026-11-06T21:15:32Z",
