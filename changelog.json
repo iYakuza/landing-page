@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "updated_at": "2026-11-06T21:16:20Z",
+  "entries": [
+    {
+      "id": "0ddec8641a88fa47a8621eefbc4c5bfdcae91170",
+      "timestamp": "2026-11-06T21:15:32Z",
+      "category": "FIX",
+      "component": "Latest Changelog",
+      "title": "Latest Changelog stays interactive in Crystal mode",
+      "description": "The changelog panel is now excluded from the page-dimming interaction rules, so visitors can keep reading and scrolling without the Crystal experience closing underneath them.",
+      "commit_count": 1,
+      "files": [
+        "game-ui.css"
+      ],
+      "commits": [
+        {
+          "message": "Exclude Latest Changelog from Crystal page blur",
+          "url": "https://github.com/iYakuza/landing-page/commit/0ddec8641a88fa47a8621eefbc4c5bfdcae91170",
+          "files": [
+            "game-ui.css"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "b7653965f6caa9a0c2a6dda966769726a24f3326",
+      "timestamp": "2026-11-06T20:47:16Z",
+      "category": "IMPROVEMENT",
+      "component": "Star Patterns",
+      "title": "Ursa Major now welcomes first-time visitors",
+      "description": "New visitors now enter Crystal mode with Ursa Major selected by default. Existing saved constellation arrangements are preserved.",
+      "commit_count": 1,
+      "files": [
+        "shared/crystal/tools/star-patterns.js"
+      ],
+      "commits": [
+        {
+          "message": "Set Ursa Major as the default Crystal constellation",
+          "url": "https://github.com/iYakuza/landing-page/commit/b7653965f6caa9a0c2a6dda966769726a24f3326",
+          "files": [
+            "shared/crystal/tools/star-patterns.js"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "90a3fe2aa2d23df67fc17f1ac2fa9e2eee175819",
+      "timestamp": "2026-11-06T20:43:00Z",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A clearer, more readable Poetry Index",
+      "description": "The five movements now appear in a single vertical column, making the archive easier to scan and navigate.",
+      "commit_count": 1,
+      "files": [
+        "green-dream/style.css"
+      ],
+      "commits": [
+        {
+          "message": "Align Poetry Index as a single vertical column",
+          "url": "https://github.com/iYakuza/landing-page/commit/90a3fe2aa2d23df67fc17f1ac2fa9e2eee175819",
+          "files": [
+            "green-dream/style.css"
+          ]
+        }
+      ]
+    }
+  ]
+}
