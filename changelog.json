@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-06T21:34:49.490839Z",
-  "last_processed_sha": "7b8daad3971733c6a07fc157fa6bcb2ede5cfd92",
+  "updated_at": "2026-11-06T21:47:29.266859Z",
+  "last_processed_sha": "9a55afd0d1bea5dff8fee3802e199ad771554690",
   "entries": [
+    {
+      "id": "9a55afd0d1bea5dff8fee3802e199ad771554690",
+      "timestamp": "2026-11-06T22:47:21+01:00",
+      "category": "FIX",
+      "component": "Website",
+      "title": "More reliable Website",
+      "description": "This update brings together Update Crystal regression checks for current constellation UI. It updates site-safety.yml.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/site-safety.yml"
+      ],
+      "commits": [
+        {
+          "message": "Update Crystal regression checks for current constellation UI",
+          "url": "https://github.com/iYakuza/landing-page/commit/9a55afd0d1bea5dff8fee3802e199ad771554690",
+          "files": [
+            ".github/workflows/site-safety.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "3582073600c441803d4b602d7d7b61854fc1b620",
       "timestamp": "2026-11-06T22:33:15+01:00",
