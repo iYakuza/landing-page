@@ -399,3 +399,27 @@ body>.vha-constellation-presets .vha-patterns-select option{
 body>.vha-constellation-presets>small{
   display:block!important;margin-top:9px!important;
 }
+
+
+/* Star Patterns is a native select in the Crystal dock, not a popover trigger. */
+#vha-viewer-tools .vha-patterns-dropdown{
+  display:flex!important;align-items:center!important;min-width:0!important;
+  cursor:pointer!important;
+}
+#vha-viewer-tools .vha-patterns-dropdown select{
+  display:block!important;flex:1 1 auto!important;width:100%!important;min-width:0!important;
+  max-width:145px!important;min-height:34px!important;padding:5px 5px!important;
+  border:0!important;border-radius:6px!important;background:transparent!important;
+  color:var(--theme-text,#e8f4df)!important;font:inherit!important;
+  letter-spacing:.025em!important;cursor:pointer!important;outline:none!important;
+}
+#vha-viewer-tools .vha-patterns-dropdown select:focus-visible{
+  outline:1px solid var(--theme-border,rgba(185,215,122,.4))!important;
+  outline-offset:2px!important;
+}
+#vha-viewer-tools .vha-patterns-dropdown select option{
+  background:#08110b!important;color:#e8f4df!important;
+}
+@media(max-width:760px){
+  #vha-viewer-tools .vha-patterns-dropdown select{max-width:92px!important;padding:4px 2px!important;font-size:7px!important}
+}
