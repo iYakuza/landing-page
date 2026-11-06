@@ -45,7 +45,7 @@
     const left=Math.max(8,Math.min(innerWidth-width-8,anchor.left+anchor.width/2-width/2));
     const available=Math.max(120,anchor.top-20);
     const top=Math.max(8,anchor.top-Math.min(height,available)-12);
-    picker.style.setProperty("position","fixed","important");
+    picker.style.setProperty("position","absolute","important");
     picker.style.setProperty("left",left+"px","important");
     picker.style.setProperty("right","auto","important");
     picker.style.setProperty("top",top+"px","important");
@@ -73,7 +73,9 @@
   }
   function placePickerInBody(){
     const picker=document.querySelector(".vha-constellation-presets");
-    if(picker&&document.body&&picker.parentElement!==document.body)document.body.appendChild(picker);
+    const overlay=document.getElementById("vha-crystal-blur-layer");
+    const host=overlay||document.body;
+    if(picker&&host&&picker.parentElement!==host)host.appendChild(picker);
   }
   function bindPicker(){
     placePickerInBody();
