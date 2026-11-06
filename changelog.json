@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-06T21:28:34Z",
-  "last_processed_sha": "622772168c0aff88f8a7edbf93ac1f005bf10f8b",
+  "updated_at": "2026-11-06T21:34:49.490839Z",
+  "last_processed_sha": "3582073600c441803d4b602d7d7b61854fc1b620",
   "entries": [
+    {
+      "id": "3582073600c441803d4b602d7d7b61854fc1b620",
+      "timestamp": "2026-11-06T22:33:15+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Latest Changelog",
+      "title": "A self-contained live changelog",
+      "description": "The activity feed now reads its published update file directly from the website, avoiding per-visitor GitHub API requests while continuing to refresh automatically.",
+      "commit_count": 1,
+      "files": [
+        "shared/crystal/tools/changelog.js"
+      ],
+      "commits": [
+        {
+          "message": "Serve the live changelog from the published site",
+          "url": "https://github.com/iYakuza/landing-page/commit/fd374643e465d18c338d264cd82e68e4e919ad56",
+          "files": [
+            "shared/crystal/tools/changelog.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "visitor-friendly-activity-feed",
       "timestamp": "2026-11-06T21:28:34Z",
