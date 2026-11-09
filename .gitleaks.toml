@@ -1,0 +1,19 @@
+# Keep Gitleaks' full default ruleset and scope these two known false positives
+# to the generic-api-key rule only. All other secret checks remain enabled.
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+
+  [[rules.allowlists]]
+  description = "Supabase publishable API keys are designed for public browser clients; database access is constrained by RLS."
+  regexTarget = "line"
+  regexes = ['''sb_publishable_[A-Za-z0-9_-]+''']
+
+  [[rules.allowlists]]
+  description = "This is a browser localStorage namespace, not a credential."
+  condition = "AND"
+  regexTarget = "line"
+  paths = ['''(^|/)game-ui\.js$''']
+  regexes = ['''constellationPositionKey''']
