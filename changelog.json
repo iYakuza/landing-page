@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-06T21:47:29.266859Z",
-  "last_processed_sha": "9a55afd0d1bea5dff8fee3802e199ad771554690",
+  "updated_at": "2026-11-09T15:32:59.288601Z",
+  "last_processed_sha": "b4ae8863ed87101532057627438b7523d59ee4de",
   "entries": [
+    {
+      "id": "b4ae8863ed87101532057627438b7523d59ee4de",
+      "timestamp": "2026-11-09T16:32:29+01:00",
+      "category": "FEATURE",
+      "component": "Website",
+      "title": "New capabilities for Website",
+      "description": "This update brings together Add scoped Gitleaks false-positive allowlists. It updates .gitleaks.toml.",
+      "commit_count": 1,
+      "files": [
+        ".gitleaks.toml"
+      ],
+      "commits": [
+        {
+          "message": "Add scoped Gitleaks false-positive allowlists",
+          "url": "https://github.com/iYakuza/landing-page/commit/b4ae8863ed87101532057627438b7523d59ee4de",
+          "files": [
+            ".gitleaks.toml"
+          ]
+        }
+      ]
+    },
     {
       "id": "9a55afd0d1bea5dff8fee3802e199ad771554690",
       "timestamp": "2026-11-06T22:47:21+01:00",
