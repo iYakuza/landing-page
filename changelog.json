@@ -1,8 +1,53 @@
 {
   "version": 1,
-  "updated_at": "2026-11-09T15:33:23.935232Z",
-  "last_processed_sha": "85960951ccbcc6d2d85f3b44fbabd863803f507f",
+  "updated_at": "2026-11-10T09:34:39.203224Z",
+  "last_processed_sha": "5288c853b3498f42dc7f4c4fd85da68999a30931",
   "entries": [
+    {
+      "id": "5288c853b3498f42dc7f4c4fd85da68999a30931",
+      "timestamp": "2026-11-10T10:34:36+01:00",
+      "category": "FEATURE",
+      "component": "Creative Archive",
+      "title": "New capabilities for Creative Archive",
+      "description": "This update brings together Add The Guest's Notes and opening contributions. It updates index.html, guest-notes.css and related project files.",
+      "commit_count": 4,
+      "files": [
+        "green-dream/guest-notes/architecture-of-harm/index.html",
+        "green-dream/guest-notes/guest-notes.css",
+        "green-dream/guest-notes/index.html",
+        "green-dream/guest-notes/integration-without-assimilation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Add The Guest's Notes and opening contributions",
+          "url": "https://github.com/iYakuza/landing-page/commit/efe0754193f4bee9bb36b711e594a5f99e344e7d",
+          "files": [
+            "green-dream/guest-notes/guest-notes.css"
+          ]
+        },
+        {
+          "message": "Add The Guest's Notes and opening contributions",
+          "url": "https://github.com/iYakuza/landing-page/commit/2847201bd6f5080cddcc07f03229a1d113032e4c",
+          "files": [
+            "green-dream/guest-notes/index.html"
+          ]
+        },
+        {
+          "message": "Add The Guest's Notes and opening contributions",
+          "url": "https://github.com/iYakuza/landing-page/commit/6ab62e9dcb5ab0175a4278f34352a057b069dde2",
+          "files": [
+            "green-dream/guest-notes/integration-without-assimilation/index.html"
+          ]
+        },
+        {
+          "message": "Add The Guest's Notes and opening contributions",
+          "url": "https://github.com/iYakuza/landing-page/commit/5288c853b3498f42dc7f4c4fd85da68999a30931",
+          "files": [
+            "green-dream/guest-notes/architecture-of-harm/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "db94f47841095a140fc1d24e951c1c94ed403de2",
       "timestamp": "2026-11-09T16:33:15+01:00",
