@@ -50,7 +50,7 @@ First, add a repository variable under **Settings → Secrets and variables → 
 
 - BACKUP_ENABLED = false (keep disabled until every secret below is configured and verified; set it to true only when ready to activate scheduled backups).
 
-Then add these repository secrets under **Settings → Secrets and variables → Actions → Secrets**:
+Then add these repository secrets under **Settings → Secrets and variables → Actions → Secrets**. If Supabase Settings → API Keys shows only legacy keys, first click **Create new API keys**; this adds the default publishable and secret keys without disabling the legacy ones:
 
 | Secret | Value |
 |---|---|
