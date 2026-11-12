@@ -26,4 +26,4 @@ jobs:
           set -euo pipefail
           python3 -m py_compile scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
           python3 scripts/test_backup_wordpress_archive.py
-          python3 scripts/backup_wordpress_archive.py --output "$RUNNER_TEMP/wordpress-archive" --index human-archive/archive-data.json
+          python3 scripts/backup_wordpress_archive.py --output "$RUNNER_TEMP/wordpress-archive" --index human-archive/archive-data.json --media-index wordpress/media-library-index.json

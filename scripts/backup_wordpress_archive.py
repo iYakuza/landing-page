@@ -185,7 +185,7 @@ def download_media(url: str, destination: pathlib.Path, expected_bytes: int = 0)
         raise
 
 
-def export(output_root: pathlib.Path, index_path: pathlib.Path) -> tuple[int, int, int]:
+def export(output_root: pathlib.Path, index_path: pathlib.Path, media_index_path: pathlib.Path) -> tuple[int, int, int]:
     output_root.mkdir(parents=True, exist_ok=True)
     index = json.loads(index_path.read_text(encoding="utf-8"))
     if not isinstance(index, list):
@@ -202,7 +202,10 @@ def export(output_root: pathlib.Path, index_path: pathlib.Path) -> tuple[int, in
     if missing_indexed:
         raise RuntimeError(f"The live WordPress site no longer exposes {len(missing_indexed)} indexed published posts.")
 
-    media_rows = fetch_collection("media", "id,date,mime_type,source_url,media_details,post,title,alt_text,caption,description")
+    media_inventory = json.loads(media_index_path.read_text(encoding="utf-8"))
+    if not isinstance(media_inventory, dict) or media_inventory.get("site_url") != SITE_URL or not isinstance(media_inventory.get("items"), list):
+        raise RuntimeError("The checked-in WordPress media-library inventory is invalid.")
+    media_rows = media_inventory["items"]
     media = [normalize_media(item) for item in media_rows]
     media.sort(key=lambda item: item["id"])
     media_root = output_root / "media"
@@ -231,6 +234,7 @@ def export(output_root: pathlib.Path, index_path: pathlib.Path) -> tuple[int, in
         "exported_at": datetime.now(timezone.utc).isoformat(),
         "published_posts": len(posts),
         "media_files": len(media),
+        "media_index_captured_at": str(media_inventory.get("captured_at") or ""),
         "media_bytes": total_bytes,
         "index_entries": len(indexed_ids),
         "newer_or_unindexed_posts": len(post_ids - indexed_ids),
@@ -253,8 +257,9 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True, type=pathlib.Path)
     parser.add_argument("--index", default="human-archive/archive-data.json", type=pathlib.Path)
+    parser.add_argument("--media-index", default="wordpress/media-library-index.json", type=pathlib.Path)
     args = parser.parse_args()
-    posts, media, total = export(args.output, args.index)
+    posts, media, total = export(args.output, args.index, args.media_index)
     print(f"Summary: {posts} posts; {media} media files; {total / (1024 * 1024):.2f} MiB.")
 
 
