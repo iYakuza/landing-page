@@ -169,6 +169,8 @@ jobs:
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "create extension if not exists supabase_vault with schema vault"
           DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/database/roles.sql"
           DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/database/schema.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/migration-ledger-restore.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_migration_ledger.py "$OUT"
           DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/auth-restore.sql"
           DATABASE_URL="$DB_URL" python3 scripts/verify_auth_restore.py "$OUT"
           DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/vault-restore.sql"
