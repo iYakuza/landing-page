@@ -50,7 +50,8 @@ for item in vault:
     )
 (restore_dir / "vault-restore.sql").write_text("\n".join(vault_lines) + "\n", encoding="utf-8")
 
-storage_policies = json.loads((root / "storage" / "policies.json").read_text(encoding="utf-8"))
+policy_file = root / "storage" / "policies.json"
+storage_policies = json.loads(policy_file.read_text(encoding="utf-8")) if policy_file.exists() else []
 policy_lines = [
     "-- Custom Storage RLS policies captured from the source project.",
 ]
