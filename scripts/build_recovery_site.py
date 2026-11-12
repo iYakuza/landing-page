@@ -2,14 +2,20 @@
 """Build an offline, read-only recovery website from a content backup snapshot."""
 from __future__ import annotations
 
-import html
+import argparse
 import json
 import mimetypes
 import pathlib
+import shutil
 import sys
 from urllib.parse import quote
 
-ROOT = pathlib.Path(sys.argv[1]).resolve()
+parser = argparse.ArgumentParser()
+parser.add_argument("backup_root", type=pathlib.Path)
+parser.add_argument("--repo-root", type=pathlib.Path, default=pathlib.Path.cwd())
+args = parser.parse_args()
+ROOT = args.backup_root.resolve()
+REPO_ROOT = args.repo_root.resolve()
 DB = ROOT / "database" / "public-content.json"
 BUCKETS = ROOT / "storage" / "buckets.json"
 STORAGE = ROOT / "storage" / "objects"
@@ -41,7 +47,22 @@ def main():
         bucket = "vha-post-media"
         ref = object_map.get((bucket, path)) if path else None
         row = dict(row)
-        row.update({"kind": "Post", "media_href": storage_href(bucket, path) if ref and bucket in public_buckets else None})
+        media_href = storage_href(bucket, path) if ref and bucket in public_buckets else None
+        local_url = row.get("media_url")
+        if not media_href and isinstance(local_url, str) and local_url.startswith("/landing-page/"):
+            relative = pathlib.PurePosixPath(local_url.removeprefix("/landing-page/"))
+            if relative.is_absolute() or any(part in ("", ".", "..") for part in relative.parts):
+                raise SystemExit("A repository media reference contains an unsafe path.")
+            source = REPO_ROOT.joinpath(*relative.parts)
+            if not source.is_file():
+                raise SystemExit("A referenced repository media asset is missing from the checked-out source.")
+            destination = SITE / "static-assets" / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, destination)
+            media_href = "static-assets/" + "/".join(quote(part, safe="") for part in relative.parts)
+            media.append({"bucket": "repository assets", "path": relative.as_posix(), "href": media_href,
+                          "bytes": destination.stat().st_size, "mime": mimetypes.guess_type(relative.name)[0] or "application/octet-stream"})
+        row.update({"kind": "Post", "media_href": media_href})
         records.append(row)
     for row in content["submissions"]:
         path = row.get("storage_path")
