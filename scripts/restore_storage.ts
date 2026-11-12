@@ -52,7 +52,12 @@ for (const item of manifest.objects) {
     throw new Error("Unsafe Storage object path in backup manifest; path suppressed.");
   }
   const localPath = root + "/storage/objects/" + bucket + "/" + objectPath;
-  const bytes = await Deno.readFile(localPath);
+  let bytes: Uint8Array;
+  try {
+    bytes = await Deno.readFile(localPath);
+  } catch {
+    throw new Error("Backup Storage object file could not be read; object path suppressed.");
+  }
   const expectedHash = item.sha256;
   const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
   const actualHash = Array.from(digest, (value) => value.toString(16).padStart(2, "0")).join("");
