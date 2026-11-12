@@ -42,11 +42,9 @@ jobs:
       - name: Validate the offline recovery website builder
         run: |
           set -euo pipefail
-          python3 -m py_compile scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/download_apps_script_backup.py scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
+          python3 -m py_compile scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/rclone_drive_backup.py scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
           python3 scripts/test_build_recovery_site.py
           python3 scripts/test_backup_wordpress_archive.py
-          node --check < google-apps-script/Code.gs
-          node google-apps-script/test_receiver.js
 
       - name: Validate required credentials
         shell: bash
