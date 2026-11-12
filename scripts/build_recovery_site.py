@@ -225,7 +225,7 @@ through relative paths.
 
 This is a read-only catalogue of published posts, consent-approved community
 submissions and transmissions, plus media files referenced by published content from public Storage buckets.
-Private buckets and unpublished/failed submissions are deliberately excluded. Media hosted on external platforms is not downloaded; its links remain in the recovered content.
+Private buckets, unreferenced media, and unpublished/failed submissions are deliberately excluded. Media hosted on external platforms is not downloaded; its links remain in the recovered content.
 
 This viewer is not a replacement for the original interactive application.
 The Git bundle in repository/landing-page.bundle preserves the website source
