@@ -61,6 +61,8 @@ jobs:
             scripts/create_restore_expectations.py \
             scripts/test_restore_expectations.py \
             scripts/build_recovery_site.py \
+            scripts/package_recovery_site.py \
+            scripts/download_apps_script_backup.py \
             scripts/test_build_recovery_site.py
 
       - name: Test backup manifest generation and verification
