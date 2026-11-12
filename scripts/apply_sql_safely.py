@@ -5,6 +5,7 @@ import pathlib
 import re
 import subprocess
 import sys
+import tempfile
 
 if len(sys.argv) != 2:
     raise SystemExit("Usage: apply_sql_safely.py <sql-file>")
@@ -14,10 +15,45 @@ if not database_url:
 sql_file = pathlib.Path(sys.argv[1])
 if not sql_file.is_file():
     raise SystemExit("SQL restore file does not exist.")
-result = subprocess.run(
-    ["psql", database_url, "-X", "-v", "ON_ERROR_STOP=1", "-q", "-f", str(sql_file)],
-    check=False, capture_output=True, text=True,
-)
+
+sql_to_apply = sql_file
+temporary_sql = None
+skipped_role_settings = 0
+
+# Supabase's managed roles can carry a source-side log_min_messages setting.
+# A local disposable Supabase instance does not grant permission to change this
+# server logging parameter. It is not needed for application-data recovery, so
+# omit only that specific ALTER ROLE setting while preserving all other role DDL.
+if sql_file.name == "roles.sql":
+    original_sql = sql_file.read_text(encoding="utf-8")
+    sanitized_sql, skipped_role_settings = re.subn(
+        r"(?is)\bALTER\s+ROLE\b[^;]*?\bSET\s+log_min_messages\b[^;]*;",
+        "",
+        original_sql,
+    )
+    if skipped_role_settings:
+        handle = tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", suffix=".sql", prefix="gd-roles-", delete=False
+        )
+        try:
+            handle.write(sanitized_sql)
+            handle.close()
+        except Exception:
+            handle.close()
+            pathlib.Path(handle.name).unlink(missing_ok=True)
+            raise
+        temporary_sql = pathlib.Path(handle.name)
+        sql_to_apply = temporary_sql
+
+try:
+    result = subprocess.run(
+        ["psql", database_url, "-X", "-v", "ON_ERROR_STOP=1", "-q", "-f", str(sql_to_apply)],
+        check=False, capture_output=True, text=True,
+    )
+finally:
+    if temporary_sql is not None:
+        temporary_sql.unlink(missing_ok=True)
+
 if result.returncode:
     print(
         "SQL restore failed while applying " + sql_file.name + ".",
@@ -36,4 +72,11 @@ if result.returncode:
             file=sys.stderr,
         )
     sys.exit(1)
-print("Applied SQL restore file safely: " + sql_file.name)
+
+if skipped_role_settings:
+    print(
+        f"Applied SQL restore file safely: {sql_file.name} "
+        f"(skipped {skipped_role_settings} unsupported log_min_messages role setting(s))."
+    )
+else:
+    print("Applied SQL restore file safely: " + sql_file.name)
