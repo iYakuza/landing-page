@@ -37,6 +37,10 @@ with tempfile.TemporaryDirectory() as temp:
             "published_at": "2026-11-11T12:00:00Z",
             "storage_path": "audio/song.mp3",
         }],
+        "transmissions": [{
+            "title": "A shared thought", "message": "A consent-approved message",
+            "display_name": "A contributor", "created_at": "2026-11-10T12:00:00Z",
+        }],
     }
     (root / "database/public-content.json").write_text(json.dumps(payload), encoding="utf-8")
     (root / "storage/buckets.json").write_text(json.dumps([
@@ -64,6 +68,8 @@ with tempfile.TemporaryDirectory() as temp:
     page = (root / "recovery-site/index.html").read_text(encoding="utf-8")
     assert "Recovered poem" in page
     assert "Approved signal" in page
+    assert "A shared thought" in page
+    assert "A consent-approved message" in page
     assert "private.pdf" not in page
     assert "alert(1)" in page  # Kept only as inert JSON data; the viewer sanitizer strips script elements.
     assert "../storage/objects/public-media/images/cover.jpg" in page
