@@ -27,6 +27,14 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
 
+      - name: Install the pinned Supabase CLI version
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.1
+
+      - name: Confirm Supabase CLI version
+        run: supabase --version
+
       - name: Compile Python backup tools
         run: |
           set -euo pipefail
