@@ -121,6 +121,10 @@ jobs:
       - run: deno check scripts/restore_storage.ts
       - name: Validate Google Apps Script JavaScript syntax
         run: node --check < google-apps-script/Code.gs
+      - name: Test Google Apps Script receiver authentication, retries, and finalization
+        run: |
+          node --check google-apps-script/test_receiver.js
+          node google-apps-script/test_receiver.js
 
       - name: Start disposable Supabase Storage integration-test target
         run: |
