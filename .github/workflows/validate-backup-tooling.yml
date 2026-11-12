@@ -177,7 +177,7 @@ jobs:
           SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="${SECRET_KEY:-$SERVICE_ROLE_KEY}" \
             deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$ROOT"
           SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="${SECRET_KEY:-$SERVICE_ROLE_KEY}" \
-            python3 scripts/backup_storage.py --output "$ROOT/storage/objects"
+            python3 scripts/backup_storage.py --output "$ROOT/storage/objects" --buckets-file "$ROOT/storage/buckets.json"
           python3 scripts/verify_storage_export.py "$ROOT"
 
       - name: Stop disposable Storage integration-test target
