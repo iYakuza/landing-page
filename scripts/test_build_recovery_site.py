@@ -79,6 +79,12 @@ with tempfile.TemporaryDirectory() as temp:
     local_asset.parent.mkdir(parents=True)
     local_asset.write_bytes(b"repo image")
     (root / "storage/objects/poetry-media/audio/song.mp3").write_bytes(b"mp3!")
+    legacy = source / "human-archive/archive-data.json"
+    legacy.parent.mkdir(parents=True, exist_ok=True)
+    legacy.write_text(json.dumps([
+        {"id": 1, "date": "2020-01-02", "year": "2020", "title": "Legacy poem", "url": "https://emanuelstefancu.wordpress.com/2020/01/02/legacy-poem/", "categories": ["Poetry"]},
+        {"id": 2, "date": "2020-01-03", "year": "2020", "title": "Untrusted link", "url": "https://evil.example/legacy", "categories": ["Poetry"]},
+    ]), encoding="utf-8")
     (root / "storage/objects/poetry-media/unpublished/hidden.png").write_bytes(b"hidden")
     (root / "storage/objects/poetry-media-staging/secret/private.pdf").write_bytes(b"secret")
     subprocess.run([sys.executable, str(repo / "scripts/build_recovery_site.py"), str(root), "--repo-root", str(source)], check=True)
@@ -91,6 +97,9 @@ with tempfile.TemporaryDirectory() as temp:
     assert "https://audio.example.invalid/track.mp3" in page
     assert "Open original media (external link; not stored offline)" in page
     assert "javascript:alert(1)" not in page
+    assert "Legacy poem" in page
+    assert "https://emanuelstefancu.wordpress.com/2020/01/02/legacy-poem/" in page
+    assert "evil.example" not in page
     assert "private.pdf" not in page
     assert "hidden.png" not in page
     assert "private@example.invalid" not in page

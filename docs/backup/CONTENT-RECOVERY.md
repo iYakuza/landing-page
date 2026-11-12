@@ -12,7 +12,7 @@ Every successful run of **Green Dream content and media backup** now generates a
 - Search and category filtering work locally in the browser.
 - No connection to the original Supabase project or any third-party service is needed to browse the extracted copy.
 
-The export deliberately excludes pending/failed submissions, unapproved transmissions, contact details, IP hashes, private Storage buckets, private bucket files, and unreferenced public-bucket objects. The viewer sanitizes rich-text content before rendering it. Media hosted on external platforms is not downloaded; external media URLs stored on published records are shown as outbound links. Supabase Storage files and repository-tracked media are included in the offline package.
+The export deliberately excludes pending/failed submissions, unapproved transmissions, contact details, IP hashes, private Storage buckets, private bucket files, and unreferenced public-bucket objects. It also includes the 140-entry checked-in legacy WordPress index (titles, dates, categories and original links); those original post bodies are not mirrored offline. The viewer sanitizes rich-text content before rendering it. Media hosted on external platforms is not downloaded; external media URLs stored on published records are shown as outbound links. Supabase Storage files and repository-tracked media are included in the offline package.
 
 ## Get a portable website from a successful backup
 
