@@ -143,7 +143,10 @@ jobs:
           LOCAL_PROJECT="$RUNNER_TEMP/green-dream-restore-target"
           mkdir -p "$LOCAL_PROJECT/supabase/migrations"
           printf 'project_id = "green-dream-restore-test"\n' > "$LOCAL_PROJECT/supabase/config.toml"
-          supabase --workdir "$LOCAL_PROJECT" start
+          if ! supabase --workdir "$LOCAL_PROJECT" start > "$RUNNER_TEMP/local-supabase-start.log" 2>&1; then
+            sed -E 's/(Secret key: ).*/\1[redacted]/' "$RUNNER_TEMP/local-supabase-start.log" | tail -n 80
+            exit 1
+          fi
           touch "$RUNNER_TEMP/local-supabase.started"
 
       - name: Restore snapshot into local Supabase and verify recovery
@@ -153,6 +156,12 @@ jobs:
           OUT="$RUNNER_TEMP/green-dream-backup"
           LOCAL_PROJECT="$RUNNER_TEMP/green-dream-restore-target"
           supabase --workdir "$LOCAL_PROJECT" status -o env > "$RUNNER_TEMP/local-supabase.env"
+          LOCAL_SECRET_KEY="$(sed -nE 's/.*Secret key: (sb_secret_[^[:space:]]+).*/\1/p' "$RUNNER_TEMP/local-supabase-start.log" | head -n 1)"
+          if [ -z "$LOCAL_SECRET_KEY" ]; then
+            echo "::error::Local Supabase CLI did not expose a Secret API key for restore testing."
+            exit 1
+          fi
+          printf 'SECRET_KEY=%q\n' "$LOCAL_SECRET_KEY" >> "$RUNNER_TEMP/local-supabase.env"
           set -a
           source "$RUNNER_TEMP/local-supabase.env"
           set +a
@@ -166,7 +175,7 @@ jobs:
           DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/storage-policies.sql"
           DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/database/data.sql"
           DATABASE_URL="$DB_URL" python3 scripts/verify_storage_security.py "$OUT"
-          SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="${SECRET_KEY:-$SERVICE_ROLE_KEY}" \
+          SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="$SECRET_KEY" \
             deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$OUT"
           DATABASE_URL="$DB_URL" python3 scripts/verify_database_restore.py --compare "$OUT/database/table-counts.json"
 
