@@ -7,6 +7,8 @@ This workflow creates a daily encrypted snapshot and uploads it to the app-manag
 - Supabase roles, application schema, and application data using the Supabase CLI.
 - The Supabase migration ledger, separately from the SQL dump.
 - Supabase Auth user and identity rows, exported separately because managed Auth schemas are excluded from the standard CLI schema dump. These files contain sensitive personal data and password hashes.
+- Supabase Vault secret values, exported from the decrypted Vault view into the encrypted archive.
+- Edge Function environment variable names (not their values), to provide a recovery inventory.
 - All objects from the three current Storage buckets, plus bucket configuration.
 - A Git bundle containing the repository history and the checked-in Edge Function source.
 - A SHA-256 manifest for the files in each archive.
@@ -68,7 +70,7 @@ Open **GitHub → Actions → Green Dream Google Drive backup → Run workflow**
 
 ## Backup contents and limitations
 
-The CLI dump excludes Supabase-managed schemas. Auth users and identities are therefore exported as JSON alongside the database dump. Auth provider settings, project API keys, Edge Function secrets, DNS/custom-domain configuration, and other dashboard-level settings are not included; preserve those separately in a secure configuration record. Edge Function source is versioned in this repository, but its runtime secrets are not.
+The CLI dump excludes Supabase-managed schemas. Auth users and identities are therefore exported as JSON alongside the database dump. Supabase Vault values are included in the encrypted archive. However, Edge Function runtime environment secret values (for example, Resend, Turnstile, and service credentials) are not readable through the available project connection and are not included; the archive records their names only. Auth provider settings, project API keys, database connection credentials, DNS/custom-domain configuration, and other dashboard-level settings are also not included. Preserve these separately in a password manager or another secure configuration record. Edge Function source is versioned in this repository, but runtime secrets must be re-entered during recovery.
 
 This workflow is not considered production-ready until a real backup has completed, the archive has been decrypted and its manifest verified, and a restoration procedure has been tested. A successful upload alone is not proof of recoverability.
 
