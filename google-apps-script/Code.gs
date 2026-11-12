@@ -158,16 +158,18 @@ function doPost(e) {
       }
     }
     const manifestName = FILE_PREFIX + request.backup_id + ".manifest.json";
+    const fileName = FILE_PREFIX + request.backup_id + "-part-" +
+      String(part).padStart(4, "0") + "-of-" + String(total).padStart(4, "0") + ".gpgpart";
     const manifests = folder.getFilesByName(manifestName);
     if (manifests.hasNext()) {
       const manifest = JSON.parse(manifests.next().getBlob().getDataAsString());
-      if (manifest.part_count !== total) {
-        return json_({ ok: false, error: "Completed backup metadata conflicts with this request." });
+      const recordedPart = (manifest.parts || []).find(function (item) { return item.name === fileName; });
+      if (manifest.backup_id !== request.backup_id || manifest.encrypted !== true ||
+          manifest.part_count !== total || !recordedPart ||
+          recordedPart.size !== bytes.length || recordedPart.sha256 !== digest) {
+        return json_({ ok: false, error: "Completed backup is immutable; this part conflicts with its manifest." });
       }
     }
-
-    const fileName = FILE_PREFIX + request.backup_id + "-part-" +
-      String(part).padStart(4, "0") + "-of-" + String(total).padStart(4, "0") + ".gpgpart";
     const existing = folder.getFilesByName(fileName);
     if (existing.hasNext()) {
       const file = existing.next();
