@@ -11,7 +11,7 @@ import urllib.request
 from datetime import datetime, timezone
 from uuid import uuid4
 
-PART_BYTES = 5 * 1024 * 1024
+PART_BYTES = 1 * 1024 * 1024
 PREFIX = "greendream-backup-"
 
 
