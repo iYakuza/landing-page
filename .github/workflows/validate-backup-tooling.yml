@@ -117,9 +117,18 @@ jobs:
           LOCAL_PROJECT="$RUNNER_TEMP/storage-restore-test-project"
           mkdir -p "$LOCAL_PROJECT/supabase/migrations"
           printf 'project_id = "storage-restore-test"\n' > "$LOCAL_PROJECT/supabase/config.toml"
-          supabase --workdir "$LOCAL_PROJECT" start
+          if ! supabase --workdir "$LOCAL_PROJECT" start > "$RUNNER_TEMP/storage-restore-start.log" 2>&1; then
+            sed -E 's/(Secret key: ).*/\1[redacted]/' "$RUNNER_TEMP/storage-restore-start.log" | tail -n 80
+            exit 1
+          fi
           touch "$RUNNER_TEMP/storage-restore.started"
           supabase --workdir "$LOCAL_PROJECT" status -o env > "$RUNNER_TEMP/storage-restore.env"
+          LOCAL_SECRET_KEY="$(sed -nE 's/.*Secret key: (sb_secret_[^[:space:]]+).*/\1/p' "$RUNNER_TEMP/storage-restore-start.log" | head -n 1)"
+          if [ -z "$LOCAL_SECRET_KEY" ]; then
+            echo "::error::Local Supabase CLI did not expose a Secret API key for integration testing."
+            exit 1
+          fi
+          printf 'SECRET_KEY=%q\n' "$LOCAL_SECRET_KEY" >> "$RUNNER_TEMP/storage-restore.env"
           printf "Local Supabase env names: "
           cut -d= -f1 "$RUNNER_TEMP/storage-restore.env" | paste -sd "," -
 
@@ -157,4 +166,4 @@ jobs:
             supabase --workdir "$RUNNER_TEMP/storage-restore-test-project" stop --no-backup
           fi
           rm -rf "$RUNNER_TEMP/storage-restore-test-project" "$RUNNER_TEMP/storage-restore-fixture"
-          rm -f "$RUNNER_TEMP/storage-restore.env" "$RUNNER_TEMP/storage-restore.started"
+          rm -f "$RUNNER_TEMP/storage-restore.env" "$RUNNER_TEMP/storage-restore-start.log" "$RUNNER_TEMP/storage-restore.started"
