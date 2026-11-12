@@ -1,0 +1,107 @@
+name: Recover Green Dream from private Google Drive backup
+
+on:
+  workflow_dispatch:
+    inputs:
+      backup_id:
+        description: "Completed backup ID (leave blank to use the newest completed backup)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: green-dream-recovery
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out recovery tooling
+        uses: actions/checkout@v6
+
+      - name: Install recovery dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes gnupg python3
+          python3 --version
+          gpg --version
+
+      - name: Validate recovery credentials
+        shell: bash
+        env:
+          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
+          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          test -n "$GOOGLE_DRIVE_INGEST_URL"
+          test -n "$GOOGLE_DRIVE_INGEST_TOKEN"
+          test -n "$BACKUP_ENCRYPTION_PASSPHRASE"
+          if [ "${#GOOGLE_DRIVE_INGEST_TOKEN}" -lt 40 ]; then
+            echo "::error::The receiver token is too short."
+            exit 1
+          fi
+          if [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 32 ]; then
+            echo "::error::The encryption passphrase is too short."
+            exit 1
+          fi
+
+      - name: Download and verify encrypted archive from Drive
+        env:
+          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
+          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          BACKUP_ID: ${{ inputs.backup_id }}
+        run: |
+          set -euo pipefail
+          OUTPUT="$RUNNER_TEMP/green-dream-recovery.gpg"
+          if [ -n "$BACKUP_ID" ]; then
+            python3 scripts/download_apps_script_backup.py --backup-id "$BACKUP_ID" --output "$OUTPUT"
+          else
+            python3 scripts/download_apps_script_backup.py --output "$OUTPUT"
+          fi
+          test -s "$OUTPUT"
+          echo "ENCRYPTED_BACKUP=$OUTPUT" >> "$GITHUB_ENV"
+
+      - name: Decrypt archive and verify every backed-up file
+        shell: bash
+        env:
+          BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/green-dream-restored"
+          ARCHIVE="$RUNNER_TEMP/green-dream-restored.tar.gz"
+          mkdir -p "$ROOT"
+          printf '%s' "$BACKUP_ENCRYPTION_PASSPHRASE" | \
+            gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 \
+                --decrypt --output "$ARCHIVE" "$ENCRYPTED_BACKUP"
+          tar -xzf "$ARCHIVE" -C "$ROOT" --no-same-owner --no-same-permissions
+          python3 scripts/verify_backup_manifest.py "$ROOT"
+          test -s "$ROOT/recovery-site/index.html"
+          echo "RESTORED_ROOT=$ROOT" >> "$GITHUB_ENV"
+
+      - name: Package a portable recovery website with public media only
+        run: |
+          set -euo pipefail
+          python3 scripts/package_recovery_site.py "$RESTORED_ROOT" "$RUNNER_TEMP/green-dream-recovery-site.zip"
+          unzip -l "$RUNNER_TEMP/green-dream-recovery-site.zip" | head -n 40
+
+      - name: Publish recovered website artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: green-dream-recovered-site-${{ github.run_id }}
+          path: ${{ runner.temp }}/green-dream-recovery-site.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Remove decrypted recovery material
+        if: always()
+        run: |
+          set +e
+          rm -rf "$RUNNER_TEMP/green-dream-restored"
+          rm -f "$RUNNER_TEMP/green-dream-recovery.gpg" "$RUNNER_TEMP/green-dream-restored.tar.gz"
+          rm -f "$RUNNER_TEMP/green-dream-recovery-site.zip"
