@@ -1,0 +1,69 @@
+name: Validate backup tooling
+
+on:
+  push:
+    branches:
+      - "backup/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/google-drive-backup.yml"
+      - ".github/workflows/validate-backup-tooling.yml"
+      - "scripts/backup_storage.py"
+      - "scripts/upload_drive_backup.py"
+      - "scripts/create_backup_manifest.py"
+      - "scripts/verify_backup_manifest.py"
+      - "supabase/functions/google-drive-oauth-callback/**"
+      - "supabase/config.toml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Compile Python backup tools
+        run: |
+          set -euo pipefail
+          python3 -m py_compile \
+            scripts/backup_storage.py \
+            scripts/upload_drive_backup.py \
+            scripts/create_backup_manifest.py \
+            scripts/verify_backup_manifest.py
+
+      - name: Test backup manifest generation and verification
+        run: |
+          set -euo pipefail
+          TEST_DIR="$(mktemp -d)"
+          trap 'rm -rf "$TEST_DIR"' EXIT
+          mkdir -p "$TEST_DIR/database"
+          printf 'schema test\n' > "$TEST_DIR/database/schema.sql"
+          printf 'data test\n' > "$TEST_DIR/database/data.sql"
+          python3 scripts/create_backup_manifest.py "$TEST_DIR"
+          python3 scripts/verify_backup_manifest.py "$TEST_DIR"
+          printf 'tamper\n' >> "$TEST_DIR/database/data.sql"
+          if python3 scripts/verify_backup_manifest.py "$TEST_DIR"; then
+            echo "::error::Manifest verifier did not detect modified content"
+            exit 1
+          fi
+
+      - name: Validate YAML and Supabase TOML syntax
+        run: |
+          set -euo pipefail
+          ruby -e 'require "yaml"; ARGV.each { |f| YAML.load_file(f, aliases: true); puts "YAML OK: #{f}" }' \
+            .github/workflows/google-drive-backup.yml \
+            .github/workflows/validate-backup-tooling.yml
+          python3 -c 'import tomllib; tomllib.load(open("supabase/config.toml", "rb")); print("Supabase TOML OK")'
+
+      - name: Check OAuth callback TypeScript formatting and types
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - run: deno fmt --check supabase/functions/google-drive-oauth-callback/index.ts
+      - run: deno check supabase/functions/google-drive-oauth-callback/index.ts
