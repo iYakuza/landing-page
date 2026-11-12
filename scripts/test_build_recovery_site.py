@@ -52,11 +52,13 @@ with tempfile.TemporaryDirectory() as temp:
         "objects": [
             {"bucket": "public-media", "path": "images/cover.jpg", "bytes": 4, "sha256": "x"},
             {"bucket": "public-media", "path": "audio/song.mp3", "bytes": 4, "sha256": "y"},
+            {"bucket": "public-media", "path": "unpublished/hidden.png", "bytes": 6, "sha256": "h"},
             {"bucket": "private-media", "path": "secret/private.pdf", "bytes": 6, "sha256": "z"},
         ]
     }), encoding="utf-8")
     (root / "storage/objects/public-media/images").mkdir(parents=True)
     (root / "storage/objects/public-media/audio").mkdir(parents=True)
+    (root / "storage/objects/public-media/unpublished").mkdir(parents=True)
     (root / "storage/objects/private-media/secret").mkdir(parents=True)
     (root / "storage/objects/public-media/images/cover.jpg").write_bytes(b"jpeg")
     source = root / "source"
@@ -64,6 +66,7 @@ with tempfile.TemporaryDirectory() as temp:
     local_asset.parent.mkdir(parents=True)
     local_asset.write_bytes(b"repo image")
     (root / "storage/objects/public-media/audio/song.mp3").write_bytes(b"mp3!")
+    (root / "storage/objects/public-media/unpublished/hidden.png").write_bytes(b"hidden")
     (root / "storage/objects/private-media/secret/private.pdf").write_bytes(b"secret")
     subprocess.run([sys.executable, str(repo / "scripts/build_recovery_site.py"), str(root), "--repo-root", str(source)], check=True)
     page = (root / "recovery-site/index.html").read_text(encoding="utf-8")
@@ -72,6 +75,7 @@ with tempfile.TemporaryDirectory() as temp:
     assert "A shared thought" in page
     assert "A consent-approved message" in page
     assert "private.pdf" not in page
+    assert "hidden.png" not in page
     assert "private@example.invalid" not in page
     assert "private-ip-hash" not in page
     assert "private moderation note" not in page
@@ -88,6 +92,7 @@ with tempfile.TemporaryDirectory() as temp:
         assert "recovery-site/index.html" in names
         assert "storage/objects/public-media/images/cover.jpg" in names
         assert "storage/objects/public-media/audio/song.mp3" in names
+        assert "storage/objects/public-media/unpublished/hidden.png" not in names
         assert "recovery-site/static-assets/posts/imported/wfh/media/featured.jpg" in names
         assert not any("private-media" in name for name in names)
 print("Offline recovery-site builder and package tests passed.")
