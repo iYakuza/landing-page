@@ -15,37 +15,55 @@
     const luminance=hex=>{const c=rgb(hex);if(!c)return .5;const v=c.map(n=>n/255).map(n=>n<=.04045?n/12.92:Math.pow((n+.055)/1.055,2));return .2126*v[0]+.7152*v[1]+.0722*v[2]};
     const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
     const mix=(hex,target,amount)=>{const c=rgb(hex)||[80,100,80],t=target==="white"?255:0;return "#"+c.map(n=>Math.round(n+(t-n)*amount).toString(16).padStart(2,"0")).join("")};
-    const makeBackground=(hex,isLight)=>{let c=/^#[0-9a-f]{6}$/i.test(hex||"")?hex:"#101810";for(let i=0;i<=100;i++){const l=luminance(c);if(isLight?l>=.22:l<=.15)return c;c=mix(c,isLight?"white":"black",.035)}return isLight?"#f4f5f0":"#101810"};
     const validHex=value=>/^#[0-9a-f]{6}$/i.test(String(value||""));
+    const minSurfaceContrast=1.25;
     const sourcePage=validHex(theme.page)?theme.page:"#101810";
     const light=luminance(sourcePage)>.42;
     let page=sourcePage;
-    // Keep page and panel backgrounds in one luminance family so one readable
-    // foreground can serve both, while retaining a visible surface separation.
-    if(light&&luminance(page)<.42){for(let i=0;i<100&&luminance(page)<.42;i++)page=mix(page,"white",.035)}
     if(!light&&luminance(page)>.07){for(let i=0;i<100&&luminance(page)>.07;i++)page=mix(page,"black",.035)}
-    const sourceSurface=validHex(theme.surface)?theme.surface:page;
-    let surface=sourceSurface;
-    const pageLum=luminance(page),surfaceLum=luminance(surface);
+    let surface=validHex(theme.surface)?theme.surface:page;
     if(light){
-      const minSurface=.30,maxSurface=pageLum/1.18;
-      if(surfaceLum>maxSurface){for(let i=0;i<100&&luminance(surface)>maxSurface;i++)surface=mix(surface,"black",.035)}
-      else if(surfaceLum<minSurface){for(let i=0;i<100&&luminance(surface)<minSurface;i++)surface=mix(surface,"white",.035)}
-    }else{
-      const maxSurface=.10;
+      const maxSurface=(luminance(page)+.05)/minSurfaceContrast-.05;
       if(luminance(surface)>maxSurface){for(let i=0;i<100&&luminance(surface)>maxSurface;i++)surface=mix(surface,"black",.035)}
-      if(contrast(surface,page)<1.18){
-        const target=luminance(surface)>=pageLum?"white":"black";
-        for(let i=0;i<100&&contrast(surface,page)<1.18;i++){
-          const candidate=mix(surface,target,.035);
-          if(luminance(candidate)<=maxSurface)surface=candidate;
-          else break;
+      else if(luminance(surface)<.30){for(let i=0;i<100&&luminance(surface)<.30;i++)surface=mix(surface,"white",.035)}
+    }else{
+      const maxSurface=.12;
+      if(luminance(surface)>maxSurface){for(let i=0;i<100&&luminance(surface)>maxSurface;i++)surface=mix(surface,"black",.035)}
+      if(contrast(surface,page)<minSurfaceContrast){
+        const candidates=[];
+        ["black","white"].forEach(target=>{
+          let candidate=surface;
+          for(let i=1;i<=100;i++){
+            const next=mix(candidate,target,.035);
+            if(luminance(next)>maxSurface)break;
+            candidate=next;
+            if(contrast(candidate,page)>=minSurfaceContrast){
+              candidates.push({color:candidate,distance:Math.abs(luminance(candidate)-luminance(surface))});
+              break;
+            }
+          }
+        });
+        if(candidates.length){
+          surface=candidates.sort((a,b)=>a.distance-b.distance)[0].color;
+        }else{
+          let best=surface,bestRatio=contrast(surface,page);
+          ["black","white"].forEach(target=>{
+            let candidate=surface;
+            for(let i=1;i<=100;i++){
+              const next=mix(candidate,target,.035);
+              if(luminance(next)>maxSurface)break;
+              candidate=next;
+              const ratio=contrast(candidate,page);
+              if(ratio>bestRatio){best=candidate;bestRatio=ratio}
+            }
+          });
+          surface=best;
         }
       }
     }
     const safeForeground=(hex,bgs,min=4.5)=>{let c=validHex(hex)?hex:(light?"#111511":"#f7f8f5");if(bgs.every(bg=>contrast(c,bg)>=min))return c;const target=light?"black":"white";for(let i=1;i<=100;i++){const candidate=mix(c,target,i/100);if(bgs.every(bg=>contrast(candidate,bg)>=min))return candidate}return target==="black"?"#000000":"#ffffff"};
-    const raised=light?mix(surface,"white",.16):mix(surface,"black",.18);
-    const text=safeForeground(light?"#111511":"#f7f8f5",[page,surface,raised],7);
+    const raised=light?mix(surface,"white",.42):mix(surface,"black",.35);
+    const text=safeForeground(light?"#111511":"#f7f8f5",[page,surface,raised],4.5);
     const accent=safeForeground(theme.accent,[page,surface,raised],4.5);
     const muted=safeForeground(theme.muted,[page,surface,raised],4.5);
     const border=safeForeground(theme.border||accent,[page,surface,raised],3);
@@ -105,6 +123,27 @@
       "html[data-vha-mood] .vha-mood-box,html[data-vha-mood] .vha-mood-box *{color:var(--theme-text)!important}\n"+
       "html[data-vha-mood] .vha-mood-box button[data-tool=apply-mood]{background:var(--theme-accent)!important;color:var(--theme-on-accent)!important}\n"+
       "html[data-vha-mood] :is(small,figcaption,caption,time,.muted,.text-muted,[data-muted=true],.vha-mood-status,#vha-presentation-hint){color:var(--theme-muted)!important}";
+    globalStyle.textContent += "\n" + [
+      "html[data-vha-mood] body,html[data-vha-mood] body>*,html[data-vha-mood] #app,html[data-vha-mood] #root,html[data-vha-mood] main,html[data-vha-mood] .gd,html[data-vha-mood] .gd-main,html[data-vha-mood] .gd-shell,html[data-vha-mood] .gd-page,html[data-vha-mood] .posts-main,html[data-vha-mood] .posts-content,html[data-vha-mood] .posts-page,html[data-vha-mood] .song-page,html[data-vha-mood] .cv-page,html[data-vha-mood] .cv-shell,html[data-vha-mood] .page-shell,html[data-vha-mood] .site-shell,html[data-vha-mood] .hero,html[data-vha-mood] .gd-hero,html[data-vha-mood] .posts-hero,html[data-vha-mood] .cv-hero{background-image:none!important}",
+      "html[data-vha-mood] body :is(header,footer,nav,section,article,aside,form,fieldset,details,.gd-nav,.gd-footer,.gd-panel,.gd-card,.gd-radio,.gd-move,.post-card,.posts-note,.posts-filters,.viewer-console,.song-panel,.song-player-card,.cv-card,.cv-section,.cv-wrap,.cv-hero,.transmission-card,.transmit-panel,.vha-journey-note,.vha-constellation-presets,.vha-mood-box,.vha-star-tooltip){background-image:none!important}",
+      "html[data-vha-mood] body.vha-crystal-open #vha-world-map{background:var(--theme-page)!important;background-image:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}",
+      "html[data-vha-mood] .vha-map-node{opacity:1!important}",
+      "html[data-vha-mood] .vha-star-tooltip{opacity:1!important;animation:none!important;transition:none!important;background:var(--theme-surface)!important;color:var(--theme-text)!important;text-shadow:none!important}",
+      "html[data-vha-mood] body :is(.gd-move,.gd-hero,.posts-hero,.cv-hero,.hero,.post-card,.transmit-panel)::before,html[data-vha-mood] body :is(.gd-move,.gd-hero,.posts-hero,.cv-hero,.hero,.post-card,.transmit-panel)::after{background-image:none!important}",
+      "html[data-vha-mood] .cv-hero::after{color:var(--theme-muted)!important;opacity:1!important;text-shadow:none!important}",
+      "html[data-vha-mood] body a:not(.vha-map-node):not([class*=\"button\"]):not([class*=\"btn\"]):not([class*=\"cta\"]):not([class*=\"primary\"]):not([role=\"button\"]){background-color:transparent!important;background-image:none!important}",
+      "html[data-vha-mood] body a:not(.vha-map-node):not([class*=\"button\"]):not([class*=\"btn\"]):not([class*=\"cta\"]):not([class*=\"primary\"]):not([role=\"button\"]):hover,html[data-vha-mood] body a:not(.vha-map-node):not([class*=\"button\"]):not([class*=\"btn\"]):not([class*=\"cta\"]):not([class*=\"primary\"]):not([role=\"button\"]):focus-visible{background-color:transparent!important;background-image:none!important;color:var(--theme-accent)!important;text-decoration:underline!important}",
+      "html[data-vha-mood] body :is(a[class*=\"button\"],a[class*=\"btn\"],a[class*=\"cta\"],a[class*=\"primary\"],a[role=\"button\"]):not([class*=\"secondary\"]){background:var(--theme-accent)!important;background-image:none!important;color:var(--theme-on-accent)!important;border-color:var(--theme-accent)!important;text-decoration:none!important}",
+      "html[data-vha-mood] body :is(a[class*=\"button\"],a[class*=\"btn\"],a[class*=\"cta\"],a[class*=\"primary\"],a[role=\"button\"]):not([class*=\"secondary\"]) *{color:var(--theme-on-accent)!important}",
+      "html[data-vha-mood] body :is(a[class*=\"button\"],a[class*=\"btn\"],a[class*=\"cta\"],a[class*=\"primary\"],a[role=\"button\"]):not([class*=\"secondary\"]) svg :is(path,line,polyline,polygon,circle,rect,ellipse){stroke:var(--theme-on-accent)!important}",
+      "html[data-vha-mood] body :is(a[class*=\"button\"],a[class*=\"btn\"],a[class*=\"cta\"],a[class*=\"primary\"],a[role=\"button\"]):not([class*=\"secondary\"]) svg :is(path,polygon,circle,rect,ellipse)[fill]:not([fill=\"none\"]){fill:var(--theme-on-accent)!important}",
+      "html[data-vha-mood] body :is(button,[role=\"button\"],input[type=\"button\"],input[type=\"submit\"],input[type=\"reset\"]):is(:hover,:focus-visible) *{color:var(--theme-on-accent)!important}",
+      "html[data-vha-mood] body :is(button,[role=\"button\"],input[type=\"button\"],input[type=\"submit\"],input[type=\"reset\"]):is(:hover,:focus-visible) svg :is(path,line,polyline,polygon,circle,rect,ellipse){stroke:var(--theme-on-accent)!important}",
+      "html[data-vha-mood] body :is(button,[role=\"button\"],input[type=\"button\"],input[type=\"submit\"],input[type=\"reset\"]):is(:hover,:focus-visible) svg :is(path,polygon,circle,rect,ellipse)[fill]:not([fill=\"none\"]){fill:var(--theme-on-accent)!important}",
+      "html[data-vha-mood] #vha-viewer-tools :is(button,[role=\"button\"],input[type=\"button\"],input[type=\"submit\"],input[type=\"reset\"]):is(:hover,:focus-visible) *{color:var(--theme-on-accent)!important}",
+      "html[data-vha-mood] #vha-viewer-tools :is(button,[role=\"button\"],input[type=\"button\"],input[type=\"submit\"],input[type=\"reset\"]):is(:hover,:focus-visible) svg :is(path,line,polyline,polygon,circle,rect,ellipse){stroke:var(--theme-on-accent)!important}",
+      "html[data-vha-mood] #vha-viewer-tools :is(button,[role=\"button\"],input[type=\"button\"],input[type=\"submit\"],input[type=\"reset\"]):is(:hover,:focus-visible) svg :is(path,polygon,circle,rect,ellipse)[fill]:not([fill=\"none\"]){fill:var(--theme-on-accent)!important}"
+    ].join("\n");
     const font=key=>moodFontStacks[key]||moodFontStacks.sans;
     const radius=Math.min(28,Math.max(0,Number(theme.radius)||0));
     const shadow=Math.min(.45,Math.max(0,Number(theme.shadow)||0));
