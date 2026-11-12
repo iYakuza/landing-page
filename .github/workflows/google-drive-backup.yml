@@ -67,6 +67,7 @@ jobs:
       - name: Create backup workspace
         run: |
           set -euo pipefail
+          umask 077
           mkdir -p "$RUNNER_TEMP/green-dream-backup"/{database,auth,storage,repository,metadata}
 
       - name: Export database roles, schema, and data
