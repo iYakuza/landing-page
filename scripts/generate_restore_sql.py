@@ -55,6 +55,15 @@ storage_policies = json.loads(policy_file.read_text(encoding="utf-8")) if policy
 policy_lines = [
     "-- Custom Storage RLS policies captured from the source project.",
 ]
+security_file = root / "storage" / "security-settings.json"
+if security_file.exists():
+    security_settings = json.loads(security_file.read_text(encoding="utf-8"))
+    for table in security_settings.get("tables", []):
+        table_name = ident(table["table"])
+        state = "enable" if table.get("rowsecurity") else "disable"
+        force = "force" if table.get("forcerowsecurity") else "no force"
+        policy_lines.append("alter table \"storage\"." + table_name + " " + state + " row level security;")
+        policy_lines.append("alter table \"storage\"." + table_name + " " + force + " row level security;")
 def ident(value):
     return '"' + str(value).replace('"', '""') + '"'
 for policy in storage_policies:
