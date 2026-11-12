@@ -79,8 +79,12 @@ jobs:
           cat > "$TEST_DIR/storage/policies.json" <<'JSON'
           [{"schemaname":"storage","tablename":"objects","policyname":"test policy","permissive":"PERMISSIVE","roles":["anon","authenticated"],"cmd":"SELECT","qual":"(bucket_id = 'poetry-media'::text)","with_check":null}]
           JSON
+          cat > "$TEST_DIR/storage/security-settings.json" <<'JSON'
+          {"tables":[{"table":"objects","rowsecurity":true,"forcerowsecurity":false}],"grants":[]}
+          JSON
           python3 scripts/generate_restore_sql.py --root "$TEST_DIR"
           grep -Fq 'create policy "test policy" on "storage"."objects"' "$TEST_DIR/restore/storage-policies.sql"
+          grep -Fq 'alter table "storage"."objects" enable row level security' "$TEST_DIR/restore/storage-policies.sql"
           grep -q 'jsonb_populate_recordset(null::auth.users' "$TEST_DIR/restore/auth-restore.sql"
           grep -q "vault.create_secret('dummy-secret', 'test_secret'" "$TEST_DIR/restore/vault-restore.sql"
 
