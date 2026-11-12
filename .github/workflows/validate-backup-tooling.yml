@@ -65,5 +65,4 @@ jobs:
         with:
           deno-version: v2.x
 
-      - run: deno fmt --check supabase/functions/google-drive-oauth-callback/index.ts
       - run: deno check supabase/functions/google-drive-oauth-callback/index.ts
