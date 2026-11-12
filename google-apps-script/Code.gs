@@ -116,7 +116,7 @@ function doPost(e) {
       const files = folder.getFilesByName(name);
       if (!files.hasNext()) break;
       const file = files.next();
-      parts.push({ name: name, size: file.getSize() });
+      parts.push({ name: name, size: file.getSize(), file_id: file.getId() });
     }
 
     let finalized = false;
@@ -124,12 +124,16 @@ function doPost(e) {
       const manifestName = FILE_PREFIX + request.backup_id + ".manifest.json";
       const manifests = folder.getFilesByName(manifestName);
       if (!manifests.hasNext()) {
+        const verifiedParts = parts.map(function (part) {
+          const file = DriveApp.getFileById(part.file_id);
+          return { name: part.name, size: part.size, sha256: sha256_(file.getBlob().getBytes()) };
+        });
         const manifest = {
           backup_id: request.backup_id,
           created_at: new Date().toISOString(),
           encrypted: true,
           part_count: total,
-          parts: parts
+          parts: verifiedParts
         };
         folder.createFile(manifestName, JSON.stringify(manifest, null, 2), MimeType.PLAIN_TEXT);
       }
