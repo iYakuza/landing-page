@@ -12,6 +12,8 @@ on:
       - scripts/package_recovery_site.py
       - scripts/download_apps_script_backup.py
       - scripts/test_build_recovery_site.py
+      - google-apps-script/Code.gs
+      - google-apps-script/test_receiver.js
   workflow_dispatch:
 
 permissions:
