@@ -270,7 +270,7 @@ jobs:
           name: green-dream-recovery-site-${{ github.run_id }}
           path: ${{ runner.temp }}/green-dream-recovery-site.zip
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 7
 
       - name: Remove temporary backup material
         if: always()
