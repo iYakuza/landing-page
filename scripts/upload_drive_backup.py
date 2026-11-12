@@ -89,6 +89,7 @@ def upload_resumable(token, folder_id, archive):
         raise RuntimeError("Google Drive did not provide a resumable upload URL.")
     offset = 0
     chunk_size = 8 * 1024 * 1024
+    no_progress = 0
     result = None
     with archive.open("rb") as stream:
         while offset < size:
@@ -107,12 +108,19 @@ def upload_resumable(token, folder_id, archive):
                 if exc.code != 308:
                     detail = exc.read(1000).decode("utf-8", "replace")
                     raise RuntimeError(f"Drive upload failed (HTTP {exc.code}): {detail}") from None
+                previous_offset = offset
                 received = exc.headers.get("Range", "")
                 if received.startswith("bytes=0-"):
                     offset = int(received.rsplit("-", 1)[1]) + 1
                 else:
                     offset = 0
-                    stream.seek(0)
+                if offset <= previous_offset:
+                    no_progress += 1
+                    if no_progress > 5:
+                        raise RuntimeError("Drive resumable upload made no progress after repeated retries.")
+                else:
+                    no_progress = 0
+                stream.seek(offset)
     if not result or not result.get("id"):
         raise RuntimeError("Drive upload finished without a file ID.")
     if int(result.get("size", -1)) != size:
