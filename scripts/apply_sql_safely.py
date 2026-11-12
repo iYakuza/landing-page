@@ -20,14 +20,14 @@ sql_to_apply = sql_file
 temporary_sql = None
 skipped_role_settings = 0
 
-# Supabase's managed roles can carry a source-side log_min_messages setting.
-# A local disposable Supabase instance does not grant permission to change this
-# server logging parameter. It is not needed for application-data recovery, so
-# omit only that specific ALTER ROLE setting while preserving all other role DDL.
+# pg_dump quotes configuration parameter identifiers in ALTER ROLE statements
+# (for example: SET "log_min_messages" TO ...). The local disposable Supabase
+# instance cannot change this server logging parameter. Omit only that complete
+# role-setting statement; preserve role creation and every other role setting.
 if sql_file.name == "roles.sql":
     original_sql = sql_file.read_text(encoding="utf-8")
     sanitized_sql, skipped_role_settings = re.subn(
-        r"(?is)\bALTER\s+ROLE\b[^;]*?\bSET\s+log_min_messages\b[^;]*;",
+        r'(?is)\bALTER\s+ROLE\b[^;]*?\bSET\s+"?log_min_messages"?\b[^;]*;',
         "",
         original_sql,
     )
