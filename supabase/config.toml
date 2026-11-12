@@ -1,0 +1,16 @@
+project_id = "oeyxsqocldlovhsmzcjw"
+
+[functions.poetry-submit]
+verify_jwt = false
+
+[functions.website-theme]
+verify_jwt = false
+
+[functions.contact-about-role]
+verify_jwt = false
+
+[functions.secure-your-soul-transmissions]
+verify_jwt = false
+
+[functions.google-drive-oauth-callback]
+verify_jwt = false

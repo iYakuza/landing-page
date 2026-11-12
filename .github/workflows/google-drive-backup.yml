@@ -1,0 +1,239 @@
+name: Green Dream Google Drive backup
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 2 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: green-dream-drive-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    if: vars.BACKUP_ENABLED == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SUPABASE_URL: https://oeyxsqocldlovhsmzcjw.supabase.co
+
+    steps:
+      - name: Check out the complete repository history
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install backup dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client gnupg python3
+          python3 --version
+          psql --version
+          gpg --version
+
+      - name: Install a pinned Supabase CLI v2
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.1
+
+      - name: Validate required credentials
+        shell: bash
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+          BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          for name in SUPABASE_DB_URL SUPABASE_SERVICE_ROLE_KEY GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REFRESH_TOKEN BACKUP_ENCRYPTION_PASSPHRASE; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Missing required GitHub Actions secret: $name"
+              exit 1
+            fi
+          done
+          case "$SUPABASE_DB_URL" in
+            postgresql://*|postgres://*) ;;
+            *) echo "::error::SUPABASE_DB_URL must be a PostgreSQL connection string"; exit 1 ;;
+          esac
+          if [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 32 ]; then
+            echo "::error::BACKUP_ENCRYPTION_PASSPHRASE must be at least 32 characters"
+            exit 1
+          fi
+
+      - name: Create backup workspace
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$RUNNER_TEMP/green-dream-backup"/{database,auth,storage,secrets,repository,metadata}
+
+      - name: Export database roles, schema, and data
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/green-dream-backup/database"
+          supabase db dump --db-url "$DB_URL" -f "$OUT/roles.sql" --role-only
+          supabase db dump --db-url "$DB_URL" -f "$OUT/schema.sql"
+          supabase db dump --db-url "$DB_URL" -f "$OUT/data.sql" --data-only --use-copy
+          test -s "$OUT/roles.sql"
+          test -s "$OUT/schema.sql"
+          test -s "$OUT/data.sql"
+
+      - name: Export migration ledger, Auth identities, and Storage configuration
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/green-dream-backup"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(json_build_object('version',version,'name',name) order by version), '[]'::json) from supabase_migrations.schema_migrations" \
+            > "$OUT/database/migration-ledger.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(to_jsonb(u)), '[]'::json) from auth.users u" \
+            > "$OUT/auth/users.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(to_jsonb(i)), '[]'::json) from auth.identities i" \
+            > "$OUT/auth/identities.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(to_jsonb(b) order by id), '[]'::json) from storage.buckets b" \
+            > "$OUT/storage/buckets.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(json_build_object('schemaname',schemaname,'tablename',tablename,'policyname',policyname,'permissive',permissive,'roles',roles,'cmd',cmd,'qual',qual,'with_check',with_check) order by tablename, policyname), '[]'::json) from pg_policies where schemaname='storage'" \
+            > "$OUT/storage/policies.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select json_build_object('tables',(select coalesce(json_agg(json_build_object('table',c.relname,'rowsecurity',c.relrowsecurity,'forcerowsecurity',c.relforcerowsecurity) order by c.relname),'[]'::json) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='storage' and c.relkind in ('r','p') and c.relname in ('buckets','objects')),'grants',(select coalesce(json_agg(json_build_object('table',c.relname,'grantee',coalesce(pg_get_userbyid(a.grantee),'PUBLIC'),'grantor',pg_get_userbyid(a.grantor),'privilege',a.privilege_type,'grantable',a.is_grantable) order by c.relname,coalesce(pg_get_userbyid(a.grantee),'PUBLIC'),pg_get_userbyid(a.grantor),a.privilege_type),'[]'::json) from pg_class c join pg_namespace n on n.oid=c.relnamespace cross join lateral aclexplode(coalesce(c.relacl,acldefault('r',c.relowner))) a where n.nspname='storage' and c.relkind in ('r','p') and c.relname in ('buckets','objects')))::text" \
+            > "$OUT/storage/security-settings.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(to_jsonb(o) order by bucket_id, name), '[]'::json) from storage.objects o" \
+            > "$OUT/storage/objects-metadata.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(json_build_object('name',name,'description',description,'secret',decrypted_secret,'created_at',created_at,'updated_at',updated_at) order by name), '[]'::json) from vault.decrypted_secrets" \
+            > "$OUT/secrets/vault-secrets.json"
+          python3 scripts/generate_restore_sql.py --root "$OUT"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select json_build_object('postgres_version', version(), 'captured_at', now())::text" \
+            > "$OUT/metadata/database.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(json_build_object('name',extname,'version',extversion) order by extname), '[]'::json) from pg_extension" \
+            > "$OUT/metadata/extensions.json"
+          python3 scripts/create_restore_expectations.py "$OUT"
+
+      - name: Download every Supabase Storage object
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          python3 scripts/backup_storage.py --output "$RUNNER_TEMP/green-dream-backup/storage/objects"
+          python3 scripts/verify_storage_export.py "$RUNNER_TEMP/green-dream-backup"
+
+      - name: Install Deno for Storage restore verification
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Start disposable local Supabase restore target
+        run: |
+          set -euo pipefail
+          LOCAL_PROJECT="$RUNNER_TEMP/green-dream-restore-target"
+          mkdir -p "$LOCAL_PROJECT/supabase/migrations"
+          printf 'project_id = "green-dream-restore-test"\n' > "$LOCAL_PROJECT/supabase/config.toml"
+          supabase --workdir "$LOCAL_PROJECT" start
+          touch "$RUNNER_TEMP/local-supabase.started"
+
+      - name: Restore snapshot into local Supabase and verify recovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/green-dream-backup"
+          LOCAL_PROJECT="$RUNNER_TEMP/green-dream-restore-target"
+          supabase --workdir "$LOCAL_PROJECT" status -o env > "$RUNNER_TEMP/local-supabase.env"
+          set -a
+          source "$RUNNER_TEMP/local-supabase.env"
+          set +a
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "create extension if not exists supabase_vault with schema vault"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/database/roles.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/database/schema.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/auth-restore.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_auth_restore.py "$OUT"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/vault-restore.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_vault_restore.py "$OUT"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/storage-policies.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/database/data.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_storage_security.py "$OUT"
+          SUPABASE_URL="$API_URL" SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$OUT"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_database_restore.py --compare "$OUT/database/table-counts.json"
+
+      - name: Stop disposable local Supabase restore target
+        if: always()
+        continue-on-error: true
+        run: |
+          if [ -f "$RUNNER_TEMP/local-supabase.started" ]; then
+            supabase --workdir "$RUNNER_TEMP/green-dream-restore-target" stop --no-backup
+          fi
+
+      - name: Capture repository and deployed Edge Function source
+        run: |
+          set -euo pipefail
+          git bundle create "$RUNNER_TEMP/green-dream-backup/repository/landing-page.bundle" --all
+          git rev-parse HEAD > "$RUNNER_TEMP/green-dream-backup/metadata/repository-commit.txt"
+          git bundle verify "$RUNNER_TEMP/green-dream-backup/repository/landing-page.bundle"
+          git bundle list-heads "$RUNNER_TEMP/green-dream-backup/repository/landing-page.bundle" > "$RUNNER_TEMP/green-dream-backup/metadata/repository-bundle-heads.txt"
+          grep -Fq "$(cat "$RUNNER_TEMP/green-dream-backup/metadata/repository-commit.txt")" "$RUNNER_TEMP/green-dream-backup/metadata/repository-bundle-heads.txt"
+          test -s supabase/functions/poetry-submit/index.ts
+          test -s supabase/functions/website-theme/index.ts
+          test -s supabase/functions/contact-about-role/index.ts
+          test -s supabase/functions/secure-your-soul-transmissions/index.ts
+          python3 scripts/export_edge_env_inventory.py --source supabase/functions --output "$RUNNER_TEMP/green-dream-backup/metadata/edge-function-env-inventory.json"
+
+      - name: Generate checksums and backup manifest
+        run: |
+          set -euo pipefail
+          python3 scripts/create_backup_manifest.py "$RUNNER_TEMP/green-dream-backup"
+          python3 scripts/verify_backup_manifest.py "$RUNNER_TEMP/green-dream-backup"
+
+      - name: Build and encrypt archive
+        shell: bash
+        env:
+          BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/green-dream-backup"
+          ARCHIVE="$RUNNER_TEMP/greendream-backup-$(date -u +%Y%m%dT%H%M%SZ).tar.gz"
+          ENCRYPTED="$ARCHIVE.gpg"
+          tar -czf "$ARCHIVE" -C "$WORK" .
+          printf '%s' "$BACKUP_ENCRYPTION_PASSPHRASE" | \
+            gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 \
+                --compress-algo none --symmetric --cipher-algo AES256 \
+                --output "$ENCRYPTED" "$ARCHIVE"
+          shred -u "$ARCHIVE" || rm -f "$ARCHIVE"
+          VERIFY="$RUNNER_TEMP/greendream-backup-verify.tar.gz"
+          printf '%s' "$BACKUP_ENCRYPTION_PASSPHRASE" | \
+            gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 \
+                --decrypt --output "$VERIFY" "$ENCRYPTED"
+          tar -tzf "$VERIFY" >/dev/null
+          shred -u "$VERIFY" || rm -f "$VERIFY"
+          echo "ENCRYPTED_ARCHIVE=$ENCRYPTED" >> "$GITHUB_ENV"
+          ls -lh "$ENCRYPTED"
+
+      - name: Upload encrypted archive to Google Drive and apply retention
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+        run: |
+          set -euo pipefail
+          python3 scripts/upload_drive_backup.py "$ENCRYPTED_ARCHIVE"
+
+      - name: Remove temporary backup material
+        if: always()
+        run: |
+          set +e
+          rm -rf "$RUNNER_TEMP/green-dream-backup"
+          if [ -n "${ENCRYPTED_ARCHIVE:-}" ]; then rm -f "$ENCRYPTED_ARCHIVE"; fi
