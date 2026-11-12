@@ -1,53 +1,129 @@
 #!/usr/bin/env python3
-"""Small safety tests for rclone Drive backup manifest validation."""
+"""Safety tests for the rclone Drive backup transfer and manifest handling."""
 import importlib.util
 import json
 import pathlib
+import tempfile
 import unittest
-from unittest.mock import patch
+from argparse import Namespace
+from unittest.mock import call, patch
 
 path = pathlib.Path(__file__).with_name("rclone_drive_backup.py")
 spec = importlib.util.spec_from_file_location("rclone_drive_backup", path)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
+BACKUP_ID = "20261112T120000Z-a1b2c3d4"
+MANIFEST_NAME = f"{module.PREFIX}{BACKUP_ID}.json"
+
+
+def valid_manifest(**overrides):
+    value = {
+        "format": module.FORMAT,
+        "backup_id": BACKUP_ID,
+        "encrypted": True,
+        "archive_name": f"{module.PREFIX}{BACKUP_ID}.tar.gz.gpg",
+        "bytes": 99,
+        "sha256": "a" * 64,
+        "md5": "b" * 32,
+    }
+    value.update(overrides)
+    return value
+
 
 class TransferTests(unittest.TestCase):
     def test_accepts_valid_completed_manifest(self):
-        backup_id = "20261112T120000Z-a1b2c3d4"
-        manifest = {
-            "format": module.FORMAT,
-            "backup_id": backup_id,
-            "encrypted": True,
-            "archive_name": f"{module.PREFIX}{backup_id}.tar.gz.gpg",
-            "bytes": 99,
-            "sha256": "a" * 64,
-            "md5": "b" * 32,
-        }
-        with patch.object(module, "run_rclone", return_value=json.dumps(manifest)):
-            result = module.read_manifest("greendream:Green Dream Backups", f"{module.PREFIX}{backup_id}.json")
-        self.assertEqual(result["backup_id"], backup_id)
+        with patch.object(module, "run_rclone", return_value=json.dumps(valid_manifest())):
+            result = module.read_manifest("greendream:Green Dream Backups", MANIFEST_NAME)
+        self.assertEqual(result["backup_id"], BACKUP_ID)
 
     def test_rejects_unencrypted_manifest(self):
-        backup_id = "20261112T120000Z-a1b2c3d4"
-        manifest = {
-            "format": module.FORMAT,
-            "backup_id": backup_id,
-            "encrypted": False,
-            "archive_name": f"{module.PREFIX}{backup_id}.tar.gz.gpg",
-            "bytes": 99,
-            "sha256": "a" * 64,
-            "md5": "b" * 32,
-        }
-        with patch.object(module, "run_rclone", return_value=json.dumps(manifest)):
+        with patch.object(module, "run_rclone", return_value=json.dumps(valid_manifest(encrypted=False))):
             with self.assertRaises(RuntimeError):
-                module.read_manifest("greendream:Green Dream Backups", f"{module.PREFIX}{backup_id}.json")
+                module.read_manifest("greendream:Green Dream Backups", MANIFEST_NAME)
 
-    def test_upload_rejects_missing_archive_before_drive_access(self):
-        with patch.object(module, "run_rclone") as call:
+    def test_rejects_non_object_json(self):
+        for raw in ("[]", "null", '"manifest"'):
+            with self.subTest(raw=raw), patch.object(module, "run_rclone", return_value=raw):
+                with self.assertRaises(RuntimeError):
+                    module.read_manifest("greendream:Green Dream Backups", MANIFEST_NAME)
+
+    def test_rejects_malformed_json(self):
+        with patch.object(module, "run_rclone", return_value="{"):
+            with self.assertRaisesRegex(RuntimeError, "valid JSON"):
+                module.read_manifest("greendream:Green Dream Backups", MANIFEST_NAME)
+
+    def test_rejects_boolean_byte_count(self):
+        with patch.object(module, "run_rclone", return_value=json.dumps(valid_manifest(bytes=True))):
             with self.assertRaises(RuntimeError):
-                module.upload(type("Args", (), {"archive": pathlib.Path("/missing/archive.gpg")})())
-            call.assert_not_called()
+                module.read_manifest("greendream:Green Dream Backups", MANIFEST_NAME)
+
+    def test_rejects_invalid_checksum(self):
+        with patch.object(module, "run_rclone", return_value=json.dumps(valid_manifest(sha256="not-a-hash"))):
+            with self.assertRaises(RuntimeError):
+                module.read_manifest("greendream:Green Dream Backups", MANIFEST_NAME)
+
+    def test_rejects_manifest_filename_path_traversal(self):
+        with patch.object(module, "run_rclone") as run:
+            with self.assertRaises(RuntimeError):
+                module.read_manifest("greendream:Green Dream Backups", "../outside.json")
+            run.assert_not_called()
+
+    def test_rejects_missing_archive_before_drive_access(self):
+        with patch.object(module, "run_rclone") as run:
+            with self.assertRaises(RuntimeError):
+                module.upload(Namespace(archive=pathlib.Path("/missing/archive.gpg")))
+            run.assert_not_called()
+
+    def test_upload_publishes_manifest_only_after_remote_checksum_matches(self):
+        with tempfile.TemporaryDirectory() as temp:
+            archive = pathlib.Path(temp) / "archive.gpg"
+            archive.write_bytes(b"encrypted test archive")
+            with patch.object(module, "run_rclone") as run, patch.object(
+                module, "remote_md5", return_value=module.md5_file(archive)
+            ):
+                module.upload(Namespace(archive=archive))
+            commands = [entry.args[0] for entry in run.call_args_list]
+            self.assertEqual(commands[0][0], "mkdir")
+            self.assertEqual(commands[1][0], "copyto")
+            self.assertEqual(commands[2][0], "copyto")
+            self.assertTrue(commands[2][1].endswith(".json"))
+
+    def test_upload_does_not_publish_manifest_when_remote_checksum_differs(self):
+        with tempfile.TemporaryDirectory() as temp:
+            archive = pathlib.Path(temp) / "archive.gpg"
+            archive.write_bytes(b"encrypted test archive")
+            with patch.object(module, "run_rclone") as run, patch.object(
+                module, "remote_md5", return_value="0" * 32
+            ):
+                with self.assertRaisesRegex(RuntimeError, "MD5 does not match"):
+                    module.upload(Namespace(archive=archive))
+            commands = [entry.args[0] for entry in run.call_args_list]
+            self.assertEqual([command[0] for command in commands], ["mkdir", "copyto"])
+
+    def test_download_rejects_archive_checksum_mismatch(self):
+        with tempfile.TemporaryDirectory() as temp:
+            destination = pathlib.Path(temp) / "recovery.gpg"
+            manifest = valid_manifest(bytes=5, sha256="a" * 64, md5="b" * 32)
+            with patch.object(module, "run_rclone", side_effect=[
+                json.dumps(manifest),
+                None,
+            ]), patch.object(module, "sha256_file", return_value="f" * 64), patch.object(
+                module, "md5_file", return_value="e" * 32
+            ):
+                # The mocked copy operation must create the temporary file.
+                original_run = module.run_rclone
+
+                def copy_and_create(args, *, capture=False):
+                    if args[0] == "copyto":
+                        pathlib.Path(args[2]).write_bytes(b"wrong")
+                    return original_run(args, capture=capture)
+
+                with patch.object(module, "run_rclone", side_effect=copy_and_create):
+                    with self.assertRaisesRegex(RuntimeError, "checksum"):
+                        module.download(Namespace(backup_id=BACKUP_ID, output=destination))
+            self.assertFalse(destination.exists())
+            self.assertFalse(destination.with_name(destination.name + ".partial").exists())
 
 
 if __name__ == "__main__":
