@@ -11,7 +11,7 @@ database_url = os.environ.get("DATABASE_URL", "")
 if not database_url:
     raise SystemExit("DATABASE_URL is required.")
 expected = json.loads((root / "database" / "migration-ledger.json").read_text(encoding="utf-8"))
-sql = "select coalesce(json_agg(json_build_object('version',version,'name',name) order by version), '[]'::json) from supabase_migrations.schema_migrations"
+sql = "select coalesce(json_agg(to_jsonb(m) order by version), '[]'::json) from supabase_migrations.schema_migrations m"
 result = subprocess.run(
     ["psql", database_url, "-X", "-v", "ON_ERROR_STOP=1", "-Atc", sql],
     check=False, capture_output=True, text=True,
