@@ -12,6 +12,7 @@ on:
       - "scripts/create_backup_manifest.py"
       - "scripts/verify_backup_manifest.py"
       - "scripts/**"
+      - ".github/workflows/google-drive-content-backup.yml"
       - "google-apps-script/**"
       - "supabase/functions/google-drive-oauth-callback/**"
       - "supabase/config.toml"
@@ -58,7 +59,9 @@ jobs:
             scripts/verify_migration_ledger.py \
             scripts/apply_sql_safely.py \
             scripts/create_restore_expectations.py \
-            scripts/test_restore_expectations.py
+            scripts/test_restore_expectations.py \\
+            scripts/build_recovery_site.py \\
+            scripts/test_build_recovery_site.py
 
       - name: Test backup manifest generation and verification
         run: |
@@ -78,6 +81,9 @@ jobs:
 
       - name: Test database restore expectation parsing
         run: python3 scripts/test_restore_expectations.py
+
+      - name: Test offline recovery website generation
+        run: python3 scripts/test_build_recovery_site.py
 
       - name: Test SQL role-dump sanitizer
         run: python3 scripts/test_apply_sql_safely.py
