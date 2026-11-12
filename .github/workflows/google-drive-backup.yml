@@ -121,7 +121,7 @@ jobs:
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
             "select coalesce(json_agg(json_build_object('name',extname,'version',extversion) order by extname), '[]'::json) from pg_extension" \
             > "$OUT/metadata/extensions.json"
-          DATABASE_URL="$DB_URL" python3 scripts/verify_database_restore.py --output "$OUT/database/table-counts.json"
+          python3 scripts/create_restore_expectations.py "$OUT"
 
       - name: Download every Supabase Storage object
         run: |
