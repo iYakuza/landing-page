@@ -58,8 +58,6 @@ jobs:
 
       - name: Download and verify encrypted archive from Drive
         env:
-          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
-          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
           BACKUP_ID: ${{ inputs.backup_id }}
         run: |
           set -euo pipefail
