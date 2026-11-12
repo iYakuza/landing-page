@@ -1,6 +1,13 @@
 name: Green Dream content and media backup
 
 on:
+  # Run once when this workflow file is committed on the backup branch.
+  # Future website commits will not trigger an upload.
+  push:
+    branches:
+      - backup/google-drive-secret-key
+    paths:
+      - .github/workflows/google-drive-content-backup.yml
   workflow_dispatch:
 
 permissions:
@@ -12,7 +19,7 @@ concurrency:
 
 jobs:
   content-backup:
-    if: github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/backup/')
+    if: startsWith(github.ref, 'refs/heads/backup/')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
