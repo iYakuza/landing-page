@@ -33,8 +33,9 @@ jobs:
           sudo apt-get install --yes gnupg python3 rclone
           python3 --version
           gpg --version
+          rclone version
 
-      - name: Validate recovery credentials
+      - name: Validate recovery credentials and Drive access
         shell: bash
         env:
           RCLONE_CONFIG_BASE64: ${{ secrets.RCLONE_CONFIG_BASE64 }}
@@ -52,6 +53,8 @@ jobs:
             echo "::error::RCLONE_CONFIG_BASE64 must define a remote named greendream"
             exit 1
           fi
+          # Idempotent folder check validates OAuth before attempting recovery.
+          rclone mkdir "$RCLONE_REMOTE_PATH"
           if [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 32 ]; then
             echo "::error::The encryption passphrase is too short."
             exit 1
