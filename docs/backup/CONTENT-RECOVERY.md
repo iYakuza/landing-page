@@ -39,4 +39,12 @@ The recovery website is a content viewer, not a running copy of the original app
 
 The encrypted archive also preserves the complete Git repository history in `repository/landing-page.bundle`, plus the database schema/data and Storage objects. Rebuilding the original interactive site still requires provisioning a compatible Supabase project, restoring its database and Storage, redeploying Edge Functions, reconfiguring Auth and project settings, and supplying runtime secrets from their separate secure record. The current content archive is not a complete Supabase project image.
 
+To reconstruct the checked-in website source from an extracted full archive, run this from the extracted archive's parent directory:
+
+```bash
+git clone repository/landing-page.bundle green-dream-source
+```
+
+That restores the repository history and files. It does not, by itself, reconnect the site to Supabase or restore runtime configuration; those are separate recovery steps described in the full backup guide.
+
 No website is automatically published publicly by these workflows. The recovery package is an artifact for download and offline use.
