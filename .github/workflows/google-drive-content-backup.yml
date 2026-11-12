@@ -8,6 +8,7 @@ on:
       - backup/google-drive-secret-key
     paths:
       - .github/workflows/google-drive-content-backup.yml
+      - scripts/upload_apps_script_backup.py
   workflow_dispatch:
 
 permissions:
