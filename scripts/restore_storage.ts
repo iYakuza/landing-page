@@ -47,6 +47,9 @@ let restored = 0;
 for (const item of manifest.objects) {
   const bucket = item.bucket;
   const objectPath = item.path;
+  if (typeof bucket !== "string" || bucket.includes("/") || bucket === "." || bucket === ".." || !buckets.some((entry: any) => entry.id === bucket)) {
+    throw new Error("Unknown or unsafe Storage bucket in backup manifest.");
+  }
   if (typeof objectPath !== "string" || objectPath.startsWith("/") ||
       objectPath.split("/").some((part: string) => part === ".." || part === "")) {
     throw new Error("Unsafe Storage object path in backup manifest; path suppressed.");
