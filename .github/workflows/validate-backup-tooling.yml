@@ -79,6 +79,9 @@ jobs:
       - name: Test database restore expectation parsing
         run: python3 scripts/test_restore_expectations.py
 
+      - name: Test SQL role-dump sanitizer
+        run: python3 scripts/test_apply_sql_safely.py
+
       - name: Test Auth and Vault restore SQL generation
         run: |
           set -euo pipefail
