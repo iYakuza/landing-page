@@ -20,6 +20,7 @@ The complete archive is encrypted with GPG AES-256 before it is uploaded. The up
 - The workflow runs only on a schedule or manual dispatch; it does not run for pull requests from untrusted code.
 - GitHub Actions permissions are read-only for repository contents.
 - No backup data is written to the public GitHub repository or retained as a workflow artifact.
+- The workflow temporarily handles unencrypted database and media snapshots on an ephemeral GitHub-hosted runner for the restore test and encryption. The runner is discarded after the job; temporary files are explicitly cleaned, and logs suppress row values, tokens, secret contents, and object paths. GitHub Actions is therefore part of the trusted processing boundary.
 - Secrets are read from GitHub Actions repository secrets.
 - The Google OAuth app requests only the drive.file scope; it creates and manages its own backup folder and files.
 - Backup archives contain private user data. Keep the encryption passphrase in a password manager and maintain a separate secure recovery copy. Without it, the archives cannot be decrypted.
