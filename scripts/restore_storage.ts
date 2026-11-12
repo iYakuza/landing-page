@@ -37,7 +37,9 @@ for (const bucket of buckets) {
   const actualBucket = checkedBucket.data as any;
   const expectedMimeTypes = JSON.stringify([...(bucket.allowed_mime_types || [])].sort());
   const actualMimeTypes = JSON.stringify([...(actualBucket.allowed_mime_types || [])].sort());
-  if (actualBucket.public !== options.public || Number(actualBucket.file_size_limit) !== Number(options.fileSizeLimit) || actualMimeTypes !== expectedMimeTypes) {
+  const expectedSizeLimit = bucket.file_size_limit == null ? null : Number(bucket.file_size_limit);
+  const actualSizeLimit = actualBucket.file_size_limit == null ? null : Number(actualBucket.file_size_limit);
+  if (actualBucket.public !== options.public || actualSizeLimit !== expectedSizeLimit || actualMimeTypes !== expectedMimeTypes) {
     throw new Error("Restored Storage bucket configuration mismatch: " + bucket.id);
   }
   console.log("Prepared and verified Storage bucket: " + bucket.id);
