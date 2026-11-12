@@ -1,5 +1,7 @@
 # Green Dream backup system
 
+For the offline content-recovery website, portable ZIP artifact, and authenticated recovery workflow, see [CONTENT-RECOVERY.md](CONTENT-RECOVERY.md).
+
 This workflow is designed to create an encrypted snapshot of the Green Dream Supabase project and store it in the user's private Google Drive. It is not operational until the Apps Script receiver and GitHub Actions secrets are configured and a real backup plus recovery test succeeds.
 
 ## What the backup captures
