@@ -93,7 +93,7 @@ jobs:
           [{"schemaname":"storage","tablename":"objects","policyname":"test policy","permissive":"PERMISSIVE","roles":["anon","authenticated"],"cmd":"SELECT","qual":"(bucket_id = 'poetry-media'::text)","with_check":null}]
           JSON
           cat > "$TEST_DIR/storage/security-settings.json" <<'JSON'
-          {"tables":[{"table":"objects","rowsecurity":true,"forcerowsecurity":false}],"grants":[{"table":"objects","grantee":"authenticated","grantor":"postgres","privilege":"SELECT","grantable":false}]}
+          {"tables":[{"table":"objects","owner":"postgres","rowsecurity":true,"forcerowsecurity":false}],"grants":[{"table":"objects","grantee":"authenticated","grantor":"postgres","privilege":"SELECT","grantable":false}]}
           JSON
           python3 scripts/generate_restore_sql.py --root "$TEST_DIR"
           grep -Fq 'create policy "test policy" on "storage"."objects"' "$TEST_DIR/restore/storage-policies.sql"
