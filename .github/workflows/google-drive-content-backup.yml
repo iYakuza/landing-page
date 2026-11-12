@@ -123,15 +123,16 @@ jobs:
 
           This archive contains:
           - PostgreSQL public schema definition (public-schema.sql) and row data (public-data.sql)
-          - Public table row-count inventory
+          - Inventory of public database tables
           - Supabase Storage bucket configuration and object metadata
           - Downloaded bytes for every object in every listed Storage bucket
           - Complete Git repository history and tracked website assets
 
           This is a CONTENT RECOVERY BACKUP, not a complete Supabase project image.
-          It does not claim to restore PostgreSQL roles, schema, Auth, Vault, project
-          settings, runtime secrets, or every database permission. The database
-          content dump requires a compatible schema when restored. Full-system
+          It does not include PostgreSQL roles, Auth, Vault, project settings, runtime
+          secrets, or every database permission. The public schema and data files
+          are recovery inputs, but their restoration still requires a compatible
+          Supabase/PostgreSQL environment and a separate restore test. Full-system
           recovery remains a separate validation task.
           EOF
 
