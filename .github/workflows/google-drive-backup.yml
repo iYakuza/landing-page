@@ -101,6 +101,9 @@ jobs:
             "select coalesce(json_agg(to_jsonb(b) order by id), '[]'::json) from storage.buckets b" \
             > "$OUT/storage/buckets.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(to_jsonb(o) order by bucket_id, name), '[]'::json) from storage.objects o" \
+            > "$OUT/storage/objects-metadata.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
             "select json_build_object('postgres_version', version(), 'captured_at', now())::text" \
             > "$OUT/metadata/database.json"
 
