@@ -133,18 +133,22 @@ def executable_sql(statement):
 
 
 def sanitize_roles_sql(original_sql):
-    """Remove only ALTER ROLE/USER statements setting log_min_messages."""
+    """Remove non-portable log_min_messages settings from the role dump."""
     kept, skipped, unsupported = [], 0, set()
     for statement in split_sql_statements(original_sql):
         code = executable_sql(statement)
         if not re.search(r"\blog_min_messages\b", code, re.IGNORECASE):
             kept.append(statement)
-        elif re.match(r"\s*ALTER\s+(?:ROLE|USER)\b", code, re.IGNORECASE):
+        elif re.match(r"\s*(?:SET|RESET)\b", code, re.IGNORECASE):
+            # Standalone server logging defaults are environment-specific.
+            skipped += 1
+        elif re.match(r"\s*ALTER\s+(?:ROLE|USER|DATABASE)\b", code, re.IGNORECASE):
+            # Omit only the ALTER statement carrying this unsupported setting;
+            # retain role creation, attributes, memberships and grants.
             skipped += 1
         elif re.match(r"\s*GRANT\b", code, re.IGNORECASE):
-            # GRANT statements can legitimately reference a role whose name
-            # happens to contain this configuration-parameter token. They do
-            # not set PostgreSQL parameters, so preserve them unchanged.
+            # GRANT statements may reference a role whose name contains this
+            # token; they do not set PostgreSQL parameters.
             kept.append(statement)
         else:
             command = re.match(r"\s*([A-Za-z]+)", code)
