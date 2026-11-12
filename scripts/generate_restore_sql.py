@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate SQL restore scripts from the encrypted archive's Auth and Vault exports."""
+"""Generate SQL restore scripts from the encrypted archive's managed-data exports."""
 import argparse
 import json
 import pathlib
@@ -7,12 +7,34 @@ import pathlib
 def sql_literal(value):
     return "'" + str(value).replace("'", "''") + "'"
 
+def ident(value):
+    return '"' + str(value).replace('"', '""') + '"'
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--root", required=True, type=pathlib.Path)
 args = parser.parse_args()
 root = args.root
 restore_dir = root / "restore"
 restore_dir.mkdir(parents=True, exist_ok=True)
+
+# Restore the migration ledger separately because it is excluded from the app schema dump.
+ledger = json.loads((root / "database" / "migration-ledger.json").read_text(encoding="utf-8"))
+if not isinstance(ledger, list):
+    raise SystemExit("Migration ledger export must be a JSON array.")
+ledger_lines = [
+    "-- Restore the source project's applied migration history into a fresh compatible Supabase project.",
+    "begin;",
+]
+if ledger:
+    payload = json.dumps(ledger, ensure_ascii=False, separators=(",", ":"))
+    ledger_lines.append(
+        "insert into supabase_migrations.schema_migrations (version, name) "
+        "select version, name from jsonb_to_recordset(" + sql_literal(payload) +
+        "::jsonb) as x(version text, name text) "
+        "on conflict (version) do update set name = excluded.name;"
+    )
+ledger_lines.append("commit;")
+(restore_dir / "migration-ledger-restore.sql").write_text("\n".join(ledger_lines) + "\n", encoding="utf-8")
 
 users = json.loads((root / "auth" / "users.json").read_text(encoding="utf-8"))
 identities = json.loads((root / "auth" / "identities.json").read_text(encoding="utf-8"))
@@ -52,11 +74,7 @@ for item in vault:
 
 policy_file = root / "storage" / "policies.json"
 storage_policies = json.loads(policy_file.read_text(encoding="utf-8")) if policy_file.exists() else []
-policy_lines = [
-    "-- Custom Storage RLS policies captured from the source project.",
-]
-def ident(value):
-    return '"' + str(value).replace('"', '""') + '"'
+policy_lines = ["-- Custom Storage RLS policies captured from the source project."]
 security_file = root / "storage" / "security-settings.json"
 if security_file.exists():
     security_settings = json.loads(security_file.read_text(encoding="utf-8"))
@@ -83,4 +101,7 @@ for policy in storage_policies:
     policy_lines.append(statement + ";")
 (restore_dir / "storage-policies.sql").write_text("\n".join(policy_lines) + "\n", encoding="utf-8")
 
-print(f"Generated restore SQL for {len(users)} Auth users, {len(identities)} identities, and {len(vault)} Vault secrets, and " + str(len(storage_policies)) + " Storage policies")
+print(
+    f"Generated restore SQL for {len(ledger)} migrations, {len(users)} Auth users, "
+    f"{len(identities)} identities, {len(vault)} Vault secrets, and {len(storage_policies)} Storage policies."
+)
