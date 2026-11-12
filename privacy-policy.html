@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#020a0d">
+  <meta name="description" content="Privacy information for the Green Dream Backup personal Google Drive backup tool.">
+  <title>Privacy Policy — Green Dream Backup</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #020a0d; color: #e6eeee; }
+    * { box-sizing: border-box; }
+    body { margin: 0; line-height: 1.7; }
+    main { width: min(860px, calc(100% - 36px)); margin: 0 auto; padding: 56px 0 80px; }
+    a { color: #8bd7c4; }
+    .eyebrow { color: #8bd7c4; letter-spacing: .14em; font-size: .78rem; }
+    h1 { line-height: 1.15; font-size: clamp(2rem, 6vw, 3.2rem); margin: .4em 0; }
+    h2 { margin-top: 2em; font-size: 1.25rem; }
+    p, li { color: #c3d0d0; }
+    .updated { color: #91a4a4; font-size: .9rem; }
+    footer { border-top: 1px solid #294044; margin-top: 3rem; padding-top: 1.5rem; color: #91a4a4; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">GREEN DREAM // BACKUP TOOL</p>
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: 12 November 2026</p>
+
+    <p>Green Dream Backup is a personal tool used by the owner of the Green Dream / Verse After Hours website to create and recover backups in that owner's Google Drive. It is not a public backup service and is not intended for use by other people.</p>
+
+    <h2>Information and files handled</h2>
+    <p>When a backup or recovery workflow is run, the tool may handle:</p>
+    <ul>
+      <li>A Google OAuth authorisation token, used by rclone to access Google Drive for the backup operation.</li>
+      <li>An encrypted website content backup. Depending on the workflow version, its contents can include the website's public database schema and data, Supabase Storage object metadata and files, published WordPress content and associated media, and the website repository and its assets.</li>
+      <li>A small, unencrypted completion manifest containing a backup identifier, creation time, archive filename, file size, checksums, and encryption-format information. It does not contain the backup archive's content.</li>
+    </ul>
+
+    <h2>How information is used</h2>
+    <p>The Google authorisation token is used only to let the backup workflow create, list, read, and download backup files in the owner's Google Drive. Backup content is packaged and encrypted with GPG using AES-256 before the archive is uploaded. The encryption passphrase is supplied separately to the workflow and is not included in the Drive manifest.</p>
+    <p>The workflow uses GitHub Actions to run the backup and recovery jobs. Temporary working files are removed by the workflow's cleanup steps. A portable, read-only recovery website may also be stored as a GitHub Actions artifact for up to seven days.</p>
+
+    <h2>Where information is stored</h2>
+    <p>Encrypted backup archives and their completion manifests are stored in a dedicated folder in the owner's Google Drive. The owner controls that Drive account and can manage or delete those files there. GitHub processes workflow code, configuration, and temporary backup material while a workflow runs. GitHub Actions secrets are used to supply credentials to the workflow.</p>
+
+    <h2>Sharing</h2>
+    <p>This personal tool does not sell personal information, use Drive backup content for advertising, or intentionally share backup contents with other people. Google provides the Drive storage and OAuth services, and GitHub provides the repository and Actions infrastructure; their services are subject to their own privacy terms.</p>
+
+    <h2>Retention and deletion</h2>
+    <p>Backup files remain in the owner's Google Drive until the owner deletes them. The backup workflow does not automatically delete or rotate existing Drive backups. The owner can revoke the app's Google access in their Google Account security settings and can remove the relevant GitHub Actions secret to stop future workflow access. GitHub Actions recovery-site artifacts are configured for seven-day retention.</p>
+
+    <h2>Security</h2>
+    <p>Backup archives are encrypted before upload using GPG symmetric AES-256 encryption. The encryption passphrase is kept separately from the archive and should be stored securely by the owner. The workflow verifies archive checksums during upload and recovery. No method of storage or transmission is completely risk-free, and the owner is responsible for protecting account credentials and the encryption passphrase.</p>
+
+    <h2>Changes to this policy</h2>
+    <p>This policy may be updated if the backup tool or the information it handles changes. The latest version will be published at this address.</p>
+
+    <h2>Contact</h2>
+    <p>For questions about this personal tool or this policy, contact <a href="mailto:stefancu.emanuel@gmail.com">stefancu.emanuel@gmail.com</a>.</p>
+
+    <footer><a href="/landing-page/">Return to Green Dream / Verse After Hours</a></footer>
+  </main>
+</body>
+</html>
