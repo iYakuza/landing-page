@@ -141,6 +141,11 @@ def sanitize_roles_sql(original_sql):
             kept.append(statement)
         elif re.match(r"\s*ALTER\s+(?:ROLE|USER)\b", code, re.IGNORECASE):
             skipped += 1
+        elif re.match(r"\s*GRANT\b", code, re.IGNORECASE):
+            # GRANT statements can legitimately reference a role whose name
+            # happens to contain this configuration-parameter token. They do
+            # not set PostgreSQL parameters, so preserve them unchanged.
+            kept.append(statement)
         else:
             command = re.match(r"\s*([A-Za-z]+)", code)
             unsupported.add(command.group(1).upper() if command else "UNKNOWN")
