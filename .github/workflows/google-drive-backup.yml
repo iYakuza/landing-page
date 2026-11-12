@@ -162,7 +162,7 @@ jobs:
             echo "::error::Local Supabase CLI did not expose its local Storage admin key."
             exit 1
           fi
-          printf 'SUPABASE_SECRET_KEY=%s\n' "$(sed -n 's/^SERVICE_ROLE_KEY=//p' "$RUNNER_TEMP/local-supabase.env" | head -n 1 | tr -d '"' )" >> "$RUNNER_TEMP/local-supabase.env"
+          printf 'SECRET_KEY=%s\n' "$(sed -n 's/^SERVICE_ROLE_KEY=//p' "$RUNNER_TEMP/local-supabase.env" | head -n 1 | tr -d '"' )" >> "$RUNNER_TEMP/local-supabase.env"
           set -a
           source "$RUNNER_TEMP/local-supabase.env"
           set +a
