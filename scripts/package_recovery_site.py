@@ -21,9 +21,23 @@ def main() -> None:
     buckets = json.loads(buckets_path.read_text(encoding="utf-8"))
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     public_ids = {item["id"] for item in buckets if item.get("public") is True}
-    expected = {(item["bucket"], item["path"]): item for item in manifest.get("objects", []) if item.get("bucket") in public_ids}
-    if len(expected) != sum(1 for item in manifest.get("objects", []) if item.get("bucket") in public_ids):
-        raise SystemExit("Storage manifest contains duplicate public media references.")
+    content = json.loads((root / "database" / "public-content.json").read_text(encoding="utf-8"))
+    if not isinstance(content, dict):
+        raise SystemExit("Public content snapshot is invalid.")
+    published_refs = {
+        ("vha-post-media", row.get("media_path"))
+        for row in content.get("posts", []) if row.get("media_path")
+    }
+    published_refs.update({
+        ("poetry-media", row.get("storage_path"))
+        for row in content.get("submissions", []) if row.get("storage_path")
+    })
+    expected = {
+        (item["bucket"], item["path"]): item for item in manifest.get("objects", [])
+        if item.get("bucket") in public_ids and (item.get("bucket"), item.get("path")) in published_refs
+    }
+    if len(expected) != sum(1 for item in manifest.get("objects", []) if item.get("bucket") in public_ids and (item.get("bucket"), item.get("path")) in published_refs):
+        raise SystemExit("Storage manifest contains duplicate published media references.")
     files = []
     for (bucket, name), record in sorted(expected.items()):
         path = root / "storage" / "objects" / bucket / pathlib.PurePosixPath(name)
