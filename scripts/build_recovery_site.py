@@ -34,7 +34,7 @@ def main():
     content = load_json(DB)
     buckets = load_json(BUCKETS)
     storage_manifest = load_json(STORAGE / "storage-manifest.json")
-    if not isinstance(content, dict) or not isinstance(content.get("posts"), list) or not isinstance(content.get("submissions"), list):
+    if not isinstance(content, dict) or not isinstance(content.get("posts"), list) or not isinstance(content.get("submissions"), list) or not isinstance(content.get("transmissions", []), list):
         raise SystemExit("Public content snapshot has an unexpected structure.")
     public_buckets = {item["id"] for item in buckets if item.get("public") is True}
     object_map = {(item["bucket"], item["path"]): item for item in storage_manifest.get("objects", [])}
@@ -71,6 +71,18 @@ def main():
         ref = object_map.get((bucket, path)) if path else None
         row = dict(row)
         row.update({"kind": "Community submission", "category": "COMMUNITY", "excerpt": "", "content_html": row.get("body") or "", "media_href": storage_href(bucket, path) if ref and bucket in public_buckets else None})
+        records.append(row)
+    for row in content.get("transmissions", []):
+        row = dict(row)
+        row.update({
+            "kind": "Community transmission",
+            "category": "COMMUNITY TRANSMISSIONS",
+            "excerpt": "",
+            "content_html": row.get("message") or "",
+            "published_at": row.get("created_at"),
+            "byline": row.get("display_name"),
+            "media_href": None,
+        })
         records.append(row)
 
     for item in storage_manifest.get("objects", []):
