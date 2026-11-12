@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#020a0d">
+  <meta name="description" content="Terms for the Green Dream Backup personal Google Drive backup tool.">
+  <title>Terms of Service — Green Dream Backup</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #020a0d; color: #e6eeee; }
+    * { box-sizing: border-box; }
+    body { margin: 0; line-height: 1.7; }
+    main { width: min(860px, calc(100% - 36px)); margin: 0 auto; padding: 56px 0 80px; }
+    a { color: #8bd7c4; }
+    .eyebrow { color: #8bd7c4; letter-spacing: .14em; font-size: .78rem; }
+    h1 { line-height: 1.15; font-size: clamp(2rem, 6vw, 3.2rem); margin: .4em 0; }
+    h2 { margin-top: 2em; font-size: 1.25rem; }
+    p, li { color: #c3d0d0; }
+    .updated { color: #91a4a4; font-size: .9rem; }
+    footer { border-top: 1px solid #294044; margin-top: 3rem; padding-top: 1.5rem; color: #91a4a4; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">GREEN DREAM // BACKUP TOOL</p>
+    <h1>Terms of Service</h1>
+    <p class="updated">Last updated: 12 November 2026</p>
+
+    <p>Green Dream Backup is a personal tool operated for the owner of the Green Dream / Verse After Hours website. It is not offered as a public service, and these terms describe the conditions for that personal use.</p>
+
+    <h2>Purpose and permitted use</h2>
+    <p>The tool is intended to create encrypted copies of website content and related files in the owner's Google Drive, and to retrieve those copies for recovery and verification. It may only be used with accounts, repositories, databases, storage locations, and content that the operator is authorised to access and back up.</p>
+
+    <h2>Third-party services</h2>
+    <p>The tool relies on third-party services, including Google Drive, Google OAuth, GitHub, and GitHub Actions, as well as the website's configured data and storage providers. Their availability and use are governed by their respective terms and policies. The operator is responsible for maintaining access to the relevant accounts and complying with applicable third-party terms.</p>
+
+    <h2>Backup limitations</h2>
+    <p>Backups are provided on a best-effort basis. A successful upload and checksum verification do not, by themselves, prove that every component of the original website or its infrastructure can be fully restored.</p>
+    <p>The content backup is not a complete Supabase project backup. It does not include PostgreSQL roles, Supabase Auth, Vault, project settings, runtime secrets, or every database permission. Recovery may require a compatible environment, additional configuration, and separate restoration steps. The operator should perform independent recovery tests and keep any other copies needed for their purposes.</p>
+
+    <h2>Security and responsibilities</h2>
+    <p>The backup archive is encrypted using GPG symmetric AES-256 before it is uploaded to Google Drive. The operator is responsible for securely storing the encryption passphrase, protecting Google and GitHub accounts, maintaining OAuth credentials and workflow secrets, and ensuring that backup content may lawfully be processed and stored.</p>
+    <p>If the encryption passphrase or required account access is lost, a backup may be unrecoverable. The tool is not a substitute for the operator's own security practices or disaster-recovery planning.</p>
+
+    <h2>Availability and warranty</h2>
+    <p>The tool is provided for personal use on an “as is” and “as available” basis, without guarantees that it will be uninterrupted, error-free, or suitable for every recovery scenario. No guarantee is made that a particular backup or restoration will succeed. To the extent permitted by applicable law, the operator assumes responsibility for deciding whether and how to rely on the tool.</p>
+
+    <h2>Changes</h2>
+    <p>These terms may be updated when the tool or its operation changes. The latest version will be published at this address.</p>
+
+    <h2>Contact</h2>
+    <p>Questions about these terms can be sent to <a href="mailto:stefancu.emanuel@gmail.com">stefancu.emanuel@gmail.com</a>.</p>
+
+    <footer><a href="/landing-page/">Return to Green Dream / Verse After Hours</a></footer>
+  </main>
+</body>
+</html>
