@@ -22,7 +22,6 @@ def auth_headers(content_type=False):
     if content_type:
         headers["Content-Type"] = "application/json"
     return headers
-BUCKETS = ("poetry-media", "poetry-media-staging", "vha-post-media")
 PAGE_SIZE = 100
 HEADERS = auth_headers(content_type=True)
 
@@ -90,13 +89,23 @@ def walk_bucket(bucket, output_root, prefix=""):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True, type=pathlib.Path)
+    parser.add_argument("--buckets-file", required=True, type=pathlib.Path,
+                        help="JSON export of storage.buckets from the same database snapshot")
     args = parser.parse_args()
+    bucket_rows = json.loads(args.buckets_file.read_text(encoding="utf-8"))
+    if not isinstance(bucket_rows, list):
+        raise SystemExit("Storage bucket export must be a JSON array.")
+    buckets = [item.get("id") for item in bucket_rows]
+    if any(not isinstance(bucket, str) or not bucket or "/" in bucket or bucket in (".", "..") for bucket in buckets):
+        raise SystemExit("Storage bucket export contains an invalid bucket ID.")
+    if len(set(buckets)) != len(buckets):
+        raise SystemExit("Storage bucket export contains duplicate bucket IDs.")
     args.output.mkdir(parents=True, exist_ok=True)
     all_records = []
-    for bucket in BUCKETS:
+    for bucket in buckets:
         print(f"Listing bucket: {bucket}")
         all_records.extend(walk_bucket(bucket, args.output))
-    manifest = {"buckets": list(BUCKETS), "object_count": len(all_records),
+    manifest = {"buckets": buckets, "object_count": len(all_records),
                 "total_bytes": sum(item["bytes"] for item in all_records),
                 "objects": all_records}
     (args.output / "storage-manifest.json").write_text(
