@@ -71,6 +71,6 @@ for policy in storage_policies:
     if policy.get("with_check"):
         statement += " with check (" + policy["with_check"] + ")"
     policy_lines.append(statement + ";")
-(restore_dir / "storage-policies.sql").write_text("\\n".join(policy_lines) + "\\n", encoding="utf-8")
+(restore_dir / "storage-policies.sql").write_text("\n".join(policy_lines) + "\n", encoding="utf-8")
 
 print(f"Generated restore SQL for {len(users)} Auth users, {len(identities)} identities, and {len(vault)} Vault secrets, and " + str(len(storage_policies)) + " Storage policies")
