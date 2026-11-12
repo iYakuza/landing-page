@@ -83,7 +83,9 @@ jobs:
         run: |
           set -euo pipefail
           OUT="$RUNNER_TEMP/green-dream-content-backup"
+          supabase db dump --db-url "$DB_URL" -f "$OUT/database/public-schema.sql"
           supabase db dump --db-url "$DB_URL" -f "$OUT/database/public-data.sql" --data-only --use-copy
+          test -s "$OUT/database/public-schema.sql"
           test -s "$OUT/database/public-data.sql"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
             "select coalesce(json_agg(to_jsonb(b) order by id), '[]'::json) from storage.buckets b" \
@@ -92,7 +94,7 @@ jobs:
             "select coalesce(json_agg(to_jsonb(o) order by bucket_id, name), '[]'::json) from storage.objects o" \
             > "$OUT/storage/objects-metadata.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
-            "select coalesce(json_agg(json_build_object('table', table_name, 'rows', (xpath('/row/c/text()', query_to_xml(format('select count(*) as c from %I.%I', table_schema, table_name), false, true, '')))[1]::text::bigint) order by table_name), '[]'::json) from information_schema.tables where table_schema='public' and table_type='BASE TABLE'" \
+            "select coalesce(json_agg(json_build_object('schema', table_schema, 'table', table_name) order by table_name), '[]'::json) from information_schema.tables where table_schema='public' and table_type='BASE TABLE'" \
             > "$OUT/database/public-table-inventory.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
             "select json_build_object('captured_at', now(), 'postgres_version', version(), 'scope', 'public schema data plus Supabase Storage objects')::text" \
@@ -120,7 +122,7 @@ jobs:
           GREEN DREAM CONTENT AND MEDIA BACKUP
 
           This archive contains:
-          - PostgreSQL public-schema row data (public-data.sql)
+          - PostgreSQL public schema definition (public-schema.sql) and row data (public-data.sql)
           - Public table row-count inventory
           - Supabase Storage bucket configuration and object metadata
           - Downloaded bytes for every object in every listed Storage bucket
