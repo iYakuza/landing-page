@@ -1,0 +1,153 @@
+name: Green Dream Google Drive backup
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 2 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: green-dream-drive-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      SUPABASE_URL: https://oeyxsqocldlovhsmzcjw.supabase.co
+      SUPABASE_DB_URL: \${{ secrets.SUPABASE_DB_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: \${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      GOOGLE_CLIENT_ID: \${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: \${{ secrets.GOOGLE_CLIENT_SECRET }}
+      GOOGLE_REFRESH_TOKEN: \${{ secrets.GOOGLE_REFRESH_TOKEN }}
+      BACKUP_ENCRYPTION_PASSPHRASE: \${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+
+    steps:
+      - name: Check out the complete repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install backup dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client gnupg python3
+          python3 --version
+          psql --version
+          gpg --version
+
+      - name: Install a pinned Supabase CLI v2
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.1
+
+      - name: Validate required credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in SUPABASE_DB_URL SUPABASE_SERVICE_ROLE_KEY GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REFRESH_TOKEN BACKUP_ENCRYPTION_PASSPHRASE; do
+            if [ -z "\${!name:-}" ]; then
+              echo "::error::Missing required GitHub Actions secret: $name"
+              exit 1
+            fi
+          done
+          case "$SUPABASE_DB_URL" in
+            postgresql://*|postgres://*) ;;
+            *) echo "::error::SUPABASE_DB_URL must be a PostgreSQL connection string"; exit 1 ;;
+          esac
+          if [ "\${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 20 ]; then
+            echo "::error::BACKUP_ENCRYPTION_PASSPHRASE must be at least 20 characters"
+            exit 1
+          fi
+
+      - name: Create backup workspace
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/green-dream-backup"/{database,auth,storage,repository,metadata}
+
+      - name: Export database roles, schema, and data
+        env:
+          DB_URL: \${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/green-dream-backup/database"
+          supabase db dump --db-url "$DB_URL" -f "$OUT/roles.sql" --role-only
+          supabase db dump --db-url "$DB_URL" -f "$OUT/schema.sql"
+          supabase db dump --db-url "$DB_URL" -f "$OUT/data.sql" --data-only --use-copy
+          test -s "$OUT/roles.sql"
+          test -s "$OUT/schema.sql"
+          test -s "$OUT/data.sql"
+
+      - name: Export migration ledger, Auth identities, and Storage configuration
+        env:
+          DB_URL: \${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/green-dream-backup"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(json_build_object('version',version,'name',name) order by version), '[]'::json) from supabase_migrations.schema_migrations" \
+            > "$OUT/database/migration-ledger.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(to_jsonb(u)), '[]'::json) from auth.users u" \
+            > "$OUT/auth/users.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(to_jsonb(i)), '[]'::json) from auth.identities i" \
+            > "$OUT/auth/identities.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(to_jsonb(b) order by id), '[]'::json) from storage.buckets b" \
+            > "$OUT/storage/buckets.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select json_build_object('postgres_version', version(), 'captured_at', now())::text" \
+            > "$OUT/metadata/database.json"
+
+      - name: Download every Supabase Storage object
+        run: |
+          set -euo pipefail
+          python3 scripts/backup_storage.py --output "$RUNNER_TEMP/green-dream-backup/storage/objects"
+
+      - name: Capture repository and deployed Edge Function source
+        run: |
+          set -euo pipefail
+          git bundle create "$RUNNER_TEMP/green-dream-backup/repository/landing-page.bundle" --all
+          git rev-parse HEAD > "$RUNNER_TEMP/green-dream-backup/metadata/repository-commit.txt"
+          test -s supabase/functions/poetry-submit/index.ts
+          test -s supabase/functions/website-theme/index.ts
+          test -s supabase/functions/contact-about-role/index.ts
+          test -s supabase/functions/secure-your-soul-transmissions/index.ts
+
+      - name: Generate checksums and backup manifest
+        run: |
+          set -euo pipefail
+          python3 scripts/create_backup_manifest.py "$RUNNER_TEMP/green-dream-backup"
+
+      - name: Build and encrypt archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK="$RUNNER_TEMP/green-dream-backup"
+          ARCHIVE="$RUNNER_TEMP/greendream-backup-\$(date -u +%Y%m%dT%H%M%SZ).tar.gz"
+          ENCRYPTED="$ARCHIVE.gpg"
+          tar -czf "$ARCHIVE" -C "$WORK" .
+          printf '%s' "$BACKUP_ENCRYPTION_PASSPHRASE" | \
+            gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 \
+                --compress-algo none --symmetric --cipher-algo AES256 \
+                --output "$ENCRYPTED" "$ARCHIVE"
+          shred -u "$ARCHIVE" || rm -f "$ARCHIVE"
+          echo "ENCRYPTED_ARCHIVE=$ENCRYPTED" >> "$GITHUB_ENV"
+          ls -lh "$ENCRYPTED"
+
+      - name: Upload encrypted archive to Google Drive and apply retention
+        run: |
+          set -euo pipefail
+          python3 scripts/upload_drive_backup.py "$ENCRYPTED_ARCHIVE"
+
+      - name: Remove temporary backup material
+        if: always()
+        run: |
+          set +e
+          rm -rf "$RUNNER_TEMP/green-dream-backup"
+          if [ -n "\${ENCRYPTED_ARCHIVE:-}" ]; then rm -f "$ENCRYPTED_ARCHIVE"; fi
