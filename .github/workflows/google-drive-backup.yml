@@ -16,7 +16,7 @@ jobs:
   backup:
     if: vars.BACKUP_ENABLED == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       SUPABASE_URL: https://oeyxsqocldlovhsmzcjw.supabase.co
       SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
@@ -106,6 +106,9 @@ jobs:
             "select coalesce(json_agg(json_build_object('schemaname',schemaname,'tablename',tablename,'policyname',policyname,'permissive',permissive,'roles',roles,'cmd',cmd,'qual',qual,'with_check',with_check) order by tablename, policyname), '[]'::json) from pg_policies where schemaname='storage'" \
             > "$OUT/storage/policies.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(json_build_object('table',c.relname,'rowsecurity',c.relrowsecurity,'forcerowsecurity',c.relforcerowsecurity,'acl',coalesce(c.relacl::text,'(default)')) order by c.relname), '[]'::json) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='storage' and c.relkind in ('r','p') and c.relname in ('buckets','objects')" \
+            > "$OUT/storage/security-settings.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
             "select coalesce(json_agg(to_jsonb(o) order by bucket_id, name), '[]'::json) from storage.objects o" \
             > "$OUT/storage/objects-metadata.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
@@ -118,12 +121,56 @@ jobs:
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
             "select coalesce(json_agg(json_build_object('name',extname,'version',extversion) order by extname), '[]'::json) from pg_extension" \
             > "$OUT/metadata/extensions.json"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_database_restore.py --output "$OUT/database/table-counts.json"
 
       - name: Download every Supabase Storage object
         run: |
           set -euo pipefail
           python3 scripts/backup_storage.py --output "$RUNNER_TEMP/green-dream-backup/storage/objects"
           python3 scripts/verify_storage_export.py "$RUNNER_TEMP/green-dream-backup"
+
+      - name: Install Deno for Storage restore verification
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Start disposable local Supabase restore target
+        run: |
+          set -euo pipefail
+          LOCAL_PROJECT="$RUNNER_TEMP/green-dream-restore-target"
+          mkdir -p "$LOCAL_PROJECT/supabase/migrations"
+          printf 'project_id = "green-dream-restore-test"\n' > "$LOCAL_PROJECT/supabase/config.toml"
+          supabase --workdir "$LOCAL_PROJECT" start
+          touch "$RUNNER_TEMP/local-supabase.started"
+
+      - name: Restore snapshot into local Supabase and verify recovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/green-dream-backup"
+          LOCAL_PROJECT="$RUNNER_TEMP/green-dream-restore-target"
+          supabase --workdir "$LOCAL_PROJECT" status -o env > "$RUNNER_TEMP/local-supabase.env"
+          set -a
+          source "$RUNNER_TEMP/local-supabase.env"
+          set +a
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -f "$OUT/database/roles.sql" -f "$OUT/database/schema.sql"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -f "$OUT/restore/auth-restore.sql"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "create extension if not exists supabase_vault with schema vault"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -f "$OUT/restore/vault-restore.sql"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -f "$OUT/restore/storage-policies.sql"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -f "$OUT/database/data.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_storage_security.py "$OUT"
+          SUPABASE_URL="$API_URL" SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$OUT"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_database_restore.py --compare "$OUT/database/table-counts.json"
+
+      - name: Stop disposable local Supabase restore target
+        if: always()
+        continue-on-error: true
+        run: |
+          if [ -f "$RUNNER_TEMP/local-supabase.started" ]; then
+            supabase --workdir "$RUNNER_TEMP/green-dream-restore-target" stop --no-backup
+          fi
 
       - name: Capture repository and deployed Edge Function source
         run: |
