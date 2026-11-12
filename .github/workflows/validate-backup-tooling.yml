@@ -13,6 +13,7 @@ on:
       - "scripts/verify_backup_manifest.py"
       - "scripts/**"
       - ".github/workflows/google-drive-content-backup.yml"
+      - ".github/workflows/recover-google-drive-backup.yml"
       - "google-apps-script/**"
       - "supabase/functions/google-drive-oauth-callback/**"
       - "supabase/config.toml"
