@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-12T12:54:40.568550Z",
-  "last_processed_sha": "c6ba3ade8f12852b07ece72cdc65619777f7f50c",
+  "updated_at": "2026-11-12T12:56:17.126011Z",
+  "last_processed_sha": "06ff56c062f523b7f41d96dd96e2a29a19ca59b7",
   "entries": [
+    {
+      "id": "06ff56c062f523b7f41d96dd96e2a29a19ca59b7",
+      "timestamp": "2026-11-12T13:56:08+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Support Supabase secret API keys without sending them as Bearer JWTs. It updates backup_storage.py.",
+      "commit_count": 1,
+      "files": [
+        "scripts/backup_storage.py"
+      ],
+      "commits": [
+        {
+          "message": "Support Supabase secret API keys without sending them as Bearer JWTs",
+          "url": "https://github.com/iYakuza/landing-page/commit/06ff56c062f523b7f41d96dd96e2a29a19ca59b7",
+          "files": [
+            "scripts/backup_storage.py"
+          ]
+        }
+      ]
+    },
     {
       "id": "c6ba3ade8f12852b07ece72cdc65619777f7f50c",
       "timestamp": "2026-11-12T13:54:23+01:00",
