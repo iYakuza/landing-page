@@ -16,37 +16,159 @@ sql_file = pathlib.Path(sys.argv[1])
 if not sql_file.is_file():
     raise SystemExit("SQL restore file does not exist.")
 
+def split_sql_statements(sql):
+    """Split SQL on semicolons outside strings, identifiers, comments and dollar quotes."""
+    statements, start, i = [], 0, 0
+    state, dollar_tag, block_depth = "normal", "", 0
+    while i < len(sql):
+        if state == "normal":
+            if sql.startswith("--", i):
+                state, i = "line_comment", i + 2
+            elif sql.startswith("/*", i):
+                state, block_depth, i = "block_comment", 1, i + 2
+            elif sql[i] == "'":
+                state, i = "single_quote", i + 1
+            elif sql[i] == '"':
+                state, i = "double_quote", i + 1
+            elif sql[i] == "$" and (m := re.match(r"\$[A-Za-z_][A-Za-z_0-9]*\$|\$\$", sql[i:])):
+                dollar_tag, state, i = m.group(0), "dollar_quote", i + len(m.group(0))
+            elif sql[i] == ";":
+                statements.append(sql[start:i + 1])
+                start, i = i + 1, i + 1
+            else:
+                i += 1
+        elif state == "line_comment":
+            if sql[i] == "\n":
+                state = "normal"
+            i += 1
+        elif state == "block_comment":
+            if sql.startswith("/*", i):
+                block_depth, i = block_depth + 1, i + 2
+            elif sql.startswith("*/", i):
+                block_depth, i = block_depth - 1, i + 2
+                if block_depth == 0:
+                    state = "normal"
+            else:
+                i += 1
+        elif state == "single_quote":
+            if sql.startswith("''", i):
+                i += 2
+            elif sql[i] == "\\":
+                i += 2
+            elif sql[i] == "'":
+                state, i = "normal", i + 1
+            else:
+                i += 1
+        elif state == "double_quote":
+            if sql.startswith('""', i):
+                i += 2
+            elif sql[i] == '"':
+                state, i = "normal", i + 1
+            else:
+                i += 1
+        elif state == "dollar_quote":
+            if sql.startswith(dollar_tag, i):
+                i += len(dollar_tag)
+                state = "normal"
+            else:
+                i += 1
+    if start < len(sql):
+        statements.append(sql[start:])
+    return statements
+
+
+def executable_sql(statement):
+    """Blank comments and string literals while retaining quoted identifiers."""
+    out, i, state, depth = [], 0, "normal", 0
+    while i < len(statement):
+        if state == "normal":
+            if statement.startswith("--", i):
+                out.extend("  ")
+                state, i = "line_comment", i + 2
+            elif statement.startswith("/*", i):
+                out.extend("  ")
+                state, depth, i = "block_comment", 1, i + 2
+            elif statement[i] == "'":
+                out.append(" ")
+                state, i = "single_quote", i + 1
+            else:
+                out.append(statement[i])
+                i += 1
+        elif state == "line_comment":
+            if statement[i] == "\n":
+                out.append("\n")
+                state = "normal"
+            else:
+                out.append(" ")
+            i += 1
+        elif state == "block_comment":
+            if statement.startswith("/*", i):
+                out.extend("  ")
+                depth, i = depth + 1, i + 2
+            elif statement.startswith("*/", i):
+                out.extend("  ")
+                depth, i = depth - 1, i + 2
+                if depth == 0:
+                    state = "normal"
+            else:
+                out.append("\n" if statement[i] == "\n" else " ")
+                i += 1
+        elif state == "single_quote":
+            if statement.startswith("''", i):
+                out.extend("  ")
+                i += 2
+            elif statement[i] == "\\":
+                out.append(" ")
+                i += 1
+                if i < len(statement):
+                    out.append(" ")
+                    i += 1
+            elif statement[i] == "'":
+                out.append(" ")
+                state, i = "normal", i + 1
+            else:
+                out.append(" ")
+                i += 1
+    return "".join(out)
+
+
+def sanitize_roles_sql(original_sql):
+    """Remove only ALTER ROLE/USER statements setting log_min_messages."""
+    kept, skipped, unsupported = [], 0, set()
+    for statement in split_sql_statements(original_sql):
+        code = executable_sql(statement)
+        if not re.search(r"\blog_min_messages\b", code, re.IGNORECASE):
+            kept.append(statement)
+        elif re.match(r"\s*ALTER\s+(?:ROLE|USER)\b", code, re.IGNORECASE):
+            skipped += 1
+        else:
+            command = re.match(r"\s*([A-Za-z]+)", code)
+            unsupported.add(command.group(1).upper() if command else "UNKNOWN")
+            kept.append(statement)
+    if unsupported:
+        raise SystemExit(
+            "Restore sanitizer found log_min_messages outside a safely skippable "
+            "ALTER ROLE/USER statement (statement type: "
+            + ", ".join(sorted(unsupported))
+            + "); refusing to apply roles.sql."
+        )
+    return "".join(kept), skipped
+
+
 sql_to_apply = sql_file
 temporary_sql = None
 skipped_role_settings = 0
 
-# pg_dump may quote configuration parameter identifiers in ALTER ROLE
-# statements (for example: SET "log_min_messages" TO ...). The local
-# disposable Supabase instance cannot change this server logging parameter.
-# Omit only that complete role-setting statement; preserve role creation and
-# every other role setting.
+# The disposable restore database cannot change this server-level logging
+# parameter. Parse SQL statements rather than relying on a formatting-sensitive regex.
 if sql_file.name == "roles.sql":
     original_sql = sql_file.read_text(encoding="utf-8")
-    # Match the complete ALTER ROLE/USER statement by parameter name.
-    # This deliberately avoids depending on pg_dump's identifier quoting or
-    # whether it renders the assignment with TO or =.
-    sanitized_sql, skipped_role_settings = re.subn(
-        r"\bALTER\s+(?:ROLE|USER)\b[^;]*\blog_min_messages\b[^;]*;",
-        "",
-        original_sql,
-        flags=re.IGNORECASE | re.DOTALL,
-    )
+    sanitized_sql, skipped_role_settings = sanitize_roles_sql(original_sql)
     if skipped_role_settings:
         print(
             f"Restore sanitizer: skipped {skipped_role_settings} "
             "unsupported log_min_messages role setting statement(s)."
         )
-    elif re.search(r"\blog_min_messages\b", original_sql, flags=re.IGNORECASE):
-        raise SystemExit(
-            "Restore sanitizer found log_min_messages in roles.sql but could not "
-            "safely identify its ALTER ROLE statement; refusing to apply roles.sql."
-        )
-    if skipped_role_settings:
         handle = tempfile.NamedTemporaryFile(
             mode="w", encoding="utf-8", suffix=".sql", prefix="gd-roles-", delete=False
         )
