@@ -27,6 +27,14 @@ with tempfile.TemporaryDirectory() as temp:
             "content_html": "<p>Local image test</p>", "published_at": "2026-10-15T12:00:00Z",
             "media_url": "/landing-page/posts/imported/wfh/media/featured.jpg",
             "media_path": None, "media_type": "image",
+        }, {
+            "title": "External video", "slug": "external-video", "category": "THE RETURN",
+            "content_html": "<p>External video reference</p>", "published_at": "2026-10-14T12:00:00Z",
+            "media_url": "https://video.example.invalid/watch/123", "media_path": None, "media_type": "video",
+        }, {
+            "title": "Unsafe media", "slug": "unsafe-media", "category": "THE RETURN",
+            "content_html": "<p>Unsafe media reference</p>", "published_at": "2026-10-13T12:00:00Z",
+            "media_url": "javascript:alert(1)", "media_path": None, "media_type": "video",
         }],
         "submissions": [{
             "title": "Approved signal",
@@ -36,6 +44,10 @@ with tempfile.TemporaryDirectory() as temp:
             "byline": "Contributor",
             "published_at": "2026-11-11T12:00:00Z",
             "storage_path": "audio/song.mp3", "contact_email": "private@example.invalid", "moderation_note": "private moderation note",
+        }, {
+            "title": "External song", "slug": "external-song", "medium": "music",
+            "body": "A linked recording", "byline": "Contributor", "published_at": "2026-11-09T12:00:00Z",
+            "media_url": "https://audio.example.invalid/track.mp3", "storage_path": None,
         }],
         "transmissions": [{
             "title": "A shared thought", "message": "A consent-approved message",
@@ -75,6 +87,10 @@ with tempfile.TemporaryDirectory() as temp:
     assert "Approved signal" in page
     assert "A shared thought" in page
     assert "A consent-approved message" in page
+    assert "https://video.example.invalid/watch/123" in page
+    assert "https://audio.example.invalid/track.mp3" in page
+    assert "Open original media (external link; not stored offline)" in page
+    assert "javascript:alert(1)" not in page
     assert "private.pdf" not in page
     assert "hidden.png" not in page
     assert "private@example.invalid" not in page

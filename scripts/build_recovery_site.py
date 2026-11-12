@@ -8,7 +8,7 @@ import mimetypes
 import pathlib
 import shutil
 import sys
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 
 parser = argparse.ArgumentParser()
 parser.add_argument("backup_root", type=pathlib.Path)
@@ -29,6 +29,18 @@ def load_json(path):
 def storage_href(bucket, name):
     parts = [quote(part, safe="") for part in name.split("/")]
     return "../storage/objects/" + quote(bucket, safe="") + "/" + "/".join(parts)
+
+def external_http_url(value):
+    if not isinstance(value, str):
+        return None
+    candidate = value.strip()
+    try:
+        parsed = urlsplit(candidate)
+    except ValueError:
+        return None
+    if parsed.scheme.lower() not in ("http", "https") or not parsed.hostname or parsed.username or parsed.password:
+        return None
+    return candidate
 
 def main():
     content = load_json(DB)
@@ -74,6 +86,11 @@ def main():
             media_href = "static-assets/" + "/".join(quote(part, safe="") for part in relative.parts)
             media.append({"bucket": "repository assets", "path": relative.as_posix(), "href": media_href,
                           "bytes": destination.stat().st_size, "mime": mimetypes.guess_type(relative.name)[0] or "application/octet-stream"})
+        external_url = external_http_url(local_url)
+        if not media_href and external_url:
+            media_href = external_url
+        if local_url and not (isinstance(local_url, str) and local_url.startswith("/landing-page/")) and not external_url:
+            row["media_url"] = None
         row.update({"kind": "Post", "media_href": media_href})
         records.append(row)
     for source_row in content["submissions"]:
@@ -83,7 +100,10 @@ def main():
         path = row.get("storage_path")
         bucket = "poetry-media"
         ref = object_map.get((bucket, path)) if path else None
-        row.update({"kind": "Community submission", "category": "COMMUNITY", "excerpt": "", "content_html": row.get("body") or "", "media_href": storage_href(bucket, path) if ref and bucket in public_buckets else None})
+        media_href = storage_href(bucket, path) if ref and bucket in public_buckets else external_http_url(row.get("media_url"))
+        if row.get("media_url") and not external_http_url(row.get("media_url")):
+            row["media_url"] = None
+        row.update({"kind": "Community submission", "category": "COMMUNITY", "excerpt": "", "content_html": row.get("body") or "", "media_href": media_href})
         records.append(row)
     for source_row in content.get("transmissions", []):
         row = {key: source_row.get(key) for key in ("title", "message", "display_name", "created_at")}
@@ -169,6 +189,7 @@ function mediaElement(record){
  if(!record.media_href)return null;
  const box=document.createElement('div');box.className='media';
  const type=(record.media_type||record.medium||'').toLowerCase(),url=record.media_href;
+ if(/^https?:\/\//i.test(url)){const a=document.createElement('a');a.href=url;a.textContent='Open original media (external link; not stored offline)';a.target='_blank';a.rel='noopener noreferrer';box.append(a);return box;}
  let el;
  if(type.includes('image')||/\.(png|jpe?g|gif|webp|avif)$/i.test(url)){el=document.createElement('img');el.loading='lazy';el.alt=record.title||'Recovered media';}
  else if(type.includes('video')||/\.(mp4|webm|mov)$/i.test(url)){el=document.createElement('video');el.controls=true;el.preload='metadata';}
@@ -225,7 +246,7 @@ through relative paths.
 
 This is a read-only catalogue of published posts, consent-approved community
 submissions and transmissions, plus media files referenced by published content from public Storage buckets.
-Private buckets, unreferenced media, and unpublished/failed submissions are deliberately excluded. Media hosted on external platforms is not downloaded; its links remain in the recovered content.
+Private buckets, unreferenced media, and unpublished/failed submissions are deliberately excluded. External media URLs stored on published records are shown as outbound links, not downloaded files.
 
 This viewer is not a replacement for the original interactive application.
 The Git bundle in repository/landing-page.bundle preserves the website source
