@@ -145,7 +145,7 @@ jobs:
           ROOT="$RUNNER_TEMP/migration-ledger-restore-fixture"
           mkdir -p "$ROOT/database" "$ROOT/auth" "$ROOT/secrets" "$ROOT/storage"
           cat > "$ROOT/database/migration-ledger.json" <<'JSON'
-          [{"version":"20990101010101","statements":["select 1;"],"name":"backup_round_trip_test","created_by":"ci","idempotency_key":"green-dream-ledger-test","rollback":["select 1;"]}]
+          [{"version":"20990101010101","statements":["select 1;"],"name":"backup_round_trip_test","created_by":"ci","idempotency_key":"00000000-0000-4000-8000-000000000013","rollback":["select 1;"]}]
           JSON
           printf '[]\n' > "$ROOT/auth/users.json"
           printf '[]\n' > "$ROOT/auth/identities.json"
