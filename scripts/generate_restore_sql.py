@@ -100,7 +100,7 @@ if security_file.exists():
             "      EXECUTE format('REVOKE ALL PRIVILEGES ON TABLE storage.%I FROM %I', table_name, role_name);",
             "    END LOOP;",
             "  END LOOP;",
-            "END",
+            "END;",
             "$restore_storage_acl$;",
         ])
     allowed_privileges = {"SELECT", "INSERT", "UPDATE", "DELETE", "TRUNCATE", "REFERENCES", "TRIGGER", "MAINTAIN"}
