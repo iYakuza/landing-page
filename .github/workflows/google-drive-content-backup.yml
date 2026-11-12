@@ -1,14 +1,14 @@
 name: Green Dream content and media backup
 
 on:
-  # Run once when this workflow file is committed on the backup branch.
-  # Future website commits will not trigger an upload.
+  # Changes to the backup builder or uploader trigger a controlled backup-branch run.
   push:
     branches:
       - backup/google-drive-secret-key
     paths:
       - .github/workflows/google-drive-content-backup.yml
       - scripts/upload_apps_script_backup.py
+      - scripts/build_recovery_site.py
   workflow_dispatch:
 
 permissions:
@@ -116,6 +116,7 @@ jobs:
           OUT="$RUNNER_TEMP/green-dream-content-backup"
           python3 scripts/backup_storage.py --output "$OUT/storage/objects" --buckets-file "$OUT/storage/buckets.json"
           python3 scripts/verify_storage_export.py "$OUT"
+          python3 scripts/build_recovery_site.py "$OUT"
 
       - name: Capture complete website repository and media assets
         run: |
@@ -135,6 +136,7 @@ jobs:
           - Supabase Storage bucket configuration and object metadata
           - Downloaded bytes for every object in every listed Storage bucket
           - Complete Git repository history and tracked website assets
+          - Offline read-only recovery website at recovery-site/index.html (published content and public media)
 
           This is a CONTENT RECOVERY BACKUP, not a complete Supabase project image.
           It does not include PostgreSQL roles, Auth, Vault, project settings, runtime
