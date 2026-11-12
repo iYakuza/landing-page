@@ -17,6 +17,8 @@ The export deliberately excludes pending/failed submissions, contact details, IP
 
 The content-backup workflow also packages the viewer and its public media as a ZIP and uploads it as a GitHub Actions artifact named `green-dream-recovery-site-<run-id>`. It is retained for 30 days.
 
+**Visibility:** the GitHub repository is public, so the recovery-site artifact must be treated as public too. It is intentionally limited to published posts, consent-approved published submissions, and files from public Storage buckets. Never add private backup archives, pending submissions, contact details, Auth data, Vault secrets, or private-bucket objects to this artifact.
+
 1. Open the successful **Green Dream content and media backup** run in GitHub Actions.
 2. Download the `green-dream-recovery-site-<run-id>` artifact.
 3. Extract the ZIP without changing its folder structure.
