@@ -8,11 +8,12 @@ Every successful run of **Green Dream content and media backup** now generates a
 - Published `vha_posts` records are included with their HTML content and publication metadata.
 - Community submissions are included only when `status = 'published'` and `rights_confirmed = true`.
 - Community transmissions are included only when `status = 'published'`, `rights_confirmed = true` and `publication_consent = true`.
-- Media players and the media library use only backed-up files from public Supabase Storage buckets that are referenced by the included published posts or approved submissions.
+- Supabase media players use backed-up files from public Storage buckets referenced by included published posts or approved submissions. The WordPress media library is listed as outbound links; its actual files are preserved in the encrypted archive.
+- The viewer includes the full text of published WordPress posts and the original links to their media.
 - Search and category filtering work locally in the browser.
-- No connection to the original Supabase project or any third-party service is needed to browse the extracted copy.
+- The text archive and locally backed-up Supabase media work offline; opening WordPress media links requires an internet connection.
 
-The export deliberately excludes pending/failed submissions, unapproved transmissions, contact details, IP hashes, private Storage buckets, private bucket files, and unreferenced public-bucket objects. It also includes the 140-entry checked-in legacy WordPress index (titles, dates, categories and original links); those original post bodies are not mirrored offline. The viewer sanitizes rich-text content before rendering it. Media hosted on external platforms is not downloaded; external media URLs stored on published records are shown as outbound links. Supabase Storage files and repository-tracked media are included in the offline package.
+The export deliberately excludes pending/failed submissions, unapproved transmissions, contact details, IP hashes, private Storage buckets, private bucket files, and unreferenced public-bucket objects. The encrypted archive also includes the live WordPress export: all 141 published posts and the 148-file media-library snapshot captured on 12 November 2026 (280,529,465 downloaded bytes). The recovery viewer displays WordPress post text and original media links; the actual WordPress media binaries remain inside the encrypted Drive archive and are not copied into the public GitHub artifact. The media inventory is a snapshot and should be refreshed when new unattached media is added to WordPress. The viewer sanitizes rich-text content before rendering it.
 
 ## Get a portable website from a successful backup
 
@@ -25,7 +26,7 @@ The content-backup workflow also packages the viewer and its public media as a Z
 3. Extract the ZIP without changing its folder structure.
 4. Open `recovery-site/index.html` in a browser.
 
-Keep the `storage/objects` folder beside `recovery-site`. The page loads backed-up images, audio and video from those relative paths. The package contains public media only; it does not contain the private encrypted backup archive. You can also publish the extracted folder structure to a static web host; no server, database connection or API is required. Preserve the `recovery-site/` and `storage/objects/` sibling paths.
+Keep the `storage/objects` folder beside `recovery-site`. The page loads backed-up images, audio and video from those relative paths. The package contains published text and public links only; it does not contain the private encrypted backup archive or the WordPress media binaries. You can also publish the extracted folder structure to a static web host; no server, database connection or API is required. Preserve the `recovery-site/` and `storage/objects/` sibling paths.
 
 ## Recover the website package later from Google Drive
 

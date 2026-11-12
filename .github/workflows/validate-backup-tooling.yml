@@ -87,7 +87,9 @@ jobs:
         run: python3 scripts/test_restore_expectations.py
 
       - name: Test offline recovery website generation
-        run: python3 scripts/test_build_recovery_site.py
+        run: |
+          set -euo pipefail
+          python3 scripts/test_build_recovery_site.py
           python3 scripts/test_backup_wordpress_archive.py
 
       - name: Test authenticated backup downloader
