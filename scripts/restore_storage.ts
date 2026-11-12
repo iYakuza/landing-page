@@ -32,7 +32,15 @@ for (const bucket of buckets) {
     ? await client.storage.updateBucket(bucket.id, options)
     : await client.storage.createBucket(bucket.id, options);
   if (result.error) throw new Error("Could not prepare Storage bucket " + bucket.id + ": " + result.error.message);
-  console.log("Prepared Storage bucket: " + bucket.id);
+  const checkedBucket = await client.storage.getBucket(bucket.id);
+  if (checkedBucket.error || !checkedBucket.data) throw new Error("Could not verify Storage bucket " + bucket.id);
+  const actualBucket = checkedBucket.data as any;
+  const expectedMimeTypes = JSON.stringify([...(bucket.allowed_mime_types || [])].sort());
+  const actualMimeTypes = JSON.stringify([...(actualBucket.allowed_mime_types || [])].sort());
+  if (actualBucket.public !== options.public || Number(actualBucket.file_size_limit) !== Number(options.fileSizeLimit) || actualMimeTypes !== expectedMimeTypes) {
+    throw new Error("Restored Storage bucket configuration mismatch: " + bucket.id);
+  }
+  console.log("Prepared and verified Storage bucket: " + bucket.id);
 }
 
 let restored = 0;
