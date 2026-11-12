@@ -37,7 +37,7 @@ def api_json(url: str) -> tuple[object, object]:
                 return json.loads(response.read().decode("utf-8")), response.headers
         except urllib.error.HTTPError as exc:
             if exc.code not in RETRYABLE_STATUS or attempt == 4:
-                raise RuntimeError(f"WordPress API returned HTTP {exc.code}.") from None
+                raise RuntimeError(f"WordPress API returned HTTP {exc.code} for {urllib.parse.urlsplit(url).path}.") from None
             retry_after = exc.headers.get("Retry-After", "")
             try:
                 delay = min(30, max(1, int(retry_after)))
