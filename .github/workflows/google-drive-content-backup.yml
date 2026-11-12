@@ -51,12 +51,11 @@ jobs:
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
-          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          RCLONE_CONFIG_BASE64: ${{ secrets.RCLONE_CONFIG_BASE64 }}
           BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
         run: |
           set -euo pipefail
-          for name in SUPABASE_DB_URL SUPABASE_SECRET_KEY GOOGLE_DRIVE_INGEST_URL GOOGLE_DRIVE_INGEST_TOKEN BACKUP_ENCRYPTION_PASSPHRASE; do
+          for name in SUPABASE_DB_URL SUPABASE_SECRET_KEY RCLONE_CONFIG_BASE64 BACKUP_ENCRYPTION_PASSPHRASE; do
             if [ -z "${!name:-}" ]; then
               echo "::error::Missing required GitHub Actions secret: $name"
               exit 1
@@ -66,12 +65,13 @@ jobs:
             postgresql://*|postgres://*) ;;
             *) echo "::error::SUPABASE_DB_URL must be a PostgreSQL connection string"; exit 1 ;;
           esac
-          case "$GOOGLE_DRIVE_INGEST_URL" in
-            https://script.google.com/macros/s/*/exec) ;;
-            *) echo "::error::GOOGLE_DRIVE_INGEST_URL must be a deployed Apps Script web app URL"; exit 1 ;;
-          esac
-          if [ "${#GOOGLE_DRIVE_INGEST_TOKEN}" -lt 40 ]; then
-            echo "::error::GOOGLE_DRIVE_INGEST_TOKEN must be at least 40 characters"
+          umask 077
+          printf '%s' "$RCLONE_CONFIG_BASE64" | base64 --decode > "$RUNNER_TEMP/rclone.conf"
+          test -s "$RUNNER_TEMP/rclone.conf"
+          chmod 600 "$RUNNER_TEMP/rclone.conf"
+          echo "RCLONE_CONFIG=$RUNNER_TEMP/rclone.conf" >> "$GITHUB_ENV"
+          if ! RCLONE_CONFIG="$RUNNER_TEMP/rclone.conf" rclone listremotes | grep -qx 'greendream:'; then
+            echo "::error::RCLONE_CONFIG_BASE64 must define a remote named greendream"
             exit 1
           fi
           if [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 32 ]; then
