@@ -99,3 +99,46 @@ jobs:
 
       - run: deno check supabase/functions/google-drive-oauth-callback/index.ts
       - run: deno check scripts/restore_storage.ts
+
+      - name: Start disposable Supabase Storage integration-test target
+        run: |
+          set -euo pipefail
+          LOCAL_PROJECT="$RUNNER_TEMP/storage-restore-test-project"
+          mkdir -p "$LOCAL_PROJECT/supabase/migrations"
+          printf 'project_id = "storage-restore-test"\n' > "$LOCAL_PROJECT/supabase/config.toml"
+          supabase --workdir "$LOCAL_PROJECT" start
+          touch "$RUNNER_TEMP/storage-restore.started"
+          supabase --workdir "$LOCAL_PROJECT" status -o env > "$RUNNER_TEMP/storage-restore.env"
+
+      - name: Test Storage bucket and object restoration end to end
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/storage-restore.env"
+          set +a
+          ROOT="$RUNNER_TEMP/storage-restore-fixture"
+          mkdir -p "$ROOT/storage/objects/test-media"
+          printf 'Green Dream Storage restore integration test\n' > "$ROOT/storage/objects/test-media/hello.txt"
+          BYTES="$(wc -c < "$ROOT/storage/objects/test-media/hello.txt" | tr -d ' ')"
+          SHA="$(sha256sum "$ROOT/storage/objects/test-media/hello.txt" | awk '{print $1}')"
+          cat > "$ROOT/storage/buckets.json" <<'JSON'
+          [{"id":"test-media","name":"test-media","public":false,"file_size_limit":52428800,"allowed_mime_types":["text/plain"]}]
+          JSON
+          cat > "$ROOT/storage/objects-metadata.json" <<JSON
+          [{"bucket_id":"test-media","name":"hello.txt","metadata":{"mimetype":"text/plain","size":$BYTES,"cacheControl":"3600"},"user_metadata":{"source":"validation"}}]
+          JSON
+          cat > "$ROOT/storage/objects/storage-manifest.json" <<JSON
+          {"object_count":1,"objects":[{"bucket":"test-media","path":"hello.txt","bytes":$BYTES,"sha256":"$SHA"}]}
+          JSON
+          SUPABASE_URL="$API_URL" SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$ROOT"
+
+      - name: Stop disposable Storage integration-test target
+        if: always()
+        continue-on-error: true
+        run: |
+          if [ -f "$RUNNER_TEMP/storage-restore.started" ]; then
+            supabase --workdir "$RUNNER_TEMP/storage-restore-test-project" stop --no-backup
+          fi
+          rm -rf "$RUNNER_TEMP/storage-restore-test-project" "$RUNNER_TEMP/storage-restore-fixture"
+          rm -f "$RUNNER_TEMP/storage-restore.env" "$RUNNER_TEMP/storage-restore.started"
