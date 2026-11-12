@@ -44,14 +44,14 @@ jobs:
         shell: bash
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
           GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
           BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
         run: |
           set -euo pipefail
-          for name in SUPABASE_DB_URL SUPABASE_SERVICE_ROLE_KEY GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REFRESH_TOKEN BACKUP_ENCRYPTION_PASSPHRASE; do
+          for name in SUPABASE_DB_URL SUPABASE_SECRET_KEY GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REFRESH_TOKEN BACKUP_ENCRYPTION_PASSPHRASE; do
             if [ -z "${!name:-}" ]; then
               echo "::error::Missing required GitHub Actions secret: $name"
               exit 1
