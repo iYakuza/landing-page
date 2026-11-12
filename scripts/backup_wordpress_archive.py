@@ -61,7 +61,7 @@ def fetch_collection(endpoint: str, fields: str) -> list[dict]:
             "page": page,
             "_fields": fields,
         })
-        data, headers = api_json(f"{API_ROOT}/{endpoint}?{query}")
+        data, headers = api_json(f"{API_ROOT}/{endpoint}/?{query}")
         if not isinstance(data, list):
             raise RuntimeError(f"WordPress {endpoint} endpoint returned an unexpected response.")
         results.extend(item for item in data if isinstance(item, dict))
