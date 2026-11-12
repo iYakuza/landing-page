@@ -12,6 +12,7 @@ on:
       - "scripts/create_backup_manifest.py"
       - "scripts/verify_backup_manifest.py"
       - "scripts/**"
+      - "google-apps-script/**"
       - "supabase/functions/google-drive-oauth-callback/**"
       - "supabase/config.toml"
 
@@ -43,6 +44,7 @@ jobs:
           python3 -m py_compile \
             scripts/backup_storage.py \
             scripts/upload_drive_backup.py \
+            scripts/upload_apps_script_backup.py \
             scripts/create_backup_manifest.py \
             scripts/verify_backup_manifest.py \
             scripts/export_edge_env_inventory.py \
@@ -117,6 +119,8 @@ jobs:
 
       - run: deno check supabase/functions/google-drive-oauth-callback/index.ts
       - run: deno check scripts/restore_storage.ts
+      - name: Validate Google Apps Script JavaScript syntax
+        run: node --check < google-apps-script/Code.gs
 
       - name: Start disposable Supabase Storage integration-test target
         run: |
