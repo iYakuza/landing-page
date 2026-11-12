@@ -93,7 +93,7 @@ function listCompletedBackups_(folder) {
         if (!match || Number(match[2]) !== manifest.part_count ||
             !Number.isInteger(part.size) || part.size < 1 ||
             !/^[a-f0-9]{64}$/.test(part.sha256 || "") ||
-            typeof part.file_id !== "string") {
+            typeof part.name !== "string") {
           valid = false;
           return;
         }
@@ -135,9 +135,11 @@ function downloadBackupPart_(folder, backupId, partNumber) {
     const match = typeof item.name === "string" && item.name.match(/-part-([0-9]{4})-of-([0-9]{4})\.gpgpart$/);
     return match && Number(match[1]) === partNumber && Number(match[2]) === manifest.part_count;
   });
-  if (!part || typeof part.file_id !== "string") return { ok: false, error: "Backup part not found." };
-  const file = DriveApp.getFileById(part.file_id);
-  if (file.getName() !== part.name) return { ok: false, error: "Backup part reference mismatch." };
+  if (!part || typeof part.name !== "string") return { ok: false, error: "Backup part not found." };
+  const matchingFiles = folder.getFilesByName(part.name);
+  if (!matchingFiles.hasNext()) return { ok: false, error: "Backup part not found." };
+  const file = matchingFiles.next();
+  if (matchingFiles.hasNext()) return { ok: false, error: "Backup part reference is ambiguous." }
   const bytes = file.getBlob().getBytes();
   const digest = sha256_(bytes);
   if (bytes.length !== part.size || digest !== part.sha256) {
