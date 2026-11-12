@@ -68,7 +68,7 @@ jobs:
         run: |
           set -euo pipefail
           umask 077
-          mkdir -p "$RUNNER_TEMP/green-dream-backup"/{database,auth,storage,repository,metadata}
+          mkdir -p "$RUNNER_TEMP/green-dream-backup"/{database,auth,storage,secrets,repository,metadata}
 
       - name: Export database roles, schema, and data
         env:
@@ -105,6 +105,9 @@ jobs:
             "select coalesce(json_agg(to_jsonb(o) order by bucket_id, name), '[]'::json) from storage.objects o" \
             > "$OUT/storage/objects-metadata.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(json_build_object('name',name,'description',description,'secret',decrypted_secret,'created_at',created_at,'updated_at',updated_at) order by name), '[]'::json) from vault.decrypted_secrets" \
+            > "$OUT/secrets/vault-secrets.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
             "select json_build_object('postgres_version', version(), 'captured_at', now())::text" \
             > "$OUT/metadata/database.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
@@ -125,6 +128,7 @@ jobs:
           test -s supabase/functions/website-theme/index.ts
           test -s supabase/functions/contact-about-role/index.ts
           test -s supabase/functions/secure-your-soul-transmissions/index.ts
+          python3 scripts/export_edge_env_inventory.py --source supabase/functions --output "$RUNNER_TEMP/green-dream-backup/metadata/edge-function-env-inventory.json"
 
       - name: Generate checksums and backup manifest
         run: |
