@@ -72,6 +72,7 @@ const context = {
     DigestAlgorithm: { SHA_256: "sha256" },
     computeDigest: (_, bytes) => Array.from(crypto.createHash("sha256").update(Buffer.from(bytes)).digest()).map(x => x > 127 ? x - 256 : x),
     base64Decode: value => Array.from(Buffer.from(value, "base64")),
+    base64Encode: value => Buffer.from(value).toString("base64"),
     newBlob: (bytes, mime, name) => ({ bytes, mime, name })
   },
   Date,
@@ -123,6 +124,19 @@ assert.equal(manifest.part_count, 2);
 assert.deepEqual(manifest.parts.map(p => p.sha256), [digest(bytesOf("encrypted-chunk-one")), digest(bytesOf("encrypted-chunk-two"))]);
 assert.equal(send(part(2, 2, "encrypted-chunk-two")).finalized, true, "completed backup accepts an identical retry");
 assert.equal(send(part(2, 2, "different-content")).ok, false, "completed manifest prevents replacement with different content");
+
+const listing = send({ action: "list_backups", token });
+assert.equal(listing.ok, true, "authenticated backup listing works");
+assert.equal(listing.backups.length, 1);
+assert.equal(listing.backups[0].backup_id, id);
+assert.equal(listing.backups[0].part_count, 2);
+assert.equal(listing.backups[0].total_bytes, Buffer.byteLength("encrypted-chunk-one") + Buffer.byteLength("encrypted-chunk-two"));
+const downloaded = send({ action: "download_part", token, backup_id: id, part_number: 1 });
+assert.equal(downloaded.ok, true, "authenticated part download works");
+assert.equal(Buffer.from(downloaded.content_base64, "base64").toString(), "encrypted-chunk-one");
+assert.equal(downloaded.sha256, digest(bytesOf("encrypted-chunk-one")));
+assert.equal(send({ action: "download_part", token, backup_id: id, part_number: 3 }).ok, false, "reject out-of-range download part");
+assert.equal(send({ action: "list_backups", token: "wrong" }).ok, false, "backup listing requires authentication");
 
 properties.set("INGEST_TOKEN", "short");
 assert.equal(send({ action: "ping", token: "short" }).ok, false, "reject weak receiver configuration");
