@@ -58,7 +58,7 @@ Then add these repository secrets under **Settings → Secrets and variables →
 | GOOGLE_CLIENT_ID | Client ID of the new Google Web application OAuth client. |
 | GOOGLE_CLIENT_SECRET | Client secret of that same Web application client. |
 | GOOGLE_REFRESH_TOKEN | Token returned by the one-time browser authorization flow. |
-| BACKUP_ENCRYPTION_PASSPHRASE | A unique, strong passphrase (at least 20 characters) stored separately in a password manager. |
+| BACKUP_ENCRYPTION_PASSPHRASE | A unique, randomly generated passphrase of at least 32 characters, stored in a password manager with a separate secure recovery copy. |
 
 ### 4. Authorize Google Drive
 
