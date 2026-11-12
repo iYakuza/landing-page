@@ -23,6 +23,18 @@ It replaces the separate Google OAuth client/refresh-token flow. The script owne
 
 Do not paste the token into chat, commit it, or put it in the script source. The receiver checks the token on every request. Uploaded files remain private in the deploying account's Drive.
 
+## Updating an already-deployed receiver
+
+The Apps Script project is standalone; commits to this repository do not update Google's deployed code automatically. After changing `Code.gs`:
+
+1. Open the existing **Green Dream Backup Receiver** Apps Script project.
+2. Replace `Code.gs` with the current repository version.
+3. Choose **Deploy → Manage deployments**.
+4. Edit the existing web-app deployment, select **New version**, and deploy.
+5. Keep the existing deployment URL and Script Properties. Do not regenerate or paste the token.
+
+The recovery workflow depends on the authenticated `list_backups` and `download_part` actions in the updated receiver. The old deployed version supports uploads only, so a recovery download will not work until this update is deployed.
+
 ## Local receiver tests
 
 The repository includes `test_receiver.js`, an isolated Node.js test harness for authentication, weak-token configuration rejection, malformed input, checksum validation, duplicate retries, conflicting part counts, chunk completion, manifest checksums, authenticated backup listing, and integrity-checked part downloads. The validation workflow runs these tests without accessing the user's Google account or Drive.
