@@ -65,7 +65,7 @@ def find_or_create_folder(token):
 
 def upload_resumable(token, folder_id, archive):
     size = archive.stat().st_size
-    digest = hashlib.md5()
+    digest = hashlib.md5(usedforsecurity=False)
     with archive.open("rb") as stream:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
