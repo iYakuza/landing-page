@@ -42,7 +42,7 @@ The repository includes `test_receiver.js`, an isolated Node.js test harness for
 ## Safety and operating notes
 
 - Only encrypted `.gpg` backup parts are uploaded.
-- Each part is limited to 5 MiB and verified with SHA-256 before being stored.
+- Each part is limited to 5 MiB, the receiver accepts up to 400 parts per backup, and every part is verified with SHA-256 before being stored.
 - A manifest is created only after all parts of a backup set are present.
 - The receiver retains the 30 newest completed backup sets.
 - The receiver exposes only authenticated `list_backups` and `download_part` POST actions. Both require the same high-entropy token as uploads; downloads are checked against the completed manifest and each part's SHA-256 before bytes are returned.

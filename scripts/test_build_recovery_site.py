@@ -79,12 +79,23 @@ with tempfile.TemporaryDirectory() as temp:
     local_asset.parent.mkdir(parents=True)
     local_asset.write_bytes(b"repo image")
     (root / "storage/objects/poetry-media/audio/song.mp3").write_bytes(b"mp3!")
-    legacy = source / "human-archive/archive-data.json"
-    legacy.parent.mkdir(parents=True, exist_ok=True)
-    legacy.write_text(json.dumps([
-        {"id": 1, "date": "2020-01-02", "year": "2020", "title": "Legacy poem", "url": "https://emanuelstefancu.wordpress.com/2020/01/02/legacy-poem/", "categories": ["Poetry"]},
-        {"id": 2, "date": "2020-01-03", "year": "2020", "title": "Untrusted link", "url": "https://evil.example/legacy", "categories": ["Poetry"]},
+    wordpress = root / "wordpress"
+    (wordpress / "media").mkdir(parents=True, exist_ok=True)
+    (wordpress / "posts.json").write_text(json.dumps([
+        {"id": 3014, "date": "2026-11-07T00:41:57", "link": "https://emanuelstefancu.wordpress.com/2026/11/07/the-god-beneath-the-noise/", "title": "Legacy poem", "categories": ["Poetry"], "content_html": "<p>Legacy content <strong>survives</strong></p>", "excerpt_html": "<p>Legacy excerpt</p>"},
+        {"id": 9999, "date": "2026-11-07T00:41:57", "link": "https://evil.example/legacy", "title": "Untrusted link", "categories": ["Poetry"], "content_html": "<p>Do not show</p>"},
     ]), encoding="utf-8")
+    (wordpress / "media/1710-fall-in-eden.mp3").write_bytes(b"mp3!")
+    (wordpress / "media-manifest.json").write_text(json.dumps({
+        "site_url": "https://emanuelstefancu.wordpress.com",
+        "count": 1,
+        "total_bytes": 4,
+        "objects": [{
+            "id": 1710, "date": "2026-07-01T00:00:00", "mime_type": "audio/mpeg",
+            "title": "Fall in Eden", "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/07/fall-in-eden.mp3",
+            "local_path": "media/1710-fall-in-eden.mp3", "bytes": 4, "sha256": "abcd",
+        }],
+    }), encoding="utf-8")
     (root / "storage/objects/poetry-media/unpublished/hidden.png").write_bytes(b"hidden")
     (root / "storage/objects/poetry-media-staging/secret/private.pdf").write_bytes(b"secret")
     subprocess.run([sys.executable, str(repo / "scripts/build_recovery_site.py"), str(root), "--repo-root", str(source)], check=True)
@@ -98,7 +109,11 @@ with tempfile.TemporaryDirectory() as temp:
     assert "Open original media (external link; not stored offline)" in page
     assert "javascript:alert(1)" not in page
     assert "Legacy poem" in page
-    assert "https://emanuelstefancu.wordpress.com/2020/01/02/legacy-poem/" in page
+    assert "Legacy content" in page
+    assert "https://emanuelstefancu.wordpress.com/2026/11/07/the-god-beneath-the-noise/" in page
+    assert "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/07/fall-in-eden.mp3" in page
+    assert "Fall in Eden" in page
+    assert "Open original WordPress media" in page
     assert "evil.example" not in page
     assert "private.pdf" not in page
     assert "hidden.png" not in page
@@ -120,5 +135,6 @@ with tempfile.TemporaryDirectory() as temp:
         assert "storage/objects/poetry-media/audio/song.mp3" in names
         assert "storage/objects/poetry-media/unpublished/hidden.png" not in names
         assert "recovery-site/static-assets/posts/imported/wfh/media/featured.jpg" in names
+        assert "wordpress/media/1710-fall-in-eden.mp3" not in names
         assert not any("poetry-media-staging" in name for name in names)
 print("Offline recovery-site builder and package tests passed.")

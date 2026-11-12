@@ -64,7 +64,7 @@ jobs:
             scripts/build_recovery_site.py \
             scripts/package_recovery_site.py \
             scripts/download_apps_script_backup.py \
-            scripts/test_build_recovery_site.py \
+            scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py \
             scripts/test_download_apps_script_backup.py
 
       - name: Test backup manifest generation and verification
@@ -88,6 +88,7 @@ jobs:
 
       - name: Test offline recovery website generation
         run: python3 scripts/test_build_recovery_site.py
+          python3 scripts/test_backup_wordpress_archive.py
 
       - name: Test authenticated backup downloader
         run: python3 scripts/test_download_apps_script_backup.py

@@ -138,6 +138,11 @@ assert.equal(downloaded.sha256, digest(bytesOf("encrypted-chunk-one")));
 assert.equal(send({ action: "download_part", token, backup_id: id, part_number: 3 }).ok, false, "reject out-of-range download part");
 assert.equal(send({ action: "list_backups", token: "wrong" }).ok, false, "backup listing requires authentication");
 
+const boundaryId = "20261112T120001Z-c3d4e5f6";
+const boundaryPart = { ...part(1, 400, "large-backup-boundary"), backup_id: boundaryId };
+assert.equal(send(boundaryPart).ok, true, "accept the configured 400-part maximum");
+assert.equal(send({ ...part(1, 401, "too-many-parts"), backup_id: "20261112T120002Z-d4e5f6a7" }).ok, false, "reject more than 400 parts");
+
 properties.set("INGEST_TOKEN", "short");
 assert.equal(send({ action: "ping", token: "short" }).ok, false, "reject weak receiver configuration");
 console.log("Apps Script receiver tests passed.");

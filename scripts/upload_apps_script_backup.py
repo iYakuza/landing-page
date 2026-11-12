@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 PART_BYTES = 1 * 1024 * 1024
+MAX_PARTS = 400
 PREFIX = "greendream-backup-"
 
 
@@ -53,8 +54,8 @@ def main():
     backup_id = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid4().hex[:8]
     total_bytes = archive.stat().st_size
     total_parts = (total_bytes + PART_BYTES - 1) // PART_BYTES
-    if total_parts > 100:
-        raise RuntimeError("Backup is too large for the configured receiver (maximum 100 parts).")
+    if total_parts > MAX_PARTS:
+        raise RuntimeError("Backup is too large for the configured receiver (maximum 400 parts).")
 
     sent = 0
     with archive.open("rb") as stream:

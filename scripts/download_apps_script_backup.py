@@ -13,6 +13,7 @@ import sys
 import urllib.error
 import urllib.request
 
+MAX_PARTS = 400
 BACKUP_ID = re.compile(r"^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}$")
 SHA256 = re.compile(r"^[a-f0-9]{64}$")
 
@@ -58,7 +59,7 @@ def main() -> None:
     part_count = selected.get("part_count")
     parts = selected.get("parts")
     total_bytes = selected.get("total_bytes")
-    if not isinstance(part_count, int) or not 1 <= part_count <= 100 or not isinstance(parts, list) or len(parts) != part_count:
+    if not isinstance(part_count, int) or not 1 <= part_count <= MAX_PARTS or not isinstance(parts, list) or len(parts) != part_count:
         raise SystemExit("The receiver returned an invalid backup manifest.")
     if not isinstance(total_bytes, int) or total_bytes < 1:
         raise SystemExit("The receiver returned an invalid backup size.")

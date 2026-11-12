@@ -16,6 +16,7 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 backup_id = "20261112T120000Z-a1b2c3d4"
+assert module.MAX_PARTS == 400
 chunks = [b"encrypted-part-one", b"encrypted-part-two"]
 parts = [
     {"part_number": index + 1, "size": len(chunk), "sha256": hashlib.sha256(chunk).hexdigest()}

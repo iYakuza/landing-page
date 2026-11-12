@@ -46,32 +46,40 @@ def main():
     content = load_json(DB)
     buckets = load_json(BUCKETS)
     storage_manifest = load_json(STORAGE / "storage-manifest.json")
-    legacy_path = REPO_ROOT / "human-archive" / "archive-data.json"
-    if not legacy_path.is_file():
-        raise SystemExit("The checked-in legacy WordPress archive index is missing.")
-    legacy_source = json.loads(legacy_path.read_text(encoding="utf-8"))
-    if not isinstance(legacy_source, list):
-        raise SystemExit("The legacy WordPress archive index has an unexpected structure.")
+    wordpress_root = ROOT / "wordpress"
+    wordpress_posts = load_json(wordpress_root / "posts.json")
+    wordpress_media_manifest = load_json(wordpress_root / "media-manifest.json")
+    if not isinstance(wordpress_posts, list):
+        raise SystemExit("WordPress posts export has an unexpected structure.")
+    wordpress_objects = wordpress_media_manifest.get("objects") if isinstance(wordpress_media_manifest, dict) else None
+    if not isinstance(wordpress_objects, list) or wordpress_media_manifest.get("count") != len(wordpress_objects):
+        raise SystemExit("WordPress media manifest has an unexpected structure.")
+    if sum(int(item.get("bytes", 0)) for item in wordpress_objects) != int(wordpress_media_manifest.get("total_bytes", -1)):
+        raise SystemExit("WordPress media manifest total does not match its objects.")
     legacy = []
-    for item in legacy_source:
+    for item in wordpress_posts:
         if not isinstance(item, dict):
             continue
-        url = external_http_url(item.get("url"))
+        url = external_http_url(item.get("link"))
         try:
             valid_legacy_url = url and urlsplit(url).hostname == "emanuelstefancu.wordpress.com"
         except ValueError:
             valid_legacy_url = False
         if not valid_legacy_url:
             continue
-        if not all(isinstance(item.get(key), str) and item.get(key).strip() for key in ("title", "date", "year")):
+        post_date = str(item.get("date") or "")
+        title = str(item.get("title") or "").strip()
+        if not title or not post_date:
             continue
         legacy.append({
             "id": int(item["id"]) if str(item.get("id", "")).isdigit() else None,
-            "date": item["date"],
-            "year": item["year"],
-            "title": item["title"],
+            "date": post_date,
+            "year": post_date[:4],
+            "title": title,
             "url": url,
             "categories": [value for value in item.get("categories", []) if isinstance(value, str)],
+            "content_html": item.get("content_html") or "",
+            "excerpt_html": item.get("excerpt_html") or "",
         })
     if not isinstance(content, dict) or not isinstance(content.get("posts"), list) or not isinstance(content.get("submissions"), list) or not isinstance(content.get("transmissions", []), list):
         raise SystemExit("Public content snapshot has an unexpected structure.")
@@ -155,6 +163,21 @@ def main():
         mime = mimetypes.guess_type(item["path"])[0] or "application/octet-stream"
         media.append({"bucket": item["bucket"], "path": item["path"], "href": rel, "bytes": item["bytes"], "mime": mime})
 
+    for item in wordpress_objects:
+        href = external_http_url(item.get("source_url"))
+        if not href:
+            continue
+        media.append({
+            "bucket": "WordPress.com media library",
+            "path": item.get("local_path") or str(item.get("id", "media")),
+            "href": href,
+            "bytes": int(item.get("bytes", 0)),
+            "mime": item.get("mime_type") or "application/octet-stream",
+            "external": True,
+            "title": item.get("title") or "",
+            "date": item.get("date") or "",
+        })
+
     payload = json.dumps({"records": records, "media": media, "legacy": legacy}, ensure_ascii=False, separators=(",", ":"))
     payload = payload.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
     SITE.mkdir(parents=True, exist_ok=True)
@@ -180,14 +203,14 @@ footer{border-top:1px solid var(--line);padding:22px;text-align:center;color:var
 [hidden]{display:none!important}
 </style></head>
 <body>
-<header><div class="kicker">GREEN DREAM / OFFLINE RECOVERY</div><h1>The archive<br>remains.</h1><p>A read-only recovery website generated from a Green Dream backup snapshot. Browse published writing, approved community submissions, consent-approved transmissions, the legacy WordPress index and backed-up media without connecting to the original Supabase project.</p></header>
+<header><div class="kicker">GREEN DREAM / OFFLINE RECOVERY</div><h1>The archive<br>remains.</h1><p>A read-only recovery website generated from a Green Dream backup snapshot. Browse published Supabase writing, approved community submissions, the live WordPress archive and media-library links without connecting to the original Supabase project.</p></header>
 <main>
-<div class="notice"><strong>Recovery copy, not the live site.</strong> This page contains published posts, approved community submissions, consent-approved transmissions, the 2016–2026 legacy WordPress index, and media referenced by published records. Legacy entries preserve titles, dates, categories and original links; their original post bodies remain on WordPress. Unreferenced public-bucket objects, private buckets, pending submissions and failed submissions remain only in the encrypted backup.</div>
+<div class="notice"><strong>Recovery copy, not the live site.</strong> This page contains published Supabase records, all published WordPress posts and links to the WordPress media library. WordPress post text is included here; the actual WordPress media binaries are preserved inside the encrypted backup and are linked from this public viewer rather than republished. Unreferenced Supabase Storage objects, private buckets, pending submissions and failed submissions remain only in the encrypted backup.</div>
 <div class="stats" id="stats"></div>
 <div class="toolbar"><button id="recordsTab" aria-pressed="true">Writing & submissions</button><button id="legacyTab" aria-pressed="false">Legacy WordPress index</button><button id="mediaTab" aria-pressed="false">Media library</button><input id="search" type="search" placeholder="Search titles, text, categories…"><select id="category"><option value="">All categories</option></select></div>
 <section id="recordsView"><div class="section-title">PUBLISHED CONTENT</div><div id="records"></div></section>
-<section id="legacyView" hidden><div class="section-title">LEGACY WORDPRESS INDEX · 2016—2026</div><div id="legacyRecords"></div></section>
-<section id="mediaView" hidden><div class="section-title">BACKED-UP PUBLIC MEDIA</div><div id="mediaGrid"></div></section>
+<section id="legacyView" hidden><div class="section-title">WORDPRESS ARCHIVE · PUBLISHED POSTS</div><div id="legacyRecords"></div></section>
+<section id="mediaView" hidden><div class="section-title">MEDIA LIBRARY · LOCAL FILES + WORDPRESS LINKS</div><div id="mediaGrid"></div></section>
 </main><footer>GREEN DREAM · RECOVERY ARCHIVE · GENERATED LOCALLY FROM THE BACKUP SNAPSHOT</footer>
 <script id="recovery-data" type="application/json">__PAYLOAD__</script>
 <script>
@@ -197,7 +220,7 @@ const $=id=>document.getElementById(id), recordsView=$('recordsView'),mediaView=
 const records=data.records||[],media=data.media||[],legacy=data.legacy||[];
 const date=v=>{if(!v)return 'Date not recorded';const d=new Date(v);return Number.isNaN(d.getTime())?String(v):d.toLocaleString(undefined,{dateStyle:'medium'});};
 const bytes=n=>{let v=Number(n)||0;for(const u of ['B','KB','MB','GB']){if(v<1024||u==='GB')return (u==='B'?v:v.toFixed(1))+' '+u;v/=1024;}return v+' B';};
-$('stats').innerHTML=[['PUBLISHED RECORDS',records.length],['LEGACY INDEX',legacy.length],['PUBLIC MEDIA FILES',media.length],['BACKUP VIEW','OFFLINE']].map(([k,v])=>'<div class="stat"><strong>'+v+'</strong><span>'+k+'</span></div>').join('');
+$('stats').innerHTML=[['PUBLISHED RECORDS',records.length],['WORDPRESS POSTS',legacy.length],['MEDIA FILES & LINKS',media.length],['BACKUP VIEW','OFFLINE']].map(([k,v])=>'<div class="stat"><strong>'+v+'</strong><span>'+k+'</span></div>').join('');
 const categories=[...new Set([...records.map(r=>r.category||r.kind),...legacy.flatMap(r=>r.categories||[])].filter(Boolean))].sort();
 categories.forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;category.append(o);});
 function safeContent(target,source){
@@ -245,17 +268,19 @@ function renderRecords(){
  });
 }
 function renderMedia(){
- const q=search.value.trim().toLowerCase(),filtered=media.filter(m=>(m.bucket+'/'+m.path).toLowerCase().includes(q));
+ const q=search.value.trim().toLowerCase(),filtered=media.filter(m=>[m.bucket,m.path,m.title,m.mime].join(' ').toLowerCase().includes(q));
  $('mediaGrid').replaceChildren();
  if(!filtered.length){$('mediaGrid').innerHTML='<div class="empty">No matching media files.</div>';return;}
  filtered.forEach(m=>{
   const card=document.createElement('article');card.className='file';const type=m.mime||'';
+  const label=document.createElement('div');label.textContent=m.title||m.path;
+  const small=document.createElement('small');small.textContent=m.bucket+' · '+bytes(m.bytes)+' · '+type;
+  const link=document.createElement('a');link.href=m.href;link.textContent=m.external?'Open original WordPress media':'Open file';link.target='_blank';link.rel='noopener noreferrer';
+  if(m.external){card.append(label,small,link);$('mediaGrid').append(card);return;}
   let el;if(type.startsWith('image/')){el=document.createElement('img');el.loading='lazy';el.alt=m.path;}
   else if(type.startsWith('video/')){el=document.createElement('video');el.controls=true;el.preload='metadata';}
   else if(type.startsWith('audio/')){el=document.createElement('audio');el.controls=true;el.preload='metadata';}
   if(el){el.src=m.href;card.append(el);}
-  const label=document.createElement('div');label.textContent=m.path;const small=document.createElement('small');small.textContent=m.bucket+' · '+bytes(m.bytes)+' · '+type;
-  const link=document.createElement('a');link.href=m.href;link.textContent='Open file';link.target='_blank';link.rel='noopener noreferrer';
   card.append(label,small,link);$('mediaGrid').append(card);
  });
 }
@@ -270,7 +295,9 @@ function renderLegacy(){
   const title=document.createElement('h2');title.textContent=r.title;
   const when=document.createElement('div');when.className='date';when.textContent=date(r.date);
   const link=document.createElement('a');link.href=r.url;link.textContent='Open original WordPress record';link.target='_blank';link.rel='noopener noreferrer';
-  article.append(meta,title,when,link);$('legacyRecords').append(article);
+  article.append(meta,title,when);
+  if(r.content_html){const details=document.createElement('details'),summary=document.createElement('summary');summary.textContent='Read archived text';details.append(summary);const body=document.createElement('div');body.className='body';safeContent(body,r.content_html);details.append(body);article.append(details);}
+  article.append(link);$('legacyRecords').append(article);
  });
 }
 function showTab(active){
@@ -295,14 +322,12 @@ Supabase, Google Drive, or any external service. Keep the sibling storage/
 directory in place: media players use the original backed-up object files
 through relative paths.
 
-This is a read-only catalogue of published posts, consent-approved community
-submissions and transmissions, the legacy WordPress index (titles, dates,
-categories and original links), plus media files referenced by published
-content from public Storage buckets.
-Private buckets, unreferenced media, and unpublished/failed submissions are
-deliberately excluded. External media URLs stored on published records are
-shown as outbound links, not downloaded files. The legacy WordPress post bodies
-remain on WordPress; this index does not mirror those external pages.
+This is a read-only catalogue of published Supabase posts and approved
+submissions, all published WordPress post text, public Supabase media, and
+links to the WordPress media library. The encrypted backup also contains the
+WordPress media binaries; this public viewer links to the original files
+rather than republishing them. Private buckets, unreferenced Supabase media,
+and unpublished/failed submissions are deliberately excluded from this viewer.
 
 This viewer is not a replacement for the original interactive application.
 The Git bundle in repository/landing-page.bundle preserves the website source
@@ -310,7 +335,7 @@ and history. See CONTENT-BACKUP-README.txt and docs/backup/README.md for scope
 and full restoration limitations.
 """
     (SITE / "README.txt").write_text(readme, encoding="utf-8")
-    print(f"Recovery website generated: {len(records)} published records, {len(legacy)} legacy index entries, {len(media)} public media objects.")
+    print(f"Recovery website generated: {len(records)} published Supabase records, {len(legacy)} published WordPress posts, {len(media)} media files and links.")
 
 if __name__ == "__main__":
     main()
