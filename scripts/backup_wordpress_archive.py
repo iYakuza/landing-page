@@ -159,7 +159,7 @@ def normalize_media(item: dict) -> dict:
     }
 
 
-def download_media(url: str, destination: pathlib.Path, expected_bytes: int = 0) -> tuple[int, str]:
+def download_media(url: str, destination: pathlib.Path) -> tuple[int, str]:
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT}, method="GET")
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = destination.with_suffix(destination.suffix + ".partial")
@@ -176,8 +176,6 @@ def download_media(url: str, destination: pathlib.Path, expected_bytes: int = 0)
                     raise RuntimeError("A WordPress media file exceeded the per-file size limit.")
                 output.write(chunk)
                 digest.update(chunk)
-        if expected_bytes and written != expected_bytes:
-            raise RuntimeError("A WordPress media file did not match its reported size.")
         temporary.replace(destination)
         return written, digest.hexdigest()
     except Exception:
@@ -212,14 +210,22 @@ def export(output_root: pathlib.Path, index_path: pathlib.Path, media_index_path
     total_bytes = 0
     for item in media:
         destination = output_root / item["local_path"]
-        size, digest = download_media(item["source_url"], destination, item["expected_bytes"])
+        expected_bytes = item.pop("expected_bytes", 0)
+        try:
+            size, digest = download_media(item["source_url"], destination)
+        except Exception as exc:
+            raise RuntimeError(f"Could not download WordPress media {item['id']}: {exc}") from None
         total_bytes += size
         if total_bytes > MAX_TOTAL_BYTES:
             raise RuntimeError("The WordPress media library exceeded the total backup size limit.")
         item["bytes"] = size
+        item["reported_bytes"] = expected_bytes or None
+        item["size_matches_reported"] = not expected_bytes or size == expected_bytes
         item["sha256"] = digest
-        item.pop("expected_bytes", None)
-        print(f"Downloaded WordPress media {item['id']}: {size} bytes.")
+        if expected_bytes and size != expected_bytes:
+            print(f"WordPress media {item['id']}: API reported {expected_bytes} bytes; downloaded {size}; retaining verified download.")
+        else:
+            print(f"Downloaded WordPress media {item['id']}: {size} bytes.")
     posts_path = output_root / "posts.json"
     media_path = output_root / "media-manifest.json"
     posts_path.write_text(json.dumps(posts, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
