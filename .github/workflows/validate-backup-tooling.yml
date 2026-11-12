@@ -53,6 +53,7 @@ jobs:
             scripts/generate_restore_sql.py \
             scripts/verify_database_restore.py \
             scripts/verify_storage_security.py \
+            scripts/verify_storage_owners.py \
             scripts/verify_auth_restore.py \
             scripts/verify_vault_restore.py \
             scripts/verify_migration_ledger.py \
@@ -193,13 +194,21 @@ jobs:
           [{"id":"poetry-media","name":"poetry-media","public":true,"file_size_limit":52428800,"allowed_mime_types":["text/plain"]},{"id":"poetry-media-staging","name":"poetry-media-staging","public":false,"file_size_limit":52428800,"allowed_mime_types":["text/plain"]},{"id":"vha-post-media","name":"vha-post-media","public":true,"file_size_limit":52428800,"allowed_mime_types":["text/plain"]}]
           JSON
           cat > "$ROOT/storage/objects-metadata.json" <<JSON
-          [{"bucket_id":"poetry-media","name":"hello.txt","metadata":{"mimetype":"text/plain","size":$BYTES,"cacheControl":"3600"},"user_metadata":{"source":"validation"}}]
+          [{"bucket_id":"poetry-media","name":"hello.txt","owner_id":"restore-test-owner","owner":"00000000-0000-0000-0000-000000000001","metadata":{"mimetype":"text/plain","size":$BYTES,"cacheControl":"3600"},"user_metadata":{"source":"validation"}}]
           JSON
           cat > "$ROOT/storage/objects/storage-manifest.json" <<JSON
           {"object_count":1,"objects":[{"bucket":"poetry-media","path":"hello.txt","bytes":$BYTES,"sha256":"$SHA"}]}
           JSON
           SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="${SECRET_KEY:-$SERVICE_ROLE_KEY}" \
             deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$ROOT"
+          mkdir -p "$ROOT/database" "$ROOT/auth" "$ROOT/secrets"
+          printf '[]\n' > "$ROOT/database/migration-ledger.json"
+          printf '[]\n' > "$ROOT/auth/users.json"
+          printf '[]\n' > "$ROOT/auth/identities.json"
+          printf '[]\n' > "$ROOT/secrets/vault-secrets.json"
+          python3 scripts/generate_restore_sql.py --root "$ROOT"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$ROOT/restore/storage-owners.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_storage_owners.py "$ROOT"
           SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="${SECRET_KEY:-$SERVICE_ROLE_KEY}" \
             python3 scripts/backup_storage.py --output "$ROOT/storage/objects" --buckets-file "$ROOT/storage/buckets.json"
           python3 scripts/verify_storage_export.py "$ROOT"
