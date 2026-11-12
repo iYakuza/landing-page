@@ -64,7 +64,8 @@ jobs:
             scripts/build_recovery_site.py \
             scripts/package_recovery_site.py \
             scripts/download_apps_script_backup.py \
-            scripts/test_build_recovery_site.py
+            scripts/test_build_recovery_site.py \
+            scripts/test_download_apps_script_backup.py
 
       - name: Test backup manifest generation and verification
         run: |
@@ -87,6 +88,9 @@ jobs:
 
       - name: Test offline recovery website generation
         run: python3 scripts/test_build_recovery_site.py
+
+      - name: Test authenticated backup downloader
+        run: python3 scripts/test_download_apps_script_backup.py
 
       - name: Test SQL role-dump sanitizer
         run: python3 scripts/test_apply_sql_safely.py
