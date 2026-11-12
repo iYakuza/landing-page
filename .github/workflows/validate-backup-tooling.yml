@@ -82,3 +82,4 @@ jobs:
           deno-version: v2.x
 
       - run: deno check supabase/functions/google-drive-oauth-callback/index.ts
+      - run: deno check scripts/restore_storage.ts
