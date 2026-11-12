@@ -111,6 +111,7 @@ function safeContent(target,source){
  function copy(node,parent){
   if(node.nodeType===Node.TEXT_NODE){parent.append(document.createTextNode(node.nodeValue));return;}
   if(node.nodeType!==Node.ELEMENT_NODE)return;
+  if(['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','SVG','MATH','TEMPLATE'].includes(node.tagName))return;
   if(!allowed.has(node.tagName)){node.childNodes.forEach(child=>copy(child,parent));return;}
   const el=document.createElement(node.tagName.toLowerCase());
   if(node.tagName==='A'){const href=node.getAttribute('href')||'';if(/^https?:\/\//i.test(href)||/^mailto:/i.test(href)){el.href=href;el.rel='noopener noreferrer';el.target='_blank';}}
