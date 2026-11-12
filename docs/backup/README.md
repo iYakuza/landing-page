@@ -48,7 +48,7 @@ Do not put either value in this repository or in ChatGPT.
 
 First, add a repository variable under **Settings → Secrets and variables → Actions → Variables**:
 
-- BACKUP_ENABLED = false (keep disabled until every secret below is configured and verified; set it to true only when ready to activate scheduled backups).
+- BACKUP_ENABLED = false (keep disabled until every secret below is configured and verified. Setting it to true allows the first manual run from the backup branch; after the PR is merged, it also enables the daily schedule).
 
 Then add these repository secrets under **Settings → Secrets and variables → Actions → Secrets**. If Supabase Settings → API Keys shows only legacy keys, first click **Create new API keys**; this adds the default publishable and secret keys without disabling the legacy ones:
 
@@ -71,7 +71,7 @@ Sign in to the Google account that should own the backups and approve the drive.
 
 ### 5. Run the first backup
 
-Open **GitHub → Actions → Green Dream Google Drive backup → Run workflow**. Confirm that the workflow succeeds and that the encrypted archive appears in the Google Drive folder.
+Open **GitHub → Actions → Green Dream Google Drive backup → Run workflow** and select the `backup/google-drive-secret-key` branch for the first controlled run. Confirm that the workflow succeeds and that the encrypted archive appears in the Google Drive folder. After the first backup and restore checks are verified, merge the PR; the daily schedule will then run on `main`.
 
 ## Backup contents and limitations
 
