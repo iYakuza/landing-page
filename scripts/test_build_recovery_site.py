@@ -5,6 +5,7 @@ import pathlib
 import subprocess
 import sys
 import tempfile
+import zipfile
 
 repo = pathlib.Path(__file__).resolve().parents[1]
 with tempfile.TemporaryDirectory() as temp:
@@ -59,4 +60,12 @@ with tempfile.TemporaryDirectory() as temp:
     assert "../storage/objects/public-media/images/cover.jpg" in page
     assert "../storage/objects/public-media/audio/song.mp3" in page
     assert (root / "recovery-site/README.txt").is_file()
-print("Offline recovery-site builder tests passed.")
+    package = root / "recovery-site.zip"
+    subprocess.run([sys.executable, str(repo / "scripts/package_recovery_site.py"), str(root), str(package)], check=True)
+    with zipfile.ZipFile(package) as archive:
+        names = set(archive.namelist())
+        assert "recovery-site/index.html" in names
+        assert "storage/objects/public-media/images/cover.jpg" in names
+        assert "storage/objects/public-media/audio/song.mp3" in names
+        assert not any("private-media" in name for name in names)
+print("Offline recovery-site builder and package tests passed.")
