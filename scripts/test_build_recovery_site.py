@@ -21,7 +21,7 @@ with tempfile.TemporaryDirectory() as temp:
             "content_html": "<p>Hello <strong>archive</strong></p><script>alert(1)</script>",
             "published_at": "2026-11-12T12:00:00Z",
             "media_path": "images/cover.jpg",
-            "media_type": "image",
+            "media_type": "image", "contact_email": "private@example.invalid", "ip_hash": "private-ip-hash",
         }, {
             "title": "WFH", "slug": "wfh", "category": "THE RECONNECTION",
             "content_html": "<p>Local image test</p>", "published_at": "2026-10-15T12:00:00Z",
@@ -35,11 +35,12 @@ with tempfile.TemporaryDirectory() as temp:
             "body": "A public recording",
             "byline": "Contributor",
             "published_at": "2026-11-11T12:00:00Z",
-            "storage_path": "audio/song.mp3",
+            "storage_path": "audio/song.mp3", "contact_email": "private@example.invalid", "moderation_note": "private moderation note",
         }],
         "transmissions": [{
             "title": "A shared thought", "message": "A consent-approved message",
             "display_name": "A contributor", "created_at": "2026-11-10T12:00:00Z",
+            "contact_email": "private@example.invalid", "moderation_note": "private moderation note",
         }],
     }
     (root / "database/public-content.json").write_text(json.dumps(payload), encoding="utf-8")
@@ -71,6 +72,9 @@ with tempfile.TemporaryDirectory() as temp:
     assert "A shared thought" in page
     assert "A consent-approved message" in page
     assert "private.pdf" not in page
+    assert "private@example.invalid" not in page
+    assert "private-ip-hash" not in page
+    assert "private moderation note" not in page
     assert "alert(1)" in page  # Kept only as inert JSON data; the viewer sanitizer strips script elements.
     assert "../storage/objects/public-media/images/cover.jpg" in page
     assert "../storage/objects/public-media/audio/song.mp3" in page
