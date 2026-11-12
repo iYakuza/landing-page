@@ -45,7 +45,11 @@ Do not put either value in this repository or in ChatGPT.
 
 ### 3. GitHub Actions repository secrets
 
-Add these repository secrets under **Settings → Secrets and variables → Actions**:
+First, add a repository variable under **Settings → Secrets and variables → Actions → Variables**:
+
+- BACKUP_ENABLED = false (keep disabled until every secret below is configured and verified; set it to true only when ready to activate scheduled backups).
+
+Then add these repository secrets under **Settings → Secrets and variables → Actions → Secrets**:
 
 | Secret | Value |
 |---|---|
