@@ -28,8 +28,7 @@ def request_json(url, method="GET", body=None):
             raw = response.read()
             return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as exc:
-        detail = exc.read(500).decode("utf-8", "replace")
-        raise RuntimeError(f"Supabase Storage API returned HTTP {exc.code}: {detail}") from None
+        raise RuntimeError(f"Supabase Storage API returned HTTP {exc.code}; response details suppressed.") from None
 
 def download_object(bucket, object_path, destination):
     encoded = urllib.parse.quote(object_path, safe="/")
@@ -106,5 +105,5 @@ if __name__ == "__main__":
     try:
         main()
     except Exception as exc:
-        print(f"Storage backup failed: {exc}", file=sys.stderr)
+        print(f"Storage backup failed ({type(exc).__name__}); object paths and response details suppressed.", file=sys.stderr)
         sys.exit(1)
