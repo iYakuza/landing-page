@@ -205,6 +205,7 @@ jobs:
           python3 scripts/upload_apps_script_backup.py "$ENCRYPTED_ARCHIVE"
 
       - name: Remove superseded recovery-site artifacts
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
