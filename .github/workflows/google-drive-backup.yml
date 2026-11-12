@@ -143,7 +143,7 @@ jobs:
           LOCAL_PROJECT="$RUNNER_TEMP/green-dream-restore-target"
           mkdir -p "$LOCAL_PROJECT/supabase/migrations"
           printf 'project_id = "green-dream-restore-test"\n' > "$LOCAL_PROJECT/supabase/config.toml"
-          if ! supabase --workdir "$LOCAL_PROJECT" start > "$RUNNER_TEMP/local-supabase-start.log" 2>&1; then
+          if ! supabase --workdir "$LOCAL_PROJECT" start --exclude studio,mail,analytics,realtime,functions,pooler > "$RUNNER_TEMP/local-supabase-start.log" 2>&1; then
             sed -E '/(secret key:|publishable key:|sb_secret_|sb_publishable_)/Id' "$RUNNER_TEMP/local-supabase-start.log" | tail -n 80
             exit 1
           fi
