@@ -10,7 +10,6 @@ on:
 
 permissions:
   contents: read
-  actions: write
 
 concurrency:
   group: green-dream-recovery
@@ -19,6 +18,8 @@ concurrency:
 jobs:
   recover:
     runs-on: ubuntu-latest
+    env:
+      RCLONE_REMOTE_PATH: greendream:Green Dream Backups (rclone)
     timeout-minutes: 120
     steps:
       - name: Check out recovery tooling
@@ -28,23 +29,26 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update
-          sudo apt-get install --yes gnupg python3
+          sudo apt-get install --yes gnupg python3 rclone
           python3 --version
           gpg --version
 
       - name: Validate recovery credentials
         shell: bash
         env:
-          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
-          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          RCLONE_CONFIG_BASE64: ${{ secrets.RCLONE_CONFIG_BASE64 }}
           BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
         run: |
           set -euo pipefail
-          test -n "$GOOGLE_DRIVE_INGEST_URL"
-          test -n "$GOOGLE_DRIVE_INGEST_TOKEN"
+          test -n "$RCLONE_CONFIG_BASE64"
           test -n "$BACKUP_ENCRYPTION_PASSPHRASE"
-          if [ "${#GOOGLE_DRIVE_INGEST_TOKEN}" -lt 40 ]; then
-            echo "::error::The receiver token is too short."
+          umask 077
+          printf '%s' "$RCLONE_CONFIG_BASE64" | base64 --decode > "$RUNNER_TEMP/rclone.conf"
+          test -s "$RUNNER_TEMP/rclone.conf"
+          chmod 600 "$RUNNER_TEMP/rclone.conf"
+          echo "RCLONE_CONFIG=$RUNNER_TEMP/rclone.conf" >> "$GITHUB_ENV"
+          if ! RCLONE_CONFIG="$RUNNER_TEMP/rclone.conf" rclone listremotes | grep -qx 'greendream:'; then
+            echo "::error::RCLONE_CONFIG_BASE64 must define a remote named greendream"
             exit 1
           fi
           if [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 32 ]; then
@@ -61,9 +65,9 @@ jobs:
           set -euo pipefail
           OUTPUT="$RUNNER_TEMP/green-dream-recovery.gpg"
           if [ -n "$BACKUP_ID" ]; then
-            python3 scripts/download_apps_script_backup.py --backup-id "$BACKUP_ID" --output "$OUTPUT"
+            python3 scripts/rclone_drive_backup.py download --backup-id "$BACKUP_ID" --output "$OUTPUT"
           else
-            python3 scripts/download_apps_script_backup.py --output "$OUTPUT"
+            python3 scripts/rclone_drive_backup.py download --output "$OUTPUT"
           fi
           test -s "$OUTPUT"
           echo "ENCRYPTED_BACKUP=$OUTPUT" >> "$GITHUB_ENV"
@@ -91,19 +95,6 @@ jobs:
           python3 scripts/package_recovery_site.py "$RESTORED_ROOT" "$RUNNER_TEMP/green-dream-recovery-site.zip"
           unzip -l "$RUNNER_TEMP/green-dream-recovery-site.zip" | head -n 40
 
-      - name: Remove superseded recovery-site artifacts
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
-            --jq '.artifacts[] | select(.name | startswith("green-dream-recovery-site-")) | .id' |
-            while IFS= read -r artifact_id; do
-              [ -n "$artifact_id" ] || continue
-              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id"
-            done
-
       - name: Publish recovered website artifact
         uses: actions/upload-artifact@v4
         with:
@@ -119,3 +110,4 @@ jobs:
           rm -rf "$RUNNER_TEMP/green-dream-restored"
           rm -f "$RUNNER_TEMP/green-dream-recovery.gpg" "$RUNNER_TEMP/green-dream-restored.tar.gz"
           rm -f "$RUNNER_TEMP/green-dream-recovery-site.zip"
+          rm -f "$RUNNER_TEMP/rclone.conf"
