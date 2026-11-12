@@ -92,7 +92,7 @@ jobs:
           set -euo pipefail
           OUT="$RUNNER_TEMP/green-dream-backup"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
-            "select coalesce(json_agg(json_build_object('version',version,'name',name) order by version), '[]'::json) from supabase_migrations.schema_migrations" \
+            "select coalesce(json_agg(to_jsonb(m) order by version), '[]'::json) from supabase_migrations.schema_migrations m" \
             > "$OUT/database/migration-ledger.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
             "select coalesce(json_agg(to_jsonb(u)), '[]'::json) from auth.users u" \
