@@ -6,7 +6,7 @@ import pathlib
 import tempfile
 import unittest
 from argparse import Namespace
-from unittest.mock import call, patch
+from unittest.mock import patch
 
 path = pathlib.Path(__file__).with_name("rclone_drive_backup.py")
 spec = importlib.util.spec_from_file_location("rclone_drive_backup", path)
@@ -105,23 +105,20 @@ class TransferTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             destination = pathlib.Path(temp) / "recovery.gpg"
             manifest = valid_manifest(bytes=5, sha256="a" * 64, md5="b" * 32)
-            with patch.object(module, "run_rclone", side_effect=[
-                json.dumps(manifest),
-                None,
-            ]), patch.object(module, "sha256_file", return_value="f" * 64), patch.object(
-                module, "md5_file", return_value="e" * 32
-            ):
-                # The mocked copy operation must create the temporary file.
-                original_run = module.run_rclone
 
-                def copy_and_create(args, *, capture=False):
-                    if args[0] == "copyto":
-                        pathlib.Path(args[2]).write_bytes(b"wrong")
-                    return original_run(args, capture=capture)
+            def fake_rclone(args, *, capture=False):
+                if args[0] == "cat":
+                    return json.dumps(manifest)
+                if args[0] == "copyto":
+                    pathlib.Path(args[2]).write_bytes(b"wrong")
+                    return ""
+                raise AssertionError(f"Unexpected rclone command: {args}")
 
-                with patch.object(module, "run_rclone", side_effect=copy_and_create):
-                    with self.assertRaisesRegex(RuntimeError, "checksum"):
-                        module.download(Namespace(backup_id=BACKUP_ID, output=destination))
+            with patch.object(module, "run_rclone", side_effect=fake_rclone), patch.object(
+                module, "sha256_file", return_value="f" * 64
+            ), patch.object(module, "md5_file", return_value="e" * 32):
+                with self.assertRaisesRegex(RuntimeError, "checksum"):
+                    module.download(Namespace(backup_id=BACKUP_ID, output=destination))
             self.assertFalse(destination.exists())
             self.assertFalse(destination.with_name(destination.name + ".partial").exists())
 
