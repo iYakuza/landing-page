@@ -54,6 +54,11 @@ function validateId_(id) {
     /^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}$/.test(id);
 }
 
+function authorizeDriveAccess() {
+  const folder = getFolder_();
+  Logger.log("Drive access is authorized. Backup folder is ready: " + folder.getName());
+}
+
 function doPost(e) {
   try {
     const props = PropertiesService.getScriptProperties();
