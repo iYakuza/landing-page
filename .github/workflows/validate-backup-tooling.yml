@@ -35,7 +35,8 @@ jobs:
             scripts/upload_drive_backup.py \
             scripts/create_backup_manifest.py \
             scripts/verify_backup_manifest.py \
-            scripts/export_edge_env_inventory.py
+            scripts/export_edge_env_inventory.py \
+            scripts/verify_storage_export.py
 
       - name: Test backup manifest generation and verification
         run: |
