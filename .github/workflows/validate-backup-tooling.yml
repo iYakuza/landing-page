@@ -59,8 +59,8 @@ jobs:
             scripts/verify_migration_ledger.py \
             scripts/apply_sql_safely.py \
             scripts/create_restore_expectations.py \
-            scripts/test_restore_expectations.py \\
-            scripts/build_recovery_site.py \\
+            scripts/test_restore_expectations.py \
+            scripts/build_recovery_site.py \
             scripts/test_build_recovery_site.py
 
       - name: Test backup manifest generation and verification
