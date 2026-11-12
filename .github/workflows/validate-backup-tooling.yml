@@ -133,6 +133,27 @@ jobs:
           fi
           printf "Local Supabase environment is ready for the isolated Storage test.\n"
 
+      - name: Test migration ledger restore round trip
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/storage-restore.env"
+          set +a
+          ROOT="$RUNNER_TEMP/migration-ledger-restore-fixture"
+          mkdir -p "$ROOT/database" "$ROOT/auth" "$ROOT/secrets" "$ROOT/storage"
+          cat > "$ROOT/database/migration-ledger.json" <<'JSON'
+          [{"version":"20990101010101","statements":["select 1;"],"name":"backup_round_trip_test","created_by":"ci","idempotency_key":"green-dream-ledger-test","rollback":["select 1;"]}]
+          JSON
+          printf '[]\n' > "$ROOT/auth/users.json"
+          printf '[]\n' > "$ROOT/auth/identities.json"
+          printf '[]\n' > "$ROOT/secrets/vault-secrets.json"
+          printf '[]\n' > "$ROOT/storage/policies.json"
+          printf '{"tables":[],"grants":[]}\n' > "$ROOT/storage/security-settings.json"
+          python3 scripts/generate_restore_sql.py --root "$ROOT"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$ROOT/restore/migration-ledger-restore.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_migration_ledger.py "$ROOT"
+          rm -rf "$ROOT"
+
       - name: Test Storage bucket and object restoration end to end
         run: |
           set -euo pipefail
