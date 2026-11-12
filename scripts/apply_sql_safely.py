@@ -20,14 +20,15 @@ sql_to_apply = sql_file
 temporary_sql = None
 skipped_role_settings = 0
 
-# pg_dump quotes configuration parameter identifiers in ALTER ROLE statements
-# (for example: SET "log_min_messages" TO ...). The local disposable Supabase
-# instance cannot change this server logging parameter. Omit only that complete
-# role-setting statement; preserve role creation and every other role setting.
+# pg_dump may quote configuration parameter identifiers in ALTER ROLE
+# statements (for example: SET "log_min_messages" TO ...). The local
+# disposable Supabase instance cannot change this server logging parameter.
+# Omit only that complete role-setting statement; preserve role creation and
+# every other role setting.
 if sql_file.name == "roles.sql":
     original_sql = sql_file.read_text(encoding="utf-8")
     sanitized_sql, skipped_role_settings = re.subn(
-        r'(?is)\bALTER\s+ROLE\b[^;]*?\bSET\s+"?log_min_messages"?\b[^;]*;',
+        r'(?is)\bALTER\s+ROLE\b[^;]*?\bSET\s+"?log_min_messages"?(?=\s|=)[^;]*;',
         "",
         original_sql,
     )
