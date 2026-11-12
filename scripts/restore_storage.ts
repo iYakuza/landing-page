@@ -49,7 +49,7 @@ for (const item of manifest.objects) {
   const objectPath = item.path;
   if (typeof objectPath !== "string" || objectPath.startsWith("/") ||
       objectPath.split("/").some((part: string) => part === ".." || part === "")) {
-    throw new Error("Unsafe object path in backup manifest.");
+    throw new Error("Unsafe Storage object path in backup manifest; path suppressed.");
   }
   const localPath = root + "/storage/objects/" + bucket + "/" + objectPath;
   const bytes = await Deno.readFile(localPath);
@@ -57,11 +57,11 @@ for (const item of manifest.objects) {
   const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
   const actualHash = Array.from(digest, (value) => value.toString(16).padStart(2, "0")).join("");
   if (actualHash !== expectedHash || bytes.byteLength !== item.bytes) {
-    throw new Error("Backup file failed checksum verification: " + bucket + "/" + objectPath);
+    throw new Error("Backup Storage object failed checksum verification in bucket " + bucket + "; object path suppressed.");
   }
 
   const sourceMetadata = metadataByPath.get(bucket + "/" + objectPath) as any;
-  if (!sourceMetadata) throw new Error("Missing database metadata for " + bucket + "/" + objectPath);
+  if (!sourceMetadata) throw new Error("Missing Storage metadata in bucket " + bucket + "; object path suppressed.");
   const metadata = sourceMetadata.metadata || {};
   const userMetadata = sourceMetadata.user_metadata || {};
   const contentType = metadata.mimetype || "application/octet-stream";
@@ -71,20 +71,20 @@ for (const item of manifest.objects) {
     upsert: true,
     metadata: userMetadata,
   });
-  if (upload.error) throw new Error("Storage restore failed for " + bucket + "/" + objectPath + ": " + upload.error.message);
+  if (upload.error) throw new Error("Storage restore failed in bucket " + bucket + "; object path and server details suppressed.");
 
   const downloaded = await client.storage.from(bucket).download(objectPath);
   if (downloaded.error || !downloaded.data) {
-    throw new Error("Storage verification download failed for " + bucket + "/" + objectPath);
+    throw new Error("Storage verification download failed in bucket " + bucket + "; object path suppressed.");
   }
   const restoredBytes = new Uint8Array(await downloaded.data.arrayBuffer());
   const restoredDigest = new Uint8Array(await crypto.subtle.digest("SHA-256", restoredBytes));
   const restoredHash = Array.from(restoredDigest, (value) => value.toString(16).padStart(2, "0")).join("");
   if (restoredHash !== expectedHash || restoredBytes.byteLength !== item.bytes) {
-    throw new Error("Restored Storage object failed checksum verification: " + bucket + "/" + objectPath);
+    throw new Error("Restored Storage object failed checksum verification in bucket " + bucket + "; object path suppressed.");
   }
   restored++;
-  console.log("Restored and verified: " + bucket + "/" + objectPath);
+  console.log("Restored and verified one object in bucket: " + bucket);
 }
 if (restored !== manifest.object_count) {
   throw new Error("Storage restore count mismatch.");
