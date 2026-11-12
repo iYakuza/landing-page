@@ -123,14 +123,11 @@ jobs:
           fi
           touch "$RUNNER_TEMP/storage-restore.started"
           supabase --workdir "$LOCAL_PROJECT" status -o env > "$RUNNER_TEMP/storage-restore.env"
-          LOCAL_SECRET_KEY="$(sed -nE 's/.*Secret key: (sb_secret_[^[:space:]]+).*/\1/p' "$RUNNER_TEMP/storage-restore-start.log" | head -n 1)"
-          if [ -z "$LOCAL_SECRET_KEY" ]; then
-            echo "::error::Local Supabase CLI did not expose a Secret API key for integration testing."
+          if ! grep -q '^SERVICE_ROLE_KEY=' "$RUNNER_TEMP/storage-restore.env"; then
+            echo "::error::Local Supabase CLI did not expose the local Storage admin key required for integration testing."
             exit 1
           fi
-          printf 'SECRET_KEY=%q\n' "$LOCAL_SECRET_KEY" >> "$RUNNER_TEMP/storage-restore.env"
-          printf "Local Supabase env names: "
-          cut -d= -f1 "$RUNNER_TEMP/storage-restore.env" | paste -sd "," -
+          printf "Local Supabase environment is ready for the isolated Storage test.\n"
 
       - name: Test Storage bucket and object restoration end to end
         run: |
