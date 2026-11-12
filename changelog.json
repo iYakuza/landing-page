@@ -1,8 +1,62 @@
 {
   "version": 1,
-  "updated_at": "2026-11-12T12:44:50.215730Z",
-  "last_processed_sha": "63db5c02b330c8ef37207ead4919f2970de7c1a4",
+  "updated_at": "2026-11-12T12:54:40.568550Z",
+  "last_processed_sha": "c6ba3ade8f12852b07ece72cdc65619777f7f50c",
   "entries": [
+    {
+      "id": "c6ba3ade8f12852b07ece72cdc65619777f7f50c",
+      "timestamp": "2026-11-12T13:54:23+01:00",
+      "category": "FEATURE",
+      "component": "Website Updates",
+      "title": "New capabilities for Website Updates",
+      "description": "This update brings together Add encrypted Google Drive backup workflow. It updates google-drive-backup.yml, validate-backup-tooling.yml, README.md, apply_sql_safely.py and related project files.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/google-drive-backup.yml",
+        ".github/workflows/validate-backup-tooling.yml",
+        "docs/backup/README.md",
+        "scripts/apply_sql_safely.py",
+        "scripts/backup_storage.py",
+        "scripts/create_backup_manifest.py",
+        "scripts/create_restore_expectations.py",
+        "scripts/export_edge_env_inventory.py",
+        "scripts/generate_restore_sql.py",
+        "scripts/restore_storage.ts",
+        "scripts/test_restore_expectations.py",
+        "scripts/upload_drive_backup.py",
+        "scripts/verify_auth_restore.py",
+        "scripts/verify_backup_manifest.py",
+        "scripts/verify_database_restore.py",
+        "scripts/verify_storage_export.py",
+        "scripts/verify_storage_security.py",
+        "scripts/verify_vault_restore.py",
+        "supabase/config.toml",
+        "supabase/functions/contact-about-role/index.ts",
+        "supabase/functions/google-drive-oauth-callback/index.ts",
+        "supabase/functions/poetry-submit/index.ts",
+        "supabase/functions/website-theme/index.ts"
+      ],
+      "commits": [
+        {
+          "message": "Add encrypted Google Drive backup workflow",
+          "url": "https://github.com/iYakuza/landing-page/commit/c6ba3ade8f12852b07ece72cdc65619777f7f50c",
+          "files": [
+            ".github/workflows/google-drive-backup.yml",
+            ".github/workflows/validate-backup-tooling.yml",
+            "docs/backup/README.md",
+            "scripts/apply_sql_safely.py",
+            "scripts/backup_storage.py",
+            "scripts/create_backup_manifest.py",
+            "scripts/create_restore_expectations.py",
+            "scripts/export_edge_env_inventory.py",
+            "scripts/generate_restore_sql.py",
+            "scripts/restore_storage.ts",
+            "scripts/test_restore_expectations.py",
+            "scripts/upload_drive_backup.py"
+          ]
+        }
+      ]
+    },
     {
       "id": "63db5c02b330c8ef37207ead4919f2970de7c1a4",
       "timestamp": "2026-11-12T13:44:39+01:00",
