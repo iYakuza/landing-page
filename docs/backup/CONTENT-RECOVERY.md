@@ -7,11 +7,12 @@ Every successful run of **Green Dream content and media backup** now generates a
 - `recovery-site/index.html` is the entry point.
 - Published `vha_posts` records are included with their HTML content and publication metadata.
 - Community submissions are included only when `status = 'published'` and `rights_confirmed = true`.
+- Community transmissions are included only when `status = 'published'`, `rights_confirmed = true` and `publication_consent = true`.
 - Media players and the media library use the backed-up files from public Supabase Storage buckets.
 - Search and category filtering work locally in the browser.
 - No connection to the original Supabase project or any third-party service is needed to browse the extracted copy.
 
-The export deliberately excludes pending/failed submissions, contact details, IP hashes, private Storage buckets and private bucket files. The viewer sanitizes rich-text content before rendering it.
+The export deliberately excludes pending/failed submissions, unapproved transmissions, contact details, IP hashes, private Storage buckets and private bucket files. The viewer sanitizes rich-text content before rendering it.
 
 ## Get a portable website from a successful backup
 
