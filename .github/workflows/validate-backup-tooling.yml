@@ -117,21 +117,24 @@ jobs:
           source "$RUNNER_TEMP/storage-restore.env"
           set +a
           ROOT="$RUNNER_TEMP/storage-restore-fixture"
-          mkdir -p "$ROOT/storage/objects/test-media"
-          printf 'Green Dream Storage restore integration test\n' > "$ROOT/storage/objects/test-media/hello.txt"
-          BYTES="$(wc -c < "$ROOT/storage/objects/test-media/hello.txt" | tr -d ' ')"
-          SHA="$(sha256sum "$ROOT/storage/objects/test-media/hello.txt" | awk '{print $1}')"
+          mkdir -p "$ROOT/storage/objects/poetry-media"
+          printf 'Green Dream Storage restore integration test\n' > "$ROOT/storage/objects/poetry-media/hello.txt"
+          BYTES="$(wc -c < "$ROOT/storage/objects/poetry-media/hello.txt" | tr -d ' ')"
+          SHA="$(sha256sum "$ROOT/storage/objects/poetry-media/hello.txt" | awk '{print $1}')"
           cat > "$ROOT/storage/buckets.json" <<'JSON'
-          [{"id":"test-media","name":"test-media","public":false,"file_size_limit":52428800,"allowed_mime_types":["text/plain"]}]
+          [{"id":"poetry-media","name":"poetry-media","public":true,"file_size_limit":52428800,"allowed_mime_types":["text/plain"]},{"id":"poetry-media-staging","name":"poetry-media-staging","public":false,"file_size_limit":52428800,"allowed_mime_types":["text/plain"]},{"id":"vha-post-media","name":"vha-post-media","public":true,"file_size_limit":52428800,"allowed_mime_types":["text/plain"]}]
           JSON
           cat > "$ROOT/storage/objects-metadata.json" <<JSON
-          [{"bucket_id":"test-media","name":"hello.txt","metadata":{"mimetype":"text/plain","size":$BYTES,"cacheControl":"3600"},"user_metadata":{"source":"validation"}}]
+          [{"bucket_id":"poetry-media","name":"hello.txt","metadata":{"mimetype":"text/plain","size":$BYTES,"cacheControl":"3600"},"user_metadata":{"source":"validation"}}]
           JSON
           cat > "$ROOT/storage/objects/storage-manifest.json" <<JSON
-          {"object_count":1,"objects":[{"bucket":"test-media","path":"hello.txt","bytes":$BYTES,"sha256":"$SHA"}]}
+          {"object_count":1,"objects":[{"bucket":"poetry-media","path":"hello.txt","bytes":$BYTES,"sha256":"$SHA"}]}
           JSON
           SUPABASE_URL="$API_URL" SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
             deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$ROOT"
+          SUPABASE_URL="$API_URL" SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            python3 scripts/backup_storage.py --output "$ROOT/storage/objects"
+          python3 scripts/verify_storage_export.py "$ROOT"
 
       - name: Stop disposable Storage integration-test target
         if: always()
