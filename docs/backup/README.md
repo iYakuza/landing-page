@@ -9,7 +9,7 @@ This workflow creates a daily encrypted snapshot and uploads it to the app-manag
 - Supabase Auth user and identity rows, exported separately because managed Auth schemas are excluded from the standard CLI schema dump. These files contain sensitive personal data and password hashes.
 - Supabase Vault secret values, exported from the decrypted Vault view into the encrypted archive.
 - Edge Function environment variable names (not their values), to provide a recovery inventory.
-- All objects from the three current Storage buckets, plus bucket configuration.
+- All objects from the three current Storage buckets, plus bucket configuration, object metadata, custom Storage RLS policies, and the bucket/object RLS and ACL settings.
 - A Git bundle containing the repository history and the checked-in Edge Function source.
 - A SHA-256 manifest for the files in each archive.
 
@@ -76,18 +76,19 @@ Open **GitHub → Actions → Green Dream Google Drive backup → Run workflow**
 
 The CLI dump excludes Supabase-managed schemas. Auth users and identities are therefore exported as JSON alongside the database dump, with generated SQL restore statements in the restore folder. Supabase Vault values are exported from the decrypted view and included only inside the encrypted archive; generated SQL recreates them with vault.create_secret(), encrypting them under the destination project's own Vault key. The restore script restores users and identities, not sessions, MFA factors, or audit history. However, Edge Function runtime environment secret values (for example, Resend, Turnstile, and service credentials) are not readable through the available project connection and are not included; the archive records their names only. Auth provider settings, project API keys, database connection credentials, DNS/custom-domain configuration, and other dashboard-level settings are also not included. Preserve these separately in a password manager or another secure configuration record. Edge Function source is versioned in this repository, but runtime secrets must be re-entered during recovery.
 
-This workflow is not considered production-ready until a real backup has completed, the archive has been decrypted and its manifest verified, and a restoration procedure has been tested. A successful upload alone is not proof of recoverability.
+Before each upload, the workflow also attempts a full restore into a disposable local Supabase stack on the GitHub runner. It verifies database table counts, Auth user IDs and password hashes, Vault secret digests, Storage policies/ACLs, and each restored Storage object SHA-256 digest. This isolated test environment does not touch the live project. The first real run must still succeed before the backup system is considered operational.
 
 ## Restore outline
 
 1. Decrypt the .gpg archive with the separately stored passphrase.
 2. Verify all extracted files against backup-manifest.json.
-3. Provision a compatible Supabase project and restore the database roles, schema, and data in the correct order.
+3. Provision a compatible Supabase project and restore roles.sql and schema.sql.
 4. Restore Auth users and identities with restore/auth-restore.sql only into a fresh, compatible Auth schema. It does not restore active sessions or MFA factors.
-5. Restore Vault secrets with restore/vault-restore.sql after enabling Supabase Vault on the target project. The values are re-encrypted under the target project's Vault key.
-6. Recreate Storage buckets with the captured configuration and upload their objects.
-7. Deploy the checked-in Edge Functions and restore their runtime secrets from the separate secure configuration record.
-8. Reconfigure Auth providers, keys, domains, and other project-level settings.
-9. Verify the website, CMS, authentication, submissions, and media before switching traffic.
+5. Enable Supabase Vault, then run restore/vault-restore.sql. The values are re-encrypted under the target project's Vault key.
+6. Run restore/storage-policies.sql after the Storage schema and application tables exist, then restore data.sql.
+7. Recreate Storage buckets with the captured configuration and upload their objects, preserving content type, cache control, and user metadata.
+8. Deploy the checked-in Edge Functions and restore their runtime secrets from the separate secure configuration record.
+9. Reconfigure Auth providers, keys, domains, and other project-level settings.
+10. Verify the website, CMS, authentication, submissions, and media before switching traffic.
 
 The current live migration ledger has 33 entries, while the repository originally contained only two migration files with timestamps that do not match the live ledger. The first backup preserves the live ledger and current schema/data snapshot; it does not pretend that missing historical migration SQL has been reconstructed.
