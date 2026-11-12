@@ -19,12 +19,6 @@ jobs:
     timeout-minutes: 60
     env:
       SUPABASE_URL: https://oeyxsqocldlovhsmzcjw.supabase.co
-      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-      GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
-      BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
 
     steps:
       - name: Check out the complete repository history
@@ -48,6 +42,13 @@ jobs:
 
       - name: Validate required credentials
         shell: bash
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+          BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
         run: |
           set -euo pipefail
           for name in SUPABASE_DB_URL SUPABASE_SERVICE_ROLE_KEY GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REFRESH_TOKEN BACKUP_ENCRYPTION_PASSPHRASE; do
@@ -124,6 +125,8 @@ jobs:
           python3 scripts/create_restore_expectations.py "$OUT"
 
       - name: Download every Supabase Storage object
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
           python3 scripts/backup_storage.py --output "$RUNNER_TEMP/green-dream-backup/storage/objects"
@@ -197,6 +200,8 @@ jobs:
 
       - name: Build and encrypt archive
         shell: bash
+        env:
+          BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
         run: |
           set -euo pipefail
           WORK="$RUNNER_TEMP/green-dream-backup"
@@ -218,6 +223,10 @@ jobs:
           ls -lh "$ENCRYPTED"
 
       - name: Upload encrypted archive to Google Drive and apply retention
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
         run: |
           set -euo pipefail
           python3 scripts/upload_drive_backup.py "$ENCRYPTED_ARCHIVE"
