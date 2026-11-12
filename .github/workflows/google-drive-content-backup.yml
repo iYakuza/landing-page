@@ -219,7 +219,6 @@ jobs:
 
       - name: Publish portable read-only recovery website
         uses: actions/upload-artifact@v4
-        continue-on-error: true
         with:
           name: green-dream-recovery-site-${{ github.run_id }}
           path: ${{ runner.temp }}/green-dream-recovery-site.zip
