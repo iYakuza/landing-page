@@ -11,14 +11,20 @@ import urllib.parse
 import urllib.request
 
 API_URL = os.environ.get("SUPABASE_URL", "https://oeyxsqocldlovhsmzcjw.supabase.co").rstrip("/")
-SERVICE_KEY = os.environ["SUPABASE_SERVICE_ROLE_KEY"]
+SERVICE_KEY = os.environ.get("SUPABASE_SECRET_KEY") or os.environ.get("SUPABASE_SERVICE_ROLE_KEY") or ""
+if not SERVICE_KEY:
+    raise SystemExit("SUPABASE_SECRET_KEY is required (legacy SUPABASE_SERVICE_ROLE_KEY is accepted temporarily).")
+
+def auth_headers(content_type=False):
+    headers = {"apikey": SERVICE_KEY}
+    if not SERVICE_KEY.startswith("sb_secret_"):
+        headers["Authorization"] = "Bearer " + SERVICE_KEY
+    if content_type:
+        headers["Content-Type"] = "application/json"
+    return headers
 BUCKETS = ("poetry-media", "poetry-media-staging", "vha-post-media")
 PAGE_SIZE = 100
-HEADERS = {
-    "apikey": SERVICE_KEY,
-    "Authorization": "Bearer " + SERVICE_KEY,
-    "Content-Type": "application/json",
-}
+HEADERS = auth_headers(content_type=True)
 
 def request_json(url, method="GET", body=None):
     data = json.dumps(body).encode() if body is not None else None
@@ -33,10 +39,7 @@ def request_json(url, method="GET", body=None):
 def download_object(bucket, object_path, destination):
     encoded = urllib.parse.quote(object_path, safe="/")
     url = f"{API_URL}/storage/v1/object/{urllib.parse.quote(bucket, safe='')}/{encoded}"
-    req = urllib.request.Request(url, headers={
-        "apikey": SERVICE_KEY,
-        "Authorization": "Bearer " + SERVICE_KEY,
-    })
+    req = urllib.request.Request(url, headers=auth_headers())
     digest = hashlib.sha256()
     size = 0
     destination.parent.mkdir(parents=True, exist_ok=True)
