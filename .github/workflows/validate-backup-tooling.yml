@@ -120,6 +120,8 @@ jobs:
           supabase --workdir "$LOCAL_PROJECT" start
           touch "$RUNNER_TEMP/storage-restore.started"
           supabase --workdir "$LOCAL_PROJECT" status -o env > "$RUNNER_TEMP/storage-restore.env"
+          printf "Local Supabase env names: "
+          cut -d= -f1 "$RUNNER_TEMP/storage-restore.env" | paste -sd "," -
 
       - name: Test Storage bucket and object restoration end to end
         run: |
@@ -141,9 +143,9 @@ jobs:
           cat > "$ROOT/storage/objects/storage-manifest.json" <<JSON
           {"object_count":1,"objects":[{"bucket":"poetry-media","path":"hello.txt","bytes":$BYTES,"sha256":"$SHA"}]}
           JSON
-          SUPABASE_URL="$API_URL" SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+          SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="${SECRET_KEY:-$SERVICE_ROLE_KEY}" \
             deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$ROOT"
-          SUPABASE_URL="$API_URL" SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+          SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="${SECRET_KEY:-$SERVICE_ROLE_KEY}" \
             python3 scripts/backup_storage.py --output "$ROOT/storage/objects"
           python3 scripts/verify_storage_export.py "$ROOT"
 
