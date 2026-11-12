@@ -40,6 +40,14 @@ def main():
     object_map = {(item["bucket"], item["path"]): item for item in storage_manifest.get("objects", [])}
     if len(object_map) != len(storage_manifest.get("objects", [])):
         raise SystemExit("Storage manifest contains duplicate object references.")
+    published_media_refs = {
+        ("vha-post-media", row.get("media_path"))
+        for row in content["posts"] if row.get("media_path")
+    }
+    published_media_refs.update({
+        ("poetry-media", row.get("storage_path"))
+        for row in content["submissions"] if row.get("storage_path")
+    })
 
     records = []
     media = []
@@ -91,7 +99,7 @@ def main():
         records.append(row)
 
     for item in storage_manifest.get("objects", []):
-        if item.get("bucket") not in public_buckets:
+        if item.get("bucket") not in public_buckets or (item.get("bucket"), item.get("path")) not in published_media_refs:
             continue
         rel = storage_href(item["bucket"], item["path"])
         local = STORAGE / item["bucket"] / pathlib.PurePosixPath(item["path"])
@@ -216,7 +224,7 @@ directory in place: media players use the original backed-up object files
 through relative paths.
 
 This is a read-only catalogue of published posts, consent-approved community
-submissions and transmissions, plus media objects from public Storage buckets.
+submissions and transmissions, plus media files referenced by published content from public Storage buckets.
 Private buckets and unpublished/failed submissions are deliberately excluded. Media hosted on external platforms is not downloaded; its links remain in the recovered content.
 
 This viewer is not a replacement for the original interactive application.
