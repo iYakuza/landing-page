@@ -40,6 +40,12 @@ jobs:
         with:
           version: 2.122.1
 
+      - name: Validate the offline recovery website builder
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/download_apps_script_backup.py scripts/test_build_recovery_site.py
+          python3 scripts/test_build_recovery_site.py
+
       - name: Validate required credentials
         shell: bash
         env:
@@ -130,6 +136,10 @@ jobs:
             "select coalesce(json_agg(json_build_object('name',extname,'version',extversion) order by extname), '[]'::json) from pg_extension" \
             > "$OUT/metadata/extensions.json"
           python3 scripts/create_restore_expectations.py "$OUT"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \\
+            "select json_build_object('posts', (select coalesce(json_agg(json_build_object('title',title,'slug',slug,'category',category,'excerpt',excerpt,'content_html',content_html,'published_at',published_at,'media_url',media_url,'media_path',media_path,'media_type',media_type,'media_width',media_width) order by published_at desc nulls last), '[]'::json) from public.vha_posts where status='published'), 'submissions', (select coalesce(json_agg(json_build_object('title',title,'slug',slug,'medium',medium,'body',body,'byline',byline,'published_at',published_at,'media_url',media_url,'storage_path',storage_path) order by published_at desc nulls last), '[]'::json) from public.poetry_submissions where status='published' and rights_confirmed is true))::text" \\
+            > "$OUT/database/public-content.json"
+          python3 -m json.tool "$OUT/database/public-content.json" >/dev/null
 
       - name: Download every Supabase Storage object
         env:
@@ -138,6 +148,8 @@ jobs:
           set -euo pipefail
           python3 scripts/backup_storage.py --output "$RUNNER_TEMP/green-dream-backup/storage/objects" --buckets-file "$RUNNER_TEMP/green-dream-backup/storage/buckets.json"
           python3 scripts/verify_storage_export.py "$RUNNER_TEMP/green-dream-backup"
+          python3 scripts/build_recovery_site.py "$RUNNER_TEMP/green-dream-backup"
+          python3 scripts/package_recovery_site.py "$RUNNER_TEMP/green-dream-backup" "$RUNNER_TEMP/green-dream-recovery-site.zip"
 
       - name: Install Deno for Storage restore verification
         uses: denoland/setup-deno@v2
@@ -251,11 +263,20 @@ jobs:
           set -euo pipefail
           python3 scripts/upload_apps_script_backup.py "$ENCRYPTED_ARCHIVE"
 
+      - name: Publish portable read-only recovery website
+        uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: green-dream-recovery-site-${{ github.run_id }}
+          path: ${{ runner.temp }}/green-dream-recovery-site.zip
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Remove temporary backup material
         if: always()
         run: |
           set +e
           rm -rf "$RUNNER_TEMP/green-dream-backup" "$RUNNER_TEMP/green-dream-restore-target"
           rm -f "$RUNNER_TEMP"/greendream-backup-*.tar.gz "$RUNNER_TEMP"/greendream-backup-*.tar.gz.gpg
-          rm -f "$RUNNER_TEMP/greendream-backup-verify.tar.gz" "$RUNNER_TEMP/local-supabase.env" "$RUNNER_TEMP/local-supabase-start.log"
+          rm -f "$RUNNER_TEMP/greendream-backup-verify.tar.gz" "$RUNNER_TEMP/green-dream-recovery-site.zip" "$RUNNER_TEMP/local-supabase.env" "$RUNNER_TEMP/local-supabase-start.log"
           if [ -n "${ENCRYPTED_ARCHIVE:-}" ]; then rm -f "$ENCRYPTED_ARCHIVE"; fi
