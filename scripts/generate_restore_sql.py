@@ -49,4 +49,28 @@ for item in vault:
         sql_literal(description) + ");"
     )
 (restore_dir / "vault-restore.sql").write_text("\n".join(vault_lines) + "\n", encoding="utf-8")
-print(f"Generated restore SQL for {len(users)} Auth users, {len(identities)} identities, and {len(vault)} Vault secrets")
+
+storage_policies = json.loads((root / "storage" / "policies.json").read_text(encoding="utf-8"))
+policy_lines = [
+    "-- Custom Storage RLS policies captured from the source project.",
+]
+def ident(value):
+    return '"' + str(value).replace('"', '""') + '"'
+for policy in storage_policies:
+    table = ident(policy["tablename"])
+    name = ident(policy["policyname"])
+    schema = ident(policy["schemaname"])
+    roles = policy.get("roles") or ["public"]
+    role_sql = ", ".join("PUBLIC" if role.lower() == "public" else ident(role) for role in roles)
+    command = policy["cmd"].upper()
+    mode = policy["permissive"].upper()
+    policy_lines.append("drop policy if exists " + name + " on " + schema + "." + table + ";")
+    statement = "create policy " + name + " on " + schema + "." + table + " as " + mode + " for " + command + " to " + role_sql
+    if policy.get("qual"):
+        statement += " using (" + policy["qual"] + ")"
+    if policy.get("with_check"):
+        statement += " with check (" + policy["with_check"] + ")"
+    policy_lines.append(statement + ";")
+(restore_dir / "storage-policies.sql").write_text("\\n".join(policy_lines) + "\\n", encoding="utf-8")
+
+print(f"Generated restore SQL for {len(users)} Auth users, {len(identities)} identities, and {len(vault)} Vault secrets, and " + str(len(storage_policies)) + " Storage policies")
