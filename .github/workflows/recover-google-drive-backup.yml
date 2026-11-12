@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  actions: write
 
 concurrency:
   group: green-dream-recovery
@@ -90,13 +91,26 @@ jobs:
           python3 scripts/package_recovery_site.py "$RESTORED_ROOT" "$RUNNER_TEMP/green-dream-recovery-site.zip"
           unzip -l "$RUNNER_TEMP/green-dream-recovery-site.zip" | head -n 40
 
+      - name: Remove superseded recovery-site artifacts
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
+            --jq '.artifacts[] | select(.name | startswith("green-dream-recovery-site-")) | .id' |
+            while IFS= read -r artifact_id; do
+              [ -n "$artifact_id" ] || continue
+              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id"
+            done
+
       - name: Publish recovered website artifact
         uses: actions/upload-artifact@v4
         with:
-          name: green-dream-recovered-site-${{ github.run_id }}
+          name: green-dream-recovery-site-${{ github.run_id }}
           path: ${{ runner.temp }}/green-dream-recovery-site.zip
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 7
 
       - name: Remove decrypted recovery material
         if: always()
