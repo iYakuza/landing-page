@@ -19,7 +19,7 @@ on:
       - "supabase/config.toml"
 
 concurrency:
-  group: backup-validation-${{ github.head_ref || github.ref }}
+  group: backup-validation-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 
 permissions:
