@@ -153,10 +153,10 @@ jobs:
           set -a
           source "$RUNNER_TEMP/local-supabase.env"
           set +a
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "create extension if not exists supabase_vault with schema vault"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -f "$OUT/database/roles.sql" -f "$OUT/database/schema.sql"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -f "$OUT/restore/auth-restore.sql"
           DATABASE_URL="$DB_URL" python3 scripts/verify_auth_restore.py "$OUT"
-          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "create extension if not exists supabase_vault with schema vault"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -f "$OUT/restore/vault-restore.sql"
           DATABASE_URL="$DB_URL" python3 scripts/verify_vault_restore.py "$OUT"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -f "$OUT/restore/storage-policies.sql"
