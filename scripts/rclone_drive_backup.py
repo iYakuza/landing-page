@@ -12,7 +12,6 @@ import json
 import os
 import pathlib
 import re
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -130,6 +129,8 @@ def read_manifest(root: str, name: str) -> dict:
         manifest = json.loads(raw)
     except json.JSONDecodeError:
         raise RuntimeError("A Drive backup manifest is not valid JSON.") from None
+    if not isinstance(manifest, dict):
+        raise RuntimeError("A Drive backup manifest must be a JSON object.")
     backup_id = manifest.get("backup_id")
     if (
         manifest.get("format") != FORMAT
@@ -138,7 +139,7 @@ def read_manifest(root: str, name: str) -> dict:
         or not BACKUP_ID_RE.fullmatch(backup_id)
         or name != f"{PREFIX}{backup_id}.json"
         or manifest.get("archive_name") != f"{PREFIX}{backup_id}.tar.gz.gpg"
-        or not isinstance(manifest.get("bytes"), int)
+        or type(manifest.get("bytes")) is not int
         or manifest["bytes"] <= 0
         or not re.fullmatch(r"[a-f0-9]{64}", str(manifest.get("sha256", "")))
         or not re.fullmatch(r"[a-f0-9]{32}", str(manifest.get("md5", "")))
