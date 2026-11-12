@@ -74,7 +74,7 @@ Open **GitHub → Actions → Green Dream Google Drive backup → Run workflow**
 
 ## Backup contents and limitations
 
-The CLI dump excludes Supabase-managed schemas. Auth users and identities are therefore exported as JSON alongside the database dump. Supabase Vault values are included in the encrypted archive. However, Edge Function runtime environment secret values (for example, Resend, Turnstile, and service credentials) are not readable through the available project connection and are not included; the archive records their names only. Auth provider settings, project API keys, database connection credentials, DNS/custom-domain configuration, and other dashboard-level settings are also not included. Preserve these separately in a password manager or another secure configuration record. Edge Function source is versioned in this repository, but runtime secrets must be re-entered during recovery.
+The CLI dump excludes Supabase-managed schemas. Auth users and identities are therefore exported as JSON alongside the database dump, with generated SQL restore statements in the restore folder. Supabase Vault values are exported from the decrypted view and included only inside the encrypted archive; generated SQL recreates them with vault.create_secret(), encrypting them under the destination project's own Vault key. The restore script restores users and identities, not sessions, MFA factors, or audit history. However, Edge Function runtime environment secret values (for example, Resend, Turnstile, and service credentials) are not readable through the available project connection and are not included; the archive records their names only. Auth provider settings, project API keys, database connection credentials, DNS/custom-domain configuration, and other dashboard-level settings are also not included. Preserve these separately in a password manager or another secure configuration record. Edge Function source is versioned in this repository, but runtime secrets must be re-entered during recovery.
 
 This workflow is not considered production-ready until a real backup has completed, the archive has been decrypted and its manifest verified, and a restoration procedure has been tested. A successful upload alone is not proof of recoverability.
 
@@ -83,10 +83,11 @@ This workflow is not considered production-ready until a real backup has complet
 1. Decrypt the .gpg archive with the separately stored passphrase.
 2. Verify all extracted files against backup-manifest.json.
 3. Provision a compatible Supabase project and restore the database roles, schema, and data in the correct order.
-4. Restore Auth users and identities only after checking compatibility with the target Supabase Auth schema.
-5. Recreate Storage buckets with the captured configuration and upload their objects.
-6. Deploy the checked-in Edge Functions and restore their secrets from the separate secure configuration record.
-7. Reconfigure Auth providers, keys, domains, and other project-level settings.
-8. Verify the website, CMS, authentication, submissions, and media before switching traffic.
+4. Restore Auth users and identities with restore/auth-restore.sql only into a fresh, compatible Auth schema. It does not restore active sessions or MFA factors.
+5. Restore Vault secrets with restore/vault-restore.sql after enabling Supabase Vault on the target project. The values are re-encrypted under the target project's Vault key.
+6. Recreate Storage buckets with the captured configuration and upload their objects.
+7. Deploy the checked-in Edge Functions and restore their runtime secrets from the separate secure configuration record.
+8. Reconfigure Auth providers, keys, domains, and other project-level settings.
+9. Verify the website, CMS, authentication, submissions, and media before switching traffic.
 
 The current live migration ledger has 33 entries, while the repository originally contained only two migration files with timestamps that do not match the live ledger. The first backup preserves the live ledger and current schema/data snapshot; it does not pretend that missing historical migration SQL has been reconstructed.
