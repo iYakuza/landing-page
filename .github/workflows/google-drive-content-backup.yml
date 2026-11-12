@@ -21,7 +21,7 @@ permissions:
 
 concurrency:
   group: green-dream-content-backup
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   content-backup:
@@ -210,7 +210,7 @@ jobs:
           name: green-dream-recovery-site-${{ github.run_id }}
           path: ${{ runner.temp }}/green-dream-recovery-site.zip
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 7
 
       - name: Remove temporary content backup material
         if: always()
