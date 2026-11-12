@@ -179,6 +179,9 @@ jobs:
           set -euo pipefail
           git bundle create "$RUNNER_TEMP/green-dream-backup/repository/landing-page.bundle" --all
           git rev-parse HEAD > "$RUNNER_TEMP/green-dream-backup/metadata/repository-commit.txt"
+          git bundle verify "$RUNNER_TEMP/green-dream-backup/repository/landing-page.bundle"
+          git bundle list-heads "$RUNNER_TEMP/green-dream-backup/repository/landing-page.bundle" > "$RUNNER_TEMP/green-dream-backup/metadata/repository-bundle-heads.txt"
+          grep -Fq "$(cat "$RUNNER_TEMP/green-dream-backup/metadata/repository-commit.txt")" "$RUNNER_TEMP/green-dream-backup/metadata/repository-bundle-heads.txt"
           test -s supabase/functions/poetry-submit/index.ts
           test -s supabase/functions/website-theme/index.ts
           test -s supabase/functions/contact-about-role/index.ts
