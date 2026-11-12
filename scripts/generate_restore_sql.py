@@ -120,6 +120,11 @@ if security_file.exists():
     if any(name not in ("buckets", "objects") for name in table_names):
         raise SystemExit("Storage security export contains an unexpected table.")
     if table_names:
+        owners = {item.get("owner") for item in table_rows}
+        if len(owners) != 1 or not all(isinstance(owner, str) and owner for owner in owners):
+            raise SystemExit("Storage tables must have one recorded owner for a safe ACL restore.")
+        storage_owner = next(iter(owners))
+        policy_lines.append("SET ROLE " + ident(storage_owner) + ";")
         table_array = "ARRAY[" + ", ".join(sql_literal(name) for name in table_names) + "]::text[]"
         policy_lines.extend([
             "-- Rebuild Storage table ACLs from the captured grant inventory.",
@@ -169,6 +174,8 @@ for policy in storage_policies:
     if policy.get("with_check"):
         statement += " with check (" + policy["with_check"] + ")"
     policy_lines.append(statement + ";")
+if security_file.exists() and table_rows:
+    policy_lines.append("RESET ROLE;")
 (restore_dir / "storage-policies.sql").write_text("\n".join(policy_lines) + "\n", encoding="utf-8")
 
 print(
