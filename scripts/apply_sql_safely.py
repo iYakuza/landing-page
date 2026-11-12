@@ -27,11 +27,25 @@ skipped_role_settings = 0
 # every other role setting.
 if sql_file.name == "roles.sql":
     original_sql = sql_file.read_text(encoding="utf-8")
+    # Match the complete ALTER ROLE/USER statement by parameter name.
+    # This deliberately avoids depending on pg_dump's identifier quoting or
+    # whether it renders the assignment with TO or =.
     sanitized_sql, skipped_role_settings = re.subn(
-        r'(?is)\bALTER\s+ROLE\b[^;]*?\bSET\s+"?log_min_messages"?(?=\s|=)[^;]*;',
+        r"\bALTER\s+(?:ROLE|USER)\b[^;]*\blog_min_messages\b[^;]*;",
         "",
         original_sql,
+        flags=re.IGNORECASE | re.DOTALL,
     )
+    if skipped_role_settings:
+        print(
+            f"Restore sanitizer: skipped {skipped_role_settings} "
+            "unsupported log_min_messages role setting statement(s)."
+        )
+    elif re.search(r"\blog_min_messages\b", original_sql, flags=re.IGNORECASE):
+        raise SystemExit(
+            "Restore sanitizer found log_min_messages in roles.sql but could not "
+            "safely identify its ALTER ROLE statement; refusing to apply roles.sql."
+        )
     if skipped_role_settings:
         handle = tempfile.NamedTemporaryFile(
             mode="w", encoding="utf-8", suffix=".sql", prefix="gd-roles-", delete=False
