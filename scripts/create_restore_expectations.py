@@ -32,7 +32,7 @@ with data_path.open("r", encoding="utf-8", errors="replace") as stream:
                 row_count = 0
         else:
             if line.rstrip("\r\n") == r"\.":
-                public_counts[current_table] = row_count
+                public_counts[current_table] += row_count
                 current_table = None
             else:
                 row_count += 1
