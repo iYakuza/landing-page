@@ -1,9 +1,7 @@
 /**
  * Green Dream private backup receiver.
- *
- * Deploy as a web app that executes as the owner and accepts requests from
- * anyone. Every request is authenticated with a high-entropy shared secret.
- * The receiver writes encrypted archive parts into a private Drive folder.
+ * Accepts authenticated, already-encrypted archive parts and stores them in a
+ * private Drive folder. No listing or download endpoint is exposed.
  */
 const FOLDER_NAME = "Green Dream Backups";
 const FILE_PREFIX = "greendream-backup-";
@@ -11,6 +9,8 @@ const TOKEN_PROPERTY = "INGEST_TOKEN";
 const FOLDER_PROPERTY = "BACKUP_FOLDER_ID";
 const MAX_PARTS = 100;
 const MAX_PART_BYTES = 5 * 1024 * 1024;
+const MAX_REQUEST_CHARS = 8 * 1024 * 1024;
+const ORPHAN_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 function json_(value) {
   return ContentService.createTextOutput(JSON.stringify(value))
@@ -59,43 +59,113 @@ function authorizeDriveAccess() {
   Logger.log("Drive access is authorized. Backup folder is ready: " + folder.getName());
 }
 
+function findBackupFiles_(folder, backupId) {
+  const found = [];
+  const iterator = folder.getFiles();
+  const prefix = FILE_PREFIX + backupId + "-part-";
+  while (iterator.hasNext()) {
+    const file = iterator.next();
+    if (file.getName().startsWith(prefix) && file.getName().endsWith(".gpgpart")) {
+      found.push(file);
+    }
+  }
+  return found;
+}
+
+function cleanupOrphans_(folder) {
+  const referenced = {};
+  const manifests = folder.getFiles();
+  while (manifests.hasNext()) {
+    const file = manifests.next();
+    if (!file.getName().startsWith(FILE_PREFIX) || !file.getName().endsWith(".manifest.json")) continue;
+    try {
+      const manifest = JSON.parse(file.getBlob().getDataAsString());
+      (manifest.parts || []).forEach(function (part) { referenced[part.name] = true; });
+    } catch (_) {
+      // A malformed manifest is retained for investigation; it is not used as a deletion list.
+    }
+  }
+  const cutoff = Date.now() - ORPHAN_MAX_AGE_MS;
+  const files = folder.getFiles();
+  while (files.hasNext()) {
+    const file = files.next();
+    if (file.getName().startsWith(FILE_PREFIX) && file.getName().endsWith(".gpgpart") &&
+        !referenced[file.getName()] && file.getDateCreated().getTime() < cutoff) {
+      file.setTrashed(true);
+    }
+  }
+}
+
 function doPost(e) {
+  const lock = LockService.getScriptLock();
   try {
+    lock.waitLock(30000);
     const props = PropertiesService.getScriptProperties();
     const expectedToken = props.getProperty(TOKEN_PROPERTY) || "";
-    const raw = e && e.postData && e.postData.contents;
-    if (!raw || raw.length > 8 * 1024 * 1024) return json_({ ok: false, error: "Invalid request size." });
+    if (expectedToken.length < 40) return json_({ ok: false, error: "Receiver is not configured." });
 
-    const request = JSON.parse(raw);
-    if (!constantTimeEqual_(request.token, expectedToken)) {
+    const raw = e && e.postData && e.postData.contents;
+    if (typeof raw !== "string" || !raw || raw.length > MAX_REQUEST_CHARS) {
+      return json_({ ok: false, error: "Invalid request size." });
+    }
+
+    let request;
+    try { request = JSON.parse(raw); } catch (_) {
+      return json_({ ok: false, error: "Invalid JSON request." });
+    }
+    if (!request || typeof request !== "object" || Array.isArray(request) ||
+        !constantTimeEqual_(request.token, expectedToken)) {
       return json_({ ok: false, error: "Unauthorized." });
     }
 
     if (request.action === "ping") {
       return json_({ ok: true, service: "Green Dream Drive receiver", folder: FOLDER_NAME });
     }
-
     if (request.action !== "upload_part" || !validateId_(request.backup_id)) {
       return json_({ ok: false, error: "Invalid upload request." });
     }
 
-    const part = Number(request.part_number);
-    const total = Number(request.total_parts);
+    const part = request.part_number;
+    const total = request.total_parts;
     if (!Number.isInteger(part) || !Number.isInteger(total) ||
         total < 1 || total > MAX_PARTS || part < 1 || part > total) {
       return json_({ ok: false, error: "Invalid part numbering." });
     }
+    if (typeof request.content_base64 !== "string" ||
+        request.content_base64.length < 4 ||
+        request.content_base64.length > Math.ceil(MAX_PART_BYTES / 3) * 4 ||
+        !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(request.content_base64)) {
+      return json_({ ok: false, error: "Invalid part encoding." });
+    }
 
-    const bytes = Utilities.base64Decode(request.content_base64 || "");
+    const bytes = Utilities.base64Decode(request.content_base64);
     if (!bytes.length || bytes.length > MAX_PART_BYTES) {
       return json_({ ok: false, error: "Invalid part size." });
     }
     const digest = sha256_(bytes);
-    if (!constantTimeEqual_(digest, String(request.sha256 || "").toLowerCase())) {
+    if (typeof request.sha256 !== "string" ||
+        !/^[a-f0-9]{64}$/i.test(request.sha256) ||
+        !constantTimeEqual_(digest, request.sha256.toLowerCase())) {
       return json_({ ok: false, error: "Part checksum mismatch." });
     }
 
     const folder = getFolder_();
+    const existingParts = findBackupFiles_(folder, request.backup_id);
+    for (let i = 0; i < existingParts.length; i++) {
+      const match = existingParts[i].getName().match(/-of-([0-9]{4})\.gpgpart$/);
+      if (!match || Number(match[1]) !== total) {
+        return json_({ ok: false, error: "Backup part count conflicts with an existing upload." });
+      }
+    }
+    const manifestName = FILE_PREFIX + request.backup_id + ".manifest.json";
+    const manifests = folder.getFilesByName(manifestName);
+    if (manifests.hasNext()) {
+      const manifest = JSON.parse(manifests.next().getBlob().getDataAsString());
+      if (manifest.part_count !== total) {
+        return json_({ ok: false, error: "Completed backup metadata conflicts with this request." });
+      }
+    }
+
     const fileName = FILE_PREFIX + request.backup_id + "-part-" +
       String(part).padStart(4, "0") + "-of-" + String(total).padStart(4, "0") + ".gpgpart";
     const existing = folder.getFilesByName(fileName);
@@ -105,8 +175,7 @@ function doPost(e) {
         return json_({ ok: false, error: "Conflicting part already exists." });
       }
     } else {
-      const blob = Utilities.newBlob(bytes, "application/octet-stream", fileName);
-      folder.createFile(blob);
+      folder.createFile(Utilities.newBlob(bytes, "application/octet-stream", fileName));
     }
 
     const parts = [];
@@ -121,24 +190,24 @@ function doPost(e) {
 
     let finalized = false;
     if (parts.length === total) {
-      const manifestName = FILE_PREFIX + request.backup_id + ".manifest.json";
-      const manifests = folder.getFilesByName(manifestName);
-      if (!manifests.hasNext()) {
-        const verifiedParts = parts.map(function (part) {
-          const file = DriveApp.getFileById(part.file_id);
-          return { name: part.name, size: part.size, sha256: sha256_(file.getBlob().getBytes()) };
-        });
-        const manifest = {
-          backup_id: request.backup_id,
-          created_at: new Date().toISOString(),
-          encrypted: true,
-          part_count: total,
-          parts: verifiedParts
-        };
+      const verifiedParts = parts.map(function (item) {
+        const file = DriveApp.getFileById(item.file_id);
+        return { name: item.name, size: item.size, sha256: sha256_(file.getBlob().getBytes()) };
+      });
+      const manifest = {
+        backup_id: request.backup_id,
+        created_at: new Date().toISOString(),
+        encrypted: true,
+        part_count: total,
+        parts: verifiedParts
+      };
+      const currentManifests = folder.getFilesByName(manifestName);
+      if (!currentManifests.hasNext()) {
         folder.createFile(manifestName, JSON.stringify(manifest, null, 2), MimeType.PLAIN_TEXT);
       }
       finalized = true;
       applyRetention_(folder);
+      cleanupOrphans_(folder);
     }
 
     return json_({
@@ -152,6 +221,8 @@ function doPost(e) {
   } catch (err) {
     console.error("Backup receiver error: " + String(err && err.message || err));
     return json_({ ok: false, error: "The receiver could not complete the request." });
+  } finally {
+    try { lock.releaseLock(); } catch (_) {}
   }
 }
 
