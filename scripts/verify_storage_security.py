@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+"""Compare restored Storage RLS policies and table security settings with the snapshot."""
+import json
+import os
+import subprocess
+import sys
+import pathlib
+
+root = pathlib.Path(sys.argv[1])
+database_url = os.environ.get("DATABASE_URL", "")
+if not database_url:
+    raise SystemExit("DATABASE_URL is required.")
+
+def query(sql):
+    result = subprocess.run(
+        ["psql", database_url, "-X", "-v", "ON_ERROR_STOP=1", "-Atc", sql],
+        check=False, capture_output=True, text=True,
+    )
+    if result.returncode:
+        raise RuntimeError("Storage security query failed: " + result.stderr.strip()[:1000])
+    return json.loads(result.stdout.strip() or "[]")
+
+expected_policies = json.loads((root / "storage" / "policies.json").read_text(encoding="utf-8"))
+actual_policies = query(
+    "select coalesce(json_agg(json_build_object('schemaname',schemaname,'tablename',tablename,'policyname',policyname,'permissive',permissive,'roles',roles,'cmd',cmd,'qual',qual,'with_check',with_check) order by tablename,policyname),'[]'::json) from pg_policies where schemaname='storage'"
+)
+if expected_policies != actual_policies:
+    raise SystemExit("Restored Storage RLS policies do not match the source snapshot.")
+
+expected_security = json.loads((root / "storage" / "security-settings.json").read_text(encoding="utf-8"))
+actual_security = query(
+    "select coalesce(json_agg(json_build_object('table',c.relname,'rowsecurity',c.relrowsecurity,'forcerowsecurity',c.relforcerowsecurity,'acl',coalesce(c.relacl::text,'(default)')) order by c.relname),'[]'::json) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='storage' and c.relkind in ('r','p') and c.relname in ('buckets','objects')"
+)
+if expected_security != actual_security:
+    print(json.dumps({"expected": expected_security, "actual": actual_security}, indent=2), file=sys.stderr)
+    raise SystemExit("Restored Storage RLS/ACL settings do not match the source snapshot.")
+print(f"Verified {len(actual_policies)} Storage policies and bucket/object security settings.")
