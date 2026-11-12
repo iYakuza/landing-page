@@ -64,11 +64,15 @@ jobs:
           set -euo pipefail
           TEST_DIR="$(mktemp -d)"
           trap 'rm -rf "$TEST_DIR"' EXIT
-          mkdir -p "$TEST_DIR/auth" "$TEST_DIR/secrets"
+          mkdir -p "$TEST_DIR/auth" "$TEST_DIR/secrets" "$TEST_DIR/storage"
           printf '[{"id":"00000000-0000-0000-0000-000000000001","email":"owner@example.invalid"}]' > "$TEST_DIR/auth/users.json"
           printf '[{"id":"00000000-0000-0000-0000-000000000002","user_id":"00000000-0000-0000-0000-000000000001","provider":"email"}]' > "$TEST_DIR/auth/identities.json"
           printf '[{"name":"test_secret","description":"test description","secret":"dummy-secret"}]' > "$TEST_DIR/secrets/vault-secrets.json"
+          cat > "$TEST_DIR/storage/policies.json" <<'JSON'
+          [{"schemaname":"storage","tablename":"objects","policyname":"test policy","permissive":"PERMISSIVE","roles":["anon","authenticated"],"cmd":"SELECT","qual":"(bucket_id = 'poetry-media'::text)","with_check":null}]
+          JSON
           python3 scripts/generate_restore_sql.py --root "$TEST_DIR"
+          grep -Fq 'create policy "test policy" on "storage"."objects"' "$TEST_DIR/restore/storage-policies.sql"
           grep -q 'jsonb_populate_recordset(null::auth.users' "$TEST_DIR/restore/auth-restore.sql"
           grep -q "vault.create_secret('dummy-secret', 'test_secret'" "$TEST_DIR/restore/vault-restore.sql"
 
