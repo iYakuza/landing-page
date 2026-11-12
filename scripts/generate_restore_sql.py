@@ -28,10 +28,15 @@ ledger_lines = [
 if ledger:
     payload = json.dumps(ledger, ensure_ascii=False, separators=(",", ":"))
     ledger_lines.append(
-        "insert into supabase_migrations.schema_migrations (version, name) "
-        "select version, name from jsonb_to_recordset(" + sql_literal(payload) +
-        "::jsonb) as x(version text, name text) "
-        "on conflict (version) do update set name = excluded.name;"
+        "insert into supabase_migrations.schema_migrations "
+        "(version, statements, name, created_by, idempotency_key, rollback) "
+        "select version, statements, name, created_by, idempotency_key, rollback "
+        "from jsonb_populate_recordset(null::supabase_migrations.schema_migrations, " +
+        sql_literal(payload) + "::jsonb) "
+        "on conflict (version) do update set "
+        "statements = excluded.statements, name = excluded.name, "
+        "created_by = excluded.created_by, idempotency_key = excluded.idempotency_key, "
+        "rollback = excluded.rollback;"
     )
 ledger_lines.append("commit;")
 (restore_dir / "migration-ledger-restore.sql").write_text("\n".join(ledger_lines) + "\n", encoding="utf-8")
