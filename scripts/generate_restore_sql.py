@@ -77,6 +77,38 @@ for item in vault:
     )
 (restore_dir / "vault-restore.sql").write_text("\n".join(vault_lines) + "\n", encoding="utf-8")
 
+# Storage API uploads create new object rows; restore the original ownership fields afterward.
+objects_file = root / "storage" / "objects-metadata.json"
+storage_objects = json.loads(objects_file.read_text(encoding="utf-8")) if objects_file.exists() else []
+owner_lines = ["-- Restore Storage object owner metadata after the object bytes have been uploaded."]
+if storage_objects:
+    values = []
+    seen = set()
+    for item in storage_objects:
+        bucket_id = item.get("bucket_id")
+        name = item.get("name")
+        if not isinstance(bucket_id, str) or not bucket_id or not isinstance(name, str) or not name:
+            raise SystemExit("Storage object metadata contains an invalid bucket or object name.")
+        key = (bucket_id, name)
+        if key in seen:
+            raise SystemExit("Storage object metadata contains duplicate bucket/name pairs.")
+        seen.add(key)
+        owner_id = item.get("owner_id")
+        owner = item.get("owner")
+        owner_id_sql = "NULL::text" if owner_id is None else sql_literal(owner_id) + "::text"
+        owner_sql = "NULL::uuid" if owner is None else sql_literal(owner) + "::uuid"
+        values.append(
+            "(" + sql_literal(bucket_id) + "::text, " + sql_literal(name) +
+            "::text, " + owner_id_sql + ", " + owner_sql + ")"
+        )
+    owner_lines.append(
+        "update storage.objects as target set owner_id = source.owner_id, owner = source.owner "
+        "from (values " + ", ".join(values) +
+        ") as source(bucket_id, name, owner_id, owner) "
+        "where target.bucket_id = source.bucket_id and target.name = source.name;"
+    )
+(restore_dir / "storage-owners.sql").write_text("\n".join(owner_lines) + "\n", encoding="utf-8")
+
 policy_file = root / "storage" / "policies.json"
 storage_policies = json.loads(policy_file.read_text(encoding="utf-8")) if policy_file.exists() else []
 policy_lines = ["-- Custom Storage RLS policies captured from the source project."]
