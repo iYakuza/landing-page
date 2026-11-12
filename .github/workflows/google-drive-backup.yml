@@ -108,6 +108,7 @@ jobs:
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
             "select coalesce(json_agg(json_build_object('name',name,'description',description,'secret',decrypted_secret,'created_at',created_at,'updated_at',updated_at) order by name), '[]'::json) from vault.decrypted_secrets" \
             > "$OUT/secrets/vault-secrets.json"
+          python3 scripts/generate_restore_sql.py --root "$OUT"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
             "select json_build_object('postgres_version', version(), 'captured_at', now())::text" \
             > "$OUT/metadata/database.json"
