@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-12T19:43:08.289095Z",
-  "last_processed_sha": "ea796ff9ac4c148732b9836035fc4162f6cec3ae",
+  "updated_at": "2026-11-12T19:52:01.492252Z",
+  "last_processed_sha": "d8fde96b4b079c749a873e0116f52410ffc3cf95",
   "entries": [
+    {
+      "id": "d8fde96b4b079c749a873e0116f52410ffc3cf95",
+      "timestamp": "2026-11-12T20:51:53+01:00",
+      "category": "CONTENT",
+      "component": "Website",
+      "title": "Fresh additions to Website",
+      "description": "This update brings together Expose manual Green Dream content and media backup workflow (#16). It updates google-drive-content-backup.yml.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/google-drive-content-backup.yml"
+      ],
+      "commits": [
+        {
+          "message": "Expose manual Green Dream content and media backup workflow (#16)",
+          "url": "https://github.com/iYakuza/landing-page/commit/d8fde96b4b079c749a873e0116f52410ffc3cf95",
+          "files": [
+            ".github/workflows/google-drive-content-backup.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "ea796ff9ac4c148732b9836035fc4162f6cec3ae",
       "timestamp": "2026-11-12T20:43:00+01:00",
