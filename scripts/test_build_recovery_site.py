@@ -22,6 +22,11 @@ with tempfile.TemporaryDirectory() as temp:
             "published_at": "2026-11-12T12:00:00Z",
             "media_path": "images/cover.jpg",
             "media_type": "image",
+        }, {
+            "title": "WFH", "slug": "wfh", "category": "THE RECONNECTION",
+            "content_html": "<p>Local image test</p>", "published_at": "2026-10-15T12:00:00Z",
+            "media_url": "/landing-page/posts/imported/wfh/media/featured.jpg",
+            "media_path": None, "media_type": "image",
         }],
         "submissions": [{
             "title": "Approved signal",
@@ -49,9 +54,13 @@ with tempfile.TemporaryDirectory() as temp:
     (root / "storage/objects/public-media/audio").mkdir(parents=True)
     (root / "storage/objects/private-media/secret").mkdir(parents=True)
     (root / "storage/objects/public-media/images/cover.jpg").write_bytes(b"jpeg")
+    source = root / "source"
+    local_asset = source / "posts/imported/wfh/media/featured.jpg"
+    local_asset.parent.mkdir(parents=True)
+    local_asset.write_bytes(b"repo image")
     (root / "storage/objects/public-media/audio/song.mp3").write_bytes(b"mp3!")
     (root / "storage/objects/private-media/secret/private.pdf").write_bytes(b"secret")
-    subprocess.run([sys.executable, str(repo / "scripts/build_recovery_site.py"), str(root)], check=True)
+    subprocess.run([sys.executable, str(repo / "scripts/build_recovery_site.py"), str(root), "--repo-root", str(source)], check=True)
     page = (root / "recovery-site/index.html").read_text(encoding="utf-8")
     assert "Recovered poem" in page
     assert "Approved signal" in page
@@ -59,6 +68,8 @@ with tempfile.TemporaryDirectory() as temp:
     assert "alert(1)" in page  # Kept only as inert JSON data; the viewer sanitizer strips script elements.
     assert "../storage/objects/public-media/images/cover.jpg" in page
     assert "../storage/objects/public-media/audio/song.mp3" in page
+    assert "static-assets/posts/imported/wfh/media/featured.jpg" in page
+    assert (root / "recovery-site/static-assets/posts/imported/wfh/media/featured.jpg").read_bytes() == b"repo image"
     assert (root / "recovery-site/README.txt").is_file()
     package = root / "recovery-site.zip"
     subprocess.run([sys.executable, str(repo / "scripts/package_recovery_site.py"), str(root), str(package)], check=True)
@@ -67,5 +78,6 @@ with tempfile.TemporaryDirectory() as temp:
         assert "recovery-site/index.html" in names
         assert "storage/objects/public-media/images/cover.jpg" in names
         assert "storage/objects/public-media/audio/song.mp3" in names
+        assert "recovery-site/static-assets/posts/imported/wfh/media/featured.jpg" in names
         assert not any("private-media" in name for name in names)
 print("Offline recovery-site builder and package tests passed.")
