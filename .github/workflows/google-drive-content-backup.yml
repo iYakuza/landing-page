@@ -5,7 +5,6 @@ on:
 
 permissions:
   contents: read
-  actions: write
 
 concurrency:
   group: green-dream-content-backup
@@ -15,9 +14,10 @@ jobs:
   content-backup:
     if: startsWith(github.ref, 'refs/heads/backup/')
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     env:
       SUPABASE_URL: https://oeyxsqocldlovhsmzcjw.supabase.co
+      RCLONE_REMOTE_PATH: greendream:Green Dream Backups (rclone)
 
     steps:
       - name: Check out the complete repository history
@@ -29,7 +29,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update
-          sudo apt-get install --yes postgresql-client gnupg python3
+          sudo apt-get install --yes postgresql-client gnupg python3 rclone
           python3 --version
           psql --version
           gpg --version
