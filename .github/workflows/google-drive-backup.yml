@@ -103,6 +103,9 @@ jobs:
             "select coalesce(json_agg(to_jsonb(b) order by id), '[]'::json) from storage.buckets b" \
             > "$OUT/storage/buckets.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(json_build_object('schemaname',schemaname,'tablename',tablename,'policyname',policyname,'permissive',permissive,'roles',roles,'cmd',cmd,'qual',qual,'with_check',with_check) order by tablename, policyname), '[]'::json) from pg_policies where schemaname='storage'" \
+            > "$OUT/storage/policies.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
             "select coalesce(json_agg(to_jsonb(o) order by bucket_id, name), '[]'::json) from storage.objects o" \
             > "$OUT/storage/objects-metadata.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
