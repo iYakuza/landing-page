@@ -1,7 +1,7 @@
 /**
  * Green Dream private backup receiver.
  * Accepts authenticated, already-encrypted archive parts and stores them in a
- * private Drive folder. No listing or download endpoint is exposed.
+ * private Drive folder. Authenticated listing and part-download actions support recovery.
  */
 const FOLDER_NAME = "Green Dream Backups";
 const FILE_PREFIX = "greendream-backup-";
@@ -72,6 +72,88 @@ function findBackupFiles_(folder, backupId) {
   return found;
 }
 
+function listCompletedBackups_(folder) {
+  const results = [];
+  const iterator = folder.getFiles();
+  while (iterator.hasNext()) {
+    const file = iterator.next();
+    if (!file.getName().startsWith(FILE_PREFIX) || !file.getName().endsWith(".manifest.json")) continue;
+    try {
+      const manifest = JSON.parse(file.getBlob().getDataAsString());
+      if (!validateId_(manifest.backup_id) || manifest.encrypted !== true ||
+          !Number.isInteger(manifest.part_count) || manifest.part_count < 1 ||
+          manifest.part_count > MAX_PARTS || !Array.isArray(manifest.parts) ||
+          manifest.parts.length !== manifest.part_count) continue;
+      const parts = [];
+      let totalBytes = 0;
+      let valid = true;
+      manifest.parts.forEach(function (part) {
+        const match = typeof part.name === "string" &&
+          part.name.match(/-part-([0-9]{4})-of-([0-9]{4})\\.gpgpart$/);
+        if (!match || Number(match[2]) !== manifest.part_count ||
+            !Number.isInteger(part.size) || part.size < 1 ||
+            !/^[a-f0-9]{64}$/.test(part.sha256 || "") ||
+            typeof part.file_id !== "string") {
+          valid = false;
+          return;
+        }
+        parts.push({ part_number: Number(match[1]), size: part.size, sha256: part.sha256 });
+        totalBytes += part.size;
+      });
+      if (!valid || parts.length !== manifest.part_count) continue;
+      parts.sort(function (a, b) { return a.part_number - b.part_number; });
+      for (let i = 0; i < parts.length; i++) {
+        if (parts[i].part_number !== i + 1) valid = false;
+      }
+      if (!valid) continue;
+      results.push({
+        backup_id: manifest.backup_id,
+        created_at: manifest.created_at || file.getDateCreated().toISOString(),
+        encrypted: true,
+        part_count: manifest.part_count,
+        total_bytes: totalBytes,
+        parts: parts
+      });
+    } catch (_) {
+      // Ignore malformed manifests; never use them as download instructions.
+    }
+  }
+  results.sort(function (a, b) { return String(b.created_at).localeCompare(String(a.created_at)); });
+  return results.slice(0, 30);
+}
+
+function downloadBackupPart_(folder, backupId, partNumber) {
+  const manifestFiles = folder.getFilesByName(FILE_PREFIX + backupId + ".manifest.json");
+  if (!manifestFiles.hasNext()) return { ok: false, error: "Completed backup not found." };
+  const manifest = JSON.parse(manifestFiles.next().getBlob().getDataAsString());
+  if (manifest.backup_id !== backupId || manifest.encrypted !== true ||
+      !Number.isInteger(manifest.part_count) || partNumber < 1 || partNumber > manifest.part_count ||
+      !Array.isArray(manifest.parts) || manifest.parts.length !== manifest.part_count) {
+    return { ok: false, error: "Invalid completed backup reference." };
+  }
+  const part = manifest.parts.find(function (item) {
+    const match = typeof item.name === "string" && item.name.match(/-part-([0-9]{4})-of-([0-9]{4})\\.gpgpart$/);
+    return match && Number(match[1]) === partNumber && Number(match[2]) === manifest.part_count;
+  });
+  if (!part || typeof part.file_id !== "string") return { ok: false, error: "Backup part not found." };
+  const file = DriveApp.getFileById(part.file_id);
+  if (file.getName() !== part.name) return { ok: false, error: "Backup part reference mismatch." };
+  const bytes = file.getBlob().getBytes();
+  const digest = sha256_(bytes);
+  if (bytes.length !== part.size || digest !== part.sha256) {
+    return { ok: false, error: "Stored backup part failed integrity verification." };
+  }
+  return {
+    ok: true,
+    backup_id: backupId,
+    part_number: partNumber,
+    total_parts: manifest.part_count,
+    size: bytes.length,
+    sha256: digest,
+    content_base64: Utilities.base64Encode(bytes)
+  };
+}
+
 function cleanupOrphans_(folder) {
   const referenced = {};
   const manifests = folder.getFiles();
@@ -120,6 +202,16 @@ function doPost(e) {
 
     if (request.action === "ping") {
       return json_({ ok: true, service: "Green Dream Drive receiver", folder: FOLDER_NAME });
+    }
+    if (request.action === "list_backups") {
+      return json_({ ok: true, backups: listCompletedBackups_(getFolder_()) });
+    }
+    if (request.action === "download_part") {
+      if (!validateId_(request.backup_id) || !Number.isInteger(request.part_number) ||
+          request.part_number < 1 || request.part_number > MAX_PARTS) {
+        return json_({ ok: false, error: "Invalid download request." });
+      }
+      return json_(downloadBackupPart_(getFolder_(), request.backup_id, request.part_number));
     }
     if (request.action !== "upload_part" || !validateId_(request.backup_id)) {
       return json_({ ok: false, error: "Invalid upload request." });
