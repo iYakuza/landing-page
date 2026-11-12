@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-12T12:56:17.126011Z",
-  "last_processed_sha": "06ff56c062f523b7f41d96dd96e2a29a19ca59b7",
+  "updated_at": "2026-11-12T19:43:08.289095Z",
+  "last_processed_sha": "ea796ff9ac4c148732b9836035fc4162f6cec3ae",
   "entries": [
+    {
+      "id": "ea796ff9ac4c148732b9836035fc4162f6cec3ae",
+      "timestamp": "2026-11-12T20:43:00+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Enable safe manual dispatch for encrypted Drive backup and recovery (#15). It updates google-drive-backup.yml, recover-google-drive-backup.yml.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/google-drive-backup.yml",
+        ".github/workflows/recover-google-drive-backup.yml"
+      ],
+      "commits": [
+        {
+          "message": "Enable safe manual dispatch for encrypted Drive backup and recovery (#15)",
+          "url": "https://github.com/iYakuza/landing-page/commit/ea796ff9ac4c148732b9836035fc4162f6cec3ae",
+          "files": [
+            ".github/workflows/google-drive-backup.yml",
+            ".github/workflows/recover-google-drive-backup.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "06ff56c062f523b7f41d96dd96e2a29a19ca59b7",
       "timestamp": "2026-11-12T13:56:08+01:00",
