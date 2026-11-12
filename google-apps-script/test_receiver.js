@@ -121,7 +121,8 @@ const manifest = JSON.parse(manifestFile.getBlob().getDataAsString());
 assert.equal(manifest.encrypted, true);
 assert.equal(manifest.part_count, 2);
 assert.deepEqual(manifest.parts.map(p => p.sha256), [digest(bytesOf("encrypted-chunk-one")), digest(bytesOf("encrypted-chunk-two"))]);
-assert.equal(send(part(2, 2, "different-content")).ok, false, "reject conflicting duplicate part");
+assert.equal(send(part(2, 2, "encrypted-chunk-two")).finalized, true, "completed backup accepts an identical retry");
+assert.equal(send(part(2, 2, "different-content")).ok, false, "completed manifest prevents replacement with different content");
 
 properties.set("INGEST_TOKEN", "short");
 assert.equal(send({ action: "ping", token: "short" }).ok, false, "reject weak receiver configuration");
