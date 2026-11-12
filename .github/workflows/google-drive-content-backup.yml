@@ -46,6 +46,12 @@ jobs:
         with:
           version: 2.122.1
 
+      - name: Validate the offline recovery website builder
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/build_recovery_site.py scripts/test_build_recovery_site.py
+          python3 scripts/test_build_recovery_site.py
+
       - name: Validate required credentials
         shell: bash
         env:
