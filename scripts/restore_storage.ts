@@ -64,8 +64,9 @@ for (const item of manifest.objects) {
   if (!sourceMetadata) throw new Error("Missing database metadata for " + bucket + "/" + objectPath);
   const metadata = sourceMetadata.metadata || {};
   const userMetadata = sourceMetadata.user_metadata || {};
-  const upload = await client.storage.from(bucket).upload(objectPath, new Blob([bytes]), {
-    contentType: metadata.mimetype || "application/octet-stream",
+  const contentType = metadata.mimetype || "application/octet-stream";
+  const upload = await client.storage.from(bucket).upload(objectPath, new Blob([bytes], { type: contentType }), {
+    contentType,
     cacheControl: String(metadata.cacheControl || "3600"),
     upsert: true,
     metadata: userMetadata,
