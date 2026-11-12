@@ -118,7 +118,7 @@ jobs:
           mkdir -p "$LOCAL_PROJECT/supabase/migrations"
           printf 'project_id = "storage-restore-test"\n' > "$LOCAL_PROJECT/supabase/config.toml"
           if ! supabase --workdir "$LOCAL_PROJECT" start > "$RUNNER_TEMP/storage-restore-start.log" 2>&1; then
-            sed -E 's/(Secret key: ).*/\1[redacted]/' "$RUNNER_TEMP/storage-restore-start.log" | tail -n 80
+            sed -E '/(secret key:|publishable key:|sb_secret_|sb_publishable_)/Id' "$RUNNER_TEMP/storage-restore-start.log" | tail -n 80
             exit 1
           fi
           touch "$RUNNER_TEMP/storage-restore.started"
