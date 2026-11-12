@@ -37,7 +37,11 @@ jobs:
             scripts/verify_backup_manifest.py \
             scripts/export_edge_env_inventory.py \
             scripts/verify_storage_export.py \
-            scripts/generate_restore_sql.py
+            scripts/generate_restore_sql.py \
+            scripts/verify_database_restore.py \
+            scripts/verify_storage_security.py \
+            scripts/verify_auth_restore.py \
+            scripts/verify_vault_restore.py
 
       - name: Test backup manifest generation and verification
         run: |
