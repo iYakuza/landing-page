@@ -156,12 +156,13 @@ jobs:
           OUT="$RUNNER_TEMP/green-dream-backup"
           LOCAL_PROJECT="$RUNNER_TEMP/green-dream-restore-target"
           supabase --workdir "$LOCAL_PROJECT" status -o env > "$RUNNER_TEMP/local-supabase.env"
-          LOCAL_SECRET_KEY="$(sed -nE 's/.*Secret key: (sb_secret_[^[:space:]]+).*/\1/p' "$RUNNER_TEMP/local-supabase-start.log" | head -n 1)"
-          if [ -z "$LOCAL_SECRET_KEY" ]; then
-            echo "::error::Local Supabase CLI did not expose a Secret API key for restore testing."
+          # The disposable local CLI exposes SERVICE_ROLE_KEY in status -o env.
+          # This local-only JWT is accepted by the restore helper's compatibility path.
+          if ! grep -q '^SERVICE_ROLE_KEY=' "$RUNNER_TEMP/local-supabase.env"; then
+            echo "::error::Local Supabase CLI did not expose its local Storage admin key."
             exit 1
           fi
-          printf 'SECRET_KEY=%q\n' "$LOCAL_SECRET_KEY" >> "$RUNNER_TEMP/local-supabase.env"
+          printf 'SUPABASE_SECRET_KEY=%s\n' "$(sed -n 's/^SERVICE_ROLE_KEY=//p' "$RUNNER_TEMP/local-supabase.env" | head -n 1 | tr -d '"' )" >> "$RUNNER_TEMP/local-supabase.env"
           set -a
           source "$RUNNER_TEMP/local-supabase.env"
           set +a
