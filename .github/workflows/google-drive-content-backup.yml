@@ -9,6 +9,9 @@ on:
       - .github/workflows/google-drive-content-backup.yml
       - scripts/upload_apps_script_backup.py
       - scripts/build_recovery_site.py
+      - scripts/package_recovery_site.py
+      - scripts/download_apps_script_backup.py
+      - scripts/test_build_recovery_site.py
   workflow_dispatch:
 
 permissions:
@@ -49,8 +52,10 @@ jobs:
       - name: Validate the offline recovery website builder
         run: |
           set -euo pipefail
-          python3 -m py_compile scripts/build_recovery_site.py scripts/test_build_recovery_site.py
+          python3 -m py_compile scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/download_apps_script_backup.py scripts/test_build_recovery_site.py
           python3 scripts/test_build_recovery_site.py
+          node --check < google-apps-script/Code.gs
+          node google-apps-script/test_receiver.js
 
       - name: Validate required credentials
         shell: bash
@@ -127,6 +132,7 @@ jobs:
           python3 scripts/backup_storage.py --output "$OUT/storage/objects" --buckets-file "$OUT/storage/buckets.json"
           python3 scripts/verify_storage_export.py "$OUT"
           python3 scripts/build_recovery_site.py "$OUT"
+          python3 scripts/package_recovery_site.py "$OUT" "$RUNNER_TEMP/green-dream-recovery-site.zip"
 
       - name: Capture complete website repository and media assets
         run: |
@@ -194,6 +200,15 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/upload_apps_script_backup.py "$ENCRYPTED_ARCHIVE"
+
+      - name: Publish portable read-only recovery website
+        uses: actions/upload-artifact@v4
+        continue-on-error: true
+        with:
+          name: green-dream-recovery-site-${{ github.run_id }}
+          path: ${{ runner.temp }}/green-dream-recovery-site.zip
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Remove temporary content backup material
         if: always()
