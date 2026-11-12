@@ -89,7 +89,7 @@ function listCompletedBackups_(folder) {
       let valid = true;
       manifest.parts.forEach(function (part) {
         const match = typeof part.name === "string" &&
-          part.name.match(/-part-([0-9]{4})-of-([0-9]{4})\\.gpgpart$/);
+          part.name.match(/-part-([0-9]{4})-of-([0-9]{4})\.gpgpart$/);
         if (!match || Number(match[2]) !== manifest.part_count ||
             !Number.isInteger(part.size) || part.size < 1 ||
             !/^[a-f0-9]{64}$/.test(part.sha256 || "") ||
@@ -132,7 +132,7 @@ function downloadBackupPart_(folder, backupId, partNumber) {
     return { ok: false, error: "Invalid completed backup reference." };
   }
   const part = manifest.parts.find(function (item) {
-    const match = typeof item.name === "string" && item.name.match(/-part-([0-9]{4})-of-([0-9]{4})\\.gpgpart$/);
+    const match = typeof item.name === "string" && item.name.match(/-part-([0-9]{4})-of-([0-9]{4})\.gpgpart$/);
     return match && Number(match[1]) === partNumber && Number(match[2]) === manifest.part_count;
   });
   if (!part || typeof part.file_id !== "string") return { ok: false, error: "Backup part not found." };
