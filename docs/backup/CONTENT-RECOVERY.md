@@ -25,7 +25,7 @@ The content-backup workflow also packages the viewer and its public media as a Z
 3. Extract the ZIP without changing its folder structure.
 4. Open `recovery-site/index.html` in a browser.
 
-Keep the `storage/objects` folder beside `recovery-site`. The page loads backed-up images, audio and video from those relative paths. The package contains public media only; it does not contain the private encrypted backup archive.
+Keep the `storage/objects` folder beside `recovery-site`. The page loads backed-up images, audio and video from those relative paths. The package contains public media only; it does not contain the private encrypted backup archive. You can also publish the extracted folder structure to a static web host; no server, database connection or API is required. Preserve the `recovery-site/` and `storage/objects/` sibling paths.
 
 ## Recover the website package later from Google Drive
 
