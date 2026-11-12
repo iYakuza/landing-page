@@ -18,6 +18,10 @@ on:
       - "supabase/functions/google-drive-oauth-callback/**"
       - "supabase/config.toml"
 
+concurrency:
+  group: backup-validation-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
