@@ -1,9 +1,6 @@
 name: Validate backup tooling
 
 on:
-  push:
-    branches:
-      - "backup/**"
   pull_request:
     branches:
       - main
