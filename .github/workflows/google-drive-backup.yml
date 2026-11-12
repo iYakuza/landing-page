@@ -129,7 +129,7 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: |
           set -euo pipefail
-          python3 scripts/backup_storage.py --output "$RUNNER_TEMP/green-dream-backup/storage/objects"
+          python3 scripts/backup_storage.py --output "$RUNNER_TEMP/green-dream-backup/storage/objects" --buckets-file "$RUNNER_TEMP/green-dream-backup/storage/buckets.json"
           python3 scripts/verify_storage_export.py "$RUNNER_TEMP/green-dream-backup"
 
       - name: Install Deno for Storage restore verification
