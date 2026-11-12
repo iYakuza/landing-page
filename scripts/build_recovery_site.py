@@ -210,8 +210,8 @@ Supabase, Google Drive, or any external service. Keep the sibling storage/
 directory in place: media players use the original backed-up object files
 through relative paths.
 
-This is a read-only catalogue of published posts and community submissions
-approved for publication, plus media objects from public Storage buckets.
+This is a read-only catalogue of published posts, consent-approved community
+submissions and transmissions, plus media objects from public Storage buckets.
 Private buckets and unpublished/failed submissions are deliberately excluded.
 
 This viewer is not a replacement for the original interactive application.
