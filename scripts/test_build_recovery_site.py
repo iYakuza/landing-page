@@ -10,7 +10,7 @@ import zipfile
 repo = pathlib.Path(__file__).resolve().parents[1]
 with tempfile.TemporaryDirectory() as temp:
     root = pathlib.Path(temp)
-    for folder in ("database", "storage/objects/public-media", "storage/objects/private-media"):
+    for folder in ("database", "storage/objects/vha-post-media", "storage/objects/poetry-media", "storage/objects/poetry-media-staging"):
         (root / folder).mkdir(parents=True, exist_ok=True)
     payload = {
         "posts": [{
@@ -45,28 +45,29 @@ with tempfile.TemporaryDirectory() as temp:
     }
     (root / "database/public-content.json").write_text(json.dumps(payload), encoding="utf-8")
     (root / "storage/buckets.json").write_text(json.dumps([
-        {"id": "public-media", "public": True},
-        {"id": "private-media", "public": False},
+        {"id": "vha-post-media", "public": True},
+        {"id": "poetry-media", "public": True},
+        {"id": "poetry-media-staging", "public": False},
     ]), encoding="utf-8")
     (root / "storage/objects/storage-manifest.json").write_text(json.dumps({
         "objects": [
-            {"bucket": "public-media", "path": "images/cover.jpg", "bytes": 4, "sha256": "x"},
-            {"bucket": "public-media", "path": "audio/song.mp3", "bytes": 4, "sha256": "y"},
-            {"bucket": "public-media", "path": "unpublished/hidden.png", "bytes": 6, "sha256": "h"},
-            {"bucket": "private-media", "path": "secret/private.pdf", "bytes": 6, "sha256": "z"},
+            {"bucket": "vha-post-media", "path": "images/cover.jpg", "bytes": 4, "sha256": "x"},
+            {"bucket": "poetry-media", "path": "audio/song.mp3", "bytes": 4, "sha256": "y"},
+            {"bucket": "poetry-media", "path": "unpublished/hidden.png", "bytes": 6, "sha256": "h"},
+            {"bucket": "poetry-media-staging", "path": "secret/private.pdf", "bytes": 6, "sha256": "z"},
         ]
     }), encoding="utf-8")
     (root / "storage/objects/public-media/images").mkdir(parents=True)
     (root / "storage/objects/public-media/audio").mkdir(parents=True)
     (root / "storage/objects/public-media/unpublished").mkdir(parents=True)
     (root / "storage/objects/private-media/secret").mkdir(parents=True)
-    (root / "storage/objects/public-media/images/cover.jpg").write_bytes(b"jpeg")
+    (root / "storage/objects/vha-post-media/images/cover.jpg").write_bytes(b"jpeg")
     source = root / "source"
     local_asset = source / "posts/imported/wfh/media/featured.jpg"
     local_asset.parent.mkdir(parents=True)
     local_asset.write_bytes(b"repo image")
-    (root / "storage/objects/public-media/audio/song.mp3").write_bytes(b"mp3!")
-    (root / "storage/objects/public-media/unpublished/hidden.png").write_bytes(b"hidden")
+    (root / "storage/objects/poetry-media/audio/song.mp3").write_bytes(b"mp3!")
+    (root / "storage/objects/poetry-media/unpublished/hidden.png").write_bytes(b"hidden")
     (root / "storage/objects/private-media/secret/private.pdf").write_bytes(b"secret")
     subprocess.run([sys.executable, str(repo / "scripts/build_recovery_site.py"), str(root), "--repo-root", str(source)], check=True)
     page = (root / "recovery-site/index.html").read_text(encoding="utf-8")
@@ -80,8 +81,8 @@ with tempfile.TemporaryDirectory() as temp:
     assert "private-ip-hash" not in page
     assert "private moderation note" not in page
     assert "alert(1)" in page  # Kept only as inert JSON data; the viewer sanitizer strips script elements.
-    assert "../storage/objects/public-media/images/cover.jpg" in page
-    assert "../storage/objects/public-media/audio/song.mp3" in page
+    assert "../storage/objects/vha-post-media/images/cover.jpg" in page
+    assert "../storage/objects/poetry-media/audio/song.mp3" in page
     assert "static-assets/posts/imported/wfh/media/featured.jpg" in page
     assert (root / "recovery-site/static-assets/posts/imported/wfh/media/featured.jpg").read_bytes() == b"repo image"
     assert (root / "recovery-site/README.txt").is_file()
@@ -94,5 +95,5 @@ with tempfile.TemporaryDirectory() as temp:
         assert "storage/objects/public-media/audio/song.mp3" in names
         assert "storage/objects/public-media/unpublished/hidden.png" not in names
         assert "recovery-site/static-assets/posts/imported/wfh/media/featured.jpg" in names
-        assert not any("private-media" in name for name in names)
+        assert not any("poetry-media-staging" in name for name in names)
 print("Offline recovery-site builder and package tests passed.")
