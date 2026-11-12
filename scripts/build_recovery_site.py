@@ -43,11 +43,14 @@ def main():
 
     records = []
     media = []
-    for row in content["posts"]:
+    for source_row in content["posts"]:
+        row = {key: source_row.get(key) for key in (
+            "title", "slug", "category", "excerpt", "content_html", "published_at",
+            "media_url", "media_path", "media_type", "media_width",
+        )}
         path = row.get("media_path")
         bucket = "vha-post-media"
         ref = object_map.get((bucket, path)) if path else None
-        row = dict(row)
         media_href = storage_href(bucket, path) if ref and bucket in public_buckets else None
         local_url = row.get("media_url")
         if not media_href and isinstance(local_url, str) and local_url.startswith("/landing-page/"):
@@ -65,15 +68,17 @@ def main():
                           "bytes": destination.stat().st_size, "mime": mimetypes.guess_type(relative.name)[0] or "application/octet-stream"})
         row.update({"kind": "Post", "media_href": media_href})
         records.append(row)
-    for row in content["submissions"]:
+    for source_row in content["submissions"]:
+        row = {key: source_row.get(key) for key in (
+            "title", "slug", "medium", "body", "byline", "published_at", "media_url", "storage_path",
+        )}
         path = row.get("storage_path")
         bucket = "poetry-media"
         ref = object_map.get((bucket, path)) if path else None
-        row = dict(row)
         row.update({"kind": "Community submission", "category": "COMMUNITY", "excerpt": "", "content_html": row.get("body") or "", "media_href": storage_href(bucket, path) if ref and bucket in public_buckets else None})
         records.append(row)
-    for row in content.get("transmissions", []):
-        row = dict(row)
+    for source_row in content.get("transmissions", []):
+        row = {key: source_row.get(key) for key in ("title", "message", "display_name", "created_at")}
         row.update({
             "kind": "Community transmission",
             "category": "COMMUNITY TRANSMISSIONS",
