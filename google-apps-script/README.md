@@ -23,6 +23,10 @@ It replaces the separate Google OAuth client/refresh-token flow. The script owne
 
 Do not paste the token into chat, commit it, or put it in the script source. The receiver checks the token on every request. Uploaded files remain private in the deploying account's Drive.
 
+## Local receiver tests
+
+The repository includes `test_receiver.js`, an isolated Node.js test harness for authentication, weak-token configuration rejection, malformed input, checksum validation, duplicate retries, conflicting part counts, chunk completion, and manifest checksums. The validation workflow runs these tests without accessing the user's Google account or Drive.
+
 ## Safety and operating notes
 
 - Only encrypted `.gpg` backup parts are uploaded.
