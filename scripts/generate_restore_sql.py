@@ -83,7 +83,40 @@ policy_lines = ["-- Custom Storage RLS policies captured from the source project
 security_file = root / "storage" / "security-settings.json"
 if security_file.exists():
     security_settings = json.loads(security_file.read_text(encoding="utf-8"))
-    for table in security_settings.get("tables", []):
+    table_rows = security_settings.get("tables", [])
+    table_names = [item["table"] for item in table_rows]
+    if any(name not in ("buckets", "objects") for name in table_names):
+        raise SystemExit("Storage security export contains an unexpected table.")
+    if table_names:
+        table_array = "ARRAY[" + ", ".join(sql_literal(name) for name in table_names) + "]::text[]"
+        policy_lines.extend([
+            "-- Rebuild Storage table ACLs from the captured grant inventory.",
+            "DO $restore_storage_acl$",
+            "DECLARE role_name text; table_name text;",
+            "BEGIN",
+            "  FOREACH table_name IN ARRAY " + table_array + " LOOP",
+            "    EXECUTE format('REVOKE ALL PRIVILEGES ON TABLE storage.%I FROM PUBLIC', table_name);",
+            "    FOR role_name IN SELECT rolname FROM pg_roles LOOP",
+            "      EXECUTE format('REVOKE ALL PRIVILEGES ON TABLE storage.%I FROM %I', table_name, role_name);",
+            "    END LOOP;",
+            "  END LOOP;",
+            "END",
+            "$restore_storage_acl$;",
+        ])
+    allowed_privileges = {"SELECT", "INSERT", "UPDATE", "DELETE", "TRUNCATE", "REFERENCES", "TRIGGER", "MAINTAIN"}
+    for grant in security_settings.get("grants", []):
+        table_name = grant.get("table")
+        privilege = str(grant.get("privilege", "")).upper()
+        grantee = grant.get("grantee")
+        if table_name not in table_names or privilege not in allowed_privileges or not isinstance(grantee, str) or not grantee:
+            raise SystemExit("Storage ACL export contains an unsupported grant record.")
+        grantee_sql = "PUBLIC" if grantee.upper() == "PUBLIC" else ident(grantee)
+        grant_option = " WITH GRANT OPTION" if grant.get("grantable") else ""
+        policy_lines.append(
+            "grant " + privilege + " on table \"storage\"." + ident(table_name) +
+            " to " + grantee_sql + grant_option + ";"
+        )
+    for table in table_rows:
         table_name = ident(table["table"])
         state = "enable" if table.get("rowsecurity") else "disable"
         force = "force" if table.get("forcerowsecurity") else "no force"
