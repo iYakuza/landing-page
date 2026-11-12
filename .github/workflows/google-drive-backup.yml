@@ -180,6 +180,8 @@ jobs:
           DATABASE_URL="$DB_URL" python3 scripts/verify_storage_security.py "$OUT"
           SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="$SECRET_KEY" \
             deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$OUT"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/storage-owners.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_storage_owners.py "$OUT"
           DATABASE_URL="$DB_URL" python3 scripts/verify_database_restore.py --compare "$OUT/database/table-counts.json"
 
       - name: Stop disposable local Supabase restore target
