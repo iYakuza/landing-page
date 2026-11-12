@@ -16,7 +16,7 @@ import urllib.request
 from datetime import datetime, timezone
 
 SITE_URL = "https://emanuelstefancu.wordpress.com"
-API_ROOT = SITE_URL + "/wp-json/wp/v2"
+API_ROOT = "https://public-api.wordpress.com/wp/v2/sites/108912679"
 USER_AGENT = "GreenDreamBackup/1.0"
 PAGE_SIZE = 100
 CHUNK_BYTES = 1024 * 1024
