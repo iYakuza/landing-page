@@ -5,19 +5,19 @@ on:
 
 permissions:
   contents: read
-  actions: write
 
 concurrency:
   group: green-dream-content-backup
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   content-backup:
     if: startsWith(github.ref, 'refs/heads/backup/')
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     env:
       SUPABASE_URL: https://oeyxsqocldlovhsmzcjw.supabase.co
+      RCLONE_REMOTE_PATH: greendream:Green Dream Backups (rclone)
 
     steps:
       - name: Check out the complete repository history
@@ -29,7 +29,7 @@ jobs:
         run: |
           set -euo pipefail
           sudo apt-get update
-          sudo apt-get install --yes postgresql-client gnupg python3
+          sudo apt-get install --yes postgresql-client gnupg python3 rclone
           python3 --version
           psql --version
           gpg --version
@@ -42,23 +42,21 @@ jobs:
       - name: Validate the offline recovery website builder
         run: |
           set -euo pipefail
-          python3 -m py_compile scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/download_apps_script_backup.py scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
+          python3 -m py_compile scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/rclone_drive_backup.py scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
           python3 scripts/test_build_recovery_site.py
+          python3 scripts/test_rclone_drive_backup.py
           python3 scripts/test_backup_wordpress_archive.py
-          node --check < google-apps-script/Code.gs
-          node google-apps-script/test_receiver.js
 
       - name: Validate required credentials
         shell: bash
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
-          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          RCLONE_CONFIG_BASE64: ${{ secrets.RCLONE_CONFIG_BASE64 }}
           BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
         run: |
           set -euo pipefail
-          for name in SUPABASE_DB_URL SUPABASE_SECRET_KEY GOOGLE_DRIVE_INGEST_URL GOOGLE_DRIVE_INGEST_TOKEN BACKUP_ENCRYPTION_PASSPHRASE; do
+          for name in SUPABASE_DB_URL SUPABASE_SECRET_KEY RCLONE_CONFIG_BASE64 BACKUP_ENCRYPTION_PASSPHRASE; do
             if [ -z "${!name:-}" ]; then
               echo "::error::Missing required GitHub Actions secret: $name"
               exit 1
@@ -68,12 +66,13 @@ jobs:
             postgresql://*|postgres://*) ;;
             *) echo "::error::SUPABASE_DB_URL must be a PostgreSQL connection string"; exit 1 ;;
           esac
-          case "$GOOGLE_DRIVE_INGEST_URL" in
-            https://script.google.com/macros/s/*/exec) ;;
-            *) echo "::error::GOOGLE_DRIVE_INGEST_URL must be a deployed Apps Script web app URL"; exit 1 ;;
-          esac
-          if [ "${#GOOGLE_DRIVE_INGEST_TOKEN}" -lt 40 ]; then
-            echo "::error::GOOGLE_DRIVE_INGEST_TOKEN must be at least 40 characters"
+          umask 077
+          printf '%s' "$RCLONE_CONFIG_BASE64" | base64 --decode > "$RUNNER_TEMP/rclone.conf"
+          test -s "$RUNNER_TEMP/rclone.conf"
+          chmod 600 "$RUNNER_TEMP/rclone.conf"
+          echo "RCLONE_CONFIG=$RUNNER_TEMP/rclone.conf" >> "$GITHUB_ENV"
+          if ! RCLONE_CONFIG="$RUNNER_TEMP/rclone.conf" rclone listremotes | grep -qx 'greendream:'; then
+            echo "::error::RCLONE_CONFIG_BASE64 must define a remote named greendream"
             exit 1
           fi
           if [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 32 ]; then
@@ -191,26 +190,10 @@ jobs:
           echo "ENCRYPTED_ARCHIVE=$ENCRYPTED" >> "$GITHUB_ENV"
           ls -lh "$ENCRYPTED"
 
-      - name: Upload encrypted content archive to private Google Drive
-        env:
-          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
-          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+      - name: Upload encrypted archive to private Google Drive
         run: |
           set -euo pipefail
-          python3 scripts/upload_apps_script_backup.py "$ENCRYPTED_ARCHIVE"
-
-      - name: Remove superseded recovery-site artifacts
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
-            --jq '.artifacts[] | select(.name | startswith("green-dream-recovery-site-")) | .id' |
-            while IFS= read -r artifact_id; do
-              [ -n "$artifact_id" ] || continue
-              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id"
-            done
+          python3 scripts/rclone_drive_backup.py upload "$ENCRYPTED_ARCHIVE"
 
       - name: Publish portable read-only recovery website
         uses: actions/upload-artifact@v4
@@ -227,4 +210,5 @@ jobs:
           rm -rf "$RUNNER_TEMP/green-dream-content-backup"
           rm -f "$RUNNER_TEMP"/greendream-content-*.tar.gz "$RUNNER_TEMP"/greendream-content-*.tar.gz.gpg
           rm -f "$RUNNER_TEMP/greendream-content-verify.tar.gz"
+          rm -f "$RUNNER_TEMP/rclone.conf"
           if [ -n "${ENCRYPTED_ARCHIVE:-}" ]; then rm -f "$ENCRYPTED_ARCHIVE"; fi
