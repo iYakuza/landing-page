@@ -79,7 +79,7 @@ def walk_bucket(bucket, output_root, prefix=""):
             else:
                 destination = output_root / bucket / pathlib.PurePosixPath(full_path)
                 records.append(download_object(bucket, full_path, destination))
-                print(f"Downloaded {bucket}/{full_path} ({records[-1]['bytes']} bytes)")
+                print(f"Downloaded one object from {bucket} ({records[-1]['bytes']} bytes)")
         if len(items) < PAGE_SIZE:
             break
         offset += len(items)
