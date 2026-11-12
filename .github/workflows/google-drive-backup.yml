@@ -106,6 +106,9 @@ jobs:
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
             "select json_build_object('postgres_version', version(), 'captured_at', now())::text" \
             > "$OUT/metadata/database.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(json_build_object('name',extname,'version',extversion) order by extname), '[]'::json) from pg_extension" \
+            > "$OUT/metadata/extensions.json"
 
       - name: Download every Supabase Storage object
         run: |
@@ -126,6 +129,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/create_backup_manifest.py "$RUNNER_TEMP/green-dream-backup"
+          python3 scripts/verify_backup_manifest.py "$RUNNER_TEMP/green-dream-backup"
 
       - name: Build and encrypt archive
         shell: bash
@@ -140,6 +144,12 @@ jobs:
                 --compress-algo none --symmetric --cipher-algo AES256 \
                 --output "$ENCRYPTED" "$ARCHIVE"
           shred -u "$ARCHIVE" || rm -f "$ARCHIVE"
+          VERIFY="$RUNNER_TEMP/greendream-backup-verify.tar.gz"
+          printf '%s' "$BACKUP_ENCRYPTION_PASSPHRASE" | \
+            gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 \
+                --decrypt --output "$VERIFY" "$ENCRYPTED"
+          tar -tzf "$VERIFY" >/dev/null
+          shred -u "$VERIFY" || rm -f "$VERIFY"
           echo "ENCRYPTED_ARCHIVE=$ENCRYPTED" >> "$GITHUB_ENV"
           ls -lh "$ENCRYPTED"
 
