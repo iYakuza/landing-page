@@ -248,8 +248,12 @@ def export(output_root: pathlib.Path, index_path: pathlib.Path, media_index_path
     (output_root / "backup-metadata.json").write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (output_root / "README.txt").write_text(
         "WORDPRESS CONTENT BACKUP\n\n"
-        "Contains all public published posts and every public media-library file from "
+        "Contains all public published posts from the live site and all media files "
+        "in the checked-in media-library inventory for "
         f"{SITE_URL}.\n"
+        f"Media inventory captured: {media_inventory.get('captured_at') or 'date not recorded'}.\n"
+        "The media inventory is a snapshot; refresh it before a future backup if new "
+        "unattached media files have been uploaded.\n"
         "Posts are stored in posts.json. Media bytes are stored under media/ and "
         "indexed with SHA-256 checksums in media-manifest.json.\n"
         "This folder is included only inside the encrypted Green Dream backup archive.\n",
