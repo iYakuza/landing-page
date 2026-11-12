@@ -247,5 +247,7 @@ jobs:
         if: always()
         run: |
           set +e
-          rm -rf "$RUNNER_TEMP/green-dream-backup"
+          rm -rf "$RUNNER_TEMP/green-dream-backup" "$RUNNER_TEMP/green-dream-restore-target"
+          rm -f "$RUNNER_TEMP"/greendream-backup-*.tar.gz "$RUNNER_TEMP"/greendream-backup-*.tar.gz.gpg
+          rm -f "$RUNNER_TEMP/greendream-backup-verify.tar.gz" "$RUNNER_TEMP/local-supabase.env" "$RUNNER_TEMP/local-supabase-start.log"
           if [ -n "${ENCRYPTED_ARCHIVE:-}" ]; then rm -f "$ENCRYPTED_ARCHIVE"; fi
