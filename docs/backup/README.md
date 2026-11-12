@@ -9,7 +9,7 @@ This workflow creates a daily encrypted snapshot and uploads it to the app-manag
 - Supabase Auth user and identity rows, exported separately because managed Auth schemas are excluded from the standard CLI schema dump. These files contain sensitive personal data and password hashes.
 - Supabase Vault secret values, exported from the decrypted Vault view into the encrypted archive.
 - Edge Function environment variable names (not their values), to provide a recovery inventory.
-- All objects from every Storage bucket in the captured database inventory, plus bucket configuration, object metadata, custom Storage RLS policies, and the bucket/object RLS and ACL settings.
+- All objects from every Storage bucket in the captured database inventory, plus bucket configuration, object metadata and ownership fields, custom Storage RLS policies, and the bucket/object RLS and ACL settings.
 - A Git bundle containing the repository history and the checked-in Edge Function source.
 - A SHA-256 manifest for the files in each archive.
 
