@@ -42,6 +42,7 @@ def main():
         raise SystemExit("Storage manifest contains duplicate object references.")
 
     records = []
+    media = []
     for row in content["posts"]:
         path = row.get("media_path")
         bucket = "vha-post-media"
@@ -72,7 +73,6 @@ def main():
         row.update({"kind": "Community submission", "category": "COMMUNITY", "excerpt": "", "content_html": row.get("body") or "", "media_href": storage_href(bucket, path) if ref and bucket in public_buckets else None})
         records.append(row)
 
-    media = []
     for item in storage_manifest.get("objects", []):
         if item.get("bucket") not in public_buckets:
             continue
