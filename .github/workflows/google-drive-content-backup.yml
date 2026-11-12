@@ -33,6 +33,7 @@ jobs:
           python3 --version
           psql --version
           gpg --version
+          rclone version
 
       - name: Install a pinned Supabase CLI v2
         uses: supabase/setup-cli@v1
@@ -47,7 +48,7 @@ jobs:
           python3 scripts/test_rclone_drive_backup.py
           python3 scripts/test_backup_wordpress_archive.py
 
-      - name: Validate required credentials
+      - name: Validate required credentials and Drive access
         shell: bash
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
@@ -75,6 +76,8 @@ jobs:
             echo "::error::RCLONE_CONFIG_BASE64 must define a remote named greendream"
             exit 1
           fi
+          # Create/check only the dedicated backup folder; this fails early if OAuth access is invalid.
+          rclone mkdir "$RCLONE_REMOTE_PATH"
           if [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 32 ]; then
             echo "::error::BACKUP_ENCRYPTION_PASSPHRASE must be at least 32 characters"
             exit 1
