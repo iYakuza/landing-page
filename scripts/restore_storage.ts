@@ -2,11 +2,11 @@ import { createClient } from "npm:@supabase/supabase-js@2.118.0";
 
 const root = Deno.args[0];
 const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
-const serviceKey = Deno.env.get("SUPABASE_SECRET_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-if (!root || !supabaseUrl || !serviceKey) {
-  throw new Error("Usage: restore_storage.ts <backup-root> with SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY set.");
+const apiKey = Deno.env.get("SUPABASE_SECRET_KEY") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+if (!root || !supabaseUrl || !apiKey) {
+  throw new Error("Usage: restore_storage.ts <backup-root> with SUPABASE_URL and SUPABASE_SECRET_KEY set.");
 }
-const client = createClient(supabaseUrl, serviceKey, {
+const client = createClient(supabaseUrl, apiKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
