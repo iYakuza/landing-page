@@ -19,12 +19,12 @@ jobs:
     timeout-minutes: 45
     env:
       SUPABASE_URL: https://oeyxsqocldlovhsmzcjw.supabase.co
-      SUPABASE_DB_URL: \${{ secrets.SUPABASE_DB_URL }}
-      SUPABASE_SERVICE_ROLE_KEY: \${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      GOOGLE_CLIENT_ID: \${{ secrets.GOOGLE_CLIENT_ID }}
-      GOOGLE_CLIENT_SECRET: \${{ secrets.GOOGLE_CLIENT_SECRET }}
-      GOOGLE_REFRESH_TOKEN: \${{ secrets.GOOGLE_REFRESH_TOKEN }}
-      BACKUP_ENCRYPTION_PASSPHRASE: \${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+      BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
 
     steps:
       - name: Check out the complete repository history
@@ -51,7 +51,7 @@ jobs:
         run: |
           set -euo pipefail
           for name in SUPABASE_DB_URL SUPABASE_SERVICE_ROLE_KEY GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REFRESH_TOKEN BACKUP_ENCRYPTION_PASSPHRASE; do
-            if [ -z "\${!name:-}" ]; then
+            if [ -z "${!name:-}" ]; then
               echo "::error::Missing required GitHub Actions secret: $name"
               exit 1
             fi
@@ -60,7 +60,7 @@ jobs:
             postgresql://*|postgres://*) ;;
             *) echo "::error::SUPABASE_DB_URL must be a PostgreSQL connection string"; exit 1 ;;
           esac
-          if [ "\${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 20 ]; then
+          if [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 20 ]; then
             echo "::error::BACKUP_ENCRYPTION_PASSPHRASE must be at least 20 characters"
             exit 1
           fi
@@ -73,7 +73,7 @@ jobs:
 
       - name: Export database roles, schema, and data
         env:
-          DB_URL: \${{ secrets.SUPABASE_DB_URL }}
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
           set -euo pipefail
           OUT="$RUNNER_TEMP/green-dream-backup/database"
@@ -86,7 +86,7 @@ jobs:
 
       - name: Export migration ledger, Auth identities, and Storage configuration
         env:
-          DB_URL: \${{ secrets.SUPABASE_DB_URL }}
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
           set -euo pipefail
           OUT="$RUNNER_TEMP/green-dream-backup"
@@ -147,7 +147,7 @@ jobs:
         run: |
           set -euo pipefail
           WORK="$RUNNER_TEMP/green-dream-backup"
-          ARCHIVE="$RUNNER_TEMP/greendream-backup-\$(date -u +%Y%m%dT%H%M%SZ).tar.gz"
+          ARCHIVE="$RUNNER_TEMP/greendream-backup-$(date -u +%Y%m%dT%H%M%SZ).tar.gz"
           ENCRYPTED="$ARCHIVE.gpg"
           tar -czf "$ARCHIVE" -C "$WORK" .
           printf '%s' "$BACKUP_ENCRYPTION_PASSPHRASE" | \
@@ -174,4 +174,4 @@ jobs:
         run: |
           set +e
           rm -rf "$RUNNER_TEMP/green-dream-backup"
-          if [ -n "\${ENCRYPTED_ARCHIVE:-}" ]; then rm -f "$ENCRYPTED_ARCHIVE"; fi
+          if [ -n "${ENCRYPTED_ARCHIVE:-}" ]; then rm -f "$ENCRYPTED_ARCHIVE"; fi
