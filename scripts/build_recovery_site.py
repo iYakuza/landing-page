@@ -132,9 +132,9 @@ footer{border-top:1px solid var(--line);padding:22px;text-align:center;color:var
 [hidden]{display:none!important}
 </style></head>
 <body>
-<header><div class="kicker">GREEN DREAM / OFFLINE RECOVERY</div><h1>The archive<br>remains.</h1><p>A read-only recovery website generated from a Green Dream backup snapshot. Browse published writing, approved community submissions and backed-up public media without connecting to the original Supabase project.</p></header>
+<header><div class="kicker">GREEN DREAM / OFFLINE RECOVERY</div><h1>The archive<br>remains.</h1><p>A read-only recovery website generated from a Green Dream backup snapshot. Browse published writing, approved community submissions, consent-approved transmissions and media linked to those records without connecting to the original Supabase project.</p></header>
 <main>
-<div class="notice"><strong>Recovery copy, not the live site.</strong> This page contains only published posts and community submissions approved for publication, plus files from public Storage buckets. Private, pending and failed submissions are intentionally excluded. Keep this extracted folder private if you do not intend to republish its contents.</div>
+<div class="notice"><strong>Recovery copy, not the live site.</strong> This page contains only published posts, approved community submissions, consent-approved transmissions, and media referenced by those records. Unreferenced public-bucket objects, private buckets, pending submissions and failed submissions remain only in the encrypted backup and are not included in this viewer. Keep this extracted folder private if you do not intend to republish its contents.</div>
 <div class="stats" id="stats"></div>
 <div class="toolbar"><button id="recordsTab" aria-pressed="true">Writing & submissions</button><button id="mediaTab" aria-pressed="false">Media library</button><input id="search" type="search" placeholder="Search titles, text, categories…"><select id="category"><option value="">All categories</option></select></div>
 <section id="recordsView"><div class="section-title">PUBLISHED CONTENT</div><div id="records"></div></section>
