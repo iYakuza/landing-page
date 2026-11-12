@@ -12,11 +12,11 @@
     const html=document.documentElement;
     // UAT guardrail: keep generated palettes within readable contrast ranges.
     const rgb=hex=>{const h=String(hex||"").replace("#","");return /^([0-9a-f]{6})$/i.test(h)?[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)):null};
-    const luminance=hex=>{const c=rgb(hex);if(!c)return .5;const v=c.map(n=>n/255).map(n=>n<=.04045?n/12.92:Math.pow((n+.055)/1.055,2));return .2126*v[0]+.7152*v[1]+.0722*v[2]};
+    const luminance=hex=>{const c=rgb(hex);if(!c)return .5;const v=c.map(n=>n/255).map(n=>n<=.04045?n/12.92:Math.pow((n+.055)/1.055,2.4));return .2126*v[0]+.7152*v[1]+.0722*v[2]};
     const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
     const mix=(hex,target,amount)=>{const c=rgb(hex)||[80,100,80],t=target==="white"?255:0;return "#"+c.map(n=>Math.round(n+(t-n)*amount).toString(16).padStart(2,"0")).join("")};
     const validHex=value=>/^#[0-9a-f]{6}$/i.test(String(value||""));
-    const minSurfaceContrast=1.25;
+    const minSurfaceContrast=1.5;
     const sourcePage=validHex(theme.page)?theme.page:"#101810";
     const light=luminance(sourcePage)>.42;
     let page=sourcePage;
@@ -24,10 +24,11 @@
     let surface=validHex(theme.surface)?theme.surface:page;
     if(light){
       const maxSurface=(luminance(page)+.05)/minSurfaceContrast-.05;
+      const minSurface=Math.min(.30,maxSurface);
       if(luminance(surface)>maxSurface){for(let i=0;i<100&&luminance(surface)>maxSurface;i++)surface=mix(surface,"black",.035)}
-      else if(luminance(surface)<.30){for(let i=0;i<100&&luminance(surface)<.30;i++)surface=mix(surface,"white",.035)}
+      else if(luminance(surface)<minSurface){for(let i=0;i<100&&luminance(surface)<minSurface;i++)surface=mix(surface,"white",.035)}
     }else{
-      const maxSurface=.12;
+      const maxSurface=Math.min(.18,(luminance(page)+.05)*minSurfaceContrast-.05);
       if(luminance(surface)>maxSurface){for(let i=0;i<100&&luminance(surface)>maxSurface;i++)surface=mix(surface,"black",.035)}
       if(contrast(surface,page)<minSurfaceContrast){
         const candidates=[];
@@ -62,7 +63,15 @@
       }
     }
     const safeForeground=(hex,bgs,min=4.5)=>{let c=validHex(hex)?hex:(light?"#111511":"#f7f8f5");if(bgs.every(bg=>contrast(c,bg)>=min))return c;const target=light?"black":"white";for(let i=1;i<=100;i++){const candidate=mix(c,target,i/100);if(bgs.every(bg=>contrast(candidate,bg)>=min))return candidate}return target==="black"?"#000000":"#ffffff"};
-    const raised=light?mix(surface,"white",.42):mix(surface,"black",.35);
+    // Give raised/table surfaces a second visible layer without sacrificing text contrast.
+    let raised=surface;
+    const raisedTarget=light?"black":"white";
+    for(let i=0;i<100&&contrast(raised,surface)<1.25;i++){
+      const candidate=mix(raised,raisedTarget,.035);
+      const candidateLuminance=luminance(candidate);
+      if((light&&candidateLuminance<.18)||(!light&&candidateLuminance>.18))break;
+      raised=candidate;
+    }
     const text=safeForeground(light?"#111511":"#f7f8f5",[page,surface,raised],4.5);
     const accent=safeForeground(theme.accent,[page,surface,raised],4.5);
     const muted=safeForeground(theme.muted,[page,surface,raised],4.5);
@@ -143,6 +152,8 @@
       "html[data-vha-mood] #vha-viewer-tools :is(button,[role=\"button\"],input[type=\"button\"],input[type=\"submit\"],input[type=\"reset\"]):is(:hover,:focus-visible) *{color:var(--theme-on-accent)!important}",
       "html[data-vha-mood] #vha-viewer-tools :is(button,[role=\"button\"],input[type=\"button\"],input[type=\"submit\"],input[type=\"reset\"]):is(:hover,:focus-visible) svg :is(path,line,polyline,polygon,circle,rect,ellipse){stroke:var(--theme-on-accent)!important}",
       "html[data-vha-mood] #vha-viewer-tools :is(button,[role=\"button\"],input[type=\"button\"],input[type=\"submit\"],input[type=\"reset\"]):is(:hover,:focus-visible) svg :is(path,polygon,circle,rect,ellipse)[fill]:not([fill=\"none\"]){fill:var(--theme-on-accent)!important}"
+    ,
+       "html[data-vha-mood] .vha-map-node.is-current svg,html[data-vha-mood] .vha-map-node.is-current svg *{fill:var(--theme-accent)!important;stroke:var(--theme-accent)!important}"
     ].join("\n");
     const font=key=>moodFontStacks[key]||moodFontStacks.sans;
     const radius=Math.min(28,Math.max(0,Number(theme.radius)||0));
