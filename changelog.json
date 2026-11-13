@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T20:33:14.959450Z",
-  "last_processed_sha": "b8cb8fd4ba981499c7bf0f211d2c3d1161ca31ba",
+  "updated_at": "2026-11-13T20:33:39.593228Z",
+  "last_processed_sha": "98dce54dfba294149cb48543f7134b1668343173",
   "entries": [
+    {
+      "id": "98dce54dfba294149cb48543f7134b1668343173",
+      "timestamp": "2026-11-13T21:33:38+01:00",
+      "category": "FEATURE",
+      "component": "Creative Archive",
+      "title": "New capabilities for Creative Archive",
+      "description": "This update brings together Add working dictionary definition of ethical framework; Add public revision history for The Guest's Notes; Clarify Guest Notes roles and link glossary and revision history. It updates index.html and related project files.",
+      "commit_count": 3,
+      "files": [
+        "green-dream/guest-notes/ethical-framework/index.html",
+        "green-dream/guest-notes/index.html",
+        "green-dream/guest-notes/revision-history/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Add working dictionary definition of ethical framework",
+          "url": "https://github.com/iYakuza/landing-page/commit/33d3dbd2881e948dc844378a1776b09f7623aa0b",
+          "files": [
+            "green-dream/guest-notes/ethical-framework/index.html"
+          ]
+        },
+        {
+          "message": "Add public revision history for The Guest's Notes",
+          "url": "https://github.com/iYakuza/landing-page/commit/27c50cc02344e14ae91a944413d469420834123f",
+          "files": [
+            "green-dream/guest-notes/revision-history/index.html"
+          ]
+        },
+        {
+          "message": "Clarify Guest Notes roles and link glossary and revision history",
+          "url": "https://github.com/iYakuza/landing-page/commit/98dce54dfba294149cb48543f7134b1668343173",
+          "files": [
+            "green-dream/guest-notes/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "b8cb8fd4ba981499c7bf0f211d2c3d1161ca31ba",
       "timestamp": "2026-11-13T21:33:07+01:00",
