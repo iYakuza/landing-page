@@ -17,8 +17,8 @@ cases = [
     ("ALTER ROLE app_user SET log_min_messages TO warning;", "", 1),
     ('ALTER ROLE "app_user" SET "log_min_messages" TO warning;', "", 1),
     ("ALTER DATABASE appdb SET log_min_messages = warning;", "", 1),
-    ("\\\\restrict abc123\\nSET log_min_messages TO warning;", "", 1),
-    ("\\\\restrict abc123\\nALTER ROLE app_user SET log_min_messages TO warning;", "", 1),
+    ("\\restrict abc123\nSET log_min_messages TO warning;", "", 1),
+    ("\\restrict abc123\nALTER ROLE app_user SET log_min_messages TO warning;", "", 1),
     ("GRANT app_role TO log_min_messages_reader;", "GRANT app_role TO log_min_messages_reader;", 0),
     ("ALTER ROLE app_user SET statement_timeout TO '5s';", "ALTER ROLE app_user SET statement_timeout TO '5s';", 0),
 ]
