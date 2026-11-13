@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T03:28:15.639744Z",
-  "last_processed_sha": "061436214aa3c6fdcaa2e01b8013008721536a84",
+  "updated_at": "2026-11-13T18:39:46.511638Z",
+  "last_processed_sha": "c683c9631a1f18ff489697f0d75189e485f23d18",
   "entries": [
+    {
+      "id": "c683c9631a1f18ff489697f0d75189e485f23d18",
+      "timestamp": "2026-11-13T19:39:33+01:00",
+      "category": "FEATURE",
+      "component": "Website",
+      "title": "New capabilities for Website",
+      "description": "This update brings together Add manual authenticated Google Drive receiver ping. It updates google-drive-receiver-ping.yml.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/google-drive-receiver-ping.yml"
+      ],
+      "commits": [
+        {
+          "message": "Add manual authenticated Google Drive receiver ping",
+          "url": "https://github.com/iYakuza/landing-page/commit/c683c9631a1f18ff489697f0d75189e485f23d18",
+          "files": [
+            ".github/workflows/google-drive-receiver-ping.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "061436214aa3c6fdcaa2e01b8013008721536a84",
       "timestamp": "2026-11-13T04:28:08+01:00",
