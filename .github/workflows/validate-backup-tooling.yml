@@ -1,9 +1,6 @@
 name: Validate backup tooling
 
 on:
-  push:
-    branches:
-      - "backup/**"
   pull_request:
     branches:
       - main
@@ -15,8 +12,17 @@ on:
       - "scripts/create_backup_manifest.py"
       - "scripts/verify_backup_manifest.py"
       - "scripts/**"
+      - ".github/workflows/google-drive-content-backup.yml"
+      - ".github/workflows/recover-google-drive-backup.yml"
+      - ".github/workflows/restore-supabase-backup.yml"
+      - ".github/workflows/validate-supabase-restore.yml"
+      - "google-apps-script/**"
       - "supabase/functions/google-drive-oauth-callback/**"
       - "supabase/config.toml"
+
+concurrency:
+  group: backup-validation
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -42,6 +48,7 @@ jobs:
           python3 -m py_compile \
             scripts/backup_storage.py \
             scripts/upload_drive_backup.py \
+            scripts/upload_apps_script_backup.py \
             scripts/create_backup_manifest.py \
             scripts/verify_backup_manifest.py \
             scripts/export_edge_env_inventory.py \
@@ -49,57 +56,75 @@ jobs:
             scripts/generate_restore_sql.py \
             scripts/verify_database_restore.py \
             scripts/verify_storage_security.py \
+            scripts/verify_storage_owners.py \
             scripts/verify_auth_restore.py \
             scripts/verify_vault_restore.py \
+            scripts/verify_migration_ledger.py \
             scripts/apply_sql_safely.py \
             scripts/create_restore_expectations.py \
-            scripts/test_restore_expectations.py
+            scripts/test_backup_manifest.py \
+            scripts/test_restore_expectations.py \
+            scripts/build_recovery_site.py \
+            scripts/package_recovery_site.py \
+            scripts/download_apps_script_backup.py \
+            scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py \
+            scripts/test_download_apps_script_backup.py
 
-      - name: Test backup manifest generation and verification
-        run: |
-          set -euo pipefail
-          TEST_DIR="$(mktemp -d)"
-          trap 'rm -rf "$TEST_DIR"' EXIT
-          mkdir -p "$TEST_DIR/database"
-          printf 'schema test\n' > "$TEST_DIR/database/schema.sql"
-          printf 'data test\n' > "$TEST_DIR/database/data.sql"
-          python3 scripts/create_backup_manifest.py "$TEST_DIR"
-          python3 scripts/verify_backup_manifest.py "$TEST_DIR"
-          printf 'tamper\n' >> "$TEST_DIR/database/data.sql"
-          if python3 scripts/verify_backup_manifest.py "$TEST_DIR"; then
-            echo "::error::Manifest verifier did not detect modified content"
-            exit 1
-          fi
+      - name: Test strict backup manifest generation and verification
+        run: python3 scripts/test_backup_manifest.py
 
       - name: Test database restore expectation parsing
         run: python3 scripts/test_restore_expectations.py
+
+      - name: Test offline recovery website generation
+        run: |
+          set -euo pipefail
+          python3 scripts/test_build_recovery_site.py
+          python3 scripts/test_backup_wordpress_archive.py
+
+      - name: Test authenticated backup downloader
+        run: python3 scripts/test_download_apps_script_backup.py
+
+      - name: Test SQL role-dump sanitizer
+        run: python3 scripts/test_apply_sql_safely.py
 
       - name: Test Auth and Vault restore SQL generation
         run: |
           set -euo pipefail
           TEST_DIR="$(mktemp -d)"
           trap 'rm -rf "$TEST_DIR"' EXIT
-          mkdir -p "$TEST_DIR/auth" "$TEST_DIR/secrets" "$TEST_DIR/storage"
+          mkdir -p "$TEST_DIR/auth" "$TEST_DIR/secrets" "$TEST_DIR/storage" "$TEST_DIR/database"
+          printf '[{"version":"20260101000000","name":"initial_schema"}]' > "$TEST_DIR/database/migration-ledger.json"
           printf '[{"id":"00000000-0000-0000-0000-000000000001","email":"owner@example.invalid"}]' > "$TEST_DIR/auth/users.json"
           printf '[{"id":"00000000-0000-0000-0000-000000000002","user_id":"00000000-0000-0000-0000-000000000001","provider":"email"}]' > "$TEST_DIR/auth/identities.json"
+          printf '[{"name":"id","generated":false},{"name":"email","generated":false},{"name":"confirmed_at","generated":true}]' > "$TEST_DIR/auth/users-columns.json"
+          printf '[{"name":"id","generated":false},{"name":"user_id","generated":false},{"name":"provider","generated":false},{"name":"email","generated":true}]' > "$TEST_DIR/auth/identities-columns.json"
           printf '[{"name":"test_secret","description":"test description","secret":"dummy-secret"}]' > "$TEST_DIR/secrets/vault-secrets.json"
           cat > "$TEST_DIR/storage/policies.json" <<'JSON'
           [{"schemaname":"storage","tablename":"objects","policyname":"test policy","permissive":"PERMISSIVE","roles":["anon","authenticated"],"cmd":"SELECT","qual":"(bucket_id = 'poetry-media'::text)","with_check":null}]
           JSON
           cat > "$TEST_DIR/storage/security-settings.json" <<'JSON'
-          {"tables":[{"table":"objects","rowsecurity":true,"forcerowsecurity":false}],"grants":[]}
+          {"tables":[{"table":"objects","owner":"postgres","rowsecurity":true,"forcerowsecurity":false}],"grants":[{"table":"objects","grantee":"authenticated","grantor":"postgres","privilege":"SELECT","grantable":false}]}
           JSON
           python3 scripts/generate_restore_sql.py --root "$TEST_DIR"
           grep -Fq 'create policy "test policy" on "storage"."objects"' "$TEST_DIR/restore/storage-policies.sql"
-          grep -Fq 'alter table "storage"."objects" enable row level security' "$TEST_DIR/restore/storage-policies.sql"
+          if grep -Eiq '^(SET ROLE|GRANT |REVOKE |ALTER TABLE )' "$TEST_DIR/restore/storage-policies.sql"; then echo "::error::Restore SQL attempts to alter Supabase-managed Storage ownership, ACLs, or RLS flags"; exit 1; fi
           grep -q 'jsonb_populate_recordset(null::auth.users' "$TEST_DIR/restore/auth-restore.sql"
+          grep -Fq 'insert into auth.users ("id", "email") select "id", "email"' "$TEST_DIR/restore/auth-restore.sql"
+          grep -Fq 'insert into auth.identities ("id", "user_id", "provider") select "id", "user_id", "provider"' "$TEST_DIR/restore/auth-restore.sql"
           grep -q "vault.create_secret('dummy-secret', 'test_secret'" "$TEST_DIR/restore/vault-restore.sql"
+          grep -q "insert into supabase_migrations.schema_migrations" "$TEST_DIR/restore/migration-ledger-restore.sql"
+          grep -q "initial_schema" "$TEST_DIR/restore/migration-ledger-restore.sql"
 
       - name: Validate YAML and Supabase TOML syntax
         run: |
           set -euo pipefail
           ruby -e 'require "yaml"; ARGV.each { |f| YAML.load_file(f, aliases: true); puts "YAML OK: #{f}" }' \
             .github/workflows/google-drive-backup.yml \
+            .github/workflows/google-drive-content-backup.yml \
+            .github/workflows/recover-google-drive-backup.yml \
+            .github/workflows/restore-supabase-backup.yml \
+            .github/workflows/validate-supabase-restore.yml \
             .github/workflows/validate-backup-tooling.yml
           python3 -c 'import tomllib; tomllib.load(open("supabase/config.toml", "rb")); print("Supabase TOML OK")'
 
@@ -110,16 +135,119 @@ jobs:
 
       - run: deno check supabase/functions/google-drive-oauth-callback/index.ts
       - run: deno check scripts/restore_storage.ts
+      - name: Validate Google Apps Script JavaScript syntax
+        run: node --check < google-apps-script/Code.gs
+      - name: Test Google Apps Script receiver authentication, retries, and finalization
+        run: |
+          node --check google-apps-script/test_receiver.js
+          node google-apps-script/test_receiver.js
 
       - name: Start disposable Supabase Storage integration-test target
         run: |
           set -euo pipefail
           LOCAL_PROJECT="$RUNNER_TEMP/storage-restore-test-project"
           mkdir -p "$LOCAL_PROJECT/supabase/migrations"
-          printf 'project_id = "storage-restore-test"\n' > "$LOCAL_PROJECT/supabase/config.toml"
-          supabase --workdir "$LOCAL_PROJECT" start
+          python3 - <<'PY' > "$RUNNER_TEMP/storage-restore-ports"
+          import socket
+          for base in range(55000, 60000):
+              opened = []
+              try:
+                  for port in (base, base + 1, base + 2):
+                      sock = socket.socket()
+                      sock.bind(("127.0.0.1", port))
+                      opened.append(sock)
+                  print(base, base + 1, base + 2)
+                  break
+              except OSError:
+                  pass
+              finally:
+                  for sock in opened:
+                      sock.close()
+          else:
+              raise SystemExit("No free local Supabase test ports are available.")
+          PY
+          read -r API_PORT DB_PORT SHADOW_PORT < "$RUNNER_TEMP/storage-restore-ports"
+          printf 'project_id = "storage-restore-test"\n[api]\nport = %s\n[db]\nport = %s\nshadow_port = %s\n' "$API_PORT" "$DB_PORT" "$SHADOW_PORT" > "$LOCAL_PROJECT/supabase/config.toml"
+          if ! supabase --workdir "$LOCAL_PROJECT" start --exclude studio,mailpit,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta > "$RUNNER_TEMP/storage-restore-start.log" 2>&1; then
+            sed -E '/(secret key:|publishable key:|sb_secret_|sb_publishable_)/Id' "$RUNNER_TEMP/storage-restore-start.log" | tail -n 80
+            exit 1
+          fi
           touch "$RUNNER_TEMP/storage-restore.started"
           supabase --workdir "$LOCAL_PROJECT" status -o env > "$RUNNER_TEMP/storage-restore.env"
+          if ! grep -q '^SERVICE_ROLE_KEY=' "$RUNNER_TEMP/storage-restore.env"; then
+            echo "::error::Local Supabase CLI did not expose the local Storage admin key required for integration testing."
+            exit 1
+          fi
+          printf "Local Supabase environment is ready for the isolated Storage test.\n"
+
+      - name: Test complete Auth user and identity restore round trip
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/storage-restore.env"
+          set +a
+          ROOT="$RUNNER_TEMP/auth-restore-fixture"
+          mkdir -p "$ROOT/auth" "$ROOT/database" "$ROOT/secrets" "$ROOT/storage"
+          USER_ID="$(python3 -c 'import uuid; print(uuid.uuid4())')"
+          EMAIL="backup-restore-test-${GITHUB_RUN_ID}@example.invalid"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at) values ('$USER_ID', 'authenticated', 'authenticated', '$EMAIL', 'test-password-hash', now(), now(), now())"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "insert into auth.identities (id, user_id, provider_id, identity_data, provider, created_at, updated_at) values (gen_random_uuid(), '$USER_ID', '$EMAIL', jsonb_build_object('sub', '$USER_ID', 'email', '$EMAIL'), 'email', now(), now())"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select coalesce(json_agg(to_jsonb(u) order by id),'[]'::json) from auth.users u where id='$USER_ID'::uuid" > "$ROOT/auth/users.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select coalesce(json_agg(to_jsonb(i) order by id),'[]'::json) from auth.identities i where user_id='$USER_ID'::uuid" > "$ROOT/auth/identities.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select coalesce(json_agg(json_build_object('name',attname,'generated',attgenerated <> '') order by attnum),'[]'::json) from pg_attribute where attrelid='auth.users'::regclass and attnum > 0 and not attisdropped" > "$ROOT/auth/users-columns.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select coalesce(json_agg(json_build_object('name',attname,'generated',attgenerated <> '') order by attnum),'[]'::json) from pg_attribute where attrelid='auth.identities'::regclass and attnum > 0 and not attisdropped" > "$ROOT/auth/identities-columns.json"
+          printf '[]\n' > "$ROOT/database/migration-ledger.json"
+          printf '[]\n' > "$ROOT/secrets/vault-secrets.json"
+          printf '[]\n' > "$ROOT/storage/policies.json"
+          printf '{"tables":[],"grants":[]}\n' > "$ROOT/storage/security-settings.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "delete from auth.users where id='$USER_ID'::uuid"
+          python3 scripts/generate_restore_sql.py --root "$ROOT"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$ROOT/restore/auth-restore.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_auth_restore.py "$ROOT"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "delete from auth.users where id='$USER_ID'::uuid"
+          rm -rf "$ROOT"
+
+      - name: Test migration ledger restore round trip
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/storage-restore.env"
+          set +a
+          ROOT="$RUNNER_TEMP/migration-ledger-restore-fixture"
+          mkdir -p "$ROOT/database" "$ROOT/auth" "$ROOT/secrets" "$ROOT/storage"
+          cat > "$ROOT/database/migration-ledger.json" <<'JSON'
+          [{"version":"20990101010101","statements":["select 1;"],"name":"backup_round_trip_test","created_by":"ci","idempotency_key":"00000000-0000-4000-8000-000000000013","rollback":["select 1;"]}]
+          JSON
+          printf '[]\n' > "$ROOT/auth/users.json"
+          printf '[]\n' > "$ROOT/auth/identities.json"
+          printf '[]\n' > "$ROOT/secrets/vault-secrets.json"
+          printf '[]\n' > "$ROOT/storage/policies.json"
+          printf '{"tables":[],"grants":[]}\n' > "$ROOT/storage/security-settings.json"
+          python3 scripts/generate_restore_sql.py --root "$ROOT"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -q -c "create schema if not exists supabase_migrations; create table if not exists supabase_migrations.schema_migrations (version text primary key, statements text[], name text, created_by text, idempotency_key uuid, rollback text[])"
+          echo "Disposable migration-ledger fixture is ready."
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$ROOT/restore/migration-ledger-restore.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_migration_ledger.py "$ROOT"
+          rm -rf "$ROOT"
+
+      - name: Test Storage ACL and policy restore round trip
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/storage-restore.env"
+          set +a
+          ROOT="$RUNNER_TEMP/storage-security-restore-fixture"
+          mkdir -p "$ROOT/database" "$ROOT/auth" "$ROOT/secrets" "$ROOT/storage"
+          printf '[]\n' > "$ROOT/database/migration-ledger.json"
+          printf '[]\n' > "$ROOT/auth/users.json"
+          printf '[]\n' > "$ROOT/auth/identities.json"
+          printf '[]\n' > "$ROOT/secrets/vault-secrets.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select coalesce(json_agg(json_build_object('schemaname',schemaname,'tablename',tablename,'policyname',policyname,'permissive',permissive,'roles',roles,'cmd',cmd,'qual',qual,'with_check',with_check) order by tablename,policyname),'[]'::json) from pg_policies where schemaname='storage'" > "$ROOT/storage/policies.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select json_build_object('tables',(select coalesce(json_agg(json_build_object('table',c.relname,'owner',pg_get_userbyid(c.relowner),'rowsecurity',c.relrowsecurity,'forcerowsecurity',c.relforcerowsecurity) order by c.relname),'[]'::json) from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='storage' and c.relkind in ('r','p') and c.relname in ('buckets','objects')),'grants',(select coalesce(json_agg(json_build_object('table',c.relname,'grantee',coalesce(pg_get_userbyid(a.grantee),'PUBLIC'),'grantor',pg_get_userbyid(a.grantor),'privilege',a.privilege_type,'grantable',a.is_grantable) order by c.relname,coalesce(pg_get_userbyid(a.grantee),'PUBLIC'),pg_get_userbyid(a.grantor),a.privilege_type),'[]'::json) from pg_class c join pg_namespace n on n.oid=c.relnamespace cross join lateral aclexplode(coalesce(c.relacl,acldefault('r',c.relowner))) a where n.nspname='storage' and c.relkind in ('r','p') and c.relname in ('buckets','objects') and a.grantee <> c.relowner and a.grantee <> a.grantor and a.grantee <> (select oid from pg_roles where rolname = current_user)))::text" > "$ROOT/storage/security-settings.json"
+          python3 scripts/generate_restore_sql.py --root "$ROOT"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -q -f "$ROOT/restore/storage-policies.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_storage_security.py "$ROOT"
+          rm -rf "$ROOT"
 
       - name: Test Storage bucket and object restoration end to end
         run: |
@@ -136,15 +264,23 @@ jobs:
           [{"id":"poetry-media","name":"poetry-media","public":true,"file_size_limit":52428800,"allowed_mime_types":["text/plain"]},{"id":"poetry-media-staging","name":"poetry-media-staging","public":false,"file_size_limit":52428800,"allowed_mime_types":["text/plain"]},{"id":"vha-post-media","name":"vha-post-media","public":true,"file_size_limit":52428800,"allowed_mime_types":["text/plain"]}]
           JSON
           cat > "$ROOT/storage/objects-metadata.json" <<JSON
-          [{"bucket_id":"poetry-media","name":"hello.txt","metadata":{"mimetype":"text/plain","size":$BYTES,"cacheControl":"3600"},"user_metadata":{"source":"validation"}}]
+          [{"bucket_id":"poetry-media","name":"hello.txt","owner_id":"restore-test-owner","owner":"00000000-0000-0000-0000-000000000001","metadata":{"mimetype":"text/plain","size":$BYTES,"cacheControl":"3600"},"user_metadata":{"source":"validation"}}]
           JSON
           cat > "$ROOT/storage/objects/storage-manifest.json" <<JSON
           {"object_count":1,"objects":[{"bucket":"poetry-media","path":"hello.txt","bytes":$BYTES,"sha256":"$SHA"}]}
           JSON
-          SUPABASE_URL="$API_URL" SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+          SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="${SECRET_KEY:-$SERVICE_ROLE_KEY}" \
             deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$ROOT"
-          SUPABASE_URL="$API_URL" SUPABASE_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
-            python3 scripts/backup_storage.py --output "$ROOT/storage/objects"
+          mkdir -p "$ROOT/database" "$ROOT/auth" "$ROOT/secrets"
+          printf '[]\n' > "$ROOT/database/migration-ledger.json"
+          printf '[]\n' > "$ROOT/auth/users.json"
+          printf '[]\n' > "$ROOT/auth/identities.json"
+          printf '[]\n' > "$ROOT/secrets/vault-secrets.json"
+          python3 scripts/generate_restore_sql.py --root "$ROOT"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$ROOT/restore/storage-owners.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_storage_owners.py "$ROOT"
+          SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="${SECRET_KEY:-$SERVICE_ROLE_KEY}" \
+            python3 scripts/backup_storage.py --output "$ROOT/storage/objects" --buckets-file "$ROOT/storage/buckets.json"
           python3 scripts/verify_storage_export.py "$ROOT"
 
       - name: Stop disposable Storage integration-test target
@@ -155,4 +291,4 @@ jobs:
             supabase --workdir "$RUNNER_TEMP/storage-restore-test-project" stop --no-backup
           fi
           rm -rf "$RUNNER_TEMP/storage-restore-test-project" "$RUNNER_TEMP/storage-restore-fixture"
-          rm -f "$RUNNER_TEMP/storage-restore.env" "$RUNNER_TEMP/storage-restore.started"
+          rm -f "$RUNNER_TEMP/storage-restore.env" "$RUNNER_TEMP/storage-restore-start.log" "$RUNNER_TEMP/storage-restore.started" "$RUNNER_TEMP/storage-restore-ports"

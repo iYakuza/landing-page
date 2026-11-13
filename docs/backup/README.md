@@ -1,95 +1,132 @@
 # Green Dream backup system
 
-This workflow creates a daily encrypted snapshot and uploads it to the app-managed **Green Dream Backups** folder in Google Drive. Backup payloads are never committed to this public repository.
+> **Canonical implementation:** [PR #20 — Green Dream encrypted Google Drive backup and recovery (resumable Apps Script)](https://github.com/iYakuza/landing-page/pull/20). Continue development in this PR and its `backup/apps-script-transfer-redesign` branch. Do not create another transfer architecture or parallel backup PR. The selected transfer is the existing Apps Script receiver using 4 MiB encrypted chunks; no new Google OAuth client, refresh token, or rclone configuration is required. Earlier alternatives are closed and retained only as history.
 
-## What is captured
+For the offline content-recovery website, portable ZIP artifact, and authenticated recovery workflow, see [CONTENT-RECOVERY.md](CONTENT-RECOVERY.md).
 
-- Supabase roles, application schema, and application data using the Supabase CLI.
-- The Supabase migration ledger, separately from the SQL dump.
-- Supabase Auth user and identity rows, exported separately because managed Auth schemas are excluded from the standard CLI schema dump. These files contain sensitive personal data and password hashes.
-- Supabase Vault secret values, exported from the decrypted Vault view into the encrypted archive.
-- Edge Function environment variable names (not their values), to provide a recovery inventory.
-- All objects from the three current Storage buckets, plus bucket configuration, object metadata, custom Storage RLS policies, and the bucket/object RLS and ACL settings.
-- A Git bundle containing the repository history and the checked-in Edge Function source.
-- A SHA-256 manifest for the files in each archive.
+This workflow is designed to create an encrypted snapshot of the Green Dream Supabase project and store it in the user's private Google Drive. It is not operational until the Apps Script receiver and GitHub Actions secrets are configured and a real backup plus recovery test succeeds.
 
-The complete archive is encrypted with GPG AES-256 before it is uploaded. The uploader verifies the uploaded file size and, when Drive returns it, the MD5 checksum. It retains the 30 newest backup archives in the app-created Drive folder.
+## What the backup captures
 
-## Important security properties
+- Supabase database roles, application schema, and application data.
+- The complete applied migration ledger, separately from the SQL dump. This preserves migration history; it does not recreate missing historical migration files.
+- Supabase Auth users and identities, including password hashes. Active sessions, MFA factors, and Auth audit history are not restored.
+- Supabase Vault secret values, re-encrypted under the destination project's Vault key during recovery.
+- Storage bucket configuration, every bucket's objects, object metadata and ownership fields, custom Storage RLS policies, and a snapshot of managed Storage table security settings.
+- A Git bundle containing repository history and checked-in Edge Function source. On 13 November 2026, all five deployed Edge Functions were compared with their checked-in `index.ts` files and matched byte-for-byte.
+- An inventory of Edge Function environment variable names. Runtime secret values are not exported.
 
-- The workflow runs only on a schedule or manual dispatch; it does not run for pull requests from untrusted code.
-- GitHub Actions permissions are read-only for repository contents.
-- No backup data is written to the public GitHub repository or retained as a workflow artifact.
-- The workflow temporarily handles unencrypted database and media snapshots on an ephemeral GitHub-hosted runner for the restore test and encryption. The runner is discarded after the job; temporary files are explicitly cleaned, and logs suppress row values, tokens, secret contents, and object paths. GitHub Actions is therefore part of the trusted processing boundary.
-- Secrets are read from GitHub Actions repository secrets.
-- The Google OAuth app requests only the drive.file scope; it creates and manages its own backup folder and files.
-- Backup archives contain private user data. Keep the encryption passphrase in a password manager and maintain a separate secure recovery copy. Without it, the archives cannot be decrypted.
+The full-system workflow creates a SHA-256 manifest, packages the snapshot, encrypts the archive with GPG AES-256, verifies that the encrypted archive can be decrypted and read, then uploads encrypted chunks to the Apps Script receiver. Full-system backups use `system-...` IDs; the separate content/media workflow uses `content-...` IDs. Restore tools filter by type so a content-only archive cannot be mistaken for a full Supabase snapshot.
 
-## One-time setup still required
+## Security and operating boundaries
 
-### 1. Google OAuth app
+- GitHub Actions handles decrypted database, Auth, Vault, and media data temporarily on an ephemeral hosted runner so it can perform a full restore test before encryption. Treat GitHub Actions and the repository's secret store as part of the trusted security boundary.
+- The receiver executes as the Google account that deploys it and stores files in that account's private Drive folder.
+- The Apps Script web-app URL is publicly reachable, but each request must include a high-entropy shared token. The token is stored in Apps Script Script Properties and GitHub Actions repository secrets; it must never be committed or pasted into chat.
+- Only encrypted archive chunks are uploaded to Drive. The receiver verifies each chunk's SHA-256 and creates a manifest after all parts are present. It does not apply retention or cleanup: existing Drive backup files are never automatically deleted.
+- Apps Script and Google Drive quotas, account policies, and service availability apply. Google may restrict public web-app access or the receiver deployment. This is a deliberate no-OAuth-verification trade-off, not a guarantee of uninterrupted service.
+- Keep the encryption passphrase in a password manager and maintain a separate secure recovery copy. Without it, the archive cannot be decrypted.
+- The scheduled workflow remains disabled until the first live backup and recovery procedure have been verified.
 
-The Google Cloud OAuth app must be switched from **Testing** to **Production** before the final authorization. Google documents that test-user authorizations expire after seven days, including refresh tokens. The existing drive.file scope is non-sensitive, but Google may still show an unverified-app warning until basic verification is completed.
+## One-time setup
 
-The registered redirect URI must remain exactly:
+### 1. Update the existing Google Apps Script receiver
 
-https://oeyxsqocldlovhsmzcjw.supabase.co/functions/v1/google-drive-oauth-callback
+The existing **Green Dream Backup Receiver** project and its private Drive folder are the destination. Do not create a second project, create a second folder, reset the token, or change the folder ID. The repository's `google-apps-script/README.md` contains the controlled update procedure. After the code passes validation and deployment is explicitly authorised, update the existing project and deploy a new version while preserving its existing web-app URL and Script Properties.
 
-### 2. Supabase Edge Function secrets
+The web-app endpoint must be reachable by GitHub Actions. The shared token is required for upload, inventory, listing, and download operations; no backup metadata or file contents are returned without authentication.
 
-After the OAuth callback function is deployed, set these two Edge Function secrets in Supabase:
+### 2. Add GitHub Actions secrets
 
-- GOOGLE_CLIENT_ID
-- GOOGLE_CLIENT_SECRET
+In the repository, open **Settings → Secrets and variables → Actions**.
 
-Do not put either value in this repository or in ChatGPT.
+Add the repository variable:
 
-### 3. GitHub Actions repository secrets
+- `BACKUP_ENABLED` = `false`. Keep it false until recovery is verified.
 
-First, add a repository variable under **Settings → Secrets and variables → Actions → Variables**:
-
-- BACKUP_ENABLED = false (keep disabled until every secret below is configured and verified; set it to true only when ready to activate scheduled backups).
-
-Then add these repository secrets under **Settings → Secrets and variables → Actions → Secrets**:
+Add these repository secrets:
 
 | Secret | Value |
 |---|---|
-| SUPABASE_DB_URL | PostgreSQL connection string from Supabase Dashboard → Connect. Use the session pooler if direct IPv6 connectivity is unavailable. URL-encode special characters in the password. |
-| SUPABASE_SERVICE_ROLE_KEY | Legacy service-role key from Supabase API keys. Never publish it. |
-| GOOGLE_CLIENT_ID | Client ID of the new Google Web application OAuth client. |
-| GOOGLE_CLIENT_SECRET | Client secret of that same Web application client. |
-| GOOGLE_REFRESH_TOKEN | Token returned by the one-time browser authorization flow. |
-| BACKUP_ENCRYPTION_PASSPHRASE | A unique, randomly generated passphrase of at least 32 characters, stored in a password manager with a separate secure recovery copy. |
+| `SUPABASE_DB_URL` | PostgreSQL connection string from Supabase Dashboard → Connect. Use a compatible pooler connection if needed; URL-encode special characters in the password. |
+| `SUPABASE_SECRET_KEY` | Current Supabase Secret API key from Settings → API Keys. Never publish it. |
+| `GOOGLE_DRIVE_INGEST_URL` | The existing deployed Apps Script web-app URL ending in `/exec`. |
+| `GOOGLE_DRIVE_INGEST_TOKEN` | The existing token stored as the Apps Script `INGEST_TOKEN` property. Do not rotate it as part of this update. |
+| `BACKUP_ENCRYPTION_PASSPHRASE` | A unique randomly generated passphrase of at least 32 characters. Store it in a password manager and keep a separate secure recovery copy. |
 
-### 4. Authorize Google Drive
+Do not paste any secret into ChatGPT, commit it, or include it in a public issue or pull request.
 
-After the callback function is deployed and its two Supabase secrets are set, open:
+## First controlled run
 
-https://oeyxsqocldlovhsmzcjw.supabase.co/functions/v1/google-drive-oauth-callback?action=start
+The backup workflow supports manual dispatch from the `backup/` branch for the initial controlled test. This manual run does not require setting `BACKUP_ENABLED` to true. The scheduled run is restricted to `main` and requires `BACKUP_ENABLED=true`.
 
-Sign in to the Google account that should own the backups and approve the drive.file permission. Copy the one-time refresh token shown on the callback page directly into the GitHub Actions secret GOOGLE_REFRESH_TOKEN. Never paste it into ChatGPT.
+Before considering the system operational:
 
-### 5. Run the first backup
+1. Confirm that the existing Apps Script receiver has been updated to the validated code while preserving its URL and Script Properties; confirm all listed GitHub Actions secrets are present. No new Google OAuth credentials are required.
+2. Run **GitHub → Actions → Green Dream Google Drive backup → Run workflow**, selecting `main` after the PR is merged (or the consolidated backup branch before merge).
+3. Confirm that the workflow completes the encrypted upload. Backup creation no longer depends on a Supabase restore test.
+4. In the private Drive folder, confirm that the completed backup manifest and all referenced encrypted parts exist.
+5. Run **Validate Supabase backup restoration** with the new `system-...` backup ID. This downloads the archive and performs a full restore into a disposable local Supabase instance. After the workflow is merged to `main`, this validation also runs automatically after successful scheduled or manual backups.
+6. When a separate fresh hosted Supabase project is available, use **Restore Green Dream into a fresh Supabase project** for the hosted recovery drill. Confirm the website, CMS, authentication, submissions, and media.
+7. Only after successful backup, local restore validation, and hosted recovery should the PR be considered for merge and the scheduled backup variable be enabled.
 
-Open **GitHub → Actions → Green Dream Google Drive backup → Run workflow**. Confirm that the workflow succeeds and that the encrypted archive appears in the Google Drive folder.
+A passing CI test is not a substitute for the first live upload and independent recovery drill. Until those steps are complete, keep `BACKUP_ENABLED=false`.
 
-## Backup contents and limitations
+## Dedicated Supabase restoration
 
-The CLI dump excludes Supabase-managed schemas. Auth users and identities are therefore exported as JSON alongside the database dump, with generated SQL restore statements in the restore folder. Supabase Vault values are exported from the decrypted view and included only inside the encrypted archive; generated SQL recreates them with vault.create_secret(), encrypting them under the destination project's own Vault key. The restore script restores users and identities, not sessions, MFA factors, or audit history. However, Edge Function runtime environment secret values are not readable through the available project connection and are not included; the archive records their names only. The current custom runtime values to preserve separately include TURNSTILE_SECRET_KEY, WEBFLOW_COLLECTION_ID, CONTACT_RATE_LIMIT_SALT, RESEND_API_KEY, SYS_ALLOWED_ORIGIN, SYS_TRANSMISSION_RATE_SALT, GOOGLE_CLIENT_ID, and GOOGLE_CLIENT_SECRET. Supabase-injected variables such as SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are platform-provided. Auth provider settings, project API keys, database connection credentials, DNS/custom-domain configuration, and other dashboard-level settings are also not included. Preserve these separately in a password manager or another secure configuration record. In particular, keep the GitHub Actions secrets SUPABASE_DB_URL, SUPABASE_SERVICE_ROLE_KEY, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN, and BACKUP_ENCRYPTION_PASSPHRASE, plus the BACKUP_ENABLED repository variable. Edge Function source is versioned in this repository, but runtime secrets must be re-entered during recovery.
+Supabase restoration is deliberately separate from the Google Drive backup workflow. Creating and uploading a backup no longer depends on successfully restoring it into a local or hosted Supabase instance. This prevents a destination-specific PostgreSQL/Supabase compatibility problem from blocking creation of a valid encrypted backup.
 
-Before each upload, the workflow also attempts a full restore into a disposable local Supabase stack on the GitHub runner. It verifies database table counts, Auth user IDs and password hashes, Vault secret digests, Storage policies/ACLs, and each restored Storage object SHA-256 digest. This isolated test environment does not touch the live project. The first real run must still succeed before the backup system is considered operational.
+The separate **Restore Green Dream into a fresh Supabase project** workflow (\`.github/workflows/restore-supabase-backup.yml\`) downloads and verifies a selected encrypted Drive backup, decrypts it only on an ephemeral GitHub Actions runner, checks that the destination is empty, and restores database roles/schema/data, migration history, Auth users and identities, Vault secrets, Storage policies, buckets, object bytes, and object ownership. It then runs the existing restore verification scripts.
 
-## Restore outline
+### Safety rules
 
-1. Decrypt the .gpg archive with the separately stored passphrase.
-2. Verify all extracted files against backup-manifest.json.
-3. Provision a compatible Supabase project and restore roles.sql and schema.sql.
-4. Restore Auth users and identities with restore/auth-restore.sql only into a fresh, compatible Auth schema. It does not restore active sessions or MFA factors.
-5. Enable Supabase Vault, then run restore/vault-restore.sql. The values are re-encrypted under the target project's Vault key.
-6. Run restore/storage-policies.sql after the Storage schema and application tables exist, then restore data.sql.
-7. Recreate Storage buckets with the captured configuration and upload their objects, preserving content type, cache control, and user metadata.
-8. Deploy the checked-in Edge Functions and restore their runtime secrets from the separate secure configuration record.
-9. Reconfigure Auth providers, keys, domains, and other project-level settings.
-10. Verify the website, CMS, authentication, submissions, and media before switching traffic.
+- Restore is manual only. It never runs on a schedule.
+- It requires an explicit confirmation that the destination is a new, empty Supabase project.
+- It refuses the known production project URL and checks the database hostname and username for the production project reference.
+- It checks that application tables, Auth users/identities, Storage buckets/objects, and Vault secrets are empty before making changes.
+- It never targets or modifies the production project intentionally. Never configure the restore secrets with production credentials.
+- Decrypted data is removed from the ephemeral runner at the end of the job.
+- The workflow is a separate-project restore, not a project clone: deployed Edge Function source is included in the encrypted archive, but functions are not automatically deployed to the destination. Project-level dashboard settings and Edge Function runtime secret values still need separate configuration.
 
-The current live migration ledger has 33 entries, while the repository originally contained only two migration files with timestamps that do not match the live ledger. The first backup preserves the live ledger and current schema/data snapshot; it does not pretend that missing historical migration SQL has been reconstructed.
+The **Validate Supabase backup restoration** workflow is independent of backup creation. It can be dispatched manually against a completed `system-...` backup ID, or it runs automatically after a successful Google Drive backup on `main`. If the backup ID is omitted, it selects the newest completed `system-...` backup only; it will never select a `content-...` archive. It restores into a disposable local Supabase instance on the GitHub runner, checks the restored data, and then destroys only that temporary local instance. It does not modify production or require a second hosted project.
+
+### Restore workflow credentials
+
+The workflow reuses the existing Google Drive receiver and encryption secrets. It requires three destination-only GitHub Actions secrets:
+
+| Secret | Purpose |
+|---|---|
+| \`SUPABASE_RESTORE_DB_URL\` | PostgreSQL connection string for the fresh destination project |
+| \`SUPABASE_RESTORE_URL\` | URL of that same destination project |
+| \`SUPABASE_RESTORE_SECRET_KEY\` | Destination project's secret/service key, used only to upload Storage objects |
+
+These destination credentials are intentionally separate from \`SUPABASE_DB_URL\` and \`SUPABASE_SECRET_KEY\`, which belong to the production source and backup export. Do not reuse production credentials as restore credentials.
+
+The workflow itself adds no paid service: it uses the existing GitHub Actions workflow, existing private Google Drive receiver, and a separate Supabase project. The destination project must remain within the available Supabase plan allowance; paid database backup/PITR features are not required by this workflow. GitHub Actions and Google/Supabase free-tier quotas and limits still apply.
+
+A hosted restoration cannot be declared operational until a real backup has been restored successfully into a separate fresh project. The workflow file and passing automated tests alone do not prove that live restoration has succeeded.
+
+## Known recovery limitations
+
+- Auth users and identities are restored, but sessions, MFA factors, and audit history are not.
+- Checked-in Edge Function source is preserved in the Git bundle. The live deployed functions matched those files at the 13 November 2026 audit, but future dashboard-only edits will not be captured unless committed to the repository. The restore workflow does not deploy functions automatically. Edge Function runtime secret values are not exported; the archive records variable names only. Preserve the actual values separately in a password manager or secure configuration record.
+- Supabase project-level settings such as Auth provider configuration, API keys, database credentials, domains, DNS, and other dashboard settings are not included. Reconfigure these separately during recovery.
+- Backups created before type-prefixed IDs use the legacy untyped ID format. Select those explicitly by ID; automatic selection deliberately ignores them to avoid mixing content-only and full-system archives.
+- Supabase-managed Storage ownership, built-in ACLs, and RLS flags are provisioned by the destination Supabase project. The restore process preserves custom Storage policies and verifies the managed settings rather than attempting to change Supabase-owned table privileges.
+- The current live migration ledger has 33 entries, while the repository contains only two historical migration files. The backup preserves the live ledger and a current schema/data snapshot; it does not claim to reconstruct missing migration SQL.
+- The current Edge Functions may depend on legacy platform-injected environment variables. This backup project does not migrate those functions or rotate their credentials.
+
+## Recovery outline
+
+1. Download every encrypted part referenced by the Drive manifest and concatenate them in numeric part order.
+2. Decrypt the archive using the separately stored passphrase.
+3. Verify extracted files against `backup-manifest.json`.
+4. Provision a compatible Supabase project and restore roles and schema.
+5. Restore and verify the applied migration ledger.
+6. Restore Auth users and identities into a fresh compatible Auth schema.
+7. Enable Supabase Vault, restore secrets, and verify secret names and values.
+8. Restore application data and custom Storage policies.
+9. Recreate Storage buckets, upload objects, restore ownership metadata, and verify object checksums.
+10. Deploy the checked-in Edge Functions and restore their runtime secrets from the separate secure record.
+11. Reconfigure Auth providers, keys, domains, and other project-level settings.
+12. Verify the website, CMS, authentication, submissions, and media before switching traffic.

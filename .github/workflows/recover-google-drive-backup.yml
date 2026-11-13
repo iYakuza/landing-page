@@ -4,13 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       backup_id:
-        description: "Completed backup ID (leave blank to use the newest completed backup)"
+        description: "Completed content backup ID (blank selects the newest content backup; legacy untyped backups require an explicit ID)"
         required: false
         type: string
 
 permissions:
   contents: read
-  actions: write
 
 concurrency:
   group: green-dream-recovery
@@ -18,9 +17,9 @@ concurrency:
 
 jobs:
   recover:
-    if: startsWith(github.ref, 'refs/heads/backup/')
+    if: github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/backup/'))
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     steps:
       - name: Check out recovery tooling
         uses: actions/checkout@v6
@@ -54,6 +53,7 @@ jobs:
           fi
 
       - name: Download and verify encrypted archive from Drive
+        timeout-minutes: 40
         env:
           GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
           GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
@@ -62,9 +62,9 @@ jobs:
           set -euo pipefail
           OUTPUT="$RUNNER_TEMP/green-dream-recovery.gpg"
           if [ -n "$BACKUP_ID" ]; then
-            python3 scripts/download_apps_script_backup.py --backup-id "$BACKUP_ID" --output "$OUTPUT"
+            python3 scripts/download_apps_script_backup.py --backup-type content --backup-id "$BACKUP_ID" --output "$OUTPUT"
           else
-            python3 scripts/download_apps_script_backup.py --output "$OUTPUT"
+            python3 scripts/download_apps_script_backup.py --backup-type content --output "$OUTPUT"
           fi
           test -s "$OUTPUT"
           echo "ENCRYPTED_BACKUP=$OUTPUT" >> "$GITHUB_ENV"
@@ -91,19 +91,6 @@ jobs:
           set -euo pipefail
           python3 scripts/package_recovery_site.py "$RESTORED_ROOT" "$RUNNER_TEMP/green-dream-recovery-site.zip"
           unzip -l "$RUNNER_TEMP/green-dream-recovery-site.zip" | head -n 40
-
-      - name: Remove superseded recovery-site artifacts
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
-            --jq '.artifacts[] | select(.name | startswith("green-dream-recovery-site-")) | .id' |
-            while IFS= read -r artifact_id; do
-              [ -n "$artifact_id" ] || continue
-              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id"
-            done
 
       - name: Publish recovered website artifact
         uses: actions/upload-artifact@v4

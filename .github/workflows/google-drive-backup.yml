@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: read
-  actions: write
 
 concurrency:
   group: green-dream-drive-backup
@@ -15,7 +14,7 @@ concurrency:
 
 jobs:
   backup:
-    if: (vars.BACKUP_ENABLED == 'true' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/heads/backup/'))
+    if: (github.event_name == 'schedule' && vars.BACKUP_ENABLED == 'true' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/backup/')))
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
@@ -44,9 +43,13 @@ jobs:
       - name: Validate the offline recovery website builder
         run: |
           set -euo pipefail
-          python3 -m py_compile scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/download_apps_script_backup.py scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
+          python3 -m py_compile scripts/apps_script_transport.py scripts/test_apps_script_transport.py scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/download_apps_script_backup.py scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py scripts/upload_apps_script_backup.py scripts/download_apps_script_backup.py scripts/test_upload_apps_script_backup.py scripts/test_download_apps_script_backup.py scripts/test_backup_manifest.py
           python3 scripts/test_build_recovery_site.py
           python3 scripts/test_backup_wordpress_archive.py
+          python3 scripts/test_apps_script_transport.py
+          python3 scripts/test_upload_apps_script_backup.py
+          python3 scripts/test_download_apps_script_backup.py
+          python3 scripts/test_backup_manifest.py
 
       - name: Validate required credentials
         shell: bash
@@ -116,6 +119,12 @@ jobs:
             "select coalesce(json_agg(to_jsonb(i)), '[]'::json) from auth.identities i" \
             > "$OUT/auth/identities.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(json_build_object('name',attname,'generated',attgenerated <> '') order by attnum), '[]'::json) from pg_attribute where attrelid='auth.users'::regclass and attnum > 0 and not attisdropped" \
+            > "$OUT/auth/users-columns.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
+            "select coalesce(json_agg(json_build_object('name',attname,'generated',attgenerated <> '') order by attnum), '[]'::json) from pg_attribute where attrelid='auth.identities'::regclass and attnum > 0 and not attisdropped" \
+            > "$OUT/auth/identities-columns.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
             "select coalesce(json_agg(to_jsonb(b) order by id), '[]'::json) from storage.buckets b" \
             > "$OUT/storage/buckets.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
@@ -144,6 +153,7 @@ jobs:
           python3 -m json.tool "$OUT/database/public-content.json" >/dev/null
 
       - name: Download every Supabase Storage object
+        timeout-minutes: 30
         env:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: |
@@ -154,67 +164,11 @@ jobs:
           python3 scripts/build_recovery_site.py "$RUNNER_TEMP/green-dream-backup"
           python3 scripts/package_recovery_site.py "$RUNNER_TEMP/green-dream-backup" "$RUNNER_TEMP/green-dream-recovery-site.zip"
 
-      - name: Install Deno for Storage restore verification
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
+      # Supabase restoration is intentionally handled by the separate
+      # restore-supabase-backup.yml workflow. Backup creation and Drive transfer
+      # must not be blocked by destination-specific restore compatibility.
 
-      - name: Start disposable local Supabase restore target
-        run: |
-          set -euo pipefail
-          LOCAL_PROJECT="$RUNNER_TEMP/green-dream-restore-target"
-          mkdir -p "$LOCAL_PROJECT/supabase/migrations"
-          printf 'project_id = "green-dream-restore-test"\n' > "$LOCAL_PROJECT/supabase/config.toml"
-          if ! supabase --workdir "$LOCAL_PROJECT" start --exclude studio,mailpit,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta > "$RUNNER_TEMP/local-supabase-start.log" 2>&1; then
-            sed -E '/(secret key:|publishable key:|sb_secret_|sb_publishable_)/Id' "$RUNNER_TEMP/local-supabase-start.log" | tail -n 80
-            exit 1
-          fi
-          touch "$RUNNER_TEMP/local-supabase.started"
-
-      - name: Restore snapshot into local Supabase and verify recovery
-        shell: bash
-        run: |
-          set -euo pipefail
-          OUT="$RUNNER_TEMP/green-dream-backup"
-          LOCAL_PROJECT="$RUNNER_TEMP/green-dream-restore-target"
-          supabase --workdir "$LOCAL_PROJECT" status -o env > "$RUNNER_TEMP/local-supabase.env"
-          # The disposable local CLI exposes SERVICE_ROLE_KEY in status -o env.
-          # This local-only JWT is accepted by the restore helper's compatibility path.
-          if ! grep -q '^SERVICE_ROLE_KEY=' "$RUNNER_TEMP/local-supabase.env"; then
-            echo "::error::Local Supabase CLI did not expose its local Storage admin key."
-            exit 1
-          fi
-          printf 'SECRET_KEY=%s\n' "$(sed -n 's/^SERVICE_ROLE_KEY=//p' "$RUNNER_TEMP/local-supabase.env" | head -n 1 | tr -d '"' )" >> "$RUNNER_TEMP/local-supabase.env"
-          set -a
-          source "$RUNNER_TEMP/local-supabase.env"
-          set +a
-          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "create extension if not exists supabase_vault with schema vault"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/database/roles.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/database/schema.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/migration-ledger-restore.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/verify_migration_ledger.py "$OUT"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/auth-restore.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/verify_auth_restore.py "$OUT"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/vault-restore.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/verify_vault_restore.py "$OUT"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/storage-policies.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/database/data.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/verify_storage_security.py "$OUT"
-          SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="$SECRET_KEY" \
-            deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$OUT"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/storage-owners.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/verify_storage_owners.py "$OUT"
-          DATABASE_URL="$DB_URL" python3 scripts/verify_database_restore.py --compare "$OUT/database/table-counts.json"
-
-      - name: Stop disposable local Supabase restore target
-        if: always()
-        continue-on-error: true
-        run: |
-          if [ -f "$RUNNER_TEMP/local-supabase.started" ]; then
-            supabase --workdir "$RUNNER_TEMP/green-dream-restore-target" stop --no-backup
-          fi
-
-      - name: Capture repository and deployed Edge Function source
+      - name: Capture repository and checked-in Edge Function source
         run: |
           set -euo pipefail
           git bundle create "$RUNNER_TEMP/green-dream-backup/repository/landing-page.bundle" --all
@@ -226,6 +180,7 @@ jobs:
           test -s supabase/functions/website-theme/index.ts
           test -s supabase/functions/contact-about-role/index.ts
           test -s supabase/functions/secure-your-soul-transmissions/index.ts
+          test -s supabase/functions/google-drive-oauth-callback/index.ts
           python3 scripts/export_edge_env_inventory.py --source supabase/functions --output "$RUNNER_TEMP/green-dream-backup/metadata/edge-function-env-inventory.json"
 
       - name: Generate checksums and backup manifest
@@ -259,34 +214,14 @@ jobs:
           ls -lh "$ENCRYPTED"
 
       - name: Upload encrypted archive parts to private Google Drive receiver
+        timeout-minutes: 25
         env:
           GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
           GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          BACKUP_TYPE: system
         run: |
           set -euo pipefail
           python3 scripts/upload_apps_script_backup.py "$ENCRYPTED_ARCHIVE"
-
-      - name: Remove superseded recovery-site artifacts
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
-            --jq '.artifacts[] | select(.name | startswith("green-dream-recovery-site-")) | .id' |
-            while IFS= read -r artifact_id; do
-              [ -n "$artifact_id" ] || continue
-              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id"
-            done
-
-      - name: Publish portable read-only recovery website
-        uses: actions/upload-artifact@v4
-        continue-on-error: true
-        with:
-          name: green-dream-recovery-site-${{ github.run_id }}
-          path: ${{ runner.temp }}/green-dream-recovery-site.zip
-          if-no-files-found: error
-          retention-days: 7
 
       - name: Remove temporary backup material
         if: always()

@@ -5,17 +5,16 @@ on:
 
 permissions:
   contents: read
-  actions: write
 
 concurrency:
-  group: green-dream-content-backup
-  cancel-in-progress: true
+  group: green-dream-drive-backup
+  cancel-in-progress: false
 
 jobs:
   content-backup:
-    if: startsWith(github.ref, 'refs/heads/backup/')
+    if: github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/backup/'))
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     env:
       SUPABASE_URL: https://oeyxsqocldlovhsmzcjw.supabase.co
 
@@ -42,9 +41,13 @@ jobs:
       - name: Validate the offline recovery website builder
         run: |
           set -euo pipefail
-          python3 -m py_compile scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/download_apps_script_backup.py scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
+          python3 -m py_compile scripts/apps_script_transport.py scripts/test_apps_script_transport.py scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/upload_apps_script_backup.py scripts/download_apps_script_backup.py scripts/test_upload_apps_script_backup.py scripts/test_download_apps_script_backup.py scripts/test_backup_manifest.py scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
           python3 scripts/test_build_recovery_site.py
           python3 scripts/test_backup_wordpress_archive.py
+          python3 scripts/test_apps_script_transport.py
+          python3 scripts/test_upload_apps_script_backup.py
+          python3 scripts/test_download_apps_script_backup.py
+          python3 scripts/test_backup_manifest.py
           node --check < google-apps-script/Code.gs
           node google-apps-script/test_receiver.js
 
@@ -88,6 +91,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/green-dream-content-backup"/{database,storage,repository,metadata}
 
       - name: Export website database content
+        timeout-minutes: 30
         env:
           DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
@@ -115,6 +119,7 @@ jobs:
           python3 -m json.tool "$OUT/database/public-content.json" >/dev/null
 
       - name: Download and verify every Supabase Storage object
+        timeout-minutes: 45
         env:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: |
@@ -124,6 +129,7 @@ jobs:
           python3 scripts/verify_storage_export.py "$OUT"
 
       - name: Export WordPress posts and private media archive
+        timeout-minutes: 90
         run: |
           set -euo pipefail
           OUT="$RUNNER_TEMP/green-dream-content-backup"
@@ -132,6 +138,7 @@ jobs:
           python3 scripts/package_recovery_site.py "$OUT" "$RUNNER_TEMP/green-dream-recovery-site.zip"
 
       - name: Capture complete website repository and media assets
+        timeout-minutes: 10
         run: |
           set -euo pipefail
           OUT="$RUNNER_TEMP/green-dream-content-backup"
@@ -168,6 +175,7 @@ jobs:
           python3 scripts/verify_backup_manifest.py "$OUT"
 
       - name: Encrypt and verify the content archive
+        timeout-minutes: 30
         shell: bash
         env:
           BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
@@ -192,25 +200,14 @@ jobs:
           ls -lh "$ENCRYPTED"
 
       - name: Upload encrypted content archive to private Google Drive
+        timeout-minutes: 25
         env:
           GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
           GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          BACKUP_TYPE: content
         run: |
           set -euo pipefail
           python3 scripts/upload_apps_script_backup.py "$ENCRYPTED_ARCHIVE"
-
-      - name: Remove superseded recovery-site artifacts
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
-            --jq '.artifacts[] | select(.name | startswith("green-dream-recovery-site-")) | .id' |
-            while IFS= read -r artifact_id; do
-              [ -n "$artifact_id" ] || continue
-              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id"
-            done
 
       - name: Publish portable read-only recovery website
         uses: actions/upload-artifact@v4

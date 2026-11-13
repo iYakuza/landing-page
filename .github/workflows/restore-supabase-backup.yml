@@ -1,0 +1,200 @@
+name: Restore Green Dream into a fresh Supabase project
+
+on:
+  workflow_dispatch:
+    inputs:
+      backup_id:
+        description: "Completed encrypted backup ID (blank selects the newest completed system backup; older untyped backups require an explicit ID)"
+        required: false
+        type: string
+      confirm_fresh_target:
+        description: "Confirm that the destination is a NEW, EMPTY Supabase project"
+        required: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: green-dream-supabase-restore
+  cancel-in-progress: false
+
+jobs:
+  restore:
+    if: github.event_name == 'workflow_dispatch' && inputs.confirm_fresh_target == true && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/backup/'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      SOURCE_PROJECT_REF: oeyxsqocldlovhsmzcjw
+      RESTORE_DB_URL: ${{ secrets.SUPABASE_RESTORE_DB_URL }}
+      RESTORE_URL: ${{ secrets.SUPABASE_RESTORE_URL }}
+      GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
+      GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+      BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+      BACKUP_ID: ${{ inputs.backup_id }}
+
+    steps:
+      - name: Check out recovery tooling
+        uses: actions/checkout@v6
+
+      - name: Install restore dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client gnupg python3
+          python3 --version
+          psql --version
+          gpg --version
+
+      - name: Install pinned Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.1
+
+      - name: Install Deno for Storage restoration
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Validate credentials and protect the production project
+        env:
+          RESTORE_SECRET_KEY: ${{ secrets.SUPABASE_RESTORE_SECRET_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in RESTORE_DB_URL RESTORE_URL RESTORE_SECRET_KEY GOOGLE_DRIVE_INGEST_URL GOOGLE_DRIVE_INGEST_TOKEN BACKUP_ENCRYPTION_PASSPHRASE; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Missing required GitHub Actions secret for $name."
+              exit 1
+            fi
+          done
+          case "$RESTORE_DB_URL" in
+            postgresql://*|postgres://*) ;;
+            *) echo "::error::Destination database URL is not a PostgreSQL connection string."; exit 1 ;;
+          esac
+          case "$RESTORE_URL" in
+            https://*.supabase.co) ;;
+            *) echo "::error::Destination URL must be a Supabase project URL."; exit 1 ;;
+          esac
+          if [[ "$RESTORE_URL" == "https://${SOURCE_PROJECT_REF}.supabase.co" ]]; then
+            echo "::error::Refusing to restore into the production Supabase project."
+            exit 1
+          fi
+          if [ "${#GOOGLE_DRIVE_INGEST_TOKEN}" -lt 40 ] || [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 32 ]; then
+            echo "::error::Backup receiver token or encryption passphrase does not meet the minimum length."
+            exit 1
+          fi
+          python3 - <<'PY'
+          import os
+          from urllib.parse import unquote, urlparse
+          source_ref = os.environ["SOURCE_PROJECT_REF"]
+          api = urlparse(os.environ["RESTORE_URL"])
+          target_ref = (api.hostname or "").split(".")[0].lower()
+          parsed = urlparse(os.environ["RESTORE_DB_URL"])
+          host = (parsed.hostname or "").lower()
+          user = unquote(parsed.username or "").lower()
+          if target_ref == source_ref or source_ref in host or source_ref in user:
+              raise SystemExit("Refusing to restore into a database connection associated with the production project.")
+          if not target_ref or (target_ref not in host and target_ref not in user):
+              raise SystemExit("The destination API URL and database connection do not identify the same Supabase project.")
+          PY
+
+      - name: Download encrypted backup from private Google Drive
+        timeout-minutes: 40
+        run: |
+          set -euo pipefail
+          OUTPUT="$RUNNER_TEMP/green-dream-supabase-restore.gpg"
+          if [ -n "$BACKUP_ID" ]; then
+            python3 scripts/download_apps_script_backup.py --backup-type system --backup-id "$BACKUP_ID" --output "$OUTPUT"
+          else
+            python3 scripts/download_apps_script_backup.py --backup-type system --output "$OUTPUT"
+          fi
+          test -s "$OUTPUT"
+          echo "ENCRYPTED_BACKUP=$OUTPUT" >> "$GITHUB_ENV"
+
+      - name: Decrypt archive and verify its complete manifest
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/green-dream-supabase-restore"
+          ARCHIVE="$RUNNER_TEMP/green-dream-supabase-restore.tar.gz"
+          mkdir -p "$ROOT"
+          printf '%s' "$BACKUP_ENCRYPTION_PASSPHRASE" | \
+            gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 \
+                --decrypt --output "$ARCHIVE" "$ENCRYPTED_BACKUP"
+          tar -xzf "$ARCHIVE" -C "$ROOT" --no-same-owner --no-same-permissions
+          python3 scripts/verify_backup_manifest.py "$ROOT"
+          test -s "$ROOT/database/roles.sql"
+          test -s "$ROOT/database/schema.sql"
+          test -s "$ROOT/database/data.sql"
+          test -s "$ROOT/auth/users.json"
+          test -s "$ROOT/storage/objects/storage-manifest.json"
+          echo "RESTORE_ROOT=$ROOT" >> "$GITHUB_ENV"
+
+      - name: Verify destination is empty before any changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          PUBLIC_TABLES="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select count(*) from pg_tables where schemaname='public'")"
+          AUTH_USERS="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select count(*) from auth.users")"
+          AUTH_IDENTITIES="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select count(*) from auth.identities")"
+          STORAGE_BUCKETS="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select count(*) from storage.buckets")"
+          STORAGE_OBJECTS="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select count(*) from storage.objects")"
+          VAULT_TABLE_EXISTS="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select to_regclass('vault.decrypted_secrets') is not null")"
+          VAULT_SECRETS=0
+          if [ "$VAULT_TABLE_EXISTS" = "t" ]; then
+            VAULT_SECRETS="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select count(*) from vault.decrypted_secrets")"
+          fi
+          if [ "$PUBLIC_TABLES" != "0" ] || [ "$AUTH_USERS" != "0" ] || [ "$AUTH_IDENTITIES" != "0" ] || [ "$STORAGE_BUCKETS" != "0" ] || [ "$STORAGE_OBJECTS" != "0" ] || [ "$VAULT_SECRETS" != "0" ]; then
+            echo "::error::Destination is not empty. Restore stopped without modifying it."
+            exit 1
+          fi
+          echo "Fresh destination checks passed."
+
+      - name: Restore database roles, schema, migration history, Auth, Vault, and data
+        timeout-minutes: 60
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -c "create extension if not exists supabase_vault with schema vault"
+          DATABASE_URL="$RESTORE_DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/database/roles.sql"
+          DATABASE_URL="$RESTORE_DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/database/schema.sql"
+          DATABASE_URL="$RESTORE_DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/restore/migration-ledger-restore.sql"
+          DATABASE_URL="$RESTORE_DB_URL" python3 scripts/verify_migration_ledger.py "$RESTORE_ROOT"
+          DATABASE_URL="$RESTORE_DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/restore/auth-restore.sql"
+          DATABASE_URL="$RESTORE_DB_URL" python3 scripts/verify_auth_restore.py "$RESTORE_ROOT"
+          DATABASE_URL="$RESTORE_DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/restore/vault-restore.sql"
+          DATABASE_URL="$RESTORE_DB_URL" python3 scripts/verify_vault_restore.py "$RESTORE_ROOT"
+          DATABASE_URL="$RESTORE_DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/restore/storage-policies.sql"
+          DATABASE_URL="$RESTORE_DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/database/data.sql"
+
+      - name: Restore Storage buckets and object contents
+        timeout-minutes: 30
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_RESTORE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_RESTORE_SECRET_KEY }}
+        run: |
+          set -euo pipefail
+          deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$RESTORE_ROOT"
+          DATABASE_URL="$RESTORE_DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/restore/storage-owners.sql"
+          DATABASE_URL="$RESTORE_DB_URL" python3 scripts/verify_storage_owners.py "$RESTORE_ROOT"
+          DATABASE_URL="$RESTORE_DB_URL" python3 scripts/verify_storage_security.py "$RESTORE_ROOT"
+          DATABASE_URL="$RESTORE_DB_URL" python3 scripts/verify_database_restore.py --compare "$RESTORE_ROOT/database/table-counts.json"
+
+      - name: Publish non-sensitive restore result
+        if: success()
+        run: |
+          {
+            echo "## Supabase restoration completed"
+            echo
+            echo "- Destination: separate Supabase project"
+            echo "- Database, Auth users and identities, Vault, Storage policies, buckets and object contents were restored and verified."
+            echo "- Production project was not used as a restore destination."
+            echo "- Checked-in Edge Function source is preserved in the Git bundle, but deploying it to the destination and restoring runtime secret values and project-level settings remain separate manual recovery steps."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove decrypted recovery material
+        if: always()
+        run: |
+          set +e
+          rm -rf "$RUNNER_TEMP/green-dream-supabase-restore"
+          rm -f "$RUNNER_TEMP/green-dream-supabase-restore.gpg" "$RUNNER_TEMP/green-dream-supabase-restore.tar.gz"
