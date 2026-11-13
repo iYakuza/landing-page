@@ -21,7 +21,7 @@ The workflow creates a SHA-256 manifest, packages the snapshot, encrypts the arc
 - GitHub Actions handles decrypted database, Auth, Vault, and media data temporarily on an ephemeral hosted runner so it can perform a full restore test before encryption. Treat GitHub Actions and the repository's secret store as part of the trusted security boundary.
 - The receiver executes as the Google account that deploys it and stores files in that account's private Drive folder.
 - The Apps Script web-app URL is publicly reachable, but each request must include a high-entropy shared token. The token is stored in Apps Script Script Properties and GitHub Actions repository secrets; it must never be committed or pasted into chat.
-- Only encrypted archive chunks are uploaded to Drive. The receiver verifies each chunk's SHA-256 and creates a manifest after all parts are present. It retains the 30 newest completed backup sets.
+- Only encrypted archive chunks are uploaded to Drive. The receiver verifies each chunk's SHA-256 and creates a manifest after all parts are present. It does not apply retention or cleanup: existing Drive backup files are never automatically deleted.
 - Apps Script and Google Drive quotas, account policies, and service availability apply. Google may restrict public web-app access or the receiver deployment. This is a deliberate no-OAuth-verification trade-off, not a guarantee of uninterrupted service.
 - Keep the encryption passphrase in a password manager and maintain a separate secure recovery copy. Without it, the archive cannot be decrypted.
 - The scheduled workflow remains disabled until the first live backup and recovery procedure have been verified.
@@ -60,8 +60,8 @@ The backup workflow supports manual dispatch from the `backup/` branch for the i
 
 Before considering the system operational:
 
-1. Configure the Apps Script receiver and all five GitHub Actions secrets.
-2. Run **GitHub → Actions → Green Dream Google Drive backup → Run workflow**, selecting the backup branch.
+1. Confirm that the existing Apps Script receiver has been updated to the validated code while preserving its URL and Script Properties; confirm the existing GitHub Actions secrets are present. No new OAuth credentials are required.
+2. Run **GitHub → Actions → Green Dream Google Drive backup → Run workflow**, selecting the consolidated backup branch.
 3. Confirm that the workflow completes its disposable Supabase restore test and encrypted upload.
 4. In the private Drive folder, confirm that the completed backup manifest and all referenced encrypted parts exist.
 5. Perform a separate recovery drill: download the encrypted parts, reassemble the archive, decrypt it with the separately stored passphrase, verify the SHA-256 manifest, and restore into a fresh compatible Supabase project. Confirm the website, CMS, authentication, submissions, and media.
