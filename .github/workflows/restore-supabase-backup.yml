@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: green-dream-drive-downloads
@@ -100,8 +101,20 @@ jobs:
               raise SystemExit("The destination API URL and database connection do not identify the same Supabase project.")
           PY
 
+      - name: Authenticate to Google Drive with GitHub OIDC
+        id: auth-drive-readonly
+        if: ${{ vars.GOOGLE_DRIVE_WIF_PROVIDER != '' && vars.GOOGLE_DRIVE_READONLY_SERVICE_ACCOUNT_EMAIL != '' }}
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GOOGLE_DRIVE_WIF_PROVIDER }}
+          service_account: ${{ vars.GOOGLE_DRIVE_READONLY_SERVICE_ACCOUNT_EMAIL }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/drive.readonly
+
       - name: Download encrypted backup from private Google Drive
         timeout-minutes: 100
+        env:
+          GOOGLE_DRIVE_READONLY_ACCESS_TOKEN: ${{ steps.auth-drive-readonly.outputs.access_token }}
         run: |
           set -euo pipefail
           OUTPUT="$RUNNER_TEMP/green-dream-supabase-restore.gpg"
