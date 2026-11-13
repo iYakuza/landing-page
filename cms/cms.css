@@ -40,6 +40,7 @@ body{background:#050906;color:var(--cms-ink)}
 .manage-item strong{display:block;font-size:13px;line-height:1.45;font-weight:600;margin-bottom:8px}
 .manage-item small{display:block;color:#8e9f8b;font:9px/1.7 monospace;letter-spacing:.5px}
 .manage-item .draft-label{color:#ffcb78}.manage-item .published-label{color:var(--cms-acid)}
+.community-submission .rejected-label{color:#ffcb78}.community-submission .failed-label{color:#ff8f8f}
 .cms-editor-panel{padding:clamp(18px,3vw,30px)}
 .cms-editor-top{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid var(--cms-line);padding-bottom:12px;margin-bottom:14px}
 .cms-editor-top .gd-kicker{margin:0}
