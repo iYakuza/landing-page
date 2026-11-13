@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T19:13:07.616117Z",
-  "last_processed_sha": "8d8c7079361e5445c145c85fdfac98de3c256f25",
+  "updated_at": "2026-11-13T19:25:05.612014Z",
+  "last_processed_sha": "b817a45b02a3eb0e47042ee9293e72aefe0d8257",
   "entries": [
+    {
+      "id": "b817a45b02a3eb0e47042ee9293e72aefe0d8257",
+      "timestamp": "2026-11-13T20:24:56+01:00",
+      "category": "FEATURE",
+      "component": "Website",
+      "title": "New capabilities for Website",
+      "description": "This update brings together Add safe system backup recovery verification workflow. It updates verify-google-drive-system-backup.yml.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/verify-google-drive-system-backup.yml"
+      ],
+      "commits": [
+        {
+          "message": "Add safe system backup recovery verification workflow",
+          "url": "https://github.com/iYakuza/landing-page/commit/b817a45b02a3eb0e47042ee9293e72aefe0d8257",
+          "files": [
+            ".github/workflows/verify-google-drive-system-backup.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "8d8c7079361e5445c145c85fdfac98de3c256f25",
       "timestamp": "2026-11-13T20:13:00+01:00",
