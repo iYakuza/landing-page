@@ -298,10 +298,13 @@ function doPost(e) {
     const folder = getFolder_();
     diagnosticStage = "action:" + String(request.action || "missing") + ":folder_ready";
 
-    // Read-only inventory and upload-session requests may run concurrently.
-    // Serialize only the legacy part-write and final manifest commit operations.
-    if (request.action === "upload_part" || request.action === "finalize_backup") {
-      diagnosticStage = String(request.action) + ":acquire_write_lock";
+    // The active uploader transfers parts directly to Drive and GitHub Actions
+    // serializes backup workflows. Finalization is idempotent (an existing matching
+    // manifest is returned as success), so it must not wait on the Apps Script-wide
+    // lock, which may be held by an unrelated execution.
+    // Keep the lock only for the legacy upload_part endpoint, which writes via DriveApp.
+    if (request.action === "upload_part") {
+      diagnosticStage = "upload_part:acquire_write_lock";
       lock.waitLock(30000);
       lockAcquired = true;
     }
