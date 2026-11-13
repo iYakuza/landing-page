@@ -42,6 +42,8 @@ jobs:
           python3 -m py_compile \
             scripts/backup_storage.py \
             scripts/upload_drive_backup.py \
+            scripts/google_drive_backup.py \
+            scripts/test_google_drive_backup.py \
             scripts/create_backup_manifest.py \
             scripts/verify_backup_manifest.py \
             scripts/export_edge_env_inventory.py \
