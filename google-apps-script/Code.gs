@@ -288,7 +288,21 @@ function doPost(e) {
     Logger.log("Backup receiver failure at stage [" + diagnosticStage + "]: " + detail);
     if (stack) Logger.log(stack);
     console.error("Backup receiver failure at stage [" + diagnosticStage + "]: " + detail);
-    return json_({ ok: false, error: "The receiver could not complete the request." });
+    // Return a bounded diagnostic to the authenticated uploader. Never expose request data,
+    // tokens, stack traces, or Drive file identifiers in the HTTP response.
+    const safeDetail = detail
+      .replace(/[A-Za-z0-9_-]{25,}/g, "[redacted]")
+      .replace(/(?:token|authorization|password)\s*[:=]\s*[^\s,;]+/ig, "$1=[redacted]")
+      .slice(0, 240);
+    return json_({
+      ok: false,
+      error: "The receiver could not complete the request.",
+      diagnostic: {
+        stage: diagnosticStage,
+        type: String(err && err.name || "Error").slice(0, 60),
+        detail: safeDetail
+      }
+    });
   } finally {
     try { lock.releaseLock(); } catch (_) {}
   }
