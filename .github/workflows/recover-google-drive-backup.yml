@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       backup_id:
-        description: "Completed backup ID (leave blank to use the newest completed backup)"
+        description: "Completed content backup ID (blank selects the newest content backup; legacy untyped backups require an explicit ID)"
         required: false
         type: string
 
