@@ -37,6 +37,20 @@ def post_json(endpoint: str, token: str, payload: dict) -> dict:
                 result = json.loads(response.read().decode("utf-8"))
             if not isinstance(result, dict) or result.get("ok") is not True:
                 message = result.get("error", "Invalid receiver response.") if isinstance(result, dict) else "Invalid receiver response."
+                diagnostic = result.get("diagnostic") if isinstance(result, dict) else None
+                if isinstance(diagnostic, dict):
+                    stage = diagnostic.get("stage")
+                    error_type = diagnostic.get("type")
+                    detail = diagnostic.get("detail")
+                    safe = []
+                    if isinstance(stage, str):
+                        safe.append("stage=" + stage[:100])
+                    if isinstance(error_type, str):
+                        safe.append("type=" + error_type[:60])
+                    if isinstance(detail, str):
+                        safe.append("detail=" + detail[:240])
+                    if safe:
+                        message = str(message) + " (" + "; ".join(safe) + ")"
                 raise RuntimeError(str(message))
             return result
         except urllib.error.HTTPError as exc:
