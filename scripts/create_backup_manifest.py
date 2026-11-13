@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 root = pathlib.Path(sys.argv[1])
 entries = []
 for path in sorted(root.rglob("*")):
-    if path.is_file() and path.name != "backup-manifest.json":
+    if path.is_file() and path != root / "backup-manifest.json":
         digest = hashlib.sha256()
         with path.open("rb") as stream:
             for chunk in iter(lambda: stream.read(1024 * 1024), b""):
