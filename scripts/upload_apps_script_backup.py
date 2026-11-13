@@ -135,6 +135,7 @@ def upload_one(archive: pathlib.Path, endpoint: str, token: str, backup_id: str,
         raise RuntimeError(f"Local archive part {number} changed after its checksum was calculated.")
 
     current_session = session_url
+    started_at = time.monotonic()
     for attempt in range(RETRIES + 1):
         try:
             put_chunk(current_session, chunk, expected_name)
