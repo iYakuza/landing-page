@@ -71,6 +71,38 @@ Before considering the system operational:
 
 A passing CI test is not a substitute for the first live upload and independent recovery drill. Until those steps are complete, keep `BACKUP_ENABLED=false`.
 
+## Dedicated Supabase restoration
+
+Supabase restoration is deliberately separate from the Google Drive backup workflow. Creating and uploading a backup no longer depends on successfully restoring it into a local or hosted Supabase instance. This prevents a destination-specific PostgreSQL/Supabase compatibility problem from blocking creation of a valid encrypted backup.
+
+The separate **Restore Green Dream into a fresh Supabase project** workflow (\`.github/workflows/restore-supabase-backup.yml\`) downloads and verifies a selected encrypted Drive backup, decrypts it only on an ephemeral GitHub Actions runner, checks that the destination is empty, and restores database roles/schema/data, migration history, Auth users and identities, Vault secrets, Storage policies, buckets, object bytes, and object ownership. It then runs the existing restore verification scripts.
+
+### Safety rules
+
+- Restore is manual only. It never runs on a schedule.
+- It requires an explicit confirmation that the destination is a new, empty Supabase project.
+- It refuses the known production project URL and checks the database hostname and username for the production project reference.
+- It checks that application tables, Auth users/identities, Storage buckets/objects, and Vault secrets are empty before making changes.
+- It never targets or modifies the production project intentionally. Never configure the restore secrets with production credentials.
+- Decrypted data is removed from the ephemeral runner at the end of the job.
+- The workflow is a separate-project restore, not a project clone: project-level dashboard settings and Edge Function runtime secret values still need separate configuration.
+
+### Restore workflow credentials
+
+The workflow reuses the existing Google Drive receiver and encryption secrets. It requires three destination-only GitHub Actions secrets:
+
+| Secret | Purpose |
+|---|---|
+| \`SUPABASE_RESTORE_DB_URL\` | PostgreSQL connection string for the fresh destination project |
+| \`SUPABASE_RESTORE_URL\` | URL of that same destination project |
+| \`SUPABASE_RESTORE_SECRET_KEY\` | Destination project's secret/service key, used only to upload Storage objects |
+
+These destination credentials are intentionally separate from \`SUPABASE_DB_URL\` and \`SUPABASE_SECRET_KEY\`, which belong to the production source and backup export. Do not reuse production credentials as restore credentials.
+
+The workflow itself adds no paid service: it uses the existing GitHub Actions workflow, existing private Google Drive receiver, and a separate Supabase project. The destination project must remain within the available Supabase plan allowance; paid database backup/PITR features are not required by this workflow. GitHub Actions and Google/Supabase free-tier quotas and limits still apply.
+
+A hosted restoration cannot be declared operational until a real backup has been restored successfully into a separate fresh project. The workflow file and passing automated tests alone do not prove that live restoration has succeeded.
+
 ## Known recovery limitations
 
 - Auth users and identities are restored, but sessions, MFA factors, and audit history are not.
