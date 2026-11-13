@@ -14,6 +14,10 @@ This is a private, owner-operated Google Apps Script web app. GitHub Actions sen
 
 This removes Apps Script from the large-payload data path. Apps Script only authenticates the request and creates Drive upload sessions; the encrypted bytes travel directly from the GitHub runner to Google Drive.
 
+For recovery, the preferred mode is also direct-to-Drive: the authenticated receiver returns the Drive file IDs and checksums, then GitHub Actions downloads the encrypted blob files using the Google Drive API `files.get?alt=media`. This avoids base64 encoding and the Apps Script ContentService response relay for every 4 MiB part. The optional `GOOGLE_DRIVE_READONLY_SERVICE_ACCOUNT_JSON` GitHub Actions secret enables this path. The service account must have **Viewer** access to this backup folder only; the recovery client requests only the `drive.readonly` OAuth scope. Without that optional secret, the legacy Apps Script relay remains available.
+
+After updating `Code.gs`, the existing Apps Script web-app deployment must be edited to a new version so authenticated `list_backups` responses include each part's Drive file ID. Keep the existing deployment URL and both Script Properties unchanged.
+
 The Apps Script project requires the Drive and external-request OAuth scopes declared in `appsscript.json`. The web app runs as its owner, so the owner must approve the updated scopes when deploying the new version.
 
 
