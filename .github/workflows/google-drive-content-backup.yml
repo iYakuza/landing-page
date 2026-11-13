@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   content-backup:
-    if: startsWith(github.ref, 'refs/heads/backup/')
+    if: github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/backup/'))
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
