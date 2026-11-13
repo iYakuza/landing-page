@@ -144,13 +144,15 @@ assert.equal(send(part(2, chunks[1])).ok, true);
 
 const incomplete = send({
   action: "finalize_backup", token, backup_id: id, total_parts: 3,
-  total_bytes: 99, archive_sha256: totalSha
+  total_bytes: 99, archive_sha256: totalSha,
+  parts: [...expectedParts, { part_number: 3, size: 1, sha256: "d".repeat(64) }]
 });
 assert.equal(incomplete.ok, false, "reject finalization with missing parts");
 
 const finalized = send({
   action: "finalize_backup", token, backup_id: id, total_parts: 2,
-  total_bytes: Buffer.concat(chunks).length, archive_sha256: totalSha
+  total_bytes: Buffer.concat(chunks).length, archive_sha256: totalSha,
+  parts: expectedParts
 });
 assert.equal(finalized.ok, true);
 assert.equal(finalized.finalized, true);
