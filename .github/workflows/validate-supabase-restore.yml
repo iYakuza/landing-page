@@ -17,6 +17,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
   group: green-dream-drive-downloads
@@ -76,8 +77,20 @@ jobs:
             exit 1
           fi
 
+      - name: Authenticate to Google Drive with GitHub OIDC
+        id: auth-drive-readonly
+        if: ${{ vars.GOOGLE_DRIVE_WIF_PROVIDER != '' && vars.GOOGLE_DRIVE_READONLY_SERVICE_ACCOUNT_EMAIL != '' }}
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GOOGLE_DRIVE_WIF_PROVIDER }}
+          service_account: ${{ vars.GOOGLE_DRIVE_READONLY_SERVICE_ACCOUNT_EMAIL }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/drive.readonly
+
       - name: Download and verify encrypted backup from private Drive
         timeout-minutes: 100
+        env:
+          GOOGLE_DRIVE_READONLY_ACCESS_TOKEN: ${{ steps.auth-drive-readonly.outputs.access_token }}
         run: |
           set -euo pipefail
           OUTPUT="$RUNNER_TEMP/green-dream-restore-validation.gpg"
