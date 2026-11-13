@@ -15,7 +15,7 @@ import urllib.error
 import urllib.request
 
 MAX_PARTS = 400
-BACKUP_ID = re.compile(r"^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}$")
+BACKUP_ID = re.compile(r"^(?:(?:system|content)-)?[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}$")
 SHA256 = re.compile(r"^[a-f0-9]{64}$")
 RETRIES = 2
 REQUEST_TIMEOUT_SECONDS = 60
@@ -58,7 +58,7 @@ def post_json(endpoint: str, token: str, payload: dict, deadline: float) -> dict
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True, type=pathlib.Path)
-    parser.add_argument("--backup-id", default="", help="Completed backup ID; defaults to the newest completed backup.")
+    parser.add_argument("--backup-id", default="", help="Completed backup ID; legacy untyped IDs must be selected explicitly.")\n    parser.add_argument("--backup-type", choices=("system", "content"), default="system", help="Backup type to select when no explicit ID is supplied.")
     args = parser.parse_args()
 
     endpoint = os.environ.get("GOOGLE_DRIVE_INGEST_URL", "").strip()
@@ -81,9 +81,21 @@ def main() -> None:
     backups = listing.get("backups")
     if not isinstance(backups, list) or not backups:
         raise SystemExit("No completed backups are available in the private Drive folder.")
-    selected = next((item for item in backups if item.get("backup_id") == args.backup_id), None) if args.backup_id else backups[0]
+    if args.backup_id:
+        selected = next((item for item in backups if item.get("backup_id") == args.backup_id), None)
+        if args.backup_id.startswith(("system-", "content-")) and not args.backup_id.startswith(args.backup_type + "-"):
+            raise SystemExit(f"Backup ID type does not match requested {args.backup_type} recovery.")
+    else:
+        matching = [
+            item for item in backups
+            if isinstance(item, dict) and str(item.get("backup_id", "")).startswith(args.backup_type + "-")
+        ]
+        selected = matching[0] if matching else None
     if not isinstance(selected, dict) or not BACKUP_ID.fullmatch(str(selected.get("backup_id", ""))):
-        raise SystemExit("The selected completed backup was not found.")
+        raise SystemExit(
+            f"No completed {args.backup_type} backup was found. "
+            "Older untyped backups must be selected explicitly by backup ID."
+        )
 
     backup_id = selected["backup_id"]
     part_count = selected.get("part_count")
@@ -111,7 +123,7 @@ def main() -> None:
         raise SystemExit("The backup part inventory is incomplete or inconsistent.")
 
     print(
-        f"Recovering backup {backup_id}: {part_count} parts, "
+        f"Recovering {args.backup_type} backup {backup_id}: {part_count} parts, "
         f"{total_bytes / (1024 * 1024):.2f} MB. Verifying each part as it arrives.",
         flush=True,
     )
