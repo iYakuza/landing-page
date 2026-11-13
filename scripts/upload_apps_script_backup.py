@@ -79,6 +79,8 @@ def main() -> None:
 
     total_bytes = archive.stat().st_size
     total_parts = (total_bytes + PART_BYTES - 1) // PART_BYTES
+    started_at = time.monotonic()
+    print(f"Preparing upload: {total_bytes / (1024 * 1024):.2f} MB across {total_parts} chunks.", flush=True)
     if total_parts > MAX_PARTS:
         raise RuntimeError(f"Backup is too large: {total_parts} parts exceeds the {MAX_PARTS}-part receiver limit.")
 
@@ -90,6 +92,7 @@ def main() -> None:
 
     # Stable for the same archive on the same UTC day, allowing a cancelled run to resume.
     backup_id = datetime.now(timezone.utc).strftime("%Y%m%dT000000Z") + "-" + archive_sha256[:8]
+    print("Checking which encrypted chunks are already stored...", flush=True)
     state = post_json(endpoint, token, {
         "action": "list_upload_parts", "backup_id": backup_id, "total_parts": total_parts,
     })
@@ -106,20 +109,24 @@ def main() -> None:
             raise RuntimeError("Receiver returned invalid existing part integrity data.")
         existing[number] = (size, digest)
 
-    uploaded_bytes = 0
+    completed_bytes = 0
+    uploaded_this_run = 0
     skipped = 0
     with archive.open("rb") as stream:
         for number in range(1, total_parts + 1):
             chunk = stream.read(PART_BYTES)
             digest = sha256_bytes(chunk)
-            uploaded_bytes += len(chunk)
             previous = existing.get(number)
             if previous:
                 if previous != (len(chunk), digest):
                     raise RuntimeError(f"Stored part {number} conflicts with this archive; refusing to overwrite it.")
                 skipped += 1
-                print(f"Already stored: part {number}/{total_parts} ({uploaded_bytes}/{total_bytes} bytes).")
+                completed_bytes += len(chunk)
+                elapsed = max(time.monotonic() - started_at, 0.001)
+                percent = completed_bytes / total_bytes * 100
+                print(f"Progress: {number}/{total_parts} chunks | {completed_bytes / (1024 * 1024):.2f}/{total_bytes / (1024 * 1024):.2f} MB verified ({percent:.1f}%) | {uploaded_this_run / (1024 * 1024):.2f} MB uploaded this run | {elapsed:.0f}s elapsed.", flush=True)
                 continue
+            print(f"Sending encrypted chunk {number}/{total_parts} ({len(chunk) / (1024 * 1024):.2f} MB)...", flush=True)
             result = post_json(endpoint, token, {
                 "action": "upload_part",
                 "backup_id": backup_id,
@@ -130,7 +137,12 @@ def main() -> None:
             })
             if result.get("backup_id") != backup_id or result.get("received_part") != number:
                 raise RuntimeError("Receiver acknowledgement did not match the uploaded part.")
-            print(f"Stored encrypted part {number}/{total_parts} ({uploaded_bytes}/{total_bytes} bytes).")
+            completed_bytes += len(chunk)
+            uploaded_this_run += len(chunk)
+            elapsed = max(time.monotonic() - started_at, 0.001)
+            percent = completed_bytes / total_bytes * 100
+            average_speed = uploaded_this_run / (1024 * 1024) / elapsed
+            print(f"Progress: {number}/{total_parts} chunks | {completed_bytes / (1024 * 1024):.2f}/{total_bytes / (1024 * 1024):.2f} MB verified ({percent:.1f}%) | {uploaded_this_run / (1024 * 1024):.2f} MB uploaded this run | {average_speed:.2f} MB/s average.", flush=True)
 
     final = post_json(endpoint, token, {
         "action": "finalize_backup",
@@ -141,13 +153,13 @@ def main() -> None:
     })
     if final.get("backup_id") != backup_id or final.get("finalized") is not True or final.get("total_bytes") != total_bytes:
         raise RuntimeError("Receiver did not confirm a complete, verified backup.")
-    print(f"Google Drive backup complete: {backup_id}; {total_bytes} bytes; {total_parts} parts; {skipped} parts resumed.")
-    print(f"Archive SHA-256: {archive_sha256}")
+    print(f"Google Drive backup complete: {backup_id}; {total_bytes} bytes; {total_parts} chunks; {skipped} chunks resumed.", flush=True)
+    print(f"Archive SHA-256: {archive_sha256}", flush=True)
 
 
 if __name__ == "__main__":
     try:
         main()
     except Exception as exc:
-        print(f"Google Drive backup failed: {exc}", file=sys.stderr)
+        print(f"Google Drive backup failed: {exc}", file=sys.stderr, flush=True)
         sys.exit(1)
