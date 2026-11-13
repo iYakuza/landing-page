@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T20:33:49.478835Z",
-  "last_processed_sha": "2c68a4268a25b6b77e78c3ce357981344786dfc9",
+  "updated_at": "2026-11-13T20:39:07.376999Z",
+  "last_processed_sha": "524fda402dc42e6cd4adea19f01832cf57f65339",
   "entries": [
+    {
+      "id": "524fda402dc42e6cd4adea19f01832cf57f65339",
+      "timestamp": "2026-11-13T21:39:04+01:00",
+      "category": "FEATURE",
+      "component": "Creative Archive",
+      "title": "New capabilities for Creative Archive",
+      "description": "This update brings together Add Romanian counterpart of ethical framework glossary; Link Romanian version from English ethical framework glossary. It updates index.html and related project files.",
+      "commit_count": 2,
+      "files": [
+        "green-dream/guest-notes/ethical-framework/index.html",
+        "green-dream/guest-notes/ethical-framework/ro/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Add Romanian counterpart of ethical framework glossary",
+          "url": "https://github.com/iYakuza/landing-page/commit/b7593a64f418fd5724104cbd1929aaecafac8362",
+          "files": [
+            "green-dream/guest-notes/ethical-framework/ro/index.html"
+          ]
+        },
+        {
+          "message": "Link Romanian version from English ethical framework glossary",
+          "url": "https://github.com/iYakuza/landing-page/commit/524fda402dc42e6cd4adea19f01832cf57f65339",
+          "files": [
+            "green-dream/guest-notes/ethical-framework/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "8a19be221b5b77aad86c033bac5d2d59a3602395",
       "timestamp": "2026-11-13T21:33:43+01:00",
