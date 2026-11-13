@@ -14,6 +14,7 @@ This workflow is designed to create an encrypted snapshot of the Green Dream Sup
 - Supabase Vault secret values, re-encrypted under the destination project's Vault key during recovery.
 - Storage bucket configuration, every bucket's objects, object metadata and ownership fields, custom Storage RLS policies, and a snapshot of managed Storage table security settings.
 - A Git bundle containing repository history and checked-in Edge Function source.
+- A separate snapshot of the source code for every currently deployed Edge Function, downloaded from the live Supabase project.
 - An inventory of Edge Function environment variable names. Runtime secret values are not exported.
 
 The workflow creates a SHA-256 manifest, packages the snapshot, encrypts the archive with GPG AES-256, verifies that the encrypted archive can be decrypted and read, then uploads encrypted chunks to the Apps Script receiver.
@@ -50,6 +51,7 @@ Add these repository secrets:
 |---|---|
 | `SUPABASE_DB_URL` | PostgreSQL connection string from Supabase Dashboard → Connect. Use a compatible pooler connection if needed; URL-encode special characters in the password. |
 | `SUPABASE_SECRET_KEY` | Current Supabase Secret API key from Settings → API Keys. Never publish it. |
+| `SUPABASE_ACCESS_TOKEN` | Supabase personal access token used by the CLI to download deployed Edge Function source. It is not used to deploy or modify functions. Keep it private and rotate it if exposed. |
 | `GOOGLE_DRIVE_INGEST_URL` | The existing deployed Apps Script web-app URL ending in `/exec`. |
 | `GOOGLE_DRIVE_INGEST_TOKEN` | The existing token stored as the Apps Script `INGEST_TOKEN` property. Do not rotate it as part of this update. |
 | `BACKUP_ENCRYPTION_PASSPHRASE` | A unique randomly generated passphrase of at least 32 characters. Store it in a password manager and keep a separate secure recovery copy. |
@@ -62,7 +64,7 @@ The backup workflow supports manual dispatch from the `backup/` branch for the i
 
 Before considering the system operational:
 
-1. Confirm that the existing Apps Script receiver has been updated to the validated code while preserving its URL and Script Properties; confirm the existing GitHub Actions secrets are present. No new OAuth credentials are required.
+1. Confirm that the existing Apps Script receiver has been updated to the validated code while preserving its URL and Script Properties; confirm all GitHub Actions secrets are present, including `SUPABASE_ACCESS_TOKEN`. No new Google OAuth credentials are required.
 2. Run **GitHub → Actions → Green Dream Google Drive backup → Run workflow**, selecting `main` after the PR is merged (or the consolidated backup branch before merge).
 3. Confirm that the workflow completes the encrypted upload. Backup creation no longer depends on a Supabase restore test.
 4. In the private Drive folder, confirm that the completed backup manifest and all referenced encrypted parts exist.
@@ -86,7 +88,7 @@ The separate **Restore Green Dream into a fresh Supabase project** workflow (\`.
 - It checks that application tables, Auth users/identities, Storage buckets/objects, and Vault secrets are empty before making changes.
 - It never targets or modifies the production project intentionally. Never configure the restore secrets with production credentials.
 - Decrypted data is removed from the ephemeral runner at the end of the job.
-- The workflow is a separate-project restore, not a project clone: project-level dashboard settings and Edge Function runtime secret values still need separate configuration.
+- The workflow is a separate-project restore, not a project clone: deployed Edge Function source is included in the encrypted archive, but functions are not automatically deployed to the destination. Project-level dashboard settings and Edge Function runtime secret values still need separate configuration.
 
 The **Validate Supabase backup restoration** workflow is independent of backup creation. It can be dispatched manually against a completed backup ID, or it runs automatically after a successful Google Drive backup on `main`. It restores into a disposable local Supabase instance on the GitHub runner, checks the restored data, and then destroys only that temporary local instance. It does not modify production or require a second hosted project.
 
@@ -109,7 +111,7 @@ A hosted restoration cannot be declared operational until a real backup has been
 ## Known recovery limitations
 
 - Auth users and identities are restored, but sessions, MFA factors, and audit history are not.
-- Edge Function runtime secret values are not exported. The archive records variable names only; preserve the actual values separately in a password manager or secure configuration record.
+- Deployed Edge Function source is archived separately from the Git bundle, so dashboard-only edits are preserved. The restore workflow does not deploy those functions automatically. Edge Function runtime secret values are not exported; the archive records variable names only. Preserve the actual values separately in a password manager or secure configuration record.
 - Supabase project-level settings such as Auth provider configuration, API keys, database credentials, domains, DNS, and other dashboard settings are not included. Reconfigure these separately during recovery.
 - Supabase-managed Storage ownership, built-in ACLs, and RLS flags are provisioned by the destination Supabase project. The restore process preserves custom Storage policies and verifies the managed settings rather than attempting to change Supabase-owned table privileges.
 - The current live migration ledger has 33 entries, while the repository contains only two historical migration files. The backup preserves the live ledger and a current schema/data snapshot; it does not claim to reconstruct missing migration SQL.
