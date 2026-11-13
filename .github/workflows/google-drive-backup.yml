@@ -153,65 +153,9 @@ jobs:
           python3 scripts/build_recovery_site.py "$RUNNER_TEMP/green-dream-backup"
           python3 scripts/package_recovery_site.py "$RUNNER_TEMP/green-dream-backup" "$RUNNER_TEMP/green-dream-recovery-site.zip"
 
-      - name: Install Deno for Storage restore verification
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-
-      - name: Start disposable local Supabase restore target
-        run: |
-          set -euo pipefail
-          LOCAL_PROJECT="$RUNNER_TEMP/green-dream-restore-target"
-          mkdir -p "$LOCAL_PROJECT/supabase/migrations"
-          printf 'project_id = "green-dream-restore-test"\n' > "$LOCAL_PROJECT/supabase/config.toml"
-          if ! supabase --workdir "$LOCAL_PROJECT" start --exclude studio,mailpit,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta > "$RUNNER_TEMP/local-supabase-start.log" 2>&1; then
-            sed -E '/(secret key:|publishable key:|sb_secret_|sb_publishable_)/Id' "$RUNNER_TEMP/local-supabase-start.log" | tail -n 80
-            exit 1
-          fi
-          touch "$RUNNER_TEMP/local-supabase.started"
-
-      - name: Restore snapshot into local Supabase and verify recovery
-        shell: bash
-        run: |
-          set -euo pipefail
-          OUT="$RUNNER_TEMP/green-dream-backup"
-          LOCAL_PROJECT="$RUNNER_TEMP/green-dream-restore-target"
-          supabase --workdir "$LOCAL_PROJECT" status -o env > "$RUNNER_TEMP/local-supabase.env"
-          # The disposable local CLI exposes SERVICE_ROLE_KEY in status -o env.
-          # This local-only JWT is accepted by the restore helper's compatibility path.
-          if ! grep -q '^SERVICE_ROLE_KEY=' "$RUNNER_TEMP/local-supabase.env"; then
-            echo "::error::Local Supabase CLI did not expose its local Storage admin key."
-            exit 1
-          fi
-          printf 'SECRET_KEY=%s\n' "$(sed -n 's/^SERVICE_ROLE_KEY=//p' "$RUNNER_TEMP/local-supabase.env" | head -n 1 | tr -d '"' )" >> "$RUNNER_TEMP/local-supabase.env"
-          set -a
-          source "$RUNNER_TEMP/local-supabase.env"
-          set +a
-          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "create extension if not exists supabase_vault with schema vault"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/database/roles.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/database/schema.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/migration-ledger-restore.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/verify_migration_ledger.py "$OUT"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/auth-restore.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/verify_auth_restore.py "$OUT"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/vault-restore.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/verify_vault_restore.py "$OUT"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/storage-policies.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/database/data.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/verify_storage_security.py "$OUT"
-          SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="$SECRET_KEY" \
-            deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$OUT"
-          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$OUT/restore/storage-owners.sql"
-          DATABASE_URL="$DB_URL" python3 scripts/verify_storage_owners.py "$OUT"
-          DATABASE_URL="$DB_URL" python3 scripts/verify_database_restore.py --compare "$OUT/database/table-counts.json"
-
-      - name: Stop disposable local Supabase restore target
-        if: always()
-        continue-on-error: true
-        run: |
-          if [ -f "$RUNNER_TEMP/local-supabase.started" ]; then
-            supabase --workdir "$RUNNER_TEMP/green-dream-restore-target" stop --no-backup
-          fi
+      # Supabase restoration is intentionally handled by the separate
+      # restore-supabase-backup.yml workflow. Backup creation and Drive transfer
+      # must not be blocked by destination-specific restore compatibility.
 
       - name: Capture repository and deployed Edge Function source
         run: |
