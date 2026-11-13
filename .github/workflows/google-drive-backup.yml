@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: read
-  actions: write
+  actions: read
 
 concurrency:
   group: green-dream-drive-backup
@@ -53,12 +53,13 @@ jobs:
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
-          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
           BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
         run: |
           set -euo pipefail
-          for name in SUPABASE_DB_URL SUPABASE_SECRET_KEY GOOGLE_DRIVE_INGEST_URL GOOGLE_DRIVE_INGEST_TOKEN BACKUP_ENCRYPTION_PASSPHRASE; do
+          for name in SUPABASE_DB_URL SUPABASE_SECRET_KEY GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REFRESH_TOKEN BACKUP_ENCRYPTION_PASSPHRASE; do
             if [ -z "${!name:-}" ]; then
               echo "::error::Missing required GitHub Actions secret: $name"
               exit 1
@@ -68,18 +69,12 @@ jobs:
             postgresql://*|postgres://*) ;;
             *) echo "::error::SUPABASE_DB_URL must be a PostgreSQL connection string"; exit 1 ;;
           esac
-          case "$GOOGLE_DRIVE_INGEST_URL" in
-            https://script.google.com/macros/s/*/exec) ;;
-            *) echo "::error::GOOGLE_DRIVE_INGEST_URL must be a deployed Apps Script web app URL"; exit 1 ;;
-          esac
-          if [ "${#GOOGLE_DRIVE_INGEST_TOKEN}" -lt 40 ]; then
-            echo "::error::GOOGLE_DRIVE_INGEST_TOKEN must be at least 40 characters"
-            exit 1
-          fi
           if [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 32 ]; then
             echo "::error::BACKUP_ENCRYPTION_PASSPHRASE must be at least 32 characters"
             exit 1
           fi
+          python3 -m py_compile scripts/google_drive_backup.py
+          python3 scripts/test_google_drive_backup.py
 
       - name: Create backup workspace
         run: |
@@ -258,26 +253,14 @@ jobs:
           echo "ENCRYPTED_ARCHIVE=$ENCRYPTED" >> "$GITHUB_ENV"
           ls -lh "$ENCRYPTED"
 
-      - name: Upload encrypted archive parts to private Google Drive receiver
+      - name: Upload encrypted archive directly to Google Drive
         env:
-          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
-          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
         run: |
           set -euo pipefail
-          python3 scripts/upload_apps_script_backup.py "$ENCRYPTED_ARCHIVE"
-
-      - name: Remove superseded recovery-site artifacts
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
-            --jq '.artifacts[] | select(.name | startswith("green-dream-recovery-site-")) | .id' |
-            while IFS= read -r artifact_id; do
-              [ -n "$artifact_id" ] || continue
-              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id"
-            done
+          python3 scripts/google_drive_backup.py upload "$ENCRYPTED_ARCHIVE"
 
       - name: Publish portable read-only recovery website
         uses: actions/upload-artifact@v4
