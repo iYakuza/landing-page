@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T23:19:37.192108Z",
-  "last_processed_sha": "e757747e3f5fdbef9b072b3c9d6aa05c2ab47b72",
+  "updated_at": "2026-11-13T23:19:50.210227Z",
+  "last_processed_sha": "98ad1084665b4d00c9237c706253d825cad7bef0",
   "entries": [
+    {
+      "id": "98ad1084665b4d00c9237c706253d825cad7bef0",
+      "timestamp": "2026-11-14T00:19:44+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Update revision history version marker to 1.2. It updates index.html.",
+      "commit_count": 1,
+      "files": [
+        "green-dream/guest-notes/revision-history/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Update revision history version marker to 1.2",
+          "url": "https://github.com/iYakuza/landing-page/commit/98ad1084665b4d00c9237c706253d825cad7bef0",
+          "files": [
+            "green-dream/guest-notes/revision-history/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "e757747e3f5fdbef9b072b3c9d6aa05c2ab47b72",
       "timestamp": "2026-11-14T00:19:34+01:00",
@@ -1177,27 +1198,6 @@
           "files": [
             ".github/workflows/google-drive-backup.yml",
             ".github/workflows/recover-google-drive-backup.yml"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "06ff56c062f523b7f41d96dd96e2a29a19ca59b7",
-      "timestamp": "2026-11-12T13:56:08+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Support Supabase secret API keys without sending them as Bearer JWTs. It updates backup_storage.py.",
-      "commit_count": 1,
-      "files": [
-        "scripts/backup_storage.py"
-      ],
-      "commits": [
-        {
-          "message": "Support Supabase secret API keys without sending them as Bearer JWTs",
-          "url": "https://github.com/iYakuza/landing-page/commit/06ff56c062f523b7f41d96dd96e2a29a19ca59b7",
-          "files": [
-            "scripts/backup_storage.py"
           ]
         }
       ]
