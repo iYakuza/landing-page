@@ -208,6 +208,9 @@ jobs:
             exit 1
           fi
           echo "Captured source for $FUNCTION_COUNT deployed Edge Functions."
+          python3 scripts/export_edge_env_inventory.py \
+            --source "$BACKUP_ROOT/deployed-edge-functions" \
+            --output "$BACKUP_ROOT/metadata/deployed-edge-function-env-inventory.json"
 
       - name: Generate checksums and backup manifest
         run: |
