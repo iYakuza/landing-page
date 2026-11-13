@@ -1,6 +1,15 @@
 name: Validate backup tooling
 
 on:
+  push:
+    branches:
+      - "backup/**"
+    paths:
+      - ".github/workflows/**"
+      - "scripts/**"
+      - "google-apps-script/**"
+      - "supabase/functions/google-drive-oauth-callback/**"
+      - "supabase/config.toml"
   pull_request:
     branches:
       - main
