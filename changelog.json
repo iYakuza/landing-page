@@ -1,8 +1,53 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T23:18:21.970817Z",
-  "last_processed_sha": "18245d78f621aa8135bc54ca4b3ae3ffd16651da",
+  "updated_at": "2026-11-13T23:18:54.666771Z",
+  "last_processed_sha": "52395efda60118acb8b6f8e9ede0705f40abc529",
   "entries": [
+    {
+      "id": "52395efda60118acb8b6f8e9ede0705f40abc529",
+      "timestamp": "2026-11-14T00:18:53+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Place Ethical Framework under Initiative Foundations in Guest Notes index; Record Ethical Framework move into Initiative Foundations; Style Foundations entry in floating reading index; and 1 more related changes. It updates index.html, guest-notes.css and related project files.",
+      "commit_count": 4,
+      "files": [
+        "green-dream/guest-notes/ethical-framework/index.html",
+        "green-dream/guest-notes/guest-notes.css",
+        "green-dream/guest-notes/index.html",
+        "green-dream/guest-notes/revision-history/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Place Ethical Framework under Initiative Foundations in Guest Notes index",
+          "url": "https://github.com/iYakuza/landing-page/commit/39b68778cc387153902083cead440d02f5444659",
+          "files": [
+            "green-dream/guest-notes/index.html"
+          ]
+        },
+        {
+          "message": "Record Ethical Framework move into Initiative Foundations",
+          "url": "https://github.com/iYakuza/landing-page/commit/7e6f8df93a05d57ad83ca3783496e273d3a7d472",
+          "files": [
+            "green-dream/guest-notes/revision-history/index.html"
+          ]
+        },
+        {
+          "message": "Style Foundations entry in floating reading index",
+          "url": "https://github.com/iYakuza/landing-page/commit/8ee77fc1730beb173011d42b267df550ecc7c67e",
+          "files": [
+            "green-dream/guest-notes/guest-notes.css"
+          ]
+        },
+        {
+          "message": "Keep former Ethical Framework URL as compatibility link",
+          "url": "https://github.com/iYakuza/landing-page/commit/52395efda60118acb8b6f8e9ede0705f40abc529",
+          "files": [
+            "green-dream/guest-notes/ethical-framework/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "0bce14432171e835af97854924b4b158e03e0ef2",
       "timestamp": "2026-11-14T00:18:16+01:00",
@@ -1167,55 +1212,6 @@
             "posts/community/index.html",
             "posts/index.html",
             "posts/the-awakening/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "9d035f84554c36e2d1606e107eec1ee15fe05681",
-      "timestamp": "2026-11-12T13:14:56+01:00",
-      "category": "FIX",
-      "component": "Website Experience",
-      "title": "More reliable Website Experience",
-      "description": "This update brings together Fix AI mood theme contrast and cache versions. It updates analytics.html, index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "cms/analytics.html",
-        "cms/index.html",
-        "community/index.html",
-        "cv/index.html",
-        "game-ui.js",
-        "green-dream/index.html",
-        "human-archive/index.html",
-        "index.html",
-        "posts/community/index.html",
-        "posts/index.html",
-        "posts/the-awakening/index.html",
-        "posts/the-descent/index.html",
-        "posts/the-reconnection/index.html",
-        "posts/the-return/index.html",
-        "posts/the-transformation/index.html",
-        "secure-your-soul/index.html",
-        "shared/crystal/crystal-loader.js",
-        "shared/crystal/tools/mood.js"
-      ],
-      "commits": [
-        {
-          "message": "Fix AI mood theme contrast and cache versions",
-          "url": "https://github.com/iYakuza/landing-page/commit/9d035f84554c36e2d1606e107eec1ee15fe05681",
-          "files": [
-            "cms/analytics.html",
-            "cms/index.html",
-            "community/index.html",
-            "cv/index.html",
-            "game-ui.js",
-            "green-dream/index.html",
-            "human-archive/index.html",
-            "index.html",
-            "posts/community/index.html",
-            "posts/index.html",
-            "posts/the-awakening/index.html",
-            "posts/the-descent/index.html"
           ]
         }
       ]
