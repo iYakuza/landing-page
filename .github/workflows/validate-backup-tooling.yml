@@ -134,6 +134,7 @@ jobs:
             .github/workflows/recover-google-drive-backup.yml \
             .github/workflows/restore-supabase-backup.yml \
             .github/workflows/validate-supabase-restore.yml \
+            .github/workflows/verify-google-drive-system-backup.yml \
             .github/workflows/validate-backup-tooling.yml
           python3 -c 'import tomllib; tomllib.load(open("supabase/config.toml", "rb")); print("Supabase TOML OK")'
 
