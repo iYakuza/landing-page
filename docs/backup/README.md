@@ -51,7 +51,7 @@ Add these repository secrets:
 |---|---|
 | `SUPABASE_DB_URL` | PostgreSQL connection string from Supabase Dashboard → Connect. Use a compatible pooler connection if needed; URL-encode special characters in the password. |
 | `SUPABASE_SECRET_KEY` | Current Supabase Secret API key from Settings → API Keys. Never publish it. |
-| `SUPABASE_ACCESS_TOKEN` | Supabase personal access token used by the CLI to download deployed Edge Function source. It is not used to deploy or modify functions. Keep it private and rotate it if exposed. |
+| `SUPABASE_ACCESS_TOKEN` | Supabase personal access token used by the CLI to download deployed Edge Function source. Treat it as a highly privileged account credential: the workflow only calls the download command and never deploys or modifies functions, but the token itself may have broader Management API access. Keep it private and rotate it if exposed. |
 | `GOOGLE_DRIVE_INGEST_URL` | The existing deployed Apps Script web-app URL ending in `/exec`. |
 | `GOOGLE_DRIVE_INGEST_TOKEN` | The existing token stored as the Apps Script `INGEST_TOKEN` property. Do not rotate it as part of this update. |
 | `BACKUP_ENCRYPTION_PASSPHRASE` | A unique randomly generated passphrase of at least 32 characters. Store it in a password manager and keep a separate secure recovery copy. |
