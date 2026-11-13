@@ -118,10 +118,10 @@ jobs:
             "select coalesce(json_agg(to_jsonb(i)), '[]'::json) from auth.identities i" \
             > "$OUT/auth/identities.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
-            "select coalesce(json_agg(json_build_object('name',attname,'generated',attgenerated <> '')), '[]'::json) from pg_attribute where attrelid='auth.users'::regclass and attnum > 0 and not attisdropped order by attnum" \
+            "select coalesce(json_agg(json_build_object('name',attname,'generated',attgenerated <> '') order by attnum), '[]'::json) from pg_attribute where attrelid='auth.users'::regclass and attnum > 0 and not attisdropped" \
             > "$OUT/auth/users-columns.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
-            "select coalesce(json_agg(json_build_object('name',attname,'generated',attgenerated <> '')), '[]'::json) from pg_attribute where attrelid='auth.identities'::regclass and attnum > 0 and not attisdropped order by attnum" \
+            "select coalesce(json_agg(json_build_object('name',attname,'generated',attgenerated <> '') order by attnum), '[]'::json) from pg_attribute where attrelid='auth.identities'::regclass and attnum > 0 and not attisdropped" \
             > "$OUT/auth/identities-columns.json"
           psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc \
             "select coalesce(json_agg(to_jsonb(b) order by id), '[]'::json) from storage.buckets b" \
