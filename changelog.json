@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T23:31:37.205387Z",
-  "last_processed_sha": "3c87c7a1a898066065e5b413bb2a3a9a59526441",
+  "updated_at": "2026-11-13T23:31:48.782393Z",
+  "last_processed_sha": "48c7f56770ad98b4a2d0e1fa94fa188a87c74f9f",
   "entries": [
+    {
+      "id": "48c7f56770ad98b4a2d0e1fa94fa188a87c74f9f",
+      "timestamp": "2026-11-14T00:31:40+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Refresh Guest Notes navigation styling across pages. It updates index.html and related project files.",
+      "commit_count": 2,
+      "files": [
+        "green-dream/guest-notes/integration-without-assimilation/index.html",
+        "green-dream/guest-notes/revision-history/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Refresh Guest Notes navigation styling across pages",
+          "url": "https://github.com/iYakuza/landing-page/commit/7d4fbf8ffdbe53e5caad39d8436614c69fcf7ffe",
+          "files": [
+            "green-dream/guest-notes/integration-without-assimilation/index.html"
+          ]
+        },
+        {
+          "message": "Refresh Guest Notes navigation styling across pages",
+          "url": "https://github.com/iYakuza/landing-page/commit/48c7f56770ad98b4a2d0e1fa94fa188a87c74f9f",
+          "files": [
+            "green-dream/guest-notes/revision-history/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "3c87c7a1a898066065e5b413bb2a3a9a59526441",
       "timestamp": "2026-11-14T00:31:36+01:00",
@@ -1253,27 +1282,6 @@
             "green-dream/tetris.js",
             "home.js",
             "shared/crystal/tools/presentation.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "945f944e52067d56c03b329191fbb93ca358e7e0",
-      "timestamp": "2026-11-13T03:55:56+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Run secret scanning on every branch push (#23). It updates secret-scan.yml.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/secret-scan.yml"
-      ],
-      "commits": [
-        {
-          "message": "Run secret scanning on every branch push (#23)",
-          "url": "https://github.com/iYakuza/landing-page/commit/945f944e52067d56c03b329191fbb93ca358e7e0",
-          "files": [
-            ".github/workflows/secret-scan.yml"
           ]
         }
       ]
