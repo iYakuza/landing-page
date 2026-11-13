@@ -100,6 +100,7 @@ jobs:
           PY
 
       - name: Download encrypted backup from private Google Drive
+        timeout-minutes: 40
         run: |
           set -euo pipefail
           OUTPUT="$RUNNER_TEMP/green-dream-supabase-restore.gpg"
@@ -150,6 +151,7 @@ jobs:
           echo "Fresh destination checks passed."
 
       - name: Restore database roles, schema, migration history, Auth, Vault, and data
+        timeout-minutes: 60
         shell: bash
         run: |
           set -euo pipefail
@@ -166,6 +168,7 @@ jobs:
           DATABASE_URL="$RESTORE_DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/database/data.sql"
 
       - name: Restore Storage buckets and object contents
+        timeout-minutes: 30
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_RESTORE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_RESTORE_SECRET_KEY }}
