@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       backup_id:
-        description: "Completed encrypted backup ID (blank selects the newest completed backup)"
+        description: "Completed encrypted backup ID (blank selects the newest completed system backup; older untyped backups require an explicit ID)"
         required: false
         type: string
       confirm_fresh_target:
@@ -104,9 +104,9 @@ jobs:
           set -euo pipefail
           OUTPUT="$RUNNER_TEMP/green-dream-supabase-restore.gpg"
           if [ -n "$BACKUP_ID" ]; then
-            python3 scripts/download_apps_script_backup.py --backup-id "$BACKUP_ID" --output "$OUTPUT"
+            python3 scripts/download_apps_script_backup.py --backup-type system --backup-id "$BACKUP_ID" --output "$OUTPUT"
           else
-            python3 scripts/download_apps_script_backup.py --output "$OUTPUT"
+            python3 scripts/download_apps_script_backup.py --backup-type system --output "$OUTPUT"
           fi
           test -s "$OUTPUT"
           echo "ENCRYPTED_BACKUP=$OUTPUT" >> "$GITHUB_ENV"
