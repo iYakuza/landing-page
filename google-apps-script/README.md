@@ -6,11 +6,11 @@ This is a private, owner-operated Google Apps Script web app. GitHub Actions sen
 
 - GitHub Actions creates and verifies the encrypted archive locally.
 - The authenticated Apps Script receiver creates Google Drive resumable-upload sessions in one batch. It does not receive or relay archive bytes.
-- GitHub Actions uploads the 4 MiB encrypted parts directly to Google Drive, with up to six concurrent transfers.
+- GitHub Actions uploads the 4 MiB encrypted parts directly to Google Drive, with up to four concurrent transfers.
 - Each part remains a separate immutable Drive file. The existing manifest format, part hashes, whole-archive SHA-256, resume behavior, and recovery download path are preserved.
 - If a transfer response is lost, the uploader asks the receiver to check the immutable part name and checksum before opening a replacement session.
 - The receiver creates the completion manifest only after every stored part has been re-read and verified.
-- Upload progress reports completed parts, verified MB, percentage, average throughput, and elapsed time.
+- Upload progress reports completed parts, verified MB, percentage, transferred throughput, and elapsed time. If no part completes, periodic heartbeats identify the active part numbers rather than leaving the job silent.
 
 This removes Apps Script from the large-payload data path. Apps Script only authenticates the request and creates Drive upload sessions; the encrypted bytes travel directly from the GitHub runner to Google Drive.
 
