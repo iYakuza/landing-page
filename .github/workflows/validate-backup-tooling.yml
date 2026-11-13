@@ -53,10 +53,10 @@ jobs:
             scripts/verify_vault_restore.py \
             scripts/apply_sql_safely.py \
             scripts/create_restore_expectations.py \
-            scripts/test_restore_expectations.py \\
-            scripts/upload_apps_script_backup.py \\
-            scripts/download_apps_script_backup.py \\
-            scripts/test_upload_apps_script_backup.py \\
+            scripts/test_restore_expectations.py \
+            scripts/upload_apps_script_backup.py \
+            scripts/download_apps_script_backup.py \
+            scripts/test_upload_apps_script_backup.py \
             scripts/test_download_apps_script_backup.py
 
       - name: Test backup manifest generation and verification
