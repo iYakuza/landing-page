@@ -195,7 +195,7 @@ jobs:
           printf 'project_id = "green-dream-deployed-function-export"\n' > "$EXPORT_ROOT/supabase/config.toml"
           (
             cd "$EXPORT_ROOT"
-            supabase functions download --project-ref "$SOURCE_PROJECT_REF"
+            supabase functions download --project-ref "$SOURCE_PROJECT_REF" --use-api
           )
           test -d "$EXPORT_ROOT/supabase/functions"
           mkdir -p "$BACKUP_ROOT/deployed-edge-functions"
