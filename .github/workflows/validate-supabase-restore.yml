@@ -7,7 +7,6 @@ on:
     paths:
       - "scripts/download_apps_script_backup.py"
       - "scripts/apps_script_transport.py"
-      - ".github/workflows/validate-supabase-restore.yml"
   workflow_dispatch:
     inputs:
       backup_id:
