@@ -103,16 +103,34 @@ function readManifest_(folder, backupId) {
   return manifest;
 }
 
-function listUploadParts_(folder, backupId, total) {
+function listUploadParts_(folder, backupId, total, expectedParts) {
   const manifest = readManifest_(folder, backupId);
   if (manifest && manifest.part_count !== total) throw new Error("Completed backup has a different part count.");
+  if (!Array.isArray(expectedParts) || expectedParts.length !== total) {
+    throw new Error("The uploader must provide the complete expected part inventory.");
+  }
+  const expected = {};
+  expectedParts.forEach(function (part) {
+    if (!part || !Number.isInteger(part.part_number) || part.part_number < 1 ||
+        part.part_number > total || !Number.isInteger(part.size) || part.size < 1 ||
+        part.size > PART_BYTES || typeof part.sha256 !== "string" ||
+        !/^[a-f0-9]{64}$/.test(part.sha256) || expected[part.part_number]) {
+      throw new Error("Invalid expected part inventory.");
+    }
+    expected[part.part_number] = part;
+  });
   const existing = [];
   for (let number = 1; number <= total; number++) {
-    const name = partName_(backupId, number, total);
-    const file = uniqueFile_(folder, name);
+    const file = uniqueFile_(folder, partName_(backupId, number, total));
     if (!file) continue;
-    const bytes = file.getBlob().getBytes();
-    existing.push({ part_number: number, size: bytes.length, sha256: sha256_(bytes) });
+    const part = expected[number];
+    if (!part || file.getSize() !== part.size) {
+      throw new Error("A stored backup part has an unexpected size; refusing to reuse it.");
+    }
+    // The authenticated uploader supplies the SHA-256 calculated from its local
+    // archive. Drive's successful resumable-upload confirmation verifies name and
+    // size; avoid downloading hundreds of MB back into Apps Script just to hash it.
+    existing.push({ part_number: number, size: part.size, sha256: part.sha256 });
   }
   return { completed: !!manifest, parts: existing };
 }
@@ -318,7 +336,7 @@ function doPost(e) {
       diagnosticStage = "list_upload_parts:scan_existing_files";
       const total = request.total_parts;
       if (!Number.isInteger(total) || total < 1 || total > MAX_PARTS) return json_({ ok: false, error: "Invalid part count." });
-      const state = listUploadParts_(folder, request.backup_id, total);
+      const state = listUploadParts_(folder, request.backup_id, total, request.parts);
       return json_({ ok: true, backup_id: request.backup_id, total_parts: total, completed: state.completed, parts: state.parts });
     }
 
@@ -389,18 +407,31 @@ function doPost(e) {
             existingManifest.archive_sha256 !== archiveSha) return json_({ ok: false, error: "Completed backup metadata conflicts." });
         return json_({ ok: true, backup_id: request.backup_id, finalized: true, part_count: total, total_bytes: expectedBytes });
       }
+      if (!Array.isArray(request.parts) || request.parts.length !== total) {
+        return json_({ ok: false, error: "The complete expected part inventory is required." });
+      }
       const parts = [];
       let actualBytes = 0;
-      for (let number = 1; number <= total; number++) {
-        const name = partName_(request.backup_id, number, total);
+      const seen = {};
+      request.parts.forEach(function (part) {
+        if (!part || !Number.isInteger(part.part_number) || part.part_number < 1 ||
+            part.part_number > total || seen[part.part_number] ||
+            !Number.isInteger(part.size) || part.size < 1 || part.size > PART_BYTES ||
+            typeof part.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(part.sha256)) {
+          throw new Error("Invalid finalization part inventory.");
+        }
+        seen[part.part_number] = true;
+        const name = partName_(request.backup_id, part.part_number, total);
         const file = uniqueFile_(folder, name);
-        if (!file) return json_({ ok: false, error: "Upload is incomplete; a backup part is missing." });
-        const bytes = file.getBlob().getBytes();
-        if (!bytes.length || bytes.length > PART_BYTES) return json_({ ok: false, error: "A stored backup part has an invalid size." });
-        parts.push({ name: name, size: bytes.length, sha256: sha256_(bytes) });
-        actualBytes += bytes.length;
+        if (!file) throw new Error("Upload is incomplete; a backup part is missing.");
+        if (file.getSize() !== part.size) throw new Error("A stored backup part has an unexpected size.");
+        parts.push({ name: name, size: part.size, sha256: part.sha256 });
+        actualBytes += part.size;
+      });
+      if (Object.keys(seen).length !== total || actualBytes !== expectedBytes) {
+        return json_({ ok: false, error: "Uploaded backup inventory does not match the expected archive." });
       }
-      if (actualBytes !== expectedBytes) return json_({ ok: false, error: "Uploaded backup size does not match the expected archive size." });
+      parts.sort(function (a, b) { return a.name.localeCompare(b.name); });
       diagnosticStage = "finalize_backup:write_manifest";
       const manifest = {
         backup_id: request.backup_id, created_at: new Date().toISOString(),
