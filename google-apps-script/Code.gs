@@ -119,6 +119,18 @@ function listUploadParts_(folder, backupId, total, expectedParts) {
     }
     expected[part.part_number] = part;
   });
+  if (Object.keys(expected).length !== total) throw new Error("Expected part inventory is incomplete.");
+  if (manifest) {
+    const recorded = {};
+    manifest.parts.forEach(function (part) { recorded[part.name] = part; });
+    for (let number = 1; number <= total; number++) {
+      const item = expected[number];
+      const prior = recorded[partName_(backupId, number, total)];
+      if (!prior || prior.size !== item.size || prior.sha256 !== item.sha256) {
+        throw new Error("Completed backup metadata conflicts with the requested archive.");
+      }
+    }
+  }
   const existing = [];
   for (let number = 1; number <= total; number++) {
     const file = uniqueFile_(folder, partName_(backupId, number, total));
