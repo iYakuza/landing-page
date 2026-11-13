@@ -11,6 +11,8 @@ download_manifest = json.loads(
     (root / "storage" / "objects" / "storage-manifest.json").read_text(encoding="utf-8")
 )
 bucket_ids = {item["id"] for item in buckets}
+if set(download_manifest.get("buckets", [])) != bucket_ids:
+    raise SystemExit("Downloaded Storage bucket inventory does not match the database snapshot.")
 expected = {}
 for item in database_objects:
     key = (item["bucket_id"], item["name"])
@@ -27,6 +29,8 @@ if set(expected) != set(actual):
     missing = sorted(set(expected) - set(actual))
     unexpected = sorted(set(actual) - set(expected))
     raise SystemExit(f"Storage object inventory mismatch: {len(missing)} missing and {len(unexpected)} unexpected; object paths suppressed.")
+if int(download_manifest.get("object_count", -1)) != len(actual):
+    raise SystemExit("Downloaded Storage object count does not match its manifest.")
 for key, record in expected.items():
     metadata = record.get("metadata") or {}
     expected_size = metadata.get("size")
