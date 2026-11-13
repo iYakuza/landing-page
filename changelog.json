@@ -1,8 +1,61 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T23:18:54.666771Z",
-  "last_processed_sha": "3777bd47a733e2b87a7561cdf8d1e3fa8150792a",
+  "updated_at": "2026-11-13T23:19:20.058909Z",
+  "last_processed_sha": "245483ef24eb9d104b06a97d0c8718f28a085ef7",
   "entries": [
+    {
+      "id": "245483ef24eb9d104b06a97d0c8718f28a085ef7",
+      "timestamp": "2026-11-14T00:19:18+01:00",
+      "category": "FEATURE",
+      "component": "Creative Archive",
+      "title": "New capabilities for Creative Archive",
+      "description": "This update brings together Keep former Romanian Ethical Framework URL as compatibility link; Add Ethical Framework as first stop in English reading index; Add Cadru etic as first stop in Romanian reading index; and 2 more related changes. It updates index.html and related project files.",
+      "commit_count": 5,
+      "files": [
+        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html",
+        "green-dream/guest-notes/ethical-framework/ro/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Keep former Romanian Ethical Framework URL as compatibility link",
+          "url": "https://github.com/iYakuza/landing-page/commit/9bdda70b97e1e011af26d463b87b425207f448db",
+          "files": [
+            "green-dream/guest-notes/ethical-framework/ro/index.html"
+          ]
+        },
+        {
+          "message": "Add Ethical Framework as first stop in English reading index",
+          "url": "https://github.com/iYakuza/landing-page/commit/6a24f2ac398ab7af6cacf9fc5793b352d46b83b4",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
+          ]
+        },
+        {
+          "message": "Add Cadru etic as first stop in Romanian reading index",
+          "url": "https://github.com/iYakuza/landing-page/commit/e09527dd5755a5f465a66fa0e766a3538d851e6e",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
+          ]
+        },
+        {
+          "message": "Publish Ethical Framework under Initiative Foundations",
+          "url": "https://github.com/iYakuza/landing-page/commit/94ad602977106752384dc4eee529b7c685ee4786",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html"
+          ]
+        },
+        {
+          "message": "Publish Romanian Ethical Framework under Initiative Foundations",
+          "url": "https://github.com/iYakuza/landing-page/commit/245483ef24eb9d104b06a97d0c8718f28a085ef7",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "52395efda60118acb8b6f8e9ede0705f40abc529",
       "timestamp": "2026-11-14T00:18:53+01:00",
@@ -1162,56 +1215,6 @@
             "scripts/restore_storage.ts",
             "scripts/test_restore_expectations.py",
             "scripts/upload_drive_backup.py"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "63db5c02b330c8ef37207ead4919f2970de7c1a4",
-      "timestamp": "2026-11-12T13:44:39+01:00",
-      "category": "FIX",
-      "component": "Website Experience",
-      "title": "More reliable Website Experience",
-      "description": "This update brings together Fix AI mood theme WCAG contrast and cache versions. It updates 404.html, analytics.html, index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "404.html",
-        "cms/analytics.html",
-        "cms/index.html",
-        "community/index.html",
-        "cv/index.html",
-        "game-ui.js",
-        "green-dream/index.html",
-        "human-archive/index.html",
-        "index.html",
-        "posts/community/index.html",
-        "posts/index.html",
-        "posts/the-awakening/index.html",
-        "posts/the-descent/index.html",
-        "posts/the-reconnection/index.html",
-        "posts/the-return/index.html",
-        "posts/the-transformation/index.html",
-        "secure-your-soul/index.html",
-        "shared/crystal/crystal-loader.js",
-        "shared/crystal/tools/mood.js"
-      ],
-      "commits": [
-        {
-          "message": "Fix AI mood theme WCAG contrast and cache versions",
-          "url": "https://github.com/iYakuza/landing-page/commit/63db5c02b330c8ef37207ead4919f2970de7c1a4",
-          "files": [
-            "404.html",
-            "cms/analytics.html",
-            "cms/index.html",
-            "community/index.html",
-            "cv/index.html",
-            "game-ui.js",
-            "green-dream/index.html",
-            "human-archive/index.html",
-            "index.html",
-            "posts/community/index.html",
-            "posts/index.html",
-            "posts/the-awakening/index.html"
           ]
         }
       ]
