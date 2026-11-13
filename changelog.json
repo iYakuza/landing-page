@@ -1,8 +1,53 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T21:32:11.506796Z",
-  "last_processed_sha": "85be8f850f3827d24320f72e841bb67b92b37bab",
+  "updated_at": "2026-11-13T21:35:28.075911Z",
+  "last_processed_sha": "03b96c0d5b5375139c807be93788e97c7c414bec",
   "entries": [
+    {
+      "id": "03b96c0d5b5375139c807be93788e97c7c414bec",
+      "timestamp": "2026-11-13T22:35:25+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Style interactive economic model catalogue; Make future economic models expandable and link definitions to examples; Update Guest Notes index for interactive economic models; and 1 more related changes. It updates index.html, guest-notes.css and related project files.",
+      "commit_count": 4,
+      "files": [
+        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
+        "green-dream/guest-notes/guest-notes.css",
+        "green-dream/guest-notes/index.html",
+        "green-dream/guest-notes/revision-history/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Style interactive economic model catalogue",
+          "url": "https://github.com/iYakuza/landing-page/commit/f2865b059b959385e74c44b1166994668e1ba891",
+          "files": [
+            "green-dream/guest-notes/guest-notes.css"
+          ]
+        },
+        {
+          "message": "Make future economic models expandable and link definitions to examples",
+          "url": "https://github.com/iYakuza/landing-page/commit/9f558e4d03447ed736d7ab686a748fc549cc160d",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
+          ]
+        },
+        {
+          "message": "Update Guest Notes index for interactive economic models",
+          "url": "https://github.com/iYakuza/landing-page/commit/90d70764ace2a2a8bcfa59e25bb5464b713c4909",
+          "files": [
+            "green-dream/guest-notes/index.html"
+          ]
+        },
+        {
+          "message": "Record interactive model catalogue revision 0.8",
+          "url": "https://github.com/iYakuza/landing-page/commit/03b96c0d5b5375139c807be93788e97c7c414bec",
+          "files": [
+            "green-dream/guest-notes/revision-history/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "d4d9204d967b303766f881a9b73484f96edad244",
       "timestamp": "2026-11-13T22:32:08+01:00",
@@ -1090,27 +1135,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/80516bcd7d2410d7abeee193bbb782c54fbb64cb",
           "files": [
             "shared/crystal/tools/changelog.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "0ddec8641a88fa47a8621eefbc4c5bfdcae91170",
-      "timestamp": "2026-11-06T21:15:32Z",
-      "category": "FIX",
-      "component": "Latest Changelog",
-      "title": "Latest Changelog stays interactive in Crystal mode",
-      "description": "The changelog panel is now excluded from the page-dimming interaction rules, so visitors can keep reading and scrolling without the Crystal experience closing underneath them.",
-      "commit_count": 1,
-      "files": [
-        "game-ui.css"
-      ],
-      "commits": [
-        {
-          "message": "Exclude Latest Changelog from Crystal page blur",
-          "url": "https://github.com/iYakuza/landing-page/commit/0ddec8641a88fa47a8621eefbc4c5bfdcae91170",
-          "files": [
-            "game-ui.css"
           ]
         }
       ]
