@@ -59,7 +59,7 @@ class DriveTransferTests(unittest.TestCase):
             path = pathlib.Path(tmp) / "archive.gpg"
             path.write_bytes(b"encrypted fixture")
             def fake_urlopen(req, timeout=0):
-                if req.full_url.startswith(drive.UPLOAD_API):
+                if req.full_url.startswith(drive.UPLOAD_API + "?"):
                     return Response(b"", {"Location": "https://www.googleapis.com/upload/drive/v3/files/session"})
                 return Response(b'{"id":"file-1","name":"archive.gpg","size":17,"md5Checksum":"00000000000000000000000000000000"}')
             with patch.object(drive.urllib.request, "urlopen", side_effect=fake_urlopen):
