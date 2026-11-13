@@ -133,7 +133,11 @@ jobs:
           AUTH_IDENTITIES="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select count(*) from auth.identities")"
           STORAGE_BUCKETS="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select count(*) from storage.buckets")"
           STORAGE_OBJECTS="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select count(*) from storage.objects")"
-          VAULT_SECRETS="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select count(*) from vault.decrypted_secrets")"
+          VAULT_TABLE_EXISTS="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select to_regclass('vault.decrypted_secrets') is not null")"
+          VAULT_SECRETS=0
+          if [ "$VAULT_TABLE_EXISTS" = "t" ]; then
+            VAULT_SECRETS="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select count(*) from vault.decrypted_secrets")"
+          fi
           if [ "$PUBLIC_TABLES" != "0" ] || [ "$AUTH_USERS" != "0" ] || [ "$AUTH_IDENTITIES" != "0" ] || [ "$STORAGE_BUCKETS" != "0" ] || [ "$STORAGE_OBJECTS" != "0" ] || [ "$VAULT_SECRETS" != "0" ]; then
             echo "::error::Destination is not empty. Restore stopped without modifying it."
             exit 1
