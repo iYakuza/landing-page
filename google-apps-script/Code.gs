@@ -266,7 +266,7 @@ function createDriveUploadSessions_(folder, backupId, total, requestedParts) {
         }
         return false;
       });
-      if (!/^https:\/\/www\.googleapis\.com\/upload\/drive\/v3\/files(?:\\?|$)/.test(sessionUrl)) {
+      if (sessionUrl.indexOf("https://www.googleapis.com/upload/drive/v3/files?") !== 0) {
         throw new Error("Google Drive returned an invalid resumable upload session.");
       }
       results.push({ part_number: part.part_number, already_present: false, session_url: sessionUrl });
