@@ -105,34 +105,33 @@ def create_sessions(endpoint: str, token: str, backup_id: str, total_parts: int,
 
 
 class RetryableUploadError(RuntimeError):
-    """A Drive upload failure for which creating a fresh session is safe."""
+    """A Drive upload failure for which querying or retrying the same session is safe."""
 
 
-def create_sessions_batched(endpoint: str, token: str, backup_id: str, total_parts: int,
-                            parts: list[dict], deadline: float) -> dict[int, dict]:
-    """Keep each Apps Script fetchAll burst small and report session preparation progress."""
-    sessions: dict[int, dict] = {}
-    for offset in range(0, len(parts), SESSION_BATCH_SIZE):
-        batch = parts[offset:offset + SESSION_BATCH_SIZE]
-        batch_number = offset // SESSION_BATCH_SIZE + 1
-        batch_total = (len(parts) + SESSION_BATCH_SIZE - 1) // SESSION_BATCH_SIZE
-        print(
-            f"Preparing Drive upload sessions: batch {batch_number}/{batch_total} "
-            f"({min(offset + len(batch), len(parts))}/{len(parts)} parts).",
-            flush=True,
-        )
-        sessions.update(create_sessions(endpoint, token, backup_id, total_parts, batch, deadline))
-    return sessions
+class ExpiredUploadSessionError(RetryableUploadError):
+    """The Drive resumable session expired and must be recreated."""
 
 
-def put_chunk(session_url: str, chunk: bytes, expected_name: str, timeout: float) -> None:
+def verify_upload_confirmation(body: bytes, expected_name: str, expected_size: int) -> None:
+    try:
+        result = json.loads(body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        raise RuntimeError("Google Drive returned an invalid upload confirmation.") from None
+    if result.get("name") != expected_name or int(result.get("size", -1)) != expected_size:
+        raise RuntimeError("Google Drive upload confirmation did not match the expected part.")
+
+
+def put_chunk(session_url: str, chunk: bytes, expected_name: str, timeout: float,
+              start: int = 0, total_size: int | None = None) -> None:
+    total = total_size if total_size is not None else len(chunk)
+    end = start + len(chunk) - 1
     request = urllib.request.Request(
         session_url,
         data=chunk,
         headers={
             "Content-Type": "application/octet-stream",
             "Content-Length": str(len(chunk)),
-            "Content-Range": f"bytes 0-{len(chunk) - 1}/{len(chunk)}",
+            "Content-Range": f"bytes {start}-{end}/{total}",
         },
         method="PUT",
     )
@@ -141,17 +140,61 @@ def put_chunk(session_url: str, chunk: bytes, expected_name: str, timeout: float
             status = response.status
             body = response.read()
     except urllib.error.HTTPError as exc:
-        if exc.code in RETRYABLE_HTTP or exc.code in (308, 404, 410):
+        if exc.code in (404, 410):
+            raise ExpiredUploadSessionError(f"Google Drive upload session expired (HTTP {exc.code}).") from None
+        if exc.code in RETRYABLE_HTTP or exc.code == 308:
             raise RetryableUploadError(f"Google Drive upload returned HTTP {exc.code}.") from None
         raise RuntimeError(f"Google Drive upload returned HTTP {exc.code}.") from None
+    if status == 308:
+        raise RetryableUploadError("Google Drive accepted an incomplete upload response.")
     if status not in (200, 201):
         raise RuntimeError(f"Google Drive did not complete the part upload (HTTP {status}).")
+    verify_upload_confirmation(body, expected_name, total)
+
+
+def query_upload_status(session_url: str, total_size: int, expected_name: str,
+                        timeout: float) -> dict:
+    """Ask Drive how much of this exact resumable session it has received."""
+    request = urllib.request.Request(
+        session_url,
+        data=b"",
+        headers={
+            "Content-Length": "0",
+            "Content-Range": f"bytes */{total_size}",
+        },
+        method="PUT",
+    )
     try:
-        result = json.loads(body.decode("utf-8"))
-    except (json.JSONDecodeError, UnicodeDecodeError):
-        raise RuntimeError("Google Drive returned an invalid upload confirmation.") from None
-    if result.get("name") != expected_name or int(result.get("size", -1)) != len(chunk):
-        raise RuntimeError("Google Drive upload confirmation did not match the expected part.")
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            status = response.status
+            headers = response.headers
+            body = response.read()
+    except urllib.error.HTTPError as exc:
+        status = exc.code
+        headers = exc.headers
+        body = exc.read()
+    if status in (200, 201):
+        verify_upload_confirmation(body, expected_name, total_size)
+        return {"complete": True, "offset": total_size}
+    if status == 404 or status == 410:
+        raise ExpiredUploadSessionError(f"Google Drive upload session expired (HTTP {status}).")
+    if status in RETRYABLE_HTTP:
+        raise RetryableUploadError(f"Google Drive upload-status query returned HTTP {status}.")
+    if status != 308:
+        raise RuntimeError(f"Google Drive returned an unexpected upload-status response (HTTP {status}).")
+
+    received = headers.get("Range") if headers else None
+    if not received:
+        offset = 0
+    else:
+        import re
+        match = re.fullmatch(r"bytes=0-(\\d+)", str(received).strip())
+        if not match:
+            raise RuntimeError("Google Drive returned an invalid resumable-upload byte range.")
+        offset = int(match.group(1)) + 1
+    if offset < 0 or offset > total_size:
+        raise RuntimeError("Google Drive returned an out-of-range resumable-upload position.")
+    return {"complete": False, "offset": offset}
 
 
 def upload_one(archive: pathlib.Path, endpoint: str, token: str, backup_id: str,
@@ -167,26 +210,57 @@ def upload_one(archive: pathlib.Path, endpoint: str, token: str, backup_id: str,
         raise RuntimeError(f"Local archive part {number} changed after its checksum was calculated.")
 
     current_session = session_url
+    next_offset = 0
     for attempt in range(RETRIES + 1):
         remaining = remaining_seconds(deadline)
         try:
-            put_chunk(current_session, chunk, expected_name, min(REQUEST_TIMEOUT_SECONDS, remaining))
+            put_chunk(
+                current_session, chunk[next_offset:], expected_name,
+                min(REQUEST_TIMEOUT_SECONDS, remaining),
+                start=next_offset, total_size=len(chunk),
+            )
             return number, True
         except (urllib.error.URLError, TimeoutError, RetryableUploadError) as exc:
             if attempt >= RETRIES:
-                raise RuntimeError(f"Part {number} failed after {RETRIES + 1} bounded attempts ({type(exc).__name__}).") from None
+                raise RuntimeError(
+                    f"Part {number} failed after {RETRIES + 1} bounded attempts ({type(exc).__name__})."
+                ) from None
             remaining = remaining_seconds(deadline)
-            delay = min(2 ** attempt, 4, remaining)
             print(
                 f"Part {number}: attempt {attempt + 1}/{RETRIES + 1} did not complete "
-                f"({type(exc).__name__}); retrying with a fresh Drive session.",
+                f"({type(exc).__name__}); checking the existing Drive session before retrying.",
                 flush=True,
             )
-            time.sleep(delay)
-            refreshed = create_sessions(endpoint, token, backup_id, total_parts, [part], deadline)
-            if refreshed[number]["already_present"]:
-                return number, False
-            current_session = refreshed[number]["session_url"]
+            try:
+                state = query_upload_status(
+                    current_session, len(chunk), expected_name,
+                    min(REQUEST_TIMEOUT_SECONDS, remaining),
+                )
+                if state["complete"]:
+                    return number, True
+                next_offset = state["offset"]
+                if next_offset == len(chunk):
+                    raise RuntimeError("Drive reports all bytes received without confirming file completion.")
+                if next_offset:
+                    print(
+                        f"Part {number}: resuming the same Drive session at byte "
+                        f"{next_offset}/{len(chunk)}.",
+                        flush=True,
+                    )
+            except ExpiredUploadSessionError:
+                refreshed = create_sessions(endpoint, token, backup_id, total_parts, [part], deadline)
+                if refreshed[number]["already_present"]:
+                    return number, False
+                current_session = refreshed[number]["session_url"]
+                next_offset = 0
+                print(f"Part {number}: expired session replaced; restarting this part.", flush=True)
+            except (urllib.error.URLError, TimeoutError, RetryableUploadError) as status_exc:
+                print(
+                    f"Part {number}: could not query session status ({type(status_exc).__name__}); "
+                    f"will retry the same session.",
+                    flush=True,
+                )
+            time.sleep(min(2 ** attempt, 4, remaining_seconds(deadline)))
     raise RuntimeError(f"Part {number} could not be uploaded.")
 
 
