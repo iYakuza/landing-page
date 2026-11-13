@@ -67,7 +67,7 @@ const context = {
       sessionRequests.push(...requests);
       return requests.map((request, index) => ({
         getResponseCode: () => 200,
-        getAllHeaders: () => ({ Location: "https://www.googleapis.com/upload/drive/v3/files/mock-session-" + (sessionRequests.length - requests.length + index + 1) })
+        getAllHeaders: () => ({ Location: "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&upload_id=mock-session-" + (sessionRequests.length - requests.length + index + 1) })
       }));
     }
   },
@@ -124,7 +124,7 @@ assert.equal(sessionState.ok, true);
 assert.equal(sessionState.sessions.length, 2);
 assert.equal(sessionState.sessions[0].already_present, true);
 assert.equal(sessionState.sessions[1].already_present, false);
-assert.match(sessionState.sessions[1].session_url, /^https:\/\/www\.googleapis\.com\/upload\/drive\/v3\/files\//);
+assert.match(sessionState.sessions[1].session_url, /^https:\/\/www\.googleapis\.com\/upload\/drive\/v3\/files\\?/);
 assert.equal(sessionRequests.length, 1, "only the missing part gets a Drive session");
 assert.equal(sessionRequests[0].headers.Authorization, "Bearer mock-google-oauth-token");
 assert.equal(sessionRequests[0].headers["X-Upload-Content-Length"], String(chunks[1].length));
