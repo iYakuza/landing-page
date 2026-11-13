@@ -1,8 +1,39 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T02:56:05.573917Z",
-  "last_processed_sha": "945f944e52067d56c03b329191fbb93ca358e7e0",
+  "updated_at": "2026-11-13T02:56:25.794372Z",
+  "last_processed_sha": "816e604946bf29a0e598485ea81ec4897aa577f0",
   "entries": [
+    {
+      "id": "816e604946bf29a0e598485ea81ec4897aa577f0",
+      "timestamp": "2026-11-13T03:56:17+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Experience",
+      "title": "A refined Website Experience",
+      "description": "This update brings together DRAFT — Remove unused legacy code and redundant site references (#22). It updates index.html, script.js, tetris.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        "cv/index.html",
+        "green-dream/index.html",
+        "green-dream/script.js",
+        "green-dream/tetris.js",
+        "home.js",
+        "shared/crystal/tools/presentation.js"
+      ],
+      "commits": [
+        {
+          "message": "DRAFT — Remove unused legacy code and redundant site references (#22)",
+          "url": "https://github.com/iYakuza/landing-page/commit/816e604946bf29a0e598485ea81ec4897aa577f0",
+          "files": [
+            "cv/index.html",
+            "green-dream/index.html",
+            "green-dream/script.js",
+            "green-dream/tetris.js",
+            "home.js",
+            "shared/crystal/tools/presentation.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "945f944e52067d56c03b329191fbb93ca358e7e0",
       "timestamp": "2026-11-13T03:55:56+01:00",
