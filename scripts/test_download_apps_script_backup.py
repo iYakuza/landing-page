@@ -7,6 +7,8 @@ import os
 import pathlib
 import sys
 import tempfile
+import threading
+import time
 from unittest.mock import patch
 
 script = pathlib.Path(__file__).with_name("download_apps_script_backup.py")
@@ -15,7 +17,8 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 assert module.REQUEST_TIMEOUT_SECONDS == 60
-assert module.DOWNLOAD_DEADLINE_SECONDS == 30 * 60
+assert module.DOWNLOAD_DEADLINE_SECONDS == 90 * 60
+assert module.DOWNLOAD_WORKERS == 4
 backup_id = "system-20261113T000000Z-a1b2c3d4"
 chunks = [b"encrypted-part-one", b"encrypted-part-two"]
 whole = b"".join(chunks)
@@ -24,6 +27,9 @@ parts = [
     for i, chunk in enumerate(chunks)
 ]
 calls = []
+active_downloads = 0
+max_active_downloads = 0
+download_lock = threading.Lock()
 
 def fake_post(endpoint, token, payload, deadline):
     calls.append(payload)
@@ -38,14 +44,24 @@ def fake_post(endpoint, token, payload, deadline):
             {"backup_id": backup_id, **common},
         ]}
     if payload["action"] == "download_part":
+        nonlocal_placeholder = None
+        global active_downloads, max_active_downloads
         number = payload["part_number"]
+        with download_lock:
+            active_downloads += 1
+            max_active_downloads = max(max_active_downloads, active_downloads)
+        time.sleep(0.05 if number == 1 else 0.01)
         chunk = chunks[number - 1]
-        return {
+        try:
+            return {
             "ok": True, "backup_id": backup_id, "part_number": number,
             "total_parts": len(chunks), "size": len(chunk),
             "sha256": hashlib.sha256(chunk).hexdigest(),
-            "content_base64": base64.b64encode(chunk).decode("ascii"),
-        }
+                "content_base64": base64.b64encode(chunk).decode("ascii"),
+            }
+        finally:
+            with download_lock:
+                active_downloads -= 1
     raise AssertionError("Unexpected action")
 
 with tempfile.TemporaryDirectory() as temp:
@@ -57,7 +73,9 @@ with tempfile.TemporaryDirectory() as temp:
         module.main()
     assert output.read_bytes() == whole
 
-assert [x["action"] for x in calls] == ["list_backups", "download_part", "download_part"]
+assert [x["action"] for x in calls].count("list_backups") == 1
+assert [x["action"] for x in calls].count("download_part") == 2
+assert max_active_downloads >= 2, "recovery downloads should overlap instead of running serially"
 # Content recovery must select a content archive even when a newer system
 # backup is also present in the receiver inventory.
 content_id = "content-20261113T000000Z-b1b2c3d4"
