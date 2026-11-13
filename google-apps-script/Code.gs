@@ -278,10 +278,9 @@ function createDriveUploadSessions_(folder, backupId, total, requestedParts) {
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
-  let diagnosticStage = "acquire_lock";
+  let lockAcquired = false;
+  let diagnosticStage = "read_request";
   try {
-    lock.waitLock(30000);
-    diagnosticStage = "read_request";
     const expectedToken = PropertiesService.getScriptProperties().getProperty(TOKEN_PROPERTY) || "";
     if (expectedToken.length < 40) return json_({ ok: false, error: "Receiver is not configured." });
     const raw = e && e.postData && e.postData.contents;
@@ -298,6 +297,14 @@ function doPost(e) {
     diagnosticStage = "resolve_drive_folder";
     const folder = getFolder_();
     diagnosticStage = "action:" + String(request.action || "missing") + ":folder_ready";
+
+    // Read-only inventory and upload-session requests may run concurrently.
+    // Serialize only the legacy part-write and final manifest commit operations.
+    if (request.action === "upload_part" || request.action === "finalize_backup") {
+      diagnosticStage = String(request.action) + ":acquire_write_lock";
+      lock.waitLock(30000);
+      lockAcquired = true;
+    }
 
     if (request.action === "list_backups") {
       return json_({ ok: true, backups: listCompletedBackups_(folder) });
@@ -431,7 +438,9 @@ function doPost(e) {
       }
     });
   } finally {
-    try { lock.releaseLock(); } catch (_) {}
+    if (lockAcquired) {
+      try { lock.releaseLock(); } catch (_) {}
+    }
   }
 }
 
