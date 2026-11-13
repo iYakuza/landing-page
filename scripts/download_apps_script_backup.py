@@ -17,16 +17,30 @@ import urllib.request
 MAX_PARTS = 400
 BACKUP_ID = re.compile(r"^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}$")
 SHA256 = re.compile(r"^[a-f0-9]{64}$")
-RETRIES = 5
-RETRYABLE_HTTP = {429, 500, 502, 503, 504}
+RETRIES = 2
+REQUEST_TIMEOUT_SECONDS = 60
+DOWNLOAD_DEADLINE_SECONDS = 30 * 60
+RETRYABLE_HTTP = {408, 429, 500, 502, 503, 504}
 
 
-def post_json(endpoint: str, token: str, payload: dict) -> dict:
+def remaining_seconds(deadline: float | None) -> float:
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise RuntimeError("The backup download exceeded its 30-minute deadline.")
+    return remaining
+
+
+def post_json(endpoint: str, token: str, payload: dict, deadline: float) -> dict:
     body = json.dumps({**payload, "token": token}, separators=(",", ":")).encode("utf-8")
     for attempt in range(RETRIES + 1):
-        request = urllib.request.Request(endpoint, data=body, headers={"Content-Type": "application/json"}, method="POST")
+        timeout = min(REQUEST_TIMEOUT_SECONDS, remaining_seconds(deadline))
+        request = urllib.request.Request(
+            endpoint, data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
         try:
-            with urllib.request.urlopen(request, timeout=240) as response:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
                 result = json.loads(response.read().decode("utf-8"))
             if not isinstance(result, dict) or result.get("ok") is not True:
                 raise RuntimeError("The backup receiver rejected the recovery request.")
@@ -36,8 +50,8 @@ def post_json(endpoint: str, token: str, payload: dict) -> dict:
                 raise RuntimeError(f"The backup receiver returned HTTP {exc.code}.") from None
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, UnicodeDecodeError):
             if attempt >= RETRIES:
-                raise RuntimeError("The backup receiver request failed after repeated retries.") from None
-        time.sleep(min(2 ** attempt, 20))
+                raise RuntimeError("The backup receiver request failed after bounded retries.") from None
+        time.sleep(min(2 ** attempt, 4, remaining_seconds(deadline)))
     raise RuntimeError("The backup receiver request could not be completed.")
 
 
@@ -56,7 +70,14 @@ def main() -> None:
     if args.backup_id and not BACKUP_ID.fullmatch(args.backup_id):
         raise SystemExit("Invalid backup ID.")
 
-    listing = post_json(endpoint, token, {"action": "list_backups"})
+    started_at = time.monotonic()
+    deadline = started_at + DOWNLOAD_DEADLINE_SECONDS
+    print(
+        f"Starting authenticated backup recovery. Each receiver request is capped at "
+        f"{REQUEST_TIMEOUT_SECONDS}s; overall download deadline is {DOWNLOAD_DEADLINE_SECONDS // 60} minutes.",
+        flush=True,
+    )
+    listing = post_json(endpoint, token, {"action": "list_backups"}, deadline)
     backups = listing.get("backups")
     if not isinstance(backups, list) or not backups:
         raise SystemExit("No completed backups are available in the private Drive folder.")
@@ -89,6 +110,11 @@ def main() -> None:
     if set(indexed) != set(range(1, part_count + 1)) or sum(x["size"] for x in indexed.values()) != total_bytes:
         raise SystemExit("The backup part inventory is incomplete or inconsistent.")
 
+    print(
+        f"Recovering backup {backup_id}: {part_count} parts, "
+        f"{total_bytes / (1024 * 1024):.2f} MB. Verifying each part as it arrives.",
+        flush=True,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     temporary = args.output.with_suffix(args.output.suffix + ".partial")
     full_hash = hashlib.sha256()
@@ -98,7 +124,7 @@ def main() -> None:
             for number in range(1, part_count + 1):
                 response = post_json(endpoint, token, {
                     "action": "download_part", "backup_id": backup_id, "part_number": number,
-                })
+                }, deadline)
                 if response.get("backup_id") != backup_id or response.get("part_number") != number or response.get("total_parts") != part_count:
                     raise RuntimeError("The receiver returned a mismatched backup part.")
                 try:
@@ -112,7 +138,14 @@ def main() -> None:
                 output.write(chunk)
                 full_hash.update(chunk)
                 written += len(chunk)
-                print(f"Verified and downloaded part {number}/{part_count} ({written}/{total_bytes} bytes).")
+                elapsed = max(time.monotonic() - started_at, 0.001)
+                percent = written / total_bytes * 100
+                print(
+                    f"Recovery progress: {number}/{part_count} parts | "
+                    f"{written / (1024 * 1024):.2f}/{total_bytes / (1024 * 1024):.2f} MB "
+                    f"verified ({percent:.1f}%) | {elapsed:.0f}s elapsed.",
+                    flush=True,
+                )
         actual_archive_sha = full_hash.hexdigest()
         if written != total_bytes:
             raise RuntimeError("The reassembled encrypted backup has an unexpected size.")
@@ -122,13 +155,15 @@ def main() -> None:
     except Exception:
         temporary.unlink(missing_ok=True)
         raise
-    print(f"Encrypted backup {backup_id} reassembled and verified: {written} bytes; SHA-256 {actual_archive_sha}")
-    print(f"Output: {args.output}")
+    elapsed = time.monotonic() - started_at
+    print(f"Encrypted backup {backup_id} reassembled and verified: {written} bytes; SHA-256 {actual_archive_sha}", flush=True)
+    print(f"Recovery download elapsed: {elapsed:.1f}s.", flush=True)
+    print(f"Output: {args.output}", flush=True)
 
 
 if __name__ == "__main__":
     try:
         main()
     except Exception as exc:
-        print(f"Backup download failed: {exc}", file=sys.stderr)
+        print(f"Backup download failed: {exc}", file=sys.stderr, flush=True)
         sys.exit(1)
