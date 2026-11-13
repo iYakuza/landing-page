@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Parallel, resumable direct-to-Drive upload of encrypted Green Dream backup parts."""
+"""Bounded, observable, resumable direct-to-Drive upload of encrypted backup parts."""
 from __future__ import annotations
 
 import concurrent.futures
@@ -17,20 +17,34 @@ PART_BYTES = 4 * 1024 * 1024
 MAX_PARTS = 400
 WORKERS = 4
 PREFIX = "greendream-backup-"
-RETRIES = 5
+RETRIES = 2
+REQUEST_TIMEOUT_SECONDS = 60
+UPLOAD_DEADLINE_SECONDS = 15 * 60
+HEARTBEAT_SECONDS = 15
 RETRYABLE_HTTP = {408, 429, 500, 502, 503, 504}
 
 
-def post_json(endpoint: str, token: str, payload: dict) -> dict:
+def remaining_seconds(deadline: float | None) -> float | None:
+    if deadline is None:
+        return None
+    remaining = deadline - time.monotonic()
+    if remaining <= 0:
+        raise RuntimeError("The Google Drive transfer exceeded its 15-minute deadline.")
+    return remaining
+
+
+def post_json(endpoint: str, token: str, payload: dict, deadline: float | None = None) -> dict:
     body = json.dumps({**payload, "token": token}, separators=(",", ":")).encode("utf-8")
     for attempt in range(RETRIES + 1):
+        remaining = remaining_seconds(deadline)
+        timeout = REQUEST_TIMEOUT_SECONDS if remaining is None else min(REQUEST_TIMEOUT_SECONDS, remaining)
         request = urllib.request.Request(
             endpoint, data=body,
             headers={"Content-Type": "application/json"},
             method="POST",
         )
         try:
-            with urllib.request.urlopen(request, timeout=240) as response:
+            with urllib.request.urlopen(request, timeout=timeout) as response:
                 result = json.loads(response.read().decode("utf-8"))
             if not isinstance(result, dict) or result.get("ok") is not True:
                 message = result.get("error", "Invalid receiver response.") if isinstance(result, dict) else "Invalid receiver response."
@@ -50,18 +64,20 @@ def post_json(endpoint: str, token: str, payload: dict) -> dict:
                 raise RuntimeError(f"Backup receiver returned HTTP {exc.code}.") from None
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, UnicodeDecodeError):
             if attempt >= RETRIES:
-                raise RuntimeError("The backup receiver request failed after repeated retries.") from None
-        time.sleep(min(2 ** attempt, 20))
+                raise RuntimeError("The backup receiver request failed after bounded retries.") from None
+        remaining = remaining_seconds(deadline)
+        time.sleep(min(2 ** attempt, 4, remaining if remaining is not None else 4))
     raise RuntimeError("The backup receiver request could not be completed.")
 
 
-def create_sessions(endpoint: str, token: str, backup_id: str, total_parts: int, parts: list[dict]) -> dict[int, dict]:
+def create_sessions(endpoint: str, token: str, backup_id: str, total_parts: int,
+                    parts: list[dict], deadline: float | None = None) -> dict[int, dict]:
     response = post_json(endpoint, token, {
         "action": "create_upload_sessions",
         "backup_id": backup_id,
         "total_parts": total_parts,
         "parts": parts,
-    })
+    }, deadline=deadline)
     if response.get("backup_id") != backup_id or response.get("total_parts") != total_parts:
         raise RuntimeError("Drive returned mismatched upload session metadata.")
     sessions = response.get("sessions")
@@ -91,25 +107,22 @@ class RetryableUploadError(RuntimeError):
     """A Drive upload failure for which creating a fresh session is safe."""
 
 
-def put_chunk(session_url: str, chunk: bytes, expected_name: str) -> None:
+def put_chunk(session_url: str, chunk: bytes, expected_name: str, timeout: float) -> None:
     request = urllib.request.Request(
         session_url,
         data=chunk,
         headers={
             "Content-Type": "application/octet-stream",
             "Content-Length": str(len(chunk)),
-            # Required by the Google Drive resumable-upload protocol.
             "Content-Range": f"bytes 0-{len(chunk) - 1}/{len(chunk)}",
         },
         method="PUT",
     )
     try:
-        with urllib.request.urlopen(request, timeout=240) as response:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
             status = response.status
             body = response.read()
     except urllib.error.HTTPError as exc:
-        # Do not print the URL: a resumable session URL is a bearer capability.
-        # Expired sessions and transient service responses can be safely re-created.
         if exc.code in RETRYABLE_HTTP or exc.code in (308, 404, 410):
             raise RetryableUploadError(f"Google Drive upload returned HTTP {exc.code}.") from None
         raise RuntimeError(f"Google Drive upload returned HTTP {exc.code}.") from None
@@ -124,7 +137,8 @@ def put_chunk(session_url: str, chunk: bytes, expected_name: str) -> None:
 
 
 def upload_one(archive: pathlib.Path, endpoint: str, token: str, backup_id: str,
-               total_parts: int, part: dict, session_url: str) -> tuple[int, bool]:
+               total_parts: int, part: dict, session_url: str,
+               deadline: float) -> tuple[int, bool]:
     number = part["part_number"]
     offset = (number - 1) * PART_BYTES
     expected_name = f"{PREFIX}{backup_id}-part-{number:04d}-of-{total_parts:04d}.gpgpart"
@@ -135,27 +149,26 @@ def upload_one(archive: pathlib.Path, endpoint: str, token: str, backup_id: str,
         raise RuntimeError(f"Local archive part {number} changed after its checksum was calculated.")
 
     current_session = session_url
-    started_at = time.monotonic()
     for attempt in range(RETRIES + 1):
+        remaining = remaining_seconds(deadline)
         try:
-            put_chunk(current_session, chunk, expected_name)
+            put_chunk(current_session, chunk, expected_name, min(REQUEST_TIMEOUT_SECONDS, remaining))
             return number, True
         except (urllib.error.URLError, TimeoutError, RetryableUploadError) as exc:
             if attempt >= RETRIES:
-                raise
-            elapsed = time.monotonic() - started_at
+                raise RuntimeError(f"Part {number} failed after {RETRIES + 1} bounded attempts ({type(exc).__name__}).") from None
+            remaining = remaining_seconds(deadline)
+            delay = min(2 ** attempt, 4, remaining)
             print(
-                f"Part {number}: upload attempt {attempt + 1}/{RETRIES + 1} "
-                f"did not complete after {elapsed:.1f}s ({type(exc).__name__}); refreshing its Drive session.",
+                f"Part {number}: attempt {attempt + 1}/{RETRIES + 1} did not complete "
+                f"({type(exc).__name__}); retrying with a fresh Drive session.",
                 flush=True,
             )
-            time.sleep(min(2 ** attempt, 20))
-            # A previous PUT may have reached Drive even if its response was lost.
-            # The receiver checks the immutable filename and hash before issuing a new session.
-            refreshed = create_sessions(endpoint, token, backup_id, total_parts, [part])[number]
-            if refreshed["already_present"]:
+            time.sleep(delay)
+            refreshed = create_sessions(endpoint, token, backup_id, total_parts, [part], deadline)
+            if refreshed[number]["already_present"]:
                 return number, False
-            current_session = refreshed["session_url"]
+            current_session = refreshed[number]["session_url"]
     raise RuntimeError(f"Part {number} could not be uploaded.")
 
 
@@ -179,28 +192,30 @@ def main() -> None:
         raise RuntimeError(f"Backup is too large: {total_parts} parts exceeds the {MAX_PARTS}-part receiver limit.")
 
     started_at = time.monotonic()
-    print(f"Preparing direct Drive upload: {total_bytes / (1024 * 1024):.2f} MB across {total_parts} parts; {WORKERS} parallel transfers.", flush=True)
+    print(
+        f"Preparing direct Drive upload: {total_bytes / (1024 * 1024):.2f} MB across "
+        f"{total_parts} parts; {WORKERS} parallel transfers. Each request is capped at "
+        f"{REQUEST_TIMEOUT_SECONDS}s; transfer deadline is {UPLOAD_DEADLINE_SECONDS // 60} minutes.",
+        flush=True,
+    )
 
     parts = []
     archive_digest = hashlib.sha256()
     with archive.open("rb") as stream:
-        number = 0
         while True:
             chunk = stream.read(PART_BYTES)
             if not chunk:
                 break
-            number += 1
-            archive_digest.update(chunk)
             parts.append({
-                "part_number": number,
+                "part_number": len(parts) + 1,
                 "size": len(chunk),
                 "sha256": hashlib.sha256(chunk).hexdigest(),
             })
+            archive_digest.update(chunk)
     archive_sha256 = archive_digest.hexdigest()
     if len(parts) != total_parts:
         raise RuntimeError("Archive changed while its checksums were being calculated.")
 
-    # Stable for the same archive on the same UTC day, allowing a cancelled run to resume.
     backup_id = datetime.now(timezone.utc).strftime("%Y%m%dT000000Z") + "-" + archive_sha256[:8]
     print("Checking previously stored parts...", flush=True)
     state = post_json(endpoint, token, {
@@ -224,42 +239,64 @@ def main() -> None:
         existing[number] = True
 
     missing = [part for part in parts if part["part_number"] not in existing]
-    print(f"Already verified: {len(existing)}/{total_parts} parts. Initialising {len(missing)} direct Drive upload sessions...", flush=True)
-    session_map = create_sessions(endpoint, token, backup_id, total_parts, missing) if missing else {}
+    deadline = time.monotonic() + UPLOAD_DEADLINE_SECONDS
+    print(
+        f"Already verified: {len(existing)}/{total_parts} parts. "
+        f"Initialising {len(missing)} remaining upload sessions.",
+        flush=True,
+    )
+    session_map = create_sessions(endpoint, token, backup_id, total_parts, missing, deadline) if missing else {}
 
     completed = set(existing)
     uploaded_this_run = 0
-    for number in list(session_map):
-        if session_map[number]["already_present"]:
+    for number, session in session_map.items():
+        if session["already_present"]:
             completed.add(number)
-
     pending = [part for part in missing if part["part_number"] not in completed]
+
     if pending:
         with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
             futures = {
                 pool.submit(
                     upload_one, archive, endpoint, token, backup_id, total_parts,
-                    part, session_map[part["part_number"]]["session_url"],
+                    part, session_map[part["part_number"]]["session_url"], deadline,
                 ): part
                 for part in pending
             }
-            for future in concurrent.futures.as_completed(futures):
-                part = futures[future]
-                number, newly_uploaded = future.result()
-                completed.add(number)
-                if newly_uploaded:
-                    uploaded_this_run += part["size"]
-                verified_bytes = sum(parts[n - 1]["size"] for n in completed)
-                elapsed = max(time.monotonic() - started_at, 0.001)
-                percent = verified_bytes / total_bytes * 100
-                speed = uploaded_this_run / (1024 * 1024) / elapsed
-                print(
-                    f"Progress: {len(completed)}/{total_parts} parts | "
-                    f"{verified_bytes / (1024 * 1024):.2f}/{total_bytes / (1024 * 1024):.2f} MB verified "
-                    f"({percent:.1f}%) | {speed:.2f} MB/s average | {elapsed:.0f}s elapsed.",
-                    flush=True,
+            while futures:
+                remaining = remaining_seconds(deadline)
+                done, _ = concurrent.futures.wait(
+                    tuple(futures),
+                    timeout=min(HEARTBEAT_SECONDS, remaining),
+                    return_when=concurrent.futures.FIRST_COMPLETED,
                 )
+                if not done:
+                    active = ", ".join(str(part["part_number"]) for part in futures.values())
+                    elapsed = time.monotonic() - started_at
+                    print(
+                        f"Heartbeat: {len(completed)}/{total_parts} parts verified; "
+                        f"{len(futures)} transfers active (parts {active}); {elapsed:.0f}s elapsed.",
+                        flush=True,
+                    )
+                    continue
+                for future in done:
+                    part = futures.pop(future)
+                    number, newly_uploaded = future.result()
+                    completed.add(number)
+                    if newly_uploaded:
+                        uploaded_this_run += part["size"]
+                    verified_bytes = sum(parts[n - 1]["size"] for n in completed)
+                    elapsed = max(time.monotonic() - started_at, 0.001)
+                    percent = verified_bytes / total_bytes * 100
+                    speed = uploaded_this_run / (1024 * 1024) / elapsed
+                    print(
+                        f"Progress: {len(completed)}/{total_parts} parts | "
+                        f"{verified_bytes / (1024 * 1024):.2f}/{total_bytes / (1024 * 1024):.2f} MB verified "
+                        f"({percent:.1f}%) | {speed:.2f} MB/s transferred | {elapsed:.0f}s elapsed.",
+                        flush=True,
+                    )
 
+    print("All parts are present. Asking Drive to verify and commit the backup manifest...", flush=True)
     final = post_json(endpoint, token, {
         "action": "finalize_backup",
         "backup_id": backup_id,
