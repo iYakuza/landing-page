@@ -129,6 +129,8 @@ jobs:
             .github/workflows/google-drive-backup.yml \
             .github/workflows/google-drive-content-backup.yml \
             .github/workflows/recover-google-drive-backup.yml \
+            .github/workflows/restore-supabase-backup.yml \
+            .github/workflows/validate-supabase-restore.yml \
             .github/workflows/validate-backup-tooling.yml
           python3 -c 'import tomllib; tomllib.load(open("supabase/config.toml", "rb")); print("Supabase TOML OK")'
 
@@ -151,7 +153,27 @@ jobs:
           set -euo pipefail
           LOCAL_PROJECT="$RUNNER_TEMP/storage-restore-test-project"
           mkdir -p "$LOCAL_PROJECT/supabase/migrations"
-          printf 'project_id = "storage-restore-test"\n' > "$LOCAL_PROJECT/supabase/config.toml"
+          python3 - <<'PY' > "$RUNNER_TEMP/storage-restore-ports"
+          import socket
+          for base in range(55000, 60000):
+              opened = []
+              try:
+                  for port in (base, base + 1, base + 2):
+                      sock = socket.socket()
+                      sock.bind(("127.0.0.1", port))
+                      opened.append(sock)
+                  print(base, base + 1, base + 2)
+                  break
+              except OSError:
+                  pass
+              finally:
+                  for sock in opened:
+                      sock.close()
+          else:
+              raise SystemExit("No free local Supabase test ports are available.")
+          PY
+          read -r API_PORT DB_PORT SHADOW_PORT < "$RUNNER_TEMP/storage-restore-ports"
+          printf 'project_id = "storage-restore-test"\n[api]\nport = %s\n[db]\nport = %s\nshadow_port = %s\n' "$API_PORT" "$DB_PORT" "$SHADOW_PORT" > "$LOCAL_PROJECT/supabase/config.toml"
           if ! supabase --workdir "$LOCAL_PROJECT" start --exclude studio,mailpit,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta > "$RUNNER_TEMP/storage-restore-start.log" 2>&1; then
             sed -E '/(secret key:|publishable key:|sb_secret_|sb_publishable_)/Id' "$RUNNER_TEMP/storage-restore-start.log" | tail -n 80
             exit 1
