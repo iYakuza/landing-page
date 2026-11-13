@@ -1,0 +1,50 @@
+name: Green Dream backup transfer tests
+
+on:
+  push:
+    branches:
+      - backup/apps-script-transfer-redesign
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "google-apps-script/**"
+      - "scripts/upload_apps_script_backup.py"
+      - "scripts/download_apps_script_backup.py"
+      - "scripts/test_upload_apps_script_backup.py"
+      - "scripts/test_download_apps_script_backup.py"
+      - ".github/workflows/backup-transfer-tests.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Validate Apps Script syntax and receiver behavior
+        run: |
+          set -euo pipefail
+          node --check < google-apps-script/Code.gs
+          node google-apps-script/test_receiver.js
+
+      - name: Validate Python upload and recovery tools
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/upload_apps_script_backup.py scripts/download_apps_script_backup.py scripts/test_upload_apps_script_backup.py scripts/test_download_apps_script_backup.py
+          python scripts/test_upload_apps_script_backup.py
+          python scripts/test_download_apps_script_backup.py
