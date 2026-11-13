@@ -32,7 +32,7 @@ Keep the `storage/objects` folder beside `recovery-site`. The page loads backed-
 
 The repository includes an authenticated receiver download action, a downloader that verifies every part against the receiver manifest, and a manual **Recover Green Dream from private Google Drive backup** workflow. The workflow downloads the encrypted archive, decrypts it using the existing GitHub secret, verifies the archive's SHA-256 manifest, and publishes the portable website ZIP as a time-limited artifact.
 
-The existing deployed Apps Script receiver must first be updated to the current `google-apps-script/Code.gs` and redeployed as a new version. Keep the existing `INGEST_TOKEN`, `BACKUP_FOLDER_ID`, and deployment URL unchanged. After the recovery workflow is merged into the repository's default branch, it can be run from **Actions → Recover Green Dream from private Google Drive backup**. Leave the backup ID blank to recover the newest completed set, or provide a specific ID.
+The existing deployed Apps Script receiver must first be updated to the current `google-apps-script/Code.gs` and redeployed as a new version. Keep the existing `INGEST_TOKEN`, `BACKUP_FOLDER_ID`, and deployment URL unchanged. After the recovery workflow is merged into the repository's default branch, it can be run from **Actions → Recover Green Dream from private Google Drive backup**. Leave the backup ID blank to recover the newest completed `content-...` backup, or provide a specific `content-...` ID. Full-system backups use `system-...` IDs and are never selected by this content recovery workflow. Older untyped backups must be selected by explicit ID.
 
 ## What this is not
 
