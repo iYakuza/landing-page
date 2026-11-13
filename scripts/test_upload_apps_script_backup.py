@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Test bounded parallel Drive upload, checksums, resume, progress and finalization."""
 import hashlib
+import io
 import importlib.util
 import os
 import pathlib
 import sys
 import tempfile
+from email.message import Message
 from unittest.mock import patch
 
 script = pathlib.Path(__file__).with_name("upload_apps_script_backup.py")
@@ -103,6 +105,23 @@ with tempfile.TemporaryDirectory() as temp:
 assert [call["action"] for call in calls] == ["list_upload_parts", "create_upload_sessions", "finalize_backup"]
 assert calls[1]["parts"] == [parts[1]], "the already stored first part must not be uploaded again"
 assert uploaded == [len(second)]
+# Google Drive reports acknowledged bytes with HTTP 308 and a Range header.
+status_headers = Message()
+status_headers["Range"] = "bytes=0-2"
+status_url = "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&upload_id=status"
+status_error = module.urllib.error.HTTPError(status_url, 308, "Resume Incomplete", status_headers, io.BytesIO(b""))
+status_capture = {}
+def fake_status_urlopen(request, timeout):
+    status_capture["request"] = request
+    status_capture["timeout"] = timeout
+    raise status_error
+with patch.object(module.urllib.request, "urlopen", fake_status_urlopen):
+    status = module.query_upload_status(status_url, 6, "expected-part.gpgpart", 60)
+assert status == {"complete": False, "offset": 3}
+assert status_capture["request"].get_method() == "PUT"
+assert status_capture["request"].get_header("Content-range") == "bytes */6"
+assert status_capture["request"].get_header("Content-length") == "0"
+
 # An interrupted upload must query the same session and resume at Drive's
 # acknowledged byte offset rather than blindly creating a duplicate file.
 resume_archive = pathlib.Path(tempfile.gettempdir()) / "green-dream-resume-test.bin"
