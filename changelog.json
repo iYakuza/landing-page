@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T23:18:05.502750Z",
-  "last_processed_sha": "eae3a8000158ea7c91131b9927c5f1dc91d779a3",
+  "updated_at": "2026-11-13T23:18:21.970817Z",
+  "last_processed_sha": "0bce14432171e835af97854924b4b158e03e0ef2",
   "entries": [
+    {
+      "id": "0bce14432171e835af97854924b4b158e03e0ef2",
+      "timestamp": "2026-11-14T00:18:16+01:00",
+      "category": "FIX",
+      "component": "Creative Archive",
+      "title": "More reliable Creative Archive",
+      "description": "This update brings together Correct Romanian edition relative links and labels; Update English Initiative metadata. It updates index.html and related project files.",
+      "commit_count": 2,
+      "files": [
+        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Correct Romanian edition relative links and labels",
+          "url": "https://github.com/iYakuza/landing-page/commit/1130c4b39854043f2015372862d19fd51d8d98d8",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
+          ]
+        },
+        {
+          "message": "Update English Initiative metadata",
+          "url": "https://github.com/iYakuza/landing-page/commit/0bce14432171e835af97854924b4b158e03e0ef2",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "eae3a8000158ea7c91131b9927c5f1dc91d779a3",
       "timestamp": "2026-11-14T00:17:54+01:00",
@@ -1187,27 +1216,6 @@
             "posts/index.html",
             "posts/the-awakening/index.html",
             "posts/the-descent/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "f187cc6c8b9a60bf6fa9e179dd353a8d793281e8",
-      "timestamp": "2026-11-10T10:34:46+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Link Green Dream to The Guest's Notes. It updates index.html.",
-      "commit_count": 1,
-      "files": [
-        "green-dream/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Link Green Dream to The Guest's Notes",
-          "url": "https://github.com/iYakuza/landing-page/commit/f187cc6c8b9a60bf6fa9e179dd353a8d793281e8",
-          "files": [
-            "green-dream/index.html"
           ]
         }
       ]
