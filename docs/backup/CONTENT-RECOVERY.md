@@ -17,7 +17,7 @@ The export deliberately excludes pending/failed submissions, unapproved transmis
 
 ## Get a portable website from a successful backup
 
-The content-backup workflow also packages the viewer and its public media as a ZIP and uploads it as a GitHub Actions artifact named `green-dream-recovery-site-<run-id>`. It is retained for 7 days; each successful backup removes superseded recovery-site artifacts so only the newest generated package remains.
+The content-backup workflow also packages the viewer and its public media as a ZIP and uploads it as a GitHub Actions artifact named `green-dream-recovery-site-<run-id>`. It is retained for 7 days. Previous recovery-site artifacts are not automatically deleted.
 
 **Visibility:** the GitHub repository is public, so the recovery-site artifact must be treated as public too. It is intentionally limited to published posts, consent-approved published submissions, and files from public Storage buckets. Never add private backup archives, pending submissions, contact details, Auth data, Vault secrets, or private-bucket objects to this artifact.
 
@@ -32,7 +32,7 @@ Keep the `storage/objects` folder beside `recovery-site`. The page loads backed-
 
 The repository includes an authenticated receiver download action, a downloader that verifies every part against the receiver manifest, and a manual **Recover Green Dream from private Google Drive backup** workflow. The workflow downloads the encrypted archive, decrypts it using the existing GitHub secret, verifies the archive's SHA-256 manifest, and publishes the portable website ZIP as a time-limited artifact.
 
-The deployed Apps Script receiver must first be updated to the current `google-apps-script/Code.gs` and redeployed as a new version. Keep the existing Script Properties and deployment URL. After the recovery workflow is merged into the repository's default branch, it can be run from **Actions → Recover Green Dream from private Google Drive backup**. Leave the backup ID blank to recover the newest completed set, or provide a specific ID.
+The existing deployed Apps Script receiver must first be updated to the current `google-apps-script/Code.gs` and redeployed as a new version. Keep the existing `INGEST_TOKEN`, `BACKUP_FOLDER_ID`, and deployment URL unchanged. After the recovery workflow is merged into the repository's default branch, it can be run from **Actions → Recover Green Dream from private Google Drive backup**. Leave the backup ID blank to recover the newest completed set, or provide a specific ID.
 
 ## What this is not
 
