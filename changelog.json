@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T01:23:40.785994Z",
-  "last_processed_sha": "c946e1562130e81dee2116e33487444dcc5ea8aa",
+  "updated_at": "2026-11-13T02:56:05.573917Z",
+  "last_processed_sha": "945f944e52067d56c03b329191fbb93ca358e7e0",
   "entries": [
+    {
+      "id": "945f944e52067d56c03b329191fbb93ca358e7e0",
+      "timestamp": "2026-11-13T03:55:56+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Run secret scanning on every branch push (#23). It updates secret-scan.yml.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/secret-scan.yml"
+      ],
+      "commits": [
+        {
+          "message": "Run secret scanning on every branch push (#23)",
+          "url": "https://github.com/iYakuza/landing-page/commit/945f944e52067d56c03b329191fbb93ca358e7e0",
+          "files": [
+            ".github/workflows/secret-scan.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "c946e1562130e81dee2116e33487444dcc5ea8aa",
       "timestamp": "2026-11-13T02:23:33+01:00",
