@@ -69,7 +69,7 @@ def _fetch_content_response(location: str, endpoint: str, deadline: float | None
     current_url = location
     for _hop in range(MAX_REDIRECT_HOPS):
         if not _safe_content_url(current_url):
-            raise _RetryOriginalPost("ContentService returned an untrusted response URL.")
+            raise ReceiverTransportError("Apps Script returned an untrusted response URL.")
 
         moved_to_next_hop = False
         for response_attempt in range(REDIRECT_FETCH_RETRIES + 1):
