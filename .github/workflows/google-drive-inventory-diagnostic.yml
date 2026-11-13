@@ -14,8 +14,19 @@ jobs:
   inventory:
     name: Read-only Drive inventory probe
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 12
     steps:
+      - name: Check out tested backup transport
+        uses: actions/checkout@v6
+        with:
+          ref: backup/apps-script-transfer-redesign
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
       - name: Validate receiver secrets
         env:
           GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
@@ -35,123 +46,67 @@ jobs:
           fi
           echo "Receiver endpoint and required secrets are present."
 
-      - name: Probe inventory with explicit redirect diagnostics
+      - name: Probe one-part and 79-part inventories using production transport
         env:
           GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
           GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
-          python3 - <<'PY'
-          import json
+          PYTHONPATH=scripts python3 - <<'PY'
+          import hashlib
           import os
-          import sys
-          import time
-          import urllib.error
-          import urllib.request
-          from urllib.parse import urljoin, urlparse
+          import apps_script_transport
 
-          class NoRedirect(urllib.request.HTTPRedirectHandler):
-              def redirect_request(self, req, fp, code, msg, headers, newurl):
-                  return None
-
-          opener = urllib.request.build_opener(NoRedirect)
           endpoint = os.environ["GOOGLE_DRIVE_INGEST_URL"]
           token = os.environ["GOOGLE_DRIVE_INGEST_TOKEN"]
 
-          def request_once(method, url, body=None):
-              headers = {"Content-Type": "application/json"} if body is not None else {}
-              req = urllib.request.Request(url, data=body, headers=headers, method=method)
-              started = time.monotonic()
-              try:
-                  response = opener.open(req, timeout=15)
-                  status, response_headers, raw = response.status, response.headers, response.read()
-                  response.close()
-              except urllib.error.HTTPError as exc:
-                  status, response_headers, raw = exc.code, exc.headers, exc.read()
-                  exc.close()
-              elapsed = time.monotonic() - started
-              return status, response_headers, raw, elapsed
-
           def probe(backup_id, count):
               parts = [
-                  {"part_number": n, "size": 4194304, "sha256": "0" * 64}
-                  for n in range(1, count + 1)
+                  {
+                      "part_number": number,
+                      "size": 4 * 1024 * 1024,
+                      "sha256": hashlib.sha256(f"read-only-probe-{number}".encode()).hexdigest(),
+                  }
+                  for number in range(1, count + 1)
               ]
-              body = json.dumps({
-                  "action": "list_upload_parts",
-                  "token": token,
-                  "backup_id": backup_id,
-                  "total_parts": count,
-                  "parts": parts,
-              }, separators=(",", ":")).encode()
+              print(f"Starting read-only inventory probe for {count} part(s).", flush=True)
+              result = apps_script_transport.post_json(
+                  endpoint,
+                  token,
+                  {
+                      "action": "list_upload_parts",
+                      "backup_id": backup_id,
+                      "total_parts": count,
+                      "parts": parts,
+                  },
+                  timeout=60,
+                  retries=2,
+              )
+              if not (
+                  result.get("ok") is True
+                  and result.get("backup_id") == backup_id
+                  and result.get("total_parts") == count
+                  and result.get("completed") is False
+                  and result.get("parts") == []
+              ):
+                  safe = {
+                      "ok": result.get("ok"),
+                      "error": result.get("error"),
+                      "diagnostic": result.get("diagnostic"),
+                      "backup_id": result.get("backup_id"),
+                      "total_parts": result.get("total_parts"),
+                      "existing_parts": len(result.get("parts", []))
+                          if isinstance(result.get("parts"), list) else None,
+                  }
+                  raise RuntimeError(f"Unexpected read-only inventory response: {safe}")
+              print(
+                  f"PASS: {count} expected part(s), 0 existing parts, completed=false.",
+                  flush=True,
+              )
 
-              for attempt in range(1, 4):
-                  url, method, data = endpoint, "POST", body
-                  print(f"Probe {count} part(s), attempt {attempt}/3.", flush=True)
-                  try:
-                      for hop in range(6):
-                          status, headers, raw, elapsed = request_once(method, url, data)
-                          host = urlparse(url).hostname or "unknown"
-                          print(
-                              f"  hop {hop + 1}: method={method} host={host} "
-                              f"status={status} elapsed={elapsed:.2f}s",
-                              flush=True,
-                          )
-
-                          if status in (301, 302, 303, 307, 308):
-                              location = headers.get("Location")
-                              if not location:
-                                  raise RuntimeError("Redirect had no Location header.")
-                              next_url = urljoin(url, location)
-                              parsed = urlparse(next_url)
-                              if parsed.scheme != "https" or parsed.hostname != "script.googleusercontent.com":
-                                  if parsed.hostname == "script.google.com" and parsed.path.endswith("/exec"):
-                                      raise RuntimeError("ContentService redirect bounced back to the /exec endpoint.")
-                                  raise RuntimeError("Redirect target was not the expected Google ContentService host.")
-                              url, method, data = next_url, "GET", None
-                              continue
-
-                          if status != 200:
-                              raise RuntimeError(f"Redirect target returned HTTP {status}.")
-                          try:
-                              result = json.loads(raw.decode("utf-8"))
-                          except Exception:
-                              raise RuntimeError(f"Redirect target returned non-JSON content ({len(raw)} bytes).") from None
-                          if not (
-                              isinstance(result, dict)
-                              and result.get("ok") is True
-                              and result.get("backup_id") == backup_id
-                              and result.get("total_parts") == count
-                              and result.get("completed") is False
-                              and result.get("parts") == []
-                          ):
-                              safe = {
-                                  "ok": result.get("ok") if isinstance(result, dict) else None,
-                                  "error": result.get("error") if isinstance(result, dict) else None,
-                                  "diagnostic": result.get("diagnostic") if isinstance(result, dict) else None,
-                              }
-                              raise RuntimeError("Unexpected receiver JSON: " + json.dumps(safe, separators=(",", ":")))
-                          print(
-                              f"  success: ok=true, total_parts={count}, existing_parts=0",
-                              flush=True,
-                          )
-                          print("  Read-only request completed; no Drive files or upload sessions were created.", flush=True)
-                          return True
-
-                      raise RuntimeError("Redirect chain exceeded the six-hop limit.")
-                  except Exception as exc:
-                      print(f"  attempt failed: {type(exc).__name__}: {str(exc)[:220]}", flush=True)
-                      if attempt == 3:
-                          return False
-                      delay = attempt * 3
-                      print(f"  retrying the original read-only POST after {delay}s.", flush=True)
-                      time.sleep(delay)
-              return False
-
-          if not probe("system-20261113T235901Z-1a2b3c4d", 1):
-              sys.exit("One-part inventory probe failed after bounded retries.")
-          if not probe("system-20261113T235902Z-5e6f7a8b", 79):
-              sys.exit("79-part inventory probe failed after bounded retries.")
-          print("Both read-only inventory probes completed successfully.", flush=True)
+          probe("system-20261113T235901Z-1a2b3c4d", 1)
+          probe("system-20261113T235902Z-5e6f7a8b", 79)
+          print("Both read-only probes passed using the production transport.", flush=True)
+          print("No Drive files, upload sessions or manifests were created.", flush=True)
           PY
