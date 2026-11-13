@@ -23,7 +23,7 @@ DRIVE_API = "https://www.googleapis.com/drive/v3"
 UPLOAD_API = "https://www.googleapis.com/upload/drive/v3/files"
 FOLDER_NAME = "Green Dream Backups"
 PREFIX = "greendream-backup-"
-MANIFEST_SUFFIX = ".json"
+MANIFEST_SUFFIX = ".manifest.json"
 CHUNK_SIZE = 8 * 1024 * 1024  # Drive resumable chunks must be multiples of 256 KiB.
 RETRIES = 6
 
@@ -313,7 +313,7 @@ def download_command(args):
     token = access_token()
     folder_id = find_or_create_folder(token)
     files = list_files(token, folder_id)
-    manifests = [f for f in files if f.get("name", "").startswith(PREFIX) and f["name"].endswith(MANIFEST_SUFFIX)]
+    manifests = [f for f in files if f.get("name", "").endswith(MANIFEST_SUFFIX)]
     selected = None
     for item in manifests:
         try:
