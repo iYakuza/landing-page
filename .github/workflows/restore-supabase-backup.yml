@@ -16,7 +16,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: green-dream-supabase-restore
+  group: green-dream-drive-downloads
   cancel-in-progress: false
 
 jobs:
