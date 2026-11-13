@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Check out recovery tooling
         uses: actions/checkout@v6
+        with:
+          ref: backup/apps-script-transfer-redesign
 
       - name: Install recovery dependencies
         run: |
