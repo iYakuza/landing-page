@@ -5,17 +5,16 @@ on:
 
 permissions:
   contents: read
-  actions: write
 
 concurrency:
   group: green-dream-content-backup
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   content-backup:
     if: startsWith(github.ref, 'refs/heads/backup/')
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     env:
       SUPABASE_URL: https://oeyxsqocldlovhsmzcjw.supabase.co
 
@@ -42,9 +41,11 @@ jobs:
       - name: Validate the offline recovery website builder
         run: |
           set -euo pipefail
-          python3 -m py_compile scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/download_apps_script_backup.py scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
+          python3 -m py_compile scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/upload_apps_script_backup.py scripts/download_apps_script_backup.py scripts/test_upload_apps_script_backup.py scripts/test_download_apps_script_backup.py scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
           python3 scripts/test_build_recovery_site.py
           python3 scripts/test_backup_wordpress_archive.py
+          python3 scripts/test_upload_apps_script_backup.py
+          python3 scripts/test_download_apps_script_backup.py
           node --check < google-apps-script/Code.gs
           node google-apps-script/test_receiver.js
 
@@ -198,19 +199,6 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/upload_apps_script_backup.py "$ENCRYPTED_ARCHIVE"
-
-      - name: Remove superseded recovery-site artifacts
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
-            --jq '.artifacts[] | select(.name | startswith("green-dream-recovery-site-")) | .id' |
-            while IFS= read -r artifact_id; do
-              [ -n "$artifact_id" ] || continue
-              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id"
-            done
 
       - name: Publish portable read-only recovery website
         uses: actions/upload-artifact@v4
