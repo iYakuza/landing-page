@@ -28,20 +28,11 @@ The workflow creates a SHA-256 manifest, packages the snapshot, encrypts the arc
 
 ## One-time setup
 
-### 1. Create the Google Apps Script receiver
+### 1. Update the existing Google Apps Script receiver
 
-1. Open https://script.google.com/home and create a standalone project named **Green Dream Backup Receiver**.
-2. Replace the project's `Code.gs` with the repository file `google-apps-script/Code.gs`.
-3. In **Project Settings**, enable **Show "appsscript.json" manifest file in editor** and replace the manifest with `google-apps-script/appsscript.json`.
-4. Select and run `authorizeDriveAccess`. Review and approve the Drive permission. This creates the private **Green Dream Backups** folder in the deploying account's Drive.
-5. In **Project Settings → Script Properties**, create `INGEST_TOKEN` with a newly generated random secret of at least 40 characters. Generate it in a password manager; do not reuse a password.
-6. Choose **Deploy → New deployment → Web app**:
-   - Execute as: **Me**
-   - Who has access: **Anyone**
-   - Deploy and copy the URL ending in `/exec`.
-7. If Google does not offer **Anyone** access for the account, stop here; do not weaken account security or make the Drive folder public.
+The existing **Green Dream Backup Receiver** project and its private Drive folder are the destination. Do not create a second project, create a second folder, reset the token, or change the folder ID. The repository's `google-apps-script/README.md` contains the controlled update procedure. After the code passes validation and deployment is explicitly authorised, update the existing project and deploy a new version while preserving its existing web-app URL and Script Properties.
 
-The web-app endpoint must be reachable by GitHub Actions. The shared token protects write operations; the receiver does not provide a public file listing or download endpoint.
+The web-app endpoint must be reachable by GitHub Actions. The shared token is required for upload, inventory, listing, and download operations; no backup metadata or file contents are returned without authentication.
 
 ### 2. Add GitHub Actions secrets
 
@@ -57,8 +48,8 @@ Add these repository secrets:
 |---|---|
 | `SUPABASE_DB_URL` | PostgreSQL connection string from Supabase Dashboard → Connect. Use a compatible pooler connection if needed; URL-encode special characters in the password. |
 | `SUPABASE_SECRET_KEY` | Current Supabase Secret API key from Settings → API Keys. Never publish it. |
-| `GOOGLE_DRIVE_INGEST_URL` | The deployed Apps Script web-app URL ending in `/exec`. |
-| `GOOGLE_DRIVE_INGEST_TOKEN` | The exact same random token stored as the Apps Script `INGEST_TOKEN` property. |
+| `GOOGLE_DRIVE_INGEST_URL` | The existing deployed Apps Script web-app URL ending in `/exec`. |
+| `GOOGLE_DRIVE_INGEST_TOKEN` | The existing token stored as the Apps Script `INGEST_TOKEN` property. Do not rotate it as part of this update. |
 | `BACKUP_ENCRYPTION_PASSPHRASE` | A unique randomly generated passphrase of at least 32 characters. Store it in a password manager and keep a separate secure recovery copy. |
 
 Do not paste any secret into ChatGPT, commit it, or include it in a public issue or pull request.
