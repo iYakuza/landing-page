@@ -50,23 +50,28 @@ function validateId_(id) {
   return typeof id === "string" && /^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}$/.test(id);
 }
 
-function isBase64CharCode_(code) {
-  return (code >= 65 && code <= 90) || (code >= 97 && code <= 122) ||
-    (code >= 48 && code <= 57) || code === 43 || code === 47;
-}
-
 function isValidBase64_(value) {
-  if (typeof value !== "string" || value.length < 4 || value.length % 4 !== 0) return false;
+  if (typeof value !== "string" || value.length < 4 ||
+      value.length > Math.ceil(PART_BYTES / 3) * 4 + 8 ||
+      value.length % 4 !== 0) return false;
+
   const length = value.length;
-  const padding = value.charCodeAt(length - 1) === 61
-    ? (value.charCodeAt(length - 2) === 61 ? 2 : 1)
-    : 0;
-  for (let i = 0; i < length - padding; i++) {
-    if (!isBase64CharCode_(value.charCodeAt(i))) return false;
+  const last = value.charCodeAt(length - 1);
+  const secondLast = value.charCodeAt(length - 2);
+  const padding = last === 61 ? (secondLast === 61 ? 2 : 1) : 0;
+  const dataLength = length - padding;
+
+  // Validate iteratively without regexes or per-character helper calls on large payloads.
+  for (let i = 0; i < dataLength; i++) {
+    const code = value.charCodeAt(i);
+    if (!((code >= 65 && code <= 90) || (code >= 97 && code <= 122) ||
+          (code >= 48 && code <= 57) || code === 43 || code === 47)) return false;
   }
-  for (let i = length - padding; i < length; i++) {
+  for (let i = dataLength; i < length; i++) {
     if (value.charCodeAt(i) !== 61) return false;
   }
+  if (padding === 2 && dataLength % 4 !== 2) return false;
+  if (padding === 1 && dataLength % 4 !== 3) return false;
   return true;
 }
 
@@ -227,8 +232,10 @@ function doPost(e) {
           !isValidBase64_(request.content_base64)) {
         return json_({ ok: false, error: "Invalid part encoding." });
       }
+      diagnosticStage = "upload_part:decode_payload";
       const bytes = Utilities.base64Decode(request.content_base64);
       if (!bytes.length || bytes.length > PART_BYTES) return json_({ ok: false, error: "Invalid part size." });
+      diagnosticStage = "upload_part:calculate_checksum";
       const digest = sha256_(bytes);
       if (typeof request.sha256 !== "string" || !/^[a-f0-9]{64}$/i.test(request.sha256) ||
           !constantTimeEqual_(digest, request.sha256.toLowerCase())) return json_({ ok: false, error: "Part checksum mismatch." });
