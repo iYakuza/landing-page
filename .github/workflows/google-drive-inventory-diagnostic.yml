@@ -1,0 +1,97 @@
+name: Google Drive read-only inventory diagnostic
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: google-drive-inventory-diagnostic
+  cancel-in-progress: false
+
+jobs:
+  inventory:
+    name: Read-only Drive inventory probe
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Validate receiver secrets
+        env:
+          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
+          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$GOOGLE_DRIVE_INGEST_URL" || { echo "::error::GOOGLE_DRIVE_INGEST_URL is missing"; exit 1; }
+          test -n "$GOOGLE_DRIVE_INGEST_TOKEN" || { echo "::error::GOOGLE_DRIVE_INGEST_TOKEN is missing"; exit 1; }
+          case "$GOOGLE_DRIVE_INGEST_URL" in
+            https://script.google.com/macros/s/*/exec) ;;
+            *) echo "::error::GOOGLE_DRIVE_INGEST_URL is not a deployed Apps Script web app URL"; exit 1 ;;
+          esac
+          if [ "${#GOOGLE_DRIVE_INGEST_TOKEN}" -lt 40 ]; then
+            echo "::error::GOOGLE_DRIVE_INGEST_TOKEN must be at least 40 characters"
+            exit 1
+          fi
+          echo "Receiver endpoint and required secrets are present."
+
+      - name: Probe one inventory entry, then 79 entries
+        env:
+          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
+          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          response_file="$(mktemp)"
+          trap 'rm -f "$response_file"' EXIT
+
+          run_inventory_probe() {
+            local backup_id="$1"
+            local count="$2"
+            local max_seconds="$3"
+            local parts payload metadata http_code elapsed
+
+            parts="$(jq -nc --argjson count "$count" \
+              '[range(1; ($count + 1)) as $n |
+                {part_number:$n,size:4194304,sha256:("a" * 64)}]')"
+            payload="$(jq -nc \
+              --arg token "$GOOGLE_DRIVE_INGEST_TOKEN" \
+              --arg backup_id "$backup_id" \
+              --argjson count "$count" \
+              --argjson parts "$parts" \
+              '{action:"list_upload_parts",token:$token,backup_id:$backup_id,total_parts:$count,parts:$parts}')"
+
+            echo "Starting read-only list_upload_parts probe: $count expected entries; max ${max_seconds}s."
+            metadata="$(curl --location --silent --show-error --max-time "$max_seconds" \
+              -o "$response_file" -w '%{http_code} %{time_total}' \
+              "$GOOGLE_DRIVE_INGEST_URL" \
+              -H "Content-Type: application/json" \
+              --data "$payload")"
+            http_code="${metadata%% *}"
+            elapsed="${metadata#* }"
+            echo "HTTP status: $http_code; elapsed seconds: $elapsed"
+
+            if [ "$http_code" != "200" ]; then
+              echo "::error::Receiver inventory request returned HTTP $http_code."
+              exit 1
+            fi
+
+            if ! jq -e --arg id "$backup_id" --argjson count "$count" \
+              '.ok == true and .backup_id == $id and .total_parts == $count and .completed == false and (.parts | length) == 0' \
+              "$response_file" >/dev/null; then
+              echo "::error::Receiver did not return the expected empty inventory response."
+              if jq -e 'type == "object"' "$response_file" >/dev/null 2>&1; then
+                jq -c '{ok,error,diagnostic,backup_id,total_parts,completed,existing_parts:((.parts // []) | length)}' "$response_file"
+              else
+                echo "Receiver response was not valid JSON."
+              fi
+              exit 1
+            fi
+
+            jq -c '{ok,backup_id,total_parts,completed,existing_parts:(.parts | length)}' "$response_file"
+            echo "Read-only inventory probe succeeded; no Drive files or upload sessions were created."
+          }
+
+          run_inventory_probe "system-20261113T235901Z-1a2b3c4d" 1 45
+          run_inventory_probe "system-20261113T235902Z-5e6f7a8b" 79 150
+          echo "Both read-only inventory probes completed successfully."
