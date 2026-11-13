@@ -41,11 +41,12 @@ jobs:
       - name: Validate the offline recovery website builder
         run: |
           set -euo pipefail
-          python3 -m py_compile scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/upload_apps_script_backup.py scripts/download_apps_script_backup.py scripts/test_upload_apps_script_backup.py scripts/test_download_apps_script_backup.py scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
+          python3 -m py_compile scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/upload_apps_script_backup.py scripts/download_apps_script_backup.py scripts/test_upload_apps_script_backup.py scripts/test_download_apps_script_backup.py scripts/test_backup_manifest.py scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
           python3 scripts/test_build_recovery_site.py
           python3 scripts/test_backup_wordpress_archive.py
           python3 scripts/test_upload_apps_script_backup.py
           python3 scripts/test_download_apps_script_backup.py
+          python3 scripts/test_backup_manifest.py
           node --check < google-apps-script/Code.gs
           node google-apps-script/test_receiver.js
 
@@ -193,9 +194,11 @@ jobs:
           ls -lh "$ENCRYPTED"
 
       - name: Upload encrypted content archive to private Google Drive
+        timeout-minutes: 25
         env:
           GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
           GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          BACKUP_TYPE: content
         run: |
           set -euo pipefail
           python3 scripts/upload_apps_script_backup.py "$ENCRYPTED_ARCHIVE"
