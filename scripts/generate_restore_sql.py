@@ -48,12 +48,39 @@ auth_lines = [
     "-- This restores users and identities, not sessions, MFA factors, or audit history.",
     "begin;",
 ]
+generated_fallbacks = {
+    "auth.users": {"confirmed_at"},
+    "auth.identities": {"email"},
+}
 for table, rows in (("auth.users", users), ("auth.identities", identities)):
     if rows:
+        table_key = table.split(".", 1)[1]
+        columns_path = root / "auth" / (table_key + "-columns.json")
+        if columns_path.is_file():
+            metadata = json.loads(columns_path.read_text(encoding="utf-8"))
+            if not isinstance(metadata, list) or not metadata:
+                raise SystemExit("Auth column metadata is missing or invalid for " + table + ".")
+            columns = []
+            for item in metadata:
+                if not isinstance(item, dict) or not isinstance(item.get("name"), str) or not item["name"]:
+                    raise SystemExit("Auth column metadata contains an invalid record for " + table + ".")
+                if type(item.get("generated")) is not bool:
+                    raise SystemExit("Auth column metadata has no generated-column flag for " + table + ".")
+                if not item["generated"]:
+                    columns.append(item["name"])
+        else:
+            # Compatibility with older archives created before generated-column metadata was captured.
+            columns = [name for name in rows[0] if name not in generated_fallbacks[table]]
+        if not columns or len(columns) != len(set(columns)):
+            raise SystemExit("Auth restore column list is empty or contains duplicates for " + table + ".")
+        source_columns = set().union(*(set(row.keys()) for row in rows if isinstance(row, dict)))
+        if not set(columns).issubset(source_columns):
+            raise SystemExit("Auth backup data does not contain all insertable columns for " + table + ".")
+        column_sql = ", ".join(ident(name) for name in columns)
         payload = json.dumps(rows, ensure_ascii=False, separators=(",", ":"))
         auth_lines.append(
-            "insert into " + table +
-            " select * from jsonb_populate_recordset(null::" + table + ", " +
+            "insert into " + table + " (" + column_sql + ") select " + column_sql +
+            " from jsonb_populate_recordset(null::" + table + ", " +
             sql_literal(payload) + "::jsonb);"
         )
 auth_lines.append("commit;")
