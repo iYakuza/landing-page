@@ -129,7 +129,7 @@ jobs:
           {
             echo "## Green Dream system-backup recovery verification passed"
             echo
-            echo "- Backup ID: `$VERIFIED_BACKUP_ID`"
+            echo "- Backup ID: ${VERIFIED_BACKUP_ID}"
             echo "- Downloaded encrypted parts from private Google Drive."
             echo "- Decrypted the archive successfully on an ephemeral GitHub runner."
             echo "- Verified every extracted file against the embedded SHA-256 manifest."
