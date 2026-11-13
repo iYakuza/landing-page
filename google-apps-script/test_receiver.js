@@ -172,6 +172,8 @@ assert.equal(listing.ok, true);
 assert.equal(listing.backups.length, 1);
 assert.equal(listing.backups[0].total_bytes, Buffer.concat(chunks).length);
 assert.equal(listing.backups[0].archive_sha256, totalSha);
+const expectedPartFile = files.find(f => f.name === "greendream-backup-" + id + "-part-0001-of-0002.gpgpart");
+assert.equal(listing.backups[0].parts[0].file_id, expectedPartFile.id);
 
 const downloaded = send({ action: "download_part", token, backup_id: id, part_number: 1 });
 assert.equal(downloaded.ok, true);
