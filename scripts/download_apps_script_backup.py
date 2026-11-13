@@ -58,7 +58,8 @@ def post_json(endpoint: str, token: str, payload: dict, deadline: float) -> dict
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True, type=pathlib.Path)
-    parser.add_argument("--backup-id", default="", help="Completed backup ID; legacy untyped IDs must be selected explicitly.")\n    parser.add_argument("--backup-type", choices=("system", "content"), default="system", help="Backup type to select when no explicit ID is supplied.")
+    parser.add_argument("--backup-id", default="", help="Completed backup ID; legacy untyped IDs must be selected explicitly.")
+    parser.add_argument("--backup-type", choices=("system", "content"), default="system", help="Backup type to select when no explicit ID is supplied.")
     args = parser.parse_args()
 
     endpoint = os.environ.get("GOOGLE_DRIVE_INGEST_URL", "").strip()
