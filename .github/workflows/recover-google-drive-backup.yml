@@ -10,7 +10,7 @@ on:
 
 permissions:
   contents: read
-  actions: write
+  actions: read
 
 concurrency:
   group: green-dream-recovery
@@ -36,36 +36,34 @@ jobs:
       - name: Validate recovery credentials
         shell: bash
         env:
-          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
-          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
           BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
         run: |
           set -euo pipefail
-          test -n "$GOOGLE_DRIVE_INGEST_URL"
-          test -n "$GOOGLE_DRIVE_INGEST_TOKEN"
-          test -n "$BACKUP_ENCRYPTION_PASSPHRASE"
-          if [ "${#GOOGLE_DRIVE_INGEST_TOKEN}" -lt 40 ]; then
-            echo "::error::The receiver token is too short."
-            exit 1
-          fi
+          for name in GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REFRESH_TOKEN BACKUP_ENCRYPTION_PASSPHRASE; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Missing required GitHub Actions secret: $name"
+              exit 1
+            fi
+          done
           if [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 32 ]; then
             echo "::error::The encryption passphrase is too short."
             exit 1
           fi
+          python3 -m py_compile scripts/google_drive_backup.py
+          python3 scripts/test_google_drive_backup.py
 
-      - name: Download and verify encrypted archive from Drive
+      - name: Download and verify encrypted archive directly from Google Drive
         env:
-          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
-          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
-          BACKUP_ID: ${{ inputs.backup_id }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
         run: |
           set -euo pipefail
           OUTPUT="$RUNNER_TEMP/green-dream-recovery.gpg"
-          if [ -n "$BACKUP_ID" ]; then
-            python3 scripts/download_apps_script_backup.py --backup-id "$BACKUP_ID" --output "$OUTPUT"
-          else
-            python3 scripts/download_apps_script_backup.py --output "$OUTPUT"
-          fi
+          python3 scripts/google_drive_backup.py download --output "$OUTPUT"
           test -s "$OUTPUT"
           echo "ENCRYPTED_BACKUP=$OUTPUT" >> "$GITHUB_ENV"
 
@@ -91,19 +89,6 @@ jobs:
           set -euo pipefail
           python3 scripts/package_recovery_site.py "$RESTORED_ROOT" "$RUNNER_TEMP/green-dream-recovery-site.zip"
           unzip -l "$RUNNER_TEMP/green-dream-recovery-site.zip" | head -n 40
-
-      - name: Remove superseded recovery-site artifacts
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          gh api --paginate "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" \
-            --jq '.artifacts[] | select(.name | startswith("green-dream-recovery-site-")) | .id' |
-            while IFS= read -r artifact_id; do
-              [ -n "$artifact_id" ] || continue
-              gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact_id"
-            done
 
       - name: Publish recovered website artifact
         uses: actions/upload-artifact@v4
