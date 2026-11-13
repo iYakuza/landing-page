@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 
 PART_BYTES = 4 * 1024 * 1024
 MAX_PARTS = 400
-WORKERS = 6
+WORKERS = 4
 PREFIX = "greendream-backup-"
 RETRIES = 5
 RETRYABLE_HTTP = {408, 429, 500, 502, 503, 504}
@@ -139,9 +139,15 @@ def upload_one(archive: pathlib.Path, endpoint: str, token: str, backup_id: str,
         try:
             put_chunk(current_session, chunk, expected_name)
             return number, True
-        except (urllib.error.URLError, TimeoutError, RetryableUploadError):
+        except (urllib.error.URLError, TimeoutError, RetryableUploadError) as exc:
             if attempt >= RETRIES:
                 raise
+            elapsed = time.monotonic() - started_at
+            print(
+                f"Part {number}: upload attempt {attempt + 1}/{RETRIES + 1} "
+                f"did not complete after {elapsed:.1f}s ({type(exc).__name__}); refreshing its Drive session.",
+                flush=True,
+            )
             time.sleep(min(2 ** attempt, 20))
             # A previous PUT may have reached Drive even if its response was lost.
             # The receiver checks the immutable filename and hash before issuing a new session.
