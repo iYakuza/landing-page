@@ -88,7 +88,7 @@ function send(payload, raw) {
   return JSON.parse(response.getContent());
 }
 const token = properties.get("INGEST_TOKEN");
-const id = "20261113T000000Z-a1b2c3d4";
+const id = "system-20261113T000000Z-a1b2c3d4";
 const chunks = [bytesOf("encrypted-chunk-one"), bytesOf("encrypted-chunk-two")];
 const totalSha = digest(Buffer.concat(chunks));
 const part = (n, content) => ({
@@ -100,6 +100,8 @@ assert.equal(send({ action: "ping", token: "wrong" }).ok, false);
 assert.equal(send({ action: "ping", token }).ok, true);
 assert.equal(send({}, "{not json").ok, false);
 assert.equal(send({ ...part(1, chunks[0]), backup_id: "../bad" }).ok, false);
+assert.equal(send({ action: "list_upload_parts", token, backup_id: "content-20261113T000000Z-b1b2c3d4", total_parts: 1 }).ok, true);
+assert.equal(send({ action: "list_upload_parts", token, backup_id: "20261113T000000Z-c1b2c3d4", total_parts: 1 }).ok, true);
 
 const first = send(part(1, chunks[0]));
 assert.equal(first.ok, true);
