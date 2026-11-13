@@ -322,6 +322,8 @@ def download_command(args):
             manifest = json.loads(temp_manifest.read_text(encoding="utf-8"))
             temp_manifest.unlink(missing_ok=True)
             archive = next((f for f in files if f.get("id") == manifest.get("drive_file_id")), None)
+            if (args.archive_name and manifest.get("archive_name") != args.archive_name):
+                continue
             if (manifest.get("format") == "green-dream-drive-backup-v1"
                     and manifest.get("encrypted") is True and archive
                     and archive.get("name") == manifest.get("archive_name")
@@ -357,6 +359,7 @@ def main():
     upload.set_defaults(func=upload_command)
     download = sub.add_parser("download", help="download and verify the newest completed backup")
     download.add_argument("--output", required=True)
+    download.add_argument("--archive-name", default="")
     download.set_defaults(func=download_command)
     args = parser.parse_args()
     args.func(args)
