@@ -163,8 +163,10 @@ function downloadBackupPart_(folder, backupId, partNumber) {
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
+  let diagnosticStage = "acquire_lock";
   try {
     lock.waitLock(30000);
+    diagnosticStage = "read_request";
     const expectedToken = PropertiesService.getScriptProperties().getProperty(TOKEN_PROPERTY) || "";
     if (expectedToken.length < 40) return json_({ ok: false, error: "Receiver is not configured." });
     const raw = e && e.postData && e.postData.contents;
@@ -176,8 +178,11 @@ function doPost(e) {
     if (!request || typeof request !== "object" || Array.isArray(request) ||
         !constantTimeEqual_(request.token, expectedToken)) return json_({ ok: false, error: "Unauthorized." });
 
+    diagnosticStage = "action:" + String(request.action || "missing");
     if (request.action === "ping") return json_({ ok: true, service: "Green Dream Drive receiver", folder: FOLDER_NAME });
+    diagnosticStage = "resolve_drive_folder";
     const folder = getFolder_();
+    diagnosticStage = "action:" + String(request.action || "missing") + ":folder_ready";
 
     if (request.action === "list_backups") {
       return json_({ ok: true, backups: listCompletedBackups_(folder) });
@@ -185,6 +190,7 @@ function doPost(e) {
     if (!validateId_(request.backup_id)) return json_({ ok: false, error: "Invalid backup ID." });
 
     if (request.action === "list_upload_parts") {
+      diagnosticStage = "list_upload_parts:scan_existing_files";
       const total = request.total_parts;
       if (!Number.isInteger(total) || total < 1 || total > MAX_PARTS) return json_({ ok: false, error: "Invalid part count." });
       const state = listUploadParts_(folder, request.backup_id, total);
@@ -192,6 +198,7 @@ function doPost(e) {
     }
 
     if (request.action === "upload_part") {
+      diagnosticStage = "upload_part:validate_payload";
       const number = request.part_number, total = request.total_parts;
       if (!Number.isInteger(number) || !Number.isInteger(total) || total < 1 ||
           total > MAX_PARTS || number < 1 || number > total) return json_({ ok: false, error: "Invalid part numbering." });
@@ -224,11 +231,13 @@ function doPost(e) {
         }
         return json_({ ok: true, backup_id: request.backup_id, received_part: number, already_present: true });
       }
+      diagnosticStage = "upload_part:write_drive_file";
       folder.createFile(Utilities.newBlob(bytes, "application/octet-stream", name));
       return json_({ ok: true, backup_id: request.backup_id, received_part: number, already_present: false });
     }
 
     if (request.action === "finalize_backup") {
+      diagnosticStage = "finalize_backup:validate_metadata";
       const total = request.total_parts, expectedBytes = request.total_bytes;
       const archiveSha = request.archive_sha256;
       if (!Number.isInteger(total) || total < 1 || total > MAX_PARTS ||
@@ -254,6 +263,7 @@ function doPost(e) {
         actualBytes += bytes.length;
       }
       if (actualBytes !== expectedBytes) return json_({ ok: false, error: "Uploaded backup size does not match the expected archive size." });
+      diagnosticStage = "finalize_backup:write_manifest";
       const manifest = {
         backup_id: request.backup_id, created_at: new Date().toISOString(),
         encrypted: true, part_count: total, total_bytes: actualBytes,
@@ -272,7 +282,12 @@ function doPost(e) {
     }
     return json_({ ok: false, error: "Unknown action." });
   } catch (err) {
-    console.error("Backup receiver error: " + String(err && err.message || err));
+    const detail = String(err && err.message || err);
+    const stack = String(err && err.stack || "");
+    // Diagnostic only: never log request bodies, tokens, archive data, or file contents.
+    Logger.log("Backup receiver failure at stage [" + diagnosticStage + "]: " + detail);
+    if (stack) Logger.log(stack);
+    console.error("Backup receiver failure at stage [" + diagnosticStage + "]: " + detail);
     return json_({ ok: false, error: "The receiver could not complete the request." });
   } finally {
     try { lock.releaseLock(); } catch (_) {}
