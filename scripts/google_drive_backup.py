@@ -76,7 +76,7 @@ def request_json(url, token, method="GET", body=None, headers=None, timeout=60):
         raise DriveError(f"Google Drive API returned HTTP {exc.code}: {detail}") from None
 
 
-def find_or_create_folder(token):
+def find_or_create_folder(token, create=True):
     query = (
         "name = '" + FOLDER_NAME.replace("'", "\\'") +
         "' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
@@ -91,6 +91,8 @@ def find_or_create_folder(token):
         raise DriveError("More than one matching backup folder exists. Resolve the duplicate folders before proceeding.")
     if matches:
         return matches[0]["id"]
+    if not create:
+        raise DriveError("The Green Dream Backups folder was not found in the authorized Drive account.")
     result, _ = request_json(
         DRIVE_API + "/files?fields=id,name", token, method="POST",
         body={"name": FOLDER_NAME, "mimeType": "application/vnd.google-apps.folder"},
@@ -311,7 +313,7 @@ def upload_command(args):
 
 def download_command(args):
     token = access_token()
-    folder_id = find_or_create_folder(token)
+    folder_id = find_or_create_folder(token, create=False)
     files = list_files(token, folder_id)
     manifests = [f for f in files if f.get("name", "").endswith(MANIFEST_SUFFIX)]
     selected = None
