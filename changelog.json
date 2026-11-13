@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T02:56:25.794372Z",
-  "last_processed_sha": "816e604946bf29a0e598485ea81ec4897aa577f0",
+  "updated_at": "2026-11-13T03:08:45.063720Z",
+  "last_processed_sha": "9fcbaf207215e880c04b6016f5aa69f28e4061ca",
   "entries": [
+    {
+      "id": "9fcbaf207215e880c04b6016f5aa69f28e4061ca",
+      "timestamp": "2026-11-13T04:08:36+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Distinguish rejected viewer Signals from technical failures (#24). It updates cms.js, 20261113100000_poetry_submission_rejected_status.sql.",
+      "commit_count": 1,
+      "files": [
+        "cms/cms.js",
+        "supabase/migrations/20261113100000_poetry_submission_rejected_status.sql"
+      ],
+      "commits": [
+        {
+          "message": "Distinguish rejected viewer Signals from technical failures (#24)",
+          "url": "https://github.com/iYakuza/landing-page/commit/9fcbaf207215e880c04b6016f5aa69f28e4061ca",
+          "files": [
+            "cms/cms.js",
+            "supabase/migrations/20261113100000_poetry_submission_rejected_status.sql"
+          ]
+        }
+      ]
+    },
     {
       "id": "816e604946bf29a0e598485ea81ec4897aa577f0",
       "timestamp": "2026-11-13T03:56:17+01:00",
