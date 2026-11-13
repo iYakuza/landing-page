@@ -1,8 +1,69 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T22:32:28.840420Z",
-  "last_processed_sha": "634227c8acfe8f12e6c6ce895f1fc41d158fb494",
+  "updated_at": "2026-11-13T23:16:47.797561Z",
+  "last_processed_sha": "79d54dc792f2b5f1459025eb7c0d2869e4b91fd1",
   "entries": [
+    {
+      "id": "79d54dc792f2b5f1459025eb7c0d2869e4b91fd1",
+      "timestamp": "2026-11-14T00:16:45+01:00",
+      "category": "FEATURE",
+      "component": "Creative Archive",
+      "title": "New capabilities for Creative Archive",
+      "description": "This update brings together Restructure Guest Notes into Contributions and Initiative; Split Ethical Coexistence Initiative into English edition with reading index; Retain former governance URL as navigation to separated documents; and 3 more related changes. It updates index.html, guest-notes.css and related project files.",
+      "commit_count": 6,
+      "files": [
+        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
+        "green-dream/guest-notes/guest-notes.css",
+        "green-dream/guest-notes/index.html",
+        "green-dream/guest-notes/revision-history/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Restructure Guest Notes into Contributions and Initiative",
+          "url": "https://github.com/iYakuza/landing-page/commit/a89edec8d37dd4e635ee41d47ee0cadc36d68386",
+          "files": [
+            "green-dream/guest-notes/index.html"
+          ]
+        },
+        {
+          "message": "Split Ethical Coexistence Initiative into English edition with reading index",
+          "url": "https://github.com/iYakuza/landing-page/commit/6ce443b77fa3e55633213bb82c963ab26da69588",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
+          ]
+        },
+        {
+          "message": "Retain former governance URL as navigation to separated documents",
+          "url": "https://github.com/iYakuza/landing-page/commit/b7cc0ebfdad35352efd3b24ffe652f0889d332ed",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html"
+          ]
+        },
+        {
+          "message": "Update implementation blueprint governance links",
+          "url": "https://github.com/iYakuza/landing-page/commit/553296e2e131109a71804e04203109349e69900b",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html"
+          ]
+        },
+        {
+          "message": "Record Guest Notes information architecture restructure",
+          "url": "https://github.com/iYakuza/landing-page/commit/4e2791a85caed781262131baeb9f0979b17be46a",
+          "files": [
+            "green-dream/guest-notes/revision-history/index.html"
+          ]
+        },
+        {
+          "message": "Add floating reading index styles for Guest Notes",
+          "url": "https://github.com/iYakuza/landing-page/commit/79d54dc792f2b5f1459025eb7c0d2869e4b91fd1",
+          "files": [
+            "green-dream/guest-notes/guest-notes.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "634227c8acfe8f12e6c6ce895f1fc41d158fb494",
       "timestamp": "2026-11-13T23:32:16+01:00",
@@ -1154,27 +1215,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/db94f47841095a140fc1d24e951c1c94ed403de2",
           "files": [
             ".github/workflows/secret-scan.yml"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "b4ae8863ed87101532057627438b7523d59ee4de",
-      "timestamp": "2026-11-09T16:32:29+01:00",
-      "category": "FEATURE",
-      "component": "Website",
-      "title": "New capabilities for Website",
-      "description": "This update brings together Add scoped Gitleaks false-positive allowlists. It updates .gitleaks.toml.",
-      "commit_count": 1,
-      "files": [
-        ".gitleaks.toml"
-      ],
-      "commits": [
-        {
-          "message": "Add scoped Gitleaks false-positive allowlists",
-          "url": "https://github.com/iYakuza/landing-page/commit/b4ae8863ed87101532057627438b7523d59ee4de",
-          "files": [
-            ".gitleaks.toml"
           ]
         }
       ]
