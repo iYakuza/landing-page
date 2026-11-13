@@ -7,7 +7,6 @@ on:
     paths:
       - "scripts/download_apps_script_backup.py"
       - "scripts/apps_script_transport.py"
-      - ".github/workflows/verify-google-drive-system-backup.yml"
   workflow_dispatch:
     inputs:
       download_workers:
