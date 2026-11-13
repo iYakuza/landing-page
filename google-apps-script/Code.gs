@@ -1,0 +1,285 @@
+/**
+ * Green Dream private backup receiver.
+ * Accepts authenticated, already-encrypted chunks and stores them in Drive.
+ * Upload requests are idempotent; completion is a separate verification step.
+ * This version never deletes or trashes existing Drive files.
+ */
+const FOLDER_NAME = "Green Dream Backups";
+const FILE_PREFIX = "greendream-backup-";
+const TOKEN_PROPERTY = "INGEST_TOKEN";
+const FOLDER_PROPERTY = "BACKUP_FOLDER_ID";
+const MAX_PARTS = 400;
+const PART_BYTES = 4 * 1024 * 1024;
+const MAX_REQUEST_CHARS = 6 * 1024 * 1024;
+
+function json_(value) {
+  return ContentService.createTextOutput(JSON.stringify(value))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function constantTimeEqual_(a, b) {
+  if (typeof a !== "string" || typeof b !== "string" || !a || !b) return false;
+  let diff = a.length ^ b.length;
+  const length = Math.max(a.length, b.length);
+  for (let i = 0; i < length; i++) diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+  return diff === 0;
+}
+
+function getFolder_() {
+  const props = PropertiesService.getScriptProperties();
+  const savedId = props.getProperty(FOLDER_PROPERTY);
+  if (savedId) {
+    try {
+      return DriveApp.getFolderById(savedId);
+    } catch (_) {
+      throw new Error("The configured backup folder is unavailable; the saved folder setting was left unchanged.");
+    }
+  }
+  const folders = DriveApp.getFoldersByName(FOLDER_NAME);
+  const folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(FOLDER_NAME);
+  props.setProperty(FOLDER_PROPERTY, folder.getId());
+  return folder;
+}
+
+function sha256_(bytes) {
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, bytes)
+    .map(function (b) { return (b + 256).toString(16).slice(-2); }).join("");
+}
+
+function validateId_(id) {
+  return typeof id === "string" && /^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}$/.test(id);
+}
+
+function uniqueFile_(folder, name) {
+  const files = folder.getFilesByName(name);
+  if (!files.hasNext()) return null;
+  const file = files.next();
+  if (files.hasNext()) throw new Error("A backup filename is duplicated; refusing to choose an ambiguous file.");
+  return file;
+}
+
+function partName_(backupId, number, total) {
+  return FILE_PREFIX + backupId + "-part-" + String(number).padStart(4, "0") +
+    "-of-" + String(total).padStart(4, "0") + ".gpgpart";
+}
+
+function readManifest_(folder, backupId) {
+  const file = uniqueFile_(folder, FILE_PREFIX + backupId + ".manifest.json");
+  if (!file) return null;
+  let manifest;
+  try { manifest = JSON.parse(file.getBlob().getDataAsString()); }
+  catch (_) { throw new Error("The existing completion manifest is malformed."); }
+  if (!manifest || manifest.backup_id !== backupId || manifest.encrypted !== true ||
+      !Number.isInteger(manifest.part_count) || manifest.part_count < 1 ||
+      manifest.part_count > MAX_PARTS || !Array.isArray(manifest.parts) ||
+      manifest.parts.length !== manifest.part_count) {
+    throw new Error("The existing completion manifest is invalid.");
+  }
+  return manifest;
+}
+
+function listUploadParts_(folder, backupId, total) {
+  const manifest = readManifest_(folder, backupId);
+  if (manifest && manifest.part_count !== total) throw new Error("Completed backup has a different part count.");
+  const existing = [];
+  for (let number = 1; number <= total; number++) {
+    const name = partName_(backupId, number, total);
+    const file = uniqueFile_(folder, name);
+    if (!file) continue;
+    const bytes = file.getBlob().getBytes();
+    existing.push({ part_number: number, size: bytes.length, sha256: sha256_(bytes) });
+  }
+  return { completed: !!manifest, parts: existing };
+}
+
+function listCompletedBackups_(folder) {
+  const results = [];
+  const iterator = folder.getFiles();
+  while (iterator.hasNext()) {
+    const file = iterator.next();
+    if (!file.getName().startsWith(FILE_PREFIX) || !file.getName().endsWith(".manifest.json")) continue;
+    try {
+      const manifest = JSON.parse(file.getBlob().getDataAsString());
+      if (!manifest || !validateId_(manifest.backup_id) || manifest.encrypted !== true ||
+          !Number.isInteger(manifest.part_count) || manifest.part_count < 1 ||
+          manifest.part_count > MAX_PARTS || !Array.isArray(manifest.parts) ||
+          manifest.parts.length !== manifest.part_count) continue;
+      const parts = [];
+      let totalBytes = 0;
+      let valid = true;
+      manifest.parts.forEach(function (part) {
+        const match = typeof part.name === "string" &&
+          part.name.match(/-part-([0-9]{4})-of-([0-9]{4})\.gpgpart$/);
+        if (!match || Number(match[2]) !== manifest.part_count ||
+            !Number.isInteger(part.size) || part.size < 1 ||
+            !/^[a-f0-9]{64}$/.test(part.sha256 || "")) { valid = false; return; }
+        parts.push({ part_number: Number(match[1]), size: part.size, sha256: part.sha256 });
+        totalBytes += part.size;
+      });
+      if (!valid || parts.length !== manifest.part_count) continue;
+      parts.sort(function (a, b) { return a.part_number - b.part_number; });
+      for (let i = 0; i < parts.length; i++) if (parts[i].part_number !== i + 1) valid = false;
+      if (!valid || (Number.isInteger(manifest.total_bytes) && manifest.total_bytes !== totalBytes)) continue;
+      results.push({
+        backup_id: manifest.backup_id,
+        created_at: manifest.created_at || file.getDateCreated().toISOString(),
+        encrypted: true,
+        part_count: manifest.part_count,
+        total_bytes: totalBytes,
+        archive_sha256: manifest.archive_sha256 || null,
+        parts: parts
+      });
+    } catch (_) {
+      // Malformed manifests are ignored; they are never treated as download instructions.
+    }
+  }
+  results.sort(function (a, b) { return String(b.created_at).localeCompare(String(a.created_at)); });
+  return results;
+}
+
+function downloadBackupPart_(folder, backupId, partNumber) {
+  const manifest = readManifest_(folder, backupId);
+  if (!manifest || partNumber < 1 || partNumber > manifest.part_count) {
+    return { ok: false, error: "Completed backup or requested part not found." };
+  }
+  const record = manifest.parts.find(function (item) {
+    const match = typeof item.name === "string" && item.name.match(/-part-([0-9]{4})-of-([0-9]{4})\.gpgpart$/);
+    return match && Number(match[1]) === partNumber && Number(match[2]) === manifest.part_count;
+  });
+  if (!record) return { ok: false, error: "Backup part is not listed in the completion manifest." };
+  const file = uniqueFile_(folder, record.name);
+  if (!file) return { ok: false, error: "Backup part is missing from Drive." };
+  const bytes = file.getBlob().getBytes();
+  const digest = sha256_(bytes);
+  if (bytes.length !== record.size || digest !== record.sha256) {
+    return { ok: false, error: "Stored backup part failed integrity verification." };
+  }
+  return {
+    ok: true, backup_id: backupId, part_number: partNumber,
+    total_parts: manifest.part_count, size: bytes.length,
+    sha256: digest, content_base64: Utilities.base64Encode(bytes)
+  };
+}
+
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(30000);
+    const expectedToken = PropertiesService.getScriptProperties().getProperty(TOKEN_PROPERTY) || "";
+    if (expectedToken.length < 40) return json_({ ok: false, error: "Receiver is not configured." });
+    const raw = e && e.postData && e.postData.contents;
+    if (typeof raw !== "string" || !raw || raw.length > MAX_REQUEST_CHARS) {
+      return json_({ ok: false, error: "Invalid request size." });
+    }
+    let request;
+    try { request = JSON.parse(raw); } catch (_) { return json_({ ok: false, error: "Invalid JSON request." }); }
+    if (!request || typeof request !== "object" || Array.isArray(request) ||
+        !constantTimeEqual_(request.token, expectedToken)) return json_({ ok: false, error: "Unauthorized." });
+
+    if (request.action === "ping") return json_({ ok: true, service: "Green Dream Drive receiver", folder: FOLDER_NAME });
+    const folder = getFolder_();
+
+    if (request.action === "list_backups") {
+      return json_({ ok: true, backups: listCompletedBackups_(folder) });
+    }
+    if (!validateId_(request.backup_id)) return json_({ ok: false, error: "Invalid backup ID." });
+
+    if (request.action === "list_upload_parts") {
+      const total = request.total_parts;
+      if (!Number.isInteger(total) || total < 1 || total > MAX_PARTS) return json_({ ok: false, error: "Invalid part count." });
+      const state = listUploadParts_(folder, request.backup_id, total);
+      return json_({ ok: true, backup_id: request.backup_id, total_parts: total, completed: state.completed, parts: state.parts });
+    }
+
+    if (request.action === "upload_part") {
+      const number = request.part_number, total = request.total_parts;
+      if (!Number.isInteger(number) || !Number.isInteger(total) || total < 1 ||
+          total > MAX_PARTS || number < 1 || number > total) return json_({ ok: false, error: "Invalid part numbering." });
+      if (typeof request.content_base64 !== "string" || request.content_base64.length < 4 ||
+          request.content_base64.length > Math.ceil(PART_BYTES / 3) * 4 + 8 ||
+          !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(request.content_base64)) {
+        return json_({ ok: false, error: "Invalid part encoding." });
+      }
+      const bytes = Utilities.base64Decode(request.content_base64);
+      if (!bytes.length || bytes.length > PART_BYTES) return json_({ ok: false, error: "Invalid part size." });
+      const digest = sha256_(bytes);
+      if (typeof request.sha256 !== "string" || !/^[a-f0-9]{64}$/i.test(request.sha256) ||
+          !constantTimeEqual_(digest, request.sha256.toLowerCase())) return json_({ ok: false, error: "Part checksum mismatch." });
+
+      const manifest = readManifest_(folder, request.backup_id);
+      const name = partName_(request.backup_id, number, total);
+      if (manifest) {
+        if (manifest.part_count !== total) return json_({ ok: false, error: "Completed backup part count conflicts." });
+        const record = manifest.parts.find(function (item) { return item.name === name; });
+        if (!record || record.size !== bytes.length || record.sha256 !== digest) {
+          return json_({ ok: false, error: "Completed backup is immutable; this part conflicts with its manifest." });
+        }
+        return json_({ ok: true, backup_id: request.backup_id, received_part: number, already_present: true });
+      }
+      const existing = uniqueFile_(folder, name);
+      if (existing) {
+        const stored = existing.getBlob().getBytes();
+        if (stored.length !== bytes.length || sha256_(stored) !== digest) {
+          return json_({ ok: false, error: "A conflicting part already exists." });
+        }
+        return json_({ ok: true, backup_id: request.backup_id, received_part: number, already_present: true });
+      }
+      folder.createFile(Utilities.newBlob(bytes, "application/octet-stream", name));
+      return json_({ ok: true, backup_id: request.backup_id, received_part: number, already_present: false });
+    }
+
+    if (request.action === "finalize_backup") {
+      const total = request.total_parts, expectedBytes = request.total_bytes;
+      const archiveSha = request.archive_sha256;
+      if (!Number.isInteger(total) || total < 1 || total > MAX_PARTS ||
+          !Number.isInteger(expectedBytes) || expectedBytes < 1 ||
+          typeof archiveSha !== "string" || !/^[a-f0-9]{64}$/.test(archiveSha)) {
+        return json_({ ok: false, error: "Invalid finalization metadata." });
+      }
+      const existingManifest = readManifest_(folder, request.backup_id);
+      if (existingManifest) {
+        if (existingManifest.part_count !== total || existingManifest.total_bytes !== expectedBytes ||
+            existingManifest.archive_sha256 !== archiveSha) return json_({ ok: false, error: "Completed backup metadata conflicts." });
+        return json_({ ok: true, backup_id: request.backup_id, finalized: true, part_count: total, total_bytes: expectedBytes });
+      }
+      const parts = [];
+      let actualBytes = 0;
+      for (let number = 1; number <= total; number++) {
+        const name = partName_(request.backup_id, number, total);
+        const file = uniqueFile_(folder, name);
+        if (!file) return json_({ ok: false, error: "Upload is incomplete; a backup part is missing." });
+        const bytes = file.getBlob().getBytes();
+        if (!bytes.length || bytes.length > PART_BYTES) return json_({ ok: false, error: "A stored backup part has an invalid size." });
+        parts.push({ name: name, size: bytes.length, sha256: sha256_(bytes) });
+        actualBytes += bytes.length;
+      }
+      if (actualBytes !== expectedBytes) return json_({ ok: false, error: "Uploaded backup size does not match the expected archive size." });
+      const manifest = {
+        backup_id: request.backup_id, created_at: new Date().toISOString(),
+        encrypted: true, part_count: total, total_bytes: actualBytes,
+        archive_sha256: archiveSha, parts: parts
+      };
+      folder.createFile(FILE_PREFIX + request.backup_id + ".manifest.json",
+        JSON.stringify(manifest, null, 2), MimeType.PLAIN_TEXT);
+      return json_({ ok: true, backup_id: request.backup_id, finalized: true, part_count: total, total_bytes: actualBytes });
+    }
+
+    if (request.action === "download_part") {
+      if (!Number.isInteger(request.part_number) || request.part_number < 1 || request.part_number > MAX_PARTS) {
+        return json_({ ok: false, error: "Invalid download request." });
+      }
+      return json_(downloadBackupPart_(folder, request.backup_id, request.part_number));
+    }
+    return json_({ ok: false, error: "Unknown action." });
+  } catch (err) {
+    console.error("Backup receiver error: " + String(err && err.message || err));
+    return json_({ ok: false, error: "The receiver could not complete the request." });
+  } finally {
+    try { lock.releaseLock(); } catch (_) {}
+  }
+}
+
+function authorizeDriveAccess() {
+  const folder = getFolder_();
+  Logger.log("Drive access is authorized. Backup folder is ready: " + folder.getName());
+}
