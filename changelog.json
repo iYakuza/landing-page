@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T20:39:15.213817Z",
-  "last_processed_sha": "fa0829e3402b95d7016caee5691e4af85aebc05e",
+  "updated_at": "2026-11-13T21:02:31.905646Z",
+  "last_processed_sha": "a80eef00609b0a9203cc08d95519c7a151088b64",
   "entries": [
+    {
+      "id": "a80eef00609b0a9203cc08d95519c7a151088b64",
+      "timestamp": "2026-11-13T22:02:26+01:00",
+      "category": "FEATURE",
+      "component": "Creative Archive",
+      "title": "New capabilities for Creative Archive",
+      "description": "This update brings together Add Ethical Coexistence Initiative working definition; Add initiative to Guest Notes index; Record Ethical Coexistence Initiative definition. It updates index.html and related project files.",
+      "commit_count": 3,
+      "files": [
+        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
+        "green-dream/guest-notes/index.html",
+        "green-dream/guest-notes/revision-history/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Add Ethical Coexistence Initiative working definition",
+          "url": "https://github.com/iYakuza/landing-page/commit/f116d0580061a4242ba1fec29c196c58b84232d8",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
+          ]
+        },
+        {
+          "message": "Add initiative to Guest Notes index",
+          "url": "https://github.com/iYakuza/landing-page/commit/8d2c00248b07fa42542bddd53e7048a86f1c530e",
+          "files": [
+            "green-dream/guest-notes/index.html"
+          ]
+        },
+        {
+          "message": "Record Ethical Coexistence Initiative definition",
+          "url": "https://github.com/iYakuza/landing-page/commit/a80eef00609b0a9203cc08d95519c7a151088b64",
+          "files": [
+            "green-dream/guest-notes/revision-history/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "e80555ebd508776d0c42d605b873adaac207edfd",
       "timestamp": "2026-11-13T21:39:12+01:00",
