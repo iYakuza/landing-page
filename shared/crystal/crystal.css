@@ -423,3 +423,5 @@ body>.vha-constellation-presets>small{
 @media(max-width:760px){
   #vha-viewer-tools .vha-patterns-dropdown select{max-width:92px!important;padding:4px 2px!important;font-size:7px!important}
 }
+
+#vha-viewer-tools .vha-mood-note{margin:0;color:var(--theme-muted,#9aab9c);font-size:10px;line-height:1.6}
