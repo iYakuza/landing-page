@@ -1,12 +1,6 @@
 name: Validate Supabase backup restoration
 
 on:
-  push:
-    branches:
-      - "backup/**"
-    paths:
-      - "scripts/download_apps_script_backup.py"
-      - "scripts/apps_script_transport.py"
   workflow_dispatch:
     inputs:
       backup_id:
@@ -36,6 +30,7 @@ jobs:
     env:
       GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
       GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+      GOOGLE_DRIVE_READONLY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_DRIVE_READONLY_SERVICE_ACCOUNT_JSON }}
       BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
       BACKUP_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.backup_id || (github.event_name == 'push' && 'system-20261113T000000Z-428ddefb') || '' }}
 
