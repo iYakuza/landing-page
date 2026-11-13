@@ -1,0 +1,119 @@
+name: Verify Green Dream Google Drive system backup
+
+on:
+  workflow_dispatch:
+    inputs:
+      backup_id:
+        description: "Completed system backup ID to download and verify"
+        required: true
+        type: string
+        default: "system-20261113T000000Z-428ddefb"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: green-dream-system-backup-verification
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    if: github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/backup/'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out recovery tooling
+        uses: actions/checkout@v6
+
+      - name: Install recovery dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes gnupg python3
+          python3 --version
+          gpg --version
+
+      - name: Validate recovery credentials
+        shell: bash
+        env:
+          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
+          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          test -n "$GOOGLE_DRIVE_INGEST_URL"
+          test -n "$GOOGLE_DRIVE_INGEST_TOKEN"
+          test -n "$BACKUP_ENCRYPTION_PASSPHRASE"
+          if [ "${#GOOGLE_DRIVE_INGEST_TOKEN}" -lt 40 ]; then
+            echo "::error::The receiver token is too short."
+            exit 1
+          fi
+          if [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 32 ]; then
+            echo "::error::The encryption passphrase is too short."
+            exit 1
+          fi
+
+      - name: Download encrypted system backup and verify Drive parts
+        timeout-minutes: 40
+        shell: bash
+        env:
+          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
+          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          BACKUP_ID: ${{ inputs.backup_id }}
+        run: |
+          set -euo pipefail
+          OUTPUT="$RUNNER_TEMP/green-dream-system-backup.gpg"
+          python3 scripts/download_apps_script_backup.py \
+            --backup-type system \
+            --backup-id "$BACKUP_ID" \
+            --output "$OUTPUT"
+          test -s "$OUTPUT"
+          echo "ENCRYPTED_BACKUP=$OUTPUT" >> "$GITHUB_ENV"
+
+      - name: Decrypt archive and verify every backed-up file
+        shell: bash
+        env:
+          BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+          BACKUP_ID: ${{ inputs.backup_id }}
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/green-dream-system-restored"
+          ARCHIVE="$RUNNER_TEMP/green-dream-system-restored.tar.gz"
+          mkdir -p "$ROOT"
+          printf '%s' "$BACKUP_ENCRYPTION_PASSPHRASE" | \
+            gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 \
+                --decrypt --output "$ARCHIVE" "$ENCRYPTED_BACKUP"
+          tar -xzf "$ARCHIVE" -C "$ROOT" --no-same-owner --no-same-permissions
+          python3 scripts/verify_backup_manifest.py "$ROOT"
+          test -s "$ROOT/database/roles.sql"
+          test -s "$ROOT/database/schema.sql"
+          test -s "$ROOT/database/data.sql"
+          test -s "$ROOT/auth/users.json"
+          test -s "$ROOT/storage/objects/storage-manifest.json"
+          test -s "$ROOT/restore/migration-ledger-restore.sql"
+          test -s "$ROOT/restore/auth-restore.sql"
+          test -s "$ROOT/restore/storage-policies.sql"
+          echo "Independent system-backup recovery verification passed for $BACKUP_ID."
+          echo "VERIFIED_BACKUP_ID=$BACKUP_ID" >> "$GITHUB_ENV"
+
+      - name: Publish non-sensitive verification result
+        if: success()
+        run: |
+          {
+            echo "## Green Dream system-backup recovery verification passed"
+            echo
+            echo "- Backup ID: `$VERIFIED_BACKUP_ID`"
+            echo "- Downloaded encrypted parts from private Google Drive."
+            echo "- Decrypted the archive successfully on an ephemeral GitHub runner."
+            echo "- Verified every extracted file against the embedded SHA-256 manifest."
+            echo "- Confirmed database, Auth, Storage, and restore metadata are present."
+            echo "- No Supabase project was modified and no decrypted artifact was published."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove decrypted recovery material
+        if: always()
+        run: |
+          set +e
+          rm -rf "$RUNNER_TEMP/green-dream-system-restored"
+          rm -f "$RUNNER_TEMP/green-dream-system-backup.gpg"
+          rm -f "$RUNNER_TEMP/green-dream-system-restored.tar.gz"
