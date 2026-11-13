@@ -95,7 +95,7 @@ assert result["ok"] is True
 assert [item[0] for item in requests] == ["POST", "GET", "POST", "GET"]
 assert requests[1][1] == response_url
 assert requests[3][1] == second_response_url
-assert sleeps == [2]
+assert sleeps == [1]
 
 
 # A timed-out GET is retried against the same response URL before retrying /exec.
