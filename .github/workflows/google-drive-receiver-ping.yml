@@ -43,7 +43,7 @@ jobs:
         run: |
           set -euo pipefail
           payload="$(jq -nc --arg token "$GOOGLE_DRIVE_INGEST_TOKEN" '{action:"ping",token:$token}')"
-          response="$(curl --fail-with-body --silent --show-error --max-time 30 \
+          response="$(curl --location --fail-with-body --silent --show-error --max-time 30 \
             -X POST "$GOOGLE_DRIVE_INGEST_URL" \
             -H "Content-Type: application/json" \
             --data "$payload")"
