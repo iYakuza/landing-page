@@ -1,0 +1,56 @@
+name: Google Drive receiver connectivity ping
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: google-drive-receiver-ping
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    name: Authenticated receiver ping
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Validate required secrets
+        env:
+          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
+          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$GOOGLE_DRIVE_INGEST_URL" || { echo "::error::GOOGLE_DRIVE_INGEST_URL is missing"; exit 1; }
+          test -n "$GOOGLE_DRIVE_INGEST_TOKEN" || { echo "::error::GOOGLE_DRIVE_INGEST_TOKEN is missing"; exit 1; }
+          case "$GOOGLE_DRIVE_INGEST_URL" in
+            https://script.google.com/macros/s/*/exec) ;;
+            *) echo "::error::GOOGLE_DRIVE_INGEST_URL is not a deployed Apps Script web app URL"; exit 1 ;;
+          esac
+          if [ "${#GOOGLE_DRIVE_INGEST_TOKEN}" -lt 40 ]; then
+            echo "::error::GOOGLE_DRIVE_INGEST_TOKEN must be at least 40 characters"
+            exit 1
+          fi
+          echo "Required receiver secrets are present and URL format is valid."
+
+      - name: Send authenticated non-destructive ping
+        env:
+          GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
+          GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload="$(jq -nc --arg token "$GOOGLE_DRIVE_INGEST_TOKEN" '{action:"ping",token:$token}')"
+          response="$(curl --fail-with-body --silent --show-error --max-time 30 \
+            -X POST "$GOOGLE_DRIVE_INGEST_URL" \
+            -H "Content-Type: application/json" \
+            --data "$payload")"
+          if ! printf '%s' "$response" | jq -e '.ok == true and .service == "Green Dream Drive receiver"' >/dev/null; then
+            echo "::error::Receiver responded, but the authenticated ping response was not the expected success payload."
+            printf '%s\n' "$response" | jq -c '{ok,service,error,diagnostic}'
+            exit 1
+          fi
+          printf '%s\n' "$response" | jq -c '{ok,service,folder}'
+          echo "Authenticated receiver ping succeeded. No Drive files were created, changed, or deleted."
