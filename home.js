@@ -92,6 +92,5 @@
     if(status)status.textContent='One more step: confirm your request in the contact window.';
     document.querySelector('.cv-contact-open')?.click();
   });
-  document.querySelector('.va-back-top')?.addEventListener('click',()=>window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'}));
   loadPosts();
 })();
