@@ -41,9 +41,10 @@ jobs:
       - name: Validate the offline recovery website builder
         run: |
           set -euo pipefail
-          python3 -m py_compile scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/upload_apps_script_backup.py scripts/download_apps_script_backup.py scripts/test_upload_apps_script_backup.py scripts/test_download_apps_script_backup.py scripts/test_backup_manifest.py scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
+          python3 -m py_compile scripts/apps_script_transport.py scripts/test_apps_script_transport.py scripts/build_recovery_site.py scripts/package_recovery_site.py scripts/upload_apps_script_backup.py scripts/download_apps_script_backup.py scripts/test_upload_apps_script_backup.py scripts/test_download_apps_script_backup.py scripts/test_backup_manifest.py scripts/test_build_recovery_site.py scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
           python3 scripts/test_build_recovery_site.py
           python3 scripts/test_backup_wordpress_archive.py
+          python3 scripts/test_apps_script_transport.py
           python3 scripts/test_upload_apps_script_backup.py
           python3 scripts/test_download_apps_script_backup.py
           python3 scripts/test_backup_manifest.py
