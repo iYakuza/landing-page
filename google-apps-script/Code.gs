@@ -439,3 +439,24 @@ function authorizeDriveAccess() {
   const folder = getFolder_();
   Logger.log("Drive access is authorized. Backup folder is ready: " + folder.getName());
 }
+
+/**
+ * Run manually once after deploying the direct-upload receiver.
+ * This deliberately exercises UrlFetchApp so Google can request and grant
+ * the script.external_request OAuth scope before a backup workflow runs.
+ */
+function authorizeDriveUploadAccess() {
+  const response = UrlFetchApp.fetch(
+    "https://www.googleapis.com/drive/v3/about?fields=user",
+    {
+      method: "get",
+      headers: { Authorization: "Bearer " + ScriptApp.getOAuthToken() },
+      muteHttpExceptions: true
+    }
+  );
+  const status = response.getResponseCode();
+  if (status !== 200) {
+    throw new Error("Google Drive upload authorisation check failed (HTTP " + status + ").");
+  }
+  Logger.log("Google Drive external-request access is authorised.");
+}
