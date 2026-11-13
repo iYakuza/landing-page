@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T21:28:53.675431Z",
-  "last_processed_sha": "d896537511684e2ee86a62267d0f433e4877eea9",
+  "updated_at": "2026-11-13T21:29:14.421609Z",
+  "last_processed_sha": "9a17b01f481b7263d480ab234ada3cda3406f443",
   "entries": [
+    {
+      "id": "9a17b01f481b7263d480ab234ada3cda3406f443",
+      "timestamp": "2026-11-13T22:29:06+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Bump Guest Notes index revision for economic scenario link. It updates index.html.",
+      "commit_count": 1,
+      "files": [
+        "green-dream/guest-notes/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Bump Guest Notes index revision for economic scenario link",
+          "url": "https://github.com/iYakuza/landing-page/commit/b65c02f05e80ba365743618f5adb8147f9a1c9c0",
+          "files": [
+            "green-dream/guest-notes/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "26de78de9d18b6a6b3eff6b45ee40a716a9f6d20",
       "timestamp": "2026-11-13T22:28:49+01:00",
@@ -1074,27 +1095,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/b7653965f6caa9a0c2a6dda966769726a24f3326",
           "files": [
             "shared/crystal/tools/star-patterns.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "90a3fe2aa2d23df67fc17f1ac2fa9e2eee175819",
-      "timestamp": "2026-11-06T20:43:00Z",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A clearer, more readable Poetry Index",
-      "description": "The five movements now appear in a single vertical column, making the archive easier to scan and navigate.",
-      "commit_count": 1,
-      "files": [
-        "green-dream/style.css"
-      ],
-      "commits": [
-        {
-          "message": "Align Poetry Index as a single vertical column",
-          "url": "https://github.com/iYakuza/landing-page/commit/90a3fe2aa2d23df67fc17f1ac2fa9e2eee175819",
-          "files": [
-            "green-dream/style.css"
           ]
         }
       ]
