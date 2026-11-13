@@ -24,3 +24,19 @@
 .gn-inline-link:hover,.gn-inline-link:focus-visible{color:var(--gn-cyan);text-decoration-color:var(--gn-cyan)}
 #worked-examples{scroll-margin-top:22px}
 @media(max-width:600px){.gn-model>summary{grid-template-columns:34px minmax(0,1fr) 28px;gap:11px;padding:16px 13px}.gn-model-number{width:32px;height:32px;font-size:10px}.gn-model-name{font-size:9px}.gn-model-subtitle{font-size:17px}.gn-model-content{padding:0 8px 8px}.gn-model-nav a{font-size:9px;padding:8px 9px}}
+
+/* Guest Notes: compact floating reading index for long-form initiative pages. */
+.gn-section-heading{font-size:clamp(24px,4vw,38px);letter-spacing:-.04em;margin:0}
+.gn-floating-toc{position:fixed;z-index:30;left:18px;bottom:18px;width:min(285px,calc(100vw - 36px));border:1px solid rgba(217,237,114,.38);background:rgba(5,17,23,.96);backdrop-filter:blur(14px);box-shadow:0 12px 44px rgba(0,0,0,.38)}
+.gn-floating-toc>summary{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:13px 16px;cursor:pointer;list-style:none;color:var(--gn-lime);font:10px ui-monospace,monospace;letter-spacing:.14em}
+.gn-floating-toc>summary::-webkit-details-marker{display:none}
+.gn-floating-toc>summary b{font-size:17px;font-weight:400;transition:transform .2s}
+.gn-floating-toc[open]>summary b{transform:rotate(45deg)}
+.gn-floating-toc nav{max-height:min(62vh,560px);overflow:auto;padding:0 15px 14px;border-top:1px solid rgba(0,234,245,.16)}
+.gn-floating-toc nav p{margin:12px 0 8px;color:#829da4;font:8px ui-monospace,monospace;letter-spacing:.16em}
+.gn-floating-toc nav a{display:grid;grid-template-columns:25px minmax(0,1fr);gap:9px;align-items:start;padding:9px 2px;border-top:1px solid rgba(0,234,245,.1);color:#c6d7d7;text-decoration:none;font-size:11px;line-height:1.45}
+.gn-floating-toc nav a span{color:var(--gn-lime);font:9px ui-monospace,monospace;padding-top:2px}
+.gn-floating-toc nav a:hover,.gn-floating-toc nav a:focus-visible{color:var(--gn-lime);outline:none}
+.gn-floating-toc nav .gn-toc-top{display:block;color:var(--gn-cyan);font:9px ui-monospace,monospace;letter-spacing:.1em}
+[id]{scroll-margin-top:24px}
+@media(max-width:600px){.gn-floating-toc{left:10px;bottom:10px;width:min(270px,calc(100vw - 20px))}.gn-floating-toc nav{max-height:54vh}.gn-floating-toc>summary{padding:11px 13px}}
