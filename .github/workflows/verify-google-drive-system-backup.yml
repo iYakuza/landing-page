@@ -95,7 +95,7 @@ jobs:
         shell: bash
         env:
           BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
-          BACKUP_ID: ${{ inputs.backup_id }}
+          BACKUP_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.backup_id || 'system-20261113T000000Z-428ddefb' }}
         run: |
           set -euo pipefail
           ROOT="$RUNNER_TEMP/green-dream-system-restored"
