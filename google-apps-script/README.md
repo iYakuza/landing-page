@@ -1,6 +1,6 @@
 # Green Dream Google Drive receiver
 
-This is a private, owner-operated Google Apps Script web app. GitHub Actions sends an already-encrypted archive in 4 MiB chunks. The receiver stores the chunks in the deploying owner's private Google Drive and creates a completion manifest only after every part has been verified.
+This is a private, owner-operated Google Apps Script web app. GitHub Actions sends an already-encrypted archive in 4 MiB parts directly to the deploying owner's private Google Drive through resumable upload sessions. The receiver creates a completion manifest only after every part has been verified.
 
 ## Transfer architecture
 
