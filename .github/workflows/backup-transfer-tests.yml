@@ -45,6 +45,7 @@ jobs:
       - name: Validate Python upload and recovery tools
         run: |
           set -euo pipefail
-          python -m py_compile scripts/upload_apps_script_backup.py scripts/download_apps_script_backup.py scripts/test_upload_apps_script_backup.py scripts/test_download_apps_script_backup.py
+          python -m py_compile scripts/apps_script_transport.py scripts/upload_apps_script_backup.py scripts/download_apps_script_backup.py scripts/test_apps_script_transport.py scripts/test_upload_apps_script_backup.py scripts/test_download_apps_script_backup.py
+          python scripts/test_apps_script_transport.py
           python scripts/test_upload_apps_script_backup.py
           python scripts/test_download_apps_script_backup.py
