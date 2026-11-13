@@ -211,26 +211,10 @@ def upload_one(archive: pathlib.Path, endpoint: str, token: str, backup_id: str,
 
     current_session = session_url
     next_offset = 0
+    needs_status_query = False
     for attempt in range(RETRIES + 1):
         remaining = remaining_seconds(deadline)
-        try:
-            put_chunk(
-                current_session, chunk[next_offset:], expected_name,
-                min(REQUEST_TIMEOUT_SECONDS, remaining),
-                start=next_offset, total_size=len(chunk),
-            )
-            return number, True
-        except (urllib.error.URLError, TimeoutError, RetryableUploadError) as exc:
-            if attempt >= RETRIES:
-                raise RuntimeError(
-                    f"Part {number} failed after {RETRIES + 1} bounded attempts ({type(exc).__name__})."
-                ) from None
-            remaining = remaining_seconds(deadline)
-            print(
-                f"Part {number}: attempt {attempt + 1}/{RETRIES + 1} did not complete "
-                f"({type(exc).__name__}); checking the existing Drive session before retrying.",
-                flush=True,
-            )
+        if needs_status_query:
             try:
                 state = query_upload_status(
                     current_session, len(chunk), expected_name,
@@ -241,6 +225,7 @@ def upload_one(archive: pathlib.Path, endpoint: str, token: str, backup_id: str,
                 next_offset = state["offset"]
                 if next_offset == len(chunk):
                     raise RuntimeError("Drive reports all bytes received without confirming file completion.")
+                needs_status_query = False
                 if next_offset:
                     print(
                         f"Part {number}: resuming the same Drive session at byte "
@@ -253,13 +238,40 @@ def upload_one(archive: pathlib.Path, endpoint: str, token: str, backup_id: str,
                     return number, False
                 current_session = refreshed[number]["session_url"]
                 next_offset = 0
+                needs_status_query = False
                 print(f"Part {number}: expired session replaced; restarting this part.", flush=True)
             except (urllib.error.URLError, TimeoutError, RetryableUploadError) as status_exc:
+                if attempt >= RETRIES:
+                    raise RuntimeError(
+                        f"Part {number} could not query its Drive session after bounded retries "
+                        f"({type(status_exc).__name__})."
+                    ) from None
                 print(
-                    f"Part {number}: could not query session status ({type(status_exc).__name__}); "
-                    f"will retry the same session.",
+                    f"Part {number}: session status is temporarily unavailable "
+                    f"({type(status_exc).__name__}); checking again without resending bytes.",
                     flush=True,
                 )
+                time.sleep(min(2 ** attempt, 4, remaining_seconds(deadline)))
+                continue
+
+        try:
+            put_chunk(
+                current_session, chunk[next_offset:], expected_name,
+                min(REQUEST_TIMEOUT_SECONDS, remaining_seconds(deadline)),
+                start=next_offset, total_size=len(chunk),
+            )
+            return number, True
+        except (urllib.error.URLError, TimeoutError, RetryableUploadError) as exc:
+            if attempt >= RETRIES:
+                raise RuntimeError(
+                    f"Part {number} failed after {RETRIES + 1} bounded attempts ({type(exc).__name__})."
+                ) from None
+            needs_status_query = True
+            print(
+                f"Part {number}: attempt {attempt + 1}/{RETRIES + 1} did not complete "
+                f"({type(exc).__name__}); checking the existing Drive session before retrying.",
+                flush=True,
+            )
             time.sleep(min(2 ** attempt, 4, remaining_seconds(deadline)))
     raise RuntimeError(f"Part {number} could not be uploaded.")
 
