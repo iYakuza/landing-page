@@ -189,7 +189,7 @@ jobs:
             echo "- Destination: separate Supabase project"
             echo "- Database, Auth users and identities, Vault, Storage policies, buckets and object contents were restored and verified."
             echo "- Production project was not used as a restore destination."
-            echo "- Deployed Edge Function source is preserved in the encrypted archive, but deploying it to the destination and restoring runtime secret values and project-level settings remain separate manual recovery steps."
+            echo "- Checked-in Edge Function source is preserved in the Git bundle, but deploying it to the destination and restoring runtime secret values and project-level settings remain separate manual recovery steps."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Remove decrypted recovery material
