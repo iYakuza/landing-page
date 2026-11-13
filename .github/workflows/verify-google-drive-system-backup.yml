@@ -1,8 +1,25 @@
 name: Verify Green Dream Google Drive system backup
 
 on:
+  push:
+    branches:
+      - "backup/**"
+    paths:
+      - "scripts/download_apps_script_backup.py"
+      - "scripts/apps_script_transport.py"
+      - ".github/workflows/verify-google-drive-system-backup.yml"
   workflow_dispatch:
     inputs:
+      download_workers:
+        description: "Concurrent Drive download workers"
+        required: false
+        type: choice
+        options:
+          - "1"
+          - "2"
+          - "3"
+          - "4"
+        default: "2"
       backup_id:
         description: "Completed system backup ID to download and verify"
         required: true
@@ -18,7 +35,7 @@ concurrency:
 
 jobs:
   verify:
-    if: github.event_name == 'workflow_dispatch' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/backup/'))
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/backup/'))
     runs-on: ubuntu-latest
     timeout-minutes: 150
     steps:
@@ -61,13 +78,15 @@ jobs:
         env:
           GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
           GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
-          BACKUP_ID: ${{ inputs.backup_id }}
+          BACKUP_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.backup_id || 'system-20261113T000000Z-428ddefb' }}
+          DOWNLOAD_WORKERS: ${{ github.event_name == 'workflow_dispatch' && inputs.download_workers || '2' }}
         run: |
           set -euo pipefail
           OUTPUT="$RUNNER_TEMP/green-dream-system-backup.gpg"
           python3 scripts/download_apps_script_backup.py \
             --backup-type system \
             --backup-id "$BACKUP_ID" \
+            --workers "$DOWNLOAD_WORKERS" \
             --output "$OUTPUT"
           test -s "$OUTPUT"
           echo "ENCRYPTED_BACKUP=$OUTPUT" >> "$GITHUB_ENV"
