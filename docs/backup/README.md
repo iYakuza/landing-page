@@ -37,7 +37,23 @@ The existing **Green Dream Backup Receiver** project and its private Drive folde
 
 The web-app endpoint must be reachable by GitHub Actions. The shared token is required for upload, inventory, listing, and download operations; no backup metadata or file contents are returned without authentication.
 
-### 2. Add GitHub Actions secrets
+### 2. Configure read-only direct Drive downloads (recommended)
+
+The faster recovery path downloads encrypted part files directly from the Google Drive API, rather than relaying base64 through Apps Script. Use Workload Identity Federation so GitHub Actions receives short-lived credentials without storing a long-lived private key. Google recommends this over service-account keys for workloads running outside Google Cloud. <Cite refs={["turn668478search0","turn460889search1"]}/>
+
+1. In Google Cloud Console, create or select a project and enable the **Google Drive API** and **IAM Service Account Credentials API**.
+2. Create a dedicated service account with no project-level roles. Share only the existing **Green Dream Backups** Drive folder with its email address as **Viewer**.
+3. Configure a Workload Identity Pool and GitHub provider using issuer `https://token.actions.githubusercontent.com`. Map `google.subject=assertion.sub` and `attribute.repository=assertion.repository`. Restrict the provider condition to repository `iYakuza/landing-page` and the `main` and `backup/apps-script-transfer-redesign` branches.
+4. Grant that repository principal `roles/iam.workloadIdentityUser` on the dedicated service account. Do not grant the service account Drive-wide roles.
+5. In GitHub **Settings → Secrets and variables → Actions → Variables**, add:
+   - `GOOGLE_DRIVE_WIF_PROVIDER` = the full provider resource name, for example `projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL_ID/providers/PROVIDER_ID`.
+   - `GOOGLE_DRIVE_READONLY_SERVICE_ACCOUNT_EMAIL` = the dedicated service account email.
+
+The workflows request only the `drive.readonly` OAuth scope. The service account can read only files shared with it. The Apps Script inventory must also be updated and redeployed (step 1 above) so it returns the Drive file IDs used by direct downloads.
+
+As an alternative only when Workload Identity Federation cannot be configured, create a JSON key for the same dedicated service account and save it as the optional secret `GOOGLE_DRIVE_READONLY_SERVICE_ACCOUNT_JSON`. It is a long-lived credential; store it only in GitHub Actions Secrets and rotate/delete it when no longer needed. Google recommends federation instead. <Cite refs={["turn460889search1","turn668478search0"]}/>
+
+### 3. Add GitHub Actions secrets
 
 In the repository, open **Settings → Secrets and variables → Actions**.
 
@@ -64,7 +80,7 @@ The backup workflow supports manual dispatch from the `backup/` branch for the i
 
 Before considering the system operational:
 
-1. Confirm that the existing Apps Script receiver has been updated to the validated code while preserving its URL and Script Properties; confirm all listed GitHub Actions secrets are present. No new Google OAuth credentials are required.
+1. Confirm that the existing Apps Script receiver has been updated to the validated code while preserving its URL and Script Properties; confirm all listed GitHub Actions secrets are present. No Google OAuth client or refresh token is required; direct binary recovery uses the read-only Workload Identity Federation setup above, or the optional service-account JSON key fallback.
 2. Run **GitHub → Actions → Green Dream Google Drive backup → Run workflow**, selecting `main` after the PR is merged (or the consolidated backup branch before merge).
 3. Confirm that the workflow completes the encrypted upload. Backup creation no longer depends on a Supabase restore test.
 4. In the private Drive folder, confirm that the completed backup manifest and all referenced encrypted parts exist.
