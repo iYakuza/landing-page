@@ -16,7 +16,7 @@ spec = importlib.util.spec_from_file_location("download_backup", script)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
-assert module.REQUEST_TIMEOUT_SECONDS == 60
+assert module.REQUEST_TIMEOUT_SECONDS == 90
 assert module.DOWNLOAD_DEADLINE_SECONDS == 90 * 60
 assert module.DOWNLOAD_WORKERS == 2
 backup_id = "system-20261113T000000Z-a1b2c3d4"
