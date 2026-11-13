@@ -1,5 +1,7 @@
 # Green Dream backup system
 
+> **Canonical implementation:** [PR #20 — Green Dream encrypted Google Drive backup and recovery (resumable Apps Script)](https://github.com/iYakuza/landing-page/pull/20). Continue development in this PR and its `backup/apps-script-transfer-redesign` branch. Do not create another transfer architecture or parallel backup PR. The selected transfer is the existing Apps Script receiver using 4 MiB encrypted chunks; no new Google OAuth client, refresh token, or rclone configuration is required. Earlier alternatives are closed and retained only as history.
+
 For the offline content-recovery website, portable ZIP artifact, and authenticated recovery workflow, see [CONTENT-RECOVERY.md](CONTENT-RECOVERY.md).
 
 This workflow is designed to create an encrypted snapshot of the Green Dream Supabase project and store it in the user's private Google Drive. It is not operational until the Apps Script receiver and GitHub Actions secrets are configured and a real backup plus recovery test succeeds.
