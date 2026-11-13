@@ -11,6 +11,8 @@ import sys
 import time
 import urllib.error
 import urllib.request
+
+import apps_script_transport
 from datetime import datetime, timezone
 
 PART_BYTES = 4 * 1024 * 1024
@@ -36,40 +38,24 @@ def remaining_seconds(deadline: float | None) -> float | None:
 
 
 def post_json(endpoint: str, token: str, payload: dict, deadline: float | None = None) -> dict:
-    body = json.dumps({**payload, "token": token}, separators=(",", ":")).encode("utf-8")
-    for attempt in range(RETRIES + 1):
-        remaining = remaining_seconds(deadline)
-        timeout = REQUEST_TIMEOUT_SECONDS if remaining is None else min(REQUEST_TIMEOUT_SECONDS, remaining)
-        request = urllib.request.Request(
-            endpoint, data=body,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        try:
-            with urllib.request.urlopen(request, timeout=timeout) as response:
-                result = json.loads(response.read().decode("utf-8"))
-            if not isinstance(result, dict) or result.get("ok") is not True:
-                message = result.get("error", "Invalid receiver response.") if isinstance(result, dict) else "Invalid receiver response."
-                diagnostic = result.get("diagnostic") if isinstance(result, dict) else None
-                if isinstance(diagnostic, dict):
-                    safe = []
-                    for key in ("stage", "type", "detail"):
-                        value = diagnostic.get(key)
-                        if isinstance(value, str):
-                            safe.append(key + "=" + value[:240])
-                    if safe:
-                        message = str(message) + " (" + "; ".join(safe) + ")"
-                raise RuntimeError(str(message))
-            return result
-        except urllib.error.HTTPError as exc:
-            if exc.code not in RETRYABLE_HTTP or attempt >= RETRIES:
-                raise RuntimeError(f"Backup receiver returned HTTP {exc.code}.") from None
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, UnicodeDecodeError):
-            if attempt >= RETRIES:
-                raise RuntimeError("The backup receiver request failed after bounded retries.") from None
-        remaining = remaining_seconds(deadline)
-        time.sleep(min(2 ** attempt, 4, remaining if remaining is not None else 4))
-    raise RuntimeError("The backup receiver request could not be completed.")
+    remaining = remaining_seconds(deadline)
+    timeout = REQUEST_TIMEOUT_SECONDS if remaining is None else min(REQUEST_TIMEOUT_SECONDS, remaining)
+    result = apps_script_transport.post_json(
+        endpoint, token, payload, timeout=timeout, deadline=deadline, retries=RETRIES,
+    )
+    if result.get("ok") is not True:
+        message = result.get("error", "Invalid receiver response.")
+        diagnostic = result.get("diagnostic")
+        if isinstance(diagnostic, dict):
+            safe = []
+            for key in ("stage", "type", "detail"):
+                value = diagnostic.get(key)
+                if isinstance(value, str):
+                    safe.append(key + "=" + value[:240])
+            if safe:
+                message = str(message) + " (" + "; ".join(safe) + ")"
+        raise RuntimeError(str(message))
+    return result
 
 
 def create_sessions(endpoint: str, token: str, backup_id: str, total_parts: int,
