@@ -5,7 +5,7 @@ This is a private, owner-operated Google Apps Script web app. GitHub Actions sen
 ## Transfer architecture
 
 - GitHub Actions creates and verifies the encrypted archive locally.
-- The authenticated Apps Script receiver creates Google Drive resumable-upload sessions in one batch. It does not receive or relay archive bytes.
+- The authenticated Apps Script receiver creates Google Drive resumable-upload sessions in batches of eight. It does not receive or relay archive bytes.
 - GitHub Actions uploads the 4 MiB encrypted parts directly to Google Drive, with up to four concurrent transfers.
 - Each part remains a separate immutable Drive file. The existing manifest format, part hashes, whole-archive SHA-256, resume behavior, and recovery download path are preserved.
 - If a transfer response is lost, the uploader queries the existing Google Drive resumable session and resumes from Drive's acknowledged byte range. It opens a replacement session only if the previous session has expired; before doing so, the receiver checks the immutable part name and checksum.
@@ -22,7 +22,7 @@ The Apps Script project requires the Drive and external-request OAuth scopes dec
 - The receiver never trashes, deletes, renames, or overwrites Drive files.
 - It does not apply automatic retention or orphan cleanup.
 - Existing backup files and the configured folder ID are left untouched.
-- Each new archive uses a unique content-derived backup ID and immutable part names.
+- Each new archive uses a unique content-derived backup ID with an explicit `system-` or `content-` prefix, plus immutable part names. Legacy untyped IDs remain readable for explicit recovery.
 - A completion manifest is created only after every part is present and its SHA-256 has been verified.
 
 ## Actions
@@ -62,6 +62,7 @@ node --check < google-apps-script/Code.gs
 node google-apps-script/test_receiver.js
 python3 scripts/test_upload_apps_script_backup.py
 python3 scripts/test_download_apps_script_backup.py
+python3 scripts/test_backup_manifest.py
 ```
 
 Local tests use mocks and do not access the owner's Google Drive. A real authenticated upload and independent recovery drill are still required before scheduled backups are enabled.
