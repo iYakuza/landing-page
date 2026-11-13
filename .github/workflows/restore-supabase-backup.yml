@@ -23,7 +23,7 @@ jobs:
   restore:
     if: github.event_name == 'workflow_dispatch' && inputs.confirm_fresh_target == true && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/backup/'))
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 240
     env:
       SOURCE_PROJECT_REF: oeyxsqocldlovhsmzcjw
       RESTORE_DB_URL: ${{ secrets.SUPABASE_RESTORE_DB_URL }}
@@ -100,7 +100,7 @@ jobs:
           PY
 
       - name: Download encrypted backup from private Google Drive
-        timeout-minutes: 40
+        timeout-minutes: 100
         run: |
           set -euo pipefail
           OUTPUT="$RUNNER_TEMP/green-dream-supabase-restore.gpg"
