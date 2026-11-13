@@ -38,7 +38,7 @@ def fake_post(endpoint, token, payload):
         assert payload["parts"] == [parts[1]]
         return {
             "ok": True, "backup_id": backup_id, "total_parts": 2,
-            "sessions": [{"part_number": 2, "already_present": False, "session_url": "https://www.googleapis.com/upload/drive/v3/files/test-session"}],
+            "sessions": [{"part_number": 2, "already_present": False, "session_url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&upload_id=test-session"}],
         }
     if action == "finalize_backup":
         assert payload["backup_id"] == backup_id
