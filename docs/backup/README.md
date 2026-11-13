@@ -64,10 +64,11 @@ Before considering the system operational:
 
 1. Confirm that the existing Apps Script receiver has been updated to the validated code while preserving its URL and Script Properties; confirm the existing GitHub Actions secrets are present. No new OAuth credentials are required.
 2. Run **GitHub → Actions → Green Dream Google Drive backup → Run workflow**, selecting `main` after the PR is merged (or the consolidated backup branch before merge).
-3. Confirm that the workflow completes its disposable Supabase restore test and encrypted upload.
+3. Confirm that the workflow completes the encrypted upload. Backup creation no longer depends on a Supabase restore test.
 4. In the private Drive folder, confirm that the completed backup manifest and all referenced encrypted parts exist.
-5. Perform a separate recovery drill: download the encrypted parts, reassemble the archive, decrypt it with the separately stored passphrase, verify the SHA-256 manifest, and restore into a fresh compatible Supabase project. Confirm the website, CMS, authentication, submissions, and media.
-6. Only after successful recovery should the PR be considered for merge and the scheduled backup variable be enabled.
+5. Run **Validate Supabase backup restoration** with the new backup ID. This downloads the archive and performs a full restore into a disposable local Supabase instance. After the workflow is merged to `main`, this validation also runs automatically after successful scheduled or manual backups.
+6. When a separate fresh hosted Supabase project is available, use **Restore Green Dream into a fresh Supabase project** for the hosted recovery drill. Confirm the website, CMS, authentication, submissions, and media.
+7. Only after successful backup, local restore validation, and hosted recovery should the PR be considered for merge and the scheduled backup variable be enabled.
 
 A passing CI test is not a substitute for the first live upload and independent recovery drill. Until those steps are complete, keep `BACKUP_ENABLED=false`.
 
@@ -86,6 +87,8 @@ The separate **Restore Green Dream into a fresh Supabase project** workflow (\`.
 - It never targets or modifies the production project intentionally. Never configure the restore secrets with production credentials.
 - Decrypted data is removed from the ephemeral runner at the end of the job.
 - The workflow is a separate-project restore, not a project clone: project-level dashboard settings and Edge Function runtime secret values still need separate configuration.
+
+The **Validate Supabase backup restoration** workflow is independent of backup creation. It can be dispatched manually against a completed backup ID, or it runs automatically after a successful Google Drive backup on `main`. It restores into a disposable local Supabase instance on the GitHub runner, checks the restored data, and then destroys only that temporary local instance. It does not modify production or require a second hosted project.
 
 ### Restore workflow credentials
 
