@@ -28,7 +28,6 @@ jobs:
       SOURCE_PROJECT_REF: oeyxsqocldlovhsmzcjw
       RESTORE_DB_URL: ${{ secrets.SUPABASE_RESTORE_DB_URL }}
       RESTORE_URL: ${{ secrets.SUPABASE_RESTORE_URL }}
-      RESTORE_SECRET_KEY: ${{ secrets.SUPABASE_RESTORE_SECRET_KEY }}
       GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
       GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
       BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
@@ -58,6 +57,8 @@ jobs:
           deno-version: v2.x
 
       - name: Validate credentials and protect the production project
+        env:
+          RESTORE_SECRET_KEY: ${{ secrets.SUPABASE_RESTORE_SECRET_KEY }}
         shell: bash
         run: |
           set -euo pipefail
