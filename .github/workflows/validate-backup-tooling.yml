@@ -110,6 +110,8 @@ jobs:
             .github/workflows/google-drive-content-backup.yml \
             .github/workflows/recover-google-drive-backup.yml \
             .github/workflows/validate-backup-tooling.yml
+          python3 -c 'import tomllib; tomllib.load(open("supabase/config.toml", "rb")); print("Supabase TOML OK")'
+
       - name: Check OAuth callback TypeScript formatting and types
         uses: denoland/setup-deno@v2
         with:
