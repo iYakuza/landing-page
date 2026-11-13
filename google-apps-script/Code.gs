@@ -186,6 +186,96 @@ function downloadBackupPart_(folder, backupId, partNumber) {
   };
 }
 
+
+function createDriveUploadSessions_(folder, backupId, total, requestedParts) {
+  if (!Array.isArray(requestedParts) || requestedParts.length < 1 || requestedParts.length > MAX_PARTS) {
+    throw new Error("Invalid upload session part list.");
+  }
+  const manifest = readManifest_(folder, backupId);
+  if (manifest && manifest.part_count !== total) throw new Error("Completed backup part count conflicts.");
+  const seen = {};
+  const pending = [];
+  const results = [];
+  requestedParts.forEach(function (part) {
+    if (!part || !Number.isInteger(part.part_number) || part.part_number < 1 ||
+        part.part_number > total || !Number.isInteger(part.size) || part.size < 1 ||
+        part.size > PART_BYTES || typeof part.sha256 !== "string" ||
+        !/^[a-f0-9]{64}$/.test(part.sha256) || seen[part.part_number]) {
+      throw new Error("Invalid upload session part metadata.");
+    }
+    seen[part.part_number] = true;
+    const name = partName_(backupId, part.part_number, total);
+    if (manifest) {
+      const record = manifest.parts.find(function (item) { return item.name === name; });
+      if (!record || record.size !== part.size || record.sha256 !== part.sha256) {
+        throw new Error("Completed backup is immutable; requested part conflicts with its manifest.");
+      }
+      results.push({ part_number: part.part_number, already_present: true });
+      return;
+    }
+    const existing = uniqueFile_(folder, name);
+    if (existing) {
+      const bytes = existing.getBlob().getBytes();
+      if (bytes.length !== part.size || sha256_(bytes) !== part.sha256) {
+        throw new Error("A conflicting part already exists; refusing to overwrite it.");
+      }
+      results.push({ part_number: part.part_number, already_present: true });
+      return;
+    }
+    pending.push({ part_number: part.part_number, size: part.size, sha256: part.sha256, name: name });
+  });
+
+  if (pending.length) {
+    const accessToken = ScriptApp.getOAuthToken();
+    const requests = pending.map(function (part) {
+      return {
+        url: "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id,name,size,appProperties",
+        method: "post",
+        contentType: "application/json",
+        payload: JSON.stringify({
+          name: part.name,
+          mimeType: "application/octet-stream",
+          parents: [folder.getId()],
+          appProperties: {
+            backup_id: backupId,
+            part_number: String(part.part_number),
+            sha256: part.sha256
+          }
+        }),
+        headers: {
+          Authorization: "Bearer " + accessToken,
+          "X-Upload-Content-Type": "application/octet-stream",
+          "X-Upload-Content-Length": String(part.size)
+        },
+        muteHttpExceptions: true
+      };
+    });
+    const responses = UrlFetchApp.fetchAll(requests);
+    responses.forEach(function (response, index) {
+      const part = pending[index];
+      const status = response.getResponseCode();
+      if (status !== 200 && status !== 201) {
+        throw new Error("Google Drive could not initialise a resumable upload session (HTTP " + status + ").");
+      }
+      const headers = response.getAllHeaders();
+      let sessionUrl = "";
+      Object.keys(headers).some(function (key) {
+        if (key.toLowerCase() === "location") {
+          sessionUrl = String(headers[key]);
+          return true;
+        }
+        return false;
+      });
+      if (!/^https:\/\/www\.googleapis\.com\/upload\/drive\/v3\/files\//.test(sessionUrl)) {
+        throw new Error("Google Drive returned an invalid resumable upload session.");
+      }
+      results.push({ part_number: part.part_number, already_present: false, session_url: sessionUrl });
+    });
+  }
+  results.sort(function (a, b) { return a.part_number - b.part_number; });
+  return results;
+}
+
 function doPost(e) {
   const lock = LockService.getScriptLock();
   let diagnosticStage = "acquire_lock";
@@ -220,6 +310,17 @@ function doPost(e) {
       if (!Number.isInteger(total) || total < 1 || total > MAX_PARTS) return json_({ ok: false, error: "Invalid part count." });
       const state = listUploadParts_(folder, request.backup_id, total);
       return json_({ ok: true, backup_id: request.backup_id, total_parts: total, completed: state.completed, parts: state.parts });
+    }
+
+    if (request.action === "create_upload_sessions") {
+      diagnosticStage = "create_upload_sessions:validate_metadata";
+      const total = request.total_parts;
+      if (!Number.isInteger(total) || total < 1 || total > MAX_PARTS) {
+        return json_({ ok: false, error: "Invalid part count." });
+      }
+      diagnosticStage = "create_upload_sessions:create_google_drive_sessions";
+      const sessions = createDriveUploadSessions_(folder, request.backup_id, total, request.parts);
+      return json_({ ok: true, backup_id: request.backup_id, total_parts: total, sessions: sessions });
     }
 
     if (request.action === "upload_part") {
