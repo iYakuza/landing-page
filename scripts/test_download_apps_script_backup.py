@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test authenticated Apps Script download, per-part hashes, and whole-archive hash."""
+"""Test bounded authenticated recovery download and per-part/whole-archive hashes."""
 import base64
 import hashlib
 import importlib.util
@@ -14,6 +14,8 @@ spec = importlib.util.spec_from_file_location("download_backup", script)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
+assert module.REQUEST_TIMEOUT_SECONDS == 60
+assert module.DOWNLOAD_DEADLINE_SECONDS == 30 * 60
 backup_id = "20261113T000000Z-a1b2c3d4"
 chunks = [b"encrypted-part-one", b"encrypted-part-two"]
 whole = b"".join(chunks)
@@ -23,8 +25,9 @@ parts = [
 ]
 calls = []
 
-def fake_post(endpoint, token, payload):
+def fake_post(endpoint, token, payload, deadline):
     calls.append(payload)
+    assert deadline is not None
     if payload["action"] == "list_backups":
         return {"ok": True, "backups": [{
             "backup_id": backup_id, "part_count": len(chunks), "total_bytes": len(whole),
@@ -51,4 +54,4 @@ with tempfile.TemporaryDirectory() as temp:
     assert output.read_bytes() == whole
 
 assert [x["action"] for x in calls] == ["list_backups", "download_part", "download_part"]
-print("Apps Script downloader tests passed.")
+print("Bounded Apps Script recovery downloader tests passed.")
