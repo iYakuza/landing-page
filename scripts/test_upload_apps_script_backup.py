@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Test the Apps Script uploader's chunking, retry-safe resume, and finalization."""
+"""Test parallel direct-to-Drive resumable upload, integrity checks, resume and finalization."""
 import hashlib
 import importlib.util
 import os
@@ -19,7 +19,12 @@ archive_sha = hashlib.sha256(archive_bytes).hexdigest()
 backup_id = "20261113T000000Z-" + archive_sha[:8]
 first = archive_bytes[:module.PART_BYTES]
 second = archive_bytes[module.PART_BYTES:]
+parts = [
+    {"part_number": 1, "size": len(first), "sha256": hashlib.sha256(first).hexdigest()},
+    {"part_number": 2, "size": len(second), "sha256": hashlib.sha256(second).hexdigest()},
+]
 calls = []
+uploaded = []
 
 def fake_post(endpoint, token, payload):
     calls.append(payload)
@@ -27,13 +32,14 @@ def fake_post(endpoint, token, payload):
     if action == "list_upload_parts":
         return {
             "ok": True, "backup_id": backup_id, "total_parts": 2,
-            "completed": False,
-            "parts": [{"part_number": 1, "size": len(first), "sha256": hashlib.sha256(first).hexdigest()}],
+            "parts": [{"part_number": 1, "size": len(first), "sha256": parts[0]["sha256"]}],
         }
-    if action == "upload_part":
-        assert payload["part_number"] == 2
-        assert payload["content_base64"]
-        return {"ok": True, "backup_id": backup_id, "received_part": 2}
+    if action == "create_upload_sessions":
+        assert payload["parts"] == [parts[1]]
+        return {
+            "ok": True, "backup_id": backup_id, "total_parts": 2,
+            "sessions": [{"part_number": 2, "already_present": False, "session_url": "https://www.googleapis.com/upload/drive/v3/files/test-session"}],
+        }
     if action == "finalize_backup":
         assert payload["backup_id"] == backup_id
         assert payload["total_bytes"] == len(archive_bytes)
@@ -41,15 +47,23 @@ def fake_post(endpoint, token, payload):
         return {"ok": True, "backup_id": backup_id, "finalized": True, "total_bytes": len(archive_bytes)}
     raise AssertionError("Unexpected action: " + action)
 
+def fake_put(session_url, chunk, expected_name):
+    assert session_url.endswith("test-session")
+    assert chunk == second
+    assert expected_name.endswith("-part-0002-of-0002.gpgpart")
+    uploaded.append(len(chunk))
+
 with tempfile.TemporaryDirectory() as temp:
     archive = pathlib.Path(temp) / "backup.gpg"
     archive.write_bytes(archive_bytes)
     with patch.dict(os.environ, {
         "GOOGLE_DRIVE_INGEST_URL": "https://script.google.com/macros/s/test-deployment/exec",
         "GOOGLE_DRIVE_INGEST_TOKEN": "x" * 48,
-    }), patch.object(sys, "argv", [str(script), str(archive)]), patch.object(module, "post_json", fake_post):
+    }), patch.object(sys, "argv", [str(script), str(archive)]), \
+         patch.object(module, "post_json", fake_post), patch.object(module, "put_chunk", fake_put):
         module.main()
 
-assert [call["action"] for call in calls] == ["list_upload_parts", "upload_part", "finalize_backup"]
-assert calls[1]["part_number"] == 2, "the already stored first part must be skipped"
-print("Apps Script uploader tests passed.")
+assert [call["action"] for call in calls] == ["list_upload_parts", "create_upload_sessions", "finalize_backup"]
+assert calls[1]["parts"] == [parts[1]], "the already stored first part must not be uploaded again"
+assert uploaded == [len(second)]
+print("Direct Google Drive uploader tests passed.")
