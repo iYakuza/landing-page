@@ -87,6 +87,10 @@ def create_sessions(endpoint: str, token: str, backup_id: str, total_parts: int,
     return indexed
 
 
+class RetryableUploadError(RuntimeError):
+    """A Drive upload failure for which creating a fresh session is safe."""
+
+
 def put_chunk(session_url: str, chunk: bytes, expected_name: str) -> None:
     request = urllib.request.Request(
         session_url,
@@ -94,6 +98,8 @@ def put_chunk(session_url: str, chunk: bytes, expected_name: str) -> None:
         headers={
             "Content-Type": "application/octet-stream",
             "Content-Length": str(len(chunk)),
+            # Required by the Google Drive resumable-upload protocol.
+            "Content-Range": f"bytes 0-{len(chunk) - 1}/{len(chunk)}",
         },
         method="PUT",
     )
@@ -103,6 +109,9 @@ def put_chunk(session_url: str, chunk: bytes, expected_name: str) -> None:
             body = response.read()
     except urllib.error.HTTPError as exc:
         # Do not print the URL: a resumable session URL is a bearer capability.
+        # Expired sessions and transient service responses can be safely re-created.
+        if exc.code in RETRYABLE_HTTP or exc.code in (308, 404, 410):
+            raise RetryableUploadError(f"Google Drive upload returned HTTP {exc.code}.") from None
         raise RuntimeError(f"Google Drive upload returned HTTP {exc.code}.") from None
     if status not in (200, 201):
         raise RuntimeError(f"Google Drive did not complete the part upload (HTTP {status}).")
@@ -130,7 +139,7 @@ def upload_one(archive: pathlib.Path, endpoint: str, token: str, backup_id: str,
         try:
             put_chunk(current_session, chunk, expected_name)
             return number, True
-        except Exception:
+        except (urllib.error.URLError, TimeoutError, RetryableUploadError):
             if attempt >= RETRIES:
                 raise
             time.sleep(min(2 ** attempt, 20))
