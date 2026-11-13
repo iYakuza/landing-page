@@ -102,4 +102,17 @@ with tempfile.TemporaryDirectory() as temp:
 assert [call["action"] for call in calls] == ["list_upload_parts", "create_upload_sessions", "finalize_backup"]
 assert calls[1]["parts"] == [parts[1]], "the already stored first part must not be uploaded again"
 assert uploaded == [len(second)]
+# Session creation is deliberately batched so Apps Script never receives one
+# oversized fetchAll burst for the entire archive.
+batch_sizes = []
+def fake_create_sessions(endpoint, token, backup, total, batch, deadline):
+    batch_sizes.append(len(batch))
+    return {item["part_number"]: {"already_present": True} for item in batch}
+
+many_parts = [{"part_number": i + 1, "size": 1, "sha256": "a" * 64} for i in range(17)]
+with patch.object(module, "create_sessions", fake_create_sessions):
+    batched = module.create_sessions_batched("endpoint", "token", "backup", 17, many_parts, module.time.monotonic() + 60)
+assert batch_sizes == [8, 8, 1]
+assert set(batched) == set(range(1, 18))
+
 print("Bounded direct Google Drive uploader tests passed.")
