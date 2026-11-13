@@ -3,8 +3,8 @@ name: Recover Green Dream from private Google Drive backup
 on:
   workflow_dispatch:
     inputs:
-      backup_id:
-        description: "Completed backup ID (leave blank to use the newest completed backup)"
+      archive_name:
+        description: "Exact encrypted archive filename (leave blank to use the newest completed backup)"
         required: false
         type: string
 
@@ -63,7 +63,11 @@ jobs:
         run: |
           set -euo pipefail
           OUTPUT="$RUNNER_TEMP/green-dream-recovery.gpg"
-          python3 scripts/google_drive_backup.py download --output "$OUTPUT"
+          if [ -n "${{ inputs.archive_name }}" ]; then
+            python3 scripts/google_drive_backup.py download --output "$OUTPUT" --archive-name "${{ inputs.archive_name }}"
+          else
+            python3 scripts/google_drive_backup.py download --output "$OUTPUT"
+          fi
           test -s "$OUTPUT"
           echo "ENCRYPTED_BACKUP=$OUTPUT" >> "$GITHUB_ENV"
 
