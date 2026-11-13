@@ -180,6 +180,33 @@ jobs:
           fi
           printf "Local Supabase environment is ready for the isolated Storage test.\n"
 
+      - name: Test complete Auth user and identity restore round trip
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/storage-restore.env"
+          set +a
+          ROOT="$RUNNER_TEMP/auth-restore-fixture"
+          mkdir -p "$ROOT/auth" "$ROOT/database" "$ROOT/secrets" "$ROOT/storage"
+          USER_ID="$(python3 -c 'import uuid; print(uuid.uuid4())')"
+          EMAIL="backup-restore-test-${GITHUB_RUN_ID}@example.invalid"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at) values ('$USER_ID', 'authenticated', 'authenticated', '$EMAIL', 'test-password-hash', now(), now(), now())"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "insert into auth.identities (id, user_id, provider_id, identity_data, provider, created_at, updated_at) values (gen_random_uuid(), '$USER_ID', '$EMAIL', jsonb_build_object('sub', '$USER_ID', 'email', '$EMAIL'), 'email', now(), now())"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select coalesce(json_agg(to_jsonb(u) order by id),'[]'::json) from auth.users u where id='$USER_ID'::uuid" > "$ROOT/auth/users.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select coalesce(json_agg(to_jsonb(i) order by id),'[]'::json) from auth.identities i where user_id='$USER_ID'::uuid" > "$ROOT/auth/identities.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select coalesce(json_agg(json_build_object('name',attname,'generated',attgenerated <> '') order by attnum),'[]'::json) from pg_attribute where attrelid='auth.users'::regclass and attnum > 0 and not attisdropped" > "$ROOT/auth/users-columns.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select coalesce(json_agg(json_build_object('name',attname,'generated',attgenerated <> '') order by attnum),'[]'::json) from pg_attribute where attrelid='auth.identities'::regclass and attnum > 0 and not attisdropped" > "$ROOT/auth/identities-columns.json"
+          printf '[]\\n' > "$ROOT/database/migration-ledger.json"
+          printf '[]\\n' > "$ROOT/secrets/vault-secrets.json"
+          printf '[]\\n' > "$ROOT/storage/policies.json"
+          printf '{"tables":[],"grants":[]}\\n' > "$ROOT/storage/security-settings.json"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "delete from auth.users where id='$USER_ID'::uuid"
+          python3 scripts/generate_restore_sql.py --root "$ROOT"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$ROOT/restore/auth-restore.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_auth_restore.py "$ROOT"
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "delete from auth.users where id='$USER_ID'::uuid"
+          rm -rf "$ROOT"
+
       - name: Test migration ledger restore round trip
         run: |
           set -euo pipefail
