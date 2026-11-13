@@ -104,6 +104,23 @@ def create_sessions(endpoint: str, token: str, backup_id: str, total_parts: int,
     return indexed
 
 
+def create_sessions_batched(endpoint: str, token: str, backup_id: str, total_parts: int,
+                            parts: list[dict], deadline: float) -> dict[int, dict]:
+    """Keep each Apps Script fetchAll burst small and report session preparation progress."""
+    sessions: dict[int, dict] = {}
+    for offset in range(0, len(parts), SESSION_BATCH_SIZE):
+        batch = parts[offset:offset + SESSION_BATCH_SIZE]
+        batch_number = offset // SESSION_BATCH_SIZE + 1
+        batch_total = (len(parts) + SESSION_BATCH_SIZE - 1) // SESSION_BATCH_SIZE
+        print(
+            f"Preparing Drive upload sessions: batch {batch_number}/{batch_total} "
+            f"({min(offset + len(batch), len(parts))}/{len(parts)} parts).",
+            flush=True,
+        )
+        sessions.update(create_sessions(endpoint, token, backup_id, total_parts, batch, deadline))
+    return sessions
+
+
 class RetryableUploadError(RuntimeError):
     """A Drive upload failure for which querying or retrying the same session is safe."""
 
