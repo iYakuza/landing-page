@@ -18,6 +18,7 @@ MAX_PARTS = 400
 WORKERS = 4
 SESSION_BATCH_SIZE = 8
 PREFIX = "greendream-backup-"
+BACKUP_TYPES = {"system", "content"}
 RETRIES = 2
 REQUEST_TIMEOUT_SECONDS = 60
 UPLOAD_DEADLINE_SECONDS = 15 * 60
@@ -314,7 +315,7 @@ def main() -> None:
 
     started_at = time.monotonic()
     print(
-        f"Preparing direct Drive upload: {total_bytes / (1024 * 1024):.2f} MB across "
+        f"Preparing {backup_type} backup upload: {total_bytes / (1024 * 1024):.2f} MB across "
         f"{total_parts} parts; {WORKERS} parallel transfers. Each request is capped at "
         f"{REQUEST_TIMEOUT_SECONDS}s; transfer deadline is {UPLOAD_DEADLINE_SECONDS // 60} minutes.",
         flush=True,
@@ -337,7 +338,10 @@ def main() -> None:
     if len(parts) != total_parts:
         raise RuntimeError("Archive changed while its checksums were being calculated.")
 
-    backup_id = datetime.now(timezone.utc).strftime("%Y%m%dT000000Z") + "-" + archive_sha256[:8]
+    backup_type = os.environ.get("BACKUP_TYPE", "system").strip().lower()
+    if backup_type not in BACKUP_TYPES:
+        raise RuntimeError("BACKUP_TYPE must be either 'system' or 'content'.")
+    backup_id = backup_type + "-" + datetime.now(timezone.utc).strftime("%Y%m%dT000000Z") + "-" + archive_sha256[:8]
     print("Checking previously stored parts...", flush=True)
     state = post_json(endpoint, token, {
         "action": "list_upload_parts", "backup_id": backup_id, "total_parts": total_parts,
