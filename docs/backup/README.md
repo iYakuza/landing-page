@@ -13,7 +13,15 @@ This workflow creates a daily encrypted snapshot and uploads it to the app-manag
 - A Git bundle containing the repository history and the checked-in Edge Function source.
 - A SHA-256 manifest for the files in each archive.
 
-The complete archive is encrypted with GPG AES-256 before it is uploaded. The uploader verifies the uploaded file size and, when Drive returns it, the MD5 checksum. It retains the 30 newest backup archives in the app-created Drive folder.
+The complete archive is encrypted with GPG AES-256 before it is uploaded. The uploader uses the Google Drive v3 resumable-upload API directly over HTTPS. It uses only Python's standard library (zero third-party Python packages), transfers in 8 MiB chunks, retries interrupted requests by querying the resumable session, and verifies the Drive-reported size and MD5 checksum before publishing a completion manifest. It does not delete, overwrite, rename, or apply retention cleanup to existing Drive files.
+
+## Direct Google Drive transfer
+
+The content/media backup and recovery workflows use `scripts/google_drive_backup.py` to call the Google Drive v3 REST API directly from GitHub Actions. There is no Apps Script receiver, rclone process, or third-party Python dependency in this transfer path. Python's standard library handles OAuth token refresh, HTTPS requests, resumable chunk uploads, downloads, and checksum validation.
+
+The app requests only the `drive.file` scope. It creates and accesses its own **Green Dream Backups** folder; it does not need broad access to the user's entire Drive. The archive is encrypted before upload. A small completion manifest is uploaded only after Drive confirms the archive size and MD5 checksum. Recovery selects only a valid completed manifest, downloads the archive, and verifies size, MD5, and SHA-256 before decryption.
+
+The transfer code never creates public permissions and does not delete, overwrite, rename, or clean up Drive files. The upload is resumable within a running workflow if a network interruption occurs. It does not persist an unfinished session across separate GitHub workflow runs.
 
 ## Important security properties
 
