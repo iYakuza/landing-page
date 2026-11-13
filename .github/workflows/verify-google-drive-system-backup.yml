@@ -1,12 +1,6 @@
 name: Verify Green Dream Google Drive system backup
 
 on:
-  push:
-    branches:
-      - "backup/**"
-    paths:
-      - "scripts/download_apps_script_backup.py"
-      - "scripts/apps_script_transport.py"
   workflow_dispatch:
     inputs:
       download_workers:
@@ -77,6 +71,7 @@ jobs:
         env:
           GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
           GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          GOOGLE_DRIVE_READONLY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_DRIVE_READONLY_SERVICE_ACCOUNT_JSON }}
           BACKUP_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.backup_id || 'system-20261113T000000Z-428ddefb' }}
           DOWNLOAD_WORKERS: ${{ github.event_name == 'workflow_dispatch' && inputs.download_workers || '2' }}
         run: |
