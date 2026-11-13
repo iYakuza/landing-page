@@ -6,6 +6,7 @@ const vm = require("node:vm");
 const files = [];
 let nextId = 1;
 const properties = new Map([["INGEST_TOKEN", "test-token-".padEnd(48, "x")], ["BACKUP_FOLDER_ID", "folder-id"]]);
+const sessionRequests = [];
 const bytesOf = value => Buffer.from(value);
 const digest = bytes => crypto.createHash("sha256").update(bytes).digest("hex");
 
@@ -60,6 +61,16 @@ const context = {
     getFileById: id => files.find(f => f.id === id)
   },
   LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) },
+  ScriptApp: { getOAuthToken: () => "mock-google-oauth-token" },
+  UrlFetchApp: {
+    fetchAll: requests => {
+      sessionRequests.push(...requests);
+      return requests.map((request, index) => ({
+        getResponseCode: () => 200,
+        getAllHeaders: () => ({ Location: "https://www.googleapis.com/upload/drive/v3/files/mock-session-" + (sessionRequests.length - requests.length + index + 1) })
+      }));
+    }
+  },
   Utilities: {
     DigestAlgorithm: { SHA_256: "sha256" },
     computeDigest: (_, bytes) => Array.from(crypto.createHash("sha256").update(Buffer.from(bytes)).digest()).map(x => x > 127 ? x - 256 : x),
@@ -101,6 +112,31 @@ const uploadState = send({ action: "list_upload_parts", token, backup_id: id, to
 assert.equal(uploadState.ok, true);
 assert.equal(uploadState.parts.length, 1);
 assert.equal(uploadState.parts[0].part_number, 1);
+
+const sessionState = send({
+  action: "create_upload_sessions", token, backup_id: id, total_parts: 2,
+  parts: [
+    { part_number: 1, size: chunks[0].length, sha256: digest(chunks[0]) },
+    { part_number: 2, size: chunks[1].length, sha256: digest(chunks[1]) }
+  ]
+});
+assert.equal(sessionState.ok, true);
+assert.equal(sessionState.sessions.length, 2);
+assert.equal(sessionState.sessions[0].already_present, true);
+assert.equal(sessionState.sessions[1].already_present, false);
+assert.match(sessionState.sessions[1].session_url, /^https:\/\/www\.googleapis\.com\/upload\/drive\/v3\/files\//);
+assert.equal(sessionRequests.length, 1, "only the missing part gets a Drive session");
+assert.equal(sessionRequests[0].headers.Authorization, "Bearer mock-google-oauth-token");
+assert.equal(sessionRequests[0].headers["X-Upload-Content-Length"], String(chunks[1].length));
+
+const alreadyStored = send({
+  action: "create_upload_sessions", token, backup_id: id, total_parts: 2,
+  parts: [{ part_number: 1, size: chunks[0].length, sha256: digest(chunks[0]) }]
+});
+assert.equal(alreadyStored.ok, true);
+assert.equal(alreadyStored.sessions[0].already_present, true);
+assert.equal(sessionRequests.length, 1, "verified existing parts do not create new sessions");
+
 assert.equal(send(part(2, chunks[1])).ok, true);
 
 const incomplete = send({
