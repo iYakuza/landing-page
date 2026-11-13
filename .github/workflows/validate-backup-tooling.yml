@@ -97,6 +97,8 @@ jobs:
           printf '[{"version":"20260101000000","name":"initial_schema"}]' > "$TEST_DIR/database/migration-ledger.json"
           printf '[{"id":"00000000-0000-0000-0000-000000000001","email":"owner@example.invalid"}]' > "$TEST_DIR/auth/users.json"
           printf '[{"id":"00000000-0000-0000-0000-000000000002","user_id":"00000000-0000-0000-0000-000000000001","provider":"email"}]' > "$TEST_DIR/auth/identities.json"
+          printf '[{"name":"id","generated":false},{"name":"email","generated":false},{"name":"confirmed_at","generated":true}]' > "$TEST_DIR/auth/users-columns.json"
+          printf '[{"name":"id","generated":false},{"name":"user_id","generated":false},{"name":"provider","generated":false},{"name":"email","generated":true}]' > "$TEST_DIR/auth/identities-columns.json"
           printf '[{"name":"test_secret","description":"test description","secret":"dummy-secret"}]' > "$TEST_DIR/secrets/vault-secrets.json"
           cat > "$TEST_DIR/storage/policies.json" <<'JSON'
           [{"schemaname":"storage","tablename":"objects","policyname":"test policy","permissive":"PERMISSIVE","roles":["anon","authenticated"],"cmd":"SELECT","qual":"(bucket_id = 'poetry-media'::text)","with_check":null}]
@@ -108,6 +110,8 @@ jobs:
           grep -Fq 'create policy "test policy" on "storage"."objects"' "$TEST_DIR/restore/storage-policies.sql"
           if grep -Eiq '^(SET ROLE|GRANT |REVOKE |ALTER TABLE )' "$TEST_DIR/restore/storage-policies.sql"; then echo "::error::Restore SQL attempts to alter Supabase-managed Storage ownership, ACLs, or RLS flags"; exit 1; fi
           grep -q 'jsonb_populate_recordset(null::auth.users' "$TEST_DIR/restore/auth-restore.sql"
+          grep -Fq 'insert into auth.users ("id", "email") select "id", "email"' "$TEST_DIR/restore/auth-restore.sql"
+          grep -Fq 'insert into auth.identities ("id", "user_id", "provider") select "id", "user_id", "provider"' "$TEST_DIR/restore/auth-restore.sql"
           grep -q "vault.create_secret('dummy-secret', 'test_secret'" "$TEST_DIR/restore/vault-restore.sql"
           grep -q "insert into supabase_migrations.schema_migrations" "$TEST_DIR/restore/migration-ledger-restore.sql"
           grep -q "initial_schema" "$TEST_DIR/restore/migration-ledger-restore.sql"
