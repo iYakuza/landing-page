@@ -14,6 +14,8 @@ import time
 import urllib.error
 import urllib.request
 
+import apps_script_transport
+
 MAX_PARTS = 400
 BACKUP_ID = re.compile(r"^(?:(?:system|content)-)?[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}$")
 SHA256 = re.compile(r"^[a-f0-9]{64}$")
@@ -31,28 +33,15 @@ def remaining_seconds(deadline: float | None) -> float:
 
 
 def post_json(endpoint: str, token: str, payload: dict, deadline: float) -> dict:
-    body = json.dumps({**payload, "token": token}, separators=(",", ":")).encode("utf-8")
-    for attempt in range(RETRIES + 1):
-        timeout = min(REQUEST_TIMEOUT_SECONDS, remaining_seconds(deadline))
-        request = urllib.request.Request(
-            endpoint, data=body,
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
-        try:
-            with urllib.request.urlopen(request, timeout=timeout) as response:
-                result = json.loads(response.read().decode("utf-8"))
-            if not isinstance(result, dict) or result.get("ok") is not True:
-                raise RuntimeError("The backup receiver rejected the recovery request.")
-            return result
-        except urllib.error.HTTPError as exc:
-            if exc.code not in RETRYABLE_HTTP or attempt >= RETRIES:
-                raise RuntimeError(f"The backup receiver returned HTTP {exc.code}.") from None
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, UnicodeDecodeError):
-            if attempt >= RETRIES:
-                raise RuntimeError("The backup receiver request failed after bounded retries.") from None
-        time.sleep(min(2 ** attempt, 4, remaining_seconds(deadline)))
-    raise RuntimeError("The backup receiver request could not be completed.")
+    result = apps_script_transport.post_json(
+        endpoint, token, payload,
+        timeout=min(REQUEST_TIMEOUT_SECONDS, remaining_seconds(deadline)),
+        deadline=deadline,
+        retries=RETRIES,
+    )
+    if result.get("ok") is not True:
+        raise RuntimeError("The backup receiver rejected the recovery request.")
+    return result
 
 
 def main() -> None:
