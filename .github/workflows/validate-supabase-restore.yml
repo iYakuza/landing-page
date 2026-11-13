@@ -190,4 +190,4 @@ jobs:
           set +e
           rm -rf "$RUNNER_TEMP/green-dream-restore-validation" "$RUNNER_TEMP/green-dream-restore-target"
           rm -f "$RUNNER_TEMP/green-dream-restore-validation.gpg" "$RUNNER_TEMP/green-dream-restore-validation.tar.gz"
-          rm -f "$RUNNER_TEMP/local-supabase.env" "$RUNNER_TEMP/local-supabase-start.log"
+          rm -f "$RUNNER_TEMP/local-supabase.env" "$RUNNER_TEMP/local-supabase-start.log" "$RUNNER_TEMP/local-supabase-ports"
