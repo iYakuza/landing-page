@@ -168,7 +168,14 @@ function listCompletedBackups_(folder) {
         if (!match || Number(match[2]) !== manifest.part_count ||
             !Number.isInteger(part.size) || part.size < 1 ||
             !/^[a-f0-9]{64}$/.test(part.sha256 || "")) { valid = false; return; }
-        parts.push({ part_number: Number(match[1]), size: part.size, sha256: part.sha256 });
+        const storedPart = uniqueFile_(folder, part.name);
+        if (!storedPart || storedPart.getSize() !== part.size) { valid = false; return; }
+        parts.push({
+          part_number: Number(match[1]),
+          size: part.size,
+          sha256: part.sha256,
+          file_id: storedPart.getId()
+        });
         totalBytes += part.size;
       });
       if (!valid || parts.length !== manifest.part_count) continue;
