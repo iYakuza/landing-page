@@ -313,6 +313,10 @@ def main() -> None:
     if total_parts > MAX_PARTS:
         raise RuntimeError(f"Backup is too large: {total_parts} parts exceeds the {MAX_PARTS}-part receiver limit.")
 
+    backup_type = os.environ.get("BACKUP_TYPE", "system").strip().lower()
+    if backup_type not in BACKUP_TYPES:
+        raise RuntimeError("BACKUP_TYPE must be either 'system' or 'content'.")
+
     started_at = time.monotonic()
     print(
         f"Preparing {backup_type} backup upload: {total_bytes / (1024 * 1024):.2f} MB across "
@@ -338,9 +342,6 @@ def main() -> None:
     if len(parts) != total_parts:
         raise RuntimeError("Archive changed while its checksums were being calculated.")
 
-    backup_type = os.environ.get("BACKUP_TYPE", "system").strip().lower()
-    if backup_type not in BACKUP_TYPES:
-        raise RuntimeError("BACKUP_TYPE must be either 'system' or 'content'.")
     backup_id = backup_type + "-" + datetime.now(timezone.utc).strftime("%Y%m%dT000000Z") + "-" + archive_sha256[:8]
     print("Checking previously stored parts...", flush=True)
     state = post_json(endpoint, token, {
