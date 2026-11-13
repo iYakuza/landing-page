@@ -47,7 +47,7 @@ function sha256_(bytes) {
 }
 
 function validateId_(id) {
-  return typeof id === "string" && /^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}$/.test(id);
+  return typeof id === "string" && /^(?:(?:system|content)-)?[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}$/.test(id);
 }
 
 function isValidBase64_(value) {
