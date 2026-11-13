@@ -139,19 +139,29 @@ def sanitize_roles_sql(original_sql):
         code = executable_sql(statement)
         if not re.search(r"\blog_min_messages\b", code, re.IGNORECASE):
             kept.append(statement)
-        elif re.match(r"\s*(?:SET|RESET)\b", code, re.IGNORECASE):
+            continue
+
+        # pg_dump may wrap SQL in psql session directives such as \restrict.
+        # Those directives are not SQL and can precede the actual command in
+        # the same semicolon-delimited fragment. Remove directive-only lines
+        # before classifying the statement, without changing the SQL applied.
+        classified = re.sub(
+            r"(?m)^[ \t]*\\[A-Za-z]+[^\n]*(?:\n|$)", " ", code
+        ).lstrip()
+
+        if re.match(r"(?:SET|RESET)\b", classified, re.IGNORECASE):
             # Standalone server logging defaults are environment-specific.
             skipped += 1
-        elif re.match(r"\s*ALTER\s+(?:ROLE|USER|DATABASE)\b", code, re.IGNORECASE):
+        elif re.match(r"ALTER\s+(?:ROLE|USER|DATABASE)\b", classified, re.IGNORECASE):
             # Omit only the ALTER statement carrying this unsupported setting;
             # retain role creation, attributes, memberships and grants.
             skipped += 1
-        elif re.match(r"\s*GRANT\b", code, re.IGNORECASE):
+        elif re.match(r"GRANT\b", classified, re.IGNORECASE):
             # GRANT statements may reference a role whose name contains this
             # token; they do not set PostgreSQL parameters.
             kept.append(statement)
         else:
-            command = re.match(r"\s*([A-Za-z]+)", code)
+            command = re.match(r"([A-Za-z]+)", classified)
             unsupported.add(command.group(1).upper() if command else "UNKNOWN")
             kept.append(statement)
     if unsupported:
