@@ -53,6 +53,7 @@ jobs:
           fi
 
       - name: Download and verify encrypted archive from Drive
+        timeout-minutes: 40
         env:
           GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
           GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
@@ -61,9 +62,9 @@ jobs:
           set -euo pipefail
           OUTPUT="$RUNNER_TEMP/green-dream-recovery.gpg"
           if [ -n "$BACKUP_ID" ]; then
-            python3 scripts/download_apps_script_backup.py --backup-id "$BACKUP_ID" --output "$OUTPUT"
+            python3 scripts/download_apps_script_backup.py --backup-type content --backup-id "$BACKUP_ID" --output "$OUTPUT"
           else
-            python3 scripts/download_apps_script_backup.py --output "$OUTPUT"
+            python3 scripts/download_apps_script_backup.py --backup-type content --output "$OUTPUT"
           fi
           test -s "$OUTPUT"
           echo "ENCRYPTED_BACKUP=$OUTPUT" >> "$GITHUB_ENV"
