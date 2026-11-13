@@ -41,7 +41,7 @@ class DriveTransferTests(unittest.TestCase):
             calls = []
             def fake_urlopen(req, timeout=0):
                 calls.append(req)
-                if req.full_url.startswith(drive.UPLOAD_API):
+                if req.full_url.startswith(drive.UPLOAD_API + "?"):
                     return Response(b"", {"Location": "https://www.googleapis.com/upload/drive/v3/files/session"})
                 if req.full_url.endswith("/session"):
                     return Response(
