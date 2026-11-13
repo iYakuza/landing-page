@@ -1,0 +1,173 @@
+name: Validate Supabase backup restoration
+
+on:
+  workflow_dispatch:
+    inputs:
+      backup_id:
+        description: "Completed backup ID (blank selects the newest completed backup)"
+        required: false
+        type: string
+  workflow_run:
+    workflows:
+      - Green Dream Google Drive backup
+    types:
+      - completed
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: green-dream-supabase-restore-validation
+  cancel-in-progress: false
+
+jobs:
+  validate-restore:
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
+      GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+      BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+      BACKUP_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.backup_id || '' }}
+
+    steps:
+      - name: Check out restore tooling
+        uses: actions/checkout@v6
+
+      - name: Install restore dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client gnupg python3
+          python3 --version
+          psql --version
+          gpg --version
+
+      - name: Install pinned Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.1
+
+      - name: Install Deno for Storage restore verification
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Validate backup recovery credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in GOOGLE_DRIVE_INGEST_URL GOOGLE_DRIVE_INGEST_TOKEN BACKUP_ENCRYPTION_PASSPHRASE; do
+            if [ -z "${!name:-}" ]; then
+              echo "::error::Missing required GitHub Actions secret for $name."
+              exit 1
+            fi
+          done
+          case "$GOOGLE_DRIVE_INGEST_URL" in
+            https://script.google.com/macros/s/*/exec) ;;
+            *) echo "::error::The existing Apps Script receiver URL is invalid."; exit 1 ;;
+          esac
+          if [ "${#GOOGLE_DRIVE_INGEST_TOKEN}" -lt 40 ] || [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 32 ]; then
+            echo "::error::The receiver token or encryption passphrase does not meet the minimum length."
+            exit 1
+          fi
+
+      - name: Download and verify encrypted backup from private Drive
+        run: |
+          set -euo pipefail
+          OUTPUT="$RUNNER_TEMP/green-dream-restore-validation.gpg"
+          if [ -n "$BACKUP_ID" ]; then
+            python3 scripts/download_apps_script_backup.py --backup-id "$BACKUP_ID" --output "$OUTPUT"
+          else
+            python3 scripts/download_apps_script_backup.py --output "$OUTPUT"
+          fi
+          test -s "$OUTPUT"
+          echo "ENCRYPTED_BACKUP=$OUTPUT" >> "$GITHUB_ENV"
+
+      - name: Decrypt archive and verify complete backup manifest
+        run: |
+          set -euo pipefail
+          ROOT="$RUNNER_TEMP/green-dream-restore-validation"
+          ARCHIVE="$RUNNER_TEMP/green-dream-restore-validation.tar.gz"
+          mkdir -p "$ROOT"
+          printf '%s' "$BACKUP_ENCRYPTION_PASSPHRASE" | \
+            gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 \
+                --decrypt --output "$ARCHIVE" "$ENCRYPTED_BACKUP"
+          tar -xzf "$ARCHIVE" -C "$ROOT" --no-same-owner --no-same-permissions
+          python3 scripts/verify_backup_manifest.py "$ROOT"
+          python3 scripts/generate_restore_sql.py --root "$ROOT"
+          echo "RESTORE_ROOT=$ROOT" >> "$GITHUB_ENV"
+
+      - name: Start a disposable local Supabase restore target
+        run: |
+          set -euo pipefail
+          LOCAL_PROJECT="$RUNNER_TEMP/green-dream-restore-target"
+          mkdir -p "$LOCAL_PROJECT/supabase/migrations"
+          printf 'project_id = "green-dream-restore-test"\n' > "$LOCAL_PROJECT/supabase/config.toml"
+          if ! supabase --workdir "$LOCAL_PROJECT" start --exclude studio,mailpit,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta > "$RUNNER_TEMP/local-supabase-start.log" 2>&1; then
+            sed -E '/(secret key:|publishable key:|sb_secret_|sb_publishable_)/Id' "$RUNNER_TEMP/local-supabase-start.log" | tail -n 80
+            exit 1
+          fi
+          touch "$RUNNER_TEMP/local-supabase.started"
+
+      - name: Restore and verify the complete Supabase snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          LOCAL_PROJECT="$RUNNER_TEMP/green-dream-restore-target"
+          supabase --workdir "$LOCAL_PROJECT" status -o env > "$RUNNER_TEMP/local-supabase.env"
+          if ! grep -q '^SERVICE_ROLE_KEY=' "$RUNNER_TEMP/local-supabase.env"; then
+            echo "::error::Local Supabase CLI did not expose its local Storage admin key."
+            exit 1
+          fi
+          printf 'SECRET_KEY=%s\n' "$(sed -n 's/^SERVICE_ROLE_KEY=//p' "$RUNNER_TEMP/local-supabase.env" | head -n 1 | tr -d '"')" >> "$RUNNER_TEMP/local-supabase.env"
+          set -a
+          source "$RUNNER_TEMP/local-supabase.env"
+          set +a
+          psql "$DB_URL" -X -v ON_ERROR_STOP=1 -c "create extension if not exists supabase_vault with schema vault"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/database/roles.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/database/schema.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/restore/migration-ledger-restore.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_migration_ledger.py "$RESTORE_ROOT"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/restore/auth-restore.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_auth_restore.py "$RESTORE_ROOT"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/restore/vault-restore.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_vault_restore.py "$RESTORE_ROOT"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/restore/storage-policies.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/database/data.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_storage_security.py "$RESTORE_ROOT"
+          SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="$SECRET_KEY" \
+            deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$RESTORE_ROOT"
+          DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/restore/storage-owners.sql"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_storage_owners.py "$RESTORE_ROOT"
+          DATABASE_URL="$DB_URL" python3 scripts/verify_database_restore.py --compare "$RESTORE_ROOT/database/table-counts.json"
+
+      - name: Report successful local Supabase restoration
+        if: success()
+        run: |
+          {
+            echo "## Supabase backup restoration validated"
+            echo
+            echo "The encrypted backup was downloaded, decrypted, and verified."
+            echo "Database schema/data, migration history, Auth users/identities, Vault, Storage policies, buckets, object bytes, and ownership were restored and checked against the snapshot."
+            echo "The restore target was a disposable local Supabase instance; production was not modified."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Stop disposable local Supabase restore target
+        if: always()
+        continue-on-error: true
+        run: |
+          if [ -f "$RUNNER_TEMP/local-supabase.started" ]; then
+            supabase --workdir "$RUNNER_TEMP/green-dream-restore-target" stop --no-backup
+          fi
+
+      - name: Remove decrypted restore material
+        if: always()
+        run: |
+          set +e
+          rm -rf "$RUNNER_TEMP/green-dream-restore-validation" "$RUNNER_TEMP/green-dream-restore-target"
+          rm -f "$RUNNER_TEMP/green-dream-restore-validation.gpg" "$RUNNER_TEMP/green-dream-restore-validation.tar.gz"
+          rm -f "$RUNNER_TEMP/local-supabase.env" "$RUNNER_TEMP/local-supabase-start.log"
