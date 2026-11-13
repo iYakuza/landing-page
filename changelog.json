@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T23:16:47.797561Z",
-  "last_processed_sha": "bd0359cd893610b36268b37062f0e2c136351f1d",
+  "updated_at": "2026-11-13T23:17:25.607002Z",
+  "last_processed_sha": "42bb52275bfefd9b21aab9111f1e8dfb254c3dd9",
   "entries": [
+    {
+      "id": "42bb52275bfefd9b21aab9111f1e8dfb254c3dd9",
+      "timestamp": "2026-11-14T00:17:22+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Publish Romanian edition of Ethical Coexistence Initiative; Separate Governance and Accountability from first-year plan; Publish First-Year Plan and Pilot as separate document. It updates index.html and related project files.",
+      "commit_count": 3,
+      "files": [
+        "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Publish Romanian edition of Ethical Coexistence Initiative",
+          "url": "https://github.com/iYakuza/landing-page/commit/de3be2db5cf00d1dd10390fff70865ea23bc2fda",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
+          ]
+        },
+        {
+          "message": "Separate Governance and Accountability from first-year plan",
+          "url": "https://github.com/iYakuza/landing-page/commit/ddbb405478585061be44860475df75f08e41c87d",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html"
+          ]
+        },
+        {
+          "message": "Publish First-Year Plan and Pilot as separate document",
+          "url": "https://github.com/iYakuza/landing-page/commit/42bb52275bfefd9b21aab9111f1e8dfb254c3dd9",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "79d54dc792f2b5f1459025eb7c0d2869e4b91fd1",
       "timestamp": "2026-11-14T00:16:45+01:00",
@@ -1187,34 +1224,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/5288c853b3498f42dc7f4c4fd85da68999a30931",
           "files": [
             "green-dream/guest-notes/architecture-of-harm/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "db94f47841095a140fc1d24e951c1c94ed403de2",
-      "timestamp": "2026-11-09T16:33:15+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Modernize secret scanning workflow; Pin checkout action to verified v6.1.0. It updates secret-scan.yml.",
-      "commit_count": 2,
-      "files": [
-        ".github/workflows/secret-scan.yml"
-      ],
-      "commits": [
-        {
-          "message": "Modernize secret scanning workflow",
-          "url": "https://github.com/iYakuza/landing-page/commit/5621f216d91e822379e48d109c229cc593f23f03",
-          "files": [
-            ".github/workflows/secret-scan.yml"
-          ]
-        },
-        {
-          "message": "Pin checkout action to verified v6.1.0",
-          "url": "https://github.com/iYakuza/landing-page/commit/db94f47841095a140fc1d24e951c1c94ed403de2",
-          "files": [
-            ".github/workflows/secret-scan.yml"
           ]
         }
       ]
