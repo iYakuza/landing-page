@@ -1,6 +1,13 @@
 name: Validate Supabase backup restoration
 
 on:
+  push:
+    branches:
+      - "backup/**"
+    paths:
+      - "scripts/download_apps_script_backup.py"
+      - "scripts/apps_script_transport.py"
+      - ".github/workflows/validate-supabase-restore.yml"
   workflow_dispatch:
     inputs:
       backup_id:
@@ -24,14 +31,14 @@ concurrency:
 
 jobs:
   validate-restore:
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     timeout-minutes: 240
     env:
       GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
       GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
       BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
-      BACKUP_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.backup_id || '' }}
+      BACKUP_ID: ${{ github.event_name == 'workflow_dispatch' && inputs.backup_id || (github.event_name == 'push' && 'system-20261113T000000Z-428ddefb') || '' }}
 
     steps:
       - name: Check out restore tooling
