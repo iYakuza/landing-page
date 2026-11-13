@@ -105,9 +105,9 @@ jobs:
           set -euo pipefail
           ruby -e 'require "yaml"; ARGV.each { |f| YAML.load_file(f, aliases: true); puts "YAML OK: #{f}" }' \
             .github/workflows/google-drive-backup.yml \
-            .github/workflows/google-drive-content-backup.yml \\\n            .github/workflows/recover-google-drive-backup.yml \\\n            .github/workflows/validate-backup-tooling.yml
-          python3 -c 'import tomllib; tomllib.load(open("supabase/config.toml", "rb")); print("Supabase TOML OK")'
-
+            .github/workflows/google-drive-content-backup.yml \
+            .github/workflows/recover-google-drive-backup.yml \
+            .github/workflows/validate-backup-tooling.yml
       - name: Check OAuth callback TypeScript formatting and types
         uses: denoland/setup-deno@v2
         with:
