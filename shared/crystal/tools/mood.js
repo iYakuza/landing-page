@@ -1,4 +1,4 @@
-/* Match My Mood — complete theme engine, prompt composer, persistence and reset. */
+/* Match My Mood — curated emotion presets, accessibility guardrails, persistence and reset. */
 (() => {
   const root=document.getElementById("vha-viewer-tools");
   if(!root)return;
@@ -60,7 +60,7 @@
   };
   function setMoodTheme(theme){
     const html=document.documentElement;
-    // UAT guardrail: keep generated palettes within readable contrast ranges.
+    // UAT guardrail: keep curated palettes within readable contrast ranges.
     const rgb=hex=>{const h=String(hex||"").replace("#","");return /^([0-9a-f]{6})$/i.test(h)?[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)):null};
     const luminance=hex=>{const c=rgb(hex);if(!c)return .5;const v=c.map(n=>n/255).map(n=>n<=.04045?n/12.92:Math.pow((n+.055)/1.055,2.4));return .2126*v[0]+.7152*v[1]+.0722*v[2]};
     const contrast=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
