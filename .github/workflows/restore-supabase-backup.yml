@@ -26,13 +26,13 @@ jobs:
     timeout-minutes: 180
     env:
       SOURCE_PROJECT_REF: oeyxsqocldlovhsmzcjw
-      RESTORE_DB_URL: \${{ secrets.SUPABASE_RESTORE_DB_URL }}
-      RESTORE_URL: \${{ secrets.SUPABASE_RESTORE_URL }}
-      RESTORE_SECRET_KEY: \${{ secrets.SUPABASE_RESTORE_SECRET_KEY }}
-      GOOGLE_DRIVE_INGEST_URL: \${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
-      GOOGLE_DRIVE_INGEST_TOKEN: \${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
-      BACKUP_ENCRYPTION_PASSPHRASE: \${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
-      BACKUP_ID: \${{ inputs.backup_id }}
+      RESTORE_DB_URL: ${{ secrets.SUPABASE_RESTORE_DB_URL }}
+      RESTORE_URL: ${{ secrets.SUPABASE_RESTORE_URL }}
+      RESTORE_SECRET_KEY: ${{ secrets.SUPABASE_RESTORE_SECRET_KEY }}
+      GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
+      GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+      BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+      BACKUP_ID: ${{ inputs.backup_id }}
 
     steps:
       - name: Check out recovery tooling
@@ -62,7 +62,7 @@ jobs:
         run: |
           set -euo pipefail
           for name in RESTORE_DB_URL RESTORE_URL RESTORE_SECRET_KEY GOOGLE_DRIVE_INGEST_URL GOOGLE_DRIVE_INGEST_TOKEN BACKUP_ENCRYPTION_PASSPHRASE; do
-            if [ -z "\${!name:-}" ]; then
+            if [ -z "${!name:-}" ]; then
               echo "::error::Missing required GitHub Actions secret for $name."
               exit 1
             fi
@@ -75,11 +75,11 @@ jobs:
             https://*.supabase.co) ;;
             *) echo "::error::Destination URL must be a Supabase project URL."; exit 1 ;;
           esac
-          if [[ "$RESTORE_URL" == "https://\${SOURCE_PROJECT_REF}.supabase.co" ]]; then
+          if [[ "$RESTORE_URL" == "https://${SOURCE_PROJECT_REF}.supabase.co" ]]; then
             echo "::error::Refusing to restore into the production Supabase project."
             exit 1
           fi
-          if [ "\${#GOOGLE_DRIVE_INGEST_TOKEN}" -lt 40 ] || [ "\${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 32 ]; then
+          if [ "${#GOOGLE_DRIVE_INGEST_TOKEN}" -lt 40 ] || [ "${#BACKUP_ENCRYPTION_PASSPHRASE}" -lt 32 ]; then
             echo "::error::Backup receiver token or encryption passphrase does not meet the minimum length."
             exit 1
           fi
@@ -166,8 +166,8 @@ jobs:
 
       - name: Restore Storage buckets and object contents
         env:
-          SUPABASE_URL: \${{ secrets.SUPABASE_RESTORE_URL }}
-          SUPABASE_SECRET_KEY: \${{ secrets.SUPABASE_RESTORE_SECRET_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_RESTORE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_RESTORE_SECRET_KEY }}
         run: |
           set -euo pipefail
           deno run --allow-env --allow-read --allow-net scripts/restore_storage.ts "$RESTORE_ROOT"
