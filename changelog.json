@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-12T19:52:01.492252Z",
-  "last_processed_sha": "d8fde96b4b079c749a873e0116f52410ffc3cf95",
+  "updated_at": "2026-11-13T01:23:40.785994Z",
+  "last_processed_sha": "c946e1562130e81dee2116e33487444dcc5ea8aa",
   "entries": [
+    {
+      "id": "c946e1562130e81dee2116e33487444dcc5ea8aa",
+      "timestamp": "2026-11-13T02:23:33+01:00",
+      "category": "FEATURE",
+      "component": "Website",
+      "title": "New capabilities for Website",
+      "description": "This update brings together Add Green Dream Backup privacy policy and terms (#19). It updates privacy-policy.html, terms-of-service.html.",
+      "commit_count": 1,
+      "files": [
+        "privacy-policy.html",
+        "terms-of-service.html"
+      ],
+      "commits": [
+        {
+          "message": "Add Green Dream Backup privacy policy and terms (#19)",
+          "url": "https://github.com/iYakuza/landing-page/commit/c946e1562130e81dee2116e33487444dcc5ea8aa",
+          "files": [
+            "privacy-policy.html",
+            "terms-of-service.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "d8fde96b4b079c749a873e0116f52410ffc3cf95",
       "timestamp": "2026-11-12T20:51:53+01:00",
