@@ -52,7 +52,7 @@ class DriveTransferTests(unittest.TestCase):
                 result = drive.upload_resumable("token", "folder", path)
             self.assertEqual(result["id"], "file-1")
             self.assertEqual(len(calls), 2)
-            self.assertIn("Content-Range", calls[1].headers)
+            self.assertTrue(any(key.lower() == "content-range" for key in calls[1].headers))
 
     def test_rejects_remote_checksum_mismatch(self):
         with tempfile.TemporaryDirectory() as tmp:
