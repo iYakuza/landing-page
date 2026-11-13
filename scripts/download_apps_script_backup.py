@@ -244,8 +244,11 @@ def main() -> None:
 
     started_at = time.monotonic()
     deadline = started_at + DOWNLOAD_DEADLINE_SECONDS
+    drive_access_token = os.environ.get("GOOGLE_DRIVE_READONLY_ACCESS_TOKEN", "").strip()
     service_account_json = os.environ.get("GOOGLE_DRIVE_READONLY_SERVICE_ACCOUNT_JSON", "").strip()
-    drive_access_token = drive_access_token_from_service_account(service_account_json) if service_account_json else None
+    if not drive_access_token and service_account_json:
+        drive_access_token = drive_access_token_from_service_account(service_account_json)
+    drive_access_token = drive_access_token or None
     workers = args.workers or (DIRECT_DOWNLOAD_WORKERS if drive_access_token else DOWNLOAD_WORKERS)
     transfer_method = "direct binary Drive API" if drive_access_token else "Apps Script ContentService relay"
     print(
