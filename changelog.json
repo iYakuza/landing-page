@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T18:47:33.053965Z",
-  "last_processed_sha": "23f2d93ab0e0152e763a8b440cf584998f6f9f1d",
+  "updated_at": "2026-11-13T18:49:51.995181Z",
+  "last_processed_sha": "08c151a19d29d6d245d0ac5af4c30873077ac791",
   "entries": [
+    {
+      "id": "08c151a19d29d6d245d0ac5af4c30873077ac791",
+      "timestamp": "2026-11-13T19:49:44+01:00",
+      "category": "FIX",
+      "component": "Website",
+      "title": "More reliable Website",
+      "description": "This update brings together Fix Apps Script ContentService redirect handling in receiver ping. It updates google-drive-receiver-ping.yml.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/google-drive-receiver-ping.yml"
+      ],
+      "commits": [
+        {
+          "message": "Fix Apps Script ContentService redirect handling in receiver ping",
+          "url": "https://github.com/iYakuza/landing-page/commit/08c151a19d29d6d245d0ac5af4c30873077ac791",
+          "files": [
+            ".github/workflows/google-drive-receiver-ping.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "23f2d93ab0e0152e763a8b440cf584998f6f9f1d",
       "timestamp": "2026-11-13T19:47:26+01:00",
