@@ -136,7 +136,7 @@ with patch.object(transport, "open_no_redirect", open_untrusted), patch.object(t
     try:
         transport.post_json(endpoint, "t" * 48, payload, timeout=60)
     except transport.ReceiverTransportError as exc:
-        assert "outside Google's response host" in str(exc)
+        assert "untrusted response URL" in str(exc)
     else:
         raise AssertionError("An untrusted redirect host must be rejected.")
 assert len(requests) == 1 and requests[0][0] == "POST"
