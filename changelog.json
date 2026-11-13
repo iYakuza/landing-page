@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T21:29:14.421609Z",
-  "last_processed_sha": "9a17b01f481b7263d480ab234ada3cda3406f443",
+  "updated_at": "2026-11-13T21:32:11.506796Z",
+  "last_processed_sha": "d4d9204d967b303766f881a9b73484f96edad244",
   "entries": [
+    {
+      "id": "d4d9204d967b303766f881a9b73484f96edad244",
+      "timestamp": "2026-11-13T22:32:08+01:00",
+      "category": "FEATURE",
+      "component": "Creative Archive",
+      "title": "New capabilities for Creative Archive",
+      "description": "This update brings together Add detailed catalogue of future economic models; Record future economic model catalogue revision 0.7; Link Guest Notes index to future economic models. It updates index.html and related project files.",
+      "commit_count": 3,
+      "files": [
+        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
+        "green-dream/guest-notes/index.html",
+        "green-dream/guest-notes/revision-history/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Add detailed catalogue of future economic models",
+          "url": "https://github.com/iYakuza/landing-page/commit/e8ed653ed49d92f81160e9cb831377319494c477",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
+          ]
+        },
+        {
+          "message": "Record future economic model catalogue revision 0.7",
+          "url": "https://github.com/iYakuza/landing-page/commit/738e5ab45059a57c1918cab388ae39ce0d0239c6",
+          "files": [
+            "green-dream/guest-notes/revision-history/index.html"
+          ]
+        },
+        {
+          "message": "Link Guest Notes index to future economic models",
+          "url": "https://github.com/iYakuza/landing-page/commit/d4d9204d967b303766f881a9b73484f96edad244",
+          "files": [
+            "green-dream/guest-notes/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "9a17b01f481b7263d480ab234ada3cda3406f443",
       "timestamp": "2026-11-13T22:29:06+01:00",
@@ -1074,27 +1111,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/0ddec8641a88fa47a8621eefbc4c5bfdcae91170",
           "files": [
             "game-ui.css"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "b7653965f6caa9a0c2a6dda966769726a24f3326",
-      "timestamp": "2026-11-06T20:47:16Z",
-      "category": "IMPROVEMENT",
-      "component": "Star Patterns",
-      "title": "Ursa Major now welcomes first-time visitors",
-      "description": "New visitors now enter Crystal mode with Ursa Major selected by default. Existing saved constellation arrangements are preserved.",
-      "commit_count": 1,
-      "files": [
-        "shared/crystal/tools/star-patterns.js"
-      ],
-      "commits": [
-        {
-          "message": "Set Ursa Major as the default Crystal constellation",
-          "url": "https://github.com/iYakuza/landing-page/commit/b7653965f6caa9a0c2a6dda966769726a24f3326",
-          "files": [
-            "shared/crystal/tools/star-patterns.js"
           ]
         }
       ]
