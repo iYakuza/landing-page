@@ -9,6 +9,8 @@ on:
       - main
     paths:
       - ".github/workflows/google-drive-backup.yml"
+      - ".github/workflows/google-drive-content-backup.yml"
+      - ".github/workflows/recover-google-drive-backup.yml"
       - ".github/workflows/validate-backup-tooling.yml"
       - "scripts/backup_storage.py"
       - "scripts/upload_drive_backup.py"
