@@ -270,4 +270,4 @@ jobs:
             supabase --workdir "$RUNNER_TEMP/storage-restore-test-project" stop --no-backup
           fi
           rm -rf "$RUNNER_TEMP/storage-restore-test-project" "$RUNNER_TEMP/storage-restore-fixture"
-          rm -f "$RUNNER_TEMP/storage-restore.env" "$RUNNER_TEMP/storage-restore-start.log" "$RUNNER_TEMP/storage-restore.started"
+          rm -f "$RUNNER_TEMP/storage-restore.env" "$RUNNER_TEMP/storage-restore-start.log" "$RUNNER_TEMP/storage-restore.started" "$RUNNER_TEMP/storage-restore-ports"
