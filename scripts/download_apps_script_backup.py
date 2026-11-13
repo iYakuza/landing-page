@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import argparse
 import base64
+import concurrent.futures
 import hashlib
-import json
 import os
 import pathlib
 import re
@@ -21,6 +21,8 @@ BACKUP_ID = re.compile(r"^(?:(?:system|content)-)?[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}
 SHA256 = re.compile(r"^[a-f0-9]{64}$")
 RETRIES = 2
 REQUEST_TIMEOUT_SECONDS = 60
+DOWNLOAD_WORKERS = 4
+MAX_DOWNLOAD_WORKERS = 8
 DOWNLOAD_DEADLINE_SECONDS = 90 * 60
 RETRYABLE_HTTP = {408, 429, 500, 502, 503, 504}
 
@@ -44,11 +46,50 @@ def post_json(endpoint: str, token: str, payload: dict, deadline: float) -> dict
     return result
 
 
+def download_one_part(
+    endpoint: str,
+    token: str,
+    backup_id: str,
+    number: int,
+    part_count: int,
+    expected: dict,
+    deadline: float,
+) -> tuple[int, bytes]:
+    """Fetch and verify one part; safe to run concurrently with other part requests."""
+    response = post_json(endpoint, token, {
+        "action": "download_part", "backup_id": backup_id, "part_number": number,
+    }, deadline)
+    if (
+        response.get("backup_id") != backup_id
+        or response.get("part_number") != number
+        or response.get("total_parts") != part_count
+    ):
+        raise RuntimeError(f"The receiver returned mismatched metadata for part {number}.")
+    try:
+        chunk = base64.b64decode(response.get("content_base64", ""), validate=True)
+    except (ValueError, TypeError):
+        raise RuntimeError(f"The receiver returned invalid base64 for part {number}.") from None
+    digest = hashlib.sha256(chunk).hexdigest()
+    if (
+        len(chunk) != expected["size"]
+        or response.get("size") != len(chunk)
+        or digest != expected["sha256"]
+        or digest != response.get("sha256")
+    ):
+        raise RuntimeError(f"Downloaded part {number} failed SHA-256 verification.")
+    return number, chunk
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", required=True, type=pathlib.Path)
     parser.add_argument("--backup-id", default="", help="Completed backup ID; legacy untyped IDs must be selected explicitly.")
     parser.add_argument("--backup-type", choices=("system", "content"), default="system", help="Backup type to select when no explicit ID is supplied.")
+    parser.add_argument(
+        "--workers", type=int, default=DOWNLOAD_WORKERS,
+        choices=range(1, MAX_DOWNLOAD_WORKERS + 1),
+        help=f"Parallel Drive part downloads (default: {DOWNLOAD_WORKERS}; maximum: {MAX_DOWNLOAD_WORKERS}).",
+    )
     args = parser.parse_args()
 
     endpoint = os.environ.get("GOOGLE_DRIVE_INGEST_URL", "").strip()
@@ -63,8 +104,9 @@ def main() -> None:
     started_at = time.monotonic()
     deadline = started_at + DOWNLOAD_DEADLINE_SECONDS
     print(
-        f"Starting authenticated backup recovery. Each receiver request is capped at "
-        f"{REQUEST_TIMEOUT_SECONDS}s; overall download deadline is {DOWNLOAD_DEADLINE_SECONDS // 60} minutes.",
+        f"Starting authenticated backup recovery with {args.workers} parallel download workers. "
+        f"Each receiver request is capped at {REQUEST_TIMEOUT_SECONDS}s; overall download deadline "
+        f"is {DOWNLOAD_DEADLINE_SECONDS // 60} minutes.",
         flush=True,
     )
     listing = post_json(endpoint, token, {"action": "list_backups"}, deadline)
@@ -112,51 +154,79 @@ def main() -> None:
     if set(indexed) != set(range(1, part_count + 1)) or sum(x["size"] for x in indexed.values()) != total_bytes:
         raise SystemExit("The backup part inventory is incomplete or inconsistent.")
 
+    offsets = {}
+    current_offset = 0
+    for number in range(1, part_count + 1):
+        offsets[number] = current_offset
+        current_offset += indexed[number]["size"]
+    if current_offset != total_bytes:
+        raise SystemExit("The backup part offsets do not match the declared archive size.")
+
     print(
         f"Recovering {args.backup_type} backup {backup_id}: {part_count} parts, "
-        f"{total_bytes / (1024 * 1024):.2f} MB. Verifying each part as it arrives.",
+        f"{total_bytes / (1024 * 1024):.2f} MB. Downloading up to {args.workers} parts "
+        "at once; each part is SHA-256 verified before it is written.",
         flush=True,
     )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     temporary = args.output.with_suffix(args.output.suffix + ".partial")
-    full_hash = hashlib.sha256()
     written = 0
+    completed_parts = 0
     try:
-        with temporary.open("wb") as output:
-            for number in range(1, part_count + 1):
-                response = post_json(endpoint, token, {
-                    "action": "download_part", "backup_id": backup_id, "part_number": number,
-                }, deadline)
-                if response.get("backup_id") != backup_id or response.get("part_number") != number or response.get("total_parts") != part_count:
-                    raise RuntimeError("The receiver returned a mismatched backup part.")
+        with temporary.open("w+b") as output:
+            output.truncate(total_bytes)
+            with concurrent.futures.ThreadPoolExecutor(
+                max_workers=min(args.workers, part_count),
+                thread_name_prefix="drive-recovery",
+            ) as pool:
+                futures = {
+                    pool.submit(
+                        download_one_part, endpoint, token, backup_id,
+                        number, part_count, indexed[number], deadline,
+                    ): number
+                    for number in range(1, part_count + 1)
+                }
                 try:
-                    chunk = base64.b64decode(response.get("content_base64", ""), validate=True)
-                except (ValueError, TypeError):
-                    raise RuntimeError("The receiver returned an invalid encoded backup part.") from None
-                expected = indexed[number]
-                digest = hashlib.sha256(chunk).hexdigest()
-                if len(chunk) != expected["size"] or response.get("size") != len(chunk) or digest != expected["sha256"] or digest != response.get("sha256"):
-                    raise RuntimeError(f"Downloaded part {number} failed SHA-256 verification.")
-                output.write(chunk)
-                full_hash.update(chunk)
-                written += len(chunk)
-                elapsed = max(time.monotonic() - started_at, 0.001)
-                percent = written / total_bytes * 100
-                print(
-                    f"Recovery progress: {number}/{part_count} parts | "
-                    f"{written / (1024 * 1024):.2f}/{total_bytes / (1024 * 1024):.2f} MB "
-                    f"verified ({percent:.1f}%) | {elapsed:.0f}s elapsed.",
-                    flush=True,
-                )
+                    for future in concurrent.futures.as_completed(futures):
+                        number, chunk = future.result()
+                        # Only the coordinator writes to the file. Random-access
+                        # placement preserves archive order regardless of completion order.
+                        output.seek(offsets[number])
+                        output.write(chunk)
+                        written += len(chunk)
+                        completed_parts += 1
+                        elapsed = max(time.monotonic() - started_at, 0.001)
+                        percent = written / total_bytes * 100
+                        speed = written / (1024 * 1024) / elapsed
+                        print(
+                            f"Recovery progress: {completed_parts}/{part_count} parts | "
+                            f"{written / (1024 * 1024):.2f}/{total_bytes / (1024 * 1024):.2f} MB "
+                            f"verified ({percent:.1f}%) | {speed:.2f} MB/s | {elapsed:.0f}s elapsed.",
+                            flush=True,
+                        )
+                except Exception:
+                    for future in futures:
+                        future.cancel()
+                    raise
+            output.flush()
+
+        if written != total_bytes or completed_parts != part_count:
+            raise RuntimeError("The downloaded backup is incomplete.")
+        full_hash = hashlib.sha256()
+        with temporary.open("rb") as source:
+            while True:
+                block = source.read(8 * 1024 * 1024)
+                if not block:
+                    break
+                full_hash.update(block)
         actual_archive_sha = full_hash.hexdigest()
-        if written != total_bytes:
-            raise RuntimeError("The reassembled encrypted backup has an unexpected size.")
         if archive_sha256 and actual_archive_sha != archive_sha256:
             raise RuntimeError("The reassembled archive SHA-256 does not match the completion manifest.")
         os.replace(temporary, args.output)
     except Exception:
         temporary.unlink(missing_ok=True)
         raise
+
     elapsed = time.monotonic() - started_at
     print(f"Encrypted backup {backup_id} reassembled and verified: {written} bytes; SHA-256 {actual_archive_sha}", flush=True)
     print(f"Recovery download elapsed: {elapsed:.1f}s.", flush=True)
