@@ -14,6 +14,8 @@ on:
       - "scripts/**"
       - ".github/workflows/google-drive-content-backup.yml"
       - ".github/workflows/recover-google-drive-backup.yml"
+      - ".github/workflows/restore-supabase-backup.yml"
+      - ".github/workflows/validate-supabase-restore.yml"
       - "google-apps-script/**"
       - "supabase/functions/google-drive-oauth-callback/**"
       - "supabase/config.toml"
