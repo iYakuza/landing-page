@@ -1,8 +1,53 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T23:19:50.210227Z",
-  "last_processed_sha": "b8653438c302f12855ddf1116f28afbbbf069ec0",
+  "updated_at": "2026-11-13T23:30:43.709991Z",
+  "last_processed_sha": "7b17be00693c55d1eb7a605baad8a0049254cae4",
   "entries": [
+    {
+      "id": "7b17be00693c55d1eb7a605baad8a0049254cae4",
+      "timestamp": "2026-11-14T00:30:38+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Improve Guest Notes navigation visibility and labels. It updates index.html and related project files.",
+      "commit_count": 4,
+      "files": [
+        "green-dream/guest-notes/architecture-of-harm/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Improve Guest Notes navigation visibility and labels",
+          "url": "https://github.com/iYakuza/landing-page/commit/44e1369b92020f259ff8289f564a4bc0111bd03a",
+          "files": [
+            "green-dream/guest-notes/architecture-of-harm/index.html"
+          ]
+        },
+        {
+          "message": "Improve Guest Notes navigation visibility and labels",
+          "url": "https://github.com/iYakuza/landing-page/commit/b59ee82557dcb4c08ca6d5f7ab9fb6795c7a7fb4",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html"
+          ]
+        },
+        {
+          "message": "Improve Guest Notes navigation visibility and labels",
+          "url": "https://github.com/iYakuza/landing-page/commit/25a0ac7a52ac7d89620a2647509b0bc3ce5a148e",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html"
+          ]
+        },
+        {
+          "message": "Improve Guest Notes navigation visibility and labels",
+          "url": "https://github.com/iYakuza/landing-page/commit/7b17be00693c55d1eb7a605baad8a0049254cae4",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "98ad1084665b4d00c9237c706253d825cad7bef0",
       "timestamp": "2026-11-14T00:19:44+01:00",
@@ -1175,29 +1220,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/d8fde96b4b079c749a873e0116f52410ffc3cf95",
           "files": [
             ".github/workflows/google-drive-content-backup.yml"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "ea796ff9ac4c148732b9836035fc4162f6cec3ae",
-      "timestamp": "2026-11-12T20:43:00+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Enable safe manual dispatch for encrypted Drive backup and recovery (#15). It updates google-drive-backup.yml, recover-google-drive-backup.yml.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/google-drive-backup.yml",
-        ".github/workflows/recover-google-drive-backup.yml"
-      ],
-      "commits": [
-        {
-          "message": "Enable safe manual dispatch for encrypted Drive backup and recovery (#15)",
-          "url": "https://github.com/iYakuza/landing-page/commit/ea796ff9ac4c148732b9836035fc4162f6cec3ae",
-          "files": [
-            ".github/workflows/google-drive-backup.yml",
-            ".github/workflows/recover-google-drive-backup.yml"
           ]
         }
       ]
