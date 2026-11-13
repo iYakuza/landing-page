@@ -50,6 +50,26 @@ function validateId_(id) {
   return typeof id === "string" && /^[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}$/.test(id);
 }
 
+function isBase64CharCode_(code) {
+  return (code >= 65 && code <= 90) || (code >= 97 && code <= 122) ||
+    (code >= 48 && code <= 57) || code === 43 || code === 47;
+}
+
+function isValidBase64_(value) {
+  if (typeof value !== "string" || value.length < 4 || value.length % 4 !== 0) return false;
+  const length = value.length;
+  const padding = value.charCodeAt(length - 1) === 61
+    ? (value.charCodeAt(length - 2) === 61 ? 2 : 1)
+    : 0;
+  for (let i = 0; i < length - padding; i++) {
+    if (!isBase64CharCode_(value.charCodeAt(i))) return false;
+  }
+  for (let i = length - padding; i < length; i++) {
+    if (value.charCodeAt(i) !== 61) return false;
+  }
+  return true;
+}
+
 function uniqueFile_(folder, name) {
   const files = folder.getFilesByName(name);
   if (!files.hasNext()) return null;
@@ -202,9 +222,9 @@ function doPost(e) {
       const number = request.part_number, total = request.total_parts;
       if (!Number.isInteger(number) || !Number.isInteger(total) || total < 1 ||
           total > MAX_PARTS || number < 1 || number > total) return json_({ ok: false, error: "Invalid part numbering." });
-      if (typeof request.content_base64 !== "string" || request.content_base64.length < 4 ||
+      if (typeof request.content_base64 !== "string" ||
           request.content_base64.length > Math.ceil(PART_BYTES / 3) * 4 + 8 ||
-          !/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(request.content_base64)) {
+          !isValidBase64_(request.content_base64)) {
         return json_({ ok: false, error: "Invalid part encoding." });
       }
       const bytes = Utilities.base64Decode(request.content_base64);
