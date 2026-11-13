@@ -1,8 +1,61 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T23:31:03.097431Z",
-  "last_processed_sha": "b927358a6fb26721534f79ef4bed5e853c1be1eb",
+  "updated_at": "2026-11-13T23:31:37.205387Z",
+  "last_processed_sha": "3c87c7a1a898066065e5b413bb2a3a9a59526441",
   "entries": [
+    {
+      "id": "3c87c7a1a898066065e5b413bb2a3a9a59526441",
+      "timestamp": "2026-11-14T00:31:36+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Refresh Guest Notes navigation styling across pages. It updates index.html and related project files.",
+      "commit_count": 5,
+      "files": [
+        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
+        "green-dream/guest-notes/ethical-framework/index.html",
+        "green-dream/guest-notes/ethical-framework/ro/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Refresh Guest Notes navigation styling across pages",
+          "url": "https://github.com/iYakuza/landing-page/commit/6961bfb0f4cb5b5fa3c4821c41e072d409d8e658",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html"
+          ]
+        },
+        {
+          "message": "Refresh Guest Notes navigation styling across pages",
+          "url": "https://github.com/iYakuza/landing-page/commit/1a56e02dab4a8a90bb1f270fc348766024c076ac",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html"
+          ]
+        },
+        {
+          "message": "Refresh Guest Notes navigation styling across pages",
+          "url": "https://github.com/iYakuza/landing-page/commit/ea00e0546732ec71b790f25f9420c414f0ff17d1",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html"
+          ]
+        },
+        {
+          "message": "Refresh Guest Notes navigation styling across pages",
+          "url": "https://github.com/iYakuza/landing-page/commit/3a613b0424a912e249d0ed663b634d7b93ab86a9",
+          "files": [
+            "green-dream/guest-notes/ethical-framework/index.html"
+          ]
+        },
+        {
+          "message": "Refresh Guest Notes navigation styling across pages",
+          "url": "https://github.com/iYakuza/landing-page/commit/3c87c7a1a898066065e5b413bb2a3a9a59526441",
+          "files": [
+            "green-dream/guest-notes/ethical-framework/ro/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "806f6bc30b941edd20b36069aa2263e0c96896d8",
       "timestamp": "2026-11-14T00:31:01+01:00",
@@ -1221,29 +1274,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/945f944e52067d56c03b329191fbb93ca358e7e0",
           "files": [
             ".github/workflows/secret-scan.yml"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "c946e1562130e81dee2116e33487444dcc5ea8aa",
-      "timestamp": "2026-11-13T02:23:33+01:00",
-      "category": "FEATURE",
-      "component": "Website",
-      "title": "New capabilities for Website",
-      "description": "This update brings together Add Green Dream Backup privacy policy and terms (#19). It updates privacy-policy.html, terms-of-service.html.",
-      "commit_count": 1,
-      "files": [
-        "privacy-policy.html",
-        "terms-of-service.html"
-      ],
-      "commits": [
-        {
-          "message": "Add Green Dream Backup privacy policy and terms (#19)",
-          "url": "https://github.com/iYakuza/landing-page/commit/c946e1562130e81dee2116e33487444dcc5ea8aa",
-          "files": [
-            "privacy-policy.html",
-            "terms-of-service.html"
           ]
         }
       ]
