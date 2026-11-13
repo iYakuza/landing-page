@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T18:39:46.511638Z",
-  "last_processed_sha": "c683c9631a1f18ff489697f0d75189e485f23d18",
+  "updated_at": "2026-11-13T18:47:33.053965Z",
+  "last_processed_sha": "23f2d93ab0e0152e763a8b440cf584998f6f9f1d",
   "entries": [
+    {
+      "id": "23f2d93ab0e0152e763a8b440cf584998f6f9f1d",
+      "timestamp": "2026-11-13T19:47:26+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Follow Apps Script response redirects in receiver ping. It updates google-drive-receiver-ping.yml.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/google-drive-receiver-ping.yml"
+      ],
+      "commits": [
+        {
+          "message": "Follow Apps Script response redirects in receiver ping",
+          "url": "https://github.com/iYakuza/landing-page/commit/23f2d93ab0e0152e763a8b440cf584998f6f9f1d",
+          "files": [
+            ".github/workflows/google-drive-receiver-ping.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "c683c9631a1f18ff489697f0d75189e485f23d18",
       "timestamp": "2026-11-13T19:39:33+01:00",
