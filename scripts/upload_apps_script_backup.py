@@ -79,7 +79,7 @@ def create_sessions(endpoint: str, token: str, backup_id: str, total_parts: int,
             indexed[number] = {"already_present": True}
         else:
             url = item.get("session_url")
-            if not isinstance(url, str) or not url.startswith("https://www.googleapis.com/upload/drive/v3/files/"):
+            if not isinstance(url, str) or not url.startswith("https://www.googleapis.com/upload/drive/v3/files?"):
                 raise RuntimeError("Drive returned an invalid resumable upload URL.")
             indexed[number] = {"already_present": False, "session_url": url}
     if set(indexed) != expected:
@@ -94,7 +94,6 @@ def put_chunk(session_url: str, chunk: bytes, expected_name: str) -> None:
         headers={
             "Content-Type": "application/octet-stream",
             "Content-Length": str(len(chunk)),
-            "Content-Range": f"bytes 0-{len(chunk) - 1}/{len(chunk)}",
         },
         method="PUT",
     )
@@ -219,10 +218,6 @@ def main() -> None:
             completed.add(number)
 
     pending = [part for part in missing if part["part_number"] not in completed]
-    for number in sorted(completed):
-        if number not in existing:
-            uploaded_this_run += parts[number - 1]["size"]
-
     if pending:
         with concurrent.futures.ThreadPoolExecutor(max_workers=WORKERS) as pool:
             futures = {
