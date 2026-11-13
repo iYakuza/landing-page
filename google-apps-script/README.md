@@ -2,13 +2,20 @@
 
 This is a private, owner-operated Google Apps Script web app. GitHub Actions sends an already-encrypted archive in 4 MiB chunks. The receiver stores the chunks in the deploying owner's private Google Drive and creates a completion manifest only after every part has been verified.
 
-## Why this version is faster
+## Transfer architecture
 
-- The previous sender used 1 MiB chunks.
-- The previous receiver rescanned the backup folder and checked earlier parts after every upload request.
-- This version uses 4 MiB chunks, checks only the exact requested filename during each upload, and verifies all parts once in a separate finalization request.
-- A stable backup ID and authenticated part inventory let a rerun skip chunks that are already stored.
-- Transient network errors are retried with backoff.
+- GitHub Actions creates and verifies the encrypted archive locally.
+- The authenticated Apps Script receiver creates Google Drive resumable-upload sessions in one batch. It does not receive or relay archive bytes.
+- GitHub Actions uploads the 4 MiB encrypted parts directly to Google Drive, with up to six concurrent transfers.
+- Each part remains a separate immutable Drive file. The existing manifest format, part hashes, whole-archive SHA-256, resume behavior, and recovery download path are preserved.
+- If a transfer response is lost, the uploader asks the receiver to check the immutable part name and checksum before opening a replacement session.
+- The receiver creates the completion manifest only after every stored part has been re-read and verified.
+- Upload progress reports completed parts, verified MB, percentage, average throughput, and elapsed time.
+
+This removes Apps Script from the large-payload data path. Apps Script only authenticates the request and creates Drive upload sessions; the encrypted bytes travel directly from the GitHub runner to Google Drive.
+
+The Apps Script project requires the Drive and external-request OAuth scopes declared in `appsscript.json`. The web app runs as its owner, so the owner must approve the updated scopes when deploying the new version.
+
 
 ## Non-destructive storage policy
 
@@ -22,7 +29,8 @@ This is a private, owner-operated Google Apps Script web app. GitHub Actions sen
 
 - `ping`: authenticated connectivity check.
 - `list_upload_parts`: returns the already stored part numbers and hashes for a resumable upload.
-- `upload_part`: stores one encrypted part or confirms an identical retry.
+- `create_upload_sessions`: validates part metadata and creates direct-to-Drive resumable upload sessions; it never receives archive bytes.
+- `upload_part`: retained for compatibility with earlier uploader versions.
 - `finalize_backup`: verifies every stored part and writes the completion manifest.
 - `list_backups`: lists completed backup metadata only.
 - `download_part`: returns one encrypted part after checking it against the manifest.
