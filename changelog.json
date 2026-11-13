@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T22:11:35.652231Z",
-  "last_processed_sha": "9711255af337ff91090e047f245572bb56d24b46",
+  "updated_at": "2026-11-13T22:32:28.840420Z",
+  "last_processed_sha": "634227c8acfe8f12e6c6ce895f1fc41d158fb494",
   "entries": [
+    {
+      "id": "634227c8acfe8f12e6c6ce895f1fc41d158fb494",
+      "timestamp": "2026-11-13T23:32:16+01:00",
+      "category": "FEATURE",
+      "component": "Creative Archive",
+      "title": "New capabilities for Creative Archive",
+      "description": "This update brings together Add founding commitment: purpose over institutional preservation. It updates index.html.",
+      "commit_count": 1,
+      "files": [
+        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Add founding commitment: purpose over institutional preservation",
+          "url": "https://github.com/iYakuza/landing-page/commit/634227c8acfe8f12e6c6ce895f1fc41d158fb494",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "54cf0aa1358d6d67477e85fd0fe58d327dc69983",
       "timestamp": "2026-11-13T23:11:29+01:00",
@@ -1154,27 +1175,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/b4ae8863ed87101532057627438b7523d59ee4de",
           "files": [
             ".gitleaks.toml"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "9a55afd0d1bea5dff8fee3802e199ad771554690",
-      "timestamp": "2026-11-06T22:47:21+01:00",
-      "category": "FIX",
-      "component": "Website",
-      "title": "More reliable Website",
-      "description": "This update brings together Update Crystal regression checks for current constellation UI. It updates site-safety.yml.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/site-safety.yml"
-      ],
-      "commits": [
-        {
-          "message": "Update Crystal regression checks for current constellation UI",
-          "url": "https://github.com/iYakuza/landing-page/commit/9a55afd0d1bea5dff8fee3802e199ad771554690",
-          "files": [
-            ".github/workflows/site-safety.yml"
           ]
         }
       ]
