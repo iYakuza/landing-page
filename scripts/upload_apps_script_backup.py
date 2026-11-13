@@ -188,7 +188,7 @@ def query_upload_status(session_url: str, total_size: int, expected_name: str,
         offset = 0
     else:
         import re
-        match = re.fullmatch(r"bytes=0-(\\d+)", str(received).strip())
+        match = re.fullmatch(r"bytes=0-(\d+)", str(received).strip())
         if not match:
             raise RuntimeError("Google Drive returned an invalid resumable-upload byte range.")
         offset = int(match.group(1)) + 1
