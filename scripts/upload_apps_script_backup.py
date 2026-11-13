@@ -346,6 +346,7 @@ def main() -> None:
     print("Checking previously stored parts...", flush=True)
     state = post_json(endpoint, token, {
         "action": "list_upload_parts", "backup_id": backup_id, "total_parts": total_parts,
+        "parts": parts,
     })
     if state.get("backup_id") != backup_id or state.get("total_parts") != total_parts:
         raise RuntimeError("Receiver returned mismatched upload state.")
@@ -429,6 +430,7 @@ def main() -> None:
         "total_parts": total_parts,
         "total_bytes": total_bytes,
         "archive_sha256": archive_sha256,
+        "parts": parts,
     })
     if final.get("backup_id") != backup_id or final.get("finalized") is not True or final.get("total_bytes") != total_bytes:
         raise RuntimeError("Receiver did not confirm a complete, verified backup.")
