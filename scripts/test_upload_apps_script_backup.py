@@ -53,6 +53,36 @@ def fake_put(session_url, chunk, expected_name):
     assert expected_name.endswith("-part-0002-of-0002.gpgpart")
     uploaded.append(len(chunk))
 
+
+# A real Drive resumable PUT must declare the byte range, even when a whole
+# part is sent in one request.
+class FakeResponse:
+    status = 201
+    def __enter__(self):
+        return self
+    def __exit__(self, *args):
+        return False
+    def read(self):
+        return b'{"name":"expected-part.gpgpart","size":"6"}'
+
+captured = {}
+def fake_urlopen(request, timeout):
+    captured["request"] = request
+    captured["timeout"] = timeout
+    return FakeResponse()
+
+with patch.object(module.urllib.request, "urlopen", fake_urlopen):
+    module.put_chunk(
+        "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&upload_id=test",
+        b"abcdef",
+        "expected-part.gpgpart",
+    )
+request = captured["request"]
+assert request.get_method() == "PUT"
+assert request.get_header("Content-range") == "bytes 0-5/6"
+assert request.get_header("Content-length") == "6"
+assert captured["timeout"] == 240
+
 with tempfile.TemporaryDirectory() as temp:
     archive = pathlib.Path(temp) / "backup.gpg"
     archive.write_bytes(archive_bytes)
