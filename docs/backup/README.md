@@ -61,7 +61,7 @@ The backup workflow supports manual dispatch from the `backup/` branch for the i
 Before considering the system operational:
 
 1. Confirm that the existing Apps Script receiver has been updated to the validated code while preserving its URL and Script Properties; confirm the existing GitHub Actions secrets are present. No new OAuth credentials are required.
-2. Run **GitHub → Actions → Green Dream Google Drive backup → Run workflow**, selecting the consolidated backup branch.
+2. Run **GitHub → Actions → Green Dream Google Drive backup → Run workflow**, selecting `main` after the PR is merged (or the consolidated backup branch before merge).
 3. Confirm that the workflow completes its disposable Supabase restore test and encrypted upload.
 4. In the private Drive folder, confirm that the completed backup manifest and all referenced encrypted parts exist.
 5. Perform a separate recovery drill: download the encrypted parts, reassemble the archive, decrypt it with the separately stored passphrase, verify the SHA-256 manifest, and restore into a fresh compatible Supabase project. Confirm the website, CMS, authentication, submissions, and media.
