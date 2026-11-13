@@ -153,6 +153,7 @@ jobs:
           python3 -m json.tool "$OUT/database/public-content.json" >/dev/null
 
       - name: Download every Supabase Storage object
+        timeout-minutes: 30
         env:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: |
@@ -183,6 +184,7 @@ jobs:
           python3 scripts/export_edge_env_inventory.py --source supabase/functions --output "$RUNNER_TEMP/green-dream-backup/metadata/edge-function-env-inventory.json"
 
       - name: Capture deployed Edge Function source from Supabase
+        timeout-minutes: 15
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
@@ -238,6 +240,7 @@ jobs:
           ls -lh "$ENCRYPTED"
 
       - name: Upload encrypted archive parts to private Google Drive receiver
+        timeout-minutes: 25
         env:
           GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
           GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
