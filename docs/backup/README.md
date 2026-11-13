@@ -13,8 +13,7 @@ This workflow is designed to create an encrypted snapshot of the Green Dream Sup
 - Supabase Auth users and identities, including password hashes. Active sessions, MFA factors, and Auth audit history are not restored.
 - Supabase Vault secret values, re-encrypted under the destination project's Vault key during recovery.
 - Storage bucket configuration, every bucket's objects, object metadata and ownership fields, custom Storage RLS policies, and a snapshot of managed Storage table security settings.
-- A Git bundle containing repository history and checked-in Edge Function source.
-- A separate snapshot of the source code for every currently deployed Edge Function, downloaded from the live Supabase project.
+- A Git bundle containing repository history and checked-in Edge Function source. On 13 November 2026, all five deployed Edge Functions were compared with their checked-in `index.ts` files and matched byte-for-byte.
 - An inventory of Edge Function environment variable names. Runtime secret values are not exported.
 
 The full-system workflow creates a SHA-256 manifest, packages the snapshot, encrypts the archive with GPG AES-256, verifies that the encrypted archive can be decrypted and read, then uploads encrypted chunks to the Apps Script receiver. Full-system backups use `system-...` IDs; the separate content/media workflow uses `content-...` IDs. Restore tools filter by type so a content-only archive cannot be mistaken for a full Supabase snapshot.
@@ -51,7 +50,6 @@ Add these repository secrets:
 |---|---|
 | `SUPABASE_DB_URL` | PostgreSQL connection string from Supabase Dashboard → Connect. Use a compatible pooler connection if needed; URL-encode special characters in the password. |
 | `SUPABASE_SECRET_KEY` | Current Supabase Secret API key from Settings → API Keys. Never publish it. |
-| `SUPABASE_ACCESS_TOKEN` | Supabase personal access token used by the CLI to download deployed Edge Function source. Treat it as a highly privileged account credential: the workflow only calls the download command and never deploys or modifies functions, but the token itself may have broader Management API access. Keep it private and rotate it if exposed. |
 | `GOOGLE_DRIVE_INGEST_URL` | The existing deployed Apps Script web-app URL ending in `/exec`. |
 | `GOOGLE_DRIVE_INGEST_TOKEN` | The existing token stored as the Apps Script `INGEST_TOKEN` property. Do not rotate it as part of this update. |
 | `BACKUP_ENCRYPTION_PASSPHRASE` | A unique randomly generated passphrase of at least 32 characters. Store it in a password manager and keep a separate secure recovery copy. |
@@ -64,7 +62,7 @@ The backup workflow supports manual dispatch from the `backup/` branch for the i
 
 Before considering the system operational:
 
-1. Confirm that the existing Apps Script receiver has been updated to the validated code while preserving its URL and Script Properties; confirm all GitHub Actions secrets are present, including `SUPABASE_ACCESS_TOKEN`. No new Google OAuth credentials are required.
+1. Confirm that the existing Apps Script receiver has been updated to the validated code while preserving its URL and Script Properties; confirm all listed GitHub Actions secrets are present. No new Google OAuth credentials are required.
 2. Run **GitHub → Actions → Green Dream Google Drive backup → Run workflow**, selecting `main` after the PR is merged (or the consolidated backup branch before merge).
 3. Confirm that the workflow completes the encrypted upload. Backup creation no longer depends on a Supabase restore test.
 4. In the private Drive folder, confirm that the completed backup manifest and all referenced encrypted parts exist.
@@ -111,7 +109,7 @@ A hosted restoration cannot be declared operational until a real backup has been
 ## Known recovery limitations
 
 - Auth users and identities are restored, but sessions, MFA factors, and audit history are not.
-- Deployed Edge Function source is archived separately from the Git bundle, so dashboard-only edits are preserved. The restore workflow does not deploy those functions automatically. Edge Function runtime secret values are not exported; the archive records variable names only. Preserve the actual values separately in a password manager or secure configuration record.
+- Checked-in Edge Function source is preserved in the Git bundle. The live deployed functions matched those files at the 13 November 2026 audit, but future dashboard-only edits will not be captured unless committed to the repository. The restore workflow does not deploy functions automatically. Edge Function runtime secret values are not exported; the archive records variable names only. Preserve the actual values separately in a password manager or secure configuration record.
 - Supabase project-level settings such as Auth provider configuration, API keys, database credentials, domains, DNS, and other dashboard settings are not included. Reconfigure these separately during recovery.
 - Backups created before type-prefixed IDs use the legacy untyped ID format. Select those explicitly by ID; automatic selection deliberately ignores them to avoid mixing content-only and full-system archives.
 - Supabase-managed Storage ownership, built-in ACLs, and RLS flags are provisioned by the destination Supabase project. The restore process preserves custom Storage policies and verifies the managed settings rather than attempting to change Supabase-owned table privileges.
