@@ -1,8 +1,53 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T21:35:28.075911Z",
-  "last_processed_sha": "4cc28fe955146f50f6a34dc9b4816e055a50ee81",
+  "updated_at": "2026-11-13T21:57:48.892459Z",
+  "last_processed_sha": "9e0f71030aac6b793f219025ee3af612f382bfdf",
   "entries": [
+    {
+      "id": "9e0f71030aac6b793f219025ee3af612f382bfdf",
+      "timestamp": "2026-11-13T22:57:47+01:00",
+      "category": "FEATURE",
+      "component": "Creative Archive",
+      "title": "New capabilities for Creative Archive",
+      "description": "This update brings together Add provisional implementation blueprint for ethical coexistence initiative; Link ethical coexistence initiative to implementation blueprint; Add implementation blueprint to Guest Notes index; and 1 more related changes. It updates index.html and related project files.",
+      "commit_count": 4,
+      "files": [
+        "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
+        "green-dream/guest-notes/index.html",
+        "green-dream/guest-notes/revision-history/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Add provisional implementation blueprint for ethical coexistence initiative",
+          "url": "https://github.com/iYakuza/landing-page/commit/adf17e513b6301e6d004e844fcb2479a0cc9186f",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html"
+          ]
+        },
+        {
+          "message": "Link ethical coexistence initiative to implementation blueprint",
+          "url": "https://github.com/iYakuza/landing-page/commit/aa0a57162bef6d4dbf86e2309651d6a968c3578f",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
+          ]
+        },
+        {
+          "message": "Add implementation blueprint to Guest Notes index",
+          "url": "https://github.com/iYakuza/landing-page/commit/a11b0ff82c35c8586f096562f8bb74c62d67eaba",
+          "files": [
+            "green-dream/guest-notes/index.html"
+          ]
+        },
+        {
+          "message": "Record implementation blueprint revision 0.9",
+          "url": "https://github.com/iYakuza/landing-page/commit/9e0f71030aac6b793f219025ee3af612f382bfdf",
+          "files": [
+            "green-dream/guest-notes/revision-history/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "03b96c0d5b5375139c807be93788e97c7c414bec",
       "timestamp": "2026-11-13T22:35:25+01:00",
@@ -1096,43 +1141,6 @@
         {
           "message": "Serve the live changelog from the published site",
           "url": "https://github.com/iYakuza/landing-page/commit/fd374643e465d18c338d264cd82e68e4e919ad56",
-          "files": [
-            "shared/crystal/tools/changelog.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "visitor-friendly-activity-feed",
-      "timestamp": "2026-11-06T21:28:34Z",
-      "category": "FEATURE",
-      "component": "Latest Changelog",
-      "title": "A changelog that tells the story, not just the commits",
-      "description": "Related development changes are now grouped into readable updates, with a clear explanation for visitors and expandable links to the original commits. The feed is generated automatically whenever project changes are pushed.",
-      "commit_count": 3,
-      "files": [
-        "scripts/generate_changelog.py",
-        ".github/workflows/changelog.yml",
-        "shared/crystal/tools/changelog.js"
-      ],
-      "commits": [
-        {
-          "message": "Add automatic visitor-friendly changelog generator",
-          "url": "https://github.com/iYakuza/landing-page/commit/cfc2a868635ecc0a4a8c954739c851f113f83b7a",
-          "files": [
-            "scripts/generate_changelog.py"
-          ]
-        },
-        {
-          "message": "Automate visitor-friendly changelog publishing",
-          "url": "https://github.com/iYakuza/landing-page/commit/5f64609a990a72bbc6bb3dd61dc659a344b60460",
-          "files": [
-            ".github/workflows/changelog.yml"
-          ]
-        },
-        {
-          "message": "Display structured visitor-friendly changelog entries",
-          "url": "https://github.com/iYakuza/landing-page/commit/80516bcd7d2410d7abeee193bbb782c54fbb64cb",
           "files": [
             "shared/crystal/tools/changelog.js"
           ]
