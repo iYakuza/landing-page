@@ -1,8 +1,53 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T23:30:43.709991Z",
-  "last_processed_sha": "9d896e3abb9cf302cba13e05e9dac18eec3bced5",
+  "updated_at": "2026-11-13T23:31:03.097431Z",
+  "last_processed_sha": "806f6bc30b941edd20b36069aa2263e0c96896d8",
   "entries": [
+    {
+      "id": "806f6bc30b941edd20b36069aa2263e0c96896d8",
+      "timestamp": "2026-11-14T00:31:01+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Make Guest Notes navigation links prominent and accessible; Clarify Guest Notes language and revision navigation. It updates index.html, guest-notes.css and related project files.",
+      "commit_count": 4,
+      "files": [
+        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html",
+        "green-dream/guest-notes/guest-notes.css",
+        "green-dream/guest-notes/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Make Guest Notes navigation links prominent and accessible",
+          "url": "https://github.com/iYakuza/landing-page/commit/c60a90944fc7ac3de61b0d67c92f4e0bf861c6d8",
+          "files": [
+            "green-dream/guest-notes/guest-notes.css"
+          ]
+        },
+        {
+          "message": "Clarify Guest Notes language and revision navigation",
+          "url": "https://github.com/iYakuza/landing-page/commit/006f4e207cd05960572e8a6d7fbd8290e1e21cf4",
+          "files": [
+            "green-dream/guest-notes/index.html"
+          ]
+        },
+        {
+          "message": "Clarify Guest Notes language and revision navigation",
+          "url": "https://github.com/iYakuza/landing-page/commit/e1f42de6c6441c55fa017c34e90d38d56ec35ef9",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
+          ]
+        },
+        {
+          "message": "Clarify Guest Notes language and revision navigation",
+          "url": "https://github.com/iYakuza/landing-page/commit/806f6bc30b941edd20b36069aa2263e0c96896d8",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "7b17be00693c55d1eb7a605baad8a0049254cae4",
       "timestamp": "2026-11-14T00:30:38+01:00",
@@ -1199,27 +1244,6 @@
           "files": [
             "privacy-policy.html",
             "terms-of-service.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "d8fde96b4b079c749a873e0116f52410ffc3cf95",
-      "timestamp": "2026-11-12T20:51:53+01:00",
-      "category": "CONTENT",
-      "component": "Website",
-      "title": "Fresh additions to Website",
-      "description": "This update brings together Expose manual Green Dream content and media backup workflow (#16). It updates google-drive-content-backup.yml.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/google-drive-content-backup.yml"
-      ],
-      "commits": [
-        {
-          "message": "Expose manual Green Dream content and media backup workflow (#16)",
-          "url": "https://github.com/iYakuza/landing-page/commit/d8fde96b4b079c749a873e0116f52410ffc3cf95",
-          "files": [
-            ".github/workflows/google-drive-content-backup.yml"
           ]
         }
       ]
