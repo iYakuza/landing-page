@@ -292,7 +292,6 @@ function doPost(e) {
     // tokens, stack traces, or Drive file identifiers in the HTTP response.
     const safeDetail = detail
       .replace(/[A-Za-z0-9_-]{25,}/g, "[redacted]")
-      .replace(/(?:token|authorization|password)\s*[:=]\s*[^\s,;]+/ig, "$1=[redacted]")
       .slice(0, 240);
     return json_({
       ok: false,
