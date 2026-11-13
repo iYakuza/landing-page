@@ -53,7 +53,7 @@ jobs:
 
             parts="$(jq -nc --argjson count "$count" \
               '[range(1; ($count + 1)) as $n |
-                {part_number:$n,size:4194304,sha256:("a" * 64)}]')"
+                {part_number:$n,size:4194304,sha256:"0000000000000000000000000000000000000000000000000000000000000000"}]')"
             payload="$(jq -nc \
               --arg token "$GOOGLE_DRIVE_INGEST_TOKEN" \
               --arg backup_id "$backup_id" \
