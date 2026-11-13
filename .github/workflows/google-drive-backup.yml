@@ -183,7 +183,7 @@ jobs:
           EXPORT_ROOT="$RUNNER_TEMP/deployed-edge-function-export"
           BACKUP_ROOT="$RUNNER_TEMP/green-dream-backup"
           mkdir -p "$EXPORT_ROOT/supabase"
-          printf 'project_id = "green-dream-deployed-function-export"\\n' > "$EXPORT_ROOT/supabase/config.toml"
+          printf 'project_id = "green-dream-deployed-function-export"\n' > "$EXPORT_ROOT/supabase/config.toml"
           (
             cd "$EXPORT_ROOT"
             supabase functions download --project-ref "$SOURCE_PROJECT_REF"
@@ -191,7 +191,7 @@ jobs:
           test -d "$EXPORT_ROOT/supabase/functions"
           mkdir -p "$BACKUP_ROOT/deployed-edge-functions"
           cp -a "$EXPORT_ROOT/supabase/functions/." "$BACKUP_ROOT/deployed-edge-functions/"
-          find "$BACKUP_ROOT/deployed-edge-functions" -mindepth 1 -maxdepth 1 -type d -printf '%f\\n' | sort \\
+          find "$BACKUP_ROOT/deployed-edge-functions" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort \
             > "$BACKUP_ROOT/metadata/deployed-edge-functions.txt"
           FUNCTION_COUNT="$(wc -l < "$BACKUP_ROOT/metadata/deployed-edge-functions.txt" | tr -d ' ')"
           if [ "$FUNCTION_COUNT" -lt 1 ]; then
