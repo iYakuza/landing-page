@@ -21,14 +21,14 @@ BACKUP_ID = re.compile(r"^(?:(?:system|content)-)?[0-9]{8}T[0-9]{6}Z-[a-f0-9]{8}
 SHA256 = re.compile(r"^[a-f0-9]{64}$")
 RETRIES = 2
 REQUEST_TIMEOUT_SECONDS = 60
-DOWNLOAD_DEADLINE_SECONDS = 30 * 60
+DOWNLOAD_DEADLINE_SECONDS = 90 * 60
 RETRYABLE_HTTP = {408, 429, 500, 502, 503, 504}
 
 
 def remaining_seconds(deadline: float | None) -> float:
     remaining = deadline - time.monotonic()
     if remaining <= 0:
-        raise RuntimeError("The backup download exceeded its 30-minute deadline.")
+        raise RuntimeError("The backup download exceeded its 90-minute deadline.")
     return remaining
 
 
