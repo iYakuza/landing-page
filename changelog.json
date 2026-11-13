@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T23:17:25.607002Z",
-  "last_processed_sha": "46003c5144cf609cd393a905318371185178c414",
+  "updated_at": "2026-11-13T23:18:05.502750Z",
+  "last_processed_sha": "eae3a8000158ea7c91131b9927c5f1dc91d779a3",
   "entries": [
+    {
+      "id": "eae3a8000158ea7c91131b9927c5f1dc91d779a3",
+      "timestamp": "2026-11-14T00:17:54+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Complete English Initiative foundations and direct plan links; Complete Romanian Initiative navigation and section anchors. It updates index.html and related project files.",
+      "commit_count": 2,
+      "files": [
+        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Complete English Initiative foundations and direct plan links",
+          "url": "https://github.com/iYakuza/landing-page/commit/ef6e7c4763a26b8cac722b4f8e60c610884949cb",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
+          ]
+        },
+        {
+          "message": "Complete Romanian Initiative navigation and section anchors",
+          "url": "https://github.com/iYakuza/landing-page/commit/c635fb3fdec50c09e1c8e952583ce607f8612666",
+          "files": [
+            "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "42bb52275bfefd9b21aab9111f1e8dfb254c3dd9",
       "timestamp": "2026-11-14T00:17:22+01:00",
@@ -1179,51 +1208,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/f187cc6c8b9a60bf6fa9e179dd353a8d793281e8",
           "files": [
             "green-dream/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "5288c853b3498f42dc7f4c4fd85da68999a30931",
-      "timestamp": "2026-11-10T10:34:36+01:00",
-      "category": "FEATURE",
-      "component": "Creative Archive",
-      "title": "New capabilities for Creative Archive",
-      "description": "This update brings together Add The Guest's Notes and opening contributions. It updates index.html, guest-notes.css and related project files.",
-      "commit_count": 4,
-      "files": [
-        "green-dream/guest-notes/architecture-of-harm/index.html",
-        "green-dream/guest-notes/guest-notes.css",
-        "green-dream/guest-notes/index.html",
-        "green-dream/guest-notes/integration-without-assimilation/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Add The Guest's Notes and opening contributions",
-          "url": "https://github.com/iYakuza/landing-page/commit/efe0754193f4bee9bb36b711e594a5f99e344e7d",
-          "files": [
-            "green-dream/guest-notes/guest-notes.css"
-          ]
-        },
-        {
-          "message": "Add The Guest's Notes and opening contributions",
-          "url": "https://github.com/iYakuza/landing-page/commit/2847201bd6f5080cddcc07f03229a1d113032e4c",
-          "files": [
-            "green-dream/guest-notes/index.html"
-          ]
-        },
-        {
-          "message": "Add The Guest's Notes and opening contributions",
-          "url": "https://github.com/iYakuza/landing-page/commit/6ab62e9dcb5ab0175a4278f34352a057b069dde2",
-          "files": [
-            "green-dream/guest-notes/integration-without-assimilation/index.html"
-          ]
-        },
-        {
-          "message": "Add The Guest's Notes and opening contributions",
-          "url": "https://github.com/iYakuza/landing-page/commit/5288c853b3498f42dc7f4c4fd85da68999a30931",
-          "files": [
-            "green-dream/guest-notes/architecture-of-harm/index.html"
           ]
         }
       ]
