@@ -43,10 +43,13 @@ The repository source does not automatically update the deployed Apps Script pro
 
 1. Open the existing **Green Dream Backup Receiver** project at https://script.google.com/home.
 2. Replace the contents of `Code.gs` with this repository version.
-3. Keep the existing `INGEST_TOKEN` and `BACKUP_FOLDER_ID` Script Properties unchanged.
-4. Choose **Deploy → Manage deployments**.
-5. Edit the existing web-app deployment, select **New version**, and deploy.
-6. Keep the existing deployment URL unchanged.
+3. In **Project Settings**, enable **Show "appsscript.json" manifest file in editor** if it is hidden.
+4. Replace `appsscript.json` with this repository version. It adds the `script.external_request` scope needed to create Drive upload sessions.
+5. Save the project. When prompted, approve the additional Google authorization scope for external requests.
+6. Keep the existing `INGEST_TOKEN` and `BACKUP_FOLDER_ID` Script Properties unchanged.
+7. Choose **Deploy → Manage deployments**.
+8. Edit the existing web-app deployment, select **New version**, and deploy.
+9. Keep the existing deployment URL unchanged.
 
 The app runs as its owner. The web-app endpoint may be reachable publicly, but every operation requires the secret token. Never paste that token into chat or commit it.
 
