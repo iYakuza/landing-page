@@ -26,6 +26,7 @@ The full-system workflow creates a SHA-256 manifest, packages the snapshot, encr
 - Only encrypted archive chunks are uploaded to Drive. The receiver verifies each chunk's SHA-256 and creates a manifest after all parts are present. It does not apply retention or cleanup: existing Drive backup files are never automatically deleted.
 - Apps Script and Google Drive quotas, account policies, and service availability apply. Google may restrict public web-app access or the receiver deployment. This is a deliberate no-OAuth-verification trade-off, not a guarantee of uninterrupted service.
 - Keep the encryption passphrase in a password manager and maintain a separate secure recovery copy. Without it, the archive cannot be decrypted.
+- Preferred recovery downloads use a dedicated Google service account with read-only access to only the existing backup folder. GitHub Actions requests the `drive.readonly` scope and downloads encrypted part files directly from the Drive API; the Apps Script relay remains as a fallback.
 - The scheduled workflow remains disabled until the first live backup and recovery procedure have been verified.
 
 ## One-time setup
@@ -52,6 +53,7 @@ Add these repository secrets:
 | `SUPABASE_SECRET_KEY` | Current Supabase Secret API key from Settings → API Keys. Never publish it. |
 | `GOOGLE_DRIVE_INGEST_URL` | The existing deployed Apps Script web-app URL ending in `/exec`. |
 | `GOOGLE_DRIVE_INGEST_TOKEN` | The existing token stored as the Apps Script `INGEST_TOKEN` property. Do not rotate it as part of this update. |
+| `GOOGLE_DRIVE_READONLY_SERVICE_ACCOUNT_JSON` | Optional: the complete JSON key for a dedicated Google service account shared as **Viewer** on only the **Green Dream Backups** folder. Enables direct binary Drive downloads. Never paste or commit the key. |
 | `BACKUP_ENCRYPTION_PASSPHRASE` | A unique randomly generated passphrase of at least 32 characters. Store it in a password manager and keep a separate secure recovery copy. |
 
 Do not paste any secret into ChatGPT, commit it, or include it in a public issue or pull request.
