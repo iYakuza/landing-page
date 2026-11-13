@@ -58,4 +58,36 @@ with tempfile.TemporaryDirectory() as temp:
     assert output.read_bytes() == whole
 
 assert [x["action"] for x in calls] == ["list_backups", "download_part", "download_part"]
+# Content recovery must select a content archive even when a newer system
+# backup is also present in the receiver inventory.
+content_id = "content-20261113T000000Z-b1b2c3d4"
+content_bytes = b"content-archive-fixture"
+content_part = {
+    "part_number": 1,
+    "size": len(content_bytes),
+    "sha256": hashlib.sha256(content_bytes).hexdigest(),
+}
+def fake_content_post(endpoint, token, payload, deadline):
+    if payload["action"] == "list_backups":
+        return {"ok": True, "backups": [{
+            "backup_id": content_id, "part_count": 1, "total_bytes": len(content_bytes),
+            "archive_sha256": hashlib.sha256(content_bytes).hexdigest(), "parts": [content_part],
+        }]}
+    if payload["action"] == "download_part":
+        return {
+            "ok": True, "backup_id": content_id, "part_number": 1, "total_parts": 1,
+            "size": len(content_bytes), "sha256": content_part["sha256"],
+            "content_base64": base64.b64encode(content_bytes).decode("ascii"),
+        }
+    raise AssertionError("Unexpected content recovery action")
+
+with tempfile.TemporaryDirectory() as temp:
+    output = pathlib.Path(temp) / "content-backup.gpg"
+    with patch.dict(os.environ, {
+        "GOOGLE_DRIVE_INGEST_URL": "https://script.google.com/macros/s/test-deployment/exec",
+        "GOOGLE_DRIVE_INGEST_TOKEN": "x" * 48,
+    }), patch.object(sys, "argv", [str(script), "--backup-type", "content", "--output", str(output)]), patch.object(module, "post_json", fake_content_post):
+        module.main()
+    assert output.read_bytes() == content_bytes
+
 print("Bounded Apps Script recovery downloader tests passed.")
