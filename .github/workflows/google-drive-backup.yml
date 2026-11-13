@@ -162,7 +162,7 @@ jobs:
           python3 scripts/verify_storage_export.py "$RUNNER_TEMP/green-dream-backup"
           python3 scripts/backup_wordpress_archive.py --output "$RUNNER_TEMP/green-dream-backup/wordpress" --index human-archive/archive-data.json --media-index wordpress/media-library-index.json
           python3 scripts/build_recovery_site.py "$RUNNER_TEMP/green-dream-backup"
-          python3 scripts/package_recovery_site.py "$RUNNER_TEMP/green-dream-backup" "$RUNNER_TEMP/green-dream-recovery-site.zip"
+          python3 scripts/package_recovery_site.py "$RUNNER_TEMP/green-dream-backup"
 
       # Supabase restoration is intentionally handled by the separate
       # restore-supabase-backup.yml workflow. Backup creation and Drive transfer
@@ -244,18 +244,10 @@ jobs:
         env:
           GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
           GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
+          BACKUP_TYPE: system
         run: |
           set -euo pipefail
           python3 scripts/upload_apps_script_backup.py "$ENCRYPTED_ARCHIVE"
-
-      - name: Publish portable read-only recovery website
-        uses: actions/upload-artifact@v4
-        continue-on-error: true
-        with:
-          name: green-dream-recovery-site-${{ github.run_id }}
-          path: ${{ runner.temp }}/green-dream-recovery-site.zip
-          if-no-files-found: error
-          retention-days: 7
 
       - name: Remove temporary backup material
         if: always()
