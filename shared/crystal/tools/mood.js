@@ -8,6 +8,56 @@
     mono:'ui-monospace,SFMono-Regular,Consolas,monospace',
     humanist:'"Trebuchet MS",Arial,sans-serif'
   };
+  const moodPresets = {
+    joy: {
+      id:"joy", mood:"Joy", interpretation:"Warmth, openness and a little room to breathe.",
+      page:"#140F12", surface:"#24181C", accent:"#FFC078", muted:"#E9C8B4", border:"#A86D58", glow:"#FF9B54",
+      radius:18, lineHeight:1.82, letterSpacing:0.005, gap:30, padding:28,
+      bodyFont:"humanist", displayFont:"serif", shadow:0.26, typeScale:1.03
+    },
+    trust: {
+      id:"trust", mood:"Trust", interpretation:"A grounded, steady atmosphere with soft edges.",
+      page:"#071614", surface:"#102722", accent:"#84D9BE", muted:"#B7D8CB", border:"#3D8E79", glow:"#72E6C7",
+      radius:20, lineHeight:1.84, letterSpacing:0.01, gap:28, padding:28,
+      bodyFont:"humanist", displayFont:"sans", shadow:0.2, typeScale:1
+    },
+    fear: {
+      id:"fear", mood:"Fear", interpretation:"Quiet, spacious and clear without pretending the dark is not there.",
+      page:"#0A1020", surface:"#141E34", accent:"#A9BDF7", muted:"#C0CBE3", border:"#657BAF", glow:"#8EA9FF",
+      radius:10, lineHeight:1.96, letterSpacing:0.02, gap:34, padding:26,
+      bodyFont:"sans", displayFont:"mono", shadow:0.34, typeScale:0.99
+    },
+    surprise: {
+      id:"surprise", mood:"Surprise", interpretation:"A crisp, bright shift of perspective and unexpected energy.",
+      page:"#0A1320", surface:"#132A3A", accent:"#6BE7F2", muted:"#C3E7EC", border:"#3B9DA8", glow:"#65F1FF",
+      radius:5, lineHeight:1.72, letterSpacing:0.04, gap:26, padding:24,
+      bodyFont:"sans", displayFont:"mono", shadow:0.38, typeScale:1.04
+    },
+    sadness: {
+      id:"sadness", mood:"Sadness", interpretation:"A slower, gentler space that does not ask you to hurry.",
+      page:"#0D1420", surface:"#172535", accent:"#9DBCE0", muted:"#C3D2E0", border:"#5B7A9C", glow:"#7AA9D8",
+      radius:14, lineHeight:2, letterSpacing:0.012, gap:36, padding:30,
+      bodyFont:"serif", displayFont:"serif", shadow:0.28, typeScale:1.02
+    },
+    disgust: {
+      id:"disgust", mood:"Disgust", interpretation:"Earthy, direct and uncluttered; a boundary made visible.",
+      page:"#10150D", surface:"#1C2616", accent:"#C1D98A", muted:"#D0DDBB", border:"#718A4D", glow:"#A8C86C",
+      radius:6, lineHeight:1.78, letterSpacing:0.025, gap:26, padding:24,
+      bodyFont:"mono", displayFont:"humanist", shadow:0.2, typeScale:0.98
+    },
+    anger: {
+      id:"anger", mood:"Anger", interpretation:"Strong contrast, firm structure and space for intensity.",
+      page:"#1A0C0B", surface:"#2A1513", accent:"#FF9A78", muted:"#F0C0B3", border:"#A94E3F", glow:"#FF654D",
+      radius:4, lineHeight:1.72, letterSpacing:0.035, gap:22, padding:22,
+      bodyFont:"sans", displayFont:"sans", shadow:0.4, typeScale:1.01
+    },
+    anticipation: {
+      id:"anticipation", mood:"Anticipation", interpretation:"A thoughtful, luminous atmosphere oriented toward what may come.",
+      page:"#171125", surface:"#241B37", accent:"#D7A9FF", muted:"#D7CBE9", border:"#8B69B1", glow:"#B68AF0",
+      radius:16, lineHeight:1.9, letterSpacing:0.02, gap:32, padding:28,
+      bodyFont:"serif", displayFont:"humanist", shadow:0.28, typeScale:1.02
+    }
+  };
   function setMoodTheme(theme){
     const html=document.documentElement;
     // UAT guardrail: keep generated palettes within readable contrast ranges.
@@ -86,7 +136,7 @@
     html.style.setProperty("--theme-raised",raised);
     html.style.setProperty("--theme-secondary",accent);
     html.style.setProperty("--theme-on-accent",onAccent);
-    html.dataset.vhaMood="generated";
+    html.dataset.vhaMood=theme.id||"preset";
     html.style.colorScheme=light?"light":"dark";
     document.body.style.backgroundColor=page;
     document.body.style.color=text;
@@ -158,16 +208,17 @@
     const font=key=>moodFontStacks[key]||moodFontStacks.sans;
     const radius=Math.min(28,Math.max(0,Number(theme.radius)||0));
     const shadow=Math.min(.45,Math.max(0,Number(theme.shadow)||0));
+    const typeScale=Math.min(1.08,Math.max(.94,Number(theme.typeScale)||1));
     let moodStyle=document.getElementById("vha-mood-profile");
     if(!moodStyle){moodStyle=document.createElement("style");moodStyle.id="vha-mood-profile";document.head.appendChild(moodStyle);}
-    moodStyle.textContent=`html[data-vha-mood]{--vha-mood-radius:${radius}px;--vha-mood-shadow:0 8px ${12+Math.round(shadow*56)}px rgba(0,0,0,${shadow});--vha-mood-line:${theme.lineHeight};--vha-mood-spacing:${theme.letterSpacing}em;--vha-mood-font:${font(theme.bodyFont)};--vha-mood-display-font:${font(theme.displayFont)};--vha-mood-gap:${theme.gap}px;--vha-mood-panel-padding:${theme.padding}px}
+    moodStyle.textContent=`html[data-vha-mood]{font-size:calc(16px * ${typeScale})!important;--vha-mood-radius:${radius}px;--vha-mood-shadow:0 8px ${12+Math.round(shadow*56)}px rgba(0,0,0,${shadow});--vha-mood-line:${theme.lineHeight};--vha-mood-spacing:${theme.letterSpacing}em;--vha-mood-font:${font(theme.bodyFont)};--vha-mood-display-font:${font(theme.displayFont)};--vha-mood-gap:${theme.gap}px;--vha-mood-panel-padding:${theme.padding}px}
       html[data-vha-mood] body,html[data-vha-mood] body *{font-family:var(--vha-mood-font)!important}
       html[data-vha-mood] :is(h1,h2,h3,h4,h5,h6,.gd-hero h1,.gd-section h2,.gd-listening h2,.cv-name,.cv-section h2,.post-title,.posts-title){font-family:var(--vha-mood-display-font)!important}
       html[data-vha-mood] :is(.gd-movements,.gd-lower,.gd-listening,.cv-columns,.cv-skills,.gd-cvgrid,.posts-grid,#posts-list,.gd-section-head){gap:var(--vha-mood-gap)!important}
       html[data-vha-mood] :is(.gd-panel,.cv-hero,.cv-contact-panel){padding:var(--vha-mood-panel-padding)!important}
       html[data-vha-mood] .gd-panel,html[data-vha-mood] .gd-card,html[data-vha-mood] .gd-radio,html[data-vha-mood] .gd-move,html[data-vha-mood] .post-card,html[data-vha-mood] .posts-note,html[data-vha-mood] .posts-filters,html[data-vha-mood] .viewer-console,html[data-vha-mood] .song-panel,html[data-vha-mood] .song-player-card,html[data-vha-mood] .cv-card,html[data-vha-mood] .cv-section,html[data-vha-mood] .transmission-card,html[data-vha-mood] .cv-wrap{border-radius:var(--vha-mood-radius)!important;box-shadow:var(--vha-mood-shadow)!important;transition:border-radius .35s ease,box-shadow .35s ease,background-color .35s ease}
       html[data-vha-mood] p,html[data-vha-mood] li,html[data-vha-mood] .post-excerpt,html[data-vha-mood] .gd-copy{line-height:var(--vha-mood-line)!important;letter-spacing:var(--vha-mood-spacing)}`;
-    try{localStorage.setItem("vha-mood-ai-theme-v1",JSON.stringify(theme));}catch{}
+    try{localStorage.setItem("vha-mood-preset-v2",theme.id);}catch{}
   }
   function resetMoodTheme(){
     const html=document.documentElement;
@@ -179,60 +230,22 @@
     document.getElementById("vha-mood-global-overrides")?.remove();
     document.getElementById("vha-mood-profile")?.remove();
     document.getElementById("vha-mood-fonts")?.remove();
-    try{localStorage.removeItem("vha-mood-ai-theme-v1");localStorage.removeItem("vha-mood-palette");}catch{}
+    try{localStorage.removeItem("vha-mood-preset-v2");localStorage.removeItem("vha-mood-ai-theme-v1");localStorage.removeItem("vha-mood-palette");}catch{}
   }
   function restoreMoodTheme(){
     try{
-      const theme=JSON.parse(localStorage.getItem("vha-mood-ai-theme-v1")||"null");
-      if(theme&&/^#[0-9a-f]{6}$/i.test(theme.page||"")&&/^#[0-9a-f]{6}$/i.test(theme.surface||"")&&/^#[0-9a-f]{6}$/i.test(theme.text||"")&&/^#[0-9a-f]{6}$/i.test(theme.accent||""))setMoodTheme(theme);
+      localStorage.removeItem("vha-mood-ai-theme-v1");
+      localStorage.removeItem("vha-mood-palette");
+      const emotion=localStorage.getItem("vha-mood-preset-v2");
+      if(emotion&&moodPresets[emotion])setMoodTheme(moodPresets[emotion]);
     }catch{}
   }
-  async function generateMoodPrompt(emotion){
+  function applyMoodPreset(emotion){
     const status=root.querySelector(".vha-mood-status");
-    const promptButton=root.querySelector('[data-tool="generate-prompt"]');
-    const description=root.querySelector("#vha-mood-description");
-    if(!emotion){status.textContent="Choose an emotion first, then generate a prompt.";return}
-    if(promptButton){promptButton.disabled=true;promptButton.textContent="Composing…";}
-    status.textContent="Finding words for this feeling…";
-    try{
-      const response=await fetch("https://ego-mood-ai.stefancu-emanuel.workers.dev",{
-        method:"POST",
-        headers:{"Content-Type":"text/plain;charset=UTF-8"},
-        body:JSON.stringify({mode:"prompt",emotion})
-      });
-      const result=await response.json().catch(()=>({}));
-      if(!response.ok||!result.ok||!result.prompt)throw new Error(result.error||"The AI could not compose a prompt just now.");
-      description.value=result.prompt;
-      description.focus();
-      status.textContent="A new prompt for "+emotion+". Edit it, add to it, or make it your own.";
-    }catch(error){
-      status.textContent=error instanceof Error?error.message:"The AI could not compose a prompt just now. Please try again.";
-    }finally{
-      if(promptButton){promptButton.disabled=false;promptButton.textContent="Generate another prompt";}
-    }
-  }
-  async function generateMoodTheme(value){
-    const input=String(value||"").trim();
-    const status=root.querySelector(".vha-mood-status");
-    if(input.length<3){status.textContent="Write a little more about what is going on for you.";return}
-    const applyButton=root.querySelector('[data-tool="apply-mood"]');
-    if(applyButton){applyButton.disabled=true;applyButton.textContent="Generating…";}
-    status.textContent="Reading your words and composing a new visual atmosphere…";
-    try{
-      const response=await fetch("https://ego-mood-ai.stefancu-emanuel.workers.dev",{
-        method:"POST",
-        headers:{"Content-Type":"text/plain;charset=UTF-8"},
-        body:JSON.stringify({description:input})
-      });
-      const result=await response.json().catch(()=>({}));
-      if(!response.ok||!result.ok||!result.theme)throw new Error(result.error||"The AI service could not complete the request.");
-      setMoodTheme(result.theme);
-      status.textContent="Generated for: "+result.theme.mood+". "+result.theme.interpretation;
-    }catch(error){
-      status.textContent=error instanceof Error?error.message:"The AI could not generate a theme just now. Please try again.";
-    }finally{
-      if(applyButton){applyButton.disabled=false;applyButton.textContent="Generate a visual response";}
-    }
+    const preset=moodPresets[emotion];
+    if(!preset){status.textContent="Choose an emotion first.";return;}
+    setMoodTheme(preset);
+    status.textContent=preset.mood+" atmosphere applied. "+preset.interpretation;
   }
   restoreMoodTheme();
   const trigger = root.querySelector(".vha-tools-trigger");
@@ -246,17 +259,15 @@
       const open=root.dataset.moodOpen!=="true";
       root.dataset.moodOpen=String(open);
       button.setAttribute("aria-expanded",String(open));
-      const description=root.querySelector("#vha-mood-description");
-      if(open)requestAnimationFrame(()=>description?.focus());
-    }else if(tool==="generate-prompt"){
-      await generateMoodPrompt(root.querySelector("#vha-mood-emotion")?.value);
+      const emotion=root.querySelector("#vha-mood-emotion");
+      if(open)requestAnimationFrame(()=>emotion?.focus());
     }else if(tool==="apply-mood"){
-      await generateMoodTheme(root.querySelector("#vha-mood-description")?.value);
+      applyMoodPreset(root.querySelector("#vha-mood-emotion")?.value);
     }else if(tool==="reset-mood"){
       resetMoodTheme();
-      root.querySelector("#vha-mood-description").value="";
+      root.querySelector("#vha-mood-emotion").value="";
       root.querySelector(".vha-mood-status").textContent="Default website theme restored across the website.";
     }
   });
-  window.VHACrystal?.registerTool({id:"mood",label:"MATCH MY MOOD",description:"Generate and apply a visual atmosphere across the website.",presentation:"panel",run:()=>document.querySelector('[data-tool="mood"]')?.click()});
+  window.VHACrystal?.registerTool({id:"mood",label:"MATCH MY MOOD",description:"Choose a considered visual atmosphere for one of eight core emotions.",presentation:"panel",run:()=>document.querySelector('[data-tool="mood"]')?.click()});
 })();
