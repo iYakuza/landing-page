@@ -1,139 +1,110 @@
-# Mood Engine
+# Match My Mood — Design System
 
-**Status:** Active feature / iterative implementation  
-**Owner surface:** Viewer Tools → Match my mood  
-**Runtime entry point:** `tools.js`  
+**Status:** Active / implemented  
+**Owner surface:** Crystal → Viewer Tools → Match my mood  
+**Runtime entry point:** `shared/crystal/tools/mood.js`  
+**UI markup:** `shared/crystal/crystal.js`  
+**Panel styling:** `shared/crystal/crystal.css`  
 **Scope:** Site-wide visual adaptation across Verse After Hours and Green Dream pages
 
 ## Purpose
 
-The Mood Engine translates a visitor's self-described emotional tone into a coordinated visual atmosphere. It is a creative personalisation feature, not a mood diagnosis, mental-health assessment, or therapeutic intervention.
+Match My Mood lets a visitor choose the emotion that feels closest to their present experience. Each choice applies a predefined visual atmosphere designed for that emotion.
 
-The engine should change the *experience*, not only the colour palette. A mood profile can influence:
+This is a creative personalisation feature, not a mood diagnosis, mental-health assessment, or therapeutic intervention. The names are expressive art-direction labels, not claims that everyone experiences an emotion in the same way.
 
-- Colour palette and contrast relationships
-- Body and display typography
-- Type scale, weight, line-height and letter spacing
-- Spacing and content density
-- Card geometry, borders, shadows and surface treatment
-- Page composition and component arrangement
-- Motion intensity and transition behaviour
-- Media framing and decorative detail
+The catalogue uses eight primary emotions from Plutchik's model:
 
-## Architecture
+- Joy
+- Trust
+- Fear
+- Surprise
+- Sadness
+- Disgust
+- Anger
+- Anticipation
 
-Keep these concerns separate as the feature grows:
+There is no free-text prompt composer, AI-generated prompt, AI-generated theme, or remote mood interpretation.
 
-1. **Input layer** — free-text description and optional preset chips. It gathers only what the visitor chooses to share.
-2. **Mood interpretation** — keyword/phrase scoring maps text to a profile. It should be explainable, deterministic and conservative when confidence is low.
-3. **Profile catalogue** — declarative definitions of visual tokens. Adding a profile should normally mean adding data, not duplicating application logic.
-4. **Theme renderer** — applies profile tokens through CSS custom properties and scoped selectors. It must work across every page and shared component.
-5. **Persistence** — stores the selected profile and palette locally so it follows the visitor between pages. No mood text is sent to a server.
-6. **Reset** — removes the active profile, dynamic styles and font loader, then restores the site's default design.
+## Current architecture
 
-The current implementation lives in `tools.js`. The next refactoring step should move the profile catalogue and rendering rules into dedicated `mood-engine.js` and `mood-engine.css` files while leaving Viewer Tools responsible for opening the gadget and collecting input.
+1. **Input layer** — a single accessible emotion selector in the Crystal panel.
+2. **Preset catalogue** — eight declarative, human-authored visual profiles in `mood.js`.
+3. **Theme renderer** — applies the chosen profile through CSS custom properties and scoped site-wide selectors.
+4. **Contrast safeguards** — adjusts foreground, accent, muted, border and glow colours to preserve readable contrast.
+5. **Persistence** — stores only the selected preset ID in browser local storage so it follows the visitor between pages.
+6. **Reset** — removes the active profile and injected styles, then restores the site's default appearance.
 
-## Runtime flow
+## Theme contract
 
-```text
-Visitor describes a feeling / selects a preset
-                 |
-                 v
-        Mood interpretation
-                 |
-        confidence / ambiguity
-           /           \
-       clear            unclear
-         |                 |
-         v                 v
-   Select profile     Reflective fallback
-           \           /
-            v         v
-          Load profile tokens
-                 |
-                 v
-       Apply site-wide visual system
-                 |
-                 v
-       Persist profile locally
-                 |
-                 v
-        Navigate across pages
-                 |
-                 v
-        Reapply saved profile
-```
+Each preset defines:
 
-## Profile contract
+- **Identity:** `id`, `mood`, and a short `interpretation` written for the visitor.
+- **Colour:** page, surface, accent, muted, border and glow tokens.
+- **Typography:** body and display font stacks.
+- **Scale and rhythm:** type scale, line height, letter spacing, grid gap and panel padding.
+- **Geometry:** corner radius and shadow intensity.
 
-Every profile should define, at minimum:
-
-- `id`, `label`, `description`
-- `keywords` and phrase weights for interpretation
-- `colors`: page, surface, text, muted, accent, border
-- `typography`: body family, display family, scale, weight, line-height, letter spacing
-- `layout`: density, spacing, content width, columns, card geometry
-- `details`: shadows, borders, patterns, media treatment
-- `motion`: none, reduced, gentle or expressive
-- `accessibility`: minimum contrast expectations and fallback behaviour
-
-Profiles should be declarative and versionable. Avoid embedding mood-specific rules in unrelated page stylesheets.
+The renderer uses four local system font stacks: serif, sans-serif, monospace and humanist. It does not load third-party fonts.
 
 ## Design principles
 
-- **Atmosphere, not stereotype:** mood names are creative directions, not universal claims about how people feel.
-- **Legibility before expression:** expressive display fonts must not make paragraphs, controls or navigation difficult to read.
-- **Coherent change:** typography, spacing, colour and component treatment should reinforce one another.
-- **Preserve identity:** mood adaptation should not erase the site's imagery, content hierarchy or navigation.
-- **Respect user agency:** the visitor can edit their description, choose a preset, change profile or reset at any time.
-- **Low stimulation when appropriate:** anxious and tired profiles reduce motion and visual clutter; never add flashing or aggressive movement.
-- **Responsive by default:** density and layout changes must not create horizontal scrolling or hide content.
-- **Reversible:** reset must restore the original site styles, including font families.
-- **Graceful fallback:** if a remote font fails, a local system fallback keeps the page readable.
+- **Atmosphere, not stereotype:** the preset is a visual interpretation, not a universal description of an emotion.
+- **Legibility before expression:** typography and colour must remain readable across every page.
+- **Coherent change:** colour, typography, spacing, scale and geometry should reinforce one another.
+- **Preserve identity:** mood adaptation must not erase the site's content hierarchy, navigation or meaning.
+- **Respect user agency:** visitors choose a preset or reset it at any time.
+- **No forced positivity:** sadness, fear, anger and disgust are not treated as errors to be corrected.
+- **Responsive by default:** preset changes must not create horizontal scrolling or hide content.
+- **Reversible:** reset restores the default site appearance.
+- **Local by design:** the selected emotion is stored in this browser only; no emotion description is collected or transmitted.
 
 ## Privacy
 
-The visitor's free-text description is processed in the browser. The selected profile and palette are stored in local storage to persist across pages. Do not transmit, log, or store the raw description. The current expressive typefaces are loaded from Google Fonts when the mood feature is applied; this introduces a third-party font request and should be documented if the font provider changes.
+The selector submits no free-text description. The feature makes no network request and does not call an AI service. Local storage contains only the selected preset ID under `vha-mood-preset-v2`.
+
+No raw mood text, profile description or personal emotional narrative is sent to a server, logged, or stored remotely.
 
 ## Accessibility and safety
 
-- Keep body copy and controls readable; reserve script/display/novelty fonts for headings and short accents.
-- Maintain sufficient text/background contrast for every palette.
-- Honour `prefers-reduced-motion`; anxious and tired profiles should further reduce motion.
-- Do not use colour as the only indicator of state.
-- Do not infer diagnoses or make claims about the visitor's mental health.
-- Avoid prescriptive language such as "this will calm you"; describe the visual treatment instead.
+- Normal text and interactive controls retain a minimum 4.5:1 foreground contrast target.
+- Borders and non-text visual indicators use a 3:1 contrast target where applicable.
+- The renderer maintains visible separation between page and surface backgrounds.
+- Keyboard focus indicators remain visible.
+- Colour is not the only indicator of state.
+- No preset makes claims about the visitor's mental health or promises a therapeutic effect.
 
 ## Current implementation
 
-- Existing profiles: Calm, Sad, Anxious, Happy, Angry, Tired, Focused, Hopeful, Reflective fallback.
-- Added profile: Romantic.
-- Happy uses Comic Neue for a playful, youthful character.
-- Romantic uses Great Vibes for display headings with a readable serif body.
-- Angry uses Metal Mania for display headings with a neutral sans-serif body.
-- Other profiles use system-safe typography stacks.
-- Profile persistence and reset remain handled by the existing Viewer Tools mood flow.
+| Emotion | Art direction | Body / display type |
+|---|---|---|
+| Joy | Warm, open, gently expressive | Humanist / serif |
+| Trust | Grounded, steady, soft-edged | Humanist / sans-serif |
+| Fear | Quiet, spacious, clear | Sans-serif / monospace |
+| Surprise | Crisp, bright, energetic | Sans-serif / monospace |
+| Sadness | Slow, gentle, contemplative | Serif / serif |
+| Disgust | Earthy, direct, uncluttered | Monospace / humanist |
+| Anger | Strong contrast, firm structure | Sans-serif / sans-serif |
+| Anticipation | Thoughtful, luminous, forward-looking | Serif / humanist |
 
-## Planned evolution
+The exact design tokens are documented in `MOOD_PROFILES.md`.
 
-1. Move profiles into a dedicated catalogue module.
-2. Move shared rendering rules into a dedicated stylesheet.
-3. Expand the profile schema to cover spacing, density, layout composition, media framing and motion in a consistent way.
-4. Add a confidence threshold and a clear "I couldn't confidently match that" state.
-5. Add a preview/confirm step before applying a profile.
-6. Add a small profile test matrix covering homepage, Green Dream, CV, music and all transmission pages.
-7. Add automated checks for contrast, responsive overflow, persistence and reset.
+## Future work
+
+1. Add a manual visual test matrix for homepage, Green Dream, CV, music, archive and transmission pages.
+2. Add automated tests for preset persistence, reset, contrast and responsive overflow.
+3. Review how the global selectors interact with future site components before expanding the catalogue.
+4. Consider mixed-emotion combinations only if they can be designed and explained without introducing generated themes.
 
 ## Change checklist
 
-When adding or editing a profile:
+When editing a preset:
 
-- [ ] Add profile metadata and keywords.
-- [ ] Define the full token set; do not leave a profile half-defined.
-- [ ] Choose a body font for sustained reading and a display font for personality.
-- [ ] Check headings, body copy, buttons, dropdowns, forms, cards, media and SVG/icon treatment.
+- [ ] Keep the preset declarative and human-authored.
+- [ ] Define all colour, typography, scale, rhythm and geometry tokens.
+- [ ] Check body copy, headings, controls, forms, cards, media and SVG/icon treatment.
 - [ ] Check desktop, tablet and mobile layouts.
-- [ ] Check contrast and reduced-motion behaviour.
-- [ ] Check local persistence after navigation and browser refresh.
-- [ ] Check reset restores the exact default appearance.
+- [ ] Check text and non-text contrast.
+- [ ] Check persistence after navigation and browser refresh.
+- [ ] Check reset restores the default appearance.
 - [ ] Update `MOOD_PROFILES.md` and this document.

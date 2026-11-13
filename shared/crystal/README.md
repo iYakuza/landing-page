@@ -11,7 +11,7 @@ The Crystal is a reusable site-wide component. Existing pages use the backwards-
 - `tools/registry.js` — central registration for shared navigation tools.
 - `tools/constellation.js` — constellation navigation renderer, routes, drag behaviour, saved positions, and page integration.
 - `tools/star-patterns.js` — pattern picker control and preset application.
-- `tools/mood.js` — mood prompts, AI theme generation, contrast safeguards, persistence, and reset.
+- `tools/mood.js` — eight curated emotion presets, contrast safeguards, local persistence, and reset.
 - `tools/radio.js` — complete V/A Radio player, YouTube playlist engine, drag/resize persistence, and Crystal visibility control.
 - `tools/presentation.js` — in-page editorial presentation and post reader. It does not use browser fullscreen.
 

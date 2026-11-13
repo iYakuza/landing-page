@@ -1,106 +1,94 @@
-# Mood Engine — Implementation Notes
+# Match My Mood — Implementation Notes
 
 ## Current code ownership
 
-- `tools.js`: Viewer Tools markup, preset interactions, phrase matching, profile application, persistence and reset.
-- `tools.css`: shared site typography baseline and global navigation.
-- Page stylesheets: page-specific component definitions. These must not be the place for mood-specific duplication.
+- `shared/crystal/crystal.js`: Viewer Tools shell and Match My Mood selector markup.
+- `shared/crystal/tools/mood.js`: eight preset definitions, contrast guardrails, theme application, persistence and reset.
+- `shared/crystal/crystal.css`: shared Crystal dock, mood panel and helper-text styling.
+- Page stylesheets: page-specific component definitions. They are not the source of individual mood presets.
 
 ## Current behaviour
 
-The engine stores the selected profile and palette in `localStorage` under `vha-mood-palette`. On page load, Viewer Tools reads the saved value and reapplies the profile. The raw free-text description is not persisted.
+The visitor selects one of eight fixed emotions and activates **Apply this atmosphere**. The renderer applies the corresponding palette, font stacks, type scale, line height, letter spacing, spacing, panel padding, corner radius and shadow.
 
-The renderer adds `data-vha-mood` to the root element and injects dynamic styles. The global theme tokens and explicit component selectors ensure that shared and page-specific surfaces respond to the active profile.
+The selected preset ID is stored in local storage under `vha-mood-preset-v2`. On page load, the renderer validates the saved ID against the known preset catalogue and reapplies that preset. Reset clears the saved ID and removes injected theme styles.
 
-## Typography loading
+No free-text description is collected. The mood feature does not call an AI endpoint or any remote service.
 
-The expressive display fonts are requested from Google Fonts on mood application:
+## Preset catalogue
 
-- Comic Neue — Happy
-- Great Vibes — Romantic
-- Metal Mania — Angry
+The eight preset objects are defined in `shared/crystal/tools/mood.js`:
 
-System fallbacks are defined in each profile. If the font service is unavailable, the site should remain legible. Reset removes the injected font stylesheet link.
+- `joy`
+- `trust`
+- `fear`
+- `surprise`
+- `sadness`
+- `disgust`
+- `anger`
+- `anticipation`
 
-## Known architectural debt
+Each object contains the same complete token set. Add or revise a preset as data; do not add emotion-specific branches to unrelated page stylesheets.
 
-The Mood Engine is currently embedded in the larger Viewer Tools script. That is acceptable for the current feature size but makes the mood system harder to test and extend. Refactor into dedicated files when the next substantial feature is added:
+## Typography
 
-- `mood-engine.js`: profile catalogue, matching, state, persistence and application API.
-- `mood-engine.css`: shared visual tokens and component adaptation rules.
-- `docs/mood-engine/MOOD_PROFILES.md`: human-readable design catalogue.
-- `docs/mood-engine/README.md`: architecture and operating principles.
+All font stacks are local system fallbacks:
 
-Viewer Tools should then call a small public interface, for example `MoodEngine.apply(description)`, `MoodEngine.applyProfile(id)`, `MoodEngine.reset()` and `MoodEngine.getActiveProfile()`.
+- Serif: Georgia / Times New Roman
+- Sans-serif: Arial / Helvetica
+- Monospace: ui-monospace / Consolas
+- Humanist: Trebuchet MS / Arial
 
-## Future profile data shape
+No Google Fonts stylesheet, external font request, or font-loader cleanup is required.
 
-```js
-{
-  id: "romantic",
-  label: "Romantic",
-  keywords: [{ phrase: "tender", weight: 1 }, { phrase: "in love", weight: 2 }],
-  colors: {
-    page: "#160d17",
-    surface: "#251326",
-    text: "#f4dfeb",
-    muted: "...",
-    accent: "#d99abd",
-    border: "..."
-  },
-  typography: {
-    body: "Georgia, serif",
-    display: "Great Vibes, cursive",
-    scale: "expressive",
-    lineHeight: 1.9,
-    letterSpacing: "0.01em"
-  },
-  layout: {
-    density: "intimate",
-    spacing: "relaxed",
-    geometry: "organic",
-    columns: "editorial"
-  },
-  details: {
-    shadows: "soft",
-    pattern: "none",
-    media: "soft-frame"
-  },
-  motion: "gentle"
-}
-```
+## Contrast and rendering
 
-The example is a target schema, not the current runtime object. Keep this distinction clear until the refactor is complete.
+The renderer retains its contrast guardrails:
+
+- Foreground text is adjusted to meet a 4.5:1 target across page, surface and raised surfaces.
+- Borders and glow indicators are adjusted to a 3:1 target.
+- Page and surface luminance are kept visibly distinct.
+- Focus indicators and interactive states remain explicit.
+
+The renderer applies a site-wide theme marker to the document root and injects the shared overrides and profile-specific typography/spacing rules. Reset removes those injected styles and returns the document to the default theme.
+
+## Privacy
+
+The only persisted mood-related value is the selected preset ID. No free-text emotional content is collected, transmitted, logged or stored remotely.
+
+The retired AI mood Worker and its endpoint are no longer part of the implementation.
 
 ## Regression test matrix
 
-Test each profile on:
+Test each preset on:
 
 - Homepage / landing page
 - Green Dream page
 - CV page, including profile panel, grid and floating navigation
 - Music and listening sections
-- Posts archive and each transmission
+- Posts archive and all five movements
 - Community / Signals page
 - Viewer Tools panel and dropdown navigation
 
 For each page verify:
 
-1. Fonts visibly change where intended and remain readable.
-2. Body text uses the profile body font; display font is limited to headings/short accents.
-3. Cards, media rows, CV components, dropdowns and forms use the active palette.
-4. No text becomes invisible or low contrast.
+1. Body and display fonts change as intended.
+2. Paragraphs, controls and navigation remain readable.
+3. Page and component surfaces use the selected palette.
+4. Text and non-text contrast remain sufficient.
 5. No horizontal overflow is introduced at mobile widths.
-6. Saved mood survives navigation and refresh.
-7. Reset restores the exact original typography, colours and layout.
-8. Browser back/forward and dynamic content do not leave unthemed components.
+6. The saved preset survives navigation and refresh.
+7. Reset restores the default typography, colours and layout.
+8. Dynamic content does not remain in an unthemed state.
 
 ## Implementation status
 
-- [x] Declarative mood profile styling added to the existing renderer.
-- [x] Romantic profile and preset added.
-- [x] Happy / Romantic / Angry expressive typefaces mapped to their display/body roles.
-- [x] Remote font loading and reset cleanup added.
-- [ ] Extract profile catalogue and renderer from `tools.js`.
-- [ ] Expand profile data to full layout and component tokens.
+- [x] Eight declarative emotion presets added.
+- [x] AI prompt generation and AI theme generation removed.
+- [x] Site-wide contrast safeguards retained.
+- [x] Typography, type scale, spacing and geometry tokens defined per preset.
+- [x] Local preset-ID persistence and reset implemented.
+- [x] Third-party font loading removed from the mood feature.
+- [x] Retired AI Worker endpoint removed from page Content Security Policies.
 - [ ] Add automated contrast, overflow and persistence tests.
+- [ ] Complete manual visual review across all listed page types.
