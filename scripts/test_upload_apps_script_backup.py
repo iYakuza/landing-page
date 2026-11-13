@@ -51,9 +51,10 @@ def fake_post(endpoint, token, payload, deadline=None):
         return {"ok": True, "backup_id": backup_id, "finalized": True, "total_bytes": len(archive_bytes)}
     raise AssertionError("Unexpected action: " + action)
 
-def fake_put(session_url, chunk, expected_name, timeout):
+def fake_put(session_url, chunk, expected_name, timeout, start=0, total_size=None):
     assert session_url.endswith("test-session")
     assert chunk == second
+    assert start == 0 and total_size == len(second)
     assert expected_name.endswith("-part-0002-of-0002.gpgpart")
     assert 0 < timeout <= module.REQUEST_TIMEOUT_SECONDS
     uploaded.append(len(chunk))
@@ -102,6 +103,28 @@ with tempfile.TemporaryDirectory() as temp:
 assert [call["action"] for call in calls] == ["list_upload_parts", "create_upload_sessions", "finalize_backup"]
 assert calls[1]["parts"] == [parts[1]], "the already stored first part must not be uploaded again"
 assert uploaded == [len(second)]
+# An interrupted upload must query the same session and resume at Drive's
+# acknowledged byte offset rather than blindly creating a duplicate file.
+resume_archive = pathlib.Path(tempfile.gettempdir()) / "green-dream-resume-test.bin"
+resume_archive.write_bytes(b"abcdef")
+resume_part = {"part_number": 1, "size": 6, "sha256": hashlib.sha256(b"abcdef").hexdigest()}
+resume_calls = []
+def flaky_put(session_url, chunk, expected_name, timeout, start=0, total_size=None):
+    resume_calls.append((chunk, start, total_size))
+    if len(resume_calls) == 1:
+        raise TimeoutError("simulated lost upload response")
+def partial_status(session_url, total_size, expected_name, timeout):
+    assert total_size == 6
+    return {"complete": False, "offset": 3}
+with patch.object(module, "put_chunk", flaky_put), patch.object(module, "query_upload_status", partial_status), patch.object(module.time, "sleep", lambda _: None):
+    assert module.upload_one(
+        resume_archive, "endpoint", "token", "backup", 1, resume_part,
+        "https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&upload_id=resume",
+        module.time.monotonic() + 60,
+    ) == (1, True)
+assert resume_calls == [(b"abcdef", 0, 6), (b"def", 3, 6)]
+resume_archive.unlink()
+
 # Session creation is deliberately batched so Apps Script never receives one
 # oversized fetchAll burst for the entire archive.
 batch_sizes = []
