@@ -1,0 +1,29 @@
+name: Validate WordPress archive source
+
+on:
+  push:
+    branches:
+      - feature/wordpress-archive-backup
+    paths:
+      - scripts/backup_wordpress_archive.py
+      - scripts/test_backup_wordpress_archive.py
+      - .github/workflows/validate-wordpress-archive.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: feature/wordpress-archive-backup
+      - name: Validate exporter
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/backup_wordpress_archive.py scripts/test_backup_wordpress_archive.py
+          python3 scripts/test_backup_wordpress_archive.py
+          python3 scripts/backup_wordpress_archive.py --output "$RUNNER_TEMP/wordpress-archive" --index human-archive/archive-data.json --media-index wordpress/media-library-index.json
