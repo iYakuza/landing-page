@@ -16,7 +16,7 @@ spec.loader.exec_module(module)
 
 assert module.REQUEST_TIMEOUT_SECONDS == 60
 assert module.DOWNLOAD_DEADLINE_SECONDS == 30 * 60
-backup_id = "20261113T000000Z-a1b2c3d4"
+backup_id = "system-20261113T000000Z-a1b2c3d4"
 chunks = [b"encrypted-part-one", b"encrypted-part-two"]
 whole = b"".join(chunks)
 parts = [
@@ -29,10 +29,14 @@ def fake_post(endpoint, token, payload, deadline):
     calls.append(payload)
     assert deadline is not None
     if payload["action"] == "list_backups":
-        return {"ok": True, "backups": [{
-            "backup_id": backup_id, "part_count": len(chunks), "total_bytes": len(whole),
+        common = {
+            "part_count": len(chunks), "total_bytes": len(whole),
             "archive_sha256": hashlib.sha256(whole).hexdigest(), "parts": parts,
-        }]}
+        }
+        return {"ok": True, "backups": [
+            {"backup_id": "content-20261113T000000Z-b1b2c3d4", **common},
+            {"backup_id": backup_id, **common},
+        ]}
     if payload["action"] == "download_part":
         number = payload["part_number"]
         chunk = chunks[number - 1]
