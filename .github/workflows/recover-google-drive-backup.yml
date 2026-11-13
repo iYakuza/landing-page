@@ -53,7 +53,7 @@ jobs:
           fi
 
       - name: Download and verify encrypted archive from Drive
-        timeout-minutes: 40
+        timeout-minutes: 100
         env:
           GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
           GOOGLE_DRIVE_INGEST_TOKEN: ${{ secrets.GOOGLE_DRIVE_INGEST_TOKEN }}
