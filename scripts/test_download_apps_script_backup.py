@@ -137,3 +137,74 @@ with tempfile.TemporaryDirectory() as temp:
     assert output.read_bytes() == content_bytes
 
 print("Parallel Apps Script recovery downloader tests passed.")
+
+
+# Direct binary Drive API recovery bypasses the Apps Script base64 relay.
+direct_chunks = [b"direct-drive-part-one", b"direct-drive-part-two"]
+direct_whole = b"".join(direct_chunks)
+direct_id = "system-20261113T000000Z-d1e2f3a4"
+direct_parts = [
+    {
+        "part_number": i + 1,
+        "size": len(chunk),
+        "sha256": hashlib.sha256(chunk).hexdigest(),
+        "file_id": f"drive-file-{i + 1}",
+    }
+    for i, chunk in enumerate(direct_chunks)
+]
+direct_calls = []
+drive_requests = []
+
+
+class FakeDriveResponse:
+    def __init__(self, body):
+        self.body = body
+        self.status = 200
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+    def read(self, size=-1):
+        return self.body if size < 0 else self.body[:size]
+
+
+def fake_direct_post(endpoint, token, payload, deadline):
+    direct_calls.append(payload)
+    if payload["action"] == "list_backups":
+        return {"ok": True, "backups": [{
+            "backup_id": direct_id,
+            "part_count": 2,
+            "total_bytes": len(direct_whole),
+            "archive_sha256": hashlib.sha256(direct_whole).hexdigest(),
+            "parts": direct_parts,
+        }]}
+    raise AssertionError("Direct Drive mode must not call the Apps Script download_part action")
+
+
+def fake_drive_urlopen(request, timeout):
+    drive_requests.append((request.full_url, request.get_header("Authorization"), timeout))
+    file_id = request.full_url.split("/files/", 1)[1].split("?", 1)[0]
+    index = int(file_id.rsplit("-", 1)[1]) - 1
+    return FakeDriveResponse(direct_chunks[index])
+
+
+with tempfile.TemporaryDirectory() as temp:
+    output = pathlib.Path(temp) / "direct-backup.gpg"
+    with patch.dict(os.environ, {
+        "GOOGLE_DRIVE_INGEST_URL": "https://script.google.com/macros/s/test-deployment/exec",
+        "GOOGLE_DRIVE_INGEST_TOKEN": "x" * 48,
+        "GOOGLE_DRIVE_READONLY_SERVICE_ACCOUNT_JSON": '{"type":"service_account"}',
+    }), patch.object(sys, "argv", [str(script), "--backup-id", direct_id, "--output", str(output)]), \
+         patch.object(module, "post_json", fake_direct_post), \
+         patch.object(module, "drive_access_token_from_service_account", lambda _: "test-drive-access-token"), \
+         patch.object(module.urllib.request, "urlopen", fake_drive_urlopen):
+        module.main()
+    assert output.read_bytes() == direct_whole
+
+assert [call["action"] for call in direct_calls] == ["list_backups"]
+assert len(drive_requests) == 2
+assert all("alt=media" in item[0] for item in drive_requests)
+assert all(item[1] == "Bearer test-drive-access-token" for item in drive_requests)
