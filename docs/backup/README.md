@@ -17,7 +17,7 @@ This workflow is designed to create an encrypted snapshot of the Green Dream Sup
 - A separate snapshot of the source code for every currently deployed Edge Function, downloaded from the live Supabase project.
 - An inventory of Edge Function environment variable names. Runtime secret values are not exported.
 
-The workflow creates a SHA-256 manifest, packages the snapshot, encrypts the archive with GPG AES-256, verifies that the encrypted archive can be decrypted and read, then uploads encrypted chunks to the Apps Script receiver.
+The full-system workflow creates a SHA-256 manifest, packages the snapshot, encrypts the archive with GPG AES-256, verifies that the encrypted archive can be decrypted and read, then uploads encrypted chunks to the Apps Script receiver. Full-system backups use `system-...` IDs; the separate content/media workflow uses `content-...` IDs. Restore tools filter by type so a content-only archive cannot be mistaken for a full Supabase snapshot.
 
 ## Security and operating boundaries
 
@@ -68,7 +68,7 @@ Before considering the system operational:
 2. Run **GitHub → Actions → Green Dream Google Drive backup → Run workflow**, selecting `main` after the PR is merged (or the consolidated backup branch before merge).
 3. Confirm that the workflow completes the encrypted upload. Backup creation no longer depends on a Supabase restore test.
 4. In the private Drive folder, confirm that the completed backup manifest and all referenced encrypted parts exist.
-5. Run **Validate Supabase backup restoration** with the new backup ID. This downloads the archive and performs a full restore into a disposable local Supabase instance. After the workflow is merged to `main`, this validation also runs automatically after successful scheduled or manual backups.
+5. Run **Validate Supabase backup restoration** with the new `system-...` backup ID. This downloads the archive and performs a full restore into a disposable local Supabase instance. After the workflow is merged to `main`, this validation also runs automatically after successful scheduled or manual backups.
 6. When a separate fresh hosted Supabase project is available, use **Restore Green Dream into a fresh Supabase project** for the hosted recovery drill. Confirm the website, CMS, authentication, submissions, and media.
 7. Only after successful backup, local restore validation, and hosted recovery should the PR be considered for merge and the scheduled backup variable be enabled.
 
@@ -90,7 +90,7 @@ The separate **Restore Green Dream into a fresh Supabase project** workflow (\`.
 - Decrypted data is removed from the ephemeral runner at the end of the job.
 - The workflow is a separate-project restore, not a project clone: deployed Edge Function source is included in the encrypted archive, but functions are not automatically deployed to the destination. Project-level dashboard settings and Edge Function runtime secret values still need separate configuration.
 
-The **Validate Supabase backup restoration** workflow is independent of backup creation. It can be dispatched manually against a completed backup ID, or it runs automatically after a successful Google Drive backup on `main`. It restores into a disposable local Supabase instance on the GitHub runner, checks the restored data, and then destroys only that temporary local instance. It does not modify production or require a second hosted project.
+The **Validate Supabase backup restoration** workflow is independent of backup creation. It can be dispatched manually against a completed `system-...` backup ID, or it runs automatically after a successful Google Drive backup on `main`. If the backup ID is omitted, it selects the newest completed `system-...` backup only; it will never select a `content-...` archive. It restores into a disposable local Supabase instance on the GitHub runner, checks the restored data, and then destroys only that temporary local instance. It does not modify production or require a second hosted project.
 
 ### Restore workflow credentials
 
@@ -113,6 +113,7 @@ A hosted restoration cannot be declared operational until a real backup has been
 - Auth users and identities are restored, but sessions, MFA factors, and audit history are not.
 - Deployed Edge Function source is archived separately from the Git bundle, so dashboard-only edits are preserved. The restore workflow does not deploy those functions automatically. Edge Function runtime secret values are not exported; the archive records variable names only. Preserve the actual values separately in a password manager or secure configuration record.
 - Supabase project-level settings such as Auth provider configuration, API keys, database credentials, domains, DNS, and other dashboard settings are not included. Reconfigure these separately during recovery.
+- Backups created before type-prefixed IDs use the legacy untyped ID format. Select those explicitly by ID; automatic selection deliberately ignores them to avoid mixing content-only and full-system archives.
 - Supabase-managed Storage ownership, built-in ACLs, and RLS flags are provisioned by the destination Supabase project. The restore process preserves custom Storage policies and verifies the managed settings rather than attempting to change Supabase-owned table privileges.
 - The current live migration ledger has 33 entries, while the repository contains only two historical migration files. The backup preserves the live ledger and a current schema/data snapshot; it does not claim to reconstruct missing migration SQL.
 - The current Edge Functions may depend on legacy platform-injected environment variables. This backup project does not migrate those functions or rotate their credentials.
