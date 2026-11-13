@@ -100,8 +100,8 @@ assert.equal(send({ action: "ping", token: "wrong" }).ok, false);
 assert.equal(send({ action: "ping", token }).ok, true);
 assert.equal(send({}, "{not json").ok, false);
 assert.equal(send({ ...part(1, chunks[0]), backup_id: "../bad" }).ok, false);
-assert.equal(send({ action: "list_upload_parts", token, backup_id: "content-20261113T000000Z-b1b2c3d4", total_parts: 1 }).ok, true);
-assert.equal(send({ action: "list_upload_parts", token, backup_id: "20261113T000000Z-c1b2c3d4", total_parts: 1 }).ok, true);
+assert.equal(send({ action: "list_upload_parts", token, backup_id: "content-20261113T000000Z-b1b2c3d4", total_parts: 1, parts: [{ part_number: 1, size: 1, sha256: "a".repeat(64) }] }).ok, true);
+assert.equal(send({ action: "list_upload_parts", token, backup_id: "20261113T000000Z-c1b2c3d4", total_parts: 1, parts: [{ part_number: 1, size: 1, sha256: "a".repeat(64) }] }).ok, true);
 
 const first = send(part(1, chunks[0]));
 assert.equal(first.ok, true);
@@ -110,7 +110,8 @@ const retry = send(part(1, chunks[0]));
 assert.equal(retry.ok, true);
 assert.equal(retry.already_present, true);
 
-const uploadState = send({ action: "list_upload_parts", token, backup_id: id, total_parts: 2 });
+const expectedParts = chunks.map((content, index) => ({ part_number: index + 1, size: content.length, sha256: digest(content) }));
+const uploadState = send({ action: "list_upload_parts", token, backup_id: id, total_parts: 2, parts: expectedParts });
 assert.equal(uploadState.ok, true);
 assert.equal(uploadState.parts.length, 1);
 assert.equal(uploadState.parts[0].part_number, 1);
