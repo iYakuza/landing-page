@@ -86,12 +86,16 @@ jobs:
           python3 - <<'PY'
           import os
           from urllib.parse import unquote, urlparse
-          ref = os.environ["SOURCE_PROJECT_REF"]
+          source_ref = os.environ["SOURCE_PROJECT_REF"]
+          api = urlparse(os.environ["RESTORE_URL"])
+          target_ref = (api.hostname or "").split(".")[0].lower()
           parsed = urlparse(os.environ["RESTORE_DB_URL"])
           host = (parsed.hostname or "").lower()
           user = unquote(parsed.username or "").lower()
-          if ref in host or ref in user:
+          if target_ref == source_ref or source_ref in host or source_ref in user:
               raise SystemExit("Refusing to restore into a database connection associated with the production project.")
+          if not target_ref or (target_ref not in host and target_ref not in user):
+              raise SystemExit("The destination API URL and database connection do not identify the same Supabase project.")
           PY
 
       - name: Download encrypted backup from private Google Drive
