@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 PART_BYTES = 4 * 1024 * 1024
 MAX_PARTS = 400
 WORKERS = 4
+SESSION_BATCH_SIZE = 8
 PREFIX = "greendream-backup-"
 RETRIES = 2
 REQUEST_TIMEOUT_SECONDS = 60
@@ -105,6 +106,23 @@ def create_sessions(endpoint: str, token: str, backup_id: str, total_parts: int,
 
 class RetryableUploadError(RuntimeError):
     """A Drive upload failure for which creating a fresh session is safe."""
+
+
+def create_sessions_batched(endpoint: str, token: str, backup_id: str, total_parts: int,
+                            parts: list[dict], deadline: float) -> dict[int, dict]:
+    """Keep each Apps Script fetchAll burst small and report session preparation progress."""
+    sessions: dict[int, dict] = {}
+    for offset in range(0, len(parts), SESSION_BATCH_SIZE):
+        batch = parts[offset:offset + SESSION_BATCH_SIZE]
+        batch_number = offset // SESSION_BATCH_SIZE + 1
+        batch_total = (len(parts) + SESSION_BATCH_SIZE - 1) // SESSION_BATCH_SIZE
+        print(
+            f"Preparing Drive upload sessions: batch {batch_number}/{batch_total} "
+            f"({min(offset + len(batch), len(parts))}/{len(parts)} parts).",
+            flush=True,
+        )
+        sessions.update(create_sessions(endpoint, token, backup_id, total_parts, batch, deadline))
+    return sessions
 
 
 def put_chunk(session_url: str, chunk: bytes, expected_name: str, timeout: float) -> None:
@@ -245,7 +263,7 @@ def main() -> None:
         f"Initialising {len(missing)} remaining upload sessions.",
         flush=True,
     )
-    session_map = create_sessions(endpoint, token, backup_id, total_parts, missing, deadline) if missing else {}
+    session_map = create_sessions_batched(endpoint, token, backup_id, total_parts, missing, deadline) if missing else {}
 
     completed = set(existing)
     uploaded_this_run = 0
