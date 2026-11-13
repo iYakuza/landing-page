@@ -63,6 +63,7 @@ with patch.object(transport, "open_no_redirect", open_same_url), patch.object(tr
     result = transport.post_json(endpoint, "t" * 48, payload, timeout=60)
 
 assert result["ok"] is True
+assert requests[1][3] == transport.REDIRECT_FETCH_TIMEOUT_SECONDS == 90
 assert [item[0] for item in requests] == ["POST", "GET", "GET"]
 assert requests[1][1] == requests[2][1] == response_url
 assert requests[0][2] is not None and b'"token":"' in requests[0][2]
