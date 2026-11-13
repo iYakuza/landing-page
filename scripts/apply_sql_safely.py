@@ -152,10 +152,25 @@ def sanitize_roles_sql(original_sql):
             r"(?m)^[ \t]*\\[A-Za-z]+[^\n]*(?:\n|$)", " ", code
         ).lstrip()
 
+        set_config_parameter = (
+            re.match(r"SELECT\s+(?:pg_catalog\s*\.\s*)?set_config\s*\(", classified, re.IGNORECASE)
+            and re.search(
+                r"""(?is)(?:pg_catalog\s*\.\s*)?set_config\s*\(\s*'log_min_messages'\s*(?:::\s*[\w."]+)?\s*,""",
+                statement,
+            )
+        )
+
         if re.match(r"(?:SET|RESET)\b", classified, re.IGNORECASE):
             # Standalone server logging defaults are environment-specific.
             # Preserve psql session directives such as \restrict if they share
             # a fragment with the skipped SQL command.
+            kept.extend(directives)
+            skipped += 1
+        elif set_config_parameter:
+            # Some dump wrappers express the same session setting as
+            # SELECT pg_catalog.set_config('log_min_messages', ...).
+            # The parameter name is inside a string literal, so executable_sql()
+            # intentionally masks it; recognize only this exact first argument.
             kept.extend(directives)
             skipped += 1
         elif re.match(r"ALTER\s+(?:ROLE|USER|DATABASE)\b", classified, re.IGNORECASE):
