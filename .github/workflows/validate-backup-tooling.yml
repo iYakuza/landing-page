@@ -70,6 +70,8 @@ jobs:
             scripts/verify_vault_restore.py \
             scripts/verify_migration_ledger.py \
             scripts/apply_sql_safely.py \
+            scripts/sanitize_managed_data_dump.py \
+            scripts/test_sanitize_managed_data_dump.py \
             scripts/create_restore_expectations.py \
             scripts/test_backup_manifest.py \
             scripts/test_restore_expectations.py \
@@ -96,6 +98,9 @@ jobs:
 
       - name: Test SQL role-dump sanitizer
         run: python3 scripts/test_apply_sql_safely.py
+
+      - name: Test managed Auth and Storage data-dump filtering
+        run: python3 scripts/test_sanitize_managed_data_dump.py
 
       - name: Test Auth and Vault restore SQL generation
         run: |
