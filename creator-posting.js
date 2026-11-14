@@ -1,6 +1,6 @@
 (() => {
 if(window.__vhaCreatorPostingLoaded)return;window.__vhaCreatorPostingLoaded=true;
-const URL_API='https://oeyxsqocldlovhsmzcjw.supabase.co',KEY='sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
+const URL_API='https://ioguymqdeuuursizifnn.supabase.co',KEY='sb_publishable_HjN3rCxxDNTH4UBLnTOX3A_UHEAbTA7';
 const M=[['THE AWAKENING','01 / THE AWAKENING','the-awakening'],['THE DESCENT','02 / THE DESCENT','the-descent'],['THE RECONNECTION','03 / THE RECONNECTION','the-reconnection'],['THE TRANSFORMATION','04 / THE TRANSFORMATION','the-transformation'],['THE RETURN','05 / THE RETURN','the-return']];
 const sharedActions=document.createElement('link');sharedActions.rel='stylesheet';sharedActions.href='/landing-page/editor-ui.css?v=20261027-shared-actions-1';document.head.appendChild(sharedActions);
 const css=document.createElement('style');css.textContent=[
@@ -22,7 +22,7 @@ const quick=addControls();
 /* Every create action opens the same full-featured Owner Studio composer. */
 quick.addEventListener('click',event=>{event.preventDefault();openStudio(pageCategory())});
 let authBound=false,refreshing=false;
-function hasStoredSession(){try{return Boolean(localStorage.getItem('sb-oeyxsqocldlovhsmzcjw-auth-token'))}catch{return false}}
+function hasStoredSession(){try{return Boolean(localStorage.getItem('sb-ioguymqdeuuursizifnn-auth-token'))}catch{return false}}
 async function ensureSupabase(){if(window.supabase?.createClient)return true;if(!hasStoredSession())return false;return new Promise(resolve=>{const script=document.createElement('script');script.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';script.async=true;script.crossOrigin='anonymous';script.referrerPolicy='no-referrer';script.onload=()=>resolve(Boolean(window.supabase?.createClient));script.onerror=()=>resolve(false);document.head.appendChild(script)})}
 async function refresh(sessionOverride){
  if(refreshing)return;
