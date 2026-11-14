@@ -262,7 +262,7 @@
         ? renderSunoGrid(post,media,'','')
         : media+body;
       const expandedContent='<div class="post-collapsible'+(isSuno?' suno-three-column':'')+'" id="post-content-'+safe(post.slug)+'"'+(isExpanded?'':' hidden')+'>'+expandedBody+'</div>';
-      return '<article class="post-card '+shapeClass+' post-archive-composition'+(isSuno?' suno-three-column':'')+'" id="post-'+safe(post.slug)+'" data-record="'+recordCode+'">'+lead+expandedContent+'</article>';
+      return '<article class="post-card '+shapeClass+' post-archive-composition'+(isSuno?' suno-three-column':'')+'" id="post-'+safe(post.slug)+'" data-record="'+safe(recordCode)+'">'+lead+expandedContent+'</article>';
     }).join('');
     if(permalink){
       document.title=filtered[0].title+' // VERSE AFTER HOURS';
