@@ -137,6 +137,11 @@ elif "visitor-friendly changelog" in text or ("structured" in text and "changelo
     detail = "The activity feed now turns related development work into clear visitor-facing updates, while keeping the original commits available for anyone who wants the technical details."
     component = "Latest Changelog"
     category = "FEATURE"
+elif "quick post" in text or "creator-posting.js" in paths:
+    title = "Quick Post is now available across public content pages"
+    detail = "Authorised CMS administrators can open the Owner Studio composer directly from public content pages. The shortcut remains hidden from ordinary visitors and is managed through one shared component."
+    component = "Creator Workshop"
+    category = "FEATURE"
 elif "ursa major" in text or ("star-pattern" in paths and "default" in text):
     title = "Ursa Major now welcomes first-time visitors"
     detail = "New visitors now enter Crystal mode with Ursa Major selected by default. Existing saved constellation arrangements are preserved."
