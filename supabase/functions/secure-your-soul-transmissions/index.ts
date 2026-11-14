@@ -63,7 +63,9 @@ function getAdminClient() {
 
 Deno.serve(async (request: Request) => {
   const origin = request.headers.get("origin");
-  const allowedOrigin = (Deno.env.get("SYS_ALLOWED_ORIGIN") || "https://iyakuza.github.io").replace(/\/$/, "");
+  const isRecoveryDrill = (Deno.env.get("SUPABASE_URL") || "").replace(/\/+$/, "") === "https://ioguymqdeuuursizifnn.supabase.co";
+  const defaultOrigin = isRecoveryDrill ? "https://green-dream-recovery-preview.pages.dev" : "https://iyakuza.github.io";
+  const allowedOrigin = (Deno.env.get("SYS_ALLOWED_ORIGIN") || defaultOrigin).replace(/\/$/, "");
   if (request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: {
       "Access-Control-Allow-Headers": "authorization, content-type",
