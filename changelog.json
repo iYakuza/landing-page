@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T13:52:00.431721Z",
-  "last_processed_sha": "5da602d0be9b7913dee2866f5da599ab75f32a91",
+  "updated_at": "2026-11-14T13:53:00.294099Z",
+  "last_processed_sha": "94b775b0f90c4f03a42b5f5671f0b4bbdc538048",
   "entries": [
+    {
+      "id": "94b775b0f90c4f03a42b5f5671f0b4bbdc538048",
+      "timestamp": "2026-11-14T14:52:53+01:00",
+      "category": "FEATURE",
+      "component": "Creator Workshop",
+      "title": "New capabilities for Creator Workshop",
+      "description": "This update brings together Add one-time recovery portrait import link. It updates index.html.",
+      "commit_count": 1,
+      "files": [
+        "cms/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Add one-time recovery portrait import link",
+          "url": "https://github.com/iYakuza/landing-page/commit/94b775b0f90c4f03a42b5f5671f0b4bbdc538048",
+          "files": [
+            "cms/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "35e928c0f54f77d386c3c53154281d6cc55cd0d8",
       "timestamp": "2026-11-14T14:51:59+01:00",
@@ -1234,27 +1255,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/4fb0f832ee5a9ad4b8e3f0c44a84cb93b321f399",
           "files": [
             ".github/workflows/google-drive-inventory-diagnostic.yml"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "08c151a19d29d6d245d0ac5af4c30873077ac791",
-      "timestamp": "2026-11-13T19:49:44+01:00",
-      "category": "FIX",
-      "component": "Website",
-      "title": "More reliable Website",
-      "description": "This update brings together Fix Apps Script ContentService redirect handling in receiver ping. It updates google-drive-receiver-ping.yml.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/google-drive-receiver-ping.yml"
-      ],
-      "commits": [
-        {
-          "message": "Fix Apps Script ContentService redirect handling in receiver ping",
-          "url": "https://github.com/iYakuza/landing-page/commit/08c151a19d29d6d245d0ac5af4c30873077ac791",
-          "files": [
-            ".github/workflows/google-drive-receiver-ping.yml"
           ]
         }
       ]
