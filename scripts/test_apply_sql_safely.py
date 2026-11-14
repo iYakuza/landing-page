@@ -33,20 +33,20 @@ plain_diagnostic = postgres_error_diagnostic("ERROR: relation does not exist")
 assert plain_diagnostic == (None, "relation does not exist"), plain_diagnostic
 
 duplicate_diagnostic = postgres_error_diagnostic(
-    'psql:/tmp/data.sql:4: ERROR: duplicate key value violates unique constraint "accounts_email_key"\\n'
-    'DETAIL: Key (email)=(private@example.invalid) already exists.\\n'
+    'psql:/tmp/data.sql:4: ERROR: duplicate key value violates unique constraint "accounts_email_key"\n'
+    'DETAIL: Key (email)=(private@example.invalid) already exists.\n'
 )
 assert duplicate_diagnostic == (4, "duplicate key violates constraint accounts_email_key (columns: email)"), duplicate_diagnostic
 assert "private@example.invalid" not in duplicate_diagnostic[1]
 
 copy_fixture = (
-    "-- pg_dump data\\n"
-    "COPY public.accounts (id, email, created_at) FROM stdin;\\n"
-    "00000000-0000-0000-0000-000000000001\\tprivate@example.invalid\\t2026-01-01\\n"
-    "\\\\.\\n"
-    "COPY supabase_migrations.schema_migrations (version, name) FROM stdin;\\n"
-    "20990101000000\\tprivate_migration_name\\n"
-    "\\\\.\\n"
+    "-- pg_dump data\n"
+    "COPY public.accounts (id, email, created_at) FROM stdin;\n"
+    "00000000-0000-0000-0000-000000000001\tprivate@example.invalid\t2026-01-01\n"
+    "\\.\n"
+    "COPY supabase_migrations.schema_migrations (version, name) FROM stdin;\n"
+    "20990101000000\tprivate_migration_name\n"
+    "\\.\n"
 )
 assert copy_target_at_line(copy_fixture, 3) == "public.accounts"
 assert copy_target_at_line(copy_fixture, 6) == "supabase_migrations.schema_migrations"
