@@ -132,12 +132,106 @@ def executable_sql(statement):
     return "".join(out)
 
 
+
+def strip_sql_comments(sql):
+    """Remove SQL comments while preserving quoted text for safe directive matching."""
+    out, i, state, dollar_tag, block_depth = [], 0, "normal", "", 0
+    while i < len(sql):
+        if state == "normal":
+            if sql.startswith("--", i):
+                out.extend("  ")
+                state, i = "line_comment", i + 2
+            elif sql.startswith("/*", i):
+                out.extend("  ")
+                state, block_depth, i = "block_comment", 1, i + 2
+            elif sql[i] == "'":
+                out.append(sql[i])
+                state, i = "single_quote", i + 1
+            elif sql[i] == '"':
+                out.append(sql[i])
+                state, i = "double_quote", i + 1
+            elif sql[i] == "$" and (m := re.match(r"\$[A-Za-z_][A-Za-z_0-9]*\$|\$\$", sql[i:])):
+                dollar_tag = m.group(0)
+                out.append(dollar_tag)
+                state, i = "dollar_quote", i + len(dollar_tag)
+            else:
+                out.append(sql[i])
+                i += 1
+        elif state == "line_comment":
+            if sql[i] == "\n":
+                out.append("\n")
+                state = "normal"
+            else:
+                out.append(" ")
+            i += 1
+        elif state == "block_comment":
+            if sql.startswith("/*", i):
+                out.extend("  ")
+                block_depth, i = block_depth + 1, i + 2
+            elif sql.startswith("*/", i):
+                out.extend("  ")
+                block_depth, i = block_depth - 1, i + 2
+                if block_depth == 0:
+                    state = "normal"
+            else:
+                out.append("\n" if sql[i] == "\n" else " ")
+                i += 1
+        elif state == "single_quote":
+            out.append(sql[i])
+            if sql.startswith("''", i):
+                out.append("'")
+                i += 2
+            elif sql[i] == "\\" and i + 1 < len(sql):
+                out.append(sql[i + 1])
+                i += 2
+            elif sql[i] == "'":
+                state, i = "normal", i + 1
+            else:
+                i += 1
+        elif state == "double_quote":
+            out.append(sql[i])
+            if sql.startswith('""', i):
+                out.append('"')
+                i += 2
+            elif sql[i] == '"':
+                state, i = "normal", i + 1
+            else:
+                i += 1
+        elif state == "dollar_quote":
+            if sql.startswith(dollar_tag, i):
+                out.append(dollar_tag)
+                i += len(dollar_tag)
+                state = "normal"
+            else:
+                out.append(sql[i])
+                i += 1
+    return "".join(out)
+
 def sanitize_roles_sql(original_sql):
     """Remove non-portable log_min_messages settings from the role dump."""
     kept, skipped, unsupported = [], 0, set()
     for statement in split_sql_statements(original_sql):
         code = executable_sql(statement)
-        if not re.search(r"\blog_min_messages\b", code, re.IGNORECASE):
+
+        # The target may appear as a string argument to set_config(), which
+        # executable_sql() intentionally masks. Inspect a comment-free copy
+        # only for this exact SELECT form before taking the fast path.
+        comment_free = strip_sql_comments(statement)
+        classified = re.sub(
+            r"(?m)^[ \t]*\\[A-Za-z]+[^\n]*(?:\n|$)", " ", code
+        ).lstrip()
+        set_config_parameter = bool(
+            re.match(
+                r"SELECT\s+(?:pg_catalog\s*\.\s*)?set_config\s*\(",
+                classified,
+                re.IGNORECASE,
+            )
+            and re.match(
+                r"""(?is)^\s*SELECT\s+(?:pg_catalog\s*\.\s*)?set_config\s*\(\s*'log_min_messages'\s*(?:::\s*[\w."]+)?\s*,""",
+                comment_free,
+            )
+        )
+        if not re.search(r"\blog_min_messages\b", code, re.IGNORECASE) and not set_config_parameter:
             kept.append(statement)
             continue
 
@@ -151,14 +245,6 @@ def sanitize_roles_sql(original_sql):
         classified = re.sub(
             r"(?m)^[ \t]*\\[A-Za-z]+[^\n]*(?:\n|$)", " ", code
         ).lstrip()
-
-        set_config_parameter = (
-            re.match(r"SELECT\s+(?:pg_catalog\s*\.\s*)?set_config\s*\(", classified, re.IGNORECASE)
-            and re.search(
-                r"""(?is)(?:pg_catalog\s*\.\s*)?set_config\s*\(\s*'log_min_messages'\s*(?:::\s*[\w."]+)?\s*,""",
-                statement,
-            )
-        )
 
         if re.match(r"(?:SET|RESET)\b", classified, re.IGNORECASE):
             # Standalone server logging defaults are environment-specific.
