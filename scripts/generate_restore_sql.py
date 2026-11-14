@@ -23,7 +23,17 @@ if not isinstance(ledger, list):
     raise SystemExit("Migration ledger export must be a JSON array.")
 ledger_lines = [
     "-- Restore the source project's applied migration history into a fresh compatible Supabase project.",
+    "-- Provision the migration ledger when restoring into a clean Supabase instance that has not run migrations yet.",
     "begin;",
+    "create schema if not exists supabase_migrations;",
+    "create table if not exists supabase_migrations.schema_migrations (",
+    "    version text primary key,",
+    "    statements text[],",
+    "    name text,",
+    "    created_by text,",
+    "    idempotency_key uuid,",
+    "    rollback text[]",
+    ");",
 ]
 if ledger:
     payload = json.dumps(ledger, ensure_ascii=False, separators=(",", ":"))
