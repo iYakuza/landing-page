@@ -1378,6 +1378,30 @@ body.image-viewer-open{overflow:hidden!important}
   line-height:.9!important;
   white-space:nowrap!important;
 }
+/* Keep the complete navigation on one line at desktop widths.
+   Compact button typography and the category select so the right-side control fits. */
+@media(min-width:900px){
+  .movement-index{
+    flex-wrap:nowrap;
+    gap:4px;
+  }
+  .movement-index button{
+    flex:0 1 auto;
+    min-width:0;
+    padding:6px 6px;
+    font:8px/1.3 ui-monospace,monospace;
+    letter-spacing:.15px;
+    white-space:nowrap;
+  }
+  .movement-index > #category-filter{
+    flex:0 0 130px;
+    width:130px;
+    min-width:130px;
+    padding:6px 8px;
+    font-size:8px;
+    letter-spacing:.3px;
+  }
+}
 @media(max-width:650px){
   .movement-index > #category-filter{
     flex-basis:180px;
