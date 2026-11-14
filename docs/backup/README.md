@@ -86,6 +86,9 @@ The complete workflow is now proven end-to-end at the backup-download, decryptio
 - Verified restore contents: 9 public application tables, 35 migration entries, 1 Auth user and identity, 4 Vault secrets, 3 Storage buckets, 10 Storage objects, and 7 Storage policies. Row counts, secret hashes, object checksums, and ownership metadata were checked.
 - Recovery preview: https://green-dream-recovery-preview.pages.dev, deployed separately from production from branch `recovery-drill-preview`.
 - Three drill-only Edge Functions are deployed: `poetry-submit`, `secure-your-soul-transmissions`, and `contact-about-role`. Their production-connected actions are disabled or guarded in the drill.
+- The drill-only `poetry-submit` GET endpoint serves a bundled snapshot of the one published Poetry Archive item; it no longer calls the Webflow API or requires the Webflow token for archive reads. Non-GET write operations remain disabled on the drill.
+- Restored media URLs in `vha_posts` and `poetry_submissions` now point to the drill project's own Storage buckets. The hosted restore workflow rewrites those absolute URLs after restoring the corresponding Storage objects, so future restores do not keep pointing to the source production project's hostname.
+- The Human Archive still contains 140 catalogue entries whose original-record links point to WordPress. Its EGO portrait is also still hosted on WordPress until the one-time recovery asset import workflow is run. The recovery preview's posts page no longer accepts WordPress-hosted media URLs.
 - The CMS Recovery Centre is a private launchpad to the manual workflows and runbook. It opens GitHub Actions; it does not dispatch a run or bypass GitHub confirmation.
 
 ### Manual operating sequence
@@ -117,7 +120,7 @@ The separate **Restore Green Dream into a fresh Supabase project** workflow (\`.
 - It checks that application tables, Auth users/identities, Storage buckets/objects, and Vault secrets are empty before making changes.
 - It never targets or modifies the production project intentionally. Never configure the restore secrets with production credentials.
 - Decrypted data is removed from the ephemeral runner at the end of the job.
-- The workflow is a separate-project restore, not a project clone: deployed Edge Function source is included in the encrypted archive, but functions are not automatically deployed to the destination. Project-level dashboard settings and Edge Function runtime secret values still need separate configuration.
+- The workflow is a separate-project restore, not a project clone: deployed Edge Function source is included in the encrypted archive, but functions are not automatically deployed to the destination. Project-level dashboard settings and Edge Function runtime secret values still need separate configuration. After restoring Storage objects, it also rewrites the absolute media URLs in `vha_posts` and `poetry_submissions` to the destination project's public Storage URLs, using the verified object paths.
 
 The **Validate Supabase backup restoration** workflow is independent of backup creation. It can be dispatched manually against a completed `system-...` backup ID, or it runs automatically after a successful Google Drive backup on `main`. If the backup ID is omitted, it selects the newest completed `system-...` backup only; it will never select a `content-...` archive. It restores into a disposable local Supabase instance on the GitHub runner, checks the restored data, and then destroys only that temporary local instance. It does not modify production or require a second hosted project.
 
@@ -146,6 +149,8 @@ A hosted restoration was completed successfully on 14 November 2026. The restore
 - Supabase-managed Storage ownership, built-in ACLs, and RLS flags are provisioned by the destination Supabase project. The restore process preserves custom Storage policies and verifies the managed settings rather than attempting to change Supabase-owned table privileges.
 - The current live migration ledger has 33 entries, while the repository contains only two historical migration files. The backup preserves the live ledger and a current schema/data snapshot; it does not claim to reconstruct missing migration SQL.
 - The current Edge Functions may depend on legacy platform-injected environment variables. This backup project does not migrate those functions or rotate their credentials.
+- The recovery drill's read-only Poetry Archive response is a checked-in static snapshot of the single published Webflow item captured on 14 November 2026. Production publication still uses the existing Webflow integration; the drill's write path is blocked and cannot publish to Webflow.
+- The WordPress Human Archive catalogue remains a navigational index to original WordPress records. The separate content/media backup exports published WordPress post bodies and media into the encrypted content archive and offline recovery-site artifact; that export is not yet wired into the live recovery preview's Human Archive navigation.
 
 ## Recovery outline
 
