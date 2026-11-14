@@ -423,7 +423,12 @@
     if(event.data?.type==='VHA_QUICK_POST_CLOSE_REQUEST'){
       clearTimeout(autosaveTimer);
       if(mediaUploading){message(saveMessage,'Please wait for the media upload to finish before closing. Your text is already saved locally.',true);event.source.postMessage({type:'VHA_QUICK_POST_CLOSE_RESULT',requestId:event.data.requestId,saved:false},event.origin);return;}
-      const saved=hasTransmissionContent()?await savePost('draft'):true;
+      let saved=true;
+      if(hasTransmissionContent()){
+        const saveDeadline=Date.now()+15000;
+        while(saving&&Date.now()<saveDeadline)await new Promise(resolve=>setTimeout(resolve,100));
+        saved=!saving&&await savePost('draft');
+      }
       if(saved){try{localStorage.removeItem(recoveryStorageKey());}catch{}}
       event.source.postMessage({type:'VHA_QUICK_POST_CLOSE_RESULT',requestId:event.data.requestId,saved},event.origin);
     }else if(event.data?.type==='VHA_QUICK_POST_CLOSE_FAILED'){
