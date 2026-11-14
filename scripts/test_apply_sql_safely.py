@@ -6,7 +6,7 @@ import re
 
 source = pathlib.Path("scripts/apply_sql_safely.py").read_text(encoding="utf-8")
 tree = ast.parse(source)
-wanted = {"split_sql_statements", "executable_sql", "strip_sql_comments", "redacted_sql_shape", "statement_at_line", "postgres_error_diagnostic", "sanitize_roles_sql"}
+wanted = {"split_sql_statements", "executable_sql", "strip_sql_comments", "redacted_sql_shape", "statement_at_line", "postgres_error_diagnostic", "copy_target_at_line", "sanitize_roles_sql"}
 nodes = [node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in wanted]
 namespace = {"re": re}
 exec(compile(ast.Module(body=nodes, type_ignores=[]), "apply_sql_safely.py", "exec"), namespace)
@@ -14,6 +14,7 @@ sanitize = namespace["sanitize_roles_sql"]
 shape = namespace["redacted_sql_shape"]
 statement_at_line = namespace["statement_at_line"]
 postgres_error_diagnostic = namespace["postgres_error_diagnostic"]
+copy_target_at_line = namespace["copy_target_at_line"]
 
 redacted = shape("ALTER ROLE secret_role SET log_min_messages TO 'do-not-log-this-value';")
 assert "ALTER ROLE <identifier> SET LOG_MIN_MESSAGES TO '<literal>'" in redacted, redacted
@@ -30,6 +31,26 @@ assert diagnostic == (7, 'invalid input syntax for type uuid: "<redacted>"'), di
 assert "private-user-id" not in diagnostic[1]
 plain_diagnostic = postgres_error_diagnostic("ERROR: relation does not exist")
 assert plain_diagnostic == (None, "relation does not exist"), plain_diagnostic
+
+duplicate_diagnostic = postgres_error_diagnostic(
+    'psql:/tmp/data.sql:4: ERROR: duplicate key value violates unique constraint "accounts_email_key"\\n'
+    'DETAIL: Key (email)=(private@example.invalid) already exists.\\n'
+)
+assert duplicate_diagnostic == (4, "duplicate key violates constraint accounts_email_key (columns: email)"), duplicate_diagnostic
+assert "private@example.invalid" not in duplicate_diagnostic[1]
+
+copy_fixture = (
+    "-- pg_dump data\\n"
+    "COPY public.accounts (id, email, created_at) FROM stdin;\\n"
+    "00000000-0000-0000-0000-000000000001\\tprivate@example.invalid\\t2026-01-01\\n"
+    "\\\\.\\n"
+    "COPY supabase_migrations.schema_migrations (version, name) FROM stdin;\\n"
+    "20990101000000\\tprivate_migration_name\\n"
+    "\\\\.\\n"
+)
+assert copy_target_at_line(copy_fixture, 3) == "public.accounts"
+assert copy_target_at_line(copy_fixture, 6) == "supabase_migrations.schema_migrations"
+assert copy_target_at_line(copy_fixture, 1) == ""
 
 ledger_statement = (
     "insert into supabase_migrations.schema_migrations "
