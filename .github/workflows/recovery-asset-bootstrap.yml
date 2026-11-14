@@ -1,0 +1,61 @@
+name: Import EGO portrait into recovery copy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/recovery-asset-bootstrap.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: recovery-portrait-import
+  cancel-in-progress: false
+
+jobs:
+  import-portrait:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out recovery branch
+        uses: actions/checkout@v6
+        with:
+          ref: recovery-drill-preview
+
+      - name: Download and verify the EGO portrait
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_url='https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/11/emanuel-ego-portrait.png'
+          output="$RUNNER_TEMP/emanuel-ego-portrait.png"
+          curl --fail --location --silent --show-error --retry 3 --retry-all-errors "$source_url" --output "$output"
+          python3 - "$output" <<'PY'
+          import pathlib, struct, sys
+          p = pathlib.Path(sys.argv[1])
+          data = p.read_bytes()
+          if len(data) < 24 or data[:8] != b"\x89PNG\r\n\x1a\n":
+              raise SystemExit("Downloaded file is not a valid PNG.")
+          width, height = struct.unpack(">II", data[16:24])
+          if width < 100 or height < 100 or len(data) > 25 * 1024 * 1024:
+              raise SystemExit(f"Portrait dimensions or size are unexpected: {width}x{height}, {len(data)} bytes.")
+          print(f"Verified PNG: {width}x{height}, {len(data)} bytes.")
+          PY
+
+      - name: Add the recovery-controlled asset
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets/recovery
+          install -m 0644 "$RUNNER_TEMP/emanuel-ego-portrait.png" assets/recovery/emanuel-ego-portrait.png
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/recovery/emanuel-ego-portrait.png
+          if git diff --cached --quiet; then
+            echo "Portrait is already present; no commit needed."
+            exit 0
+          fi
+          git commit -m "Store EGO portrait in recovery repository"
+          git push origin HEAD:recovery-drill-preview
