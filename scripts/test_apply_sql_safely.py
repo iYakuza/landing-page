@@ -22,6 +22,8 @@ cases = [
     ("DO $do$ BEGIN PERFORM pg_catalog.set_config('log_min_messages', 'warning', false); END $do$;", "", 1),
     ("DO $block$ BEGIN PERFORM set_config(E'log_min_messages', 'warning', true); END $block$;", "", 1),
     ("DO $do$ BEGIN EXECUTE 'SET log_min_messages = warning'; END $do$;", "", 1),
+    ("DO $do$ BEGIN EXECUTE 'ALTER ROLE app_user SET log_min_messages TO warning'; END $do$;", "", 1),
+    ("DO $do$ BEGIN EXECUTE format('ALTER ROLE %I SET %I TO %L', 'app_user', 'log_min_messages', 'warning'); END $do$;", "", 1),
     ("SELECT pg_catalog.set_config('search_path', 'log_min_messages', false);", "SELECT pg_catalog.set_config('search_path', 'log_min_messages', false);", 0),
     ("SELECT pg_catalog.set_config('search_path', 'safe', false); -- set_config('log_min_messages', 'warning', false)\n", "SELECT pg_catalog.set_config('search_path', 'safe', false); -- set_config('log_min_messages', 'warning', false)\n", 0),
     ("ALTER ROLE app_user SET log_min_messages TO warning;", "", 1),
