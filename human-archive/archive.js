@@ -3,6 +3,11 @@ const search=document.getElementById('ha-search'),year=document.getElementById('
 let records=[],mediaItems=[],mediaMap=new Map(),mediaByPost=new Map(),mediaReady=false,publicBase='';
 let imageViewer=null,imageViewerImage=null,imageViewerCaption=null,imageViewerZoom=null,imageViewerOriginal=null,imageViewerClose=null;
 const expandedCategories=new Set();
+const CHAMBER_RECORD_ID='589';
+const SUPABASE_URL='https://oeyxsqocldlovhsmzcjw.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
+let archiveSupabase=null,archiveAdmin=false,archiveAuthBound=false;
+let favoriteRecordIds=new Set(),favoriteSaveError=false,recordChamber=null,recordChamberReturnFocus=null;
 const categoryOrder=['Nimic și Ființă','This notion','Dialog monolog','Gânduri','Cântec','Belief','Snob','PERSONAL PROJECTS','Haiku'];
 const clean=value=>String(value??'').normalize('NFKC').toLocaleLowerCase().trim();
 
@@ -208,19 +213,245 @@ function makeAttachmentGallery(record,used){
  });
  section.append(grid);return section;
 }
+
+function syncFavoriteControls(){
+ const isFavorite=favoriteRecordIds.has(CHAMBER_RECORD_ID);
+ document.querySelectorAll('[data-ha-favorite-id="'+CHAMBER_RECORD_ID+'"]').forEach(button=>{
+  button.hidden=!archiveAdmin;
+  button.textContent=isFavorite?'★':'☆';
+  button.setAttribute('aria-pressed',String(isFavorite));
+  button.setAttribute('aria-label',favoriteSaveError?'Saving the favourite failed. Activate to retry.':(isFavorite?'Remove Fragile Love from author favourites':'Mark Fragile Love as an author favourite'));
+  button.title=favoriteSaveError?'SAVE FAILED — ACTIVATE TO RETRY':(isFavorite?'REMOVE FROM FAVOURITES':'MARK AS FAVOURITE');
+  button.classList.toggle('is-error',favoriteSaveError);
+ });
+ document.querySelectorAll('[data-ha-favorite-mark="'+CHAMBER_RECORD_ID+'"]').forEach(mark=>{
+  mark.hidden=archiveAdmin||!isFavorite;
+ });
+}
+async function loadArchiveFavorites(){
+ if(!archiveSupabase)return;
+ const {data,error}=await archiveSupabase.from('human_archive_favorites').select('record_id');
+ if(error){console.warn('Human Archive favourites could not be loaded:',error);return;}
+ favoriteRecordIds=new Set((data||[]).map(item=>String(item.record_id)));
+}
+async function refreshArchiveAdmin(sessionOverride){
+ if(!archiveSupabase){archiveAdmin=false;return false;}
+ let session=sessionOverride;
+ if(sessionOverride===undefined){
+  const result=await archiveSupabase.auth.getSession();
+  if(result.error){archiveAdmin=false;return false;}
+  session=result.data?.session;
+ }
+ if(!session?.user){archiveAdmin=false;return false;}
+ const {data,error}=await archiveSupabase.from('vha_cms_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
+ archiveAdmin=!error&&Boolean(data);
+ return archiveAdmin;
+}
+async function toggleArchiveFavorite(recordId,button){
+ if(!archiveAdmin||!archiveSupabase||String(recordId)!==CHAMBER_RECORD_ID||button.disabled)return;
+ const wasFavorite=favoriteRecordIds.has(CHAMBER_RECORD_ID);
+ button.disabled=true;
+ favoriteSaveError=false;
+ button.title=wasFavorite?'REMOVING FAVOURITE…':'SAVING FAVOURITE…';
+ try{
+  const result=wasFavorite
+   ?await archiveSupabase.from('human_archive_favorites').delete().eq('record_id',Number(CHAMBER_RECORD_ID))
+   :await archiveSupabase.from('human_archive_favorites').insert({record_id:Number(CHAMBER_RECORD_ID)});
+  if(result.error&&!(result.error.code==='23505'&&!wasFavorite))throw result.error;
+  if(wasFavorite)favoriteRecordIds.delete(CHAMBER_RECORD_ID);else favoriteRecordIds.add(CHAMBER_RECORD_ID);
+  syncFavoriteControls();
+ }catch(error){
+  console.error('Human Archive favourite could not be saved:',error);
+  favoriteSaveError=true;
+ }finally{
+  document.querySelectorAll('[data-ha-favorite-id="'+CHAMBER_RECORD_ID+'"]').forEach(control=>{control.disabled=false;});
+  syncFavoriteControls();
+ }
+}
+function chamberShareUrl(record){
+ const url=new URL(window.location.href);
+ url.searchParams.set('record',String(record.id));
+ return url.href;
+}
+function makeChamberNode(tag,className,text){
+ const node=document.createElement(tag);
+ if(className)node.className=className;
+ if(text!==undefined&&text!==null)node.textContent=String(text);
+ return node;
+}
+async function copyChamberLink(url,status){
+ try{
+  if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(url);
+  else{
+   const field=makeChamberNode('textarea','',url);field.setAttribute('readonly','');field.style.position='fixed';field.style.opacity='0';document.body.append(field);field.select();
+   const copied=document.execCommand('copy');field.remove();if(!copied)throw new Error('Clipboard access is unavailable');
+  }
+  status.textContent='LINK COPIED TO CLIPBOARD';
+ }catch(error){console.warn('Could not copy Human Archive link:',error);status.textContent='COPY FAILED — USE THE ADDRESS BAR LINK';}
+}
+function appendChamberShareActions(parent,record,status){
+ const url=chamberShareUrl(record),encodedUrl=encodeURIComponent(url),encodedTitle=encodeURIComponent(record.title);
+ const nativeShare=makeChamberNode('button','ha-chamber-share-action','↗ SHARE');
+ nativeShare.type='button';
+ nativeShare.addEventListener('click',async()=>{
+  if(navigator.share){
+   try{await navigator.share({title:record.title,text:'A record from the Human Archive',url});status.textContent='SHARE SHEET OPENED';return;}
+   catch(error){if(error?.name==='AbortError')return;}
+  }
+  await copyChamberLink(url,status);
+ });
+ const copy=makeChamberNode('button','ha-chamber-share-action','COPY LINK');
+ copy.type='button';copy.addEventListener('click',()=>copyChamberLink(url,status));
+ const links=[
+  ['FACEBOOK','https://www.facebook.com/sharer/sharer.php?u='+encodedUrl],
+  ['X','https://twitter.com/intent/tweet?url='+encodedUrl+'&text='+encodedTitle],
+  ['LINKEDIN','https://www.linkedin.com/sharing/share-offsite/?url='+encodedUrl],
+  ['WHATSAPP','https://wa.me/?text='+encodedTitle+'%20'+encodedUrl],
+  ['EMAIL','mailto:?subject='+encodedTitle+'&body='+encodedUrl]
+ ];
+ parent.append(nativeShare,copy);
+ links.forEach(([label,href])=>{const link=makeChamberNode('a','ha-chamber-share-action',label);link.href=href;link.target='_blank';link.rel='noopener noreferrer';parent.append(link);});
+}
+function appendChamberText(output,record){
+ const parsed=new DOMParser().parseFromString(String(record.content_html||''),'text/html');
+ parsed.body.querySelectorAll('figure,iframe,img,audio,video,source,object,embed').forEach(node=>node.remove());
+ const body=makeChamberNode('div','ha-chamber-text ha-entry-body');
+ const used=new Set();
+ appendSafeContent(body,parsed.body.innerHTML,record,used);
+ if(!body.childNodes.length)body.append(makeChamberNode('p','ha-chamber-note','No text was captured for this record.'));
+ output.append(body);
+}
+function appendChamberOutput(record,body){
+ const output=makeChamberNode('section','ha-chamber-panel ha-chamber-output');
+ const heading=makeChamberNode('h3','ha-chamber-panel-heading','03 // OUTPUT');
+ output.append(heading);
+ const textSection=makeChamberNode('section','ha-chamber-output-section');
+ textSection.append(makeChamberNode('h4','ha-chamber-output-label','TEXT'));
+ appendChamberText(textSection,record);output.append(textSection);
+ const relatedMedia=mediaItems.filter(item=>(item.post_ids||[]).some(id=>String(id)===String(record.id)));
+ const images=relatedMedia.filter(item=>String(item.mime_type||'').startsWith('image/'));
+ const audio=relatedMedia.filter(item=>String(item.mime_type||'').startsWith('audio/'));
+ const imageSection=makeChamberNode('section','ha-chamber-output-section');
+ imageSection.append(makeChamberNode('h4','ha-chamber-output-label','IMAGE'));
+ if(mediaReady&&images.length){const gallery=makeChamberNode('div','ha-chamber-media-grid');images.forEach(item=>appendLocalImage(gallery,item,record,new Set()));imageSection.append(gallery);}
+ else imageSection.append(makeChamberNode('p','ha-chamber-note',mediaReady?'No recovered image output is attached to this record.':'IMAGE OUTPUT // MEDIA VAULT NOT VERIFIED'));
+ output.append(imageSection);
+ const audioSection=makeChamberNode('section','ha-chamber-output-section');
+ audioSection.append(makeChamberNode('h4','ha-chamber-output-label','AUDIO'));
+ if(mediaReady&&audio.length){const gallery=makeChamberNode('div','ha-chamber-audio-list');audio.forEach(item=>appendLocalAudio(gallery,item,record,new Set()));audioSection.append(gallery);}
+ else audioSection.append(makeChamberNode('p','ha-chamber-note',mediaReady?'No recovered audio output is attached to this record.':'AUDIO OUTPUT // MEDIA VAULT NOT VERIFIED'));
+ output.append(audioSection);
+ body.append(output);
+}
+function buildRecordChamber(record){
+ const shell=makeChamberNode('div','ha-chamber-shell');
+ const header=makeChamberNode('header','ha-chamber-header');
+ const topbar=makeChamberNode('div','ha-chamber-topbar');
+ topbar.append(makeChamberNode('span','ha-chamber-mark','EGO // HUMAN ARCHIVE'));
+ const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.setAttribute('aria-label','Close record chamber');close.addEventListener('click',()=>recordChamber.close());topbar.append(close);
+ const heading=makeChamberNode('div','ha-chamber-heading');
+ const meta=makeChamberNode('p','ha-chamber-meta','HA-'+record.year+'-'+String(record.id).padStart(4,'0')+' // '+record.date+' // '+(record.categories||[]).join(' / '));
+ const title=makeChamberNode('h2','',record.title);
+ heading.append(meta,title);
+ header.append(topbar,heading);
+ const main=makeChamberNode('main','ha-chamber-main');
+ const shareRow=makeChamberNode('div','ha-chamber-share-row');
+ const share=makeChamberNode('div','ha-chamber-share','');
+ const shareStatus=makeChamberNode('span','ha-chamber-share-status','');
+ appendChamberShareActions(share,record,shareStatus);shareRow.append(share,shareStatus);main.append(shareRow);
+ const layoutLabel=makeChamberNode('p','ha-chamber-layout-label','LAYOUT // SUNO LYRICS + STYLE BREAKDOWN');
+ main.append(layoutLabel);
+ const grid=makeChamberNode('div','ha-chamber-grid');
+ const prompt=makeChamberNode('section','ha-chamber-panel');
+ prompt.append(makeChamberNode('h3','ha-chamber-panel-heading','01 // PROMPT STYLE'));
+ prompt.append(makeChamberNode('p','ha-chamber-note','SOURCE NOTE // The recovered 2021 archive record contains no separate AI or Suno style prompt. This field is intentionally left unreconstructed.'));
+ grid.append(prompt);
+ const lyrics=makeChamberNode('section','ha-chamber-panel');
+ lyrics.append(makeChamberNode('h3','ha-chamber-panel-heading','02 // LYRICS STYLE'));
+ lyrics.append(makeChamberNode('p','ha-chamber-note','SOURCE NOTE // No separate lyric-generation instruction sheet was preserved with this record. The original poem is presented verbatim under OUTPUT // TEXT.'));
+ grid.append(lyrics);
+ appendChamberOutput(record,grid);
+ const footer=makeChamberNode('footer','ha-chamber-footer');
+ const source=safeExternalUrl(record.url,new Set(['emanuelstefancu.wordpress.com']));
+ if(source){const link=makeChamberNode('a','ha-chamber-source','OPEN ORIGINAL SOURCE ↗');link.href=source;link.target='_blank';link.rel='noopener noreferrer';footer.append(link);}
+ footer.append(makeChamberNode('span','ha-chamber-footer-note','NO TRACE IS EVER THE WHOLE PERSON.'));
+ main.append(grid,footer);shell.append(header,main);return shell;
+}
+function ensureRecordChamber(){
+ if(recordChamber)return recordChamber;
+ recordChamber=makeChamberNode('dialog','ha-record-chamber');
+ recordChamber.setAttribute('aria-label','Human Archive record chamber');
+ recordChamber.addEventListener('click',event=>{if(event.target===recordChamber)recordChamber.close();});
+ recordChamber.addEventListener('close',()=>{
+  const url=new URL(window.location.href);url.searchParams.delete('record');
+  history.replaceState(history.state,'',url.pathname+(url.search?url.search:'')+url.hash);
+  if(recordChamberReturnFocus?.isConnected)recordChamberReturnFocus.focus();
+  recordChamberReturnFocus=null;
+ });
+ document.body.append(recordChamber);return recordChamber;
+}
+function openArchiveRecordChamber(record,trigger){
+ if(String(record.id)!==CHAMBER_RECORD_ID)return;
+ const dialog=ensureRecordChamber();
+ if(dialog.open)dialog.close();
+ dialog.replaceChildren(buildRecordChamber(record));
+ recordChamberReturnFocus=trigger||null;
+ const url=new URL(window.location.href);url.searchParams.set('record',String(record.id));
+ history.replaceState(history.state,'',url.pathname+url.search+url.hash);
+ try{dialog.showModal();}catch(error){console.error('Could not open the Human Archive chamber:',error);}
+}
+function openRequestedRecordFromUrl(){
+ const requested=new URLSearchParams(window.location.search).get('record');
+ if(requested!==CHAMBER_RECORD_ID)return;
+ const record=records.find(item=>String(item.id)===CHAMBER_RECORD_ID);
+ if(!record)return;
+ search.value=record.title;year.value='';category.value='';render();
+ const card=list.querySelector('.ha-record-card[data-ha-record-id="'+CHAMBER_RECORD_ID+'"]');
+ card?.scrollIntoView({behavior:'smooth',block:'center'});
+ openArchiveRecordChamber(record,null);
+}
+async function initArchiveFeatures(){
+ if(!window.supabase?.createClient){openRequestedRecordFromUrl();return;}
+ archiveSupabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+ await Promise.all([loadArchiveFavorites(),refreshArchiveAdmin()]);
+ if(!archiveAuthBound){
+  archiveAuthBound=true;
+  archiveSupabase.auth.onAuthStateChange((_event,session)=>{
+   window.setTimeout(async()=>{
+    await refreshArchiveAdmin(session);
+    render();
+   },0);
+  });
+ }
+ render();
+ syncFavoriteControls();
+ openRequestedRecordFromUrl();
+}
+
 function makeEntry(record,index){
- const wrapper=document.createElement('article');wrapper.className='ha-record-card';
+ const wrapper=document.createElement('article');wrapper.className='ha-record-card';wrapper.dataset.haRecordId=String(record.id);
  const content=document.createElement('div');content.className='ha-entry-content';content.id='ha-record-'+record.id;content.hidden=true;
  const link=document.createElement('button');link.type='button';link.className='ha-entry';link.setAttribute('aria-controls',content.id);link.setAttribute('aria-expanded','false');link.setAttribute('aria-label','Read local archive record: '+record.title+', '+record.date);
  const top=document.createElement('div');top.className='ha-entry-top';const code=document.createElement('small');code.className='ha-entry-code';code.textContent='HA-'+record.year+'-'+String(record.id).padStart(4,'0');const yr=document.createElement('span');yr.className='ha-entry-year';yr.textContent=record.year;top.append(code,yr);
  const title=document.createElement('strong');title.textContent=record.title;const bottom=document.createElement('div');bottom.className='ha-entry-bottom';const date=document.createElement('small');date.textContent=record.date+' // LOCAL ARCHIVE COPY';const action=document.createElement('span');action.textContent='READ LOCAL TEXT ↓';bottom.append(date,action);link.append(top,title,bottom);link.style.setProperty('--entry-order',String(index));
  link.addEventListener('click',()=>{const open=content.hidden;content.hidden=!open;link.setAttribute('aria-expanded',String(open));action.textContent=open?'CLOSE LOCAL TEXT ↑':'READ LOCAL TEXT ↓';});
+ const controls=[];
+ if(String(record.id)===CHAMBER_RECORD_ID){
+  const favorite=makeChamberNode('button','ha-favorite-toggle','☆');favorite.type='button';favorite.dataset.haFavoriteId=CHAMBER_RECORD_ID;favorite.hidden=!archiveAdmin;favorite.setAttribute('aria-pressed',String(favoriteRecordIds.has(CHAMBER_RECORD_ID)));favorite.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();toggleArchiveFavorite(record.id,favorite);});controls.push(favorite);
+  const mark=makeChamberNode('span','ha-favorite-mark','★ AUTHOR’S FAVOURITE');mark.dataset.haFavoriteMark=CHAMBER_RECORD_ID;mark.hidden=true;controls.push(mark);
+ }
  const body=document.createElement('div');body.className='ha-entry-body';const used=new Set();
+ if(String(record.id)===CHAMBER_RECORD_ID){
+  const entryActions=makeChamberNode('div','ha-entry-actions');
+  if(archiveAdmin){const edit=makeChamberNode('a','ha-entry-edit','EDIT ORIGINAL ↗');edit.href='https://emanuelstefancu.wordpress.com/wp-admin/post.php?post=589&action=edit';edit.target='_blank';edit.rel='noopener noreferrer';entryActions.append(edit);}
+  const chamber=makeChamberNode('button','ha-entry-chamber','ENTER THE CHAMBER ↗');chamber.type='button';chamber.addEventListener('click',()=>openArchiveRecordChamber(record,chamber));entryActions.append(chamber);
+  content.append(entryActions);
+ }
  appendSafeContent(body,record.content_html||'',record,used);
  if(!body.childNodes.length){const message=document.createElement('p');message.textContent='No local text was captured for this entry.';body.append(message);}
  content.append(body);
  const gallery=mediaReady?makeAttachmentGallery(record,used):null;if(gallery)content.append(gallery);
-  wrapper.append(link,content);return wrapper;
+ wrapper.append(link,...controls,content);return wrapper;
 }
 function render(){
  const query=clean(search.value),selectedYear=year.value,selectedCategory=category.value;
@@ -276,6 +507,7 @@ async function init(){
   }else setMediaStatus('MEDIA INVENTORY NOT YET DEPLOYED // LOCAL TEXT REMAINS AVAILABLE',false);
   categoryOrder.filter(name=>records.some(r=>r.categories.includes(name))).forEach(name=>{expandedCategories.add(name);const option=document.createElement('option');option.value=name;option.textContent=name;category.append(option)});
   render();
+  initArchiveFeatures().catch(error=>{console.error('Human Archive interactive features failed:',error);openRequestedRecordFromUrl();});
  }catch(error){console.error('Human Archive local index failed:',error);list.textContent='THE LOCAL ARCHIVE COULD NOT BE LOADED. PLEASE TRY AGAIN LATER.';count.textContent='LOCAL ARCHIVE OFFLINE';}
 }
 search.addEventListener('input',render);year.addEventListener('change',render);category.addEventListener('change',render);init();
