@@ -15,7 +15,7 @@ shape = namespace["redacted_sql_shape"]
 statement_at_line = namespace["statement_at_line"]
 
 redacted = shape("ALTER ROLE secret_role SET log_min_messages TO 'do-not-log-this-value';")
-assert "ALTER ROLE <identifier> SET log_min_messages TO '<literal>'" in redacted, redacted
+assert "ALTER ROLE <identifier> SET LOG_MIN_MESSAGES TO '<literal>'" in redacted, redacted
 assert "secret_role" not in redacted and "do-not-log-this-value" not in redacted, redacted
 wrapped = "DO $do$ BEGIN EXECUTE 'ALTER ROLE secret_role SET log_min_messages TO secret_value'; END $do$;"
 assert "DO $body$ BEGIN EXECUTE" in shape(wrapped)
