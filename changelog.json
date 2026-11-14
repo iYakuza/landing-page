@@ -1,8 +1,35 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T17:16:16.026574Z",
-  "last_processed_sha": "dc117ad97fcea300db71ee0eb72131df706a90f0",
+  "updated_at": "2026-11-14T17:50:33.784784Z",
+  "last_processed_sha": "d4ccb25cbf02207453454f4c5d3d15e060f98695",
   "entries": [
+    {
+      "id": "d4ccb25cbf02207453454f4c5d3d15e060f98695",
+      "timestamp": "2026-11-14T18:50:25+01:00",
+      "category": "FEATURE",
+      "component": "Website Updates",
+      "title": "New capabilities for Website Updates",
+      "description": "This update brings together Add full-screen Quick Post with automatic draft recovery. It updates cms.css, cms.js, index.html, creator-posting.js.",
+      "commit_count": 1,
+      "files": [
+        "cms/cms.css",
+        "cms/cms.js",
+        "cms/index.html",
+        "creator-posting.js"
+      ],
+      "commits": [
+        {
+          "message": "Add full-screen Quick Post with automatic draft recovery",
+          "url": "https://github.com/iYakuza/landing-page/commit/d4ccb25cbf02207453454f4c5d3d15e060f98695",
+          "files": [
+            "cms/cms.css",
+            "cms/cms.js",
+            "cms/index.html",
+            "creator-posting.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "dc117ad97fcea300db71ee0eb72131df706a90f0",
       "timestamp": "2026-11-14T18:16:08+01:00",
@@ -1280,43 +1307,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/8a19be221b5b77aad86c033bac5d2d59a3602395",
           "files": [
             "green-dream/guest-notes/revision-history/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "98dce54dfba294149cb48543f7134b1668343173",
-      "timestamp": "2026-11-13T21:33:38+01:00",
-      "category": "FEATURE",
-      "component": "Creative Archive",
-      "title": "New capabilities for Creative Archive",
-      "description": "This update brings together Add working dictionary definition of ethical framework; Add public revision history for The Guest's Notes; Clarify Guest Notes roles and link glossary and revision history. It updates index.html and related project files.",
-      "commit_count": 3,
-      "files": [
-        "green-dream/guest-notes/ethical-framework/index.html",
-        "green-dream/guest-notes/index.html",
-        "green-dream/guest-notes/revision-history/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Add working dictionary definition of ethical framework",
-          "url": "https://github.com/iYakuza/landing-page/commit/33d3dbd2881e948dc844378a1776b09f7623aa0b",
-          "files": [
-            "green-dream/guest-notes/ethical-framework/index.html"
-          ]
-        },
-        {
-          "message": "Add public revision history for The Guest's Notes",
-          "url": "https://github.com/iYakuza/landing-page/commit/27c50cc02344e14ae91a944413d469420834123f",
-          "files": [
-            "green-dream/guest-notes/revision-history/index.html"
-          ]
-        },
-        {
-          "message": "Clarify Guest Notes roles and link glossary and revision history",
-          "url": "https://github.com/iYakuza/landing-page/commit/98dce54dfba294149cb48543f7134b1668343173",
-          "files": [
-            "green-dream/guest-notes/index.html"
           ]
         }
       ]
