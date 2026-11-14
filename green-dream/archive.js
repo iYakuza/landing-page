@@ -1,6 +1,6 @@
 (() => {
-  const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
-  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
+  const SUPABASE_URL = 'https://ioguymqdeuuursizifnn.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_HjN3rCxxDNTH4UBLnTOX3A_UHEAbTA7';
   const MOVEMENTS = [
     'THE AWAKENING',
     'THE DESCENT',
@@ -16,7 +16,7 @@
   function safeMediaUrl(value) {
     try {
       const url = new URL(String(value || ''));
-      return url.protocol === 'https:' && url.hostname === 'oeyxsqocldlovhsmzcjw.supabase.co' &&
+      return url.protocol === 'https:' && url.hostname === 'ioguymqdeuuursizifnn.supabase.co' &&
         url.pathname.includes('/storage/v1/object/public/vha-post-media/') ? url.href : '';
     } catch { return ''; }
   }
