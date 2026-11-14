@@ -1,6 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 
-const ALLOWED_ORIGIN = "https://iyakuza.github.io";
+const ALLOWED_ORIGIN = (Deno.env.get("SUPABASE_URL") || "").replace(/\/+$/, "") === "https://ioguymqdeuuursizifnn.supabase.co" ? "https://green-dream-recovery-preview.pages.dev" : "https://iyakuza.github.io";
 const MAX_BODY_BYTES = 15 * 1024 * 1024;
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
 const MAX_TOTAL_BYTES = 10 * 1024 * 1024;
