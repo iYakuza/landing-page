@@ -251,11 +251,13 @@
       const isSuno=/class=["']suno-post-layout["']/.test(post.content_html||'');
       const sectionsControl=(isSuno||/<details\\b/i.test(post.content_html||''))?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
       const recordDate=new Date(post.published_at||post.created_at);
-      const recordYear=Number.isNaN(recordDate.getTime())?'UNDATED':String(recordDate.getFullYear());
-      const recordMonth=Number.isNaN(recordDate.getTime())?'--':String(recordDate.getMonth()+1).padStart(2,'0');
-      const recordDay=Number.isNaN(recordDate.getTime())?'--':String(recordDate.getDate()).padStart(2,'0');
-      const recordCode='VHA-'+recordYear+'-'+recordMonth+recordDay+'-'+slugify(post.slug).slice(0,8).toUpperCase();
-      const lead='<div class="post-card-top"><span class="post-record-code">'+recordCode+'</span><button type="button" class="post-date-toggle" data-post-toggle="'+safe(post.slug)+'" aria-expanded="'+(isExpanded?'true':'false')+'" aria-controls="post-content-'+safe(post.slug)+'"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-disclosure-mark" aria-hidden="true">'+(isExpanded?'−':'+')+'</span></button>'+categoryLink+editButton+shareActions(post)+'</div><div class="post-card-identity"><div class="post-card-title-row"><h3>'+safe(post.title)+'</h3>'+sectionsControl+'</div>'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+'</div>';
+      const recordYear=Number.isNaN(recordDate.getTime())?'UNDATED':String(recordDate.getUTCFullYear());
+      const recordMonth=Number.isNaN(recordDate.getTime())?'--':String(recordDate.getUTCMonth()+1).padStart(2,'0');
+      const recordDay=Number.isNaN(recordDate.getTime())?'--':String(recordDate.getUTCDate()).padStart(2,'0');
+      const recordSlug=String(post.slug||'').trim();
+      const recordCode='VHA-'+recordYear+'-'+recordMonth+recordDay+'-'+recordSlug;
+      const titleRow='<div class="post-card-title-row"'+(isExpanded?'':' hidden')+'><h3>'+safe(post.title)+'</h3>'+sectionsControl+'</div>';
+      const lead='<div class="post-card-top"><span class="post-record-code">'+safe(recordCode)+'</span><button type="button" class="post-date-toggle" data-post-toggle="'+safe(post.slug)+'" aria-expanded="'+(isExpanded?'true':'false')+'" aria-controls="post-content-'+safe(post.slug)+'"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-disclosure-mark" aria-hidden="true">'+(isExpanded?'−':'+')+'</span></button>'+categoryLink+editButton+shareActions(post)+'</div><div class="post-card-identity">'+titleRow+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+'</div>';
       const expandedBody=isSuno
         ? renderSunoGrid(post,media,'','')
         : media+body;
@@ -348,7 +350,7 @@
         sectionsButton.setAttribute('aria-expanded',String(opening));
         sectionsButton.textContent=opening?'RETRACT ALL SECTIONS':'EXPAND ALL SECTIONS';
         const content=article.querySelector('.post-collapsible');
-        if(content?.hidden){content.hidden=false;const dateToggle=article.querySelector('[data-post-toggle]');dateToggle?.setAttribute('aria-expanded','true');const mark=dateToggle?.querySelector('.post-disclosure-mark');if(mark)mark.textContent='−';}
+        if(content?.hidden){content.hidden=false;const titleRow=article.querySelector('.post-card-title-row');if(titleRow)titleRow.hidden=false;const dateToggle=article.querySelector('[data-post-toggle]');dateToggle?.setAttribute('aria-expanded','true');const mark=dateToggle?.querySelector('.post-disclosure-mark');if(mark)mark.textContent='−';}
       }
       return;
     }
@@ -359,6 +361,8 @@
       if(content){
         const opening=content.hidden;
         content.hidden=!opening;
+        const titleRow=toggleButton.closest('.post-card')?.querySelector('.post-card-title-row');
+        if(titleRow)titleRow.hidden=!opening;
         toggleButton.setAttribute('aria-expanded',String(opening));
         const mark=toggleButton.querySelector('.post-disclosure-mark');
         if(mark)mark.textContent=opening?'−':'+';
