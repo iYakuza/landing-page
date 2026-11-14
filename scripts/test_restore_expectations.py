@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise the snapshot-derived row-count parser with a synthetic pg_dump sample."""
+"""Exercise snapshot-derived row counts with quoted and unquoted pg_dump identifiers."""
 import json
 import pathlib
 import subprocess
@@ -12,13 +12,19 @@ with tempfile.TemporaryDirectory() as temp:
     for folder in ("database", "auth", "storage", "secrets"):
         (root / folder).mkdir()
     (root / "database" / "schema.sql").write_text(
-        "CREATE TABLE public.posts (id integer, title text);\n"
-        "CREATE TABLE public.empty_table (id integer);\n",
+        'CREATE TABLE IF NOT EXISTS "public"."posts" (id integer, title text);\n'
+        'CREATE TABLE public.empty_table (id integer);\n'
+        'CREATE TABLE "public"."CaseSensitive" (id integer);\n'
+        'CREATE TABLE "public"."odd""name" (id integer);\n',
         encoding="utf-8",
     )
     (root / "database" / "data.sql").write_text(
-        "COPY public.posts (id, title) FROM stdin;\n"
-        "1\tFirst\n2\tSecond\n\\.\n",
+        'COPY "public"."posts" (id, title) FROM stdin;\n'
+        '1\tFirst\n2\tSecond\n\\.\n'
+        'COPY public.empty_table (id) FROM stdin;\n'
+        '\\.\n'
+        'COPY "public"."odd""name" (id) FROM stdin;\n'
+        '7\n\\.\n',
         encoding="utf-8",
     )
     (root / "auth" / "users.json").write_text('[{"id":"user-1"}]', encoding="utf-8")
@@ -34,7 +40,12 @@ with tempfile.TemporaryDirectory() as temp:
     )
     actual = json.loads((root / "database" / "table-counts.json").read_text(encoding="utf-8"))
     expected = {
-        "public_tables": {"empty_table": 0, "posts": 2},
+        "public_tables": {
+            "CaseSensitive": 0,
+            "empty_table": 0,
+            'odd"name': 1,
+            "posts": 2,
+        },
         "managed_tables": {
             "auth.users": 1,
             "auth.identities": 0,
@@ -44,5 +55,5 @@ with tempfile.TemporaryDirectory() as temp:
         },
     }
     if actual != expected:
-        raise SystemExit("Snapshot-derived restore expectations test failed.")
+        raise SystemExit("Snapshot-derived restore expectations test failed: " + json.dumps(actual, sort_keys=True))
 print("Snapshot-derived restore expectations test passed.")
