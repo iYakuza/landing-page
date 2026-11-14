@@ -99,6 +99,7 @@ jobs:
           supabase db dump --db-url "$DB_URL" -f "$OUT/roles.sql" --role-only
           supabase db dump --db-url "$DB_URL" -f "$OUT/schema.sql"
           supabase db dump --db-url "$DB_URL" -f "$OUT/data.sql" --data-only --use-copy
+          python3 scripts/sanitize_managed_data_dump.py "$OUT/data.sql"
           test -s "$OUT/roles.sql"
           test -s "$OUT/schema.sql"
           test -s "$OUT/data.sql"
