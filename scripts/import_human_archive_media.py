@@ -195,6 +195,7 @@ def main():
 
     current_paths = {item["storage_path"] for item in items}
     successes = [entry for path, entry in previous.items() if path in current_paths]
+    previously_verified_count = len(successes)
     verified_paths = {entry["storage_path"] for entry in successes}
     failures = []
     total_bytes = sum(int(entry.get("bytes") or 0) for entry in successes)
@@ -258,7 +259,7 @@ def main():
         "asset_count": len(items),
         "successful_count": len(successes),
         "failed_count": len(failures),
-        "previously_verified_count": len(successes) - len(pending) + max(0, len(pending) - len(failures)),
+        "previously_verified_count": previously_verified_count,
         "metadata_size_mismatch_count": sum(1 for entry in successes if entry.get("metadata_size_matches") is False),
         "total_bytes_verified": total_bytes,
         "total_mib_verified": round(total_bytes / 1048576, 2),
