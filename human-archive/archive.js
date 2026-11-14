@@ -93,6 +93,24 @@ function appendSafeContent(container,source,record,used){
    return;
   }
   if(tag==='IFRAME'){
+   try{
+    const original=new URL(node.getAttribute('src')||'',document.baseURI);
+    const sourceHost=original.hostname.toLowerCase();
+    if(sourceHost==='emanuelstefancu.com'||sourceHost.endsWith('.wordpress.com')){
+     original.pathname=original.pathname.replace(/\/embed\/?$/,'/');
+     const related=records.find(item=>urlKey(item.url)===urlKey(original.href));
+     if(related){
+      const link=document.createElement('button');link.type='button';link.className='ha-related-record-link';
+      link.textContent='OPEN RELATED LOCAL RECORD — '+related.title;
+      link.addEventListener('click',()=>{
+       search.value=related.title;year.value='';category.value='';render();
+       const target=document.getElementById('ha-record-'+related.id);
+       if(target){target.hidden=false;const control=target.previousElementSibling;if(control){control.setAttribute('aria-expanded','true');const action=control.querySelector('.ha-entry-bottom span');if(action)action.textContent='CLOSE LOCAL TEXT ↑';}target.scrollIntoView({behavior:'smooth',block:'center'});}
+      });
+      parent.append(link);return;
+     }
+    }
+   }catch{}
    const src=safeExternalUrl(node.getAttribute('src'),iframeHosts);
    if(!src){appendMissing(parent,'This embedded media provider is not on the archive allowlist.');return;}
    const frame=document.createElement('iframe');frame.src=src;frame.title=node.getAttribute('title')||('Embedded media in '+record.title);
@@ -185,7 +203,7 @@ async function init(){
    if(Array.isArray(manifest.items)&&manifest.item_count===manifest.items.length){
     mediaItems=manifest.items;publicBase=manifest.public_base_url||'';
     const successes=new Map((report?.successes||[]).filter(x=>x&&x.verified===true).map(x=>[String(x.storage_path),x]));
-    mediaReady=Boolean(report&&report.status==='complete'&&report.target_project_ref==='ioguymqdeuuursizifnn'&&report.asset_count===manifest.item_count&&report.successful_count===manifest.item_count&&report.failed_count===0&&successes.size===manifest.item_count&&publicBase.startsWith('https://ioguymqdeuuursizifnn.supabase.co/'));
+    mediaReady=Boolean(report&&report.status==='complete'&&report.target_project_ref==='ioguymqdeuuursizifnn'&&report.asset_count===manifest.item_count&&report.successful_count===manifest.item_count&&report.failed_count===0&&successes.size===manifest.item_count&&manifest.bucket==='human-archive-media'&&publicBase.startsWith('https://ioguymqdeuuursizifnn.supabase.co/'));
     if(mediaReady){
      for(const item of mediaItems){
       const keys=[item.source_url,...(item.aliases||[])].map(urlKey).filter(Boolean);
