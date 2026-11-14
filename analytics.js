@@ -5,8 +5,8 @@
       navigator.doNotTrack === '1' || window.__vhaAnalyticsLoaded) return;
   window.__vhaAnalyticsLoaded = true;
 
-  const endpoint = 'https://oeyxsqocldlovhsmzcjw.supabase.co/rest/v1/vha_site_analytics';
-  const key = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
+  const endpoint = 'https://ioguymqdeuuursizifnn.supabase.co/rest/v1/vha_site_analytics';
+  const key = 'sb_publishable_HjN3rCxxDNTH4UBLnTOX3A_UHEAbTA7';
   const safe = (value, limit = 250) => String(value || '').slice(0, limit);
 
   function recordPageView() {
