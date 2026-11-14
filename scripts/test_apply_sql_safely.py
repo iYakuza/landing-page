@@ -6,13 +6,14 @@ import re
 
 source = pathlib.Path("scripts/apply_sql_safely.py").read_text(encoding="utf-8")
 tree = ast.parse(source)
-wanted = {"split_sql_statements", "executable_sql", "strip_sql_comments", "redacted_sql_shape", "statement_at_line", "sanitize_roles_sql"}
+wanted = {"split_sql_statements", "executable_sql", "strip_sql_comments", "redacted_sql_shape", "statement_at_line", "postgres_error_diagnostic", "sanitize_roles_sql"}
 nodes = [node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in wanted]
 namespace = {"re": re}
 exec(compile(ast.Module(body=nodes, type_ignores=[]), "apply_sql_safely.py", "exec"), namespace)
 sanitize = namespace["sanitize_roles_sql"]
 shape = namespace["redacted_sql_shape"]
 statement_at_line = namespace["statement_at_line"]
+postgres_error_diagnostic = namespace["postgres_error_diagnostic"]
 
 redacted = shape("ALTER ROLE secret_role SET log_min_messages TO 'do-not-log-this-value';")
 assert "ALTER ROLE <identifier> SET LOG_MIN_MESSAGES TO '<literal>'" in redacted, redacted
@@ -21,6 +22,27 @@ wrapped = "DO $do$ BEGIN EXECUTE 'ALTER ROLE secret_role SET log_min_messages TO
 assert "DO $body$ BEGIN EXECUTE" in shape(wrapped)
 assert "secret_role" not in shape(wrapped) and "secret_value" not in shape(wrapped)
 assert statement_at_line("SET search_path = public;\nALTER ROLE secret_role SET log_min_messages TO warning;\n", 2).lstrip().startswith("ALTER ROLE")
+
+diagnostic = postgres_error_diagnostic(
+    'psql:/tmp/restore.sql:7: ERROR: invalid input syntax for type uuid: "private-user-id"\\n'
+)
+assert diagnostic == (7, 'invalid input syntax for type uuid: "<redacted>"'), diagnostic
+assert "private-user-id" not in diagnostic[1]
+plain_diagnostic = postgres_error_diagnostic("ERROR: relation does not exist\\n")
+assert plain_diagnostic == (None, "relation does not exist"), plain_diagnostic
+
+ledger_statement = (
+    "insert into supabase_migrations.schema_migrations "
+    "(version, statements, name, created_by, idempotency_key, rollback) "
+    "select version, statements, name, created_by, idempotency_key, rollback "
+    "from jsonb_populate_recordset(null::supabase_migrations.schema_migrations, "
+    "'[\\\"private migration payload\\\"]'::jsonb) "
+    "on conflict (version) do update set statements = excluded.statements;"
+)
+ledger_shape = shape(ledger_statement)
+assert "INSERT INTO" in ledger_shape and "JSONB_POPULATE_RECORDSET" in ledger_shape, ledger_shape
+assert "CREATED_BY" in ledger_shape and "IDEMPOTENCY_KEY" in ledger_shape, ledger_shape
+assert "private migration payload" not in ledger_shape, ledger_shape
 
 cases = [
     ("SET log_min_messages = warning;", "", 1),
