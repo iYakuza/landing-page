@@ -69,6 +69,60 @@
         <div><p class="gd-kicker">EDITORIAL WORKSPACE</p><h2>POST <em>MANIFEST</em></h2><p id="user-line" class="cms-help"></p></div>
         <div class="cms-toolbar-actions"><button id="new-post" class="cms-button vha-editor-action">+ NEW POST</button><button id="sign-out" class="cms-button subtle vha-editor-action" data-action-variant="subtle">SIGN OUT</button></div>
       </div>
+      <section id="recovery-centre" class="cms-panel recovery-centre-panel" aria-labelledby="recovery-centre-title">
+        <div class="cms-recovery-head">
+          <div>
+            <p class="gd-kicker">GREEN DREAM // OPERATIONS</p>
+            <h2 id="recovery-centre-title">RECOVERY <em>CENTRE</em></h2>
+            <p class="cms-help">A single launchpad for backup, validation and restoration. Each link opens GitHub Actions; GitHub remains responsible for authentication and run confirmation.</p>
+          </div>
+          <span class="cms-recovery-mode">MANUAL ONLY</span>
+        </div>
+        <div class="cms-recovery-notice">
+          <strong>RUN THE CORRECT BRANCH</strong>
+          <span>While PR #20 remains unmerged, select <code>backup/apps-script-transfer-redesign</code> in GitHub Actions. Do not use <code>main</code> for the actual restore implementation.</span>
+        </div>
+        <div class="cms-recovery-grid">
+          <article class="cms-recovery-card">
+            <p class="gd-kicker">01 // PROTECT</p>
+            <h3>FULL SYSTEM BACKUP</h3>
+            <p>Encrypt and upload a complete Supabase and repository snapshot to the existing private Google Drive backup location.</p>
+            <a class="cms-button primary" href="https://github.com/iYakuza/landing-page/actions/workflows/google-drive-backup.yml" target="_blank" rel="noopener noreferrer">OPEN BACKUP WORKFLOW ↗</a>
+          </article>
+          <article class="cms-recovery-card">
+            <p class="gd-kicker">02 // PRESERVE</p>
+            <h3>CONTENT &amp; MEDIA BACKUP</h3>
+            <p>Run the separate content and media snapshot workflow. This is distinct from the full-system backup.</p>
+            <a class="cms-button" href="https://github.com/iYakuza/landing-page/actions/workflows/google-drive-content-backup.yml" target="_blank" rel="noopener noreferrer">OPEN CONTENT WORKFLOW ↗</a>
+          </article>
+          <article class="cms-recovery-card">
+            <p class="gd-kicker">03 // VERIFY</p>
+            <h3>VALIDATE A BACKUP</h3>
+            <p>Restore a selected system backup into a temporary local Supabase instance on the GitHub runner and verify it.</p>
+            <a class="cms-button" href="https://github.com/iYakuza/landing-page/actions/workflows/validate-supabase-restore.yml" target="_blank" rel="noopener noreferrer">OPEN VALIDATION ↗</a>
+          </article>
+          <article class="cms-recovery-card cms-recovery-card-warning">
+            <p class="gd-kicker">04 // RECOVER</p>
+            <h3>RESTORE TO A NEW PROJECT</h3>
+            <p>Use only with a NEW, EMPTY Supabase project and its destination-specific credentials. The existing drill project is already populated; never rerun the restore against it.</p>
+            <a class="cms-button" href="https://github.com/iYakuza/landing-page/actions/workflows/restore-supabase-backup.yml" target="_blank" rel="noopener noreferrer">OPEN RESTORE WORKFLOW ↗</a>
+          </article>
+          <article class="cms-recovery-card">
+            <p class="gd-kicker">05 // INSPECT</p>
+            <h3>OPEN RECOVERY PREVIEW</h3>
+            <p>Visit the separately hosted recovery copy. It is isolated from the production website and Supabase project.</p>
+            <a class="cms-button" href="https://green-dream-recovery-preview.pages.dev/landing-page/" target="_blank" rel="noopener noreferrer">OPEN PREVIEW ↗</a>
+          </article>
+          <article class="cms-recovery-card">
+            <p class="gd-kicker">06 // DOCUMENT</p>
+            <h3>RECOVERY RUNBOOK</h3>
+            <p>Read the backup operating guide and the recorded hosted recovery drill, including limitations and manual steps.</p>
+            <a class="cms-button" href="https://github.com/iYakuza/landing-page/blob/backup/apps-script-transfer-redesign/docs/backup/README.md" target="_blank" rel="noopener noreferrer">OPEN RUNBOOK ↗</a>
+            <a class="cms-text-link" href="https://github.com/iYakuza/landing-page/blob/recovery-drill-preview/docs/backup/HOSTED-RECOVERY-DRILL-2026-11-14.md" target="_blank" rel="noopener noreferrer">VIEW HOSTED DRILL REPORT ↗</a>
+          </article>
+        </div>
+        <p class="cms-recovery-foot">RESTORE IS ALWAYS MANUAL. BACKUP SCHEDULING REMAINS DISABLED. The known successful drill used <code>system-20261113T000000Z-428ddefb</code> and destination <code>green-dream-restore-drill-2</code>.</p>
+      </section>
       <div class="cms-layout">
         <aside class="cms-panel cms-posts-panel">
           <div class="cms-list-head"><h3>YOUR POSTS</h3><button id="refresh-posts" class="cms-text-button">REFRESH ↻</button></div>
