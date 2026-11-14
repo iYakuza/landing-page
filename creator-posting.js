@@ -16,10 +16,30 @@ const css=document.createElement('style');css.textContent=[
 ].join('');document.head.appendChild(css);
 const pageCategory=()=>{const b=(document.body.dataset.movement||'').toUpperCase();if(M.some(m=>m[0]===b))return b;const slug=location.pathname.split('/').find(part=>M.some(m=>m[2]===part.toLowerCase()));return slug?M.find(m=>m[2]===slug.toLowerCase())?.[0]||'':''};
 let client=null,isCreator=false;
-let composerOverlay=null,previousFocus=null;
-function closeStudio(){
-  if(!composerOverlay)return;
-  composerOverlay.remove();composerOverlay=null;document.body.style.overflow='';
+let composerOverlay=null,previousFocus=null,closeInProgress=false;
+async function closeStudio(){
+  if(!composerOverlay||closeInProgress)return;
+  const overlay=composerOverlay,frame=overlay.querySelector('iframe'),close=overlay.querySelector('.vha-quick-post-close');
+  closeInProgress=true;close.disabled=true;close.textContent='SAVING DRAFT…';
+  const requestId='quick-post-close-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+  const saved=await new Promise(resolve=>{
+    let finished=false;
+    const done=value=>{if(finished)return;finished=true;window.removeEventListener('message',onMessage);clearTimeout(timeout);resolve(value)};
+    const onMessage=event=>{
+      if(event.origin!==location.origin||event.source!==frame.contentWindow)return;
+      if(event.data?.type==='VHA_QUICK_POST_CLOSE_RESULT'&&event.data.requestId===requestId)done(!!event.data.saved);
+    };
+    const timeout=setTimeout(()=>done(false),20000);
+    window.addEventListener('message',onMessage);
+    try{frame.contentWindow.postMessage({type:'VHA_QUICK_POST_CLOSE_REQUEST',requestId},location.origin)}catch{done(false)}
+  });
+  if(!saved){
+    closeInProgress=false;close.disabled=false;close.textContent='CLOSE ✕';
+    const status=overlay.querySelector('.vha-quick-post-frame');
+    if(status)status.contentWindow?.postMessage({type:'VHA_QUICK_POST_CLOSE_FAILED'},location.origin);
+    return;
+  }
+  overlay.remove();composerOverlay=null;closeInProgress=false;document.body.style.overflow='';
   window.removeEventListener('keydown',handleComposerKeydown);
   previousFocus?.focus?.();previousFocus=null;
 }
@@ -40,6 +60,7 @@ function openStudio(selected=''){
   frame.className='vha-quick-post-frame';frame.title='New Transmission editor';frame.src=url.pathname+url.search;
   frame.setAttribute('allow','clipboard-read; clipboard-write');
   frame.addEventListener('load',()=>{try{frame.contentWindow.addEventListener('keydown',handleComposerKeydown);}catch{}});
+  overlay.addEventListener('click',event=>{if(event.target===overlay)closeStudio()});
   overlay.append(close,frame);document.body.appendChild(overlay);composerOverlay=overlay;
   document.body.style.overflow='hidden';window.addEventListener('keydown',handleComposerKeydown);
   close.focus();
