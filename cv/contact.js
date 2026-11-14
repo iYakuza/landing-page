@@ -7,7 +7,7 @@
   const status = document.getElementById("cv-contact-status");
   const submit = form.querySelector('button[type="submit"]');
   const fileInput = document.getElementById("cv-contact-files");
-  const endpoint = "https://oeyxsqocldlovhsmzcjw.supabase.co/functions/v1/contact-about-role";
+  const endpoint = "https://ioguymqdeuuursizifnn.supabase.co/functions/v1/contact-about-role";
   const allowed = new Set(["application/pdf","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","text/plain","image/png","image/jpeg","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]);
   const embedded = window.parent !== window;
   const hostDoc = embedded ? window.parent.document : document;
