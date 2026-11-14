@@ -1,12 +1,14 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-14T14:37:47.499613+00:00",
+  "generated_at": "2026-11-14T14:39:07.823234+00:00",
   "target_project_ref": "ioguymqdeuuursizifnn",
   "bucket": "human-archive-media",
   "status": "partial",
   "asset_count": 111,
   "successful_count": 106,
   "failed_count": 5,
+  "previously_verified_count": 106,
+  "metadata_size_mismatch_count": 0,
   "total_bytes_verified": 262702063,
   "total_mib_verified": 250.53,
   "successes": [
@@ -1181,27 +1183,37 @@
     {
       "id": "wp-719",
       "storage_path": "posts/717/719-q3a0jxjp2ue91.webp",
-      "error": "Downloaded content does not match the declared MIME type"
+      "error": "Declared MIME type is image/webp but the file signature indicates image/jpeg; first 24 bytes (hex): ffd8ffe000104a46494600010100000100010000ffdb0043",
+      "detected_mime": "image/jpeg",
+      "first_24_bytes_hex": "ffd8ffe000104a46494600010100000100010000ffdb0043"
     },
     {
       "id": "wp-1423",
       "storage_path": "posts/1421/1423-pixlr-image-generator-21254ff5-a225-4513-b061-6e1fe801d1dc.webp",
-      "error": "Downloaded content does not match the declared MIME type"
+      "error": "Declared MIME type is image/webp but the file signature indicates image/jpeg; first 24 bytes (hex): ffd8ffe000104a46494600010100000100010000ffdb0043",
+      "detected_mime": "image/jpeg",
+      "first_24_bytes_hex": "ffd8ffe000104a46494600010100000100010000ffdb0043"
     },
     {
       "id": "wp-1463",
       "storage_path": "posts/1461/1463-dallc2b7e-2024-12-07-16.13.49-an-abstract-and-visually-captivating-book-cover-art-for-a-political-and-philosophical-theme.-the-image-features-a-surreal-balance-of-scales-where-one.webp",
-      "error": "Downloaded content does not match the declared MIME type"
+      "error": "Declared MIME type is image/webp but the file signature indicates image/jpeg; first 24 bytes (hex): ffd8ffe000104a46494600010100000100010000ffebfa0a",
+      "detected_mime": "image/jpeg",
+      "first_24_bytes_hex": "ffd8ffe000104a46494600010100000100010000ffebfa0a"
     },
     {
       "id": "wp-1480",
       "storage_path": "posts/1478/1480-dallc2b7e-2025-02-03-02.36.10-a-melancholic-and-introspective-scene-reflecting-the-themes-of-aging-weariness-and-longing-in-the-poem.-the-image-should-depict-an-elderly-figure-w.webp",
-      "error": "Downloaded content does not match the declared MIME type"
+      "error": "Declared MIME type is image/webp but the file signature indicates image/jpeg; first 24 bytes (hex): ffd8ffe000104a46494600010100000100010000ffebfa0a",
+      "detected_mime": "image/jpeg",
+      "first_24_bytes_hex": "ffd8ffe000104a46494600010100000100010000ffebfa0a"
     },
     {
       "id": "wp-1640",
       "storage_path": "posts/1636/1640-download.webp",
-      "error": "Downloaded content does not match the declared MIME type"
+      "error": "Declared MIME type is image/webp but the file signature indicates image/jpeg; first 24 bytes (hex): ffd8ffe000104a46494600010100000100010000ffdb0043",
+      "detected_mime": "image/jpeg",
+      "first_24_bytes_hex": "ffd8ffe000104a46494600010100000100010000ffdb0043"
     }
   ]
 }
