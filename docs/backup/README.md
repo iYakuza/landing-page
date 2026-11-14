@@ -150,7 +150,7 @@ A hosted restoration was completed successfully on 14 November 2026. The restore
 - The current live migration ledger has 33 entries, while the repository contains only two historical migration files. The backup preserves the live ledger and a current schema/data snapshot; it does not claim to reconstruct missing migration SQL.
 - The current Edge Functions may depend on legacy platform-injected environment variables. This backup project does not migrate those functions or rotate their credentials.
 - The recovery drill's read-only Poetry Archive response is a checked-in static snapshot of the single published Webflow item captured on 14 November 2026. Production publication still uses the existing Webflow integration; the drill's write path is blocked and cannot publish to Webflow.
-- The WordPress Human Archive catalogue remains a navigational index to original WordPress records. The separate content/media backup exports published WordPress post bodies and media into the encrypted content archive and offline recovery-site artifact; that export is not yet wired into the live recovery preview's Human Archive navigation.
+- The Human Archive's 140 published post bodies are now included directly in the recovery repository's `human-archive/archive-content.json` snapshot. The recovery preview renders those texts locally; original WordPress links are retained as optional references. Embedded images, audio and video are omitted from the local text reader, while the separate content/media backup preserves the fuller WordPress post/media export and offline recovery-site artifact.
 
 ## Recovery outline
 
