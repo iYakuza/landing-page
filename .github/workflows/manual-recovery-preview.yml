@@ -32,7 +32,7 @@ jobs:
     env:
       CLOUDFLARE_ACCOUNT_ID: "4372415f32c41cddd51893eac634c0b7"
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      PROJECT_NAME: green-dream-recovery-preview
+      PROJECT_NAME: green-dream-emergency-recovery
     steps:
       - name: Check out the workflow and project manager from main
         uses: actions/checkout@v6
@@ -117,7 +117,7 @@ jobs:
             echo
             echo "The site exists because the repository owner explicitly ran this workflow."
             echo
-            echo "URL: https://green-dream-recovery-preview.pages.dev/landing-page/"
+            echo "URL: https://green-dream-emergency-recovery.pages.dev/landing-page/"
             echo
             echo "When finished, run this same workflow again with operation=remove and the confirmation checkbox enabled."
           } >> "$GITHUB_STEP_SUMMARY"

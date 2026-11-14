@@ -3,7 +3,7 @@ import process from "node:process";
 
 const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID || "4372415f32c41cddd51893eac634c0b7";
 const API_TOKEN = process.env.CLOUDFLARE_API_TOKEN;
-const PROJECT_NAME = "green-dream-recovery-preview";
+const PROJECT_NAME = "green-dream-emergency-recovery";
 const PRODUCTION_BRANCH = "recovery-drill-preview";
 const API_ROOT = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}`;
 
