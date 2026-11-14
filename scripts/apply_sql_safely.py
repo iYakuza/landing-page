@@ -210,7 +210,8 @@ def strip_sql_comments(sql):
 def sanitize_roles_sql(original_sql):
     """Remove non-portable log_min_messages settings from the role dump."""
     kept, skipped, unsupported = [], 0, set()
-    for statement in split_sql_statements(original_sql):
+    literal_diagnostics = []
+    for statement_number, statement in enumerate(split_sql_statements(original_sql), start=1):
         code = executable_sql(statement)
 
         # The target may appear as a string argument to set_config(), which
@@ -224,6 +225,28 @@ def sanitize_roles_sql(original_sql):
         classified = re.sub(
             r"(?m)^[ \t]*\\[A-Za-z]+[^\n]*(?:\n|$)", " ", code
         ).lstrip()
+        # Redacted diagnostics for parameter names hidden inside SQL strings.
+        literal_parameter = bool(
+            re.search(r"\\blog_min_messages\\b", comment_free, re.IGNORECASE)
+            and not re.search(r"\\blog_min_messages\\b", code, re.IGNORECASE)
+        )
+        has_set_config_text = bool(re.search(r"\\bset_config\\s*\\(", comment_free, re.IGNORECASE))
+        has_execute_text = bool(re.search(r"\\bEXECUTE\\b", comment_free, re.IGNORECASE))
+        has_set_reset_text = bool(
+            re.search(
+                r"""(?is)\\b(?:SET|RESET)\\s+(?:SESSION\\s+)?["']?log_min_messages\\b""",
+                comment_free,
+            )
+        )
+        if literal_parameter and (has_set_config_text or has_execute_text or has_set_reset_text):
+            command_match = re.match(r"([A-Za-z]+)", classified)
+            literal_diagnostics.append(
+                f"statement {statement_number}: command={command_match.group(1).upper() if command_match else 'UNKNOWN'}, "
+                f"set_config={str(has_set_config_text).lower()}, "
+                f"execute={str(has_execute_text).lower()}, "
+                f"set_reset_text={str(has_set_reset_text).lower()}"
+            )
+
         set_config_parameter = bool(
             re.search(
                 r"""(?is)\b(?:pg_catalog\s*\.\s*)?set_config\s*\(\s*(?:(?:[eE]\s*)?'log_min_messages'|(\$[A-Za-z_][A-Za-z_0-9]*\$|\$\$)log_min_messages\1)\s*(?:::\s*[\w."]+)?\s*,""",
@@ -286,6 +309,8 @@ def sanitize_roles_sql(original_sql):
             command = re.match(r"([A-Za-z]+)", classified)
             unsupported.add(command.group(1).upper() if command else "UNKNOWN")
             kept.append(statement)
+    for diagnostic in literal_diagnostics:
+        print("Restore sanitizer diagnostic (SQL values redacted): " + diagnostic)
     if unsupported:
         raise SystemExit(
             "Restore sanitizer found log_min_messages outside a safely skippable "
@@ -342,6 +367,9 @@ if result.returncode:
     if sql_file.name == "roles.sql":
         for line in result.stderr.splitlines():
             if re.match(r"^psql:.*: ERROR:", line) or re.match(r"^ERROR:", line):
+                location = re.match(r"^psql:.*?:(\\d+): ERROR:", line)
+                if location:
+                    print("SQL diagnostic: roles.sql reported line " + location.group(1) + ".", file=sys.stderr)
                 print("PostgreSQL: " + line.split("ERROR:", 1)[-1].strip(), file=sys.stderr)
                 break
     else:
