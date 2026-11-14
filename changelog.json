@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T23:22:53.838179Z",
-  "last_processed_sha": "09ad3985cfce4b54f907241d19316f3d141645a0",
+  "updated_at": "2026-11-14T23:26:25.082532Z",
+  "last_processed_sha": "33274628a1bb990eab9dc697e0aea043b2208173",
   "entries": [
+    {
+      "id": "33274628a1bb990eab9dc697e0aea043b2208173",
+      "timestamp": "2026-11-15T00:26:17+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Keep category filter inline with movement navigation (#48). It updates index.html, posts.css.",
+      "commit_count": 1,
+      "files": [
+        "posts/index.html",
+        "posts/posts.css"
+      ],
+      "commits": [
+        {
+          "message": "Keep category filter inline with movement navigation (#48)",
+          "url": "https://github.com/iYakuza/landing-page/commit/33274628a1bb990eab9dc697e0aea043b2208173",
+          "files": [
+            "posts/index.html",
+            "posts/posts.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "09ad3985cfce4b54f907241d19316f3d141645a0",
       "timestamp": "2026-11-15T00:22:41+01:00",
@@ -1195,43 +1218,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/c635fb3fdec50c09e1c8e952583ce607f8612666",
           "files": [
             "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "42bb52275bfefd9b21aab9111f1e8dfb254c3dd9",
-      "timestamp": "2026-11-14T00:17:22+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Publish Romanian edition of Ethical Coexistence Initiative; Separate Governance and Accountability from first-year plan; Publish First-Year Plan and Pilot as separate document. It updates index.html and related project files.",
-      "commit_count": 3,
-      "files": [
-        "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Publish Romanian edition of Ethical Coexistence Initiative",
-          "url": "https://github.com/iYakuza/landing-page/commit/de3be2db5cf00d1dd10390fff70865ea23bc2fda",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
-          ]
-        },
-        {
-          "message": "Separate Governance and Accountability from first-year plan",
-          "url": "https://github.com/iYakuza/landing-page/commit/ddbb405478585061be44860475df75f08e41c87d",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html"
-          ]
-        },
-        {
-          "message": "Publish First-Year Plan and Pilot as separate document",
-          "url": "https://github.com/iYakuza/landing-page/commit/42bb52275bfefd9b21aab9111f1e8dfb254c3dd9",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html"
           ]
         }
       ]
