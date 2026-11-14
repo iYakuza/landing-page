@@ -11,7 +11,7 @@
   <meta name="description" content="Transmissions from Verse After Hours — writing, ideas, notes, and creative experiments by Emanuel Ștefancu.">
   <title>TRANSMISSIONS — Verse After Hours</title>
   <link rel="stylesheet" href="../green-dream/style.css?v=20261102-palette-3">
-  <link rel="stylesheet" href="posts.css?v=20261115-archive-row-single-title-1">
+  <link rel="stylesheet" href="posts.css?v=20261115-category-inside-movement-index-1">
   <link rel="stylesheet" href="/landing-page/tools.css?v=20261105-mood-contrast-regression-2">
   <link rel="stylesheet" href="../editor-ui.css?v=20261027-shared-actions-1">
   <style id="posts-critical-theme">
@@ -80,17 +80,15 @@
       <div class="posts-heading"><div><p class="gd-kicker">THE RECEIVING ROOM</p><h2 id="archive-title">SIGNALS <em>RECEIVED</em></h2></div>
         <label class="posts-search"><span class="sr-only">Search posts</span><input id="post-search" type="search" placeholder="SEARCH TRANSMISSIONS…" autocomplete="off"></label>
       </div>
-      <div class="posts-browse-row">
-        <nav class="movement-index" aria-label="Filter transmissions by movement">
-          <button type="button" data-movement-filter="" class="movement-current" aria-pressed="true">ALL TRANSMISSIONS</button>
-          <button type="button" data-movement-filter="THE AWAKENING" aria-pressed="false">I. THE AWAKENING</button>
-          <button type="button" data-movement-filter="THE DESCENT" aria-pressed="false">II. THE DESCENT</button>
-          <button type="button" data-movement-filter="THE RECONNECTION" aria-pressed="false">III. THE RECONNECTION</button>
-          <button type="button" data-movement-filter="THE TRANSFORMATION" aria-pressed="false">IV. THE TRANSFORMATION</button>
-          <button type="button" data-movement-filter="THE RETURN" aria-pressed="false">V. THE RETURN</button>
-        </nav>
+      <nav class="movement-index" aria-label="Filter transmissions by movement and category">
+        <button type="button" data-movement-filter="" class="movement-current" aria-pressed="true">ALL TRANSMISSIONS</button>
+        <button type="button" data-movement-filter="THE AWAKENING" aria-pressed="false">I. THE AWAKENING</button>
+        <button type="button" data-movement-filter="THE DESCENT" aria-pressed="false">II. THE DESCENT</button>
+        <button type="button" data-movement-filter="THE RECONNECTION" aria-pressed="false">III. THE RECONNECTION</button>
+        <button type="button" data-movement-filter="THE TRANSFORMATION" aria-pressed="false">IV. THE TRANSFORMATION</button>
+        <button type="button" data-movement-filter="THE RETURN" aria-pressed="false">V. THE RETURN</button>
         <select id="category-filter" aria-label="Filter by category"><option value="">ALL CATEGORIES</option></select>
-      </div>
+      </nav>
       <div id="posts-list" class="posts-list" aria-live="polite"><p class="posts-empty">CONNECTING TO THE ARCHIVE…</p></div>
       <button type="button" id="posts-load-more" class="cms-text-button" hidden>LOAD OLDER TRANSMISSIONS ↓</button>
       <p id="posts-empty-search" class="posts-empty" hidden>NO MATCHING TRANSMISSIONS. TRY ANOTHER SEARCH OR CATEGORY.</p>
