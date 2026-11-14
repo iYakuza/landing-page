@@ -207,6 +207,55 @@ def strip_sql_comments(sql):
                 i += 1
     return "".join(out)
 
+def redacted_sql_shape(sql):
+    """Return a SQL structure fingerprint without exposing identifiers or values."""
+    safe_words = {
+        "ALTER", "ROLE", "USER", "DATABASE", "SET", "RESET", "SESSION", "LOCAL",
+        "TO", "FROM", "GRANT", "CREATE", "DROP", "DO", "BEGIN", "END", "EXECUTE",
+        "SELECT", "PERFORM", "SET_CONFIG", "PG_CATALOG", "FORMAT", "QUOTE_IDENT",
+        "AS", "ON", "IN", "WITH", "NOLOGIN", "LOGIN", "NOCREATEDB", "CREATEDB",
+        "NOSUPERUSER", "SUPERUSER", "NOREPLICATION", "REPLICATION", "BYPASSRLS",
+        "NOBYPASSRLS", "IF", "EXISTS", "THEN", "ELSE", "ELSIF", "WHEN", "DECLARE",
+        "RETURN", "LANGUAGE", "PLPGSQL", "CURRENT_SETTING", "TRUE", "FALSE", "NULL",
+        "REVOKE", "ALL", "PRIVILEGES", "E",
+    }
+    token_pattern = re.compile(
+        r"""'(?:''|\\.|[^'])*'|"(?:\"\"|[^"])*"|\$[A-Za-z_][A-Za-z_0-9]*\$|\$\$|[A-Za-z_][A-Za-z_0-9$]*|\d+|\s+|.""",
+        re.DOTALL,
+    )
+    output = []
+    for match in token_pattern.finditer(strip_sql_comments(sql)):
+        token = match.group(0)
+        if token.isspace():
+            output.append(" ")
+        elif token.startswith("'"):
+            value = token[1:-1].replace("''", "'").strip().lower()
+            output.append("'log_min_messages'" if value == "log_min_messages" else "'<literal>'")
+        elif token.startswith('"'):
+            value = token[1:-1].replace('""', '"').strip().lower()
+            output.append('"log_min_messages"' if value == "log_min_messages" else '"<identifier>"')
+        elif token.startswith("$") and token.endswith("$"):
+            output.append("$body$")
+        elif token.isdigit():
+            output.append("<number>")
+        elif re.fullmatch(r"[A-Za-z_][A-Za-z_0-9$]*", token):
+            output.append(token.upper() if token.upper() in safe_words or token.lower() == "log_min_messages" else "<identifier>")
+        else:
+            output.append(token)
+    return re.sub(r"\s+", " ", "".join(output)).strip()[:900]
+
+
+def statement_at_line(sql, line_number):
+    """Find the semicolon-delimited SQL statement containing a psql line number."""
+    current_line = 1
+    for statement in split_sql_statements(sql):
+        final_line = current_line + statement.count("\n")
+        if current_line <= line_number <= final_line:
+            return statement
+        current_line = final_line
+    return ""
+
+
 def sanitize_roles_sql(original_sql):
     """Remove non-portable log_min_messages settings from the role dump."""
     kept, skipped, unsupported = [], 0, set()
@@ -348,6 +397,10 @@ if sql_file.name == "roles.sql":
         temporary_sql = pathlib.Path(handle.name)
         sql_to_apply = temporary_sql
 
+applied_roles_sql = (
+    sql_to_apply.read_text(encoding="utf-8") if sql_file.name == "roles.sql" else ""
+)
+
 try:
     result = subprocess.run(
         ["psql", database_url, "-X", "-v", "ON_ERROR_STOP=1", "-q", "-f", str(sql_to_apply)],
@@ -369,7 +422,15 @@ if result.returncode:
             if re.match(r"^psql:.*: ERROR:", line) or re.match(r"^ERROR:", line):
                 location = re.match(r"^psql:.*?:(\d+): ERROR:", line)
                 if location:
-                    print("SQL diagnostic: roles.sql reported line " + location.group(1) + ".", file=sys.stderr)
+                    line_number = int(location.group(1))
+                    print("SQL diagnostic: roles.sql reported line " + str(line_number) + ".", file=sys.stderr)
+                    statement = statement_at_line(applied_roles_sql, line_number)
+                    if statement:
+                        print(
+                            "SQL diagnostic: statement shape (role identifiers and literal values redacted): "
+                            + redacted_sql_shape(statement),
+                            file=sys.stderr,
+                        )
                 print("PostgreSQL: " + line.split("ERROR:", 1)[-1].strip(), file=sys.stderr)
                 break
     else:
