@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-14T14:39:07.823234+00:00",
+  "generated_at": "2026-11-14T14:39:44.897243+00:00",
   "target_project_ref": "ioguymqdeuuursizifnn",
   "bucket": "human-archive-media",
-  "status": "partial",
+  "status": "complete",
   "asset_count": 111,
-  "successful_count": 106,
-  "failed_count": 5,
+  "successful_count": 111,
+  "failed_count": 0,
   "previously_verified_count": 106,
-  "metadata_size_mismatch_count": 0,
-  "total_bytes_verified": 262702063,
-  "total_mib_verified": 250.53,
+  "metadata_size_mismatch_count": 5,
+  "total_bytes_verified": 264435047,
+  "total_mib_verified": 252.18,
   "successes": [
     {
       "id": "wp-7",
@@ -1177,43 +1177,67 @@
       "public_url": "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/3000/2999-betivan-showdown.png",
       "verified": true,
       "final_source_host": "emanuelstefancu.wordpress.com"
-    }
-  ],
-  "failures": [
+    },
     {
       "id": "wp-719",
-      "storage_path": "posts/717/719-q3a0jxjp2ue91.webp",
-      "error": "Declared MIME type is image/webp but the file signature indicates image/jpeg; first 24 bytes (hex): ffd8ffe000104a46494600010100000100010000ffdb0043",
+      "storage_path": "posts/717/719-q3a0jxjp2ue91.jpg",
+      "bytes": 314496,
+      "expected_bytes": 246658,
+      "metadata_size_matches": false,
+      "sha256": "168ebff372e45a88f394a02d28dfcd80f997fe408ad048ecac95402b867af7d7",
+      "public_url": "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/717/719-q3a0jxjp2ue91.jpg",
+      "verified": true,
       "detected_mime": "image/jpeg",
-      "first_24_bytes_hex": "ffd8ffe000104a46494600010100000100010000ffdb0043"
+      "final_source_host": "emanuelstefancu.wordpress.com"
     },
     {
       "id": "wp-1423",
-      "storage_path": "posts/1421/1423-pixlr-image-generator-21254ff5-a225-4513-b061-6e1fe801d1dc.webp",
-      "error": "Declared MIME type is image/webp but the file signature indicates image/jpeg; first 24 bytes (hex): ffd8ffe000104a46494600010100000100010000ffdb0043",
+      "storage_path": "posts/1421/1423-pixlr-image-generator-21254ff5-a225-4513-b061-6e1fe801d1dc.jpg",
+      "bytes": 111488,
+      "expected_bytes": 53620,
+      "metadata_size_matches": false,
+      "sha256": "419fe6692fae366ff441b3cf6449c93a64a1d8af341ad52152d9dd782fafe7c8",
+      "public_url": "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1421/1423-pixlr-image-generator-21254ff5-a225-4513-b061-6e1fe801d1dc.jpg",
+      "verified": true,
       "detected_mime": "image/jpeg",
-      "first_24_bytes_hex": "ffd8ffe000104a46494600010100000100010000ffdb0043"
+      "final_source_host": "emanuelstefancu.wordpress.com"
     },
     {
       "id": "wp-1463",
-      "storage_path": "posts/1461/1463-dallc2b7e-2024-12-07-16.13.49-an-abstract-and-visually-captivating-book-cover-art-for-a-political-and-philosophical-theme.-the-image-features-a-surreal-balance-of-scales-where-one.webp",
-      "error": "Declared MIME type is image/webp but the file signature indicates image/jpeg; first 24 bytes (hex): ffd8ffe000104a46494600010100000100010000ffebfa0a",
+      "storage_path": "posts/1461/1463-dallc2b7e-2024-12-07-16.13.49-an-abstract-and-visually-captivating-book-cover-art-for-a-political-and-philosophical-theme.-the-image-features-a-surreal-balance-of-scales-where-one.jpg",
+      "bytes": 433598,
+      "expected_bytes": 444020,
+      "metadata_size_matches": false,
+      "sha256": "00138b6397916e040ba933dcbbc487dd8f2054e7512c901eb84861088ca46db4",
+      "public_url": "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1461/1463-dallc2b7e-2024-12-07-16.13.49-an-abstract-and-visually-captivating-book-cover-art-for-a-political-and-philosophical-theme.-the-image-features-a-surreal-balance-of-scales-where-one.jpg",
+      "verified": true,
       "detected_mime": "image/jpeg",
-      "first_24_bytes_hex": "ffd8ffe000104a46494600010100000100010000ffebfa0a"
+      "final_source_host": "emanuelstefancu.wordpress.com"
     },
     {
       "id": "wp-1480",
-      "storage_path": "posts/1478/1480-dallc2b7e-2025-02-03-02.36.10-a-melancholic-and-introspective-scene-reflecting-the-themes-of-aging-weariness-and-longing-in-the-poem.-the-image-should-depict-an-elderly-figure-w.webp",
-      "error": "Declared MIME type is image/webp but the file signature indicates image/jpeg; first 24 bytes (hex): ffd8ffe000104a46494600010100000100010000ffebfa0a",
+      "storage_path": "posts/1478/1480-dallc2b7e-2025-02-03-02.36.10-a-melancholic-and-introspective-scene-reflecting-the-themes-of-aging-weariness-and-longing-in-the-poem.-the-image-should-depict-an-elderly-figure-w.jpg",
+      "bytes": 405327,
+      "expected_bytes": 455578,
+      "metadata_size_matches": false,
+      "sha256": "489a6b857bc0eef91cf48409c62a5a84efa42b2ce9c970b0ab4cb74a435fdd37",
+      "public_url": "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1478/1480-dallc2b7e-2025-02-03-02.36.10-a-melancholic-and-introspective-scene-reflecting-the-themes-of-aging-weariness-and-longing-in-the-poem.-the-image-should-depict-an-elderly-figure-w.jpg",
+      "verified": true,
       "detected_mime": "image/jpeg",
-      "first_24_bytes_hex": "ffd8ffe000104a46494600010100000100010000ffebfa0a"
+      "final_source_host": "emanuelstefancu.wordpress.com"
     },
     {
       "id": "wp-1640",
-      "storage_path": "posts/1636/1640-download.webp",
-      "error": "Declared MIME type is image/webp but the file signature indicates image/jpeg; first 24 bytes (hex): ffd8ffe000104a46494600010100000100010000ffdb0043",
+      "storage_path": "posts/1636/1640-download.jpg",
+      "bytes": 468075,
+      "expected_bytes": 428386,
+      "metadata_size_matches": false,
+      "sha256": "50b08ef09e069afa8df6e58f1cd003ebd02878bf43f5b620c268d5f0337a0450",
+      "public_url": "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1636/1640-download.jpg",
+      "verified": true,
       "detected_mime": "image/jpeg",
-      "first_24_bytes_hex": "ffd8ffe000104a46494600010100000100010000ffdb0043"
+      "final_source_host": "emanuelstefancu.wordpress.com"
     }
-  ]
+  ],
+  "failures": []
 }
