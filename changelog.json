@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T18:31:06.135941Z",
-  "last_processed_sha": "9078332e258c5a10553f1d98fb6ce219054eae78",
+  "updated_at": "2026-11-14T18:42:09.170986Z",
+  "last_processed_sha": "00886b9145777c0053230a239aa6dbcd5515105c",
   "entries": [
+    {
+      "id": "00886b9145777c0053230a239aa6dbcd5515105c",
+      "timestamp": "2026-11-14T19:42:01+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Fix homepage Crystal first paint (#37). It updates game-ui.js, index.html, crystal-loader.js, crystal.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        "game-ui.js",
+        "index.html",
+        "shared/crystal/crystal-loader.js",
+        "shared/crystal/crystal.js",
+        "shared/crystal/tools/constellation.js"
+      ],
+      "commits": [
+        {
+          "message": "Fix homepage Crystal first paint (#37)",
+          "url": "https://github.com/iYakuza/landing-page/commit/00886b9145777c0053230a239aa6dbcd5515105c",
+          "files": [
+            "game-ui.js",
+            "index.html",
+            "shared/crystal/crystal-loader.js",
+            "shared/crystal/crystal.js",
+            "shared/crystal/tools/constellation.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "9078332e258c5a10553f1d98fb6ce219054eae78",
       "timestamp": "2026-11-14T19:30:58+01:00",
@@ -1310,27 +1339,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/cabf1ee46f563977a94aea914c9e27ebb9befafb",
           "files": [
             "green-dream/guest-notes/revision-history/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "6077d9f51f87269e70bb4433f1b0b72784f19227",
-      "timestamp": "2026-11-13T22:18:04+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Expand Ethical Coexistence Initiative to include economic conditions. It updates index.html.",
-      "commit_count": 1,
-      "files": [
-        "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Expand Ethical Coexistence Initiative to include economic conditions",
-          "url": "https://github.com/iYakuza/landing-page/commit/6077d9f51f87269e70bb4433f1b0b72784f19227",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
           ]
         }
       ]
