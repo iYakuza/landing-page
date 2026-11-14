@@ -27,6 +27,7 @@ jobs:
     timeout-minutes: 240
     env:
       SOURCE_PROJECT_REF: oeyxsqocldlovhsmzcjw
+      EXPECTED_RESTORE_PROJECT_REF: ioguymqdeuuursizifnn
       RESTORE_DB_URL: ${{ secrets.SUPABASE_RESTORE_DB_URL }}
       RESTORE_URL: ${{ secrets.SUPABASE_RESTORE_URL }}
       GOOGLE_DRIVE_INGEST_URL: ${{ secrets.GOOGLE_DRIVE_INGEST_URL }}
@@ -78,6 +79,10 @@ jobs:
             https://*.supabase.co) ;;
             *) echo "::error::Destination URL must be a Supabase project URL."; exit 1 ;;
           esac
+          if [[ "$RESTORE_URL" != "https://${EXPECTED_RESTORE_PROJECT_REF}.supabase.co" ]]; then
+            echo "::error::Restore target URL is not the approved disposable drill project."
+            exit 1
+          fi
           if [[ "$RESTORE_URL" == "https://${SOURCE_PROJECT_REF}.supabase.co" ]]; then
             echo "::error::Refusing to restore into the production Supabase project."
             exit 1
@@ -90,8 +95,11 @@ jobs:
           import os
           from urllib.parse import unquote, urlparse
           source_ref = os.environ["SOURCE_PROJECT_REF"]
+          expected_ref = os.environ["EXPECTED_RESTORE_PROJECT_REF"]
           api = urlparse(os.environ["RESTORE_URL"])
           target_ref = (api.hostname or "").split(".")[0].lower()
+          if target_ref != expected_ref:
+              raise SystemExit("The restore URL does not identify the approved disposable drill project.")
           parsed = urlparse(os.environ["RESTORE_DB_URL"])
           host = (parsed.hostname or "").lower()
           user = unquote(parsed.username or "").lower()
@@ -100,6 +108,12 @@ jobs:
           if not target_ref or (target_ref not in host and target_ref not in user):
               raise SystemExit("The destination API URL and database connection do not identify the same Supabase project.")
           PY
+          HTTP_STATUS="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' --header "apikey: $RESTORE_SECRET_KEY" "$RESTORE_URL/storage/v1/bucket")"
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "::error::The configured Supabase secret key could not access target Storage (HTTP $HTTP_STATUS)."
+            exit 1
+          fi
+          echo "Validated approved destination identity, database URL, and Storage API key."
 
       - name: Authenticate to Google Drive with GitHub OIDC
         id: auth-drive-readonly
@@ -160,7 +174,12 @@ jobs:
           if [ "$VAULT_TABLE_EXISTS" = "t" ]; then
             VAULT_SECRETS="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select count(*) from vault.decrypted_secrets")"
           fi
-          if [ "$PUBLIC_TABLES" != "0" ] || [ "$AUTH_USERS" != "0" ] || [ "$AUTH_IDENTITIES" != "0" ] || [ "$STORAGE_BUCKETS" != "0" ] || [ "$STORAGE_OBJECTS" != "0" ] || [ "$VAULT_SECRETS" != "0" ]; then
+          MIGRATION_TABLE_EXISTS="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select to_regclass('supabase_migrations.schema_migrations') is not null")"
+          MIGRATION_ENTRIES=0
+          if [ "$MIGRATION_TABLE_EXISTS" = "t" ]; then
+            MIGRATION_ENTRIES="$(psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -Atc "select count(*) from supabase_migrations.schema_migrations")"
+          fi
+          if [ "$PUBLIC_TABLES" != "0" ] || [ "$AUTH_USERS" != "0" ] || [ "$AUTH_IDENTITIES" != "0" ] || [ "$STORAGE_BUCKETS" != "0" ] || [ "$STORAGE_OBJECTS" != "0" ] || [ "$VAULT_SECRETS" != "0" ] || [ "$MIGRATION_ENTRIES" != "0" ]; then
             echo "::error::Destination is not empty. Restore stopped without modifying it."
             exit 1
           fi
