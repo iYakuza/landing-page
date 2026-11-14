@@ -1,0 +1,51 @@
+name: Validate Human Archive recovery
+
+on:
+  push:
+    branches:
+      - recovery-drill-preview
+    paths:
+      - human-archive/archive.js
+      - human-archive/index.html
+      - human-archive/archive.css
+      - human-archive/archive-content.json
+      - human-archive/media-manifest.json
+      - scripts/import_human_archive_media.py
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out recovery copy
+        uses: actions/checkout@v6
+        with:
+          ref: recovery-drill-preview
+
+      - name: Validate browser JavaScript syntax
+        run: node --check human-archive/archive.js
+
+      - name: Validate the media inventory and import helper
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile scripts/import_human_archive_media.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          content = json.loads(Path("human-archive/archive-content.json").read_text(encoding="utf-8"))
+          manifest = json.loads(Path("human-archive/media-manifest.json").read_text(encoding="utf-8"))
+          records = content.get("records", [])
+          items = manifest.get("items", [])
+          assert len(records) == content.get("record_count") == 140, "Unexpected local archive record count"
+          assert len(items) == manifest.get("item_count") == 111, "Unexpected media manifest item count"
+          assert len({item["storage_path"] for item in items}) == len(items), "Duplicate Storage paths found"
+          assert all(item["post_ids"] for item in items), "A media file is not connected to an archive record"
+          assert all(item["source_url"].startswith("https://") for item in items), "A source URL is not HTTPS"
+          assert all(item["mime_type"] != "application/octet-stream" for item in items), "A media file has no recognized MIME type"
+          assert manifest["bucket"] == "human-archive-media", "Unexpected media destination bucket"
+          assert manifest["public_base_url"].startswith("https://ioguymqdeuuursizifnn.supabase.co/"), "Manifest target is not the approved recovery project"
+          print("Validated 140 archive records and 111 unique media items.")
+          PY
