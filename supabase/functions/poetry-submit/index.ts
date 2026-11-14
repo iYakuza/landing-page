@@ -18,6 +18,24 @@ const ATTACHMENT_TYPE_IDS: Record<string, string> = {
   audio: "81251800d6a0e3e1eedc7f52090cff99",
   video: "17fe736e5635d8c3467f466382258fad",
 };
+const DRILL_ALLOWED_ORIGIN = "https://green-dream-recovery-preview.pages.dev";
+const DRILL_ARCHIVE_SNAPSHOT = [{
+  id: "6ade2d07405d5ecd5759803e",
+  slug: "the-god-beneath-the-noise",
+  title: "The God Beneath the Noise",
+  medium: "video",
+  body: "Before the name,\nbefore the light,\nbefore the day,\nbefore the night\na thousand voices,\na thousand skies,\na thousand echoes\nbehind these eyes;\none breath,\none sound,\none heart...\nNo ground.\n\nNo more seeking,\nno more sound-\n\nI am.",
+  bodyHtml: "<p>Before the name,<br>before the light,<br>before the day,<br>before the night<br>a thousand voices,<br>a thousand skies,<br>a thousand echoes<br>behind these eyes;<br>one breath,<br>one sound,<br>one heart...<br>No ground.<br></p><p>No more seeking,<br>no more sound-</p><p>I am.</p>",
+  byline: "",
+  excerpt: "Before the name, before the light, before the day, before the night a thousand voices, a thousand skies, a thousand echoes behind these eyes; one breath, one sound, one heart... No ground. No more seeking, no more sound-",
+  mediaUrl: "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/poetry-media/owner/9e466f99-9a24-402c-bbac-767c12970737-before-the-name.mp4",
+  imageUrl: "",
+  videoEmbed: "",
+  attachmentType: "video",
+  imageDisplayMode: "cover-crop",
+  url: "/poetry-archive/the-god-beneath-the-noise",
+}];
+
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = new Set([
@@ -28,7 +46,7 @@ const ALLOWED_MIME_TYPES = new Set([
 function headers(origin: string | null, allowedOrigin: string) {
   const result: Record<string, string> = {
     "Access-Control-Allow-Headers": "content-type",
-    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Vary": "Origin",
     "Cache-Control": "no-store",
     "X-Content-Type-Options": "nosniff",
@@ -146,6 +164,17 @@ async function verifyTurnstile(token: string, secret: string, remoteIp: string) 
 
 Deno.serve(async (request: Request) => {
   const origin = request.headers.get("origin");
+  const isRecoveryDrillRequest = (Deno.env.get("SUPABASE_URL") || "").replace(/\\/+$/, "") === "https://ioguymqdeuuursizifnn.supabase.co";
+  if (isRecoveryDrillRequest) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: headers(origin, DRILL_ALLOWED_ORIGIN) });
+    }
+    if (request.method === "GET") {
+      if (origin !== DRILL_ALLOWED_ORIGIN) return reply(403, { message: "This website origin is not allowed." }, origin, DRILL_ALLOWED_ORIGIN);
+      return reply(200, { ok: true, items: DRILL_ARCHIVE_SNAPSHOT }, origin, DRILL_ALLOWED_ORIGIN);
+    }
+    return reply(503, { message: "Write operations are disabled on the recovery drill project." }, origin, DRILL_ALLOWED_ORIGIN);
+  }
   // Reject oversized bodies before parsing multipart data to reduce memory/CPU abuse.
   const lengthHeader = request.headers.get("content-length");
   const declaredLength = lengthHeader === null ? null : Number(lengthHeader);
