@@ -334,14 +334,14 @@
   postForm.addEventListener('submit',event=>{event.preventDefault();savePost('published');});
   $('save-draft').addEventListener('click',()=>savePost('draft'));
   async function savePost(status){
-    if(saving||!currentUser)return;
+    if(saving||!currentUser){message(saveMessage,'The editor is not ready to save. Please wait for authentication and try again.',true);return false;}
     const title=titleInput.value.trim(),slug=slugify(slugInput.value),category=categoryInput.value.trim().toUpperCase();
-    if(!title||!slug||!category){message(saveMessage,'Title, URL slug, and category are required.',true);return;}
-    if(!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)){message(saveMessage,'Use a valid lowercase URL slug.',true);return;}
+    if(!title||!slug||!category){message(saveMessage,'To keep this transmission, add a title and choose a movement category before closing.',true);return false;}
+    if(!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)){message(saveMessage,'Use a valid lowercase URL slug.',true);return false;}
     const previousSavedMediaPath=editingId?allPosts.find(p=>p.id===editingId)?.media_path||null:null;
     const composedHtml=buildPostContent();
     const payload={title,slug,category,excerpt:excerptInput.value.trim(),content_html:cleanHtml(composedHtml),media_url:mediaUrl,media_path:mediaPath,media_type:mediaType,media_width:postMediaWidth,status};
-    if(status==='published'&&!payload.content_html.trim()){message(saveMessage,'Add some content before publishing.',true);return;}
+    if(status==='published'&&!payload.content_html.trim()){message(saveMessage,'Add some content before publishing.',true);return false;}
     saving=true;$('save-draft').disabled=true;$('publish-post').disabled=true;message(saveMessage,status==='published'?'PUBLISHING…':'SAVING DRAFT…');
     try{
       let query=client.from('vha_posts');
@@ -357,13 +357,27 @@
         const postUrl=new URL('../posts/',window.location.href);
         postUrl.searchParams.set('post',result.data.slug);
         window.location.assign(postUrl.toString());
-        return;
+        return true;
       }
       message(saveMessage,'Draft saved. It remains private.');
       await loadPosts();renderPosts();
-    }catch(err){message(saveMessage,err.message||'Could not save this post.',true);}
+      return true;
+    }catch(err){message(saveMessage,err.message||'Could not save this post.',true);return false;}
     finally{saving=false;$('save-draft').disabled=false;$('publish-post').disabled=false;}
   }
+  function hasTransmissionContent(){
+    return Boolean(titleInput.value.trim()||excerptInput.value.trim()||contentEditor.innerText.trim()||
+      ['post-main-text','post-lyrics','post-style-prompt','post-learned','post-chatgpt-learned','post-plain-text'].some(id=>$(id).value.trim())||mediaUrl);
+  }
+  window.addEventListener('message',async event=>{
+    if(event.origin!==window.location.origin||event.source!==window.parent||!embeddedComposer)return;
+    if(event.data?.type==='VHA_QUICK_POST_CLOSE_REQUEST'){
+      const saved=hasTransmissionContent()?await savePost('draft'):true;
+      event.source.postMessage({type:'VHA_QUICK_POST_CLOSE_RESULT',requestId:event.data.requestId,saved},event.origin);
+    }else if(event.data?.type==='VHA_QUICK_POST_CLOSE_FAILED'){
+      message(saveMessage,'Draft could not be saved. The editor remains open so your work is not lost.',true);
+    }
+  });
   mediaInput.addEventListener('change',async()=>{
     const file=mediaInput.files?.[0];if(!file)return;
     if(!ALLOWED_MEDIA.has(file.type)){message(mediaMessage,'Unsupported media format. Choose an image, supported audio, or video file (MP4, WebM, or MOV).',true);mediaInput.value='';return;}
