@@ -220,8 +220,7 @@
       const permalinkBack=permalink?'<p class="post-back"><a href="./">← BACK TO THE ARCHIVE</a></p>':'';
       const mediaUrl=validMediaUrl(post.media_url);
       const mediaWidth=Math.max(20,Math.min(100,Number(post.media_width)||100));
-      const fallbackMediaUrl=mediaUrl&&mediaUrl.includes('emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg')?'https://i0.wp.com/emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg?w=1024':'';
-      const media=mediaUrl?'<div class="post-media" style="--post-media-width:'+mediaWidth+'%">'+(post.media_type==='image'?'<a class="post-image-open" href="'+safe(mediaUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="Open full-size image: '+safe(post.title)+'"><img src="'+safe(mediaUrl)+'"'+(fallbackMediaUrl?' data-fallback-src="'+safe(fallbackMediaUrl)+'"':'')+' alt="'+safe(post.title)+'" loading="lazy"></a>':post.media_type==='video'?'<video src="'+safe(mediaUrl)+'" controls preload="none" loading="lazy"></video>':'<audio src="'+safe(mediaUrl)+'" controls preload="none"></audio>')+'</div>':'';
+      const media=mediaUrl?'<div class="post-media" style="--post-media-width:'+mediaWidth+'%">'+(post.media_type==='image'?'<a class="post-image-open" href="'+safe(mediaUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="Open full-size image: '+safe(post.title)+'"><img src="'+safe(mediaUrl)+'"'++' alt="'+safe(post.title)+'" loading="lazy"></a>':post.media_type==='video'?'<video src="'+safe(mediaUrl)+'" controls preload="none" loading="lazy"></video>':'<audio src="'+safe(mediaUrl)+'" controls preload="none"></audio>')+'</div>':'';
       const shapeClass=['shape-i','shape-l','shape-square','shape-t','shape-z','shape-j','shape-s'][index%7];
       if(permalink){
         const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
