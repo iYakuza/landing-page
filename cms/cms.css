@@ -245,3 +245,96 @@ body.cms-embedded-composer .cms-login{max-width:560px;margin:12vh auto}
  body.cms-embedded-composer .cms-editor-panel{padding:62px 16px 24px}
  body.cms-embedded-composer .cms-editor-top{padding-right:82px}
 }
+
+
+/* Quick Post viewport: scroll the composer and keep its save/publish actions reachable. */
+body.cms-embedded-composer:not(.cms-writing-focus) .cms-shell{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100dvh;
+  min-height:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+body.cms-embedded-composer:not(.cms-writing-focus) #workspace{
+  height:auto;
+  min-height:100dvh;
+}
+body.cms-embedded-composer:not(.cms-writing-focus) .cms-layout{
+  height:auto;
+  min-height:100dvh;
+}
+body.cms-embedded-composer:not(.cms-writing-focus) .cms-editor-panel{
+  height:auto;
+  min-height:100dvh;
+  overflow:visible;
+}
+body.cms-embedded-composer:not(.cms-writing-focus) .cms-editor-panel form{
+  padding-bottom:110px;
+}
+body.cms-embedded-composer:not(.cms-writing-focus) .cms-editor-footer{
+  position:fixed;
+  left:50%;
+  bottom:0;
+  z-index:30;
+  width:100%;
+  max-width:1100px;
+  box-sizing:border-box;
+  margin:0;
+  padding:12px 16px max(12px,env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  border-top:1px solid rgba(0,234,245,.38);
+  background:linear-gradient(180deg,rgba(3,17,22,.90),rgba(3,17,22,.99));
+  box-shadow:0 -8px 28px rgba(0,0,0,.32);
+  backdrop-filter:blur(14px);
+}
+body.cms-embedded-composer:not(.cms-writing-focus) .cms-editor-footer .cms-message{
+  flex:1 1 auto;
+  min-width:0;
+}
+body.cms-embedded-composer:not(.cms-writing-focus) .cms-save-actions{
+  flex:0 1 auto;
+  justify-content:flex-end;
+}
+@media(max-width:600px){
+  body.cms-embedded-composer:not(.cms-writing-focus) .cms-editor-footer{
+    align-items:center;
+    flex-direction:row;
+    gap:8px;
+    padding:10px 12px max(10px,env(safe-area-inset-bottom));
+  }
+  body.cms-embedded-composer:not(.cms-writing-focus) .cms-editor-footer .cms-message{
+    max-width:34%;
+    font-size:9px;
+  }
+  body.cms-embedded-composer:not(.cms-writing-focus) .cms-save-actions{
+    gap:5px;
+  }
+  body.cms-embedded-composer:not(.cms-writing-focus) .cms-save-actions .cms-button{
+    padding:10px 8px;
+    font-size:9px;
+  }
+}
+
+/* Keep the focus-mode heading visible so the T control remains an exit button. */
+body.cms-writing-focus .cms-editor-panel form>*:not(.rich-editor):not(.transmission-body-heading){
+  display:none!important;
+}
+body.cms-writing-focus .transmission-focus-toggle{
+  min-width:92px;
+  padding:7px 10px;
+  font:700 10px/1 ui-monospace,monospace;
+  letter-spacing:.7px;
+}
+
+
+/* Explicitly override the focus-mode form rule for its visible exit control. */
+body.cms-writing-focus .cms-editor-panel form>.transmission-body-heading{
+  display:flex!important;
+}
+body.cms-embedded-composer:not(.cms-writing-focus) .cms-shell{
+  padding:0!important;
+}
