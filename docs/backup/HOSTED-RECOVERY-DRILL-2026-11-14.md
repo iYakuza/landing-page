@@ -31,7 +31,7 @@ The workflow also verified row counts, Vault values by SHA-256 without printing 
 
 Three functions are deployed to the drill project:
 
-- `poetry-submit`: allows the public read-only archive GET path; rejects all non-GET/non-OPTIONS requests on the exact drill project before owner-token access or any Webflow write.
+- `poetry-submit`: serves the one published Poetry Archive item from a bundled, checked-in recovery snapshot on GET, without calling Webflow or reading the Webflow API token. The exact drill project rejects all non-GET/non-OPTIONS requests before owner-token access or any Webflow write.
 - `secure-your-soul-transmissions`: deployed with its existing fail-closed checks. Public submissions remain unavailable until the drill has a Turnstile secret and a dedicated `SYS_TRANSMISSION_RATE_SALT`. Moderator operations, if used, operate only on this drill database.
 - `contact-about-role`: deployed with an exact-project guard that rejects POST requests on the drill project before rate limiting or email delivery.
 
@@ -68,13 +68,15 @@ A separate static website preview has now been deployed from the `recovery-drill
 - Supabase backend: the restored drill project `ioguymqdeuuursizifnn`
 - The owner CMS uses the drill project's Supabase URL and publishable key. A private **Recovery Centre** section links to the full-system backup, content/media backup, local validation, hosted restore, preview, and runbook workflows. These are launch links only; they do not dispatch Actions runs automatically.
 - The owner manually confirmed that the Human Archive content appears. The EGO portrait was initially blocked by the Cloudflare Pages Content Security Policy. The WordPress media asset (media item 3013, `emanuel-ego-portrait.png`) was located, and the recovery branch CSP was updated to allow the WordPress media host. The new Pages deployment completed successfully and the owner confirmed the image appeared.
+- The owner CMS Recovery Centre now includes launch links for full-system backup, content/media backup, local validation, hosted restore, recovery preview, runbooks, a guarded merged-branch cleanup workflow, and a one-time EGO portrait import workflow. The links do not dispatch Actions runs automatically.
 
 This is an isolated, working preview—not a complete independent failover. Some assets and integrations still rely on external services.
 
 ## Remaining external dependencies and limitations
 
-- The EGO portrait is still served from the WordPress.com media library. It should be copied into a recovery-controlled location and the preview updated to use that copy before claiming full media independence.
-- The `poetry-submit` Edge Function's read-only archive GET path still requests live items from the Webflow CMS using the restored Vault configuration. Its write operations are blocked on the drill project. This means archive reads are not yet independent of Webflow.
+- The Human Archive EGO portrait is still referenced from WordPress.com. A one-time manual GitHub Actions workflow is available in the CMS Recovery Centre to copy the PNG into `assets/recovery/` on the recovery branch. After that run succeeds, the page reference and CSP can be switched to the local file and the WordPress image host removed from the recovery site's policy.
+- The Human Archive catalogue contains 140 entries and those entries still link to their original WordPress records. The encrypted content/media backup exports WordPress post bodies and media into its offline recovery-site artifact, but this portable content export has not yet been integrated into the live recovery preview's Human Archive navigation.
+- The Poetry Archive GET response no longer depends on Webflow: the drill-only `poetry-submit` function serves a static snapshot of the single published Webflow item. The production publication integration remains in source code, but the drill's write path is blocked.
 - Contact email delivery is deliberately disabled by an exact-project guard. Do not add a live Resend key to the drill.
 - Public transmission submissions remain dependent on staging-safe Turnstile configuration and a dedicated `SYS_TRANSMISSION_RATE_SALT`. Do not reuse production-only integration secrets without a separate safety review.
 - Moderator operations in `secure-your-soul-transmissions` target only the drill database, but should be tested only with an owner-authorized account and synthetic content.
@@ -83,6 +85,9 @@ This is an isolated, working preview—not a complete independent failover. Some
 - Supabase Auth provider settings, redirect allowlists, SMTP, domains, API keys, database credentials, and other project-level settings are not included in the backup. Check and configure these separately for a real failover.
 - Auth sessions, MFA factors, and Auth audit history are not restored.
 - The recovery preview is noindex and has no production custom domain. Do not repoint production DNS to it.
+
+- The restored `vha_posts` and `poetry_submissions` media URLs have been rewritten to use the drill project's own Storage hostname where the referenced object exists. The restore workflow now performs the same rewrite automatically after restoring Storage objects, preventing future hosted restores from retaining source-project Storage URLs.
+- The recovery Posts page now accepts image/video/audio URLs only from the restored Supabase Storage buckets or repository-local paths; WordPress image hosts were removed from its media allow-list and page CSP.
 
 ## Current operating safeguards
 
