@@ -95,6 +95,33 @@ def signature_matches(data, mime):
         return data.startswith(b"%PDF-")
     return False
 
+
+def sniff_mime(data):
+    if data.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if data.startswith((b"GIF87a", b"GIF89a")):
+        return "image/gif"
+    if len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "image/webp"
+    if len(data) >= 12 and data[4:8] == b"ftyp" and b"avif" in data[8:32]:
+        return "image/avif"
+    if data.startswith(b"ID3") or (len(data) >= 2 and data[0] == 0xFF and (data[1] & 0xE0) == 0xE0):
+        return "audio/mpeg"
+    if len(data) >= 12 and data[4:8] == b"ftyp":
+        return "video/mp4"
+    if len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WAVE":
+        return "audio/wav"
+    if data.startswith(b"OggS"):
+        return "audio/ogg"
+    if data.startswith(b"%PDF-"):
+        return "application/pdf"
+    prefix = data[:64].lstrip().lower()
+    if prefix.startswith(b"<!doctype html") or prefix.startswith(b"<html") or prefix.startswith(b"<?xml"):
+        return "text/html-or-xml"
+    return "unknown"
+
 def upload_and_verify(base_url, secret, item, data):
     object_path = quote(item["storage_path"], safe="/")
     endpoint = base_url + "/storage/v1/object/" + BUCKET + "/" + object_path
@@ -153,11 +180,31 @@ def main():
     if not isinstance(items, list) or len(items) != manifest.get("item_count"):
         raise SystemExit("Media manifest is incomplete or inconsistent")
 
-    successes = []
+    previous = {}
+    if REPORT_PATH.exists():
+        try:
+            old_report = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
+            if old_report.get("target_project_ref") == EXPECTED_PROJECT_REF and old_report.get("bucket") == BUCKET:
+                previous = {
+                    entry["storage_path"]: entry
+                    for entry in old_report.get("successes", [])
+                    if entry.get("verified") is True and entry.get("storage_path")
+                }
+        except (ValueError, OSError, TypeError):
+            previous = {}
+
+    current_paths = {item["storage_path"] for item in items}
+    successes = [entry for path, entry in previous.items() if path in current_paths]
+    verified_paths = {entry["storage_path"] for entry in successes}
     failures = []
-    total_bytes = 0
-    for number, item in enumerate(items, start=1):
+    total_bytes = sum(int(entry.get("bytes") or 0) for entry in successes)
+    pending = [item for item in items if item["storage_path"] not in verified_paths]
+    print("Previously verified objects retained: " + str(len(successes)) + "; retrying: " + str(len(pending)))
+
+    for number, item in enumerate(pending, start=1):
         asset_id = str(item.get("id", number))
+        data = b""
+        detected_mime = "unknown"
         try:
             source = item["source_url"]
             source_parts = urlparse(source)
@@ -168,8 +215,12 @@ def main():
                 raise RuntimeError("MIME type is not allowed in the recovery bucket")
 
             data, final_url = download_source(source)
+            detected_mime = sniff_mime(data)
             if not signature_matches(data, mime):
-                raise RuntimeError("Downloaded content does not match the declared MIME type")
+                raise RuntimeError(
+                    "Declared MIME type is " + mime + " but the file signature indicates "
+                    + detected_mime + "; first 24 bytes (hex): " + data[:24].hex()
+                )
             expected_size = int(item.get("expected_size") or 0)
             size_matches = not expected_size or len(data) == expected_size
             public_url = upload_and_verify(base_url, secret, item, data)
@@ -183,17 +234,20 @@ def main():
                 "sha256": digest,
                 "public_url": public_url,
                 "verified": True,
+                "detected_mime": detected_mime,
                 "final_source_host": urlparse(final_url).hostname,
             })
             total_bytes += len(data)
-            print("Imported " + str(number) + "/" + str(len(items)) + ": " + asset_id + " (" + str(len(data)) + " bytes)")
+            print("Imported " + str(number) + "/" + str(len(pending)) + ": " + asset_id + " (" + str(len(data)) + " bytes; " + detected_mime + ")")
         except Exception as error:
             failures.append({
                 "id": asset_id,
                 "storage_path": item.get("storage_path"),
                 "error": str(error),
+                "detected_mime": detected_mime,
+                "first_24_bytes_hex": data[:24].hex() if data else "",
             })
-            print("FAILED " + str(number) + "/" + str(len(items)) + ": " + asset_id + " — " + str(error))
+            print("FAILED " + str(number) + "/" + str(len(pending)) + ": " + asset_id + " — " + str(error))
 
     report = {
         "schema_version": 1,
@@ -204,6 +258,8 @@ def main():
         "asset_count": len(items),
         "successful_count": len(successes),
         "failed_count": len(failures),
+        "previously_verified_count": len(successes) - len(pending) + max(0, len(pending) - len(failures)),
+        "metadata_size_mismatch_count": sum(1 for entry in successes if entry.get("metadata_size_matches") is False),
         "total_bytes_verified": total_bytes,
         "total_mib_verified": round(total_bytes / 1048576, 2),
         "successes": successes,
