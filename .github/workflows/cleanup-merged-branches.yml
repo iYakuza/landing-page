@@ -1,0 +1,56 @@
+name: Clean up merged feature branches
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_delete_merged_branches:
+        description: "Delete only the listed branches whose pull requests are confirmed merged into main"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  cleanup:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.confirm_delete_merged_branches == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Delete only verified merged branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          candidates=(
+            "docs/mood-presets-architecture-20261113"
+            "feature/emotion-mood-presets-20261113"
+            "fix/signal-moderation-status-20261113"
+            "security/scan-all-branches-20261113"
+            "cleanup/repo-hygiene-20261113"
+            "docs/google-oauth-privacy-terms"
+            "enable-content-media-backup-dispatch"
+            "enable-backup-recovery-dispatch"
+            "backup/google-drive-automation"
+            "feature/ego-as-home"
+            "feature/ego-presence"
+            "feature/nihil-et-esse-universe"
+          )
+          merged_heads="$(gh pr list --state merged --base main --json headRefName --limit 200 | jq -r '.[].headRefName')"
+          deleted=0
+          skipped=0
+          for branch in "${candidates[@]}"; do
+            if ! grep -Fxq "$branch" <<< "$merged_heads"; then
+              echo "SKIP (no merged PR into main found): $branch"
+              skipped=$((skipped + 1))
+              continue
+            fi
+            echo "DELETE merged branch: $branch"
+            gh api --silent --method DELETE "repos/$GH_REPO/git/refs/heads/$branch"
+            deleted=$((deleted + 1))
+          done
+          echo "Cleanup complete. Deleted: $deleted. Skipped: $skipped."
