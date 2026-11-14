@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T13:56:31.107573Z",
-  "last_processed_sha": "85dc68dec223f2b294b2952fcce16f6c35403806",
+  "updated_at": "2026-11-14T13:56:52.618494Z",
+  "last_processed_sha": "9f4bde9ba06acad8a7529351a2ae0687bc05305b",
   "entries": [
+    {
+      "id": "9f4bde9ba06acad8a7529351a2ae0687bc05305b",
+      "timestamp": "2026-11-14T14:56:40+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creator Workshop",
+      "title": "A refined Creator Workshop",
+      "description": "This update brings together Remove completed one-time portrait import action from Recovery Centre. It updates index.html.",
+      "commit_count": 1,
+      "files": [
+        "cms/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Remove completed one-time portrait import action from Recovery Centre",
+          "url": "https://github.com/iYakuza/landing-page/commit/9f4bde9ba06acad8a7529351a2ae0687bc05305b",
+          "files": [
+            "cms/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "85dc68dec223f2b294b2952fcce16f6c35403806",
       "timestamp": "2026-11-14T14:56:21+01:00",
@@ -1232,27 +1253,6 @@
         {
           "message": "Use tested transport in live read-only Drive probe",
           "url": "https://github.com/iYakuza/landing-page/commit/8d8c7079361e5445c145c85fdfac98de3c256f25",
-          "files": [
-            ".github/workflows/google-drive-inventory-diagnostic.yml"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "71fa02c3224d0109ec8db1d842352a06f38659a7",
-      "timestamp": "2026-11-13T20:01:43+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Diagnose Apps Script ContentService redirects explicitly. It updates google-drive-inventory-diagnostic.yml.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/google-drive-inventory-diagnostic.yml"
-      ],
-      "commits": [
-        {
-          "message": "Diagnose Apps Script ContentService redirects explicitly",
-          "url": "https://github.com/iYakuza/landing-page/commit/71fa02c3224d0109ec8db1d842352a06f38659a7",
           "files": [
             ".github/workflows/google-drive-inventory-diagnostic.yml"
           ]
