@@ -223,3 +223,25 @@ body.cms-writing-focus .rich-toolbar button{
  .cms-recovery-notice strong{display:block;margin-bottom:5px}
  .cms-recovery-grid{grid-template-columns:1fr}
 }
+
+
+/* Embedded Owner Studio: show the existing NEW TRANSMISSION editor without the CMS workspace chrome. */
+body.cms-embedded-composer{overflow:hidden!important;background:#050906!important}
+body.cms-embedded-composer .gd-nav,
+body.cms-embedded-composer .cms-hero,
+body.cms-embedded-composer .cms-toolbar,
+body.cms-embedded-composer .cms-posts-panel,
+body.cms-embedded-composer .recovery-centre-panel,
+body.cms-embedded-composer .community-review,
+body.cms-embedded-composer .gd-footer{display:none!important}
+body.cms-embedded-composer .cms-shell{position:fixed;inset:0;width:100%;height:100dvh;min-height:0;margin:0;padding:0!important;overflow:hidden;background:#050906!important}
+body.cms-embedded-composer #workspace{height:100%;min-height:0}
+body.cms-embedded-composer .cms-layout{display:block;width:100%;height:100%;margin:0;padding:0!important}
+body.cms-embedded-composer .cms-editor-panel{width:100%;height:100%;min-height:100dvh;box-sizing:border-box;margin:0;padding:clamp(22px,4vw,48px) clamp(18px,7vw,112px) 36px;border:0;background:radial-gradient(ellipse at 50% 0%,#10262b 0%,#071316 48%,#050906 100%);overflow-y:auto}
+body.cms-embedded-composer .cms-editor-panel form{width:min(100%,1100px);margin:0 auto}
+body.cms-embedded-composer .cms-editor-top{padding-right:100px}
+body.cms-embedded-composer .cms-login{max-width:560px;margin:12vh auto}
+@media(max-width:600px){
+ body.cms-embedded-composer .cms-editor-panel{padding:62px 16px 24px}
+ body.cms-embedded-composer .cms-editor-top{padding-right:82px}
+}

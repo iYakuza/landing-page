@@ -20,7 +20,11 @@
   const requestedEditSlug = requestedParams.get('edit');
   const requestedCategory = (requestedParams.get('category') || '').trim().toUpperCase();
   const requestedNewPost = requestedParams.get('new') === '1';
-  let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null;
+  const embeddedComposer = requestedParams.get('embed') === '1';
+  if(embeddedComposer) document.body.classList.add('cms-embedded-composer');
+  const recoveryStorageKey = () => currentUser ? 'vha_quick_post_recovery_' + currentUser.id : null;
+  let recoveryRevision = 0, autosaveTimer = null;
+  let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null, mediaUploading = false;
   const MEDIA_BUCKET = 'vha-post-media';
   const MAX_MEDIA_BYTES = 30 * 1024 * 1024;
   const ALLOWED_MEDIA = new Set(['image/jpeg','image/png','image/webp','image/gif','image/avif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm','video/mp4','video/webm','video/quicktime']);
@@ -127,6 +131,49 @@
     managePosts.innerHTML=posts.map(p=>'<button type="button" class="manage-item '+(p.id===editingId?'active':'')+'" data-id="'+escapeHtml(p.id)+'"><strong>'+escapeHtml(p.title)+'</strong><small><span class="'+(p.status==='draft'?'draft-label':'published-label')+'">'+escapeHtml(p.status.toUpperCase())+'</span> · '+escapeHtml(p.category)+'<br>UPDATED '+new Date(p.updated_at).toLocaleDateString('en-GB')+'</small></button>').join('');
     managePosts.querySelectorAll('[data-id]').forEach(btn=>btn.addEventListener('click',()=>{const post=allPosts.find(p=>p.id===btn.dataset.id);if(post)openPost(post);}));
   }
+  function persistLocalRecovery(){
+    if(!embeddedComposer||!currentUser||!hasTransmissionContent())return;
+    const key=recoveryStorageKey();if(!key)return;
+    const fields={};
+    postForm.querySelectorAll('input,textarea,select').forEach(el=>{
+      if(!el.id||el.type==='file'||el.type==='submit'||el.type==='button')return;
+      fields[el.id]=el.value;
+    });
+    const snapshot={version:1,updatedAt:new Date().toISOString(),fields,contentHtml:contentEditor.innerHTML,
+      editingId,postLayout,postMediaWidth,mediaUrl,mediaPath,mediaType};
+    try{localStorage.setItem(key,JSON.stringify(snapshot));recoveryRevision++;setStatus('SAVED LOCALLY');scheduleCloudAutosave();}
+    catch(error){message(saveMessage,'LOCAL RECOVERY STORAGE IS FULL OR UNAVAILABLE. Copy your text somewhere safe.',true);}
+  }
+  function scheduleCloudAutosave(){
+    clearTimeout(autosaveTimer);
+    if(!currentUser||!hasTransmissionContent())return;
+    const title=titleInput.value.trim(),slug=slugify(slugInput.value),category=categoryInput.value.trim();
+    if(!title||!slug||!category||!navigator.onLine)return;
+    autosaveTimer=setTimeout(()=>{if(!saving)savePost('draft');},1200);
+  }
+  window.addEventListener('online',scheduleCloudAutosave);
+  function restoreLocalRecovery(){
+    if(!embeddedComposer||!currentUser)return false;
+    const key=recoveryStorageKey();if(!key)return false;
+    let snapshot;
+    try{snapshot=JSON.parse(localStorage.getItem(key)||'null');}catch{return false;}
+    if(!snapshot||snapshot.version!==1||!snapshot.fields)return false;
+    Object.entries(snapshot.fields).forEach(([id,value])=>{const el=$(id);if(el&&el.type!=='file')el.value=value;});
+    contentEditor.innerHTML=snapshot.contentHtml||'';
+    editingId=snapshot.editingId||null;postLayout=snapshot.postLayout||layoutInput.value||'suno';
+    layoutInput.value=postLayout;postMediaWidth=Number(snapshot.postMediaWidth)||100;
+    mediaWidthInput.value=String(postMediaWidth);mediaWidthValue.value=postMediaWidth+'%';
+    mediaUrl=snapshot.mediaUrl||null;mediaPath=snapshot.mediaPath||null;mediaType=snapshot.mediaType||null;
+    originalMediaPath=mediaPath;syncLayoutFields();renderMediaPreview();
+    $('delete-post').hidden=!editingId;$('editor-mode').textContent=editingId?'EDIT TRANSMISSION':'NEW TRANSMISSION';
+    setStatus('RECOVERED LOCAL DRAFT');
+    message(saveMessage,'Recovered your latest local draft from '+new Date(snapshot.updatedAt).toLocaleString()+'. It is saved on this device; cloud sync will follow when required fields are complete.');
+    scheduleCloudAutosave();
+    return true;
+  }
+  postForm.addEventListener('input',persistLocalRecovery);
+  postForm.addEventListener('change',persistLocalRecovery);
+
   async function openRequestedPost(){
     if(requestedEditSlug){
       let post=allPosts.find(item=>item.slug===requestedEditSlug);
@@ -139,11 +186,16 @@
       else message(saveMessage,'The requested post could not be found in the editor. It may have been deleted or is not accessible.',true);
       return;
     }
-    if(requestedNewPost && ['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'].includes(requestedCategory)){
+    if(requestedNewPost){
       blankEditor();
-      categoryInput.value=requestedCategory;
-      setStatus('NEW POST // '+requestedCategory);
-      message(saveMessage,'New transmission for '+requestedCategory+'. Add the title and content, then save or publish.');
+      if(embeddedComposer&&restoreLocalRecovery())return;
+      if(['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'].includes(requestedCategory)){
+        categoryInput.value=requestedCategory;
+        setStatus('NEW POST // '+requestedCategory);
+        message(saveMessage,'New transmission for '+requestedCategory+'. Add the title and content, then save or publish.');
+      }else{
+        message(saveMessage,'New transmission. Choose a movement, add the title and content, then save or publish.');
+      }
     }
   }
   async function loadPosts(reset = true){
@@ -200,7 +252,7 @@
       $('password-reset-message').textContent='Choose a new password for your account.';
       return;
     }
-    if(session?.user&&await ensureAdmin(session.user)){currentUser=session.user;showWorkspace(currentUser);await Promise.all([loadPosts(),loadCommunitySubmissions()]);openRequestedPost();}else showLogin();
+    if(session?.user&&await ensureAdmin(session.user)){currentUser=session.user;showWorkspace(currentUser);if(embeddedComposer){openRequestedPost();}else{await Promise.all([loadPosts(),loadCommunitySubmissions()]);openRequestedPost();}}else showLogin();
   }
   $('forgot-password')?.addEventListener('click',async()=>{
     const email=$('login-email').value.trim();
@@ -236,7 +288,7 @@
     const {data,error}=await client.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-password').value});
     if(error){message(loginMessage,error.message,true);return;}
     if(!(await ensureAdmin(data.user)))return;
-    currentUser=data.user;showWorkspace(currentUser);message(loginMessage,'');await Promise.all([loadPosts(),loadCommunitySubmissions()]);openRequestedPost();
+    currentUser=data.user;showWorkspace(currentUser);message(loginMessage,'');if(embeddedComposer){openRequestedPost();}else{await Promise.all([loadPosts(),loadCommunitySubmissions()]);openRequestedPost();}
   });
   $('sign-out').addEventListener('click',async()=>{await client.auth.signOut();currentUser=null;showLogin();message(loginMessage,'Signed out.');});
   $('new-post').addEventListener('click',blankEditor);
@@ -328,14 +380,16 @@
   postForm.addEventListener('submit',event=>{event.preventDefault();savePost('published');});
   $('save-draft').addEventListener('click',()=>savePost('draft'));
   async function savePost(status){
-    if(saving||!currentUser)return;
+    clearTimeout(autosaveTimer);
+    if(saving||!currentUser){message(saveMessage,'The editor is not ready to save. Please wait for authentication and try again.',true);return false;}
     const title=titleInput.value.trim(),slug=slugify(slugInput.value),category=categoryInput.value.trim().toUpperCase();
-    if(!title||!slug||!category){message(saveMessage,'Title, URL slug, and category are required.',true);return;}
-    if(!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)){message(saveMessage,'Use a valid lowercase URL slug.',true);return;}
+    if(!title||!slug||!category){message(saveMessage,'To keep this transmission, add a title and choose a movement category before closing.',true);return false;}
+    if(!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)){message(saveMessage,'Use a valid lowercase URL slug.',true);return false;}
+    const revisionAtSave=recoveryRevision;
     const previousSavedMediaPath=editingId?allPosts.find(p=>p.id===editingId)?.media_path||null:null;
     const composedHtml=buildPostContent();
     const payload={title,slug,category,excerpt:excerptInput.value.trim(),content_html:cleanHtml(composedHtml),media_url:mediaUrl,media_path:mediaPath,media_type:mediaType,media_width:postMediaWidth,status};
-    if(status==='published'&&!payload.content_html.trim()){message(saveMessage,'Add some content before publishing.',true);return;}
+    if(status==='published'&&!payload.content_html.trim()){message(saveMessage,'Add some content before publishing.',true);return false;}
     saving=true;$('save-draft').disabled=true;$('publish-post').disabled=true;message(saveMessage,status==='published'?'PUBLISHING…':'SAVING DRAFT…');
     try{
       let query=client.from('vha_posts');
@@ -351,19 +405,37 @@
         const postUrl=new URL('../posts/',window.location.href);
         postUrl.searchParams.set('post',result.data.slug);
         window.location.assign(postUrl.toString());
-        return;
+        return true;
       }
+      if(recoveryRevision===revisionAtSave){try{localStorage.removeItem(recoveryStorageKey());}catch{}}
       message(saveMessage,'Draft saved. It remains private.');
       await loadPosts();renderPosts();
-    }catch(err){message(saveMessage,err.message||'Could not save this post.',true);}
+      return true;
+    }catch(err){message(saveMessage,err.message||'Could not save this post.',true);return false;}
     finally{saving=false;$('save-draft').disabled=false;$('publish-post').disabled=false;}
   }
+  function hasTransmissionContent(){
+    return Boolean(titleInput.value.trim()||excerptInput.value.trim()||contentEditor.innerText.trim()||
+      ['post-main-text','post-lyrics','post-style-prompt','post-learned','post-chatgpt-learned','post-plain-text'].some(id=>$(id).value.trim())||mediaUrl);
+  }
+  window.addEventListener('message',async event=>{
+    if(event.origin!==window.location.origin||event.source!==window.parent||!embeddedComposer)return;
+    if(event.data?.type==='VHA_QUICK_POST_CLOSE_REQUEST'){
+      clearTimeout(autosaveTimer);
+      if(mediaUploading){message(saveMessage,'Please wait for the media upload to finish before closing. Your text is already saved locally.',true);event.source.postMessage({type:'VHA_QUICK_POST_CLOSE_RESULT',requestId:event.data.requestId,saved:false},event.origin);return;}
+      const saved=hasTransmissionContent()?await savePost('draft'):true;
+      if(saved){try{localStorage.removeItem(recoveryStorageKey());}catch{}}
+      event.source.postMessage({type:'VHA_QUICK_POST_CLOSE_RESULT',requestId:event.data.requestId,saved},event.origin);
+    }else if(event.data?.type==='VHA_QUICK_POST_CLOSE_FAILED'){
+      message(saveMessage,'Draft could not be saved. The editor remains open so your work is not lost.',true);
+    }
+  });
   mediaInput.addEventListener('change',async()=>{
     const file=mediaInput.files?.[0];if(!file)return;
     if(!ALLOWED_MEDIA.has(file.type)){message(mediaMessage,'Unsupported media format. Choose an image, supported audio, or video file (MP4, WebM, or MOV).',true);mediaInput.value='';return;}
     if(file.size>MAX_MEDIA_BYTES){message(mediaMessage,'That file exceeds the 30 MB limit.',true);mediaInput.value='';return;}
     const previous={url:mediaUrl,path:mediaPath,type:mediaType};
-    mediaInput.disabled=true;message(mediaMessage,'UPLOADING MEDIA…');
+    mediaUploading=true;mediaInput.disabled=true;message(mediaMessage,'UPLOADING MEDIA…');
     try{
       const safeName=file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-').replace(/^-+|-+$/g,'').slice(-100)||'upload';
       const path=currentUser.id+'/'+crypto.randomUUID()+'-'+safeName;
@@ -372,9 +444,10 @@
       const {data}=client.storage.from(MEDIA_BUCKET).getPublicUrl(path);
       mediaUrl=data.publicUrl;mediaPath=path;mediaType=file.type.startsWith('image/')?'image':file.type.startsWith('video/')?'video':'audio';
       renderMediaPreview();message(mediaMessage,'Media uploaded. Save or publish the post to attach it.');setStatus('UNSAVED');
+      persistLocalRecovery();
       if(previous.path&&previous.path!==originalMediaPath)await client.storage.from(MEDIA_BUCKET).remove([previous.path]);
     }catch(err){message(mediaMessage,err.message||'Media upload failed.',true);mediaUrl=previous.url;mediaPath=previous.path;mediaType=previous.type;renderMediaPreview();}
-    finally{mediaInput.disabled=false;}
+    finally{mediaUploading=false;mediaInput.disabled=false;}
   });
   $('remove-media').addEventListener('click',async()=>{
     const path=mediaPath;mediaUrl=null;mediaPath=null;mediaType=null;mediaInput.value='';renderMediaPreview();
