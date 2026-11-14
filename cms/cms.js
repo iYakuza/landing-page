@@ -23,7 +23,7 @@
   const embeddedComposer = requestedParams.get('embed') === '1';
   if(embeddedComposer) document.body.classList.add('cms-embedded-composer');
   const recoveryStorageKey = () => currentUser ? 'vha_quick_post_recovery_' + currentUser.id : null;
-  let recoveryRevision = 0;
+  let recoveryRevision = 0, autosaveTimer = null;
   let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null;
   const MEDIA_BUCKET = 'vha-post-media';
   const MAX_MEDIA_BYTES = 30 * 1024 * 1024;
@@ -141,9 +141,17 @@
     });
     const snapshot={version:1,updatedAt:new Date().toISOString(),fields,contentHtml:contentEditor.innerHTML,
       editingId,postLayout,postMediaWidth,mediaUrl,mediaPath,mediaType};
-    try{localStorage.setItem(key,JSON.stringify(snapshot));recoveryRevision++;}
+    try{localStorage.setItem(key,JSON.stringify(snapshot));recoveryRevision++;setStatus('SAVED LOCALLY');scheduleCloudAutosave();}
     catch(error){message(saveMessage,'LOCAL RECOVERY STORAGE IS FULL OR UNAVAILABLE. Copy your text somewhere safe.',true);}
   }
+  function scheduleCloudAutosave(){
+    clearTimeout(autosaveTimer);
+    if(!currentUser||!hasTransmissionContent())return;
+    const title=titleInput.value.trim(),slug=slugify(slugInput.value),category=categoryInput.value.trim();
+    if(!title||!slug||!category||!navigator.onLine)return;
+    autosaveTimer=setTimeout(()=>{if(!saving)savePost('draft');},1200);
+  }
+  window.addEventListener('online',scheduleCloudAutosave);
   function restoreLocalRecovery(){
     if(!currentUser)return false;
     const key=recoveryStorageKey();if(!key)return false;
@@ -160,11 +168,11 @@
     $('delete-post').hidden=!editingId;$('editor-mode').textContent=editingId?'EDIT TRANSMISSION':'NEW TRANSMISSION';
     setStatus('RECOVERED LOCAL DRAFT');
     message(saveMessage,'Recovered your latest local draft from '+new Date(snapshot.updatedAt).toLocaleString()+'. It is saved on this device; cloud sync will follow when required fields are complete.');
+    scheduleCloudAutosave();
     return true;
   }
   postForm.addEventListener('input',persistLocalRecovery);
   postForm.addEventListener('change',persistLocalRecovery);
-  contentEditor.addEventListener('input',persistLocalRecovery);
 
   async function openRequestedPost(){
     if(requestedEditSlug){
