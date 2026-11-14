@@ -92,8 +92,16 @@
   }
   function textAsParagraphs(value){return String(value||'').split(/\n{2,}/).map(part=>'<p>'+escapeHtml(part).replace(/\n/g,'<br>')+'</p>').join('');}
   function buildPostContent(){
-    if(postLayout==='standard')return contentEditor.innerHTML;
-    if(postLayout==='plain')return '<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+textAsParagraphs($('post-plain-text').value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>';
+    const bodyHtml=contentEditor?.innerHTML?.trim()||'';
+    const bodyHasText=Boolean((contentEditor?.innerText||contentEditor?.textContent||'').trim());
+    if(postLayout==='standard')return bodyHtml;
+    if(postLayout==='plain'){
+      const plainText=$('post-plain-text').value.trim();
+      if(embeddedComposer&&!plainText&&bodyHasText)return bodyHtml;
+      return '<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+textAsParagraphs($('post-plain-text').value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>';
+    }
+    const sunoHasText=['post-main-text','post-lyrics','post-style-prompt','post-learned','post-chatgpt-learned'].some(id=>$(id).value.trim());
+    if(embeddedComposer&&!sunoHasText&&bodyHasText)return bodyHtml;
     return '<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+textAsParagraphs($('post-main-text').value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeHtml($('post-lyrics').value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+textAsParagraphs($('post-style-prompt').value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+textAsParagraphs($('post-learned').value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+textAsParagraphs($('post-chatgpt-learned').value)+'</section></aside></div>';
   }
   layoutInput.addEventListener('change',()=>{syncLayoutFields();setStatus('UNSAVED');});
@@ -426,8 +434,24 @@
     }catch(err){message(saveMessage,err.message||'Could not save this post.',true);return false;}
     finally{saving=false;$('save-draft').disabled=false;$('publish-post').disabled=false;}
   }
+  window.vhaQuickPostSaveDraft=async function(){
+    if(!embeddedComposer)return {saved:false,message:'Quick Post save bridge is unavailable.'};
+    clearTimeout(autosaveTimer);
+    const deadline=Date.now()+20000;
+    while((!currentUser||saving)&&Date.now()<deadline)await new Promise(resolve=>setTimeout(resolve,100));
+    if(!currentUser)return {saved:false,message:'CMS authentication is not ready. Your local recovery copy is retained; please try CLOSE again.'};
+    if(saving)return {saved:false,message:'A previous draft save is still running. Your local recovery copy is retained; please try CLOSE again.'};
+    if(mediaUploading)return {saved:false,message:'Media is still uploading. Your text is saved locally; wait for the upload to finish before closing.'};
+    if(!hasTransmissionContent())return {saved:true,message:'No new content to save.'};
+    ensureQuickPostDraftMetadata();
+    persistLocalRecovery(false);
+    const saved=await savePost('draft');
+    return {saved,message:saveMessage.textContent|| (saved?'Draft saved.':'The draft could not be saved. Your local recovery copy is retained.')};
+  };
+
   function hasTransmissionContent(){
-    return Boolean(titleInput.value.trim()||excerptInput.value.trim()||contentEditor.innerText.trim()||
+    const bodyText=(contentEditor?.innerText||contentEditor?.textContent||'').trim();
+    return Boolean(titleInput.value.trim()||excerptInput.value.trim()||bodyText||
       ['post-main-text','post-lyrics','post-style-prompt','post-learned','post-chatgpt-learned','post-plain-text'].some(id=>$(id).value.trim())||mediaUrl);
   }
   window.addEventListener('message',async event=>{

@@ -8,12 +8,14 @@ const css=document.createElement('style');css.textContent=[
 '.vha-nav-menu .vha-movement-row{display:flex;align-items:center;gap:8px}.vha-nav-menu .vha-movement-row>a:first-child{flex:1;min-width:0}',
 '.vha-quick-post{position:fixed;left:18px;bottom:18px;z-index:2147483007;padding:12px 15px;box-shadow:0 5px 20px #0008}.vha-quick-post[hidden],.vha-create-plus[hidden]{display:none!important}',
 '.vha-quick-post-overlay{position:fixed;inset:0;z-index:2147483100;display:flex;flex-direction:column;isolation:isolate;background:#030706}',
-'.vha-quick-post-topbar{position:relative;z-index:2;display:flex;flex:0 0 54px;align-items:center;justify-content:flex-end;box-sizing:border-box;height:54px;padding:0 16px;background:#031116;border-bottom:1px solid #00eaf548}',
+'.vha-quick-post-topbar{position:relative;z-index:2;display:flex;flex:0 0 54px;align-items:center;justify-content:flex-end;gap:14px;box-sizing:border-box;height:54px;padding:0 16px;background:#031116;border-bottom:1px solid #00eaf548}',
+'.vha-quick-post-close-status{flex:1;min-width:0;color:#8cb8ba;font:10px ui-monospace,monospace;letter-spacing:.5px;text-align:right;overflow-wrap:anywhere}',
+'.vha-quick-post-close-status.error{color:#ff9d9d}',
 '.vha-quick-post-frame{position:relative;z-index:1;display:block;flex:1 1 auto;width:100%;height:auto;min-height:0;border:0;background:#050906}',
 '.vha-quick-post-close{position:relative!important;inset:auto!important;z-index:3!important;display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:10px 13px;border:1px solid #00eaf5a0;background:#031116;color:#e8ffff;font:10px ui-monospace,monospace;letter-spacing:1px;cursor:pointer;pointer-events:auto!important;touch-action:manipulation;box-shadow:0 4px 18px #0009}',
 '.vha-quick-post-close:hover,.vha-quick-post-close:focus-visible{background:#00eaf5;color:#031116;outline:2px solid #00eaf5;outline-offset:2px}',
 '.vha-quick-post-close:disabled{opacity:.7;cursor:wait}',
-'@media(max-width:560px){.vha-quick-post-topbar{flex-basis:50px;height:50px;padding:0 10px}.vha-quick-post-close{min-height:34px;padding:9px 10px}}',
+'@media(max-width:560px){.vha-quick-post-topbar{flex-basis:50px;height:50px;padding:0 10px;gap:8px}.vha-quick-post-close-status{font-size:9px}.vha-quick-post-close{min-height:34px;padding:9px 10px}}',
 '@media(max-width:560px){.vha-quick-post{left:10px;bottom:10px}}'
 ].join('');document.head.appendChild(css);
 const pageCategory=()=>{const b=(document.body.dataset.movement||'').toUpperCase();if(M.some(m=>m[0]===b))return b;const slug=location.pathname.split('/').find(part=>M.some(m=>m[2]===part.toLowerCase()));return slug?M.find(m=>m[2]===slug.toLowerCase())?.[0]||'':''};
@@ -22,23 +24,34 @@ let composerOverlay=null,previousFocus=null,closeInProgress=false;
 async function closeStudio(){
   if(!composerOverlay||closeInProgress)return;
   const overlay=composerOverlay,frame=overlay.querySelector('iframe'),close=overlay.querySelector('.vha-quick-post-close');
+  const status=overlay.querySelector('.vha-quick-post-close-status');
   closeInProgress=true;close.disabled=true;close.textContent='SAVING DRAFT…';
-  const requestId='quick-post-close-'+Date.now()+'-'+Math.random().toString(36).slice(2);
-  const saved=await new Promise(resolve=>{
-    let finished=false;
-    const done=value=>{if(finished)return;finished=true;window.removeEventListener('message',onMessage);clearTimeout(timeout);resolve(value)};
-    const onMessage=event=>{
-      if(event.origin!==location.origin||event.source!==frame.contentWindow)return;
-      if(event.data?.type==='VHA_QUICK_POST_CLOSE_RESULT'&&event.data.requestId===requestId)done(!!event.data.saved);
-    };
-    const timeout=setTimeout(()=>done(false),20000);
-    window.addEventListener('message',onMessage);
-    try{frame.contentWindow.postMessage({type:'VHA_QUICK_POST_CLOSE_REQUEST',requestId},location.origin)}catch{done(false)}
-  });
-  if(!saved){
+  if(status){status.textContent='Saving this transmission to YOUR POSTS…';status.classList.remove('error');}
+  let result={saved:false,message:'The CMS draft-save service did not respond. Your local recovery copy is retained.'};
+  try{
+    const deadline=Date.now()+15000;
+    let saveDraft=null;
+    while(Date.now()<deadline){
+      try{saveDraft=frame.contentWindow?.vhaQuickPostSaveDraft;}catch{}
+      if(typeof saveDraft==='function')break;
+      await new Promise(resolve=>setTimeout(resolve,50));
+    }
+    if(typeof saveDraft!=='function'){
+      result={saved:false,message:'The CMS editor has not finished initialising. Your local recovery copy is retained; try CLOSE again.'};
+    }else{
+      let timer;
+      const timeout=new Promise(resolve=>{timer=setTimeout(()=>resolve({saved:false,message:'The draft-save request timed out. Your local recovery copy is retained; try CLOSE again.'}),30000);});
+      const request=Promise.resolve().then(()=>saveDraft.call(frame.contentWindow)).then(value=>{
+        if(typeof value==='boolean')return {saved:value,message:value?'Draft saved.': 'The CMS could not save this draft. Your local recovery copy is retained.'};
+        return {saved:value?.saved===true,message:value?.message|| (value?.saved?'Draft saved.':'The CMS could not save this draft. Your local recovery copy is retained.')};
+      }).catch(error=>({saved:false,message:error?.message||'The CMS draft-save request failed. Your local recovery copy is retained.'}));
+      result=await Promise.race([request,timeout]);
+      clearTimeout(timer);
+    }
+  }catch(error){result={saved:false,message:error?.message||'The CMS draft-save request failed. Your local recovery copy is retained.'};}
+  if(!result.saved){
     closeInProgress=false;close.disabled=false;close.textContent='CLOSE ✕';
-    const status=overlay.querySelector('.vha-quick-post-frame');
-    if(status)status.contentWindow?.postMessage({type:'VHA_QUICK_POST_CLOSE_FAILED'},location.origin);
+    if(status){status.textContent=result.message;status.classList.add('error');}
     return;
   }
   overlay.remove();composerOverlay=null;closeInProgress=false;document.body.style.overflow='';
@@ -57,10 +70,12 @@ function openStudio(selected=''){
   overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','New transmission editor');
   const topbar=document.createElement('div');
   topbar.className='vha-quick-post-topbar';
+  const status=document.createElement('span');
+  status.className='vha-quick-post-close-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
   const close=document.createElement('button');
   close.type='button';close.className='vha-quick-post-close';close.textContent='CLOSE ✕';close.setAttribute('aria-label','Close new transmission editor');
   close.addEventListener('click',closeStudio);
-  topbar.appendChild(close);
+  topbar.append(status,close);
   const frame=document.createElement('iframe');
   frame.className='vha-quick-post-frame';frame.title='New Transmission editor';frame.src=url.pathname+url.search;
   frame.setAttribute('allow','clipboard-read; clipboard-write');
