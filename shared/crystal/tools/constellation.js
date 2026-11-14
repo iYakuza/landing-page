@@ -45,21 +45,25 @@
   ];
   // Remove the page-level header entirely. The shared bottom navigation remains the sole global navigation.
   document.querySelectorAll("body header, .masthead, .mast, .ha-nav, .gd-nav, .toplinks, .vha-main-nav").forEach(el=>el.remove());
-  // Crystal constellation is the sole global navigation. No conventional header is injected.
-  document.querySelectorAll(".ego-bottom-hud").forEach(el=>el.remove());
+  // Reuse the homepage Crystal dock rendered by the initial HTML to avoid a second visual transition.
+  const viewerTools=document.getElementById("vha-viewer-tools");
+  const existingBottom=viewerTools?.querySelector(".ego-bottom-hud.vha-universal-nav");
+  document.querySelectorAll(".ego-bottom-hud").forEach(el=>{if(el!==existingBottom)el.remove()});
 
-  const bottom=document.createElement("div");
+  const bottom=existingBottom||document.createElement("div");
   bottom.className="ego-bottom-hud vha-universal-nav";
   bottom.setAttribute("role","navigation");
   bottom.setAttribute("aria-label","Main navigation");
-  const mapButton=document.createElement("button");
+  const mapButton=bottom.querySelector(".vha-map-toggle")||document.createElement("button");
   mapButton.type="button";mapButton.className="vha-map-toggle";
   mapButton.setAttribute("aria-expanded","true");mapButton.setAttribute("aria-controls","vha-world-map");
   mapButton.setAttribute('aria-label','Open world constellation');mapButton.title='Open world constellation';mapButton.innerHTML='<svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M24 3 37 16 24 45 11 16 24 3Z"/><path d="M11 16h26M24 3v42M11 16l13 10 13-10"/></svg>';
-  bottom.appendChild(mapButton);
-  document.body.appendChild(bottom);
-  const viewerTools=document.getElementById("vha-viewer-tools");
-  if(viewerTools)viewerTools.insertBefore(bottom,viewerTools.querySelector(".vha-tools-side.vha-tools-right"));
+  if(mapButton.parentNode!==bottom)bottom.appendChild(mapButton);
+  if(viewerTools){
+    if(bottom.parentNode!==viewerTools)viewerTools.insertBefore(bottom,viewerTools.querySelector(".vha-tools-side.vha-tools-right"));
+  }else if(!bottom.isConnected){
+    document.body.appendChild(bottom);
+  }
 
   const map=document.createElement("div");
   map.className="vha-world-map";map.id="vha-world-map";map.hidden=true;
@@ -261,9 +265,12 @@
   if(entryIntro){
     document.body.classList.add("vha-entry-intro");
     map.hidden=true;mapButton.setAttribute("aria-expanded","false");
-    const prompt=document.createElement("div");prompt.id="vha-entry-prompt";
-    prompt.innerHTML="<span>AN UNFINISHED RECORD</span><small class=\"vha-entry-subline\">A personal project exploring identity, creativity, knowledge and technology.</small>";
-    document.body.appendChild(prompt);
+    let prompt=document.getElementById("vha-entry-prompt");
+    if(!prompt){
+      prompt=document.createElement("div");prompt.id="vha-entry-prompt";
+      prompt.innerHTML="<span>AN UNFINISHED RECORD</span><small class=\"vha-entry-subline\">A personal project exploring identity, creativity, knowledge and technology.</small>";
+      document.body.appendChild(prompt);
+    }
     mapButton.setAttribute("aria-label","Enter the constellation");mapButton.title="Enter the constellation";
   }else{
     // The constellation and expanded viewer tools share one state: both begin docked.
