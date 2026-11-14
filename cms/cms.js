@@ -131,7 +131,7 @@
     managePosts.innerHTML=posts.map(p=>'<button type="button" class="manage-item '+(p.id===editingId?'active':'')+'" data-id="'+escapeHtml(p.id)+'"><strong>'+escapeHtml(p.title)+'</strong><small><span class="'+(p.status==='draft'?'draft-label':'published-label')+'">'+escapeHtml(p.status.toUpperCase())+'</span> · '+escapeHtml(p.category)+'<br>UPDATED '+new Date(p.updated_at).toLocaleDateString('en-GB')+'</small></button>').join('');
     managePosts.querySelectorAll('[data-id]').forEach(btn=>btn.addEventListener('click',()=>{const post=allPosts.find(p=>p.id===btn.dataset.id);if(post)openPost(post);}));
   }
-  function persistLocalRecovery(){
+  function persistLocalRecovery(scheduleSync=true){
     if(!embeddedComposer||!currentUser||!hasTransmissionContent())return;
     const key=recoveryStorageKey();if(!key)return;
     const fields={};
@@ -141,12 +141,22 @@
     });
     const snapshot={version:1,updatedAt:new Date().toISOString(),fields,contentHtml:contentEditor.innerHTML,
       editingId,postLayout,postMediaWidth,mediaUrl,mediaPath,mediaType};
-    try{localStorage.setItem(key,JSON.stringify(snapshot));recoveryRevision++;setStatus('SAVED LOCALLY');scheduleCloudAutosave();}
+    try{localStorage.setItem(key,JSON.stringify(snapshot));recoveryRevision++;setStatus('SAVED LOCALLY');if(scheduleSync)scheduleCloudAutosave();}
     catch(error){message(saveMessage,'LOCAL RECOVERY STORAGE IS FULL OR UNAVAILABLE. Copy your text somewhere safe.',true);}
+  }
+  function ensureQuickPostDraftMetadata(){
+    if(!embeddedComposer||!hasTransmissionContent())return false;
+    let changed=false;
+    if(!titleInput.value.trim()){titleInput.value='Untitled transmission';changed=true;}
+    if(!slugify(slugInput.value)){slugInput.value='untitled-transmission-'+Date.now().toString(36);changed=true;}
+    if(!categoryInput.value.trim()){categoryInput.value='UNASSIGNED';changed=true;}
+    if(changed){slugManuallyEdited=false;setStatus('DRAFT DETAILS AUTO-FILLED');}
+    return changed;
   }
   function scheduleCloudAutosave(){
     clearTimeout(autosaveTimer);
     if(!currentUser||!hasTransmissionContent())return;
+    if(ensureQuickPostDraftMetadata())persistLocalRecovery(false);
     const title=titleInput.value.trim(),slug=slugify(slugInput.value),category=categoryInput.value.trim();
     if(!title||!slug||!category||!navigator.onLine)return;
     autosaveTimer=setTimeout(()=>{if(!saving)savePost('draft');},1200);
@@ -381,6 +391,7 @@
   $('save-draft').addEventListener('click',()=>savePost('draft'));
   async function savePost(status){
     clearTimeout(autosaveTimer);
+    if(status==='draft'&&embeddedComposer&&ensureQuickPostDraftMetadata())persistLocalRecovery(false);
     if(saving||!currentUser){message(saveMessage,'The editor is not ready to save. Please wait for authentication and try again.',true);return false;}
     const title=titleInput.value.trim(),slug=slugify(slugInput.value),category=categoryInput.value.trim().toUpperCase();
     if(!title||!slug||!category){message(saveMessage,'To keep this transmission, add a title and choose a movement category before closing.',true);return false;}
@@ -390,6 +401,7 @@
     const composedHtml=buildPostContent();
     const payload={title,slug,category,excerpt:excerptInput.value.trim(),content_html:cleanHtml(composedHtml),media_url:mediaUrl,media_path:mediaPath,media_type:mediaType,media_width:postMediaWidth,status};
     if(status==='published'&&!payload.content_html.trim()){message(saveMessage,'Add some content before publishing.',true);return false;}
+    if(status==='published'&&category==='UNASSIGNED'){message(saveMessage,'Choose a movement category before publishing this transmission.',true);return false;}
     saving=true;$('save-draft').disabled=true;$('publish-post').disabled=true;message(saveMessage,status==='published'?'PUBLISHING…':'SAVING DRAFT…');
     try{
       let query=client.from('vha_posts');
