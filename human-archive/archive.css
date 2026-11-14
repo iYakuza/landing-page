@@ -268,3 +268,51 @@
 
 .ha-related-record-link{display:inline-flex;align-items:center;min-height:42px;margin:14px 0;padding:10px 13px;border:1px solid rgba(184,166,126,.32);background:rgba(184,166,126,.06);color:#c8bd9a;font:9px/1.6 'DM Mono',monospace;letter-spacing:.08em;text-align:left;cursor:pointer}
 .ha-related-record-link:hover{border-color:rgba(184,166,126,.7);background:rgba(184,166,126,.12)}
+
+
+/* HUMAN ARCHIVE IMAGE VIEWER — fit-to-screen preview and native-resolution inspection */
+.ha-local-image .ha-image-open{
+ display:block;width:100%;padding:0;border:0;background:transparent;color:inherit;cursor:zoom-in;
+}
+.ha-local-image .ha-image-open:focus-visible{
+ outline:2px solid #b8a67e;outline-offset:4px;
+}
+.ha-local-image .ha-image-open img{cursor:zoom-in}
+.ha-image-viewer{
+ position:fixed;inset:0;width:min(96vw,1800px);max-width:96vw;height:min(94dvh,1200px);max-height:94dvh;
+ margin:auto;padding:0;border:1px solid rgba(184,166,126,.48);border-radius:4px;
+ background:#07090c;color:#e5e8e7;box-shadow:0 30px 100px rgba(0,0,0,.8);overflow:hidden;
+}
+.ha-image-viewer::backdrop{background:rgba(0,0,0,.88);backdrop-filter:blur(5px)}
+.ha-image-viewer-panel{display:grid;grid-template-rows:auto minmax(0,1fr);width:100%;height:100%;min-height:0}
+.ha-image-viewer-toolbar{
+ position:relative;z-index:1;display:flex;align-items:center;gap:9px;min-height:54px;padding:9px 12px;
+ border-bottom:1px solid rgba(145,171,171,.2);background:#0b1115;
+}
+.ha-image-viewer-caption{
+ flex:1;min-width:0;color:#c7d1cc;font:9px/1.6 'DM Mono',monospace;letter-spacing:.06em;overflow-wrap:anywhere;
+}
+.ha-image-viewer-control{
+ display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:7px 10px;
+ border:1px solid rgba(184,166,126,.32);background:rgba(184,166,126,.06);color:#c8bd9a;
+ font:8px 'DM Mono',monospace;letter-spacing:.06em;text-decoration:none;white-space:nowrap;cursor:pointer;
+}
+.ha-image-viewer-control:hover,.ha-image-viewer-control:focus-visible{
+ border-color:rgba(184,166,126,.75);background:rgba(184,166,126,.13);outline:none;
+}
+.ha-image-viewer-close{border-color:rgba(145,171,171,.3);color:#c1d0ca}
+.ha-image-viewer-stage{
+ display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;overflow:auto;padding:12px;background:#030507;
+}
+.ha-image-viewer-image{
+ display:block;flex:none;width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in;
+}
+.ha-image-viewer.is-zoomed .ha-image-viewer-stage{align-items:flex-start;justify-content:flex-start}
+.ha-image-viewer.is-zoomed .ha-image-viewer-image{max-width:none;max-height:none;margin:0;cursor:zoom-out}
+@media(max-width:600px){
+ .ha-image-viewer{width:98vw;max-width:98vw;height:96dvh;max-height:96dvh}
+ .ha-image-viewer-toolbar{flex-wrap:wrap;gap:6px;padding:8px}
+ .ha-image-viewer-caption{flex-basis:100%}
+ .ha-image-viewer-control{min-height:32px;padding:6px 8px;font-size:7px}
+ .ha-image-viewer-stage{padding:6px}
+}
