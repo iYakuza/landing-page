@@ -141,11 +141,15 @@
       else message(saveMessage,'The requested post could not be found in the editor. It may have been deleted or is not accessible.',true);
       return;
     }
-    if(requestedNewPost && ['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'].includes(requestedCategory)){
+    if(requestedNewPost){
       blankEditor();
-      categoryInput.value=requestedCategory;
-      setStatus('NEW POST // '+requestedCategory);
-      message(saveMessage,'New transmission for '+requestedCategory+'. Add the title and content, then save or publish.');
+      if(['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'].includes(requestedCategory)){
+        categoryInput.value=requestedCategory;
+        setStatus('NEW POST // '+requestedCategory);
+        message(saveMessage,'New transmission for '+requestedCategory+'. Add the title and content, then save or publish.');
+      }else{
+        message(saveMessage,'New transmission. Choose a movement, add the title and content, then save or publish.');
+      }
     }
   }
   async function loadPosts(reset = true){
@@ -202,7 +206,7 @@
       $('password-reset-message').textContent='Choose a new password for your account.';
       return;
     }
-    if(session?.user&&await ensureAdmin(session.user)){currentUser=session.user;showWorkspace(currentUser);await Promise.all([loadPosts(),loadCommunitySubmissions()]);openRequestedPost();}else showLogin();
+    if(session?.user&&await ensureAdmin(session.user)){currentUser=session.user;showWorkspace(currentUser);if(embeddedComposer){openRequestedPost();}else{await Promise.all([loadPosts(),loadCommunitySubmissions()]);openRequestedPost();}}else showLogin();
   }
   $('forgot-password')?.addEventListener('click',async()=>{
     const email=$('login-email').value.trim();
@@ -238,7 +242,7 @@
     const {data,error}=await client.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-password').value});
     if(error){message(loginMessage,error.message,true);return;}
     if(!(await ensureAdmin(data.user)))return;
-    currentUser=data.user;showWorkspace(currentUser);message(loginMessage,'');await Promise.all([loadPosts(),loadCommunitySubmissions()]);openRequestedPost();
+    currentUser=data.user;showWorkspace(currentUser);message(loginMessage,'');if(embeddedComposer){openRequestedPost();}else{await Promise.all([loadPosts(),loadCommunitySubmissions()]);openRequestedPost();}
   });
   $('sign-out').addEventListener('click',async()=>{await client.auth.signOut();currentUser=null;showLogin();message(loginMessage,'Signed out.');});
   $('new-post').addEventListener('click',blankEditor);
