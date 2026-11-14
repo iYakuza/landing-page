@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T17:58:47.567528Z",
-  "last_processed_sha": "f7de809519b63eb0b55a08035e4a831cb5f7403d",
+  "updated_at": "2026-11-14T18:12:07.106681Z",
+  "last_processed_sha": "0d5b69718259db1d489251d906725637d4036a40",
   "entries": [
+    {
+      "id": "0d5b69718259db1d489251d906725637d4036a40",
+      "timestamp": "2026-11-14T19:11:54+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creator Workshop",
+      "title": "A refined Creator Workshop",
+      "description": "This update brings together Allow text-only Quick Posts to save as drafts. It updates cms.js, index.html.",
+      "commit_count": 1,
+      "files": [
+        "cms/cms.js",
+        "cms/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Allow text-only Quick Posts to save as drafts",
+          "url": "https://github.com/iYakuza/landing-page/commit/0d5b69718259db1d489251d906725637d4036a40",
+          "files": [
+            "cms/cms.js",
+            "cms/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "69f040f63d48119476cc6ea10c58f90b6214bc22",
       "timestamp": "2026-11-14T18:58:38+01:00",
@@ -1280,35 +1303,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/e80555ebd508776d0c42d605b873adaac207edfd",
           "files": [
             "green-dream/guest-notes/revision-history/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "524fda402dc42e6cd4adea19f01832cf57f65339",
-      "timestamp": "2026-11-13T21:39:04+01:00",
-      "category": "FEATURE",
-      "component": "Creative Archive",
-      "title": "New capabilities for Creative Archive",
-      "description": "This update brings together Add Romanian counterpart of ethical framework glossary; Link Romanian version from English ethical framework glossary. It updates index.html and related project files.",
-      "commit_count": 2,
-      "files": [
-        "green-dream/guest-notes/ethical-framework/index.html",
-        "green-dream/guest-notes/ethical-framework/ro/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Add Romanian counterpart of ethical framework glossary",
-          "url": "https://github.com/iYakuza/landing-page/commit/b7593a64f418fd5724104cbd1929aaecafac8362",
-          "files": [
-            "green-dream/guest-notes/ethical-framework/ro/index.html"
-          ]
-        },
-        {
-          "message": "Link Romanian version from English ethical framework glossary",
-          "url": "https://github.com/iYakuza/landing-page/commit/524fda402dc42e6cd4adea19f01832cf57f65339",
-          "files": [
-            "green-dream/guest-notes/ethical-framework/index.html"
           ]
         }
       ]
