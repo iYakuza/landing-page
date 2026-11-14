@@ -178,6 +178,11 @@ Deno.serve(async (request: Request) => {
   const webflowToken = String(config.WEBFLOW_API_TOKEN || "").trim();
   const rateSalt = String(config.RATE_LIMIT_SALT || "");
   const turnstileSecret = String(config.TURNSTILE_SECRET_KEY || Deno.env.get("TURNSTILE_SECRET_KEY") || "").trim();
+  // The hosted recovery drill must never publish or edit the live Webflow CMS.
+  const isRecoveryDrill = (Deno.env.get("SUPABASE_URL") || "").replace(/\\/+$/, "") === "https://ioguymqdeuuursizifnn.supabase.co";
+  if (isRecoveryDrill && request.method !== "GET" && request.method !== "OPTIONS") {
+    return reply(503, { message: "Write operations are disabled on the recovery drill project." }, origin, allowedOrigin);
+  }
   let ownerEditToken = "";
   if (request.method === "POST") {
     try {
