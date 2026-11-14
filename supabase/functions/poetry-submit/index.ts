@@ -164,7 +164,7 @@ async function verifyTurnstile(token: string, secret: string, remoteIp: string) 
 
 Deno.serve(async (request: Request) => {
   const origin = request.headers.get("origin");
-  const isRecoveryDrillRequest = (Deno.env.get("SUPABASE_URL") || "").replace(/\\/+$/, "") === "https://ioguymqdeuuursizifnn.supabase.co";
+  const isRecoveryDrillRequest = (Deno.env.get("SUPABASE_URL") || "").replace(/\/+$/, "") === "https://ioguymqdeuuursizifnn.supabase.co";
   if (isRecoveryDrillRequest) {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: headers(origin, DRILL_ALLOWED_ORIGIN) });
