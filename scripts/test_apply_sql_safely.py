@@ -17,6 +17,8 @@ cases = [
     ("SELECT pg_catalog.set_config('log_min_messages', 'warning', false);", "", 1),
     ("\\restrict abc123\nSELECT pg_catalog.set_config('log_min_messages', 'warning', false);\n\\unrestrict abc123", "\\restrict abc123\n\n\\unrestrict abc123", 1),
     ("SELECT set_config('log_min_messages', 'warning', true);", "", 1),
+    ("SELECT pg_catalog.set_config(E'log_min_messages', 'warning', false);", "", 1),
+    ("SELECT pg_catalog.set_config($cfg$log_min_messages$cfg$, 'warning', false);", "", 1),
     ("SELECT pg_catalog.set_config('search_path', 'log_min_messages', false);", "SELECT pg_catalog.set_config('search_path', 'log_min_messages', false);", 0),
     ("SELECT pg_catalog.set_config('search_path', 'safe', false); -- set_config('log_min_messages', 'warning', false)\n", "SELECT pg_catalog.set_config('search_path', 'safe', false); -- set_config('log_min_messages', 'warning', false)\n", 0),
     ("ALTER ROLE app_user SET log_min_messages TO warning;", "", 1),
