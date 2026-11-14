@@ -57,28 +57,38 @@ All five remain executable by `service_role`. Post-change privilege checks confi
 
 Remaining Supabase advisor notices include RLS-enabled tables with no policies (`sys_transmissions` and `sys_transmission_limits`), which intentionally remain inaccessible through public table access, the public aggregate-only `vha_public_analytics_summary()` SECURITY DEFINER RPC, and disabled leaked-password protection. Review the latter two according to the intended production access model before any future production change.
 
-## Not yet a complete website failover
+## Isolated website recovery preview
 
-The restored backend is not yet a working staging copy of the website. Several static frontend files still hard-code the production project ref and publishable key, including:
+A separate static website preview has now been deployed from the `recovery-drill-preview` branch:
 
-- `index.html` (CSP and resource host allowlists)
-- `home.js`
-- `creator-posting.js`
-- `analytics.js`
-- `cms/cms.js`
-- `posts/posts.js`
+- URL: https://green-dream-recovery-preview.pages.dev
+- Cloudflare Pages project: `green-dream-recovery-preview`
+- Source repository: `iYakuza/landing-page`
+- Source branch: `recovery-drill-preview`
+- Supabase backend: the restored drill project `ioguymqdeuuursizifnn`
+- The owner CMS uses the drill project's Supabase URL and publishable key. A private **Recovery Centre** section links to the full-system backup, content/media backup, local validation, hosted restore, preview, and runbook workflows. These are launch links only; they do not dispatch Actions runs automatically.
+- The owner manually confirmed that the Human Archive content appears. The EGO portrait was initially blocked by the Cloudflare Pages Content Security Policy. The WordPress media asset (media item 3013, `emanuel-ego-portrait.png`) was located, and the recovery branch CSP was updated to allow the WordPress media host. The new Pages deployment completed successfully and the owner confirmed the image appeared.
 
-No production frontend files, production Supabase project, production Webflow content, DNS, or live website deployment were changed during this drill.
+This is an isolated, working preview—not a complete independent failover. Some assets and integrations still rely on external services.
 
-A separate staging website deployment must be prepared with the drill project's URL/key, Storage host, Edge Function URLs, CORS/CSP rules, and Auth redirect settings. It must be hosted separately from the production site. Until that isolated preview exists and is tested, this drill proves backend recovery—not full website failover.
+## Remaining external dependencies and limitations
 
-## Outstanding integration dependencies
+- The EGO portrait is still served from the WordPress.com media library. It should be copied into a recovery-controlled location and the preview updated to use that copy before claiming full media independence.
+- The `poetry-submit` Edge Function's read-only archive GET path still requests live items from the Webflow CMS using the restored Vault configuration. Its write operations are blocked on the drill project. This means archive reads are not yet independent of Webflow.
+- Contact email delivery is deliberately disabled by an exact-project guard. Do not add a live Resend key to the drill.
+- Public transmission submissions remain dependent on staging-safe Turnstile configuration and a dedicated `SYS_TRANSMISSION_RATE_SALT`. Do not reuse production-only integration secrets without a separate safety review.
+- Moderator operations in `secure-your-soul-transmissions` target only the drill database, but should be tested only with an owner-authorized account and synthetic content.
+- `google-drive-oauth-callback` remains undeployed because the old code contains a production callback URL and its OAuth client/redirect setup is separate. The current Google Drive backup and restore workflows do not require it.
+- `website-theme` is retired and intentionally not deployed.
+- Supabase Auth provider settings, redirect allowlists, SMTP, domains, API keys, database credentials, and other project-level settings are not included in the backup. Check and configure these separately for a real failover.
+- Auth sessions, MFA factors, and Auth audit history are not restored.
+- The recovery preview is noindex and has no production custom domain. Do not repoint production DNS to it.
 
-The backup restores Vault values, but not Edge Function runtime environment variables or third-party credentials. In particular:
+## Current operating safeguards
 
-- Turnstile integration needs a staging-compatible site/secret configuration and a dedicated `SYS_TRANSMISSION_RATE_SALT`.
-- Contact email delivery is deliberately disabled on the drill.
-- Google OAuth callback remains undeployed; the older route is not needed by the current Drive backup workflow.
-- Project-level Auth provider, redirect URL, SMTP, and other dashboard configuration must be checked separately for a real failover.
+- Production Supabase project `verse-after-hours` and the live website were not modified by the hosted restore or recovery-preview changes.
+- The drill project's write and email/publication paths remain restricted as described above.
+- The hosted restore workflow remains manual-only and must target a NEW, EMPTY Supabase project. The current drill project is populated and must not be used as a fresh restore target.
+- Scheduled backups remain disabled by owner preference. Do not set `BACKUP_ENABLED=true` or create a schedule without explicit approval.
+- PR #20 remains open, draft, and unmerged. The working restore implementation remains on `backup/apps-script-transfer-redesign`; select this branch in GitHub Actions while the PR is unmerged.
 
-Keep scheduled backups disabled until the first live backup plus the complete, isolated website recovery procedure has been exercised. The hosted restore workflow remains manual-only.
