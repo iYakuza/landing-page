@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T17:50:33.784784Z",
-  "last_processed_sha": "d4ccb25cbf02207453454f4c5d3d15e060f98695",
+  "updated_at": "2026-11-14T17:58:47.567528Z",
+  "last_processed_sha": "69f040f63d48119476cc6ea10c58f90b6214bc22",
   "entries": [
+    {
+      "id": "69f040f63d48119476cc6ea10c58f90b6214bc22",
+      "timestamp": "2026-11-14T18:58:38+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Fix Quick Post close control overlap. It updates cms.js, creator-posting.js.",
+      "commit_count": 1,
+      "files": [
+        "cms/cms.js",
+        "creator-posting.js"
+      ],
+      "commits": [
+        {
+          "message": "Fix Quick Post close control overlap",
+          "url": "https://github.com/iYakuza/landing-page/commit/69f040f63d48119476cc6ea10c58f90b6214bc22",
+          "files": [
+            "cms/cms.js",
+            "creator-posting.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "d4ccb25cbf02207453454f4c5d3d15e060f98695",
       "timestamp": "2026-11-14T18:50:25+01:00",
@@ -1286,27 +1309,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/524fda402dc42e6cd4adea19f01832cf57f65339",
           "files": [
             "green-dream/guest-notes/ethical-framework/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "8a19be221b5b77aad86c033bac5d2d59a3602395",
-      "timestamp": "2026-11-13T21:33:43+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Record index role clarification and glossary navigation in revision history. It updates index.html.",
-      "commit_count": 1,
-      "files": [
-        "green-dream/guest-notes/revision-history/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Record index role clarification and glossary navigation in revision history",
-          "url": "https://github.com/iYakuza/landing-page/commit/8a19be221b5b77aad86c033bac5d2d59a3602395",
-          "files": [
-            "green-dream/guest-notes/revision-history/index.html"
           ]
         }
       ]
