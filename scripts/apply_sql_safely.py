@@ -262,7 +262,7 @@ def copy_target_at_line(sql, line_number):
     """Identify a pg_dump COPY target for an error line without reading row data."""
     lines = sql.splitlines()
     copy_pattern = re.compile(
-        r"""^\\s*COPY\\s+((?:"(?:[^"]|"")*"|[A-Za-z_][A-Za-z_0-9$]*)(?:\\.(?:"(?:[^"]|"")*"|[A-Za-z_][A-Za-z_0-9$]*))?)\\s*\\(.*\\)\\s+FROM\\s+stdin;\\s*$""",
+        r"""^\s*COPY\s+((?:"(?:[^"]|"")*"|[A-Za-z_][A-Za-z_0-9$]*)(?:\.(?:"(?:[^"]|"")*"|[A-Za-z_][A-Za-z_0-9$]*))?)\s*\(.*\)\s+FROM\s+stdin;\s*$""",
         re.IGNORECASE,
     )
     for index, line in enumerate(lines):
@@ -270,7 +270,7 @@ def copy_target_at_line(sql, line_number):
         if not match:
             continue
         end = index + 1
-        while end < len(lines) and lines[end].strip() != r"\\.":
+        while end < len(lines) and lines[end].strip() != r"\.":
             end += 1
         if index + 2 <= line_number <= end + 1:
             return match.group(1)
@@ -280,11 +280,11 @@ def copy_target_at_line(sql, line_number):
 def postgres_error_diagnostic(stderr):
     """Extract a PostgreSQL primary error and redact any quoted values."""
     for line in stderr.splitlines():
-        location = re.match(r"^psql:.*?:(\\d+): ERROR:\\s*(.*)$", line)
+        location = re.match(r"^psql:.*?:(\d+): ERROR:\s*(.*)$", line)
         if location:
             line_number, message = int(location.group(1)), location.group(2)
         else:
-            plain = re.match(r"^ERROR:\\s*(.*)$", line)
+            plain = re.match(r"^ERROR:\s*(.*)$", line)
             if not plain:
                 continue
             line_number, message = None, plain.group(1)
@@ -295,7 +295,7 @@ def postgres_error_diagnostic(stderr):
         )
         if duplicate:
             constraint = duplicate.group(1).replace('""', '"')
-            detail = re.search(r"^DETAIL:\\s*Key \\(([^)]*)\\)=", stderr, re.MULTILINE)
+            detail = re.search(r"^DETAIL:\s*Key \(([^)]*)\)=", stderr, re.MULTILINE)
             columns = detail.group(1) if detail else ""
             suffix = f" (columns: {columns})" if columns else ""
             return line_number, f"duplicate key violates constraint {constraint}{suffix}"
@@ -303,7 +303,7 @@ def postgres_error_diagnostic(stderr):
         # explanation but suppress every quoted string and hexadecimal value.
         message = re.sub(r'"(?:[^"]|"")*"', '"<redacted>"', message)
         message = re.sub(r"'(?:''|[^'])*'", "'<redacted>'", message)
-        message = re.sub(r"\\b0x[0-9a-f]+\\b", "<redacted>", message, flags=re.IGNORECASE)
+        message = re.sub(r"\b0x[0-9a-f]+\b", "<redacted>", message, flags=re.IGNORECASE)
         return line_number, message
     return None
 
