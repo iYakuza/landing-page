@@ -231,7 +231,7 @@ def sanitize_roles_sql(original_sql):
                 re.IGNORECASE,
             )
             and re.match(
-                r"""(?is)^\s*SELECT\s+(?:pg_catalog\s*\.\s*)?set_config\s*\(\s*'log_min_messages'\s*(?:::\s*[\w."]+)?\s*,""",
+                r"""(?is)^\s*SELECT\s+(?:pg_catalog\s*\.\s*)?set_config\s*\(\s*(?:(?:[eE]\s*)?'log_min_messages'|(\$[A-Za-z_][A-Za-z_0-9]*\$|\$\$)log_min_messages\1)\s*(?:::\s*[\w."]+)?\s*,""",
                 comment_free,
             )
         )
