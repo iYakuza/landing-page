@@ -1,6 +1,7 @@
 (()=>{'use strict';
 const search=document.getElementById('ha-search'),year=document.getElementById('ha-year'),category=document.getElementById('ha-category'),list=document.getElementById('ha-list'),count=document.getElementById('ha-count'),mediaStatus=document.getElementById('ha-media-status');
 let records=[],mediaItems=[],mediaMap=new Map(),mediaByPost=new Map(),mediaReady=false,publicBase='';
+let imageViewer=null,imageViewerImage=null,imageViewerCaption=null,imageViewerZoom=null,imageViewerOriginal=null,imageViewerClose=null;
 const expandedCategories=new Set();
 const categoryOrder=['Nimic și Ființă','This notion','Dialog monolog','Gânduri','Cântec','Belief','Snob','PERSONAL PROJECTS','Haiku'];
 const clean=value=>String(value??'').normalize('NFKC').toLocaleLowerCase().trim();
@@ -35,11 +36,45 @@ function safeExternalUrl(raw,allowedHosts){
 function mediaTitle(item,record){
  return String(item.title||record.title||'Archive media').replace(/&nbsp;/g,' ').trim();
 }
+function ensureImageViewer(){
+ if(imageViewer)return;
+ imageViewer=document.createElement('dialog');imageViewer.className='ha-image-viewer';imageViewer.setAttribute('aria-label','Archive image viewer');
+ const panel=document.createElement('div');panel.className='ha-image-viewer-panel';
+ const toolbar=document.createElement('div');toolbar.className='ha-image-viewer-toolbar';
+ imageViewerCaption=document.createElement('span');imageViewerCaption.className='ha-image-viewer-caption';
+ imageViewerZoom=document.createElement('button');imageViewerZoom.type='button';imageViewerZoom.className='ha-image-viewer-control';imageViewerZoom.textContent='VIEW ORIGINAL SIZE';
+ imageViewerOriginal=document.createElement('a');imageViewerOriginal.className='ha-image-viewer-control';imageViewerOriginal.target='_blank';imageViewerOriginal.rel='noopener noreferrer';imageViewerOriginal.textContent='OPEN ORIGINAL FILE ↗';
+ imageViewerClose=document.createElement('button');imageViewerClose.type='button';imageViewerClose.className='ha-image-viewer-control ha-image-viewer-close';imageViewerClose.textContent='CLOSE ✕';imageViewerClose.addEventListener('click',()=>imageViewer.close());
+ toolbar.append(imageViewerCaption,imageViewerZoom,imageViewerOriginal,imageViewerClose);
+ const stage=document.createElement('div');stage.className='ha-image-viewer-stage';
+ imageViewerImage=document.createElement('img');imageViewerImage.className='ha-image-viewer-image';imageViewerImage.alt='';imageViewerImage.addEventListener('click',()=>setImageViewerZoom(!imageViewer.classList.contains('is-zoomed')));
+ stage.append(imageViewerImage);panel.append(toolbar,stage);imageViewer.append(panel);document.body.append(imageViewer);
+ imageViewerZoom.addEventListener('click',()=>setImageViewerZoom(!imageViewer.classList.contains('is-zoomed')));
+ imageViewer.addEventListener('click',event=>{if(event.target===imageViewer)imageViewer.close();});
+ imageViewer.addEventListener('close',()=>setImageViewerZoom(false));
+}
+function setImageViewerZoom(zoomed){
+ if(!imageViewer)return;
+ imageViewer.classList.toggle('is-zoomed',Boolean(zoomed));
+ if(imageViewerZoom)imageViewerZoom.textContent=zoomed?'FIT TO SCREEN':'VIEW ORIGINAL SIZE';
+}
+function openImageViewer(item,record){
+ ensureImageViewer();
+ const src=localMediaUrl(item),label=mediaTitle(item,record),alt=item.alt_text||label;
+ imageViewerCaption.textContent=label;
+ imageViewerImage.src=src;imageViewerImage.alt=alt;
+ imageViewerOriginal.href=src;
+ setImageViewerZoom(false);
+ imageViewer.showModal();
+ imageViewerClose.focus();
+}
 function appendLocalImage(parent,item,record,used){
  const embedded=parent.tagName==='FIGURE';
  const figure=embedded?parent:document.createElement('figure');figure.classList.add('ha-local-media','ha-local-image');
  const img=document.createElement('img');img.src=localMediaUrl(item);img.alt=item.alt_text||mediaTitle(item,record);img.loading='lazy';img.decoding='async';
- figure.append(img);
+ const open=document.createElement('button');open.type='button';open.className='ha-image-open';open.setAttribute('aria-label','Open image full screen: '+mediaTitle(item,record));open.title='Open image full screen';open.append(img);
+ open.addEventListener('click',()=>openImageViewer(item,record));
+ figure.append(open);
  const caption=item.alt_text||mediaTitle(item,record);
  if(caption&&!embedded){const figcaption=document.createElement('figcaption');figcaption.textContent=caption;figure.append(figcaption);}
  if(!embedded)parent.append(figure);markUsed(item,used);
