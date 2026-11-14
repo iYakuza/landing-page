@@ -1,0 +1,127 @@
+name: Manual recovery website control
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: "Choose whether to create or remove the temporary recovery website"
+        required: true
+        type: choice
+        options:
+          - deploy
+          - remove
+        default: deploy
+      confirm_recovery:
+        description: "I personally authorize this recovery website action"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: manual-recovery-website
+  cancel-in-progress: false
+
+jobs:
+  recovery-website:
+    if: github.actor == 'iYakuza' && github.ref == 'refs/heads/main' && inputs.confirm_recovery == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CLOUDFLARE_ACCOUNT_ID: "4372415f32c41cddd51893eac634c0b7"
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      PROJECT_NAME: green-dream-recovery-preview
+    steps:
+      - name: Check out the workflow and project manager from main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - name: Check out the isolated recovery website source
+        if: ${{ inputs.operation == 'deploy' }}
+        uses: actions/checkout@v6
+        with:
+          ref: recovery-drill-preview
+          path: recovery-source
+
+      - name: Validate owner confirmation and Cloudflare credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_ACTOR" != "iYakuza" ] || [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::Only the repository owner may run this workflow from main."
+            exit 1
+          fi
+          if [ "${{ inputs.confirm_recovery }}" != "true" ]; then
+            echo "::error::The explicit recovery confirmation checkbox is required."
+            exit 1
+          fi
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::Add the CLOUDFLARE_API_TOKEN repository secret with Pages Read and Pages Write permissions before using this control."
+            exit 1
+          fi
+          if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::The Cloudflare account ID is missing."
+            exit 1
+          fi
+          echo "Owner confirmation and Cloudflare credentials are present."
+
+      - name: Validate recovery archive before deployment
+        if: ${{ inputs.operation == 'deploy' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path("recovery-source/human-archive")
+          content = json.loads((root / "archive-content.json").read_text(encoding="utf-8"))
+          manifest = json.loads((root / "media-manifest.json").read_text(encoding="utf-8"))
+          report = json.loads((root / "media-import-report.json").read_text(encoding="utf-8"))
+          assert content.get("record_count") == 140 and len(content.get("records", [])) == 140
+          assert manifest.get("item_count") == 111 and len(manifest.get("items", [])) == 111
+          assert report.get("status") == "complete"
+          assert report.get("target_project_ref") == "ioguymqdeuuursizifnn"
+          assert report.get("successful_count") == 111 and report.get("failed_count") == 0
+          assert manifest.get("bucket") == "human-archive-media"
+          assert manifest.get("public_base_url", "").startswith("https://ioguymqdeuuursizifnn.supabase.co/")
+          print("Recovery source validated: 140 records and 111 verified media assets.")
+          PY
+
+      - name: Install Node.js
+        if: ${{ inputs.operation == 'deploy' }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Create the Direct Upload project on demand
+        if: ${{ inputs.operation == 'deploy' }}
+        run: node scripts/manage_recovery_pages_project.mjs ensure
+
+      - name: Deploy the recovery website only after manual confirmation
+        if: ${{ inputs.operation == 'deploy' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --global wrangler@4
+          RECOVERY_SHA="$(git -C recovery-source rev-parse HEAD)"
+          wrangler pages deploy ./recovery-source \
+            --project-name "$PROJECT_NAME" \
+            --branch recovery-drill-preview \
+            --commit-hash "$RECOVERY_SHA" \
+            --commit-message "Owner-initiated recovery website deployment"
+          {
+            echo "## Temporary recovery website created"
+            echo
+            echo "The site exists because the repository owner explicitly ran this workflow."
+            echo
+            echo "URL: https://green-dream-recovery-preview.pages.dev/landing-page/"
+            echo
+            echo "When finished, run this same workflow again with operation=remove and the confirmation checkbox enabled."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Remove the temporary recovery website
+        if: ${{ inputs.operation == 'remove' }}
+        run: node scripts/manage_recovery_pages_project.mjs remove
