@@ -20,6 +20,8 @@
   const requestedEditSlug = requestedParams.get('edit');
   const requestedCategory = (requestedParams.get('category') || '').trim().toUpperCase();
   const requestedNewPost = requestedParams.get('new') === '1';
+  const embeddedComposer = requestedParams.get('embed') === '1';
+  if(embeddedComposer) document.body.classList.add('cms-embedded-composer');
   let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null;
   const MEDIA_BUCKET = 'vha-post-media';
   const MAX_MEDIA_BYTES = 30 * 1024 * 1024;
