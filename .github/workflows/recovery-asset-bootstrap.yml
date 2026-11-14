@@ -48,7 +48,26 @@ jobs:
           install -m 0644 "$RUNNER_TEMP/emanuel-ego-portrait.png" assets/recovery/emanuel-ego-portrait.png
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/recovery/emanuel-ego-portrait.png
+          python3 - <<'PY'
+          from pathlib import Path
+
+          html = Path("human-archive/index.html")
+          source = "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/11/emanuel-ego-portrait.png"
+          local = "/landing-page/assets/recovery/emanuel-ego-portrait.png"
+          text = html.read_text(encoding="utf-8")
+          if source in text:
+              text = text.replace(source, local)
+          elif local not in text:
+              raise SystemExit("Expected EGO portrait source was not found in the Human Archive page.")
+          text = text.replace("img-src 'self' data: https://emanuelstefancu.wordpress.com;", "img-src 'self' data:")
+          html.write_text(text, encoding="utf-8")
+
+          headers = Path("_headers")
+          text = headers.read_text(encoding="utf-8")
+          text = text.replace(" https://emanuelstefancu.wordpress.com;", ";")
+          headers.write_text(text, encoding="utf-8")
+          PY
+          git add assets/recovery/emanuel-ego-portrait.png human-archive/index.html _headers
           if git diff --cached --quiet; then
             echo "Portrait is already present; no commit needed."
             exit 0
