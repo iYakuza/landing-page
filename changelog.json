@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T13:30:31.082295Z",
-  "last_processed_sha": "72cc5fc2a2d62cce32291757fc4cb3cc98104fa7",
+  "updated_at": "2026-11-14T13:51:04.886792Z",
+  "last_processed_sha": "6f4d297b8aab0cf4d3bbdff21bdd29ac91713df2",
   "entries": [
+    {
+      "id": "6f4d297b8aab0cf4d3bbdff21bdd29ac91713df2",
+      "timestamp": "2026-11-14T14:50:57+01:00",
+      "category": "FEATURE",
+      "component": "Website",
+      "title": "New capabilities for Website",
+      "description": "This update brings together Add one-time import of EGO portrait for recovery copy. It updates recovery-asset-bootstrap.yml.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/recovery-asset-bootstrap.yml"
+      ],
+      "commits": [
+        {
+          "message": "Add one-time import of EGO portrait for recovery copy",
+          "url": "https://github.com/iYakuza/landing-page/commit/6f4d297b8aab0cf4d3bbdff21bdd29ac91713df2",
+          "files": [
+            ".github/workflows/recovery-asset-bootstrap.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "2812c3aecf7f323568241b95cd39f86e54efc485",
       "timestamp": "2026-11-14T14:30:27+01:00",
@@ -1226,33 +1247,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/c683c9631a1f18ff489697f0d75189e485f23d18",
           "files": [
             ".github/workflows/google-drive-receiver-ping.yml"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "061436214aa3c6fdcaa2e01b8013008721536a84",
-      "timestamp": "2026-11-13T04:28:08+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Document the curated Match My Mood presets (#26). It updates IMPLEMENTATION_NOTES.md, MOOD_PROFILES.md, README.md and related project files.",
-      "commit_count": 1,
-      "files": [
-        "docs/mood-engine/IMPLEMENTATION_NOTES.md",
-        "docs/mood-engine/MOOD_PROFILES.md",
-        "docs/mood-engine/README.md",
-        "shared/crystal/README.md"
-      ],
-      "commits": [
-        {
-          "message": "Document the curated Match My Mood presets (#26)",
-          "url": "https://github.com/iYakuza/landing-page/commit/061436214aa3c6fdcaa2e01b8013008721536a84",
-          "files": [
-            "docs/mood-engine/IMPLEMENTATION_NOTES.md",
-            "docs/mood-engine/MOOD_PROFILES.md",
-            "docs/mood-engine/README.md",
-            "shared/crystal/README.md"
           ]
         }
       ]
