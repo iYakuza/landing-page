@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T12:34:03.516376Z",
-  "last_processed_sha": "ba090aae62196840b7cf53ad7d5bda4f11470e0f",
+  "updated_at": "2026-11-14T13:30:31.082295Z",
+  "last_processed_sha": "2812c3aecf7f323568241b95cd39f86e54efc485",
   "entries": [
+    {
+      "id": "2812c3aecf7f323568241b95cd39f86e54efc485",
+      "timestamp": "2026-11-14T14:30:27+01:00",
+      "category": "FEATURE",
+      "component": "Creator Workshop",
+      "title": "New capabilities for Creator Workshop",
+      "description": "This update brings together Add private Recovery Centre launchpad to owner CMS; Style the private Recovery Centre dashboard. It updates cms.css, index.html.",
+      "commit_count": 2,
+      "files": [
+        "cms/cms.css",
+        "cms/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Add private Recovery Centre launchpad to owner CMS",
+          "url": "https://github.com/iYakuza/landing-page/commit/39998ee816f2dd3c8be4a571d9750c4f8a6adf43",
+          "files": [
+            "cms/index.html"
+          ]
+        },
+        {
+          "message": "Style the private Recovery Centre dashboard",
+          "url": "https://github.com/iYakuza/landing-page/commit/2812c3aecf7f323568241b95cd39f86e54efc485",
+          "files": [
+            "cms/cms.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "ba090aae62196840b7cf53ad7d5bda4f11470e0f",
       "timestamp": "2026-11-14T13:33:56+01:00",
@@ -1224,52 +1253,6 @@
             "docs/mood-engine/MOOD_PROFILES.md",
             "docs/mood-engine/README.md",
             "shared/crystal/README.md"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "c63fa4b45cc6b2cd92c1793754cc4e4496b411d7",
-      "timestamp": "2026-11-13T04:24:57+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Experience",
-      "title": "A refined Website Experience",
-      "description": "This update brings together Replace AI-generated Match My Mood with curated emotion themes (#25). It updates index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "cms/index.html",
-        "cv/index.html",
-        "green-dream/index.html",
-        "human-archive/index.html",
-        "index.html",
-        "posts/community/index.html",
-        "posts/index.html",
-        "posts/the-awakening/index.html",
-        "posts/the-descent/index.html",
-        "posts/the-reconnection/index.html",
-        "posts/the-return/index.html",
-        "posts/the-transformation/index.html",
-        "shared/crystal/crystal.css",
-        "shared/crystal/crystal.js",
-        "shared/crystal/tools/mood.js"
-      ],
-      "commits": [
-        {
-          "message": "Replace AI-generated Match My Mood with curated emotion themes (#25)",
-          "url": "https://github.com/iYakuza/landing-page/commit/c63fa4b45cc6b2cd92c1793754cc4e4496b411d7",
-          "files": [
-            "cms/index.html",
-            "cv/index.html",
-            "green-dream/index.html",
-            "human-archive/index.html",
-            "index.html",
-            "posts/community/index.html",
-            "posts/index.html",
-            "posts/the-awakening/index.html",
-            "posts/the-descent/index.html",
-            "posts/the-reconnection/index.html",
-            "posts/the-return/index.html",
-            "posts/the-transformation/index.html"
           ]
         }
       ]
