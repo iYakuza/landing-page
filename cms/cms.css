@@ -329,3 +329,12 @@ body.cms-writing-focus .transmission-focus-toggle{
   font:700 10px/1 ui-monospace,monospace;
   letter-spacing:.7px;
 }
+
+
+/* Explicitly override the focus-mode form rule for its visible exit control. */
+body.cms-writing-focus .cms-editor-panel form>.transmission-body-heading{
+  display:flex!important;
+}
+body.cms-embedded-composer:not(.cms-writing-focus) .cms-shell{
+  padding:0!important;
+}
