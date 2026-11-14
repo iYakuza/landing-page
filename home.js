@@ -17,8 +17,7 @@
       if(raw.startsWith('/landing-page/posts/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
       const url=new URL(raw);
       const ownStorage=url.hostname==='ioguymqdeuuursizifnn.supabase.co'&&(url.pathname.includes('/storage/v1/object/public/vha-post-media/')||url.pathname.includes('/storage/v1/object/public/poetry-media/'));
-      const wordpress=['emanuelstefancu.wordpress.com','i0.wp.com'].includes(url.hostname)&&url.pathname.includes('/wp-content/uploads/')&&/\.(jpg|jpeg|png|webp|gif|avif)$/i.test(url.pathname);
-      return url.protocol==='https:'&&(ownStorage||wordpress)?url.href:'';
+      return url.protocol==='https:'&&ownStorage?url.href:'';
     }catch{return '';}
   }
   function dateLabel(value){
