@@ -1,8 +1,56 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T18:58:49.494640Z",
-  "last_processed_sha": "5aeaf19cf3d098a33fa021c69ef479b9368c568a",
+  "updated_at": "2026-11-14T19:11:24.479335Z",
+  "last_processed_sha": "707d5823f38f9c3b81e10ea6e5caf288f7a7b662",
   "entries": [
+    {
+      "id": "707d5823f38f9c3b81e10ea6e5caf288f7a7b662",
+      "timestamp": "2026-11-14T20:11:15+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Experience",
+      "title": "A refined Website Experience",
+      "description": "This update brings together Hide legacy headers before first paint (#40). It updates 404.html, analytics.html, index.html and related project files.",
+      "commit_count": 1,
+      "files": [
+        "404.html",
+        "cms/analytics.html",
+        "cms/index.html",
+        "community/index.html",
+        "cv/index.html",
+        "game-ui.css",
+        "green-dream/index.html",
+        "human-archive/index.html",
+        "index.html",
+        "posts/community/index.html",
+        "posts/index.html",
+        "posts/the-awakening/index.html",
+        "posts/the-descent/index.html",
+        "posts/the-reconnection/index.html",
+        "posts/the-return/index.html",
+        "posts/the-transformation/index.html",
+        "secure-your-soul/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Hide legacy headers before first paint (#40)",
+          "url": "https://github.com/iYakuza/landing-page/commit/707d5823f38f9c3b81e10ea6e5caf288f7a7b662",
+          "files": [
+            "404.html",
+            "cms/analytics.html",
+            "cms/index.html",
+            "community/index.html",
+            "cv/index.html",
+            "game-ui.css",
+            "green-dream/index.html",
+            "human-archive/index.html",
+            "index.html",
+            "posts/community/index.html",
+            "posts/index.html",
+            "posts/the-awakening/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "5aeaf19cf3d098a33fa021c69ef479b9368c568a",
       "timestamp": "2026-11-14T19:58:42+01:00",
@@ -1312,43 +1360,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/b65c02f05e80ba365743618f5adb8147f9a1c9c0",
           "files": [
             "green-dream/guest-notes/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "26de78de9d18b6a6b3eff6b45ee40a716a9f6d20",
-      "timestamp": "2026-11-13T22:28:49+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Expand Ethical Coexistence Initiative with worked economic scenarios; Link Guest Notes index to practical economic working paper; Record revision 0.6 and worked scenario additions. It updates index.html and related project files.",
-      "commit_count": 3,
-      "files": [
-        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
-        "green-dream/guest-notes/index.html",
-        "green-dream/guest-notes/revision-history/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Expand Ethical Coexistence Initiative with worked economic scenarios",
-          "url": "https://github.com/iYakuza/landing-page/commit/163940ee957cf926b5893ac4f9abc2bcf61e5233",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
-          ]
-        },
-        {
-          "message": "Link Guest Notes index to practical economic working paper",
-          "url": "https://github.com/iYakuza/landing-page/commit/ddf52255388cfd181e187f3e517a48846dfebb2b",
-          "files": [
-            "green-dream/guest-notes/index.html"
-          ]
-        },
-        {
-          "message": "Record revision 0.6 and worked scenario additions",
-          "url": "https://github.com/iYakuza/landing-page/commit/26de78de9d18b6a6b3eff6b45ee40a716a9f6d20",
-          "files": [
-            "green-dream/guest-notes/revision-history/index.html"
           ]
         }
       ]
