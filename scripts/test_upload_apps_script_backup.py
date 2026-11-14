@@ -21,7 +21,7 @@ assert module.UPLOAD_DEADLINE_SECONDS == 15 * 60
 assert module.HEARTBEAT_SECONDS == 15
 archive_bytes = b"A" * module.PART_BYTES + b"last-bytes"
 archive_sha = hashlib.sha256(archive_bytes).hexdigest()
-backup_id = "system-20261113T000000Z-" + archive_sha[:8]
+backup_id = "system-" + module.datetime.now(module.timezone.utc).strftime("%Y%m%dT000000Z") + "-" + archive_sha[:8]
 first = archive_bytes[:module.PART_BYTES]
 second = archive_bytes[module.PART_BYTES:]
 parts = [
