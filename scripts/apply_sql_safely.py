@@ -229,6 +229,10 @@ def sanitize_roles_sql(original_sql):
                 r"""(?is)\b(?:pg_catalog\s*\.\s*)?set_config\s*\(\s*(?:(?:[eE]\s*)?'log_min_messages'|(\$[A-Za-z_][A-Za-z_0-9]*\$|\$\$)log_min_messages\1)\s*(?:::\s*[\w."]+)?\s*,""",
                 comment_free,
             )
+            or re.search(
+                r"""(?is)\b(?:EXECUTE\s+)?['"]\s*(?:SET|RESET)\s+(?:SESSION\s+)?["']?log_min_messages\b""",
+                comment_free,
+            )
         )
         if not re.search(r"\blog_min_messages\b", code, re.IGNORECASE) and not set_config_parameter:
             kept.append(statement)
