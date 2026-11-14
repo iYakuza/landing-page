@@ -7,7 +7,7 @@ const CHAMBER_RECORD_ID='589';
 const SUPABASE_URL='https://oeyxsqocldlovhsmzcjw.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
 let archiveSupabase=null,archiveAdmin=false,archiveAuthBound=false;
-let favoriteRecordIds=new Set(),recordChamber=null,recordChamberReturnFocus=null;
+let favoriteRecordIds=new Set(),favoriteSaveError=false,recordChamber=null,recordChamberReturnFocus=null;
 const categoryOrder=['Nimic și Ființă','This notion','Dialog monolog','Gânduri','Cântec','Belief','Snob','PERSONAL PROJECTS','Haiku'];
 const clean=value=>String(value??'').normalize('NFKC').toLocaleLowerCase().trim();
 
@@ -220,8 +220,9 @@ function syncFavoriteControls(){
   button.hidden=!archiveAdmin;
   button.textContent=isFavorite?'★':'☆';
   button.setAttribute('aria-pressed',String(isFavorite));
-  button.setAttribute('aria-label',isFavorite?'Remove Fragile Love from author favourites':'Mark Fragile Love as an author favourite');
-  button.title=isFavorite?'REMOVE FROM FAVOURITES':'MARK AS FAVOURITE';
+  button.setAttribute('aria-label',favoriteSaveError?'Saving the favourite failed. Activate to retry.':(isFavorite?'Remove Fragile Love from author favourites':'Mark Fragile Love as an author favourite'));
+  button.title=favoriteSaveError?'SAVE FAILED — ACTIVATE TO RETRY':(isFavorite?'REMOVE FROM FAVOURITES':'MARK AS FAVOURITE');
+  button.classList.toggle('is-error',favoriteSaveError);
  });
  document.querySelectorAll('[data-ha-favorite-mark="'+CHAMBER_RECORD_ID+'"]').forEach(mark=>{
   mark.hidden=archiveAdmin||!isFavorite;
@@ -250,6 +251,7 @@ async function toggleArchiveFavorite(recordId,button){
  if(!archiveAdmin||!archiveSupabase||String(recordId)!==CHAMBER_RECORD_ID||button.disabled)return;
  const wasFavorite=favoriteRecordIds.has(CHAMBER_RECORD_ID);
  button.disabled=true;
+ favoriteSaveError=false;
  button.title=wasFavorite?'REMOVING FAVOURITE…':'SAVING FAVOURITE…';
  try{
   const result=wasFavorite
@@ -260,8 +262,7 @@ async function toggleArchiveFavorite(recordId,button){
   syncFavoriteControls();
  }catch(error){
   console.error('Human Archive favourite could not be saved:',error);
-  button.title='SAVE FAILED — PLEASE TRY AGAIN';
-  button.setAttribute('aria-label','Saving the favourite failed. Try again.');
+  favoriteSaveError=true;
  }finally{
   document.querySelectorAll('[data-ha-favorite-id="'+CHAMBER_RECORD_ID+'"]').forEach(control=>{control.disabled=false;});
   syncFavoriteControls();
@@ -358,6 +359,8 @@ function buildRecordChamber(record){
  const share=makeChamberNode('div','ha-chamber-share','');
  const shareStatus=makeChamberNode('span','ha-chamber-share-status','');
  appendChamberShareActions(share,record,shareStatus);shareRow.append(share,shareStatus);main.append(shareRow);
+ const layoutLabel=makeChamberNode('p','ha-chamber-layout-label','LAYOUT // SUNO LYRICS + STYLE BREAKDOWN');
+ main.append(layoutLabel);
  const grid=makeChamberNode('div','ha-chamber-grid');
  const prompt=makeChamberNode('section','ha-chamber-panel');
  prompt.append(makeChamberNode('h3','ha-chamber-panel-heading','01 // PROMPT STYLE'));
