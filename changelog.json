@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T23:12:57.990603Z",
-  "last_processed_sha": "601186a7b8a5f4f6104edb3724993f66e23d0ee2",
+  "updated_at": "2026-11-14T23:16:00.938187Z",
+  "last_processed_sha": "b8e0eac8f148836256eae1e011a146f762587c51",
   "entries": [
+    {
+      "id": "b8e0eac8f148836256eae1e011a146f762587c51",
+      "timestamp": "2026-11-15T00:15:47+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Refine transmissions archive layout and heading (#45). It updates index.html, posts.css.",
+      "commit_count": 1,
+      "files": [
+        "posts/index.html",
+        "posts/posts.css"
+      ],
+      "commits": [
+        {
+          "message": "Refine transmissions archive layout and heading (#45)",
+          "url": "https://github.com/iYakuza/landing-page/commit/b8e0eac8f148836256eae1e011a146f762587c51",
+          "files": [
+            "posts/index.html",
+            "posts/posts.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "601186a7b8a5f4f6104edb3724993f66e23d0ee2",
       "timestamp": "2026-11-15T00:12:46+01:00",
@@ -1245,59 +1268,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/634227c8acfe8f12e6c6ce895f1fc41d158fb494",
           "files": [
             "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "54cf0aa1358d6d67477e85fd0fe58d327dc69983",
-      "timestamp": "2026-11-13T23:11:29+01:00",
-      "category": "FEATURE",
-      "component": "Creative Archive",
-      "title": "New capabilities for Creative Archive",
-      "description": "This update brings together Add proposed governance architecture and first-year roadmap; Link initiative to governance and first-year plan; Connect implementation blueprint to governance plan; and 2 more related changes. It updates index.html and related project files.",
-      "commit_count": 5,
-      "files": [
-        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
-        "green-dream/guest-notes/index.html",
-        "green-dream/guest-notes/revision-history/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Add proposed governance architecture and first-year roadmap",
-          "url": "https://github.com/iYakuza/landing-page/commit/d662df4839a001e2f3813cfca2c2da2d68efc67c",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html"
-          ]
-        },
-        {
-          "message": "Link initiative to governance and first-year plan",
-          "url": "https://github.com/iYakuza/landing-page/commit/c8dc9553cf6c84fdd9dd3819ffd0d34ec5f3affa",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
-          ]
-        },
-        {
-          "message": "Connect implementation blueprint to governance plan",
-          "url": "https://github.com/iYakuza/landing-page/commit/cf59669c7e5a84d24badd6831253be554a4e60ea",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html"
-          ]
-        },
-        {
-          "message": "Add governance plan to Guest Notes index",
-          "url": "https://github.com/iYakuza/landing-page/commit/2bf4d97ba591a42ae991fb2f11669944fd35eda4",
-          "files": [
-            "green-dream/guest-notes/index.html"
-          ]
-        },
-        {
-          "message": "Record governance and first-year plan revision 1.0",
-          "url": "https://github.com/iYakuza/landing-page/commit/54cf0aa1358d6d67477e85fd0fe58d327dc69983",
-          "files": [
-            "green-dream/guest-notes/revision-history/index.html"
           ]
         }
       ]
