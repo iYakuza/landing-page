@@ -1874,5 +1874,6 @@
       "expected_size": 3145503,
       "source_type": "wordpress-attached-media"
     }
-  ]
+  ],
+  "import_revision": 2
 }
