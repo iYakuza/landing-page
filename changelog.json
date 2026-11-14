@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-13T23:34:07.620514Z",
-  "last_processed_sha": "42eb657eabca94f7a55f555081b2024701cc72d5",
+  "updated_at": "2026-11-14T12:34:03.516376Z",
+  "last_processed_sha": "ba090aae62196840b7cf53ad7d5bda4f11470e0f",
   "entries": [
+    {
+      "id": "ba090aae62196840b7cf53ad7d5bda4f11470e0f",
+      "timestamp": "2026-11-14T13:33:56+01:00",
+      "category": "FEATURE",
+      "component": "Website",
+      "title": "New capabilities for Website",
+      "description": "This update brings together Add manual restore workflow registration on main. It updates restore-supabase-backup.yml.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/restore-supabase-backup.yml"
+      ],
+      "commits": [
+        {
+          "message": "Add manual restore workflow registration on main",
+          "url": "https://github.com/iYakuza/landing-page/commit/ba090aae62196840b7cf53ad7d5bda4f11470e0f",
+          "files": [
+            ".github/workflows/restore-supabase-backup.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "42eb657eabca94f7a55f555081b2024701cc72d5",
       "timestamp": "2026-11-14T00:33:59+01:00",
@@ -1249,29 +1270,6 @@
             "posts/the-reconnection/index.html",
             "posts/the-return/index.html",
             "posts/the-transformation/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "9fcbaf207215e880c04b6016f5aa69f28e4061ca",
-      "timestamp": "2026-11-13T04:08:36+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Distinguish rejected viewer Signals from technical failures (#24). It updates cms.js, 20261113100000_poetry_submission_rejected_status.sql.",
-      "commit_count": 1,
-      "files": [
-        "cms/cms.js",
-        "supabase/migrations/20261113100000_poetry_submission_rejected_status.sql"
-      ],
-      "commits": [
-        {
-          "message": "Distinguish rejected viewer Signals from technical failures (#24)",
-          "url": "https://github.com/iYakuza/landing-page/commit/9fcbaf207215e880c04b6016f5aa69f28e4061ca",
-          "files": [
-            "cms/cms.js",
-            "supabase/migrations/20261113100000_poetry_submission_rejected_status.sql"
           ]
         }
       ]
