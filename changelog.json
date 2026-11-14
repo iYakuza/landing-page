@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T15:35:20.890981Z",
-  "last_processed_sha": "3c0fdebce73fae519ad77a77b119da5a244d9d61",
+  "updated_at": "2026-11-14T16:15:32.509903Z",
+  "last_processed_sha": "2f27c2176fed83b31d1ed54b41e93126bb5b966c",
   "entries": [
+    {
+      "id": "2f27c2176fed83b31d1ed54b41e93126bb5b966c",
+      "timestamp": "2026-11-14T17:15:24+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Make recovery website creation owner-initiated. It updates manual-recovery-preview.yml, site-safety.yml, index.html, README.md and related project files.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/manual-recovery-preview.yml",
+        ".github/workflows/site-safety.yml",
+        "cms/index.html",
+        "docs/backup/README.md",
+        "scripts/manage_recovery_pages_project.mjs"
+      ],
+      "commits": [
+        {
+          "message": "Make recovery website creation owner-initiated",
+          "url": "https://github.com/iYakuza/landing-page/commit/2f27c2176fed83b31d1ed54b41e93126bb5b966c",
+          "files": [
+            ".github/workflows/manual-recovery-preview.yml",
+            ".github/workflows/site-safety.yml",
+            "cms/index.html",
+            "docs/backup/README.md",
+            "scripts/manage_recovery_pages_project.mjs"
+          ]
+        }
+      ]
+    },
     {
       "id": "3c0fdebce73fae519ad77a77b119da5a244d9d61",
       "timestamp": "2026-11-14T16:35:09+01:00",
@@ -1250,27 +1279,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/b8cb8fd4ba981499c7bf0f211d2c3d1161ca31ba",
           "files": [
             "green-dream/guest-notes/integration-without-assimilation/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "b817a45b02a3eb0e47042ee9293e72aefe0d8257",
-      "timestamp": "2026-11-13T20:24:56+01:00",
-      "category": "FEATURE",
-      "component": "Website",
-      "title": "New capabilities for Website",
-      "description": "This update brings together Add safe system backup recovery verification workflow. It updates verify-google-drive-system-backup.yml.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/verify-google-drive-system-backup.yml"
-      ],
-      "commits": [
-        {
-          "message": "Add safe system backup recovery verification workflow",
-          "url": "https://github.com/iYakuza/landing-page/commit/b817a45b02a3eb0e47042ee9293e72aefe0d8257",
-          "files": [
-            ".github/workflows/verify-google-drive-system-backup.yml"
           ]
         }
       ]
