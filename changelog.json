@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T19:11:24.479335Z",
-  "last_processed_sha": "707d5823f38f9c3b81e10ea6e5caf288f7a7b662",
+  "updated_at": "2026-11-14T23:03:05.066459Z",
+  "last_processed_sha": "72d06d40aee9c942b38ac6195dca803649f6c635",
   "entries": [
+    {
+      "id": "72d06d40aee9c942b38ac6195dca803649f6c635",
+      "timestamp": "2026-11-15T00:02:55+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Hide Green Dream radio before first paint (#41). It updates game-ui.css, index.html.",
+      "commit_count": 1,
+      "files": [
+        "game-ui.css",
+        "green-dream/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Hide Green Dream radio before first paint (#41)",
+          "url": "https://github.com/iYakuza/landing-page/commit/72d06d40aee9c942b38ac6195dca803649f6c635",
+          "files": [
+            "game-ui.css",
+            "green-dream/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "707d5823f38f9c3b81e10ea6e5caf288f7a7b662",
       "timestamp": "2026-11-14T20:11:15+01:00",
@@ -1337,27 +1360,6 @@
         {
           "message": "Link Guest Notes index to future economic models",
           "url": "https://github.com/iYakuza/landing-page/commit/d4d9204d967b303766f881a9b73484f96edad244",
-          "files": [
-            "green-dream/guest-notes/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "9a17b01f481b7263d480ab234ada3cda3406f443",
-      "timestamp": "2026-11-13T22:29:06+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Bump Guest Notes index revision for economic scenario link. It updates index.html.",
-      "commit_count": 1,
-      "files": [
-        "green-dream/guest-notes/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Bump Guest Notes index revision for economic scenario link",
-          "url": "https://github.com/iYakuza/landing-page/commit/b65c02f05e80ba365743618f5adb8147f9a1c9c0",
           "files": [
             "green-dream/guest-notes/index.html"
           ]
