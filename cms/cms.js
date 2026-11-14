@@ -24,7 +24,7 @@
   if(embeddedComposer) document.body.classList.add('cms-embedded-composer');
   const recoveryStorageKey = () => currentUser ? 'vha_quick_post_recovery_' + currentUser.id : null;
   let recoveryRevision = 0, autosaveTimer = null;
-  let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null;
+  let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null, mediaUploading = false;
   const MEDIA_BUCKET = 'vha-post-media';
   const MAX_MEDIA_BYTES = 30 * 1024 * 1024;
   const ALLOWED_MEDIA = new Set(['image/jpeg','image/png','image/webp','image/gif','image/avif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm','video/mp4','video/webm','video/quicktime']);
@@ -380,6 +380,7 @@
   postForm.addEventListener('submit',event=>{event.preventDefault();savePost('published');});
   $('save-draft').addEventListener('click',()=>savePost('draft'));
   async function savePost(status){
+    clearTimeout(autosaveTimer);
     if(saving||!currentUser){message(saveMessage,'The editor is not ready to save. Please wait for authentication and try again.',true);return false;}
     const title=titleInput.value.trim(),slug=slugify(slugInput.value),category=categoryInput.value.trim().toUpperCase();
     if(!title||!slug||!category){message(saveMessage,'To keep this transmission, add a title and choose a movement category before closing.',true);return false;}
@@ -420,6 +421,8 @@
   window.addEventListener('message',async event=>{
     if(event.origin!==window.location.origin||event.source!==window.parent||!embeddedComposer)return;
     if(event.data?.type==='VHA_QUICK_POST_CLOSE_REQUEST'){
+      clearTimeout(autosaveTimer);
+      if(mediaUploading){message(saveMessage,'Please wait for the media upload to finish before closing. Your text is already saved locally.',true);event.source.postMessage({type:'VHA_QUICK_POST_CLOSE_RESULT',requestId:event.data.requestId,saved:false},event.origin);return;}
       const saved=hasTransmissionContent()?await savePost('draft'):true;
       if(saved){try{localStorage.removeItem(recoveryStorageKey());}catch{}}
       event.source.postMessage({type:'VHA_QUICK_POST_CLOSE_RESULT',requestId:event.data.requestId,saved},event.origin);
@@ -432,7 +435,7 @@
     if(!ALLOWED_MEDIA.has(file.type)){message(mediaMessage,'Unsupported media format. Choose an image, supported audio, or video file (MP4, WebM, or MOV).',true);mediaInput.value='';return;}
     if(file.size>MAX_MEDIA_BYTES){message(mediaMessage,'That file exceeds the 30 MB limit.',true);mediaInput.value='';return;}
     const previous={url:mediaUrl,path:mediaPath,type:mediaType};
-    mediaInput.disabled=true;message(mediaMessage,'UPLOADING MEDIA…');
+    mediaUploading=true;mediaInput.disabled=true;message(mediaMessage,'UPLOADING MEDIA…');
     try{
       const safeName=file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-').replace(/^-+|-+$/g,'').slice(-100)||'upload';
       const path=currentUser.id+'/'+crypto.randomUUID()+'-'+safeName;
@@ -444,7 +447,7 @@
       persistLocalRecovery();
       if(previous.path&&previous.path!==originalMediaPath)await client.storage.from(MEDIA_BUCKET).remove([previous.path]);
     }catch(err){message(mediaMessage,err.message||'Media upload failed.',true);mediaUrl=previous.url;mediaPath=previous.path;mediaType=previous.type;renderMediaPreview();}
-    finally{mediaInput.disabled=false;}
+    finally{mediaUploading=false;mediaInput.disabled=false;}
   });
   $('remove-media').addEventListener('click',async()=>{
     const path=mediaPath;mediaUrl=null;mediaPath=null;mediaType=null;mediaInput.value='';renderMediaPreview();
