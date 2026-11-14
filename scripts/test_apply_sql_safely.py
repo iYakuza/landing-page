@@ -24,11 +24,11 @@ assert "secret_role" not in shape(wrapped) and "secret_value" not in shape(wrapp
 assert statement_at_line("SET search_path = public;\nALTER ROLE secret_role SET log_min_messages TO warning;\n", 2).lstrip().startswith("ALTER ROLE")
 
 diagnostic = postgres_error_diagnostic(
-    'psql:/tmp/restore.sql:7: ERROR: invalid input syntax for type uuid: "private-user-id"\\n'
+    'psql:/tmp/restore.sql:7: ERROR: invalid input syntax for type uuid: "private-user-id"'
 )
 assert diagnostic == (7, 'invalid input syntax for type uuid: "<redacted>"'), diagnostic
 assert "private-user-id" not in diagnostic[1]
-plain_diagnostic = postgres_error_diagnostic("ERROR: relation does not exist\\n")
+plain_diagnostic = postgres_error_diagnostic("ERROR: relation does not exist")
 assert plain_diagnostic == (None, "relation does not exist"), plain_diagnostic
 
 ledger_statement = (
