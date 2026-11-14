@@ -4,7 +4,7 @@
 
 For the offline content-recovery website, portable ZIP artifact, and authenticated recovery workflow, see [CONTENT-RECOVERY.md](CONTENT-RECOVERY.md).
 
-This workflow is designed to create an encrypted snapshot of the Green Dream Supabase project and store it in the user's private Google Drive. It is not operational until the Apps Script receiver and GitHub Actions secrets are configured and a real backup plus recovery test succeeds.
+This workflow creates an encrypted snapshot of the Green Dream Supabase project and stores it in the user's private Google Drive. **A live hosted recovery drill succeeded on 14 November 2026** using backup `system-20261113T000000Z-428ddefb` and the separate destination project `green-dream-restore-drill-2` (`ioguymqdeuuursizifnn`). A separate Cloudflare Pages recovery preview is now deployed at https://green-dream-recovery-preview.pages.dev. This proves that the selected archive can be restored and the recovered frontend can be served in an isolated environment; it does not yet prove a fully independent production failover.
 
 ## What the backup captures
 
@@ -27,7 +27,7 @@ The full-system workflow creates a SHA-256 manifest, packages the snapshot, encr
 - Apps Script and Google Drive quotas, account policies, and service availability apply. Google may restrict public web-app access or the receiver deployment. This is a deliberate no-OAuth-verification trade-off, not a guarantee of uninterrupted service.
 - Keep the encryption passphrase in a password manager and maintain a separate secure recovery copy. Without it, the archive cannot be decrypted.
 - Preferred recovery downloads use a dedicated Google service account with read-only access to only the existing backup folder. GitHub Actions requests the `drive.readonly` scope and downloads encrypted part files directly from the Drive API; the Apps Script relay remains as a fallback.
-- The scheduled workflow remains disabled until the first live backup and recovery procedure have been verified.
+- Scheduled full backups remain disabled by design. Use manual dispatch only unless the owner explicitly chooses otherwise.
 
 ## One-time setup
 
@@ -74,21 +74,34 @@ Add these repository secrets:
 
 Do not paste any secret into ChatGPT, commit it, or include it in a public issue or pull request.
 
-## First controlled run
+## Operating the recovery system
 
-The backup workflow supports manual dispatch from the `backup/` branch for the initial controlled test. This manual run does not require setting `BACKUP_ENABLED` to true. The scheduled run is restricted to `main` and requires `BACKUP_ENABLED=true`.
+The complete workflow is now proven end-to-end at the backup-download, decryption, Supabase restoration, and isolated frontend-preview level. Keep operations manual.
 
-Before considering the system operational:
+### Current verified recovery record
 
-1. Confirm that the existing Apps Script receiver has been updated to the validated code while preserving its URL and Script Properties; confirm all listed GitHub Actions secrets are present. No Google OAuth client or refresh token is required; direct binary recovery uses the read-only Workload Identity Federation setup above, or the optional service-account JSON key fallback.
-2. Run **GitHub → Actions → Green Dream Google Drive backup → Run workflow**, selecting `main` after the PR is merged (or the consolidated backup branch before merge).
-3. Confirm that the workflow completes the encrypted upload. Backup creation no longer depends on a Supabase restore test.
-4. In the private Drive folder, confirm that the completed backup manifest and all referenced encrypted parts exist.
-5. Run **Validate Supabase backup restoration** with the new `system-...` backup ID. This downloads the archive and performs a full restore into a disposable local Supabase instance. After the workflow is merged to `main`, this validation also runs automatically after successful scheduled or manual backups.
-6. When a separate fresh hosted Supabase project is available, use **Restore Green Dream into a fresh Supabase project** for the hosted recovery drill. Confirm the website, CMS, authentication, submissions, and media.
-7. Only after successful backup, local restore validation, and hosted recovery should the PR be considered for merge and the scheduled backup variable be enabled.
+- Successful hosted restore: [GitHub Actions run #43597340381](https://github.com/iYakuza/landing-page/actions/runs/43597340381).
+- Backup ID: `system-20261113T000000Z-428ddefb`.
+- Destination: `green-dream-restore-drill-2`, project ref `ioguymqdeuuursizifnn`, region `eu-central-1`.
+- Verified restore contents: 9 public application tables, 35 migration entries, 1 Auth user and identity, 4 Vault secrets, 3 Storage buckets, 10 Storage objects, and 7 Storage policies. Row counts, secret hashes, object checksums, and ownership metadata were checked.
+- Recovery preview: https://green-dream-recovery-preview.pages.dev, deployed separately from production from branch `recovery-drill-preview`.
+- Three drill-only Edge Functions are deployed: `poetry-submit`, `secure-your-soul-transmissions`, and `contact-about-role`. Their production-connected actions are disabled or guarded in the drill.
+- The CMS Recovery Centre is a private launchpad to the manual workflows and runbook. It opens GitHub Actions; it does not dispatch a run or bypass GitHub confirmation.
 
-A passing CI test is not a substitute for the first live upload and independent recovery drill. Until those steps are complete, keep `BACKUP_ENABLED=false`.
+### Manual operating sequence
+
+1. **Create a full-system backup** using [Green Dream Google Drive backup](https://github.com/iYakuza/landing-page/actions/workflows/google-drive-backup.yml). Select `backup/apps-script-transfer-redesign` while PR #20 remains unmerged. Confirm that the run completes and the encrypted archive is recorded in the existing private Drive folder.
+2. **Validate the archive** using [Validate Supabase backup restoration](https://github.com/iYakuza/landing-page/actions/workflows/validate-supabase-restore.yml). Select the completed `system-...` backup ID. This restores into a temporary local Supabase instance on the GitHub runner.
+3. **Use content/media backup separately** when a fresh content and media snapshot is needed: [Green Dream content and media backup](https://github.com/iYakuza/landing-page/actions/workflows/google-drive-content-backup.yml).
+4. **Restore only when required** using [Restore Green Dream into a fresh Supabase project](https://github.com/iYakuza/landing-page/actions/workflows/restore-supabase-backup.yml). Select `backup/apps-script-transfer-redesign`, provide the chosen backup ID, and confirm a NEW, EMPTY destination. Never rerun against `green-dream-restore-drill-2`: it already contains restored data and is not an empty target.
+5. **Rebuild and test the website separately.** Use the isolated recovery preview as a reference. Check pages, archive data, media, authentication, and each integration. Do not connect the drill to live email delivery or public publishing.
+
+### Branch and scheduling rules
+
+- PR #20 remains open, draft, and unmerged. The current restore implementation is on `backup/apps-script-transfer-redesign`; the `main` copy of the restore workflow is a registration stub used to make the workflow visible in GitHub Actions.
+- Restore is manual-only and always requires the fresh-target confirmation.
+- Scheduled full backups remain disabled. Do not set `BACKUP_ENABLED=true` or enable a schedule unless the owner explicitly changes this preference.
+- No Drive retention or automatic cleanup is configured. Preserve existing encrypted backups.
 
 ## Dedicated Supabase restoration
 
@@ -122,7 +135,7 @@ These destination credentials are intentionally separate from \`SUPABASE_DB_URL\
 
 The workflow itself adds no paid service: it uses the existing GitHub Actions workflow, existing private Google Drive receiver, and a separate Supabase project. The destination project must remain within the available Supabase plan allowance; paid database backup/PITR features are not required by this workflow. GitHub Actions and Google/Supabase free-tier quotas and limits still apply.
 
-A hosted restoration cannot be declared operational until a real backup has been restored successfully into a separate fresh project. The workflow file and passing automated tests alone do not prove that live restoration has succeeded.
+A hosted restoration was completed successfully on 14 November 2026. The restore run and independently checked result are recorded in [HOSTED-RECOVERY-DRILL-2026-11-14.md](HOSTED-RECOVERY-DRILL-2026-11-14.md). A successful restore is a verified milestone, not a claim that every third-party integration or project-level setting is automatically recovered.
 
 ## Known recovery limitations
 
