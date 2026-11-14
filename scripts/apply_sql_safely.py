@@ -233,6 +233,17 @@ def sanitize_roles_sql(original_sql):
                 r"""(?is)\b(?:EXECUTE\s+)?['"]\s*(?:SET|RESET)\s+(?:SESSION\s+)?["']?log_min_messages\b""",
                 comment_free,
             )
+            # pg_dump role dumps can wrap role settings in DO blocks and build
+            # the ALTER ROLE statement dynamically. Recognize both a literal
+            # target and format('%I ...', ..., 'log_min_messages', ...) form.
+            or re.search(
+                r"""(?is)\bEXECUTE\b[\s\S]{0,4096}?\bALTER\s+(?:ROLE|USER|DATABASE)\b[\s\S]{0,2048}?\bSET\s+["']?log_min_messages\b""",
+                comment_free,
+            )
+            or re.search(
+                r"""(?is)\bEXECUTE\b[\s\S]{0,4096}?\b(?:SET|RESET)\s+%I\b[\s\S]{0,2048}?\blog_min_messages\b""",
+                comment_free,
+            )
         )
         if not re.search(r"\blog_min_messages\b", code, re.IGNORECASE) and not set_config_parameter:
             kept.append(statement)
