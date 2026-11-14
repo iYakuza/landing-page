@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T13:53:00.294099Z",
-  "last_processed_sha": "94b775b0f90c4f03a42b5f5671f0b4bbdc538048",
+  "updated_at": "2026-11-14T13:54:22.811526Z",
+  "last_processed_sha": "d86d92137bd5874b1490050e77fb514a94c6b096",
   "entries": [
+    {
+      "id": "d86d92137bd5874b1490050e77fb514a94c6b096",
+      "timestamp": "2026-11-14T14:54:15+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Make portrait import also switch the recovery page to local media. It updates recovery-asset-bootstrap.yml.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/recovery-asset-bootstrap.yml"
+      ],
+      "commits": [
+        {
+          "message": "Make portrait import also switch the recovery page to local media",
+          "url": "https://github.com/iYakuza/landing-page/commit/d86d92137bd5874b1490050e77fb514a94c6b096",
+          "files": [
+            ".github/workflows/recovery-asset-bootstrap.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "94b775b0f90c4f03a42b5f5671f0b4bbdc538048",
       "timestamp": "2026-11-14T14:52:53+01:00",
@@ -1232,27 +1253,6 @@
         {
           "message": "Correct dummy checksum in read-only inventory diagnostic",
           "url": "https://github.com/iYakuza/landing-page/commit/9ab2a4c9365419e4747416c8abbeedd79403109d",
-          "files": [
-            ".github/workflows/google-drive-inventory-diagnostic.yml"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "4fb0f832ee5a9ad4b8e3f0c44a84cb93b321f399",
-      "timestamp": "2026-11-13T19:55:29+01:00",
-      "category": "FEATURE",
-      "component": "Website",
-      "title": "New capabilities for Website",
-      "description": "This update brings together Add read-only Google Drive inventory diagnostic. It updates google-drive-inventory-diagnostic.yml.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/google-drive-inventory-diagnostic.yml"
-      ],
-      "commits": [
-        {
-          "message": "Add read-only Google Drive inventory diagnostic",
-          "url": "https://github.com/iYakuza/landing-page/commit/4fb0f832ee5a9ad4b8e3f0c44a84cb93b321f399",
           "files": [
             ".github/workflows/google-drive-inventory-diagnostic.yml"
           ]
