@@ -216,7 +216,11 @@ def sanitize_roles_sql(original_sql):
         # The target may appear as a string argument to set_config(), which
         # executable_sql() intentionally masks. Inspect a comment-free copy
         # only for this exact SELECT form before taking the fast path.
-        comment_free = strip_sql_comments(statement)
+        comment_free = re.sub(
+            r"(?m)^[ \\t]*\\\\[A-Za-z]+[^\\n]*(?:\\n|$)",
+            " ",
+            strip_sql_comments(statement),
+        ).lstrip()
         classified = re.sub(
             r"(?m)^[ \t]*\\[A-Za-z]+[^\n]*(?:\n|$)", " ", code
         ).lstrip()
