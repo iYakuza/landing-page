@@ -16,7 +16,7 @@
       const raw=String(value||'').trim();
       if(raw.startsWith('/landing-page/posts/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
       const url=new URL(raw);
-      const ownStorage=url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&(url.pathname.includes('/storage/v1/object/public/vha-post-media/')||url.pathname.includes('/storage/v1/object/public/poetry-media/'));
+      const ownStorage=url.hostname==='ioguymqdeuuursizifnn.supabase.co'&&(url.pathname.includes('/storage/v1/object/public/vha-post-media/')||url.pathname.includes('/storage/v1/object/public/poetry-media/'));
       const wordpress=['emanuelstefancu.wordpress.com','i0.wp.com'].includes(url.hostname)&&url.pathname.includes('/wp-content/uploads/')&&/\.(jpg|jpeg|png|webp|gif|avif)$/i.test(url.pathname);
       return url.protocol==='https:'&&(ownStorage||wordpress)?url.href:'';
     }catch{return '';}
@@ -61,7 +61,7 @@
   async function loadPosts(){
     const grid=document.getElementById('latest-poetry');
     if(!await ensureSupabaseSdk()){if(grid)grid.innerHTML='<p class="va-empty">The poetry archive is temporarily unavailable. <a href="/landing-page/posts/">Browse all transmissions ↗</a></p>';return;}
-    const client=window.supabase?.createClient('https://oeyxsqocldlovhsmzcjw.supabase.co','sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h');
+    const client=window.supabase?.createClient('https://ioguymqdeuuursizifnn.supabase.co','sb_publishable_HjN3rCxxDNTH4UBLnTOX3A_UHEAbTA7');
     if(!client){if(grid)grid.innerHTML='<p class="va-empty">The poetry archive is temporarily unavailable. <a href="/landing-page/posts/">Browse all transmissions ↗</a></p>';return;}
     const {data,error}=await client.from('vha_posts').select('title,slug,category,media_url,media_type,published_at,created_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).limit(12);
     if(error){if(grid)grid.innerHTML='<p class="va-empty">The latest transmissions could not be loaded. <a href="/landing-page/posts/">Browse the archive ↗</a></p>';return;}
