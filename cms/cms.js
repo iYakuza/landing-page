@@ -132,7 +132,7 @@
     managePosts.querySelectorAll('[data-id]').forEach(btn=>btn.addEventListener('click',()=>{const post=allPosts.find(p=>p.id===btn.dataset.id);if(post)openPost(post);}));
   }
   function persistLocalRecovery(){
-    if(!currentUser||!hasTransmissionContent())return;
+    if(!embeddedComposer||!currentUser||!hasTransmissionContent())return;
     const key=recoveryStorageKey();if(!key)return;
     const fields={};
     postForm.querySelectorAll('input,textarea,select').forEach(el=>{
@@ -153,7 +153,7 @@
   }
   window.addEventListener('online',scheduleCloudAutosave);
   function restoreLocalRecovery(){
-    if(!currentUser)return false;
+    if(!embeddedComposer||!currentUser)return false;
     const key=recoveryStorageKey();if(!key)return false;
     let snapshot;
     try{snapshot=JSON.parse(localStorage.getItem(key)||'null');}catch{return false;}
