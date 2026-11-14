@@ -138,6 +138,7 @@ jobs:
           tar -xzf "$ARCHIVE" -C "$ROOT" --no-same-owner --no-same-permissions
           python3 scripts/verify_backup_manifest.py "$ROOT"
           python3 scripts/create_restore_expectations.py "$ROOT"
+          python3 scripts/generate_restore_sql.py --root "$ROOT"
           test -s "$ROOT/database/roles.sql"
           test -s "$ROOT/database/schema.sql"
           test -s "$ROOT/database/data.sql"
