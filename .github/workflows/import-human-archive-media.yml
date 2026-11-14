@@ -1,0 +1,61 @@
+name: Import Human Archive media into recovery Storage
+
+on:
+  push:
+    branches:
+      - recovery-drill-preview
+    paths:
+      - human-archive/media-manifest.json
+
+permissions:
+  contents: write
+
+concurrency:
+  group: human-archive-media-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    if: github.ref == 'refs/heads/recovery-drill-preview'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      SUPABASE_RESTORE_URL: ${{ secrets.SUPABASE_RESTORE_URL }}
+      SUPABASE_RESTORE_SECRET_KEY: ${{ secrets.SUPABASE_RESTORE_SECRET_KEY }}
+    steps:
+      - name: Check out the recovery branch
+        uses: actions/checkout@v6
+        with:
+          ref: recovery-drill-preview
+
+      - name: Validate recovery destination and credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$SUPABASE_RESTORE_URL" ] || [ -z "$SUPABASE_RESTORE_SECRET_KEY" ]; then
+            echo "::error::Missing recovery Supabase credentials."
+            exit 1
+          fi
+          case "$SUPABASE_RESTORE_URL" in
+            https://ioguymqdeuuursizifnn.supabase.co) ;;
+            *) echo "::error::Refusing any destination other than the disposable recovery project."; exit 1 ;;
+          esac
+          echo "Validated recovery project destination."
+
+      - name: Download originals and verify every uploaded object
+        run: python3 scripts/import_human_archive_media.py
+
+      - name: Commit the non-secret import report
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f human-archive/media-import-report.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add human-archive/media-import-report.json
+            if ! git diff --cached --quiet; then
+              git commit -m "Record Human Archive media recovery results"
+              git push origin HEAD:recovery-drill-preview
+            fi
+          fi
