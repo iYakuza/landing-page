@@ -257,7 +257,7 @@ def statement_at_line(sql, line_number):
 
 
 def sanitize_roles_sql(original_sql):
-    """Remove non-portable log_min_messages settings from the role dump."""
+    """Remove non-portable log_min_messages settings and parameter ACLs from the role dump."""
     kept, skipped, unsupported = [], 0, set()
     literal_diagnostics = []
     for statement_number, statement in enumerate(split_sql_statements(original_sql), start=1):
@@ -332,7 +332,21 @@ def sanitize_roles_sql(original_sql):
             r"(?m)^[ \t]*\\[A-Za-z]+[^\n]*(?:\n|$)", " ", code
         ).lstrip()
 
-        if re.match(r"(?:SET|RESET)\b", classified, re.IGNORECASE):
+        # PostgreSQL role dumps can include parameter ACLs. The disposable
+        # Supabase target cannot reproduce this server-level privilege grant.
+        # Skip only statements for this exact parameter; preserve every other
+        # parameter ACL and ordinary database-object/role grant.
+        log_parameter_acl = bool(
+            re.match(
+                r"""(?is)^(?:GRANT|REVOKE)\s+(?:(?:SET|ALTER\s+SYSTEM)(?:\s*,\s*(?:SET|ALTER\s+SYSTEM))*|ALL(?:\s+PRIVILEGES)?)\s+ON\s+PARAMETER\s+(?:"log_min_messages"|log_min_messages\b)""",
+                comment_free,
+            )
+        )
+
+        if log_parameter_acl:
+            kept.extend(directives)
+            skipped += 1
+        elif re.match(r"(?:SET|RESET)\b", classified, re.IGNORECASE):
             # Standalone server logging defaults are environment-specific.
             # Preserve psql session directives such as \restrict if they share
             # a fragment with the skipped SQL command.
@@ -363,7 +377,7 @@ def sanitize_roles_sql(original_sql):
     if unsupported:
         raise SystemExit(
             "Restore sanitizer found log_min_messages outside a safely skippable "
-            "ALTER ROLE/USER statement (statement type: "
+            "ALTER ROLE/USER or parameter ACL statement (statement type: "
             + ", ".join(sorted(unsupported))
             + "); refusing to apply roles.sql."
         )
@@ -382,7 +396,7 @@ if sql_file.name == "roles.sql":
     if skipped_role_settings:
         print(
             f"Restore sanitizer: skipped {skipped_role_settings} "
-            "unsupported log_min_messages role setting statement(s)."
+            "non-portable log_min_messages setting/privilege statement(s)."
         )
         handle = tempfile.NamedTemporaryFile(
             mode="w", encoding="utf-8", suffix=".sql", prefix="gd-roles-", delete=False
