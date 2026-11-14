@@ -900,10 +900,11 @@
       "caption_html": "",
       "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/04/q3a0jxjp2ue91.webp",
       "aliases": [],
-      "storage_path": "posts/717/719-q3a0jxjp2ue91.webp",
-      "mime_type": "image/webp",
+      "storage_path": "posts/717/719-q3a0jxjp2ue91.jpg",
+      "mime_type": "image/jpeg",
       "expected_size": 246658,
-      "source_type": "wordpress-attached-media"
+      "source_type": "wordpress-attached-media",
+      "detected_source_mime": "image/jpeg"
     },
     {
       "id": "wp-729",
@@ -1391,10 +1392,11 @@
       "caption_html": "",
       "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/11/pixlr-image-generator-21254ff5-a225-4513-b061-6e1fe801d1dc.webp",
       "aliases": [],
-      "storage_path": "posts/1421/1423-pixlr-image-generator-21254ff5-a225-4513-b061-6e1fe801d1dc.webp",
-      "mime_type": "image/webp",
+      "storage_path": "posts/1421/1423-pixlr-image-generator-21254ff5-a225-4513-b061-6e1fe801d1dc.jpg",
+      "mime_type": "image/jpeg",
       "expected_size": 53620,
-      "source_type": "wordpress-attached-media"
+      "source_type": "wordpress-attached-media",
+      "detected_source_mime": "image/jpeg"
     },
     {
       "id": "wp-1427",
@@ -1423,10 +1425,11 @@
       "caption_html": "",
       "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/12/dallc2b7e-2024-12-07-16.13.49-an-abstract-and-visually-captivating-book-cover-art-for-a-political-and-philosophical-theme.-the-image-features-a-surreal-balance-of-scales-where-one.webp",
       "aliases": [],
-      "storage_path": "posts/1461/1463-dallc2b7e-2024-12-07-16.13.49-an-abstract-and-visually-captivating-book-cover-art-for-a-political-and-philosophical-theme.-the-image-features-a-surreal-balance-of-scales-where-one.webp",
-      "mime_type": "image/webp",
+      "storage_path": "posts/1461/1463-dallc2b7e-2024-12-07-16.13.49-an-abstract-and-visually-captivating-book-cover-art-for-a-political-and-philosophical-theme.-the-image-features-a-surreal-balance-of-scales-where-one.jpg",
+      "mime_type": "image/jpeg",
       "expected_size": 444020,
-      "source_type": "wordpress-attached-media"
+      "source_type": "wordpress-attached-media",
+      "detected_source_mime": "image/jpeg"
     },
     {
       "id": "wp-1475",
@@ -1455,10 +1458,11 @@
       "caption_html": "",
       "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/02/dallc2b7e-2025-02-03-02.36.10-a-melancholic-and-introspective-scene-reflecting-the-themes-of-aging-weariness-and-longing-in-the-poem.-the-image-should-depict-an-elderly-figure-w.webp",
       "aliases": [],
-      "storage_path": "posts/1478/1480-dallc2b7e-2025-02-03-02.36.10-a-melancholic-and-introspective-scene-reflecting-the-themes-of-aging-weariness-and-longing-in-the-poem.-the-image-should-depict-an-elderly-figure-w.webp",
-      "mime_type": "image/webp",
+      "storage_path": "posts/1478/1480-dallc2b7e-2025-02-03-02.36.10-a-melancholic-and-introspective-scene-reflecting-the-themes-of-aging-weariness-and-longing-in-the-poem.-the-image-should-depict-an-elderly-figure-w.jpg",
+      "mime_type": "image/jpeg",
       "expected_size": 455578,
-      "source_type": "wordpress-attached-media"
+      "source_type": "wordpress-attached-media",
+      "detected_source_mime": "image/jpeg"
     },
     {
       "id": "wp-1482",
@@ -1647,10 +1651,11 @@
       "caption_html": "",
       "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/03/download.webp",
       "aliases": [],
-      "storage_path": "posts/1636/1640-download.webp",
-      "mime_type": "image/webp",
+      "storage_path": "posts/1636/1640-download.jpg",
+      "mime_type": "image/jpeg",
       "expected_size": 428386,
-      "source_type": "wordpress-attached-media"
+      "source_type": "wordpress-attached-media",
+      "detected_source_mime": "image/jpeg"
     },
     {
       "id": "wp-1649",
@@ -1875,5 +1880,5 @@
       "source_type": "wordpress-attached-media"
     }
   ],
-  "import_revision": 2
+  "import_revision": 3
 }
