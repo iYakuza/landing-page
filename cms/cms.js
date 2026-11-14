@@ -332,6 +332,7 @@
     focusWritingButton.setAttribute('aria-pressed',String(active));
     focusWritingButton.setAttribute('aria-label',active?'Exit focused writing mode':'Open focused writing mode');
     focusWritingButton.title=active?'Return to the full post editor':'Focused writing mode';
+    focusWritingButton.textContent=active?'EXIT FOCUS':'T';
     if(active){requestAnimationFrame(()=>contentEditor.focus());}
   }
   focusWritingButton.addEventListener('click',()=>setWritingFocus(!document.body.classList.contains('cms-writing-focus')));
