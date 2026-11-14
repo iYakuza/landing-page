@@ -36,24 +36,27 @@ function mediaTitle(item,record){
  return String(item.title||record.title||'Archive media').replace(/&nbsp;/g,' ').trim();
 }
 function appendLocalImage(parent,item,record,used){
- const figure=document.createElement('figure');figure.className='ha-local-media ha-local-image';
+ const embedded=parent.tagName==='FIGURE';
+ const figure=embedded?parent:document.createElement('figure');figure.classList.add('ha-local-media','ha-local-image');
  const img=document.createElement('img');img.src=localMediaUrl(item);img.alt=item.alt_text||mediaTitle(item,record);img.loading='lazy';img.decoding='async';
  figure.append(img);
  const caption=item.alt_text||mediaTitle(item,record);
- if(caption){const figcaption=document.createElement('figcaption');figcaption.textContent=caption;figure.append(figcaption);}
- parent.append(figure);markUsed(item,used);
+ if(caption&&!embedded){const figcaption=document.createElement('figcaption');figcaption.textContent=caption;figure.append(figcaption);}
+ if(!embedded)parent.append(figure);markUsed(item,used);
 }
 function appendLocalAudio(parent,item,record,used){
- const figure=document.createElement('figure');figure.className='ha-local-media ha-local-audio';
- const title=document.createElement('figcaption');title.textContent=mediaTitle(item,record);figure.append(title);
+ const embedded=parent.tagName==='FIGURE';
+ const figure=embedded?parent:document.createElement('figure');figure.classList.add('ha-local-media','ha-local-audio');
+ if(!embedded){const title=document.createElement('figcaption');title.textContent=mediaTitle(item,record);figure.append(title);}
  const audio=document.createElement('audio');audio.controls=true;audio.preload='metadata';audio.src=localMediaUrl(item);audio.setAttribute('aria-label','Audio: '+mediaTitle(item,record));figure.append(audio);
- parent.append(figure);markUsed(item,used);
+ if(!embedded)parent.append(figure);markUsed(item,used);
 }
 function appendLocalVideo(parent,item,record,used){
- const figure=document.createElement('figure');figure.className='ha-local-media ha-local-video';
+ const embedded=parent.tagName==='FIGURE';
+ const figure=embedded?parent:document.createElement('figure');figure.classList.add('ha-local-media','ha-local-video');
  const video=document.createElement('video');video.controls=true;video.preload='metadata';video.playsInline=true;video.src=localMediaUrl(item);video.setAttribute('aria-label','Video: '+mediaTitle(item,record));figure.append(video);
- const title=document.createElement('figcaption');title.textContent=mediaTitle(item,record);figure.append(title);
- parent.append(figure);markUsed(item,used);
+ if(!embedded){const title=document.createElement('figcaption');title.textContent=mediaTitle(item,record);figure.append(title);parent.append(figure);}
+ markUsed(item,used);
 }
 function appendMediaLink(parent,item,record,used){
  const link=document.createElement('a');link.className='ha-local-media-link';link.href=localMediaUrl(item);link.target='_blank';link.rel='noopener noreferrer';link.textContent='OPEN FILE — '+mediaTitle(item,record);parent.append(link);markUsed(item,used);
