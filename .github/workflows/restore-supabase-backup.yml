@@ -1,0 +1,29 @@
+name: Restore Green Dream into a fresh Supabase project
+
+# Registration stub on the default branch.
+# Select backup/apps-script-transfer-redesign in the Actions branch dropdown
+# to run the actual restore workflow from that feature branch.
+on:
+  workflow_dispatch:
+    inputs:
+      backup_id:
+        description: "Completed encrypted backup ID (blank selects the newest completed system backup)"
+        required: false
+        type: string
+      confirm_fresh_target:
+        description: "Confirm that the destination is a NEW, EMPTY Supabase project"
+        required: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  default-branch-safety:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prevent accidental restore from main
+        run: |
+          echo "This is only a registration stub."
+          echo "Select backup/apps-script-transfer-redesign from the Branch dropdown to run the hosted restore implementation."
