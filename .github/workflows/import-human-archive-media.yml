@@ -51,11 +51,26 @@ jobs:
         run: |
           set -euo pipefail
           if [ -f human-archive/media-import-report.json ]; then
+            REPORT_COPY="$RUNNER_TEMP/media-import-report.json"
+            cp human-archive/media-import-report.json "$REPORT_COPY"
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add human-archive/media-import-report.json
-            if ! git diff --cached --quiet; then
+            for attempt in 1 2 3 4 5; do
+              git fetch origin recovery-drill-preview
+              git checkout -B recovery-drill-preview origin/recovery-drill-preview
+              cp "$REPORT_COPY" human-archive/media-import-report.json
+              git add human-archive/media-import-report.json
+              if git diff --cached --quiet; then
+                echo "Import report already matches the recovery branch."
+                exit 0
+              fi
               git commit -m "Record Human Archive media recovery results"
-              git push origin HEAD:recovery-drill-preview
-            fi
+              if git push origin HEAD:recovery-drill-preview; then
+                exit 0
+              fi
+              echo "Branch moved during report publication; retrying against its newest head."
+              sleep "$attempt"
+            done
+            echo "::error::Could not publish the media import report after five attempts."
+            exit 1
           fi
