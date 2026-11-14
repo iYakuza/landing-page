@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T23:26:25.082532Z",
-  "last_processed_sha": "33274628a1bb990eab9dc697e0aea043b2208173",
+  "updated_at": "2026-11-14T23:30:26.325151Z",
+  "last_processed_sha": "17d9da021f0718570245a6fbf8a779f348b36314",
   "entries": [
+    {
+      "id": "17d9da021f0718570245a6fbf8a779f348b36314",
+      "timestamp": "2026-11-15T00:30:18+01:00",
+      "category": "CONTENT",
+      "component": "Creative Archive",
+      "title": "Fresh additions to Creative Archive",
+      "description": "This update brings together Standardize post metadata and collapsed card titles (#49). It updates index.html, posts.css, posts.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        "posts/community/index.html",
+        "posts/index.html",
+        "posts/posts.css",
+        "posts/posts.js",
+        "posts/the-awakening/index.html",
+        "posts/the-descent/index.html",
+        "posts/the-reconnection/index.html",
+        "posts/the-return/index.html",
+        "posts/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Standardize post metadata and collapsed card titles (#49)",
+          "url": "https://github.com/iYakuza/landing-page/commit/17d9da021f0718570245a6fbf8a779f348b36314",
+          "files": [
+            "posts/community/index.html",
+            "posts/index.html",
+            "posts/posts.css",
+            "posts/posts.js",
+            "posts/the-awakening/index.html",
+            "posts/the-descent/index.html",
+            "posts/the-reconnection/index.html",
+            "posts/the-return/index.html",
+            "posts/the-transformation/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "33274628a1bb990eab9dc697e0aea043b2208173",
       "timestamp": "2026-11-15T00:26:17+01:00",
@@ -1189,35 +1226,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/0bce14432171e835af97854924b4b158e03e0ef2",
           "files": [
             "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "eae3a8000158ea7c91131b9927c5f1dc91d779a3",
-      "timestamp": "2026-11-14T00:17:54+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Complete English Initiative foundations and direct plan links; Complete Romanian Initiative navigation and section anchors. It updates index.html and related project files.",
-      "commit_count": 2,
-      "files": [
-        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Complete English Initiative foundations and direct plan links",
-          "url": "https://github.com/iYakuza/landing-page/commit/ef6e7c4763a26b8cac722b4f8e60c610884949cb",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
-          ]
-        },
-        {
-          "message": "Complete Romanian Initiative navigation and section anchors",
-          "url": "https://github.com/iYakuza/landing-page/commit/c635fb3fdec50c09e1c8e952583ce607f8612666",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
           ]
         }
       ]
