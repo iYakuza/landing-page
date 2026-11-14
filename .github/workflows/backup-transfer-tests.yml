@@ -49,3 +49,5 @@ jobs:
           python scripts/test_apps_script_transport.py
           python scripts/test_upload_apps_script_backup.py
           python scripts/test_download_apps_script_backup.py
+          python -m py_compile scripts/apply_sql_safely.py scripts/test_apply_sql_safely.py
+          python scripts/test_apply_sql_safely.py
