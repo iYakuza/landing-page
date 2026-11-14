@@ -11,13 +11,35 @@ data_path = root / "database" / "data.sql"
 if not schema_path.is_file() or not data_path.is_file():
     raise SystemExit("Database schema/data dump files are missing.")
 
-create_table = re.compile(r"^CREATE TABLE public\.([A-Za-z0-9_]+)\s*\(")
-copy_table = re.compile(r"^COPY public\.([A-Za-z0-9_]+)\s*\(")
+# pg_dump may quote every identifier (including the public schema) and may
+# include IF NOT EXISTS. Parse both quoted and unquoted PostgreSQL identifiers;
+# unquoted names fold to lowercase while quoted names retain their exact case.
+identifier_pattern = r'"(?:[^"]|"")*"|[A-Za-z_][A-Za-z_0-9$]*'
+public_relation = rf'(?:public|"public")\s*\.\s*(?P<table>{identifier_pattern})'
+create_table = re.compile(
+    rf'^\s*CREATE\s+(?:UNLOGGED\s+)?TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?{public_relation}\s*\(',
+    re.IGNORECASE,
+)
+copy_table = re.compile(
+    rf'^\s*COPY\s+{public_relation}\s*\(.*\)\s+FROM\s+stdin;\s*$',
+    re.IGNORECASE,
+)
+
+
+def identifier_value(token):
+    if token.startswith('"') and token.endswith('"'):
+        return token[1:-1].replace('""', '"')
+    return token.lower()
+
+
 public_counts = {}
 for line in schema_path.read_text(encoding="utf-8", errors="replace").splitlines():
     match = create_table.match(line)
     if match:
-        public_counts[match.group(1)] = 0
+        name = identifier_value(match.group("table"))
+        if name in public_counts:
+            raise SystemExit("Schema dump contains duplicate public table definitions.")
+        public_counts[name] = 0
 
 current_table = None
 row_count = 0
@@ -26,7 +48,7 @@ with data_path.open("r", encoding="utf-8", errors="replace") as stream:
         if current_table is None:
             match = copy_table.match(line)
             if match:
-                current_table = match.group(1)
+                current_table = identifier_value(match.group("table"))
                 if current_table not in public_counts:
                     raise SystemExit("Data dump references a public table absent from schema dump.")
                 row_count = 0
