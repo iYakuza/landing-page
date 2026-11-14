@@ -112,6 +112,9 @@ body.vha-game-interface:before{
 }
 
 
+/* Crystal-only global navigation: hide legacy page headers before the first paint. */
+body.vha-game-interface :is(header,.masthead,.mast,.ha-nav,.gd-nav,.toplinks,.vha-main-nav){display:none!important}
+
 /* Navigation HUD / interactive world map */
 .vha-game-hud{display:flex;align-items:center;gap:clamp(6px,1.2vw,16px);min-width:0}
 .vha-game-hud-links{display:flex;align-items:center;gap:4px;min-width:0}
