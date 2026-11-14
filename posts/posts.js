@@ -69,10 +69,7 @@
         url.pathname.includes('/storage/v1/object/public/vha-post-media/')||
         url.pathname.includes('/storage/v1/object/public/poetry-media/')
       );
-      const wordpressHost=['emanuelstefancu.wordpress.com','i0.wp.com'].includes(url.hostname);
-      const extension=url.pathname.split('.').pop().toLowerCase();
-      const wordpressMedia=wordpressHost&&url.pathname.includes('/wp-content/uploads/')&&['jpg','jpeg','png','webp','gif','avif'].includes(extension);
-      return url.protocol==='https:'&&(ownStorage||wordpressMedia)?url.href:'';
+      return url.protocol==='https:'&&ownStorage?url.href:'';
     }catch{return '';}
   }
   const MOVEMENTS=['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'];
