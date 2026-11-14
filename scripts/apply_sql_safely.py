@@ -217,7 +217,9 @@ def redacted_sql_shape(sql):
         "NOSUPERUSER", "SUPERUSER", "NOREPLICATION", "REPLICATION", "BYPASSRLS",
         "NOBYPASSRLS", "IF", "EXISTS", "THEN", "ELSE", "ELSIF", "WHEN", "DECLARE",
         "RETURN", "LANGUAGE", "PLPGSQL", "CURRENT_SETTING", "TRUE", "FALSE", "NULL",
-        "REVOKE", "ALL", "PRIVILEGES", "E",
+        "REVOKE", "ALL", "PRIVILEGES", "E", "INSERT", "INTO", "UPDATE", "EXCLUDED",
+    "CONFLICT", "JSONB_POPULATE_RECORDSET", "VERSION", "STATEMENTS", "NAME",
+    "CREATED_BY", "IDEMPOTENCY_KEY", "ROLLBACK", "COMMIT",
     }
     token_pattern = re.compile(
         r"""'(?:''|\\.|[^'])*'|"(?:\"\"|[^"])*"|\$[A-Za-z_][A-Za-z_0-9]*\$|\$\$|[A-Za-z_][A-Za-z_0-9$]*|\d+|\s+|.""",
@@ -254,6 +256,26 @@ def statement_at_line(sql, line_number):
             return statement
         current_line = final_line
     return ""
+
+
+def postgres_error_diagnostic(stderr):
+    """Extract a PostgreSQL primary error and redact any quoted values."""
+    for line in stderr.splitlines():
+        location = re.match(r"^psql:.*?:(\d+): ERROR:\s*(.*)$", line)
+        if location:
+            line_number, message = int(location.group(1)), location.group(2)
+        else:
+            plain = re.match(r"^ERROR:\s*(.*)$", line)
+            if not plain:
+                continue
+            line_number, message = None, plain.group(1)
+        # Primary errors can echo rejected user-provided values. Keep the
+        # explanation but suppress every quoted string and hexadecimal value.
+        message = re.sub(r'"(?:[^"]|"")*"', '"<redacted>"', message)
+        message = re.sub(r"'(?:''|[^'])*'", "'<redacted>'", message)
+        message = re.sub(r"\b0x[0-9a-f]+\b", "<redacted>", message, flags=re.IGNORECASE)
+        return line_number, message
+    return None
 
 
 def sanitize_roles_sql(original_sql):
@@ -411,9 +433,7 @@ if sql_file.name == "roles.sql":
         temporary_sql = pathlib.Path(handle.name)
         sql_to_apply = temporary_sql
 
-applied_roles_sql = (
-    sql_to_apply.read_text(encoding="utf-8") if sql_file.name == "roles.sql" else ""
-)
+applied_sql_text = sql_to_apply.read_text(encoding="utf-8")
 
 try:
     result = subprocess.run(
@@ -429,24 +449,22 @@ if result.returncode:
         "SQL restore failed while applying " + sql_file.name + ".",
         file=sys.stderr,
     )
-    # Role DDL contains role identifiers and attributes, not user rows or secret values.
-    # Expose only PostgreSQL's primary ERROR line for this file to make restore failures diagnosable.
-    if sql_file.name == "roles.sql":
-        for line in result.stderr.splitlines():
-            if re.match(r"^psql:.*: ERROR:", line) or re.match(r"^ERROR:", line):
-                location = re.match(r"^psql:.*?:(\d+): ERROR:", line)
-                if location:
-                    line_number = int(location.group(1))
-                    print("SQL diagnostic: roles.sql reported line " + str(line_number) + ".", file=sys.stderr)
-                    statement = statement_at_line(applied_roles_sql, line_number)
-                    if statement:
-                        print(
-                            "SQL diagnostic: statement shape (role identifiers and literal values redacted): "
-                            + redacted_sql_shape(statement),
-                            file=sys.stderr,
-                        )
-                print("PostgreSQL: " + line.split("ERROR:", 1)[-1].strip(), file=sys.stderr)
-                break
+    diagnostic = postgres_error_diagnostic(result.stderr)
+    if diagnostic:
+        line_number, message = diagnostic
+        if line_number is not None:
+            print(
+                f"SQL diagnostic: {sql_file.name} reported line {line_number}.",
+                file=sys.stderr,
+            )
+            statement = statement_at_line(applied_sql_text, line_number)
+            if statement:
+                print(
+                    "SQL diagnostic: statement shape (identifiers and literal values redacted): "
+                    + redacted_sql_shape(statement),
+                    file=sys.stderr,
+                )
+        print("PostgreSQL: " + message, file=sys.stderr)
     else:
         print(
             "Detailed database output is suppressed because the snapshot contains private data and secrets.",
