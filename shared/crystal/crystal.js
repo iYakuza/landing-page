@@ -11,7 +11,8 @@
     reset:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
   };
   const svg = name => '<svg viewBox="0 0 24 24" aria-hidden="true">'+icons[name]+'</svg>';
-  const root = document.createElement("aside");
+  const root = document.getElementById("vha-viewer-tools") || document.createElement("aside");
+  const existingNavHud = root.querySelector(".ego-bottom-hud.vha-universal-nav");
   root.id = "vha-viewer-tools";
   // Layout is controlled by the shared stylesheet so closed and open states stay centred.
   root.setAttribute("aria-label","Viewer controls");
@@ -20,6 +21,8 @@
   root.innerHTML = '<div class="vha-tools-side vha-tools-left" aria-label="Viewer controls left"><span class="vha-scroll-cue vha-scroll-cue-start" aria-hidden="true">‹</span><button class="vha-tool-row" type="button" data-tool="presentation"><span class="vha-tool-icon">'+svg("presentation")+'</span><span>Presentation</span></button><button class="vha-tool-row" type="button" data-tool="radio" aria-pressed="false"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4h4l5 4V6l-5 4H4Z"/><path d="M17 9a5 5 0 0 1 0 6M19.5 6.5a9 9 0 0 1 0 11"/></svg></span><span>V/A Radio</span></button><button class="vha-tool-row" type="button" data-tool="text" aria-pressed="false"><span class="vha-tool-icon">'+svg("text")+'</span><span>Text Size</span></button><span class="vha-scroll-cue vha-scroll-cue-end" aria-hidden="true">›</span></div><div class="vha-tools-side vha-tools-right" aria-label="Viewer controls right"><span class="vha-scroll-cue vha-scroll-cue-start" aria-hidden="true">‹</span><button class="vha-tool-row" type="button" data-tool="mood" aria-expanded="false"><span class="vha-tool-icon">'+svg("mood")+'</span><span>Match my mood</span></button><label class="vha-tool-row vha-patterns-dropdown"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 1.5 6.5L20 10l-6.5 1.5L12 18l-1.5-6.5L4 10l6.5-1.5L12 2Z"/><path d="m19 16 .8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z"/></svg></span><select data-tool="patterns" aria-label="Choose a star pattern"><option value="" selected>Star patterns</option><option value="orion">Orion</option><option value="ursa-major">Ursa Major</option><option value="cassiopeia">Cassiopeia</option><option value="cygnus">Cygnus</option><option value="scorpius">Scorpius</option><option value="hello-smile">Hello / Smile</option><option value="heart-signal">Heart Signal</option><option value="north-star">North Star</option><option value="after-hours">After Hours</option><option value="waveform">Waveform</option></select></label><a class="vha-tool-row" href="/landing-page/posts/community/" aria-label="Open Signals community"><span class="vha-tool-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 18v3M8 21h8M12 3v2M5.6 8.6a9 9 0 0 0 0 6.8M18.4 8.6a9 9 0 0 1 0 6.8M2.8 5.8a13 13 0 0 0 0 12.4M21.2 5.8a13 13 0 0 1 0 12.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0-8Z"/></svg></span><span>SIGNALS</span></a><span class="vha-scroll-cue vha-scroll-cue-end" aria-hidden="true">›</span></div><div class="vha-mood-box"><label for="vha-mood-emotion">Which feeling is closest right now?</label><select id="vha-mood-emotion" aria-describedby="vha-mood-note"><option value="">Choose an emotion</option><option value="joy">Joy</option><option value="trust">Trust</option><option value="fear">Fear</option><option value="surprise">Surprise</option><option value="sadness">Sadness</option><option value="disgust">Disgust</option><option value="anger">Anger</option><option value="anticipation">Anticipation</option></select><p class="vha-mood-note" id="vha-mood-note">Eight core emotions, each with its own palette, typography and rhythm. Your choice stays in this browser.</p><button type="button" data-tool="apply-mood">Apply this atmosphere</button><button type="button" data-tool="reset-mood" class="vha-mood-reset"><span class="vha-tool-icon">'+svg("reset")+'</span><span>Reset mood theme</span></button><div class="vha-mood-status" role="status" aria-live="polite"></div></div>';
 
   // Keep horizontal-scroll arrows pinned to each bank's edges and reflect its current position.
+  if (existingNavHud) root.insertBefore(existingNavHud, root.querySelector(".vha-tools-side.vha-tools-right"));
+
   const toolBanks = [...root.querySelectorAll(".vha-tools-side")];
   function updateScrollCues(bank){
     const max = Math.max(0, bank.scrollWidth - bank.clientWidth);
@@ -56,10 +59,12 @@
   crystalObserver.observe(root,{childList:true,subtree:true});
   document.addEventListener("click",event=>{const dragClickUntil=Number(document.body.dataset.vhaStarDragClickUntil||0);if(Date.now()<dragClickUntil)return;if(root.dataset.open==="true"&&!root.contains(event.target)&&!event.target.closest(".vha-journey-note,.vha-map-node,.vha-constellation-presets,#gd-radio,.vha-creator-workshop-star,.vha-changelog-panel")){root.dataset.open="false";root.setAttribute("aria-expanded","false");document.dispatchEvent(new CustomEvent("vha-tools-state-change",{detail:{open:false}}))}});
   document.addEventListener("keydown",event=>{if(event.key==="Escape"&&root.dataset.open==="true"){root.dataset.open="false";root.setAttribute("aria-expanded","false");document.dispatchEvent(new CustomEvent("vha-tools-state-change",{detail:{open:false}}))}});
-  const navHud = document.querySelector(".ego-bottom-hud.vha-universal-nav");
+  const navHud = existingNavHud || document.querySelector(".ego-bottom-hud.vha-universal-nav");
   if (navHud) {
-    navHud.parentNode.insertBefore(root, navHud);
-    root.insertBefore(navHud,root.querySelector(".vha-tools-side.vha-tools-right"));
+    if (navHud.parentNode !== root) {
+      navHud.parentNode.insertBefore(root, navHud);
+      root.insertBefore(navHud,root.querySelector(".vha-tools-side.vha-tools-right"));
+    }
     navHud.style.setProperty("position","absolute","important");
     navHud.style.setProperty("left","50%","important");
     navHud.style.setProperty("top","50%","important");
