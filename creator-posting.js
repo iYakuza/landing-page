@@ -7,11 +7,13 @@ const css=document.createElement('style');css.textContent=[
 '.vha-create-plus{flex:0 0 26px;width:26px;height:26px;min-height:26px;margin-left:auto;padding:0;font-size:18px;line-height:1}',
 '.vha-nav-menu .vha-movement-row{display:flex;align-items:center;gap:8px}.vha-nav-menu .vha-movement-row>a:first-child{flex:1;min-width:0}',
 '.vha-quick-post{position:fixed;left:18px;bottom:18px;z-index:2147483007;padding:12px 15px;box-shadow:0 5px 20px #0008}.vha-quick-post[hidden],.vha-create-plus[hidden]{display:none!important}',
-'.vha-quick-post-overlay{position:fixed;inset:0;z-index:2147483100;background:#030706}',
-'.vha-quick-post-frame{display:block;width:100%;height:100%;border:0;background:#050906}',
-'.vha-quick-post-close{position:fixed;top:12px;right:16px;z-index:2147483200;padding:10px 13px;border:1px solid #00eaf5a0;background:#031116;color:#e8ffff;font:10px ui-monospace,monospace;letter-spacing:1px;cursor:pointer;box-shadow:0 4px 18px #0009}',
+'.vha-quick-post-overlay{position:fixed;inset:0;z-index:2147483100;display:flex;flex-direction:column;isolation:isolate;background:#030706}',
+'.vha-quick-post-topbar{position:relative;z-index:2;display:flex;flex:0 0 54px;align-items:center;justify-content:flex-end;box-sizing:border-box;height:54px;padding:0 16px;background:#031116;border-bottom:1px solid #00eaf548}',
+'.vha-quick-post-frame{position:relative;z-index:1;display:block;flex:1 1 auto;width:100%;height:auto;min-height:0;border:0;background:#050906}',
+'.vha-quick-post-close{position:relative!important;inset:auto!important;z-index:3!important;display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:10px 13px;border:1px solid #00eaf5a0;background:#031116;color:#e8ffff;font:10px ui-monospace,monospace;letter-spacing:1px;cursor:pointer;pointer-events:auto!important;touch-action:manipulation;box-shadow:0 4px 18px #0009}',
 '.vha-quick-post-close:hover,.vha-quick-post-close:focus-visible{background:#00eaf5;color:#031116;outline:2px solid #00eaf5;outline-offset:2px}',
-'@media(max-width:560px){.vha-quick-post-close{top:8px;right:8px;padding:9px 10px}}',
+'.vha-quick-post-close:disabled{opacity:.7;cursor:wait}',
+'@media(max-width:560px){.vha-quick-post-topbar{flex-basis:50px;height:50px;padding:0 10px}.vha-quick-post-close{min-height:34px;padding:9px 10px}}',
 '@media(max-width:560px){.vha-quick-post{left:10px;bottom:10px}}'
 ].join('');document.head.appendChild(css);
 const pageCategory=()=>{const b=(document.body.dataset.movement||'').toUpperCase();if(M.some(m=>m[0]===b))return b;const slug=location.pathname.split('/').find(part=>M.some(m=>m[2]===part.toLowerCase()));return slug?M.find(m=>m[2]===slug.toLowerCase())?.[0]||'':''};
@@ -53,15 +55,18 @@ function openStudio(selected=''){
   const overlay=document.createElement('div');
   overlay.className='vha-quick-post-overlay';
   overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','New transmission editor');
+  const topbar=document.createElement('div');
+  topbar.className='vha-quick-post-topbar';
   const close=document.createElement('button');
   close.type='button';close.className='vha-quick-post-close';close.textContent='CLOSE ✕';close.setAttribute('aria-label','Close new transmission editor');
   close.addEventListener('click',closeStudio);
+  topbar.appendChild(close);
   const frame=document.createElement('iframe');
   frame.className='vha-quick-post-frame';frame.title='New Transmission editor';frame.src=url.pathname+url.search;
   frame.setAttribute('allow','clipboard-read; clipboard-write');
   frame.addEventListener('load',()=>{try{frame.contentWindow.addEventListener('keydown',handleComposerKeydown);}catch{}});
   overlay.addEventListener('click',event=>{if(event.target===overlay)closeStudio()});
-  overlay.append(close,frame);document.body.appendChild(overlay);composerOverlay=overlay;
+  overlay.append(topbar,frame);document.body.appendChild(overlay);composerOverlay=overlay;
   document.body.style.overflow='hidden';window.addEventListener('keydown',handleComposerKeydown);
   close.focus();
 }
