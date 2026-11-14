@@ -22,6 +22,8 @@
   const requestedNewPost = requestedParams.get('new') === '1';
   const embeddedComposer = requestedParams.get('embed') === '1';
   if(embeddedComposer) document.body.classList.add('cms-embedded-composer');
+  const recoveryStorageKey = () => currentUser ? 'vha_quick_post_recovery_' + currentUser.id : null;
+  let recoveryRevision = 0;
   let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null;
   const MEDIA_BUCKET = 'vha-post-media';
   const MAX_MEDIA_BYTES = 30 * 1024 * 1024;
@@ -129,6 +131,41 @@
     managePosts.innerHTML=posts.map(p=>'<button type="button" class="manage-item '+(p.id===editingId?'active':'')+'" data-id="'+escapeHtml(p.id)+'"><strong>'+escapeHtml(p.title)+'</strong><small><span class="'+(p.status==='draft'?'draft-label':'published-label')+'">'+escapeHtml(p.status.toUpperCase())+'</span> · '+escapeHtml(p.category)+'<br>UPDATED '+new Date(p.updated_at).toLocaleDateString('en-GB')+'</small></button>').join('');
     managePosts.querySelectorAll('[data-id]').forEach(btn=>btn.addEventListener('click',()=>{const post=allPosts.find(p=>p.id===btn.dataset.id);if(post)openPost(post);}));
   }
+  function persistLocalRecovery(){
+    if(!currentUser||!hasTransmissionContent())return;
+    const key=recoveryStorageKey();if(!key)return;
+    const fields={};
+    postForm.querySelectorAll('input,textarea,select').forEach(el=>{
+      if(!el.id||el.type==='file'||el.type==='submit'||el.type==='button')return;
+      fields[el.id]=el.value;
+    });
+    const snapshot={version:1,updatedAt:new Date().toISOString(),fields,contentHtml:contentEditor.innerHTML,
+      editingId,postLayout,postMediaWidth,mediaUrl,mediaPath,mediaType};
+    try{localStorage.setItem(key,JSON.stringify(snapshot));recoveryRevision++;}
+    catch(error){message(saveMessage,'LOCAL RECOVERY STORAGE IS FULL OR UNAVAILABLE. Copy your text somewhere safe.',true);}
+  }
+  function restoreLocalRecovery(){
+    if(!currentUser)return false;
+    const key=recoveryStorageKey();if(!key)return false;
+    let snapshot;
+    try{snapshot=JSON.parse(localStorage.getItem(key)||'null');}catch{return false;}
+    if(!snapshot||snapshot.version!==1||!snapshot.fields)return false;
+    Object.entries(snapshot.fields).forEach(([id,value])=>{const el=$(id);if(el&&el.type!=='file')el.value=value;});
+    contentEditor.innerHTML=snapshot.contentHtml||'';
+    editingId=snapshot.editingId||null;postLayout=snapshot.postLayout||layoutInput.value||'suno';
+    layoutInput.value=postLayout;postMediaWidth=Number(snapshot.postMediaWidth)||100;
+    mediaWidthInput.value=String(postMediaWidth);mediaWidthValue.value=postMediaWidth+'%';
+    mediaUrl=snapshot.mediaUrl||null;mediaPath=snapshot.mediaPath||null;mediaType=snapshot.mediaType||null;
+    originalMediaPath=mediaPath;syncLayoutFields();renderMediaPreview();
+    $('delete-post').hidden=!editingId;$('editor-mode').textContent=editingId?'EDIT TRANSMISSION':'NEW TRANSMISSION';
+    setStatus('RECOVERED LOCAL DRAFT');
+    message(saveMessage,'Recovered your latest local draft from '+new Date(snapshot.updatedAt).toLocaleString()+'. It is saved on this device; cloud sync will follow when required fields are complete.');
+    return true;
+  }
+  postForm.addEventListener('input',persistLocalRecovery);
+  postForm.addEventListener('change',persistLocalRecovery);
+  contentEditor.addEventListener('input',persistLocalRecovery);
+
   async function openRequestedPost(){
     if(requestedEditSlug){
       let post=allPosts.find(item=>item.slug===requestedEditSlug);
@@ -143,6 +180,7 @@
     }
     if(requestedNewPost){
       blankEditor();
+      if(embeddedComposer&&restoreLocalRecovery())return;
       if(['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'].includes(requestedCategory)){
         categoryInput.value=requestedCategory;
         setStatus('NEW POST // '+requestedCategory);
@@ -338,6 +376,7 @@
     const title=titleInput.value.trim(),slug=slugify(slugInput.value),category=categoryInput.value.trim().toUpperCase();
     if(!title||!slug||!category){message(saveMessage,'To keep this transmission, add a title and choose a movement category before closing.',true);return false;}
     if(!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)){message(saveMessage,'Use a valid lowercase URL slug.',true);return false;}
+    const revisionAtSave=recoveryRevision;
     const previousSavedMediaPath=editingId?allPosts.find(p=>p.id===editingId)?.media_path||null:null;
     const composedHtml=buildPostContent();
     const payload={title,slug,category,excerpt:excerptInput.value.trim(),content_html:cleanHtml(composedHtml),media_url:mediaUrl,media_path:mediaPath,media_type:mediaType,media_width:postMediaWidth,status};
@@ -359,6 +398,7 @@
         window.location.assign(postUrl.toString());
         return true;
       }
+      if(recoveryRevision===revisionAtSave){try{localStorage.removeItem(recoveryStorageKey());}catch{}}
       message(saveMessage,'Draft saved. It remains private.');
       await loadPosts();renderPosts();
       return true;
@@ -373,6 +413,7 @@
     if(event.origin!==window.location.origin||event.source!==window.parent||!embeddedComposer)return;
     if(event.data?.type==='VHA_QUICK_POST_CLOSE_REQUEST'){
       const saved=hasTransmissionContent()?await savePost('draft'):true;
+      if(saved){try{localStorage.removeItem(recoveryStorageKey());}catch{}}
       event.source.postMessage({type:'VHA_QUICK_POST_CLOSE_RESULT',requestId:event.data.requestId,saved},event.origin);
     }else if(event.data?.type==='VHA_QUICK_POST_CLOSE_FAILED'){
       message(saveMessage,'Draft could not be saved. The editor remains open so your work is not lost.',true);
@@ -392,6 +433,7 @@
       const {data}=client.storage.from(MEDIA_BUCKET).getPublicUrl(path);
       mediaUrl=data.publicUrl;mediaPath=path;mediaType=file.type.startsWith('image/')?'image':file.type.startsWith('video/')?'video':'audio';
       renderMediaPreview();message(mediaMessage,'Media uploaded. Save or publish the post to attach it.');setStatus('UNSAVED');
+      persistLocalRecovery();
       if(previous.path&&previous.path!==originalMediaPath)await client.storage.from(MEDIA_BUCKET).remove([previous.path]);
     }catch(err){message(mediaMessage,err.message||'Media upload failed.',true);mediaUrl=previous.url;mediaPath=previous.path;mediaType=previous.type;renderMediaPreview();}
     finally{mediaInput.disabled=false;}
