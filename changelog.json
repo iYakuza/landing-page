@@ -1,8 +1,35 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T23:30:26.325151Z",
-  "last_processed_sha": "17d9da021f0718570245a6fbf8a779f348b36314",
+  "updated_at": "2026-11-14T23:56:21.130594Z",
+  "last_processed_sha": "f11f6cb467736a64ef7e11041f604753379ed5ce",
   "entries": [
+    {
+      "id": "f11f6cb467736a64ef7e11041f604753379ed5ce",
+      "timestamp": "2026-11-15T00:56:10+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Pilot Human Archive favourites and full-screen record chamber (#50). It updates archive.css, archive.js, index.html, 20261114234943_human_archive_favorites.sql.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.css",
+        "human-archive/archive.js",
+        "human-archive/index.html",
+        "supabase/migrations/20261114234943_human_archive_favorites.sql"
+      ],
+      "commits": [
+        {
+          "message": "Pilot Human Archive favourites and full-screen record chamber (#50)",
+          "url": "https://github.com/iYakuza/landing-page/commit/f11f6cb467736a64ef7e11041f604753379ed5ce",
+          "files": [
+            "human-archive/archive.css",
+            "human-archive/archive.js",
+            "human-archive/index.html",
+            "supabase/migrations/20261114234943_human_archive_favorites.sql"
+          ]
+        }
+      ]
+    },
     {
       "id": "17d9da021f0718570245a6fbf8a779f348b36314",
       "timestamp": "2026-11-15T00:30:18+01:00",
@@ -1197,35 +1224,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/52395efda60118acb8b6f8e9ede0705f40abc529",
           "files": [
             "green-dream/guest-notes/ethical-framework/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "0bce14432171e835af97854924b4b158e03e0ef2",
-      "timestamp": "2026-11-14T00:18:16+01:00",
-      "category": "FIX",
-      "component": "Creative Archive",
-      "title": "More reliable Creative Archive",
-      "description": "This update brings together Correct Romanian edition relative links and labels; Update English Initiative metadata. It updates index.html and related project files.",
-      "commit_count": 2,
-      "files": [
-        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Correct Romanian edition relative links and labels",
-          "url": "https://github.com/iYakuza/landing-page/commit/1130c4b39854043f2015372862d19fd51d8d98d8",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
-          ]
-        },
-        {
-          "message": "Update English Initiative metadata",
-          "url": "https://github.com/iYakuza/landing-page/commit/0bce14432171e835af97854924b4b158e03e0ef2",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
           ]
         }
       ]
