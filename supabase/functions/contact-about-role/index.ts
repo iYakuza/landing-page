@@ -55,6 +55,9 @@ Deno.serve(async (req: Request) => {
     }});
   }
   if (req.method !== "POST") return response(405, { error: "Method not allowed." }, origin);
+  // Never send email from the isolated hosted recovery drill.
+  const isRecoveryDrill = (Deno.env.get("SUPABASE_URL") || "").replace(/\/+$/, "") === "https://ioguymqdeuuursizifnn.supabase.co";
+  if (isRecoveryDrill) return response(503, { error: "Email delivery is disabled on the recovery drill project." }, origin);
   const contentType = (req.headers.get("content-type") || "").toLowerCase();
   if (!contentType.startsWith("application/json")) return response(415, { error: "JSON requests only." }, origin);
   const lengthHeader = req.headers.get("content-length");
