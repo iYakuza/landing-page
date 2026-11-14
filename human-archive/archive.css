@@ -423,3 +423,10 @@
   .ha-chamber-media-grid{grid-template-columns:1fr}
   .ha-chamber-heading h2{font-size:clamp(27px,8vw,38px)}
 }
+
+.ha-favorite-toggle.is-error{border-color:#e5a08f;color:#ffb6a6;text-shadow:none}
+.ha-chamber-layout-label{
+  width:min(1500px,100%);margin:20px auto 0;padding:0 0 8px;
+  border-bottom:1px solid rgba(185,215,122,.18);color:#a8bf98;
+  font:9px/1.5 'DM Mono',monospace;letter-spacing:.13em
+}
