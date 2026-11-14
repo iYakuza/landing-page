@@ -6,7 +6,7 @@ import re
 
 source = pathlib.Path("scripts/apply_sql_safely.py").read_text(encoding="utf-8")
 tree = ast.parse(source)
-wanted = {"split_sql_statements", "executable_sql", "sanitize_roles_sql"}
+wanted = {"split_sql_statements", "executable_sql", "strip_sql_comments", "sanitize_roles_sql"}
 nodes = [node for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in wanted]
 namespace = {"re": re}
 exec(compile(ast.Module(body=nodes, type_ignores=[]), "apply_sql_safely.py", "exec"), namespace)
@@ -17,6 +17,7 @@ cases = [
     ("SELECT pg_catalog.set_config('log_min_messages', 'warning', false);", "", 1),
     ("SELECT set_config('log_min_messages', 'warning', true);", "", 1),
     ("SELECT pg_catalog.set_config('search_path', 'log_min_messages', false);", "SELECT pg_catalog.set_config('search_path', 'log_min_messages', false);", 0),
+    ("SELECT pg_catalog.set_config('search_path', 'safe', false); -- set_config('log_min_messages', 'warning', false)\n", "SELECT pg_catalog.set_config('search_path', 'safe', false); -- set_config('log_min_messages', 'warning', false)\n", 0),
     ("ALTER ROLE app_user SET log_min_messages TO warning;", "", 1),
     ('ALTER ROLE "app_user" SET "log_min_messages" TO warning;', "", 1),
     ("ALTER DATABASE appdb SET log_min_messages = warning;", "", 1),
