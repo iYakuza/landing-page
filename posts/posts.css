@@ -1344,3 +1344,46 @@ body.image-viewer-open{overflow:hidden!important}
 .posts-list:not(:has(.post-back)) .post-card-title-row h3{flex:1 1 auto;min-width:0;max-width:none!important;margin:0!important}
 .posts-list:not(:has(.post-back)) .post-card-title-row .post-sections-toggle{flex:0 0 auto;white-space:nowrap}
 @media(max-width:560px){.posts-list:not(:has(.post-back)) .post-card-title-row{align-items:flex-start;gap:10px}.posts-list:not(:has(.post-back)) .post-card-title-row .post-sections-toggle{max-width:46%;white-space:normal;font-size:8px!important}}
+
+
+/* TRANSMISSIONS ARCHIVE: align movement navigation and category selection. */
+.posts-browse-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+  margin:0 0 28px;
+}
+.posts-browse-row .movement-index{
+  flex:1 1 520px;
+  min-width:0;
+  margin:0;
+}
+.posts-browse-row .posts-filters{
+  flex:0 1 auto;
+  margin:0;
+  padding:10px 12px;
+}
+.posts-browse-row .posts-filters label{white-space:nowrap}
+.posts-browse-row .posts-filters select{min-width:180px}
+.posts-hero h1.posts-title-single-line{
+  font-size:clamp(34px,10.5vw,150px)!important;
+  line-height:.9!important;
+  white-space:nowrap!important;
+}
+@media(max-width:650px){
+  .posts-browse-row{align-items:stretch;gap:12px}
+  .posts-browse-row .movement-index{flex-basis:100%}
+  .posts-browse-row .posts-filters{
+    flex:1 1 100%;
+    align-items:center;
+    flex-direction:row;
+    justify-content:space-between;
+  }
+  .posts-browse-row .posts-filters select{
+    flex:1 1 auto;
+    min-width:0;
+    width:auto;
+  }
+}
