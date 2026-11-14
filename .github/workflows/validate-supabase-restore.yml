@@ -172,6 +172,7 @@ jobs:
           DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/restore/vault-restore.sql"
           DATABASE_URL="$DB_URL" python3 scripts/verify_vault_restore.py "$RESTORE_ROOT"
           DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/restore/storage-policies.sql"
+          python3 scripts/sanitize_managed_data_dump.py "$RESTORE_ROOT/database/data.sql"
           DATABASE_URL="$DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/database/data.sql"
           DATABASE_URL="$DB_URL" python3 scripts/verify_storage_security.py "$RESTORE_ROOT"
           SUPABASE_URL="$API_URL" SUPABASE_SECRET_KEY="$SECRET_KEY" \
