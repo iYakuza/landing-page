@@ -20,7 +20,7 @@ assert "secret_role" not in redacted and "do-not-log-this-value" not in redacted
 wrapped = "DO $do$ BEGIN EXECUTE 'ALTER ROLE secret_role SET log_min_messages TO secret_value'; END $do$;"
 assert "DO $body$ BEGIN EXECUTE" in shape(wrapped)
 assert "secret_role" not in shape(wrapped) and "secret_value" not in shape(wrapped)
-assert statement_at_line("SET search_path = public;\\nALTER ROLE secret_role SET log_min_messages TO warning;\\n", 2).startswith("ALTER ROLE")
+assert statement_at_line("SET search_path = public;\nALTER ROLE secret_role SET log_min_messages TO warning;\n", 2).lstrip().startswith("ALTER ROLE")
 
 cases = [
     ("SET log_min_messages = warning;", "", 1),
