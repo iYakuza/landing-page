@@ -64,14 +64,16 @@
     if (navHud.parentNode !== root) {
       navHud.parentNode.insertBefore(root, navHud);
       root.insertBefore(navHud,root.querySelector(".vha-tools-side.vha-tools-right"));
+      // A dock moved in from outside the tools panel needs explicit centring.
+      // A pre-rendered dock already inside the panel must keep the shared CSS-grid positioning.
+      navHud.style.setProperty("position","absolute","important");
+      navHud.style.setProperty("left","50%","important");
+      navHud.style.setProperty("top","50%","important");
+      navHud.style.setProperty("right","auto","important");
+      navHud.style.setProperty("bottom","auto","important");
+      navHud.style.setProperty("transform","translate(-50%,-50%)","important");
+      navHud.style.setProperty("margin","0","important");
     }
-    navHud.style.setProperty("position","absolute","important");
-    navHud.style.setProperty("left","50%","important");
-    navHud.style.setProperty("top","50%","important");
-    navHud.style.setProperty("right","auto","important");
-    navHud.style.setProperty("bottom","auto","important");
-    navHud.style.setProperty("transform","translate(-50%,-50%)","important");
-    navHud.style.setProperty("margin","0","important");
   } else {
     document.body.appendChild(root);
   }
