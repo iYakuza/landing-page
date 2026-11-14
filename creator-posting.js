@@ -39,6 +39,7 @@ function openStudio(selected=''){
   const frame=document.createElement('iframe');
   frame.className='vha-quick-post-frame';frame.title='New Transmission editor';frame.src=url.pathname+url.search;
   frame.setAttribute('allow','clipboard-read; clipboard-write');
+  frame.addEventListener('load',()=>{try{frame.contentWindow.addEventListener('keydown',handleComposerKeydown);}catch{}});
   overlay.append(close,frame);document.body.appendChild(overlay);composerOverlay=overlay;
   document.body.style.overflow='hidden';window.addEventListener('keydown',handleComposerKeydown);
   close.focus();
