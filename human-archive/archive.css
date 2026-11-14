@@ -214,3 +214,17 @@
 @media(prefers-reduced-motion:reduce){
   .ha-entry{transition:none!important}
 }
+
+/* Local Human Archive entry reader */
+.ha-record-card{min-width:0;display:flex;flex-direction:column;align-items:stretch}
+.ha-record-card>.ha-entry{width:100%;text-align:left;cursor:pointer}
+.ha-entry-content{min-width:0;max-height:560px;overflow:auto;padding:18px 20px 20px;border:1px solid rgba(145,171,171,.22);border-top:0;background:linear-gradient(145deg,#0c1519,#080e09);color:#c5d2cf}
+.ha-entry-content[hidden]{display:none!important}
+.ha-entry-body{font:14px/1.9 Georgia,"Times New Roman",serif;overflow-wrap:anywhere}
+.ha-entry-body p{margin:0 0 1.1em;white-space:normal}
+.ha-entry-body h2,.ha-entry-body h3,.ha-entry-body h4{font-family:'Playfair Display',Georgia,serif;color:#e8eee9;line-height:1.25}
+.ha-entry-body blockquote{margin:1.2em 0;padding-left:16px;border-left:2px solid var(--acid);color:#aebfb7}
+.ha-entry-body ul,.ha-entry-body ol{padding-left:1.5em}
+.ha-entry-body a,.ha-original-source{color:#b9d77a;text-decoration:underline;text-underline-offset:3px}
+.ha-original-source{display:inline-block;margin-top:16px;padding-top:12px;border-top:1px solid rgba(145,171,171,.15);font:9px 'DM Mono',monospace;letter-spacing:.8px;text-decoration:none}
+@media(max-width:600px){.ha-entry-content{padding:15px}.ha-entry-body{font-size:14px}}
