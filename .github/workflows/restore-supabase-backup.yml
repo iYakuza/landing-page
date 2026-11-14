@@ -214,6 +214,25 @@ jobs:
           DATABASE_URL="$RESTORE_DB_URL" python3 scripts/apply_sql_safely.py "$RESTORE_ROOT/restore/storage-owners.sql"
           DATABASE_URL="$RESTORE_DB_URL" python3 scripts/verify_storage_owners.py "$RESTORE_ROOT"
           DATABASE_URL="$RESTORE_DB_URL" python3 scripts/verify_storage_security.py "$RESTORE_ROOT"
+          # Rewrite absolute Storage URLs to the restored project's hostname.
+          # The object paths were verified above and now exist in the destination buckets.
+          psql "$RESTORE_DB_URL" -X -v ON_ERROR_STOP=1 -v restore_url="$RESTORE_URL" <<'SQL'
+          UPDATE public.vha_posts AS p
+          SET media_url = :'restore_url' || '/storage/v1/object/public/vha-post-media/' || p.media_path
+          FROM storage.objects AS o
+          WHERE p.media_path IS NOT NULL
+            AND o.bucket_id = 'vha-post-media'
+            AND o.name = p.media_path
+            AND p.media_url IS DISTINCT FROM :'restore_url' || '/storage/v1/object/public/vha-post-media/' || p.media_path;
+
+          UPDATE public.poetry_submissions AS s
+          SET media_url = :'restore_url' || '/storage/v1/object/public/poetry-media/' || s.storage_path
+          FROM storage.objects AS o
+          WHERE s.storage_path IS NOT NULL
+            AND o.bucket_id = 'poetry-media'
+            AND o.name = s.storage_path
+            AND s.media_url IS DISTINCT FROM :'restore_url' || '/storage/v1/object/public/poetry-media/' || s.storage_path;
+          SQL
           DATABASE_URL="$RESTORE_DB_URL" python3 scripts/verify_database_restore.py --compare "$RESTORE_ROOT/database/table-counts.json"
 
       - name: Publish non-sensitive restore result
