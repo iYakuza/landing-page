@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-14T23:19:04.628838Z",
-  "last_processed_sha": "7aa8a8698b0c01664d3d7f89f964e2d607831012",
+  "updated_at": "2026-11-14T23:22:53.838179Z",
+  "last_processed_sha": "09ad3985cfce4b54f907241d19316f3d141645a0",
   "entries": [
+    {
+      "id": "09ad3985cfce4b54f907241d19316f3d141645a0",
+      "timestamp": "2026-11-15T00:22:41+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Right-align category filter inside movement navigation (#47). It updates index.html, posts.css.",
+      "commit_count": 1,
+      "files": [
+        "posts/index.html",
+        "posts/posts.css"
+      ],
+      "commits": [
+        {
+          "message": "Right-align category filter inside movement navigation (#47)",
+          "url": "https://github.com/iYakuza/landing-page/commit/09ad3985cfce4b54f907241d19316f3d141645a0",
+          "files": [
+            "posts/index.html",
+            "posts/posts.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "7aa8a8698b0c01664d3d7f89f964e2d607831012",
       "timestamp": "2026-11-15T00:18:57+01:00",
@@ -1209,67 +1232,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/42bb52275bfefd9b21aab9111f1e8dfb254c3dd9",
           "files": [
             "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "79d54dc792f2b5f1459025eb7c0d2869e4b91fd1",
-      "timestamp": "2026-11-14T00:16:45+01:00",
-      "category": "FEATURE",
-      "component": "Creative Archive",
-      "title": "New capabilities for Creative Archive",
-      "description": "This update brings together Restructure Guest Notes into Contributions and Initiative; Split Ethical Coexistence Initiative into English edition with reading index; Retain former governance URL as navigation to separated documents; and 3 more related changes. It updates index.html, guest-notes.css and related project files.",
-      "commit_count": 6,
-      "files": [
-        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
-        "green-dream/guest-notes/guest-notes.css",
-        "green-dream/guest-notes/index.html",
-        "green-dream/guest-notes/revision-history/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Restructure Guest Notes into Contributions and Initiative",
-          "url": "https://github.com/iYakuza/landing-page/commit/a89edec8d37dd4e635ee41d47ee0cadc36d68386",
-          "files": [
-            "green-dream/guest-notes/index.html"
-          ]
-        },
-        {
-          "message": "Split Ethical Coexistence Initiative into English edition with reading index",
-          "url": "https://github.com/iYakuza/landing-page/commit/6ce443b77fa3e55633213bb82c963ab26da69588",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
-          ]
-        },
-        {
-          "message": "Retain former governance URL as navigation to separated documents",
-          "url": "https://github.com/iYakuza/landing-page/commit/b7cc0ebfdad35352efd3b24ffe652f0889d332ed",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html"
-          ]
-        },
-        {
-          "message": "Update implementation blueprint governance links",
-          "url": "https://github.com/iYakuza/landing-page/commit/553296e2e131109a71804e04203109349e69900b",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html"
-          ]
-        },
-        {
-          "message": "Record Guest Notes information architecture restructure",
-          "url": "https://github.com/iYakuza/landing-page/commit/4e2791a85caed781262131baeb9f0979b17be46a",
-          "files": [
-            "green-dream/guest-notes/revision-history/index.html"
-          ]
-        },
-        {
-          "message": "Add floating reading index styles for Guest Notes",
-          "url": "https://github.com/iYakuza/landing-page/commit/79d54dc792f2b5f1459025eb7c0d2869e4b91fd1",
-          "files": [
-            "green-dream/guest-notes/guest-notes.css"
           ]
         }
       ]
