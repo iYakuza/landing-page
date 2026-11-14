@@ -42,6 +42,12 @@ cases = [
     ("\\restrict abc123\nSET log_min_messages TO warning;", "\\restrict abc123\n", 1),
     ("\\restrict abc123\nALTER ROLE app_user SET log_min_messages TO warning;", "\\restrict abc123\n", 1),
     ("\\restrict abc123\nSET log_min_messages TO warning;\n\\unrestrict abc123", "\\restrict abc123\n\n\\unrestrict abc123", 1),
+    ("GRANT SET ON PARAMETER \"log_min_messages\" TO \"app_user\";", "", 1),
+    ("GRANT SET ON PARAMETER log_min_messages TO app_user;", "", 1),
+    ("GRANT SET, ALTER SYSTEM ON PARAMETER \"log_min_messages\" TO app_user;", "", 1),
+    ("GRANT ALL PRIVILEGES ON PARAMETER log_min_messages TO app_user;", "", 1),
+    ("REVOKE SET ON PARAMETER \"log_min_messages\" FROM app_user;", "", 1),
+    ("GRANT SET ON PARAMETER work_mem TO app_user;", "GRANT SET ON PARAMETER work_mem TO app_user;", 0),
     ("GRANT app_role TO log_min_messages_reader;", "GRANT app_role TO log_min_messages_reader;", 0),
     ("ALTER ROLE app_user SET statement_timeout TO '5s';", "ALTER ROLE app_user SET statement_timeout TO '5s';", 0),
 ]
