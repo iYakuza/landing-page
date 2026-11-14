@@ -1,6 +1,16 @@
 # Green Dream backup system
 
-This workflow creates a daily encrypted snapshot and uploads it to the app-managed **Green Dream Backups** folder in Google Drive. Backup payloads are never committed to this public repository.
+## Canonical website and on-demand recovery hosting
+
+The only canonical public website is **https://iyakuza.github.io/landing-page/**. GitHub Pages is published from the repository's `main` branch.
+
+The separate Cloudflare Pages recovery project `green-dream-recovery-preview` and all 119 of its deployments were deleted on 14 November 2026. The recovery content, media archive, portrait and backup tooling remain in the repository/recovery storage, but **no recovery website is hosted by default**.
+
+When an actual recovery is required, the owner may open the **CREATE / REMOVE RECOVERY WEBSITE** control in the CMS. It opens `.github/workflows/manual-recovery-preview.yml`, which has no push or schedule trigger, accepts only workflow dispatches initiated by the repository owner `iYakuza`, and requires a separate confirmation checkbox. The owner chooses either `deploy` or `remove`. Deployment creates the distinct `green-dream-emergency-recovery.pages.dev` Direct Upload project with no Git integration, so ordinary pushes cannot publish or recreate it. The remove operation deletes that project and its deployments.
+
+The workflow requires the GitHub Actions repository secret `CLOUDFLARE_API_TOKEN`, scoped only to **Pages Read** and **Pages Write** in the relevant Cloudflare account. The account ID is fixed in the workflow. Never put the token in the CMS, repository source, or a public website. The workflow does not access production Supabase or the GitHub Pages deployment. To enable the control, create a Cloudflare API token with those two account permissions, then add it under GitHub repository **Settings → Secrets and variables → Actions → New repository secret** with the exact name `CLOUDFLARE_API_TOKEN`. Do not use a Global API Key.
+
+The full-system workflow is configured for a daily 02:17 UTC encrypted snapshot and upload to the app-managed **Green Dream Backups** folder in Google Drive. Its schedule is gated by the GitHub repository variable `BACKUP_ENABLED`; the variable remains `false` unless the owner deliberately enables it. Manual dispatch remains available. Backup payloads are never committed to this public repository.
 
 ## What is captured
 
