@@ -1408,3 +1408,22 @@ body.image-viewer-open{overflow:hidden!important}
     min-width:160px;
   }
 }
+
+
+/* POST CARD METADATA: swap the date and edit positions, and hide titles until expanded. */
+.posts-list:not(:has(.post-back)) .post-card-top:has(.post-edit-button) .post-date-toggle{
+  order:0!important;
+  margin-left:0!important;
+}
+.posts-list:not(:has(.post-back)) .post-card-top .post-edit-button{
+  order:2!important;
+  margin-left:auto!important;
+}
+.posts-list:not(:has(.post-back)) .post-card-title-row[hidden]{
+  display:none!important;
+}
+.posts-list:not(:has(.post-back)) .post-record-code{
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  word-break:break-word!important;
+}
