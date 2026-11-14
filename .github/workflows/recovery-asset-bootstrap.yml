@@ -1,11 +1,7 @@
 name: Import EGO portrait into recovery copy
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - .github/workflows/recovery-asset-bootstrap.yml
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -16,7 +12,7 @@ concurrency:
 
 jobs:
   import-portrait:
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
