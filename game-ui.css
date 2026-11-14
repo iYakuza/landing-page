@@ -622,6 +622,9 @@ body.vha-crystal-open > :not(#vha-viewer-tools):not(#vha-world-map):not(#vha-ent
 @media(max-width:640px){.vha-constellation-lines{opacity:.48!important}}
 
 
+/* Keep the pre-rendered Green Dream radio hidden until Crystal explicitly opens it. */
+body.vha-game-interface #gd-radio:not([aria-hidden="false"]){display:none!important;visibility:hidden!important;pointer-events:none!important}
+
 /* Global V/A Radio component */
 #gd-radio{position:fixed!important;right:12px;top:50%;left:auto;bottom:auto;width:min(326px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain;z-index:2147483000!important;color:#e1e9dc;background:rgba(7,16,9,.96);border:1px solid rgba(207,255,62,.52);box-shadow:0 12px 55px rgba(0,0,0,.6),0 0 24px rgba(185,215,122,.08);backdrop-filter:blur(14px);transform:translateY(-50%)}
 #gd-radio.radio-hidden{visibility:hidden!important;opacity:0!important;pointer-events:none!important}
