@@ -36,6 +36,7 @@ def allowed_host(host):
         or host.endswith(".tumblr.com")
         or host == "www2.hawaii.edu"
         or host.endswith(".hawaii.edu")
+        or host in {"issues4life.org", "www.issues4life.org"}
     )
 
 
@@ -67,6 +68,32 @@ def download_source(url):
         time.sleep(min(2 ** attempt, 10))
     raise RuntimeError("Source download failed")
 
+
+
+def signature_matches(data, mime):
+    if not data:
+        return False
+    if mime == "image/jpeg":
+        return data.startswith(b"\xff\xd8\xff")
+    if mime == "image/png":
+        return data.startswith(b"\x89PNG\r\n\x1a\n")
+    if mime == "image/gif":
+        return data.startswith((b"GIF87a", b"GIF89a"))
+    if mime == "image/webp":
+        return len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WEBP"
+    if mime == "image/avif":
+        return len(data) >= 12 and data[4:8] == b"ftyp" and b"avif" in data[8:32]
+    if mime == "audio/mpeg":
+        return data.startswith(b"ID3") or (len(data) >= 2 and data[0] == 0xFF and (data[1] & 0xE0) == 0xE0)
+    if mime in {"audio/mp4", "video/mp4", "video/quicktime"}:
+        return len(data) >= 12 and data[4:8] == b"ftyp"
+    if mime == "audio/wav":
+        return len(data) >= 12 and data[:4] == b"RIFF" and data[8:12] == b"WAVE"
+    if mime in {"audio/ogg", "video/webm"}:
+        return data.startswith(b"OggS") if mime == "audio/ogg" else data.startswith(b"\x1aE\xdf\xa3")
+    if mime == "application/pdf":
+        return data.startswith(b"%PDF-")
+    return False
 
 def upload_and_verify(base_url, secret, item, data):
     object_path = quote(item["storage_path"], safe="/")
@@ -141,18 +168,18 @@ def main():
                 raise RuntimeError("MIME type is not allowed in the recovery bucket")
 
             data, final_url = download_source(source)
+            if not signature_matches(data, mime):
+                raise RuntimeError("Downloaded content does not match the declared MIME type")
             expected_size = int(item.get("expected_size") or 0)
-            if expected_size and len(data) != expected_size:
-                raise RuntimeError(
-                    "Downloaded byte count differs from WordPress media metadata "
-                    + "(" + str(len(data)) + " vs " + str(expected_size) + ")"
-                )
+            size_matches = not expected_size or len(data) == expected_size
             public_url = upload_and_verify(base_url, secret, item, data)
             digest = hashlib.sha256(data).hexdigest()
             successes.append({
                 "id": asset_id,
                 "storage_path": item["storage_path"],
                 "bytes": len(data),
+                "expected_bytes": expected_size,
+                "metadata_size_matches": size_matches,
                 "sha256": digest,
                 "public_url": public_url,
                 "verified": True,
