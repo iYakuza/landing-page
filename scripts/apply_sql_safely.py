@@ -227,14 +227,14 @@ def sanitize_roles_sql(original_sql):
         ).lstrip()
         # Redacted diagnostics for parameter names hidden inside SQL strings.
         literal_parameter = bool(
-            re.search(r"\\blog_min_messages\\b", comment_free, re.IGNORECASE)
-            and not re.search(r"\\blog_min_messages\\b", code, re.IGNORECASE)
+            re.search(r"\blog_min_messages\b", comment_free, re.IGNORECASE)
+            and not re.search(r"\blog_min_messages\b", code, re.IGNORECASE)
         )
-        has_set_config_text = bool(re.search(r"\\bset_config\\s*\\(", comment_free, re.IGNORECASE))
-        has_execute_text = bool(re.search(r"\\bEXECUTE\\b", comment_free, re.IGNORECASE))
+        has_set_config_text = bool(re.search(r"\bset_config\s*\(", comment_free, re.IGNORECASE))
+        has_execute_text = bool(re.search(r"\bEXECUTE\b", comment_free, re.IGNORECASE))
         has_set_reset_text = bool(
             re.search(
-                r"""(?is)\\b(?:SET|RESET)\\s+(?:SESSION\\s+)?["']?log_min_messages\\b""",
+                r"""(?is)\b(?:SET|RESET)\s+(?:SESSION\s+)?["']?log_min_messages\b""",
                 comment_free,
             )
         )
@@ -367,7 +367,7 @@ if result.returncode:
     if sql_file.name == "roles.sql":
         for line in result.stderr.splitlines():
             if re.match(r"^psql:.*: ERROR:", line) or re.match(r"^ERROR:", line):
-                location = re.match(r"^psql:.*?:(\\d+): ERROR:", line)
+                location = re.match(r"^psql:.*?:(\d+): ERROR:", line)
                 if location:
                     print("SQL diagnostic: roles.sql reported line " + location.group(1) + ".", file=sys.stderr)
                 print("PostgreSQL: " + line.split("ERROR:", 1)[-1].strip(), file=sys.stderr)
