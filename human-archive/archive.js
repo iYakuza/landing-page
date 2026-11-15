@@ -229,19 +229,19 @@ function syncFavoriteControls(){
  });
  document.querySelectorAll('[data-ha-favorite-mark]').forEach(mark=>{mark.hidden=!favoriteRecordIds.has(String(mark.dataset.haFavoriteMark||''));});
 }
-function loadArchiveFavorites(){
+async function loadArchiveFavorites(){
  if(!archiveSupabase)return;
  const {data,error}=await archiveSupabase.from('human_archive_favorites').select('record_id');
  if(error){console.warn('Human Archive favourites could not be loaded:',error);return;}
  favoriteRecordIds=new Set((data||[]).map(item=>String(item.record_id)));
 }
-async async function loadRecordStructureOverrides(){
+async function loadRecordStructureOverrides(){
  if(!archiveSupabase)return;
  const {data,error}=await archiveSupabase.from('human_archive_record_structures').select('record_id,prompt_style,lyrics_style,output_text,updated_at');
  if(error){console.warn('Human Archive structures could not be loaded:',error);return;}
  recordStructureOverrides=new Map((data||[]).map(item=>[String(item.record_id),item]));
 }
-function refreshArchiveAdmin(sessionOverride){
+async function refreshArchiveAdmin(sessionOverride){
  if(!archiveSupabase){archiveAdmin=false;archiveUserId=null;return false;}
  let session=sessionOverride;
  if(sessionOverride===undefined){
@@ -255,7 +255,7 @@ function refreshArchiveAdmin(sessionOverride){
  archiveUserId=archiveAdmin?session.user.id:null;
  return archiveAdmin;
 }
-async async function toggleArchiveFavorite(recordId,button){
+async function toggleArchiveFavorite(recordId,button){
  const id=String(recordId);
  if(!archiveAdmin||!archiveSupabase||!/^[0-9]+$/.test(id)||button.disabled)return;
  const wasFavorite=favoriteRecordIds.has(id);button.disabled=true;favoriteSaveError=false;
