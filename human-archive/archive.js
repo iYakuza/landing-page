@@ -6,7 +6,7 @@ const expandedCategories=new Set();
 const categoryOrder=['Nimic și Ființă','This notion','Dialog monolog','Gânduri','Cântec','Belief','Snob','PERSONAL PROJECTS','Haiku'];
 
 // Human Archive chamber state and public Supabase configuration.
-const CHAMBER_RECORD_ID='589';
+let chamberRecordId=null;
 const SUPABASE_URL='https://oeyxsqocldlovhsmzcjw.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
 let archiveSupabase=null,archiveAdmin=false,archiveUserId=null,archiveAuthBound=false;
@@ -220,20 +220,14 @@ function makeAttachmentGallery(record,used){
 }
 
 function syncFavoriteControls(){
- const isFavorite=favoriteRecordIds.has(CHAMBER_RECORD_ID);
- document.querySelectorAll('[data-ha-favorite-id="'+CHAMBER_RECORD_ID+'"]').forEach(button=>{
-  button.hidden=!archiveAdmin;
-  button.disabled=!archiveAdmin;
-  button.textContent=isFavorite?'★':'☆';
-  button.setAttribute('aria-pressed',String(isFavorite));
-  button.setAttribute('aria-label',favoriteSaveError?'Saving the favourite failed. Activate to retry.':(isFavorite?'Remove Fragile Love as an author favourite':'Mark Fragile Love as an author favourite'));
+ document.querySelectorAll('[data-ha-favorite-id]').forEach(button=>{
+  const id=String(button.dataset.haFavoriteId||''),isFavorite=favoriteRecordIds.has(id),title=records.find(record=>String(record.id)===id)?.title||'record';
+  button.hidden=!archiveAdmin;button.disabled=!archiveAdmin;button.textContent=isFavorite?'★':'☆';button.setAttribute('aria-pressed',String(isFavorite));
+  button.setAttribute('aria-label',favoriteSaveError?'Saving the favourite failed. Activate to retry.':(isFavorite?'Remove '+title+' as an author favourite':'Mark '+title+' as an author favourite'));
   button.title=favoriteSaveError?'SAVE FAILED — ACTIVATE TO RETRY':(isFavorite?'REMOVE AUTHOR FAVOURITE':(archiveAdmin?'MARK AS FAVOURITE':''));
-  button.classList.toggle('is-error',favoriteSaveError);
-  button.classList.toggle('is-saved',isFavorite);
+  button.classList.toggle('is-error',favoriteSaveError);button.classList.toggle('is-saved',isFavorite);
  });
- document.querySelectorAll('[data-ha-favorite-mark="'+CHAMBER_RECORD_ID+'"]').forEach(mark=>{
-  mark.hidden=!isFavorite;
- });
+ document.querySelectorAll('[data-ha-favorite-mark]').forEach(mark=>{mark.hidden=!favoriteRecordIds.has(String(mark.dataset.haFavoriteMark||''));});
 }
 async function loadArchiveFavorites(){
  if(!archiveSupabase)return;
@@ -243,12 +237,9 @@ async function loadArchiveFavorites(){
 }
 async function loadRecordStructureOverrides(){
  if(!archiveSupabase)return;
- const {data,error}=await archiveSupabase.from('human_archive_record_structures')
-  .select('record_id,prompt_style,lyrics_style,output_text,updated_at')
-  .eq('record_id',Number(CHAMBER_RECORD_ID))
-  .maybeSingle();
- if(error){console.warn('Human Archive structure could not be loaded:',error);return;}
- if(data)recordStructureOverrides.set(String(data.record_id),data);
+ const {data,error}=await archiveSupabase.from('human_archive_record_structures').select('record_id,prompt_style,lyrics_style,output_text,updated_at');
+ if(error){console.warn('Human Archive structures could not be loaded:',error);return;}
+ recordStructureOverrides=new Map((data||[]).map(item=>[String(item.record_id),item]));
 }
 async function refreshArchiveAdmin(sessionOverride){
  if(!archiveSupabase){archiveAdmin=false;archiveUserId=null;return false;}
@@ -265,24 +256,16 @@ async function refreshArchiveAdmin(sessionOverride){
  return archiveAdmin;
 }
 async function toggleArchiveFavorite(recordId,button){
- if(!archiveAdmin||!archiveSupabase||String(recordId)!==CHAMBER_RECORD_ID||button.disabled)return;
- const wasFavorite=favoriteRecordIds.has(CHAMBER_RECORD_ID);
- button.disabled=true;
- favoriteSaveError=false;
+ const id=String(recordId);
+ if(!archiveAdmin||!archiveSupabase||!/^[0-9]+$/.test(id)||button.disabled)return;
+ const wasFavorite=favoriteRecordIds.has(id);button.disabled=true;favoriteSaveError=false;
  button.title=wasFavorite?'REMOVING FAVOURITE…':'SAVING FAVOURITE…';
  try{
-  const result=wasFavorite
-   ?await archiveSupabase.from('human_archive_favorites').delete().eq('record_id',Number(CHAMBER_RECORD_ID))
-   :await archiveSupabase.from('human_archive_favorites').insert({record_id:Number(CHAMBER_RECORD_ID)});
+  const result=wasFavorite?await archiveSupabase.from('human_archive_favorites').delete().eq('record_id',Number(id)):await archiveSupabase.from('human_archive_favorites').insert({record_id:Number(id)});
   if(result.error&&!(result.error.code==='23505'&&!wasFavorite))throw result.error;
-  if(wasFavorite)favoriteRecordIds.delete(CHAMBER_RECORD_ID);else favoriteRecordIds.add(CHAMBER_RECORD_ID);
- }catch(error){
-  console.error('Human Archive favourite could not be saved:',error);
-  favoriteSaveError=true;
- }finally{
-  document.querySelectorAll('[data-ha-favorite-id="'+CHAMBER_RECORD_ID+'"]').forEach(control=>{control.disabled=!archiveAdmin;});
-  syncFavoriteControls();
- }
+  if(wasFavorite)favoriteRecordIds.delete(id);else favoriteRecordIds.add(id);
+ }catch(error){console.error('Human Archive favourite could not be saved:',error);favoriteSaveError=true;}
+ finally{document.querySelectorAll('[data-ha-favorite-id="'+id+'"]').forEach(control=>{control.disabled=!archiveAdmin;});syncFavoriteControls();}
 }
 function chamberShareUrl(record){
  const url=new URL(window.location.href);
@@ -522,25 +505,18 @@ function ensureRecordChamber(){
  document.body.append(recordChamber);return recordChamber;
 }
 function openArchiveRecordChamber(record,trigger){
- if(String(record.id)!==CHAMBER_RECORD_ID)return;
- const dialog=ensureRecordChamber();
- if(dialog.open)dialog.close();
- dialog.replaceChildren(buildRecordChamber(record));
- recordChamberReturnFocus=trigger||null;
- const url=new URL(window.location.href);url.searchParams.set('record',String(record.id));
- history.replaceState(history.state,'',url.pathname+url.search+url.hash);
- document.body.classList.add('ha-chamber-open');
+ if(!record||!records.some(item=>String(item.id)===String(record.id)))return;
+ const dialog=ensureRecordChamber();if(dialog.open)dialog.close();
+ dialog.replaceChildren(buildRecordChamber(record));chamberRecordId=String(record.id);recordChamberReturnFocus=trigger||null;
+ const url=new URL(window.location.href);url.searchParams.set('record',String(record.id));history.replaceState(history.state,'',url.pathname+url.search+url.hash);document.body.classList.add('ha-chamber-open');
  try{dialog.showModal();}catch(error){document.body.classList.remove('ha-chamber-open');console.error('Could not open the Human Archive chamber:',error);}
 }
 function openRequestedRecordFromUrl(){
  const requested=new URLSearchParams(window.location.search).get('record');
- if(requested!==CHAMBER_RECORD_ID)return;
- const record=records.find(item=>String(item.id)===CHAMBER_RECORD_ID);
- if(!record)return;
+ if(!requested||!/^[0-9]+$/.test(requested))return;
+ const record=records.find(item=>String(item.id)===requested);if(!record)return;
  search.value=record.title;year.value='';category.value='';render();
- const card=list.querySelector('.ha-record-card[data-ha-record-id="'+CHAMBER_RECORD_ID+'"]');
- card?.scrollIntoView({behavior:'smooth',block:'center'});
- openArchiveRecordChamber(record,null);
+ const card=list.querySelector('.ha-record-card[data-ha-record-id="'+requested+'"]');card?.scrollIntoView({behavior:'smooth',block:'center'});openArchiveRecordChamber(record,null);
 }
 async function initArchiveFeatures(){
  if(!window.supabase?.createClient){openRequestedRecordFromUrl();return;}
@@ -554,7 +530,7 @@ async function initArchiveFeatures(){
     render();
     syncFavoriteControls();
     if(recordChamber?.open){
-     const record=records.find(item=>String(item.id)===CHAMBER_RECORD_ID);
+     const record=records.find(item=>String(item.id)===chamberRecordId);
      if(record)openArchiveRecordChamber(record,null);
     }
    },0);
@@ -566,7 +542,7 @@ async function initArchiveFeatures(){
 }
 
 function makeFavoriteMark(record){
- const mark=makeChamberNode('span','ha-favorite-mark');mark.dataset.haFavoriteMark=CHAMBER_RECORD_ID;mark.hidden=!favoriteRecordIds.has(CHAMBER_RECORD_ID);mark.setAttribute('aria-hidden','true');
+ const mark=makeChamberNode('span','ha-favorite-mark');mark.dataset.haFavoriteMark=String(record.id);mark.hidden=!favoriteRecordIds.has(String(record.id));mark.setAttribute('aria-hidden','true');
  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 40 40');svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');
  const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','M20 1 24.8 14.2 39 15.2 28 24.1 31.5 38 20 30.4 8.5 38 12 24.1 1 15.2 15.2 14.2Z');svg.append(path);mark.append(svg);
  return mark;
@@ -577,28 +553,15 @@ function makeEntry(record,index){
  const link=document.createElement('button');link.type='button';link.className='ha-entry';link.setAttribute('aria-controls',content.id);link.setAttribute('aria-expanded','false');link.setAttribute('aria-label','Read local archive record: '+record.title+', '+record.date);
  const top=document.createElement('div');top.className='ha-entry-top';const code=document.createElement('small');code.className='ha-entry-code';code.textContent='HA-'+record.year+'-'+String(record.id).padStart(4,'0');const yr=document.createElement('span');yr.className='ha-entry-year';yr.textContent=record.year;top.append(code,yr);
  const title=document.createElement('strong');title.textContent=record.title;const bottom=document.createElement('div');bottom.className='ha-entry-bottom';const date=document.createElement('small');date.textContent=record.date+' // LOCAL ARCHIVE COPY';const action=document.createElement('span');action.textContent='READ LOCAL TEXT ↓';bottom.append(date,action);link.append(top,title,bottom);link.style.setProperty('--entry-order',String(index));
- let quickActions=null;
- link.addEventListener('click',()=>{const open=content.hidden;content.hidden=!open;link.setAttribute('aria-expanded',String(open));action.textContent=open?'CLOSE LOCAL TEXT ↑':'READ LOCAL TEXT ↓';if(quickActions)quickActions.hidden=!open;});
- const body=document.createElement('div');body.className='ha-entry-body';const used=new Set();
- if(String(record.id)===CHAMBER_RECORD_ID){
-  quickActions=makeChamberNode('div','ha-entry-quick-actions');quickActions.hidden=true;
-  const chamber=makeChamberNode('button','ha-entry-chamber','ENTER THE CHAMBER ↗');chamber.type='button';chamber.addEventListener('click',()=>openArchiveRecordChamber(record,chamber));
-  const favorite=makeChamberNode('button','ha-favorite-toggle','☆');favorite.type='button';favorite.dataset.haFavoriteId=CHAMBER_RECORD_ID;favorite.hidden=!archiveAdmin;favorite.setAttribute('aria-pressed',String(favoriteRecordIds.has(CHAMBER_RECORD_ID)));favorite.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();toggleArchiveFavorite(record.id,favorite);});
-  quickActions.append(chamber,favorite);
-  appendSafeContent(body,record.content_html||'',record,used);
-  if(!body.childNodes.length){const message=document.createElement('p');message.textContent='No local text was captured for this entry.';body.append(message);}
-  content.append(body);
-  const favoriteMark=makeFavoriteMark(record);
-  link.append(favoriteMark);
-  // The same recovered attachments are shown inside the full-screen chamber; avoid a second inline copy on the pilot card.
-  wrapper.append(link,quickActions,content);
-  return wrapper;
- }
- appendSafeContent(body,record.content_html||'',record,used);
+ const quickActions=makeChamberNode('div','ha-entry-quick-actions');quickActions.hidden=true;
+ const chamber=makeChamberNode('button','ha-entry-chamber','ENTER THE CHAMBER ↗');chamber.type='button';chamber.addEventListener('click',()=>openArchiveRecordChamber(record,chamber));
+ const favorite=makeChamberNode('button','ha-favorite-toggle','☆');favorite.type='button';favorite.dataset.haFavoriteId=String(record.id);favorite.hidden=!archiveAdmin;favorite.setAttribute('aria-pressed',String(favoriteRecordIds.has(String(record.id))));favorite.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();toggleArchiveFavorite(record.id,favorite);});
+ quickActions.append(chamber,favorite);
+ link.addEventListener('click',()=>{const open=content.hidden;content.hidden=!open;link.setAttribute('aria-expanded',String(open));action.textContent=open?'CLOSE LOCAL TEXT ↑':'READ LOCAL TEXT ↓';quickActions.hidden=!open;});
+ const body=document.createElement('div');body.className='ha-entry-body';const used=new Set();appendSafeContent(body,record.content_html||'',record,used);
  if(!body.childNodes.length){const message=document.createElement('p');message.textContent='No local text was captured for this entry.';body.append(message);}
- content.append(body);
- const gallery=mediaReady?makeAttachmentGallery(record,used):null;if(gallery)content.append(gallery);
- wrapper.append(link,content);return wrapper;
+ content.append(body);const gallery=mediaReady?makeAttachmentGallery(record,used):null;if(gallery)content.append(gallery);
+ link.append(makeFavoriteMark(record));wrapper.append(link,quickActions,content);return wrapper;
 }
 function render(){
  const query=clean(search.value),selectedYear=year.value,selectedCategory=category.value;
