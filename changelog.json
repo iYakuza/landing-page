@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-15T02:26:27.710463Z",
-  "last_processed_sha": "b602eb8ace866d6987a5512b6821470cd0bd7c64",
+  "updated_at": "2026-11-15T02:30:39.547225Z",
+  "last_processed_sha": "84e088f4388c44c46af88a26ac9e82f10b20602c",
   "entries": [
+    {
+      "id": "84e088f4388c44c46af88a26ac9e82f10b20602c",
+      "timestamp": "2026-11-15T03:30:30+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Show original source link only when record is expanded (#62). It updates archive.js.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Show original source link only when record is expanded (#62)",
+          "url": "https://github.com/iYakuza/landing-page/commit/84e088f4388c44c46af88a26ac9e82f10b20602c",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "b602eb8ace866d6987a5512b6821470cd0bd7c64",
       "timestamp": "2026-11-15T03:26:20+01:00",
@@ -1078,27 +1099,6 @@
         {
           "message": "Make recovery portrait import a one-click manual action",
           "url": "https://github.com/iYakuza/landing-page/commit/7688cdd23bbb91f145dabed9b4ba70436413a31a",
-          "files": [
-            ".github/workflows/recovery-asset-bootstrap.yml"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "6f4d297b8aab0cf4d3bbdff21bdd29ac91713df2",
-      "timestamp": "2026-11-14T14:50:57+01:00",
-      "category": "FEATURE",
-      "component": "Website",
-      "title": "New capabilities for Website",
-      "description": "This update brings together Add one-time import of EGO portrait for recovery copy. It updates recovery-asset-bootstrap.yml.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/recovery-asset-bootstrap.yml"
-      ],
-      "commits": [
-        {
-          "message": "Add one-time import of EGO portrait for recovery copy",
-          "url": "https://github.com/iYakuza/landing-page/commit/6f4d297b8aab0cf4d3bbdff21bdd29ac91713df2",
           "files": [
             ".github/workflows/recovery-asset-bootstrap.yml"
           ]
