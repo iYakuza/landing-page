@@ -561,7 +561,10 @@ function makeEntry(record,index){
  const body=document.createElement('div');body.className='ha-entry-body';const used=new Set();appendSafeContent(body,record.content_html||'',record,used);
  if(!body.childNodes.length){const message=document.createElement('p');message.textContent='No local text was captured for this entry.';body.append(message);}
  content.append(body);const gallery=mediaReady?makeAttachmentGallery(record,used):null;if(gallery)content.append(gallery);
- link.append(makeFavoriteMark(record));wrapper.append(link,quickActions,content);return wrapper;
+ link.append(makeFavoriteMark(record));wrapper.append(link,quickActions,content);
+ const source=safeExternalUrl(record.url,new Set(['emanuelstefancu.wordpress.com']));
+ if(source){const original=makeChamberNode('a','ha-chamber-source ha-record-source','OPEN ORIGINAL SOURCE ↗');original.href=source;original.target='_blank';original.rel='noopener noreferrer';wrapper.append(original);}
+ return wrapper;
 }
 function render(){
  const query=clean(search.value),selectedYear=year.value,selectedCategory=category.value;
