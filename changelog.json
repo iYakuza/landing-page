@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-15T00:26:07.621138Z",
-  "last_processed_sha": "d73f78dc5f6663d1d3b5461bfafd6077fe71abfa",
+  "updated_at": "2026-11-15T00:36:40.722453Z",
+  "last_processed_sha": "6b1984c42e08f5ba684f210a32677983fc80d304",
   "entries": [
+    {
+      "id": "6b1984c42e08f5ba684f210a32677983fc80d304",
+      "timestamp": "2026-11-15T01:36:32+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Keep Human Archive available when media inventory is unavailable (#52). It updates archive.js, index.html.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Keep Human Archive available when media inventory is unavailable (#52)",
+          "url": "https://github.com/iYakuza/landing-page/commit/6b1984c42e08f5ba684f210a32677983fc80d304",
+          "files": [
+            "human-archive/archive.js",
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "d73f78dc5f6663d1d3b5461bfafd6077fe71abfa",
       "timestamp": "2026-11-15T01:25:58+01:00",
@@ -1151,59 +1174,6 @@
         {
           "message": "Refresh Guest Notes stylesheet version after navigation update",
           "url": "https://github.com/iYakuza/landing-page/commit/e757747e3f5fdbef9b072b3c9d6aa05c2ab47b72",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "245483ef24eb9d104b06a97d0c8718f28a085ef7",
-      "timestamp": "2026-11-14T00:19:18+01:00",
-      "category": "FEATURE",
-      "component": "Creative Archive",
-      "title": "New capabilities for Creative Archive",
-      "description": "This update brings together Keep former Romanian Ethical Framework URL as compatibility link; Add Ethical Framework as first stop in English reading index; Add Cadru etic as first stop in Romanian reading index; and 2 more related changes. It updates index.html and related project files.",
-      "commit_count": 5,
-      "files": [
-        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html",
-        "green-dream/guest-notes/ethical-framework/ro/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Keep former Romanian Ethical Framework URL as compatibility link",
-          "url": "https://github.com/iYakuza/landing-page/commit/9bdda70b97e1e011af26d463b87b425207f448db",
-          "files": [
-            "green-dream/guest-notes/ethical-framework/ro/index.html"
-          ]
-        },
-        {
-          "message": "Add Ethical Framework as first stop in English reading index",
-          "url": "https://github.com/iYakuza/landing-page/commit/6a24f2ac398ab7af6cacf9fc5793b352d46b83b4",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
-          ]
-        },
-        {
-          "message": "Add Cadru etic as first stop in Romanian reading index",
-          "url": "https://github.com/iYakuza/landing-page/commit/e09527dd5755a5f465a66fa0e766a3538d851e6e",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
-          ]
-        },
-        {
-          "message": "Publish Ethical Framework under Initiative Foundations",
-          "url": "https://github.com/iYakuza/landing-page/commit/94ad602977106752384dc4eee529b7c685ee4786",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html"
-          ]
-        },
-        {
-          "message": "Publish Romanian Ethical Framework under Initiative Foundations",
-          "url": "https://github.com/iYakuza/landing-page/commit/245483ef24eb9d104b06a97d0c8718f28a085ef7",
           "files": [
             "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html"
           ]
