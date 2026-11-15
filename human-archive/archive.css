@@ -532,3 +532,26 @@
 .ha-chamber-edit:not([hidden]),.ha-chamber-close:not([hidden]){
   display:inline-flex!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:21!important;
 }
+
+
+/* Chamber controls are a dedicated overlay, independent of header layout. */
+.ha-chamber-shell{position:relative!important;}
+.ha-chamber-topbar{padding-right:clamp(14px,3vw,38px)!important;}
+.ha-chamber-topbar-actions{
+ position:absolute!important;top:12px!important;right:clamp(14px,3vw,38px)!important;
+ z-index:1000!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;
+ gap:8px!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+}
+.ha-chamber-topbar-actions .ha-chamber-close,
+.ha-chamber-topbar-actions .ha-chamber-edit:not([hidden]){
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-height:36px!important;padding:8px 12px!important;visibility:visible!important;opacity:1!important;
+ position:relative!important;z-index:1001!important;white-space:nowrap!important;
+}
+.ha-chamber-topbar-actions .ha-chamber-edit[hidden]{display:none!important;}
+@media(max-width:640px){
+ .ha-chamber-topbar-actions{top:8px!important;right:10px!important;gap:5px!important;}
+ .ha-chamber-topbar-actions .ha-chamber-close,
+ .ha-chamber-topbar-actions .ha-chamber-edit:not([hidden]){min-height:32px!important;padding:7px 8px!important;font-size:8px!important;}
+ .ha-chamber-mark{max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+}

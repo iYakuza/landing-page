@@ -481,10 +481,11 @@ function buildRecordChamber(record){
  const topbar=makeChamberNode('div','ha-chamber-topbar');
  topbar.append(makeChamberNode('span','ha-chamber-mark','EGO // HUMAN ARCHIVE'));
  const actions=makeChamberNode('div','ha-chamber-topbar-actions');actions.style.display='flex';actions.style.visibility='visible';actions.style.opacity='1';
+ actions.setAttribute('aria-label','Chamber controls');
  const edit=makeChamberNode('button','ha-chamber-edit','EDIT STRUCTURE');
- edit.type='button';edit.hidden=!archiveAdmin;edit.style.display='inline-flex';edit.style.visibility='visible';edit.style.opacity='1';edit.setAttribute('aria-label','Edit archive record structure');
- const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.hidden=false;close.style.display='inline-flex';close.style.visibility='visible';close.style.opacity='1';close.setAttribute('aria-label','Close record chamber');
- actions.append(edit,close);topbar.append(actions);
+ edit.type='button';edit.hidden=!archiveAdmin;edit.setAttribute('aria-label','Edit archive record structure');
+ const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.setAttribute('aria-label','Close record chamber');
+ actions.append(edit,close);
  const heading=makeChamberNode('div','ha-chamber-heading');
  const meta=makeChamberNode('p','ha-chamber-meta','HA-'+record.year+'-'+String(record.id).padStart(4,'0')+' // '+record.date+' // '+(record.categories||[]).join(' / '));
  const title=makeChamberNode('h2','',record.title);
@@ -504,7 +505,7 @@ function buildRecordChamber(record){
  const source=safeExternalUrl(record.url,new Set(['emanuelstefancu.wordpress.com']));
  if(source){const link=makeChamberNode('a','ha-chamber-source','OPEN ORIGINAL SOURCE ↗');link.href=source;link.target='_blank';link.rel='noopener noreferrer';footer.append(link);}
  footer.append(makeChamberNode('span','ha-chamber-footer-note','NO TRACE IS EVER THE WHOLE PERSON.'));
- main.append(footer);shell.append(header,main);return shell;
+ main.append(footer);shell.append(header,main,actions);return shell;
 }
 function ensureRecordChamber(){
  if(recordChamber)return recordChamber;
