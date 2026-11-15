@@ -127,7 +127,7 @@ function getRecordStructure(record){
  return {
   prompt_style:String(saved?.prompt_style||''),
   lyrics_style:String(saved?.lyrics_style||''),
-  output_text:typeof saved?.output_text==='string'&&saved.output_text.length?saved.output_text:defaultRecordOutputText(record)
+  output_text:typeof saved?.output_text==='string'?saved.output_text:defaultRecordOutputText(record)
  };
 }
 function uniqueRecordMedia(record,mimePrefix){
@@ -332,6 +332,7 @@ async function initArchiveFeatures(){
    window.setTimeout(async()=>{
     await refreshArchiveAdmin(session);
     render();
+    syncFavoriteControls();
     if(recordChamber?.open){
      const record=records.find(item=>String(item.id)===CHAMBER_RECORD_ID);
      if(record)openArchiveRecordChamber(record,null);
