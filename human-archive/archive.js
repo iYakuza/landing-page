@@ -71,15 +71,28 @@ function setImageViewerZoom(zoomed){
  imageViewer.classList.toggle('is-zoomed',Boolean(zoomed));
  if(imageViewerZoom)imageViewerZoom.textContent=zoomed?'FIT TO SCREEN':'VIEW ORIGINAL SIZE';
 }
-function openImageViewer(item,record){
+function openImageSourceViewer(src,label,alt){
  ensureImageViewer();
- const src=localMediaUrl(item),label=mediaTitle(item,record),alt=item.alt_text||label;
  imageViewerCaption.textContent=label;
- imageViewerImage.src=src;imageViewerImage.alt=alt;
+ imageViewerImage.src=src;imageViewerImage.alt=alt||label;
  imageViewerOriginal.href=src;
  setImageViewerZoom(false);
  imageViewer.showModal();
  imageViewerClose.focus();
+}
+function openImageViewer(item,record){
+ const label=mediaTitle(item,record);
+ openImageSourceViewer(localMediaUrl(item),label,item.alt_text||label);
+}
+function bindEgoPortraitViewer(){
+ const portraitWrap=document.querySelector('.ha-ego-portrait-wrap');
+ const portrait=portraitWrap?.querySelector('.ha-ego-portrait');
+ if(!portraitWrap||!portrait)return;
+ const open=()=>openImageSourceViewer(portrait.currentSrc||portrait.src,'EGO // MEMORIAL NODE 001',portrait.alt);
+ portraitWrap.addEventListener('click',open);
+ portraitWrap.addEventListener('keydown',event=>{
+  if(event.key==='Enter'||event.key===' '){event.preventDefault();open();}
+ });
 }
 function openRelatedRecord(record){
  search.value=record.title;year.value='';category.value='';
@@ -636,5 +649,6 @@ async function init(){
   initArchiveFeatures().catch(error=>{console.error('Human Archive interactive features failed:',error);openRequestedRecordFromUrl();});
  }catch(error){console.error('Human Archive local index failed:',error);list.textContent='THE LOCAL ARCHIVE COULD NOT BE LOADED. PLEASE REFRESH IN A MOMENT.';count.textContent='LOCAL ARCHIVE UNAVAILABLE';}
 }
+bindEgoPortraitViewer();
 search.addEventListener('input',render);year.addEventListener('change',render);category.addEventListener('change',render);init();
 })();
