@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-15T01:09:35.898466Z",
-  "last_processed_sha": "d1c1b2c73a91cb9ced5f890a605f89a0257220ab",
+  "updated_at": "2026-11-15T01:23:18.097480Z",
+  "last_processed_sha": "2ad79a13b87a29327e1b213e8c887619aae65eb8",
   "entries": [
+    {
+      "id": "2ad79a13b87a29327e1b213e8c887619aae65eb8",
+      "timestamp": "2026-11-15T02:22:22+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Restrict favourites to admins and mark favourite cards; Style glowing Human Archive favourite marker and chamber controls. It updates archive.css, archive.js.",
+      "commit_count": 2,
+      "files": [
+        "human-archive/archive.css",
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Restrict favourites to admins and mark favourite cards",
+          "url": "https://github.com/iYakuza/landing-page/commit/a4cbbfc34f9afc5104227e9d23c25fa235298ce7",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Style glowing Human Archive favourite marker and chamber controls",
+          "url": "https://github.com/iYakuza/landing-page/commit/fed1e77c9fb9fe51b74c7e04975c7aaa24cf3ffa",
+          "files": [
+            "human-archive/archive.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "d1c1b2c73a91cb9ced5f890a605f89a0257220ab",
       "timestamp": "2026-11-15T02:08:51+01:00",
@@ -1102,51 +1131,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/3c87c7a1a898066065e5b413bb2a3a9a59526441",
           "files": [
             "green-dream/guest-notes/ethical-framework/ro/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "806f6bc30b941edd20b36069aa2263e0c96896d8",
-      "timestamp": "2026-11-14T00:31:01+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Make Guest Notes navigation links prominent and accessible; Clarify Guest Notes language and revision navigation. It updates index.html, guest-notes.css and related project files.",
-      "commit_count": 4,
-      "files": [
-        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html",
-        "green-dream/guest-notes/guest-notes.css",
-        "green-dream/guest-notes/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Make Guest Notes navigation links prominent and accessible",
-          "url": "https://github.com/iYakuza/landing-page/commit/c60a90944fc7ac3de61b0d67c92f4e0bf861c6d8",
-          "files": [
-            "green-dream/guest-notes/guest-notes.css"
-          ]
-        },
-        {
-          "message": "Clarify Guest Notes language and revision navigation",
-          "url": "https://github.com/iYakuza/landing-page/commit/006f4e207cd05960572e8a6d7fbd8290e1e21cf4",
-          "files": [
-            "green-dream/guest-notes/index.html"
-          ]
-        },
-        {
-          "message": "Clarify Guest Notes language and revision navigation",
-          "url": "https://github.com/iYakuza/landing-page/commit/e1f42de6c6441c55fa017c34e90d38d56ec35ef9",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
-          ]
-        },
-        {
-          "message": "Clarify Guest Notes language and revision navigation",
-          "url": "https://github.com/iYakuza/landing-page/commit/806f6bc30b941edd20b36069aa2263e0c96896d8",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
           ]
         }
       ]
