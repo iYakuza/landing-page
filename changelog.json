@@ -1,8 +1,33 @@
 {
   "version": 1,
-  "updated_at": "2026-11-15T02:10:31.852235Z",
-  "last_processed_sha": "299be2ecd95d34fbb8072258a8fb8cc0d84af40b",
+  "updated_at": "2026-11-15T02:26:27.710463Z",
+  "last_processed_sha": "b602eb8ace866d6987a5512b6821470cd0bd7c64",
   "entries": [
+    {
+      "id": "b602eb8ace866d6987a5512b6821470cd0bd7c64",
+      "timestamp": "2026-11-15T03:26:20+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Show original source link on Human Archive record cards (#61). It updates archive.css, archive.js, index.html.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.css",
+        "human-archive/archive.js",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Show original source link on Human Archive record cards (#61)",
+          "url": "https://github.com/iYakuza/landing-page/commit/b602eb8ace866d6987a5512b6821470cd0bd7c64",
+          "files": [
+            "human-archive/archive.css",
+            "human-archive/archive.js",
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "299be2ecd95d34fbb8072258a8fb8cc0d84af40b",
       "timestamp": "2026-11-15T03:10:23+01:00",
@@ -1076,35 +1101,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/6f4d297b8aab0cf4d3bbdff21bdd29ac91713df2",
           "files": [
             ".github/workflows/recovery-asset-bootstrap.yml"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "2812c3aecf7f323568241b95cd39f86e54efc485",
-      "timestamp": "2026-11-14T14:30:27+01:00",
-      "category": "FEATURE",
-      "component": "Creator Workshop",
-      "title": "New capabilities for Creator Workshop",
-      "description": "This update brings together Add private Recovery Centre launchpad to owner CMS; Style the private Recovery Centre dashboard. It updates cms.css, index.html.",
-      "commit_count": 2,
-      "files": [
-        "cms/cms.css",
-        "cms/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Add private Recovery Centre launchpad to owner CMS",
-          "url": "https://github.com/iYakuza/landing-page/commit/39998ee816f2dd3c8be4a571d9750c4f8a6adf43",
-          "files": [
-            "cms/index.html"
-          ]
-        },
-        {
-          "message": "Style the private Recovery Centre dashboard",
-          "url": "https://github.com/iYakuza/landing-page/commit/2812c3aecf7f323568241b95cd39f86e54efc485",
-          "files": [
-            "cms/cms.css"
           ]
         }
       ]
