@@ -4,6 +4,15 @@ let records=[],mediaItems=[],mediaMap=new Map(),mediaByPost=new Map(),mediaReady
 let imageViewer=null,imageViewerImage=null,imageViewerCaption=null,imageViewerZoom=null,imageViewerOriginal=null,imageViewerClose=null;
 const expandedCategories=new Set();
 
+// Human Archive chamber state and public Supabase configuration.
+const CHAMBER_RECORD_ID='589';
+const SUPABASE_URL='https://oeyxsqocldlovhsmzcjw.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
+let archiveSupabase=null,archiveAdmin=false,archiveUserId=null,archiveAuthBound=false;
+let favoriteRecordIds=new Set(),favoriteSaveError=false,recordStructureOverrides=new Map();
+let mediaHashByPath=new Map();
+let recordChamber=null,recordChamberReturnFocus=null;
+
 function syncFavoriteControls(){
  const isFavorite=favoriteRecordIds.has(CHAMBER_RECORD_ID);
  document.querySelectorAll('[data-ha-favorite-id="'+CHAMBER_RECORD_ID+'"]').forEach(button=>{
