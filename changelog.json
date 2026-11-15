@@ -1,8 +1,33 @@
 {
   "version": 1,
-  "updated_at": "2026-11-15T01:23:18.097480Z",
-  "last_processed_sha": "2ad79a13b87a29327e1b213e8c887619aae65eb8",
+  "updated_at": "2026-11-15T01:45:23.227838Z",
+  "last_processed_sha": "e812afac5a744084f4e4cb423bb9f2c3ada907d9",
   "entries": [
+    {
+      "id": "e812afac5a744084f4e4cb423bb9f2c3ada907d9",
+      "timestamp": "2026-11-15T02:45:11+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Fix Human Archive expanded-card actions and chamber controls (#57). It updates archive.css, archive.js, index.html.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.css",
+        "human-archive/archive.js",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Fix Human Archive expanded-card actions and chamber controls (#57)",
+          "url": "https://github.com/iYakuza/landing-page/commit/e812afac5a744084f4e4cb423bb9f2c3ada907d9",
+          "files": [
+            "human-archive/archive.css",
+            "human-archive/archive.js",
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "2ad79a13b87a29327e1b213e8c887619aae65eb8",
       "timestamp": "2026-11-15T02:22:22+01:00",
@@ -1078,59 +1103,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/48c7f56770ad98b4a2d0e1fa94fa188a87c74f9f",
           "files": [
             "green-dream/guest-notes/revision-history/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "3c87c7a1a898066065e5b413bb2a3a9a59526441",
-      "timestamp": "2026-11-14T00:31:36+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Refresh Guest Notes navigation styling across pages. It updates index.html and related project files.",
-      "commit_count": 5,
-      "files": [
-        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
-        "green-dream/guest-notes/ethical-framework/index.html",
-        "green-dream/guest-notes/ethical-framework/ro/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Refresh Guest Notes navigation styling across pages",
-          "url": "https://github.com/iYakuza/landing-page/commit/6961bfb0f4cb5b5fa3c4821c41e072d409d8e658",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html"
-          ]
-        },
-        {
-          "message": "Refresh Guest Notes navigation styling across pages",
-          "url": "https://github.com/iYakuza/landing-page/commit/1a56e02dab4a8a90bb1f270fc348766024c076ac",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html"
-          ]
-        },
-        {
-          "message": "Refresh Guest Notes navigation styling across pages",
-          "url": "https://github.com/iYakuza/landing-page/commit/ea00e0546732ec71b790f25f9420c414f0ff17d1",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html"
-          ]
-        },
-        {
-          "message": "Refresh Guest Notes navigation styling across pages",
-          "url": "https://github.com/iYakuza/landing-page/commit/3a613b0424a912e249d0ed663b634d7b93ab86a9",
-          "files": [
-            "green-dream/guest-notes/ethical-framework/index.html"
-          ]
-        },
-        {
-          "message": "Refresh Guest Notes navigation styling across pages",
-          "url": "https://github.com/iYakuza/landing-page/commit/3c87c7a1a898066065e5b413bb2a3a9a59526441",
-          "files": [
-            "green-dream/guest-notes/ethical-framework/ro/index.html"
           ]
         }
       ]
