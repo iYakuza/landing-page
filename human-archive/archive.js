@@ -132,6 +132,7 @@ function getRecordStructure(record){
 }
 function uniqueRecordMedia(record,mimePrefix){
  const items=mediaItems.filter(item=>(item.post_ids||[]).some(id=>String(id)===String(record.id))&&String(item.mime_type||'').startsWith(mimePrefix));
+ if(mimePrefix==='audio/')items.sort((a,b)=>Number(clean(b.title)===clean(record.title))-Number(clean(a.title)===clean(record.title)));
  const seen=new Set();
  return items.filter(item=>{
   const path=String(item.storage_path||'');
@@ -161,7 +162,7 @@ function appendChamberVideoOutput(section,record){
   frame.allowFullscreen=true;
   section.append(frame);count++;
  });
- const videos=uniqueRecordMedia(record,'video/');
+ const videos=mediaReady?uniqueRecordMedia(record,'video/'): [];
  videos.forEach(item=>{
   const figure=makeChamberNode('figure','ha-local-media ha-local-video');
   const video=document.createElement('video');video.controls=true;video.preload='metadata';video.playsInline=true;video.src=localMediaUrl(item);
