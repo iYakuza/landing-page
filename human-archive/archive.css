@@ -500,3 +500,17 @@
  .ha-chamber-edit,.ha-chamber-close{padding:7px 8px;font-size:8px}
  .ha-entry-quick-actions{padding:8px 10px}
 }
+
+/* Human Archive admin favourite control and visible card-level constellation marker. */
+.ha-entry-quick-actions[hidden]{display:none!important}
+.ha-favorite-toggle[hidden]{display:none!important}
+.ha-entry{position:relative}
+.ha-favorite-mark{position:absolute;top:13px;right:15px;z-index:2;width:30px;height:30px;display:grid;place-items:center;pointer-events:none}
+.ha-favorite-mark svg{display:block;width:100%;height:100%;overflow:visible;fill:#ffe66b;stroke:#fff2a6;stroke-width:.65;filter:drop-shadow(0 0 3px #ffe66b) drop-shadow(0 0 8px rgba(255,218,76,.95)) drop-shadow(0 0 17px rgba(255,194,48,.65));animation:ha-favourite-glow 2.8s ease-in-out infinite}
+.ha-favorite-mark[hidden]{display:none!important}
+@keyframes ha-favourite-glow{0%,100%{filter:drop-shadow(0 0 3px #ffe66b) drop-shadow(0 0 8px rgba(255,218,76,.85)) drop-shadow(0 0 14px rgba(255,194,48,.5))}50%{filter:drop-shadow(0 0 5px #fff0a0) drop-shadow(0 0 12px #ffe66b) drop-shadow(0 0 22px rgba(255,194,48,.9))}}
+.ha-chamber-topbar{position:relative;z-index:5}
+.ha-chamber-topbar-actions{display:flex!important;visibility:visible!important;opacity:1!important;position:relative;z-index:6}
+.ha-chamber-close{display:inline-flex!important;visibility:visible!important;opacity:1!important;align-items:center;justify-content:center;position:relative;z-index:7}
+.ha-chamber-edit:not([hidden]){display:inline-flex!important;visibility:visible!important;opacity:1!important}
+@media(prefers-reduced-motion:reduce){.ha-favorite-mark svg{animation:none}}
