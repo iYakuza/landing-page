@@ -581,3 +581,13 @@
   .ha-chamber-share-status{order:3;flex:1 1 100%;width:auto!important;margin-left:0;text-align:left}
   .ha-chamber-topbar-actions{order:2;margin-left:auto!important;gap:5px!important}
 }
+
+
+/* Original WordPress source link at the foot of each archive record card. */
+.ha-record-source{
+ align-self:flex-start;margin:0;padding:10px 12px;border:1px solid rgba(145,171,171,.2);border-top:0;
+ color:#b9d77a;font:8px/1.4 'DM Mono',monospace;letter-spacing:.1em;text-decoration:none;
+}
+.ha-record-source:hover,.ha-record-source:focus-visible{
+ border-color:rgba(185,215,122,.6);background:rgba(185,215,122,.06);color:#d8ff3e;outline:1px solid #b9d77a;outline-offset:1px;
+}
