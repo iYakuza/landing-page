@@ -1,8 +1,33 @@
 {
   "version": 1,
-  "updated_at": "2026-11-15T02:30:39.547225Z",
-  "last_processed_sha": "84e088f4388c44c46af88a26ac9e82f10b20602c",
+  "updated_at": "2026-11-15T02:38:15.515628Z",
+  "last_processed_sha": "b568d46fd4a859c639ebccaeaa41e21e89f6fa7d",
   "entries": [
+    {
+      "id": "b568d46fd4a859c639ebccaeaa41e21e89f6fa7d",
+      "timestamp": "2026-11-15T03:38:02+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Make Human Archive ego portrait open full screen (#63). It updates archive.css, archive.js, index.html.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.css",
+        "human-archive/archive.js",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Make Human Archive ego portrait open full screen (#63)",
+          "url": "https://github.com/iYakuza/landing-page/commit/b568d46fd4a859c639ebccaeaa41e21e89f6fa7d",
+          "files": [
+            "human-archive/archive.css",
+            "human-archive/archive.js",
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "84e088f4388c44c46af88a26ac9e82f10b20602c",
       "timestamp": "2026-11-15T03:30:30+01:00",
@@ -1080,27 +1105,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/35e928c0f54f77d386c3c53154281d6cc55cd0d8",
           "files": [
             "cms/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "7688cdd23bbb91f145dabed9b4ba70436413a31a",
-      "timestamp": "2026-11-14T14:51:24+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Make recovery portrait import a one-click manual action. It updates recovery-asset-bootstrap.yml.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/recovery-asset-bootstrap.yml"
-      ],
-      "commits": [
-        {
-          "message": "Make recovery portrait import a one-click manual action",
-          "url": "https://github.com/iYakuza/landing-page/commit/7688cdd23bbb91f145dabed9b4ba70436413a31a",
-          "files": [
-            ".github/workflows/recovery-asset-bootstrap.yml"
           ]
         }
       ]
