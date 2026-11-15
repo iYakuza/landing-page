@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-15T01:59:29.465828Z",
-  "last_processed_sha": "3cfe6e0d78ab513890f060f8f0f6bdd9b3323b37",
+  "updated_at": "2026-11-15T02:10:31.852235Z",
+  "last_processed_sha": "299be2ecd95d34fbb8072258a8fb8cc0d84af40b",
   "entries": [
+    {
+      "id": "299be2ecd95d34fbb8072258a8fb8cc0d84af40b",
+      "timestamp": "2026-11-15T03:10:23+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Make Human Archive Chamber and favourites shared across all records (#60). It updates archive.js, index.html.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Make Human Archive Chamber and favourites shared across all records (#60)",
+          "url": "https://github.com/iYakuza/landing-page/commit/299be2ecd95d34fbb8072258a8fb8cc0d84af40b",
+          "files": [
+            "human-archive/archive.js",
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "3cfe6e0d78ab513890f060f8f0f6bdd9b3323b37",
       "timestamp": "2026-11-15T02:59:21+01:00",
@@ -1082,27 +1105,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/2812c3aecf7f323568241b95cd39f86e54efc485",
           "files": [
             "cms/cms.css"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "ba090aae62196840b7cf53ad7d5bda4f11470e0f",
-      "timestamp": "2026-11-14T13:33:56+01:00",
-      "category": "FEATURE",
-      "component": "Website",
-      "title": "New capabilities for Website",
-      "description": "This update brings together Add manual restore workflow registration on main. It updates restore-supabase-backup.yml.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/restore-supabase-backup.yml"
-      ],
-      "commits": [
-        {
-          "message": "Add manual restore workflow registration on main",
-          "url": "https://github.com/iYakuza/landing-page/commit/ba090aae62196840b7cf53ad7d5bda4f11470e0f",
-          "files": [
-            ".github/workflows/restore-supabase-backup.yml"
           ]
         }
       ]
