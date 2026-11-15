@@ -482,7 +482,7 @@ function buildRecordChamber(record){
  topbar.append(makeChamberNode('span','ha-chamber-mark','EGO // HUMAN ARCHIVE'));
  const actions=makeChamberNode('div','ha-chamber-topbar-actions');actions.style.display='flex';actions.style.visibility='visible';actions.style.opacity='1';
  const edit=makeChamberNode('button','ha-chamber-edit','EDIT STRUCTURE');
- edit.type='button';edit.hidden=false;edit.style.display='inline-flex';edit.style.visibility='visible';edit.style.opacity='1';edit.setAttribute('aria-label','Edit archive record structure');
+ edit.type='button';edit.hidden=!archiveAdmin;edit.style.display='inline-flex';edit.style.visibility='visible';edit.style.opacity='1';edit.setAttribute('aria-label','Edit archive record structure');
  const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.hidden=false;close.style.display='inline-flex';close.style.visibility='visible';close.style.opacity='1';close.setAttribute('aria-label','Close record chamber');
  actions.append(edit,close);topbar.append(actions);
  const heading=makeChamberNode('div','ha-chamber-heading');
