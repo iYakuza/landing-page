@@ -430,3 +430,73 @@
   border-bottom:1px solid rgba(185,215,122,.18);color:#a8bf98;
   font:9px/1.5 'DM Mono',monospace;letter-spacing:.13em
 }
+
+
+/* HUMAN ARCHIVE // chamber editing, card-level favourite and unique media */
+.ha-record-card[data-ha-record-id="589"]>.ha-entry{padding-right:20px!important}
+.ha-record-card[data-ha-record-id="589"]>.ha-entry .ha-entry-year{visibility:visible}
+.ha-entry-quick-actions{
+  display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0;
+  padding:9px 12px;border:1px solid rgba(143,171,170,.2);border-top:0;
+  background:linear-gradient(90deg,rgba(131,185,106,.055),rgba(5,10,13,.4))
+}
+.ha-entry-quick-actions .ha-entry-chamber{
+  min-height:32px;padding:7px 10px;border:1px solid rgba(143,190,188,.4);
+  background:rgba(143,190,188,.06);color:#c1d5d1;font:8px/1.2 'DM Mono',monospace;
+  letter-spacing:.08em;cursor:pointer
+}
+.ha-entry-quick-actions .ha-entry-chamber:hover,.ha-entry-quick-actions .ha-entry-chamber:focus-visible{
+  border-color:#b9d77a;background:rgba(185,215,122,.1);color:#d8ff3e;outline:1px solid #b9d77a;outline-offset:2px
+}
+.ha-favorite-toggle{
+  position:static!important;display:inline-flex!important;align-items:center;justify-content:center;
+  min-width:36px;min-height:32px;margin:0;padding:5px 9px;border:1px solid rgba(216,255,62,.4);
+  background:rgba(216,255,62,.05);color:#d8ff3e;font:20px/1 ui-monospace,monospace;
+  cursor:pointer;text-shadow:0 0 10px rgba(216,255,62,.25)
+}
+.ha-favorite-toggle[hidden]{display:none!important}
+.ha-favorite-toggle.is-saved{border-color:rgba(216,255,62,.72);background:rgba(216,255,62,.12);color:#e6ff83}
+.ha-favorite-toggle:disabled{opacity:1;cursor:default}
+.ha-favorite-toggle:not(:disabled):hover,.ha-favorite-toggle:focus-visible{
+  border-color:#d8ff3e;background:rgba(216,255,62,.14);outline:2px solid #d8ff3e;outline-offset:2px
+}
+.ha-chamber-open>.ha-shell{visibility:hidden!important}
+.ha-record-chamber::backdrop{background:rgba(2,5,3,.99)!important;backdrop-filter:none!important}
+.ha-chamber-topbar-actions{display:flex;align-items:center;gap:8px}
+.ha-chamber-edit,.ha-chamber-close{
+  min-height:34px;padding:7px 11px;border:1px solid rgba(185,215,122,.4);
+  background:transparent;color:#d8e4d8;font:9px 'DM Mono',monospace;letter-spacing:.1em;cursor:pointer
+}
+.ha-chamber-edit{border-color:rgba(143,190,188,.48);color:#c1d5d1}
+.ha-chamber-edit:hover,.ha-chamber-edit:focus-visible,.ha-chamber-close:hover,.ha-chamber-close:focus-visible{
+  background:#b9d77a;color:#071009;outline:2px solid #b9d77a;outline-offset:2px
+}
+.ha-chamber-edit[hidden]{display:none!important}
+.ha-chamber-structure-text{color:#c4d3c8;font:13px/1.85 Georgia,'Times New Roman',serif;white-space:pre-wrap;overflow-wrap:anywhere}
+.ha-chamber-edit-panel{grid-column:1/-1}
+.ha-chamber-editor-field{
+  display:block;width:100%;min-height:150px;box-sizing:border-box;padding:12px;
+  border:1px solid rgba(143,190,188,.34);border-radius:0;background:#07100b;color:#dce8dc;
+  font:12px/1.8 ui-monospace,monospace;resize:vertical
+}
+.ha-chamber-editor-field:focus{outline:2px solid #b9d77a;outline-offset:2px;border-color:#b9d77a}
+.ha-chamber-editor-actions{display:flex;align-items:center;gap:8px;grid-column:1/-1;flex-wrap:wrap}
+.ha-chamber-save,.ha-chamber-cancel{
+  min-height:36px;padding:8px 13px;border:1px solid rgba(185,215,122,.48);
+  background:rgba(185,215,122,.08);color:#d8e4d8;font:9px 'DM Mono',monospace;letter-spacing:.08em;cursor:pointer
+}
+.ha-chamber-save{border-color:#b9d77a;background:rgba(185,215,122,.16);color:#e3f2c7}
+.ha-chamber-save:hover,.ha-chamber-cancel:hover,.ha-chamber-save:focus-visible,.ha-chamber-cancel:focus-visible{
+  background:#b9d77a;color:#071009;outline:2px solid #b9d77a;outline-offset:2px
+}
+.ha-chamber-save:disabled,.ha-chamber-cancel:disabled{opacity:.55;cursor:wait}
+.ha-chamber-video-frame{
+  display:block;width:100%;aspect-ratio:16/9;min-height:180px;border:1px solid rgba(143,171,170,.22);
+  background:#000
+}
+.ha-chamber-text{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:640px){
+ .ha-chamber-topbar-actions{gap:5px}
+ .ha-chamber-edit,.ha-chamber-close{padding:7px 8px;font-size:8px}
+ .ha-entry-quick-actions{padding:8px 10px}
+}
