@@ -494,7 +494,7 @@ function buildRecordChamber(record){
  const shareRow=makeChamberNode('div','ha-chamber-share-row');
  const share=makeChamberNode('div','ha-chamber-share','');
  const shareStatus=makeChamberNode('span','ha-chamber-share-status','');
- appendChamberShareActions(share,record,shareStatus);shareRow.append(share,shareStatus);main.append(shareRow);
+ appendChamberShareActions(share,record,shareStatus);shareRow.append(share,shareStatus,actions);main.append(shareRow);
  const layoutLabel=makeChamberNode('p','ha-chamber-layout-label','LAYOUT // SUNO LYRICS + STYLE BREAKDOWN');
  main.append(layoutLabel);
  const grid=makeChamberNode('div','ha-chamber-grid');main.append(grid);
@@ -505,7 +505,7 @@ function buildRecordChamber(record){
  const source=safeExternalUrl(record.url,new Set(['emanuelstefancu.wordpress.com']));
  if(source){const link=makeChamberNode('a','ha-chamber-source','OPEN ORIGINAL SOURCE ↗');link.href=source;link.target='_blank';link.rel='noopener noreferrer';footer.append(link);}
  footer.append(makeChamberNode('span','ha-chamber-footer-note','NO TRACE IS EVER THE WHOLE PERSON.'));
- main.append(footer);shell.append(header,main,actions);return shell;
+ main.append(footer);shell.append(header,main);return shell;
 }
 function ensureRecordChamber(){
  if(recordChamber)return recordChamber;
