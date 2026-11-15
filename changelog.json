@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-15T00:47:56.383331Z",
-  "last_processed_sha": "b3c8a27755d178cf0a15cbb0b09e6eca939468d5",
+  "updated_at": "2026-11-15T01:00:44.684409Z",
+  "last_processed_sha": "16fe00f916481639a4e192210b2a4375ff670da2",
   "entries": [
+    {
+      "id": "16fe00f916481639a4e192210b2a4375ff670da2",
+      "timestamp": "2026-11-15T02:00:36+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Restore Human Archive category ordering (#54). It updates archive.js, index.html.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Restore Human Archive category ordering (#54)",
+          "url": "https://github.com/iYakuza/landing-page/commit/16fe00f916481639a4e192210b2a4375ff670da2",
+          "files": [
+            "human-archive/archive.js",
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "b3c8a27755d178cf0a15cbb0b09e6eca939468d5",
       "timestamp": "2026-11-15T01:47:45+01:00",
@@ -1141,27 +1164,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/7b17be00693c55d1eb7a605baad8a0049254cae4",
           "files": [
             "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "98ad1084665b4d00c9237c706253d825cad7bef0",
-      "timestamp": "2026-11-14T00:19:44+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Update revision history version marker to 1.2. It updates index.html.",
-      "commit_count": 1,
-      "files": [
-        "green-dream/guest-notes/revision-history/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Update revision history version marker to 1.2",
-          "url": "https://github.com/iYakuza/landing-page/commit/98ad1084665b4d00c9237c706253d825cad7bef0",
-          "files": [
-            "green-dream/guest-notes/revision-history/index.html"
           ]
         }
       ]
