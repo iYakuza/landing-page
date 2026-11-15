@@ -563,7 +563,7 @@ function makeEntry(record,index){
  content.append(body);const gallery=mediaReady?makeAttachmentGallery(record,used):null;if(gallery)content.append(gallery);
  link.append(makeFavoriteMark(record));wrapper.append(link,quickActions,content);
  const source=safeExternalUrl(record.url,new Set(['emanuelstefancu.wordpress.com']));
- if(source){const original=makeChamberNode('a','ha-chamber-source ha-record-source','OPEN ORIGINAL SOURCE ↗');original.href=source;original.target='_blank';original.rel='noopener noreferrer';wrapper.append(original);}
+ if(source){const original=makeChamberNode('a','ha-chamber-source ha-record-source','OPEN ORIGINAL SOURCE ↗');original.href=source;original.target='_blank';original.rel='noopener noreferrer';content.append(original);}
  return wrapper;
 }
 function render(){
