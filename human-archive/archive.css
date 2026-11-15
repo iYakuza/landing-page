@@ -555,3 +555,29 @@
  .ha-chamber-topbar-actions .ha-chamber-edit:not([hidden]){min-height:32px!important;padding:7px 8px!important;font-size:8px!important;}
  .ha-chamber-mark{max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 }
+
+
+/* Chamber actions share the share-row baseline, with controls aligned at the far right. */
+.ha-chamber-share-row{
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;
+}
+.ha-chamber-share{flex:0 1 auto;min-width:0}
+.ha-chamber-share-status{margin-left:auto;flex:0 1 auto;text-align:right}
+.ha-chamber-topbar-actions{
+  position:static!important;inset:auto!important;top:auto!important;right:auto!important;
+  z-index:1!important;display:flex!important;flex:0 0 auto!important;align-items:center!important;
+  justify-content:flex-end!important;gap:8px!important;margin-left:0!important;
+  visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+}
+.ha-chamber-topbar-actions .ha-chamber-edit:not([hidden]),
+.ha-chamber-topbar-actions .ha-chamber-close{
+  position:static!important;z-index:auto!important;display:inline-flex!important;
+  align-items:center!important;justify-content:center!important;
+}
+.ha-chamber-topbar-actions .ha-chamber-edit[hidden]{display:none!important}
+@media(max-width:640px){
+  .ha-chamber-share-row{align-items:center!important;gap:8px!important}
+  .ha-chamber-share{display:flex!important;flex:1 1 100%;width:auto!important}
+  .ha-chamber-share-status{order:3;flex:1 1 100%;width:auto!important;margin-left:0;text-align:left}
+  .ha-chamber-topbar-actions{order:2;margin-left:auto!important;gap:5px!important}
+}
