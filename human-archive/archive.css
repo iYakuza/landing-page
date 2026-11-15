@@ -514,3 +514,21 @@
 .ha-chamber-close{display:inline-flex!important;visibility:visible!important;opacity:1!important;align-items:center;justify-content:center;position:relative;z-index:7}
 .ha-chamber-edit:not([hidden]){display:inline-flex!important;visibility:visible!important;opacity:1!important}
 @media(prefers-reduced-motion:reduce){.ha-favorite-mark svg{animation:none}}
+
+
+/* Human Archive pilot refinements: expanded-state actions and a floating favourite mark. */
+.ha-entry-quick-actions[hidden]{display:none!important}
+.ha-favorite-mark{
+  top:auto!important;right:14px!important;bottom:39px!important;z-index:3;
+  display:grid!important;place-items:center;width:26px;height:26px;min-width:0!important;min-height:0!important;
+  max-width:none!important;margin:0!important;padding:0!important;
+  border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+  color:inherit!important;pointer-events:none!important;
+}
+.ha-favorite-mark svg{
+  display:block;width:100%;height:100%;margin:0;padding:0;border:0;background:transparent;
+}
+.ha-chamber-topbar-actions{display:flex!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:20!important;}
+.ha-chamber-edit:not([hidden]),.ha-chamber-close:not([hidden]){
+  display:inline-flex!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:21!important;
+}

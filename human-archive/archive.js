@@ -480,10 +480,10 @@ function buildRecordChamber(record){
  const header=makeChamberNode('header','ha-chamber-header');
  const topbar=makeChamberNode('div','ha-chamber-topbar');
  topbar.append(makeChamberNode('span','ha-chamber-mark','EGO // HUMAN ARCHIVE'));
- const actions=makeChamberNode('div','ha-chamber-topbar-actions');
+ const actions=makeChamberNode('div','ha-chamber-topbar-actions');actions.style.display='flex';actions.style.visibility='visible';actions.style.opacity='1';
  const edit=makeChamberNode('button','ha-chamber-edit','EDIT STRUCTURE');
- edit.type='button';edit.hidden=!archiveAdmin;edit.setAttribute('aria-label','Edit archive record structure');
- const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.hidden=false;close.style.display='inline-flex';close.setAttribute('aria-label','Close record chamber');
+ edit.type='button';edit.hidden=!archiveAdmin;edit.style.display='inline-flex';edit.style.visibility='visible';edit.style.opacity='1';edit.setAttribute('aria-label','Edit archive record structure');
+ const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.hidden=false;close.style.display='inline-flex';close.style.visibility='visible';close.style.opacity='1';close.setAttribute('aria-label','Close record chamber');
  actions.append(edit,close);topbar.append(actions);
  const heading=makeChamberNode('div','ha-chamber-heading');
  const meta=makeChamberNode('p','ha-chamber-meta','HA-'+record.year+'-'+String(record.id).padStart(4,'0')+' // '+record.date+' // '+(record.categories||[]).join(' / '));
@@ -498,7 +498,7 @@ function buildRecordChamber(record){
  main.append(layoutLabel);
  const grid=makeChamberNode('div','ha-chamber-grid');main.append(grid);
  renderRecordStructureView(record,grid,layoutLabel);
- edit.addEventListener('click',()=>renderRecordStructureEditor(record,grid,layoutLabel,shareStatus,edit));
+ edit.addEventListener('click',()=>{if(!archiveAdmin){shareStatus.textContent='ADMIN ACCESS REQUIRED';return;}renderRecordStructureEditor(record,grid,layoutLabel,shareStatus,edit);});
  close.addEventListener('click',()=>recordChamber.close());
  const footer=makeChamberNode('footer','ha-chamber-footer');
  const source=safeExternalUrl(record.url,new Set(['emanuelstefancu.wordpress.com']));
@@ -564,10 +564,6 @@ async function initArchiveFeatures(){
  openRequestedRecordFromUrl();
 }
 
-function isRetractedRecord(record){
- const status=String(record?.status||record?.post_status||record?.archive_status||'').trim().toLowerCase();
- return record?.retracted===true||record?.is_retracted===true||record?.withdrawn===true||['retracted','withdrawn'].includes(status);
-}
 function makeFavoriteMark(record){
  const mark=makeChamberNode('span','ha-favorite-mark');mark.dataset.haFavoriteMark=CHAMBER_RECORD_ID;mark.hidden=!favoriteRecordIds.has(CHAMBER_RECORD_ID);mark.setAttribute('aria-hidden','true');
  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 40 40');svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');
@@ -580,15 +576,14 @@ function makeEntry(record,index){
  const link=document.createElement('button');link.type='button';link.className='ha-entry';link.setAttribute('aria-controls',content.id);link.setAttribute('aria-expanded','false');link.setAttribute('aria-label','Read local archive record: '+record.title+', '+record.date);
  const top=document.createElement('div');top.className='ha-entry-top';const code=document.createElement('small');code.className='ha-entry-code';code.textContent='HA-'+record.year+'-'+String(record.id).padStart(4,'0');const yr=document.createElement('span');yr.className='ha-entry-year';yr.textContent=record.year;top.append(code,yr);
  const title=document.createElement('strong');title.textContent=record.title;const bottom=document.createElement('div');bottom.className='ha-entry-bottom';const date=document.createElement('small');date.textContent=record.date+' // LOCAL ARCHIVE COPY';const action=document.createElement('span');action.textContent='READ LOCAL TEXT ↓';bottom.append(date,action);link.append(top,title,bottom);link.style.setProperty('--entry-order',String(index));
- link.addEventListener('click',()=>{const open=content.hidden;content.hidden=!open;link.setAttribute('aria-expanded',String(open));action.textContent=open?'CLOSE LOCAL TEXT ↑':'READ LOCAL TEXT ↓';});
+ let quickActions=null;
+ link.addEventListener('click',()=>{const open=content.hidden;content.hidden=!open;link.setAttribute('aria-expanded',String(open));action.textContent=open?'CLOSE LOCAL TEXT ↑':'READ LOCAL TEXT ↓';if(quickActions)quickActions.hidden=!open;});
  const body=document.createElement('div');body.className='ha-entry-body';const used=new Set();
  if(String(record.id)===CHAMBER_RECORD_ID){
-  const quickActions=makeChamberNode('div','ha-entry-quick-actions');
-  if(!isRetractedRecord(record)){
-   const chamber=makeChamberNode('button','ha-entry-chamber','ENTER THE CHAMBER ↗');chamber.type='button';chamber.addEventListener('click',()=>openArchiveRecordChamber(record,chamber));
-   const favorite=makeChamberNode('button','ha-favorite-toggle','☆');favorite.type='button';favorite.dataset.haFavoriteId=CHAMBER_RECORD_ID;favorite.hidden=!archiveAdmin;favorite.setAttribute('aria-pressed',String(favoriteRecordIds.has(CHAMBER_RECORD_ID)));favorite.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();toggleArchiveFavorite(record.id,favorite);});
-   quickActions.append(chamber,favorite);
-  }
+  quickActions=makeChamberNode('div','ha-entry-quick-actions');quickActions.hidden=true;
+  const chamber=makeChamberNode('button','ha-entry-chamber','ENTER THE CHAMBER ↗');chamber.type='button';chamber.addEventListener('click',()=>openArchiveRecordChamber(record,chamber));
+  const favorite=makeChamberNode('button','ha-favorite-toggle','☆');favorite.type='button';favorite.dataset.haFavoriteId=CHAMBER_RECORD_ID;favorite.hidden=!archiveAdmin;favorite.setAttribute('aria-pressed',String(favoriteRecordIds.has(CHAMBER_RECORD_ID)));favorite.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();toggleArchiveFavorite(record.id,favorite);});
+  quickActions.append(chamber,favorite);
   appendSafeContent(body,record.content_html||'',record,used);
   if(!body.childNodes.length){const message=document.createElement('p');message.textContent='No local text was captured for this entry.';body.append(message);}
   content.append(body);
@@ -596,7 +591,6 @@ function makeEntry(record,index){
   link.append(favoriteMark);
   // The same recovered attachments are shown inside the full-screen chamber; avoid a second inline copy on the pilot card.
   wrapper.append(link,quickActions,content);
-  if(isRetractedRecord(record))quickActions.hidden=true;
   return wrapper;
  }
  appendSafeContent(body,record.content_html||'',record,used);
