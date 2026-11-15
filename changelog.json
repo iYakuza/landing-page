@@ -1,8 +1,36 @@
 {
   "version": 1,
-  "updated_at": "2026-11-15T01:00:44.684409Z",
-  "last_processed_sha": "16fe00f916481639a4e192210b2a4375ff670da2",
+  "updated_at": "2026-11-15T01:09:35.898466Z",
+  "last_processed_sha": "d1c1b2c73a91cb9ced5f890a605f89a0257220ab",
   "entries": [
+    {
+      "id": "d1c1b2c73a91cb9ced5f890a605f89a0257220ab",
+      "timestamp": "2026-11-15T02:08:51+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Restore Human Archive rendering and media helpers; Restore archive helpers without duplicating chamber state. It updates archive.js.",
+      "commit_count": 2,
+      "files": [
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Restore Human Archive rendering and media helpers",
+          "url": "https://github.com/iYakuza/landing-page/commit/bf74cdf1a6aaf89cddfdbc4e4bb070f349a13542",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Restore archive helpers without duplicating chamber state",
+          "url": "https://github.com/iYakuza/landing-page/commit/2268a0280c3e7e53f29ca05e479d76e347bd03e2",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "16fe00f916481639a4e192210b2a4375ff670da2",
       "timestamp": "2026-11-15T02:00:36+01:00",
@@ -1119,51 +1147,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/806f6bc30b941edd20b36069aa2263e0c96896d8",
           "files": [
             "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "7b17be00693c55d1eb7a605baad8a0049254cae4",
-      "timestamp": "2026-11-14T00:30:38+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Improve Guest Notes navigation visibility and labels. It updates index.html and related project files.",
-      "commit_count": 4,
-      "files": [
-        "green-dream/guest-notes/architecture-of-harm/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Improve Guest Notes navigation visibility and labels",
-          "url": "https://github.com/iYakuza/landing-page/commit/44e1369b92020f259ff8289f564a4bc0111bd03a",
-          "files": [
-            "green-dream/guest-notes/architecture-of-harm/index.html"
-          ]
-        },
-        {
-          "message": "Improve Guest Notes navigation visibility and labels",
-          "url": "https://github.com/iYakuza/landing-page/commit/b59ee82557dcb4c08ca6d5f7ab9fb6795c7a7fb4",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html"
-          ]
-        },
-        {
-          "message": "Improve Guest Notes navigation visibility and labels",
-          "url": "https://github.com/iYakuza/landing-page/commit/25a0ac7a52ac7d89620a2647509b0bc3ce5a148e",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html"
-          ]
-        },
-        {
-          "message": "Improve Guest Notes navigation visibility and labels",
-          "url": "https://github.com/iYakuza/landing-page/commit/7b17be00693c55d1eb7a605baad8a0049254cae4",
-          "files": [
-            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html"
           ]
         }
       ]
