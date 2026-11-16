@@ -769,7 +769,7 @@ function buildRecordChamber(record){
  const actions=makeChamberNode('div','ha-chamber-topbar-actions');
  actions.setAttribute('aria-label','Chamber controls');
  const edit=makeChamberNode('button','ha-chamber-edit','REDESIGN CHAMBER');
- edit.type='button';edit.hidden=!archiveAdmin;edit.setAttribute('aria-label','Redesign this archive chamber');
+ edit.type='button';edit.hidden=!archiveAdmin||record.source_type==='transmission';edit.setAttribute('aria-label','Redesign this archive chamber');
  const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.setAttribute('aria-label','Close record chamber');
  actions.append(edit,close);shareRow.append(share,shareStatus,actions);main.append(shareRow);
  main.append(titleRow);
