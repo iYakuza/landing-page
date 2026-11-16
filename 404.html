@@ -49,13 +49,12 @@
 
   <script>
     (function(){
+      var prefix='/landing-page/human-archive/';
       var path=window.location.pathname;
-      var match=path.match(/^\\/landing-page\\/human-archive\\/([^/]+)\\/?$/);
-      if(!match)return;
-      var slug=decodeURIComponent(match[1]);
-      if(!slug||slug==='index.html')return;
-      var target='/landing-page/human-archive/?slug='+encodeURIComponent(slug);
-      window.location.replace(target);
+      if(!path.startsWith(prefix))return;
+      var slug=path.slice(prefix.length).replace(/\/+$/,'');
+      if(!slug||slug.includes('/'))return;
+      window.location.replace(prefix+'?slug='+encodeURIComponent(slug));
     })();
   </script>
 </body>
