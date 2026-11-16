@@ -822,7 +822,7 @@ async function loadPublishedTransmissions(){
     const dateString=Number.isNaN(date.getTime())?'':date.toISOString().slice(0,10);
     const year=dateString.slice(0,4)||'UNDATED';
     const category=String(post.category||'TRANSMISSIONS').trim().toUpperCase()||'TRANSMISSIONS';
-    const record={id:Number(post.archive_record_id),date:dateString,year,title:String(post.title||'Untitled transmission'),url:'',categories:[category],content_html:String(post.content_html||''),slug:post.slug,isTransmission:true,archiveIdentifier:'HA-'+year+'-'+String(post.archive_record_id).padStart(4,'0')};
+    const record={id:Number(post.archive_record_id),date:dateString,year,title:String(post.title||'Untitled transmission'),url:'',categories:[category],content_html:String(post.content_html||''),excerpt:String(post.excerpt||''),slug:post.slug,isTransmission:true,archiveIdentifier:'HA-'+year+'-'+String(post.archive_record_id).padStart(4,'0')};
     const sourceItems=Array.isArray(post.media_items)&&post.media_items.length?post.media_items:(post.media_url?[{url:post.media_url,type:post.media_type||'audio'}]:[]);
     sourceItems.forEach((source,index)=>{
      const publicUrl=safeTransmissionMediaUrl(source?.url);
