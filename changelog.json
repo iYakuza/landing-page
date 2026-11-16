@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-16T23:25:12.779645Z",
-  "last_processed_sha": "353a48f9c410ed85144b6873d28b2f4eaa07b82c",
+  "updated_at": "2026-11-16T23:46:16.521001Z",
+  "last_processed_sha": "846ec5c4a986159b3318ff3f351f825ae50dff18",
   "entries": [
+    {
+      "id": "846ec5c4a986159b3318ff3f351f825ae50dff18",
+      "timestamp": "2026-11-17T00:46:01+01:00",
+      "category": "FEATURE",
+      "component": "Website Updates",
+      "title": "New capabilities for Website Updates",
+      "description": "This update brings together Add Transmission metadata editing to Human Archive (#78). It updates unified-posting-record-model.md, archive.css, archive.js, index.html and related project files.",
+      "commit_count": 1,
+      "files": [
+        "docs/architecture/unified-posting-record-model.md",
+        "human-archive/archive.css",
+        "human-archive/archive.js",
+        "human-archive/index.html",
+        "supabase/migrations/20261116233208_save_human_archive_transmission_metadata.sql"
+      ],
+      "commits": [
+        {
+          "message": "Add Transmission metadata editing to Human Archive (#78)",
+          "url": "https://github.com/iYakuza/landing-page/commit/846ec5c4a986159b3318ff3f351f825ae50dff18",
+          "files": [
+            "docs/architecture/unified-posting-record-model.md",
+            "human-archive/archive.css",
+            "human-archive/archive.js",
+            "human-archive/index.html",
+            "supabase/migrations/20261116233208_save_human_archive_transmission_metadata.sql"
+          ]
+        }
+      ]
+    },
     {
       "id": "353a48f9c410ed85144b6873d28b2f4eaa07b82c",
       "timestamp": "2026-11-17T00:24:58+01:00",
@@ -1090,35 +1119,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/93409ba2c4ef0200ca20cd966c9f4fb7a1d0b2ca",
           "files": [
             "shared/crystal/crystal.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "00886b9145777c0053230a239aa6dbcd5515105c",
-      "timestamp": "2026-11-14T19:42:01+01:00",
-      "category": "FIX",
-      "component": "Website Updates",
-      "title": "More reliable Website Updates",
-      "description": "This update brings together Fix homepage Crystal first paint (#37). It updates game-ui.js, index.html, crystal-loader.js, crystal.js and related project files.",
-      "commit_count": 1,
-      "files": [
-        "game-ui.js",
-        "index.html",
-        "shared/crystal/crystal-loader.js",
-        "shared/crystal/crystal.js",
-        "shared/crystal/tools/constellation.js"
-      ],
-      "commits": [
-        {
-          "message": "Fix homepage Crystal first paint (#37)",
-          "url": "https://github.com/iYakuza/landing-page/commit/00886b9145777c0053230a239aa6dbcd5515105c",
-          "files": [
-            "game-ui.js",
-            "index.html",
-            "shared/crystal/crystal-loader.js",
-            "shared/crystal/crystal.js",
-            "shared/crystal/tools/constellation.js"
           ]
         }
       ]
