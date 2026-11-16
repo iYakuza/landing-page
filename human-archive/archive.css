@@ -802,3 +802,5 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
 .ha-chamber-metadata-field textarea.ha-chamber-meta-input{min-height:86px;resize:vertical}
 .ha-chamber-metadata-note{margin:12px 0 0;color:#8f9f91;font:8px/1.6 'DM Mono',monospace;letter-spacing:.08em}
 @media(max-width:700px){.ha-chamber-metadata-grid{grid-template-columns:1fr}.ha-chamber-metadata-field:last-child{grid-column:auto}}
+/* Publication control in the Transmission record details panel. */
+.ha-chamber-metadata-field select.ha-chamber-meta-input{appearance:auto;cursor:pointer}
