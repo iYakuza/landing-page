@@ -74,7 +74,14 @@
       el.src=item.url;el.style.width=postMediaWidth+'%';el.style.maxWidth='100%';card.appendChild(el);
       const caption=document.createElement('span');caption.className='cms-media-preview-name';caption.textContent=item.name||('Media '+(index+1));card.appendChild(caption);
       const remove=document.createElement('button');remove.type='button';remove.className='cms-button subtle cms-media-remove-one';remove.textContent='REMOVE';remove.setAttribute('aria-label','Remove '+(item.name||'media '+(index+1)));
-      remove.addEventListener('click',()=>{mediaItems.splice(index,1);syncLegacyMediaFields();renderMediaPreview();message(mediaMessage,'Media removed from this post. Save changes to confirm.');setStatus('UNSAVED');persistLocalRecovery();});
+      remove.addEventListener('click',async()=>{
+        const [removed]=mediaItems.splice(index,1);syncLegacyMediaFields();renderMediaPreview();
+        message(mediaMessage,'Media removed from this post. Save changes to confirm.');setStatus('UNSAVED');persistLocalRecovery();
+        if(removed?.path&&!originalMediaItems.some(item=>item.path===removed.path)){
+          const {error}=await client.storage.from(MEDIA_BUCKET).remove([removed.path]);
+          if(error)message(mediaMessage,'Removed from the draft, but uploaded-file cleanup failed: '+error.message,true);
+        }
+      });
       card.appendChild(remove);mediaPreview.appendChild(card);
     });
   }
@@ -496,7 +503,11 @@
     }catch(err){const paths=uploaded.map(item=>item.path);if(paths.length)await client.storage.from(MEDIA_BUCKET).remove(paths);message(mediaMessage,err.message||'Media upload failed. No files from this selection were attached.',true);}
     finally{mediaUploading=false;mediaInput.disabled=false;mediaInput.value='';}
   });
-  $('remove-media').addEventListener('click',()=>{mediaItems=[];syncLegacyMediaFields();mediaInput.value='';renderMediaPreview();message(mediaMessage,'All media removed from this post. Save changes to confirm.');setStatus('UNSAVED');persistLocalRecovery();});
+  $('remove-media').addEventListener('click',async()=>{
+    const removedPaths=mediaItems.map(item=>item.path).filter(path=>path&&!originalMediaItems.some(item=>item.path===path));
+    mediaItems=[];syncLegacyMediaFields();mediaInput.value='';renderMediaPreview();message(mediaMessage,'All media removed from this post. Save changes to confirm.');setStatus('UNSAVED');persistLocalRecovery();
+    if(removedPaths.length){const {error}=await client.storage.from(MEDIA_BUCKET).remove(removedPaths);if(error)message(mediaMessage,'Removed from the draft, but uploaded-file cleanup failed: '+error.message,true);}
+  });
   $('delete-post').addEventListener('click',async()=>{
     if(!editingId||saving)return;
     const post=allPosts.find(p=>p.id===editingId);
