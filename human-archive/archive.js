@@ -166,6 +166,7 @@ function appendSafeContent(container,source,record,used){
  const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','H4','UL','OL','LI','BLOCKQUOTE','HR','PRE','CODE','A','FIGURE','FIGCAPTION','DIV','SPAN','SMALL','SUP','SUB','TABLE','THEAD','TBODY','TR','TH','TD']);
  const blocked=new Set(['SCRIPT','STYLE','OBJECT','EMBED','SVG','MATH','FORM','INPUT','BUTTON','TEXTAREA','SELECT','OPTION','LINK','META']);
  const iframeHosts=new Set(['www.youtube.com','www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com']);
+ const layoutClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response']);
  function copy(node,parent){
   if(node.nodeType===Node.TEXT_NODE){parent.append(document.createTextNode(node.nodeValue||''));return;}
   if(node.nodeType!==Node.ELEMENT_NODE)return;
@@ -233,6 +234,7 @@ function appendSafeContent(container,source,record,used){
    }
   }
   if(tag==='TD'||tag==='TH'){const span=node.getAttribute('colspan');if(span&&/^\d{1,2}$/.test(span))el.colSpan=Number(span);}
+  if(node.hasAttribute('class')){const classes=(node.getAttribute('class')||'').split(/\s+/).filter(name=>layoutClasses.has(name));if(classes.length)el.className=classes.join(' ');}
   node.childNodes.forEach(child=>copy(child,el));parent.append(el);
  }
  doc.body.childNodes.forEach(node=>copy(node,container));
@@ -388,7 +390,7 @@ function defaultRecordOutputText(record){
 function getRecordStructure(record){
  const saved=recordStructureOverrides.get(String(record.id));
  return {
-  transmission_body:typeof saved?.transmission_body==='string'?saved.transmission_body:(record.source_type==='transmission'?String(record.content_html||''):''),
+  transmission_body:record.source_type==='transmission'?String(record.content_html||saved?.transmission_body||''):(typeof saved?.transmission_body==='string'?saved.transmission_body:''),
   prompt_style:String(saved?.prompt_style||''),
   lyrics_style:String(saved?.lyrics_style||''),
   output_text:typeof saved?.output_text==='string'?saved.output_text:defaultRecordOutputText(record),
@@ -504,15 +506,20 @@ function bindChamberDisclosureControls(grid,button){
 }
 function sanitizeTransmissionBody(source){
  const parsed=new DOMParser().parseFromString(String(source||''),'text/html');
- const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','BLOCKQUOTE','UL','OL','LI','A']);
+ const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','BLOCKQUOTE','UL','OL','LI','A','HR','CODE','PRE','DIV','SECTION','ASIDE','DETAILS','SUMMARY']);
+ const allowedClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response']);
  function copy(node,parent){
   if(node.nodeType===Node.TEXT_NODE){parent.append(document.createTextNode(node.nodeValue||''));return;}
   if(node.nodeType!==Node.ELEMENT_NODE)return;
   if(!allowed.has(node.tagName)){node.childNodes.forEach(child=>copy(child,parent));return;}
   const element=document.createElement(node.tagName.toLowerCase());
   if(node.tagName==='A'){
-   const raw=node.getAttribute('href')||'';
-   try{const url=new URL(raw,document.baseURI);if((url.protocol==='https:'&&!url.username&&!url.password)||url.protocol==='mailto:'){element.href=url.href;element.target='_blank';element.rel='noopener noreferrer';}}catch{}
+   const raw=(node.getAttribute('href')||'').trim();
+   try{const url=new URL(raw);if((url.protocol==='https:'&&url.hostname&&!url.username&&!url.password)||(url.protocol==='mailto:'&&url.pathname)){element.href=url.href;element.target='_blank';element.rel='noopener noreferrer';}}catch{}
+  }
+  if(node.hasAttribute('class')){
+   const classes=(node.getAttribute('class')||'').split(/\s+/).filter(name=>allowedClasses.has(name));
+   if(classes.length)element.className=classes.join(' ');
   }
   node.childNodes.forEach(child=>copy(child,element));parent.append(element);
  }
@@ -644,7 +651,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   const button=makeChamberNode('button','',label);button.type='button';button.dataset.command=command;if(value)button.dataset.value=value;toolbar.append(button);
  });
  const insertLinkButton=makeChamberNode('button','ha-rich-link','LINK');insertLinkButton.type='button';toolbar.append(insertLinkButton);
- const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable='true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Transmission body');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Write the transmission body…';transmissionEditor.innerHTML=sanitizeTransmissionBody(structure.transmission_body);
+ const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable='true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Transmission body');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Write the transmission body…';transmissionEditor.innerHTML=sanitizeTransmissionBody(record.source_type==='transmission'?(record.content_html||structure.transmission_body):structure.transmission_body);
  transmission.body.append(transmissionTop,toolbar,transmissionEditor);grid.append(transmission.details);
  const richEditorController=window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
  const prompt=makeChamberDisclosure('02 // PROMPT STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
@@ -726,8 +733,22 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
     updated_by:archiveUserId
    };
    status.textContent='SAVING CHAMBER STRUCTURE…';
-   const {error}=await archiveSupabase.from('human_archive_record_structures').upsert(row,{onConflict:'record_id'});
-   if(error)throw error;
+   if(record.source_type==='transmission'){
+    const {error}=await archiveSupabase.rpc('save_human_archive_transmission',{
+     p_post_id:record.post_id,
+     p_transmission_body:row.transmission_body,
+     p_prompt_style:row.prompt_style,
+     p_lyrics_style:row.lyrics_style,
+     p_output_text:row.output_text,
+     p_output_media:row.output_media,
+     p_media_items:null
+    });
+    if(error)throw error;
+    record.content_html=row.transmission_body;
+   }else{
+    const {error}=await archiveSupabase.from('human_archive_record_structures').upsert(row,{onConflict:'record_id'});
+    if(error)throw error;
+   }
    recordStructureOverrides.set(String(record.id),row);
    const keepPaths=new Set(['image','audio','video'].flatMap(type=>Array.isArray(outputMedia[type])?outputMedia[type]:[])
     .filter(item=>item&&item.storage==='vha-post-media').map(item=>item.path).filter(Boolean));
@@ -773,7 +794,7 @@ function buildRecordChamber(record){
  const actions=makeChamberNode('div','ha-chamber-topbar-actions');
  actions.setAttribute('aria-label','Chamber controls');
  const edit=makeChamberNode('button','ha-chamber-edit','REDESIGN CHAMBER');
- edit.type='button';edit.hidden=!archiveAdmin||record.source_type==='transmission';edit.setAttribute('aria-label','Redesign this archive chamber');
+ edit.type='button';edit.hidden=!archiveAdmin;edit.setAttribute('aria-label','Redesign this archive chamber');
  const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.setAttribute('aria-label','Close record chamber');
  actions.append(edit,close);shareRow.append(share,shareStatus,actions);main.append(shareRow);
  main.append(titleRow);
