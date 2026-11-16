@@ -1,8 +1,33 @@
 {
   "version": 1,
-  "updated_at": "2026-11-16T21:22:38.452326Z",
-  "last_processed_sha": "adf2ef7c206c9ff245293153422be33dbb6c3dd8",
+  "updated_at": "2026-11-16T21:24:47.282007Z",
+  "last_processed_sha": "dbe2ef2e5d67628703f3b9558bef1b5507b53ccc",
   "entries": [
+    {
+      "id": "dbe2ef2e5d67628703f3b9558bef1b5507b53ccc",
+      "timestamp": "2026-11-16T22:24:28+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Align identity migration files with production history (#74). It updates unified-posting-record-model.md, 20261116212229_enforce_immutable_archive_record_identity.sql, 20261116213000_enforce_immutable_archive_record_identity.sql.",
+      "commit_count": 1,
+      "files": [
+        "docs/architecture/unified-posting-record-model.md",
+        "supabase/migrations/20261116212229_enforce_immutable_archive_record_identity.sql",
+        "supabase/migrations/20261116213000_enforce_immutable_archive_record_identity.sql"
+      ],
+      "commits": [
+        {
+          "message": "Align identity migration files with production history (#74)",
+          "url": "https://github.com/iYakuza/landing-page/commit/dbe2ef2e5d67628703f3b9558bef1b5507b53ccc",
+          "files": [
+            "docs/architecture/unified-posting-record-model.md",
+            "supabase/migrations/20261116212229_enforce_immutable_archive_record_identity.sql",
+            "supabase/migrations/20261116213000_enforce_immutable_archive_record_identity.sql"
+          ]
+        }
+      ]
+    },
     {
       "id": "adf2ef7c206c9ff245293153422be33dbb6c3dd8",
       "timestamp": "2026-11-16T22:22:20+01:00",
@@ -1128,29 +1153,6 @@
             "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
             "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
             "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "0d5b69718259db1d489251d906725637d4036a40",
-      "timestamp": "2026-11-14T19:11:54+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creator Workshop",
-      "title": "A refined Creator Workshop",
-      "description": "This update brings together Allow text-only Quick Posts to save as drafts. It updates cms.js, index.html.",
-      "commit_count": 1,
-      "files": [
-        "cms/cms.js",
-        "cms/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Allow text-only Quick Posts to save as drafts",
-          "url": "https://github.com/iYakuza/landing-page/commit/0d5b69718259db1d489251d906725637d4036a40",
-          "files": [
-            "cms/cms.js",
-            "cms/index.html"
           ]
         }
       ]
