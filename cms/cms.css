@@ -358,7 +358,7 @@ body.cms-embedded-composer .vha-journey-note{
 
 /* Keep the editor action bar in the foreground and explicitly clickable. */
 body.cms-embedded-composer:not(.cms-writing-focus) .cms-editor-footer{
-  z-index:2147483001!important;
+  z-index:2147483010!important;
   isolation:isolate!important;
   pointer-events:auto!important;
 }
