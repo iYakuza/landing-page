@@ -18,7 +18,7 @@ const clean=value=>String(value??'').normalize('NFKC').toLocaleLowerCase().trim(
 function slugifyArchiveTitle(value){
  const transliteration={'ß':'ss','ẞ':'ss','æ':'ae','Æ':'ae','œ':'oe','Œ':'oe','ø':'o','Ø':'o','ł':'l','Ł':'l','đ':'d','Đ':'d','ð':'d','Ð':'d','þ':'th','Þ':'th'};
  return String(value||'').replace(/[ßẞæÆœŒøØłŁđĐðÐþÞ]/g,char=>transliteration[char]||char)
-  .normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').toLocaleLowerCase()
+  .normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase()
   .replace(/&/g,' and ').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 }
 function assignArchiveSlugs(items){
@@ -28,7 +28,7 @@ function assignArchiveSlugs(items){
   let slug=base,suffix=2;
   while(used.has(slug)){slug=base+'-'+suffix;suffix++;}
   used.add(slug);
-  const dateParts=String(record.date||'').match(/^(\\d{4})-(\\d{2})-(\\d{2})$/);
+  const dateParts=String(record.date||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
   const identifier=dateParts?'HA-'+dateParts[1]+'-'+dateParts[2]+dateParts[3]+'-'+slug:'HA-'+record.year+'-'+slug;
   return {...record,slug,archiveIdentifier:identifier};
  });
@@ -618,7 +618,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
      if(item.file){
       status.textContent='UPLOADING '+type.toUpperCase()+' // '+item.name;
       const token=chamberUploadToken();
-      const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
+  .normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase()
       const path='human-archive/'+String(record.id)+'/'+type+'/'+token+'-'+safeName;
       const {error:uploadError}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{
        cacheControl:'3600',contentType:item.mime_type,upsert:false
