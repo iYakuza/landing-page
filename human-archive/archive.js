@@ -666,11 +666,12 @@ function buildRecordChamber(record){
  header.append(topbar);
  const heading=makeChamberNode('div','ha-chamber-heading');
  const meta=makeChamberNode('p','ha-chamber-meta','HA-'+record.year+'-'+String(record.id).padStart(4,'0')+' // '+record.date+' // '+(record.categories||[]).join(' / '));
+ heading.append(meta);header.append(heading);
  const titleRow=makeChamberNode('div','ha-chamber-title-row');
- const title=makeChamberNode('h2','',record.title);
+ const title=makeChamberNode('h2','ha-chamber-title',record.title);
  const expand=makeChamberNode('button','ha-chamber-expand-all','SEAL ALL ↑');expand.type='button';
  expand.setAttribute('aria-expanded','true');expand.setAttribute('aria-label','Retract all chamber sections');
- titleRow.append(title,expand);heading.append(meta,titleRow);header.append(heading);
+ titleRow.append(title,expand);
  const main=makeChamberNode('main','ha-chamber-main');
  const shareRow=makeChamberNode('div','ha-chamber-share-row');
  const share=makeChamberNode('div','ha-chamber-share','');
@@ -682,6 +683,7 @@ function buildRecordChamber(record){
  edit.type='button';edit.hidden=!archiveAdmin;edit.setAttribute('aria-label','Redesign this archive chamber');
  const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.setAttribute('aria-label','Close record chamber');
  actions.append(edit,close);shareRow.append(share,shareStatus,actions);main.append(shareRow);
+ main.append(titleRow);
  const grid=makeChamberNode('div','ha-chamber-grid');main.append(grid);
  renderRecordStructureView(record,grid,shareStatus,edit,expand);
  expand.addEventListener('click',()=>{
