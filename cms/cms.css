@@ -364,3 +364,11 @@ body.cms-embedded-composer:not(.cms-writing-focus) .cms-save-actions button{
   pointer-events:auto!important;
   touch-action:manipulation;
 }
+
+/* Multiple media attachments in the CMS editor */
+.cms-media-preview{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin-top:12px}
+.cms-media-preview-item{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0;padding:10px;border:1px solid rgba(0,234,245,.2);background:rgba(0,0,0,.2)}
+.cms-media-preview-item img,.cms-media-preview-item video{display:block;max-height:220px;object-fit:contain}
+.cms-media-preview-item audio{width:100%;max-width:100%}
+.cms-media-preview-name{max-width:100%;overflow-wrap:anywhere;font-size:10px;color:var(--muted,#9ba)}
+.cms-media-remove-one{font-size:9px;padding:6px 9px}
