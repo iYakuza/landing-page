@@ -891,7 +891,8 @@ function render(){
  const query=clean(search.value),selectedYear=year.value,selectedCategory=category.value;
  const filtered=records.filter(r=>(!selectedYear||r.year===selectedYear)&&(!query||[r.title,r.year,r.date,r.id,r.excerpt,r.content_html,...(r.categories||[])].some(v=>clean(v).includes(query))));
  const visible=filtered.filter(r=>!selectedCategory||(r.categories||[]).includes(selectedCategory));
- const groups=selectedCategory?[selectedCategory]:categoryOrder.filter(name=>visible.some(r=>(r.categories||[]).includes(name)));
+ const dynamicGroups=[...new Set(visible.flatMap(record=>record.categories||[]))].filter(name=>!categoryOrder.includes(name)).sort();
+ const groups=selectedCategory?[selectedCategory]:[...categoryOrder.filter(name=>visible.some(r=>(r.categories||[]).includes(name))),...dynamicGroups];
  count.textContent=visible.length+' / '+records.length+' RECORDS';list.replaceChildren();
  if(!visible.length){const empty=document.createElement('p');empty.className='ha-empty';empty.textContent='NO RECORDS MATCH THIS SEARCH. TRY ANOTHER CATEGORY, WORD OR YEAR.';list.append(empty);return;}
  const fragment=document.createDocumentFragment();
@@ -952,7 +953,8 @@ async function init(){
    }else setMediaStatus('MEDIA RECOVERY IN PROGRESS // TEXT IS AVAILABLE; MEDIA WILL APPEAR AFTER EVERY FILE HAS BEEN VERIFIED',false);
   }else if(manifest)setMediaStatus('MEDIA INVENTORY UNAVAILABLE // LOCAL TEXT REMAINS AVAILABLE',false);
   else setMediaStatus('MEDIA INVENTORY TEMPORARILY UNAVAILABLE // LOCAL TEXT REMAINS AVAILABLE',false);
-  categoryOrder.filter(name=>records.some(r=>r.categories.includes(name))).forEach(name=>{expandedCategories.add(name);const option=document.createElement('option');option.value=name;option.textContent=name;category.append(option)});
+  const availableCategories=[...categoryOrder.filter(name=>records.some(r=>r.categories.includes(name))),...[...new Set(records.flatMap(record=>record.categories||[]))].filter(name=>!categoryOrder.includes(name)).sort()];
+  availableCategories.forEach(name=>{expandedCategories.add(name);const option=document.createElement('option');option.value=name;option.textContent=name;category.append(option)});
   render();
   initArchiveFeatures().catch(error=>{console.error('Human Archive interactive features failed:',error);openRequestedRecordFromUrl();});
  }catch(error){console.error('Human Archive local index failed:',error);list.textContent='THE LOCAL ARCHIVE COULD NOT BE LOADED. PLEASE REFRESH IN A MOMENT.';count.textContent='LOCAL ARCHIVE UNAVAILABLE';}
