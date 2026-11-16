@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-16T20:58:56.079498Z",
-  "last_processed_sha": "1fbd9da765f967fc953aec16cf9d2226646f3329",
+  "updated_at": "2026-11-16T21:08:03.703370Z",
+  "last_processed_sha": "7fd4d80d130b90c105e22b55dc4e3ae4943238d1",
   "entries": [
+    {
+      "id": "7fd4d80d130b90c105e22b55dc4e3ae4943238d1",
+      "timestamp": "2026-11-16T22:07:43+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Integrate Human Archive shared editor on latest main (#71). It updates rich-text-editor.js, archive.css, archive.js, index.html and related project files.",
+      "commit_count": 1,
+      "files": [
+        "editor-ui/rich-text-editor.js",
+        "human-archive/archive.css",
+        "human-archive/archive.js",
+        "human-archive/index.html",
+        "supabase/migrations/20261116203618_human_archive_transmission_body.sql"
+      ],
+      "commits": [
+        {
+          "message": "Integrate Human Archive shared editor on latest main (#71)",
+          "url": "https://github.com/iYakuza/landing-page/commit/7fd4d80d130b90c105e22b55dc4e3ae4943238d1",
+          "files": [
+            "editor-ui/rich-text-editor.js",
+            "human-archive/archive.css",
+            "human-archive/archive.js",
+            "human-archive/index.html",
+            "supabase/migrations/20261116203618_human_archive_transmission_body.sql"
+          ]
+        }
+      ]
+    },
     {
       "id": "1fbd9da765f967fc953aec16cf9d2226646f3329",
       "timestamp": "2026-11-16T21:58:47+01:00",
@@ -1122,65 +1151,6 @@
             "cms/cms.js",
             "cms/index.html",
             "creator-posting.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "dc117ad97fcea300db71ee0eb72131df706a90f0",
-      "timestamp": "2026-11-14T18:16:08+01:00",
-      "category": "FEATURE",
-      "component": "Website Updates",
-      "title": "New capabilities for Website Updates",
-      "description": "This update brings together Add shared admin-only Quick Post across public pages. It updates index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "community/index.html",
-        "cv/index.html",
-        "green-dream/guest-notes/architecture-of-harm/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html",
-        "green-dream/guest-notes/ethical-framework/index.html",
-        "green-dream/guest-notes/ethical-framework/ro/index.html",
-        "green-dream/guest-notes/index.html",
-        "green-dream/guest-notes/integration-without-assimilation/index.html",
-        "green-dream/guest-notes/revision-history/index.html",
-        "green-dream/index.html",
-        "human-archive/index.html",
-        "index.html",
-        "music/index.html",
-        "posts/community/index.html",
-        "posts/index.html",
-        "posts/the-awakening/index.html",
-        "posts/the-descent/index.html",
-        "posts/the-reconnection/index.html",
-        "posts/the-return/index.html",
-        "posts/the-transformation/index.html",
-        "secure-your-soul/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Add shared admin-only Quick Post across public pages",
-          "url": "https://github.com/iYakuza/landing-page/commit/dc117ad97fcea300db71ee0eb72131df706a90f0",
-          "files": [
-            "community/index.html",
-            "cv/index.html",
-            "green-dream/guest-notes/architecture-of-harm/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html",
-            "green-dream/guest-notes/ethical-framework/index.html"
           ]
         }
       ]
