@@ -413,6 +413,7 @@
   $('save-draft').addEventListener('click',()=>savePost('draft'));
   async function savePost(status){
     clearTimeout(autosaveTimer);
+    if(mediaUploading){message(saveMessage,'Media is still uploading. Please wait before saving.',true);return false;}
     if(status==='draft'&&embeddedComposer&&ensureQuickPostDraftMetadata())persistLocalRecovery(false);
     if(saving||!currentUser){message(saveMessage,'The editor is not ready to save. Please wait for authentication and try again.',true);return false;}
     const title=titleInput.value.trim(),slug=slugify(slugInput.value),category=categoryInput.value.trim().toUpperCase();
