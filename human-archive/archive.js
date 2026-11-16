@@ -641,6 +641,27 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  };
  const mediaTouched={image:false,audio:false,video:false};
  grid.replaceChildren();
+ if(record.source_type==='transmission'){
+ const metadataDetails=makeChamberDisclosure('00 // RECORD DETAILS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-metadata-panel','ha-chamber-panel-heading');
+ const metadataFields=makeChamberNode('div','ha-chamber-metadata-grid');
+ const addMetadataField=(labelText,name,value,options={})=>{
+  const wrap=makeChamberNode('label','ha-chamber-metadata-field');
+  const label=makeChamberNode('span','ha-chamber-metadata-label',labelText);
+  const control=document.createElement(options.multiline?'textarea':'input');
+  control.className='ha-chamber-editor-field ha-chamber-meta-input';control.name=name;
+  if(options.multiline){control.rows=3;control.maxLength=options.maxLength||400;}
+  else{control.type='text';control.maxLength=options.maxLength||180;control.autocomplete='off';}
+  control.value=String(value??'');if(options.placeholder)control.placeholder=options.placeholder;
+  wrap.append(label,control);metadataFields.append(wrap);return control;
+ };
+ const titleInput=addMetadataField('TITLE','title',record.title,{placeholder:'Transmission title',maxLength:180});
+ const slugInput=addMetadataField('PUBLIC URL SLUG','slug',record.slug,{placeholder:'lowercase-words-separated-by-hyphens',maxLength:180});
+ const categoryInput=addMetadataField('MOVEMENT CATEGORY','category',(record.categories||[])[0]||'TRANSMISSIONS',{placeholder:'Category',maxLength:60});
+ const excerptInput=addMetadataField('EXCERPT','excerpt',record.excerpt||'',{multiline:true,placeholder:'Short description shown in previews (up to 400 characters)',maxLength:400});
+ metadataDetails.body.append(metadataFields,makeChamberNode('p','ha-chamber-metadata-note','PUBLICATION STATUS: '+String(record.status||'draft').toUpperCase()+' // STATUS CONTROLS WILL BE ADDED IN A LATER STEP.'));
+ grid.append(metadataDetails.details);
+ const recordMetadataInputs={title:titleInput,slug:slugInput,category:categoryInput,excerpt:excerptInput};
+ }
  const transmission=makeChamberDisclosure('01 // TRANSMISSION BODY','ha-chamber-panel ha-chamber-edit-panel ha-chamber-transmission-panel','ha-chamber-panel-heading');
  const transmissionTop=makeChamberNode('div','ha-rich-editor-top');
  const transmissionHint=makeChamberNode('span','ha-rich-editor-hint','WRITE, FORMAT AND SHAPE THE ORIGINAL TRANSMISSION');
@@ -734,17 +755,27 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    };
    status.textContent='SAVING CHAMBER STRUCTURE…';
    if(record.source_type==='transmission'){
-    const {error}=await archiveSupabase.rpc('save_human_archive_transmission',{
-     p_post_id:record.post_id,
-     p_transmission_body:row.transmission_body,
-     p_prompt_style:row.prompt_style,
-     p_lyrics_style:row.lyrics_style,
-     p_output_text:row.output_text,
-     p_output_media:row.output_media,
-     p_media_items:null
+    const metadata={
+     title:String(recordMetadataInputs?.title.value||record.title).trim(),
+     slug:String(recordMetadataInputs?.slug.value||record.slug).trim().toLowerCase(),
+     category:String(recordMetadataInputs?.category.value||(record.categories||[])[0]||'TRANSMISSIONS').trim().toUpperCase(),
+     excerpt:String(recordMetadataInputs?.excerpt.value||'').trim()
+    };
+    if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
+    if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
+    if(!metadata.category||metadata.category.length>60)throw new Error('Category must contain between 1 and 60 characters.');
+    if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
+    const {error}=await archiveSupabase.rpc('save_human_archive_transmission_v2',{
+     p_post_id:record.post_id,p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,
+     p_transmission_body:row.transmission_body,p_prompt_style:row.prompt_style,p_lyrics_style:row.lyrics_style,
+     p_output_text:row.output_text,p_output_media:row.output_media
     });
     if(error)throw error;
-    record.content_html=row.transmission_body;
+    record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.content_html=row.transmission_body;
+    if(!categoryOrder.includes(metadata.category))categoryOrder.push(metadata.category);
+    if(![...category.options].some(option=>option.value===metadata.category)){
+     const option=document.createElement('option');option.value=metadata.category;option.textContent=metadata.category;category.append(option);
+    }
    }else{
     const {error}=await archiveSupabase.from('human_archive_record_structures').upsert(row,{onConflict:'record_id'});
     if(error)throw error;
@@ -760,6 +791,14 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    }
    status.textContent=cleanupWarning?'CHAMBER SAVED — SOME REMOVED FILES COULD NOT BE CLEANED UP':'CHAMBER REDESIGNED // CHANGES SAVED';
    richEditorController?.destroy();
+   if(record.source_type==='transmission'){
+    const titleNode=recordChamber?.querySelector('.ha-chamber-title');if(titleNode)titleNode.textContent=record.title;
+    const metaNode=recordChamber?.querySelector('.ha-chamber-meta');
+    if(metaNode)metaNode.textContent='HA-'+record.year+'-'+String(record.id).padStart(4,'0')+' // '+record.date+' // '+record.categories.join(' / ');
+    const shareNode=recordChamber?.querySelector('.ha-chamber-share'),shareStatus=recordChamber?.querySelector('.ha-chamber-share-status');
+    if(shareNode&&shareStatus){shareNode.replaceChildren();appendChamberShareActions(shareNode,record,shareStatus);}
+    render();
+   }
    renderRecordStructureView(record,grid,status,editButton,expandButton);
   }catch(error){
    if(uploadedPaths.length){
