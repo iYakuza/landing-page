@@ -618,7 +618,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
      if(item.file){
       status.textContent='UPLOADING '+type.toUpperCase()+' // '+item.name;
       const token=chamberUploadToken();
-  .normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase()
+      const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
       const path='human-archive/'+String(record.id)+'/'+type+'/'+token+'-'+safeName;
       const {error:uploadError}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{
        cacheControl:'3600',contentType:item.mime_type,upsert:false
