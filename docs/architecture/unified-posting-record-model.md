@@ -56,6 +56,8 @@ The `vha_posts` table has existing table-level write grants, so a SELECT-only co
 - The Transmissions page becomes a view of the same records, not a separate posting system.
 - Quick Post remains an entry point into the same editor and retains its local recovery and draft-save behaviour.
 
+**Metadata-editing slice:** the Transmission chamber exposes title, public slug, movement category and excerpt alongside the body and structure. These fields are saved atomically with the chamber through `save_human_archive_transmission_v2`. The operation preserves the post UUID, archive numeric ID, current publication status, publication timestamp and all media associations. Existing slugs are loaded unchanged by default; changing one intentionally changes the public URL. Publication status remains read-only in this slice.
+
 ### Later retirement
 
 Only after the unified editor and public views pass regression tests should the legacy CMS posting surface be retired. Do not delete historical JSON snapshots, old media, UUID relationships, or compatibility code as part of this phase.
