@@ -24,7 +24,7 @@
   if(embeddedComposer) document.body.classList.add('cms-embedded-composer');
   const recoveryStorageKey = () => currentUser ? 'vha_quick_post_recovery_' + currentUser.id : null;
   let recoveryRevision = 0, autosaveTimer = null;
-  let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null, mediaUploading = false;
+  let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null, mediaItems = [], originalMediaItems = [], mediaUploading = false;
   const MEDIA_BUCKET = 'vha-post-media';
   const MAX_MEDIA_BYTES = 30 * 1024 * 1024;
   const ALLOWED_MEDIA = new Set(['image/jpeg','image/png','image/webp','image/gif','image/avif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm','video/mp4','video/webm','video/quicktime']);
@@ -63,14 +63,27 @@
     }
     clean(doc.body);return doc.body.innerHTML;
   }
+  function syncLegacyMediaFields(){const first=mediaItems[0]||null;mediaUrl=first?.url||null;mediaPath=first?.path||null;mediaType=first?.type||null;}
   function renderMediaPreview(){
-    mediaPreview.innerHTML='';mediaPreview.hidden=!mediaUrl;$('remove-media').hidden=!mediaUrl;
-    if(!mediaUrl)return;
-    let el;
-    if(mediaType==='image'){el=document.createElement('img');el.alt='Post media preview';}
-    else if(mediaType==='video'){el=document.createElement('video');el.controls=true;el.preload='none';}
-    else{el=document.createElement('audio');el.controls=true;el.preload='none';}
-    el.src=mediaUrl;el.style.width=postMediaWidth+'%';el.style.maxWidth='100%';mediaPreview.appendChild(el);
+    mediaPreview.innerHTML='';mediaPreview.hidden=!mediaItems.length;$('remove-media').hidden=!mediaItems.length;
+    mediaItems.forEach((item,index)=>{
+      const card=document.createElement('div');card.className='cms-media-preview-item';
+      let el;if(item.type==='image'){el=document.createElement('img');el.alt=item.name||'Post media preview';}
+      else if(item.type==='video'){el=document.createElement('video');el.controls=true;el.preload='metadata';}
+      else{el=document.createElement('audio');el.controls=true;el.preload='metadata';}
+      el.src=item.url;el.style.width=postMediaWidth+'%';el.style.maxWidth='100%';card.appendChild(el);
+      const caption=document.createElement('span');caption.className='cms-media-preview-name';caption.textContent=item.name||('Media '+(index+1));card.appendChild(caption);
+      const remove=document.createElement('button');remove.type='button';remove.className='cms-button subtle cms-media-remove-one';remove.textContent='REMOVE';remove.setAttribute('aria-label','Remove '+(item.name||'media '+(index+1)));
+      remove.addEventListener('click',async()=>{
+        const [removed]=mediaItems.splice(index,1);syncLegacyMediaFields();renderMediaPreview();
+        message(mediaMessage,'Media removed from this post. Save changes to confirm.');setStatus('UNSAVED');persistLocalRecovery();
+        if(removed?.path&&!originalMediaItems.some(item=>item.path===removed.path)){
+          const {error}=await client.storage.from(MEDIA_BUCKET).remove([removed.path]);
+          if(error)message(mediaMessage,'Removed from the draft, but uploaded-file cleanup failed: '+error.message,true);
+        }
+      });
+      card.appendChild(remove);mediaPreview.appendChild(card);
+    });
   }
 
   function syncLayoutFields(){
@@ -110,7 +123,7 @@
 
   function blankEditor(){
     openingPostToken++;editingId=null;slugManuallyEdited=false;postForm.reset();contentEditor.innerHTML='';postLayout='suno';postMediaWidth=100;layoutInput.value='suno';mediaWidthInput.value='100';mediaWidthValue.value='100%';syncLayoutFields();
-    mediaUrl=null;mediaPath=null;mediaType=null;originalMediaPath=null;renderMediaPreview();message(mediaMessage,'');
+    mediaItems=[];originalMediaItems=[];mediaUrl=null;mediaPath=null;mediaType=null;originalMediaPath=null;renderMediaPreview();message(mediaMessage,'');
     $('delete-post').hidden=true;
     $('editor-mode').textContent='NEW TRANSMISSION';setStatus('UNSAVED');message(saveMessage,'');
     $('save-draft').disabled=false;$('publish-post').disabled=false;
@@ -128,7 +141,7 @@
     postMediaWidth=Math.max(20,Math.min(100,Number(post.media_width)||100));mediaWidthInput.value=String(postMediaWidth);mediaWidthValue.value=postMediaWidth+'%';
     const savedDoc=new DOMParser().parseFromString(post.content_html||'','text/html');const suno=savedDoc.querySelector('.suno-post-layout'),plain=savedDoc.querySelector('.plain-post-layout');
     if(suno){postLayout='suno';$('post-main-text').value=htmlToEditorText(savedDoc.querySelector('.suno-text-column'),true);$('post-lyrics').value=savedDoc.querySelector('.suno-lyrics pre')?.textContent||'';$('post-style-prompt').value=htmlToEditorText(savedDoc.querySelector('.suno-style-prompt')||savedDoc.querySelector('.suno-notes'),!savedDoc.querySelector('.suno-style-prompt'));$('post-learned').value=htmlToEditorText(savedDoc.querySelector('.suno-learned'),true);$('post-chatgpt-learned').value=htmlToEditorText(savedDoc.querySelector('.suno-chatgpt-learned'),true); }else if(plain){postLayout='plain';$('post-plain-text').value=htmlToEditorText(savedDoc.querySelector('.plain-copy'),true);}else postLayout='standard';layoutInput.value=postLayout;syncLayoutFields();
-    mediaUrl=post.media_url||null;mediaPath=post.media_path||null;mediaType=post.media_type||null;originalMediaPath=post.media_path||null;
+    mediaItems=Array.isArray(post.media_items)&&post.media_items.length?post.media_items.filter(item=>item&&typeof item.url==='string'&&['image','video','audio'].includes(item.type)).map(item=>({url:item.url,path:item.path||null,type:item.type,name:item.name||''})):(post.media_url?[{url:post.media_url,path:post.media_path||null,type:post.media_type||'audio',name:''}]:[]);originalMediaItems=mediaItems.map(item=>({...item}));originalMediaPath=post.media_path||null;syncLegacyMediaFields();
     mediaInput.value='';renderMediaPreview();message(mediaMessage,'');$('delete-post').hidden=false;
     $('editor-mode').textContent='EDIT TRANSMISSION';setStatus(post.status==='published'?'PUBLISHED':'DRAFT');
     message(saveMessage,'');renderPosts();
@@ -148,7 +161,7 @@
       fields[el.id]=el.value;
     });
     const snapshot={version:1,updatedAt:new Date().toISOString(),fields,contentHtml:contentEditor.innerHTML,
-      editingId,postLayout,postMediaWidth,mediaUrl,mediaPath,mediaType};
+      editingId,postLayout,postMediaWidth,mediaUrl,mediaPath,mediaType,mediaItems};
     try{localStorage.setItem(key,JSON.stringify(snapshot));recoveryRevision++;setStatus('SAVED LOCALLY');if(scheduleSync)scheduleCloudAutosave();}
     catch(error){message(saveMessage,'LOCAL RECOVERY STORAGE IS FULL OR UNAVAILABLE. Copy your text somewhere safe.',true);}
   }
@@ -181,7 +194,7 @@
     editingId=snapshot.editingId||null;postLayout=snapshot.postLayout||layoutInput.value||'suno';
     layoutInput.value=postLayout;postMediaWidth=Number(snapshot.postMediaWidth)||100;
     mediaWidthInput.value=String(postMediaWidth);mediaWidthValue.value=postMediaWidth+'%';
-    mediaUrl=snapshot.mediaUrl||null;mediaPath=snapshot.mediaPath||null;mediaType=snapshot.mediaType||null;
+    mediaItems=Array.isArray(snapshot.mediaItems)?snapshot.mediaItems:(snapshot.mediaUrl?[{url:snapshot.mediaUrl,path:snapshot.mediaPath||null,type:snapshot.mediaType||'audio',name:''}]:[]);originalMediaItems=mediaItems.map(item=>({...item}));syncLegacyMediaFields();
     originalMediaPath=mediaPath;syncLayoutFields();renderMediaPreview();
     $('delete-post').hidden=!editingId;$('editor-mode').textContent=editingId?'EDIT TRANSMISSION':'NEW TRANSMISSION';
     setStatus('RECOVERED LOCAL DRAFT');
@@ -400,15 +413,17 @@
   $('save-draft').addEventListener('click',()=>savePost('draft'));
   async function savePost(status){
     clearTimeout(autosaveTimer);
+    if(mediaUploading){message(saveMessage,'Media is still uploading. Please wait before saving.',true);return false;}
     if(status==='draft'&&embeddedComposer&&ensureQuickPostDraftMetadata())persistLocalRecovery(false);
     if(saving||!currentUser){message(saveMessage,'The editor is not ready to save. Please wait for authentication and try again.',true);return false;}
     const title=titleInput.value.trim(),slug=slugify(slugInput.value),category=categoryInput.value.trim().toUpperCase();
     if(!title||!slug||!category){message(saveMessage,'To keep this transmission, add a title and choose a movement category before closing.',true);return false;}
     if(!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)){message(saveMessage,'Use a valid lowercase URL slug.',true);return false;}
     const revisionAtSave=recoveryRevision;
-    const previousSavedMediaPath=editingId?allPosts.find(p=>p.id===editingId)?.media_path||null:null;
+    const previousSavedMediaItems=originalMediaItems.map(item=>({...item}));
     const composedHtml=buildPostContent();
-    const payload={title,slug,category,excerpt:excerptInput.value.trim(),content_html:cleanHtml(composedHtml),media_url:mediaUrl,media_path:mediaPath,media_type:mediaType,media_width:postMediaWidth,status};
+    const firstMedia=mediaItems[0]||null;
+    const payload={title,slug,category,excerpt:excerptInput.value.trim(),content_html:cleanHtml(composedHtml),media_items:mediaItems,media_url:firstMedia?.url||null,media_path:firstMedia?.path||null,media_type:firstMedia?.type||null,media_width:postMediaWidth,status};
     if(status==='published'&&!payload.content_html.trim()){message(saveMessage,'Add some content before publishing.',true);return false;}
     if(status==='published'&&category==='UNASSIGNED'){message(saveMessage,'Choose a movement category before publishing this transmission.',true);return false;}
     saving=true;$('save-draft').disabled=true;$('publish-post').disabled=true;message(saveMessage,status==='published'?'PUBLISHING…':'SAVING DRAFT…');
@@ -417,11 +432,10 @@
       const result=editingId?await query.update(payload).eq('id',editingId).select().single():await query.insert(payload).select().single();
       if(result.error)throw result.error;
       editingId=result.data.id;slugManuallyEdited=true;
-      if(previousSavedMediaPath&&previousSavedMediaPath!==mediaPath){
-        const cleanup=await client.storage.from(MEDIA_BUCKET).remove([previousSavedMediaPath]);
-        if(cleanup.error)message(mediaMessage,'Post saved, but the previous media file could not be removed: '+cleanup.error.message,true);
-      }
-      originalMediaPath=mediaPath;setStatus(status.toUpperCase());$('delete-post').hidden=false;
+      const currentPaths=new Set(mediaItems.map(item=>item.path).filter(Boolean));
+      const removedPaths=previousSavedMediaItems.map(item=>item.path).filter(path=>path&&!currentPaths.has(path));
+      if(removedPaths.length){const cleanup=await client.storage.from(MEDIA_BUCKET).remove(removedPaths);if(cleanup.error)message(mediaMessage,'Post saved, but previous media cleanup failed: '+cleanup.error.message,true);}
+      originalMediaItems=mediaItems.map(item=>({...item}));originalMediaPath=mediaPath;setStatus(status.toUpperCase());$('delete-post').hidden=false;
       if(status==='published'){
         const postUrl=new URL('../posts/',window.location.href);
         postUrl.searchParams.set('post',result.data.slug);
@@ -453,7 +467,7 @@
   function hasTransmissionContent(){
     const bodyText=(contentEditor?.innerText||contentEditor?.textContent||'').trim();
     return Boolean(titleInput.value.trim()||excerptInput.value.trim()||bodyText||
-      ['post-main-text','post-lyrics','post-style-prompt','post-learned','post-chatgpt-learned','post-plain-text'].some(id=>$(id).value.trim())||mediaUrl);
+      ['post-main-text','post-lyrics','post-style-prompt','post-learned','post-chatgpt-learned','post-plain-text'].some(id=>$(id).value.trim())||mediaItems.length);
   }
   window.addEventListener('message',async event=>{
     if(event.origin!==window.location.origin||event.source!==window.parent||!embeddedComposer)return;
@@ -473,28 +487,27 @@
     }
   });
   mediaInput.addEventListener('change',async()=>{
-    const file=mediaInput.files?.[0];if(!file)return;
-    if(!ALLOWED_MEDIA.has(file.type)){message(mediaMessage,'Unsupported media format. Choose an image, supported audio, or video file (MP4, WebM, or MOV).',true);mediaInput.value='';return;}
-    if(file.size>MAX_MEDIA_BYTES){message(mediaMessage,'That file exceeds the 30 MB limit.',true);mediaInput.value='';return;}
-    const previous={url:mediaUrl,path:mediaPath,type:mediaType};
-    mediaUploading=true;mediaInput.disabled=true;message(mediaMessage,'UPLOADING MEDIA…');
+    const files=Array.from(mediaInput.files||[]);if(!files.length)return;
+    if(mediaItems.length+files.length>10){message(mediaMessage,'A post can contain up to 10 media files.',true);mediaInput.value='';return;}
+    const invalid=files.find(file=>!ALLOWED_MEDIA.has(file.type)||file.size>MAX_MEDIA_BYTES);
+    if(invalid){message(mediaMessage,!ALLOWED_MEDIA.has(invalid.type)?'Unsupported media format: '+invalid.name:'File exceeds the 30 MB per-file limit: '+invalid.name,true);mediaInput.value='';return;}
+    mediaUploading=true;mediaInput.disabled=true;message(mediaMessage,'UPLOADING '+files.length+' MEDIA FILE(S)…');const uploaded=[];
     try{
-      const safeName=file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-').replace(/^-+|-+$/g,'').slice(-100)||'upload';
-      const path=currentUser.id+'/'+crypto.randomUUID()+'-'+safeName;
-      const {error}=await client.storage.from(MEDIA_BUCKET).upload(path,file,{contentType:file.type,upsert:false,cacheControl:'3600'});
-      if(error)throw error;
-      const {data}=client.storage.from(MEDIA_BUCKET).getPublicUrl(path);
-      mediaUrl=data.publicUrl;mediaPath=path;mediaType=file.type.startsWith('image/')?'image':file.type.startsWith('video/')?'video':'audio';
-      renderMediaPreview();message(mediaMessage,'Media uploaded. Save or publish the post to attach it.');setStatus('UNSAVED');
-      persistLocalRecovery();
-      if(previous.path&&previous.path!==originalMediaPath)await client.storage.from(MEDIA_BUCKET).remove([previous.path]);
-    }catch(err){message(mediaMessage,err.message||'Media upload failed.',true);mediaUrl=previous.url;mediaPath=previous.path;mediaType=previous.type;renderMediaPreview();}
-    finally{mediaUploading=false;mediaInput.disabled=false;}
+      for(const file of files){
+        const safeName=file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-').replace(/^-+|-+$/g,'').slice(-100)||'upload';
+        const path=currentUser.id+'/'+crypto.randomUUID()+'-'+safeName;
+        const {error}=await client.storage.from(MEDIA_BUCKET).upload(path,file,{contentType:file.type,upsert:false,cacheControl:'3600'});if(error)throw error;
+        const {data}=client.storage.from(MEDIA_BUCKET).getPublicUrl(path);
+        uploaded.push({url:data.publicUrl,path,type:file.type.startsWith('image/')?'image':file.type.startsWith('video/')?'video':'audio',name:file.name});
+      }
+      mediaItems=[...mediaItems,...uploaded];syncLegacyMediaFields();renderMediaPreview();message(mediaMessage,mediaItems.length+' media file(s) attached. Save or publish the post to keep them.');setStatus('UNSAVED');persistLocalRecovery();
+    }catch(err){const paths=uploaded.map(item=>item.path);if(paths.length)await client.storage.from(MEDIA_BUCKET).remove(paths);message(mediaMessage,err.message||'Media upload failed. No files from this selection were attached.',true);}
+    finally{mediaUploading=false;mediaInput.disabled=false;mediaInput.value='';}
   });
   $('remove-media').addEventListener('click',async()=>{
-    const path=mediaPath;mediaUrl=null;mediaPath=null;mediaType=null;mediaInput.value='';renderMediaPreview();
-    message(mediaMessage,'Media removed from this post. Save changes to confirm.');setStatus('UNSAVED');
-    if(path&&path!==originalMediaPath){const {error}=await client.storage.from(MEDIA_BUCKET).remove([path]);if(error)message(mediaMessage,'Removed from the post draft, but uploaded file cleanup failed: '+error.message,true);}
+    const removedPaths=mediaItems.map(item=>item.path).filter(path=>path&&!originalMediaItems.some(item=>item.path===path));
+    mediaItems=[];syncLegacyMediaFields();mediaInput.value='';renderMediaPreview();message(mediaMessage,'All media removed from this post. Save changes to confirm.');setStatus('UNSAVED');persistLocalRecovery();
+    if(removedPaths.length){const {error}=await client.storage.from(MEDIA_BUCKET).remove(removedPaths);if(error)message(mediaMessage,'Removed from the draft, but uploaded-file cleanup failed: '+error.message,true);}
   });
   $('delete-post').addEventListener('click',async()=>{
     if(!editingId||saving)return;
@@ -502,9 +515,9 @@
     if(!confirm('Permanently delete “'+(post?.title||titleInput.value)+'”? This cannot be undone.'))return;
     saving=true;$('delete-post').disabled=true;$('save-draft').disabled=true;$('publish-post').disabled=true;message(saveMessage,'DELETING POST…');
     try{
-      const id=editingId,path=post?.media_path||mediaPath;
+      const id=editingId,paths=[...new Set([...(post?.media_items||[]).map(item=>item.path),post?.media_path,...mediaItems.map(item=>item.path)].filter(Boolean))];
       const {error}=await client.from('vha_posts').delete().eq('id',id);if(error)throw error;
-      let cleanupError=null;if(path){const removal=await client.storage.from(MEDIA_BUCKET).remove([path]);cleanupError=removal.error;}
+      let cleanupError=null;if(paths.length){const removal=await client.storage.from(MEDIA_BUCKET).remove(paths);cleanupError=removal.error;}
       allPosts=allPosts.filter(p=>p.id!==id);blankEditor();renderPosts();
       message(saveMessage,cleanupError?'Post deleted, but media cleanup failed: '+cleanupError.message:'Post deleted.');
     }catch(err){message(saveMessage,err.message||'Could not delete this post.',true);}

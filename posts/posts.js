@@ -221,10 +221,16 @@
     }
     list.innerHTML=filtered.map((post,index)=>{
       const permalinkBack=permalink?'<p class="post-back"><a href="./">← BACK TO THE ARCHIVE</a></p>':'';
-      const mediaUrl=validMediaUrl(post.media_url);
+      const mediaItems=Array.isArray(post.media_items)&&post.media_items.length?post.media_items.filter(item=>item&&typeof item.url==='string'):(post.media_url?[{url:post.media_url,type:post.media_type||'audio'}]:[]);
       const mediaWidth=Math.max(20,Math.min(100,Number(post.media_width)||100));
-      const fallbackMediaUrl=mediaUrl&&mediaUrl.includes('emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg')?'https://i0.wp.com/emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg?w=1024':'';
-      const media=mediaUrl?'<div class="post-media" style="--post-media-width:'+mediaWidth+'%">'+(post.media_type==='image'?'<a class="post-image-open" href="'+safe(mediaUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="Open full-size image: '+safe(post.title)+'"><img src="'+safe(mediaUrl)+'"'+(fallbackMediaUrl?' data-fallback-src="'+safe(fallbackMediaUrl)+'"':'')+' alt="'+safe(post.title)+'" loading="lazy"></a>':post.media_type==='video'?'<video src="'+safe(mediaUrl)+'" controls preload="none" loading="lazy"></video>':'<audio src="'+safe(mediaUrl)+'" controls preload="none"></audio>')+'</div>':'';
+      const media=mediaItems.length?'<div class="post-media post-media-gallery" style="--post-media-width:'+mediaWidth+'%">'+mediaItems.map((item,itemIndex)=>{
+        const url=validMediaUrl(item.url);if(!url)return '';
+        const type=item.type||item.media_type||'audio';
+        const fallback=url.includes('emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg')?'https://i0.wp.com/emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg?w=1024':'';
+        const label='Media '+(itemIndex+1)+' of '+mediaItems.length;
+        const content=type==='image'?'<a class="post-image-open" href="'+safe(url)+'" target="_blank" rel="noopener noreferrer" aria-label="Open full-size image: '+safe(post.title)+'"><img src="'+safe(url)+'"'+(fallback?' data-fallback-src="'+safe(fallback)+'"':'')+' alt="'+safe(post.title)+' — '+label+'" loading="lazy"></a>':type==='video'?'<video src="'+safe(url)+'" controls preload="metadata"></video>':'<audio src="'+safe(url)+'" controls preload="metadata"></audio>';
+        return '<div class="post-media-item">'+content+'</div>';
+      }).join('')+'</div>':'';
       const shapeClass=['shape-i','shape-l','shape-square','shape-t','shape-z','shape-j','shape-s'][index%7];
       if(permalink){
         const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
@@ -237,7 +243,7 @@
           return renderSunoColumns(post,media,titleHtml,excerptHtml,lead,titleRow,permalinkBack,shapeClass);
         }
         const detailCopy='<div class="post-detail-copy">'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'</div>';
-        const detailMedia=media?'<aside class="post-detail-media" aria-label="Transmission media">'+media+'<p class="post-media-caption">TRANSMISSION MEDIA // '+safe(post.media_type||'audio').toUpperCase()+'</p></aside>':'';
+        const detailMedia=media?'<aside class="post-detail-media" aria-label="Transmission media">'+media+'<p class="post-media-caption">TRANSMISSION MEDIA // '+mediaItems.length+' FILE(S)</p></aside>':'';
         const sectionsControl=/<details\\b/i.test(post.content_html||'')?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
         return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+sectionsControl+editButton+'</div><h3>'+safe(post.title)+'</h3><div class="post-detail-grid">'+detailCopy+detailMedia+'</div>'+shareActions(post)+permalinkBack+'</article>';
       }
