@@ -761,7 +761,7 @@ function buildRecordChamber(record){
  close.addEventListener('click',()=>recordChamber.close());
  const footer=makeChamberNode('footer','ha-chamber-footer');
  const source=safeExternalUrl(record.url,new Set(['emanuelstefancu.wordpress.com']));
- if(source){const link=makeChamberNode('a','ha-chamber-source','OPEN ORIGINAL SOURCE ↗');link.href=source;link.target='_blank';link.rel='noopener noreferrer';footer.append(link);}
+ if(record.isTransmission){const link=makeChamberNode('a','ha-chamber-source','OPEN TRANSMISSION PAGE ↗');const target=new URL('../posts/',window.location.href);target.searchParams.set('post',record.slug);link.href=target.href;footer.append(link);}else if(source){const link=makeChamberNode('a','ha-chamber-source','OPEN ORIGINAL SOURCE ↗');link.href=source;link.target='_blank';link.rel='noopener noreferrer';footer.append(link);}
  footer.append(makeChamberNode('span','ha-chamber-footer-note','NO TRACE IS EVER THE WHOLE PERSON.'));
  main.append(footer);shell.append(header,main);return shell;
 }
@@ -889,7 +889,7 @@ function makeEntry(record,index){
 }
 function render(){
  const query=clean(search.value),selectedYear=year.value,selectedCategory=category.value;
- const filtered=records.filter(r=>(!selectedYear||r.year===selectedYear)&&(!query||[r.title,r.year,r.date,r.id,...(r.categories||[])].some(v=>clean(v).includes(query))));
+ const filtered=records.filter(r=>(!selectedYear||r.year===selectedYear)&&(!query||[r.title,r.year,r.date,r.id,r.excerpt,r.content_html,...(r.categories||[])].some(v=>clean(v).includes(query))));
  const visible=filtered.filter(r=>!selectedCategory||(r.categories||[]).includes(selectedCategory));
  const groups=selectedCategory?[selectedCategory]:categoryOrder.filter(name=>visible.some(r=>(r.categories||[]).includes(name)));
  count.textContent=visible.length+' / '+records.length+' RECORDS';list.replaceChildren();
