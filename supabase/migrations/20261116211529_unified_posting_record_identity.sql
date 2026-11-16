@@ -57,6 +57,10 @@ alter sequence public.human_archive_record_id_seq
 revoke all on sequence public.human_archive_record_id_seq from public, anon;
 grant usage, select on sequence public.human_archive_record_id_seq to authenticated, service_role;
 
+-- The table uses column-level grants. Expose the generated identity for reads,
+-- but do not grant clients permission to supply or modify it.
+grant select (archive_record_id) on public.vha_posts to anon, authenticated, service_role;
+
 comment on column public.vha_posts.archive_record_id is
   'Stable numeric Human Archive identity. Legacy static archive IDs are preserved; new Transmissions receive IDs from human_archive_record_id_seq.';
 
