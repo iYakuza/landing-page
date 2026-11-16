@@ -381,13 +381,13 @@ function mediaName(item,record){
 }
 function defaultChamberOutputMedia(record,type){
  const prefix=type==='image'?'image/':type==='audio'?'audio/':'video/';
- const recovered=mediaReady?uniqueRecordMedia(record,prefix).map(item=>({
+ const recovered=(mediaReady||record.isTransmission)?uniqueRecordMedia(record,prefix).map(item=>({
   id:'recovered-'+String(item.id),
   name:mediaTitle(item,record),
   url:localMediaUrl(item),
   path:String(item.storage_path||''),
   mime_type:String(item.mime_type||''),
-  storage:'recovered'
+  storage:item.isTransmissionMedia?'vha-post-media':'recovered'
  })): [];
  if(type!=='video')return recovered;
  const allowedHosts=new Set(['www.youtube.com','www.youtube-nocookie.com']);
@@ -421,7 +421,7 @@ function resolveChamberMediaUrl(item,type){
 }
 function appendChamberMedia(section,record,type,items){
  if(!items.length){
-  const note=!mediaReady&&!(recordStructureOverrides.get(String(record.id))?.output_media?.[type])
+  const note=!mediaReady&&!record.isTransmission&&!(recordStructureOverrides.get(String(record.id))?.output_media?.[type])
    ?'MEDIA VAULT NOT VERIFIED // NO EDITED FILES AVAILABLE':'NO '+type.toUpperCase()+' OUTPUT IS ATTACHED TO THIS RECORD.';
   section.append(makeChamberNode('p','ha-chamber-note',note));
   return;
@@ -871,14 +871,14 @@ function makeFavoriteMark(record){
 function makeEntry(record,index){
  const wrapper=document.createElement('article');wrapper.className='ha-record-card';wrapper.dataset.haRecordId=String(record.id);
  const content=document.createElement('div');content.className='ha-entry-content';content.id='ha-record-'+record.id;content.hidden=true;
- const link=document.createElement('button');link.type='button';link.className='ha-entry';link.setAttribute('aria-controls',content.id);link.setAttribute('aria-expanded','false');link.setAttribute('aria-label','Read local archive record: '+record.title+', '+record.date);
+ const link=document.createElement('button');link.type='button';link.className='ha-entry';link.setAttribute('aria-controls',content.id);link.setAttribute('aria-expanded','false');link.setAttribute('aria-label',(record.isTransmission?'Read transmission: ':'Read local archive record: ')+record.title+', '+record.date);
  const top=document.createElement('div');top.className='ha-entry-top';const code=document.createElement('small');code.className='ha-entry-code';code.textContent=record.archiveIdentifier;const internalId=document.createElement('small');internalId.className='ha-entry-id';internalId.textContent='ID // '+String(record.id);top.append(code,internalId);
- const title=document.createElement('strong');title.textContent=record.title;const bottom=document.createElement('div');bottom.className='ha-entry-bottom';const date=document.createElement('small');date.textContent=record.date+(record.isTransmission?' // DATABASE TRANSMISSION':' // LOCAL ARCHIVE COPY');const action=document.createElement('span');action.textContent='READ LOCAL TEXT ↓';bottom.append(date,action);link.append(top,title,bottom);link.style.setProperty('--entry-order',String(index));
+ const title=document.createElement('strong');title.textContent=record.title;const bottom=document.createElement('div');bottom.className='ha-entry-bottom';const date=document.createElement('small');date.textContent=record.date+(record.isTransmission?' // DATABASE TRANSMISSION':' // LOCAL ARCHIVE COPY');const action=document.createElement('span');action.textContent=record.isTransmission?'READ TRANSMISSION ↓':'READ LOCAL TEXT ↓';bottom.append(date,action);link.append(top,title,bottom);link.style.setProperty('--entry-order',String(index));
  const quickActions=makeChamberNode('div','ha-entry-quick-actions');quickActions.hidden=true;
  const chamber=makeChamberNode('button','ha-entry-chamber','ENTER THE CHAMBER ↗');chamber.type='button';chamber.addEventListener('click',()=>openArchiveRecordChamber(record,chamber));
  const favorite=makeChamberNode('button','ha-favorite-toggle','☆');favorite.type='button';favorite.dataset.haFavoriteId=String(record.id);favorite.hidden=!archiveAdmin;favorite.setAttribute('aria-pressed',String(favoriteRecordIds.has(String(record.id))));favorite.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();toggleArchiveFavorite(record.id,favorite);});
  quickActions.append(chamber,favorite);
- link.addEventListener('click',()=>{const open=content.hidden;content.hidden=!open;link.setAttribute('aria-expanded',String(open));action.textContent=open?'CLOSE LOCAL TEXT ↑':'READ LOCAL TEXT ↓';quickActions.hidden=!open;});
+ link.addEventListener('click',()=>{const open=content.hidden;content.hidden=!open;link.setAttribute('aria-expanded',String(open));action.textContent=open?'CLOSE LOCAL TEXT ↑':(record.isTransmission?'READ TRANSMISSION ↓':'READ LOCAL TEXT ↓');quickActions.hidden=!open;});
  const body=document.createElement('div');body.className='ha-entry-body';const used=new Set();appendSafeContent(body,record.content_html||'',record,used);
  if(!body.childNodes.length){const message=document.createElement('p');message.textContent='No local text was captured for this entry.';body.append(message);}
  content.append(body);const gallery=(mediaReady||record.isTransmission)?makeAttachmentGallery(record,used):null;if(gallery)content.append(gallery);
