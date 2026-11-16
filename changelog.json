@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-16T21:52:11.770448Z",
-  "last_processed_sha": "4315319ae945f866f3e584ed569f4cc09674512d",
+  "updated_at": "2026-11-16T23:25:12.779645Z",
+  "last_processed_sha": "353a48f9c410ed85144b6873d28b2f4eaa07b82c",
   "entries": [
+    {
+      "id": "353a48f9c410ed85144b6873d28b2f4eaa07b82c",
+      "timestamp": "2026-11-17T00:24:58+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Save Transmissions from the Human Archive chamber (#77). It updates unified-posting-record-model.md, archive.css, archive.js, index.html and related project files.",
+      "commit_count": 1,
+      "files": [
+        "docs/architecture/unified-posting-record-model.md",
+        "human-archive/archive.css",
+        "human-archive/archive.js",
+        "human-archive/index.html",
+        "supabase/migrations/20261116215410_save_human_archive_transmission.sql"
+      ],
+      "commits": [
+        {
+          "message": "Save Transmissions from the Human Archive chamber (#77)",
+          "url": "https://github.com/iYakuza/landing-page/commit/353a48f9c410ed85144b6873d28b2f4eaa07b82c",
+          "files": [
+            "docs/architecture/unified-posting-record-model.md",
+            "human-archive/archive.css",
+            "human-archive/archive.js",
+            "human-archive/index.html",
+            "supabase/migrations/20261116215410_save_human_archive_transmission.sql"
+          ]
+        }
+      ]
+    },
     {
       "id": "4315319ae945f866f3e584ed569f4cc09674512d",
       "timestamp": "2026-11-16T22:52:03+01:00",
@@ -1090,31 +1119,6 @@
             "shared/crystal/crystal-loader.js",
             "shared/crystal/crystal.js",
             "shared/crystal/tools/constellation.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "9078332e258c5a10553f1d98fb6ce219054eae78",
-      "timestamp": "2026-11-14T19:30:58+01:00",
-      "category": "FIX",
-      "component": "Creator Workshop",
-      "title": "More reliable Creator Workshop",
-      "description": "This update brings together Fix Quick Post scrolling and focused-mode exit (#36). It updates cms.css, cms.js, index.html.",
-      "commit_count": 1,
-      "files": [
-        "cms/cms.css",
-        "cms/cms.js",
-        "cms/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Fix Quick Post scrolling and focused-mode exit (#36)",
-          "url": "https://github.com/iYakuza/landing-page/commit/9078332e258c5a10553f1d98fb6ce219054eae78",
-          "files": [
-            "cms/cms.css",
-            "cms/cms.js",
-            "cms/index.html"
           ]
         }
       ]
