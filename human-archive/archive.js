@@ -756,10 +756,10 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    status.textContent='SAVING CHAMBER STRUCTURE…';
    if(record.source_type==='transmission'){
     const metadata={
-     title:String(recordMetadataInputs?.title.value||record.title).trim(),
-     slug:String(recordMetadataInputs?.slug.value||record.slug).trim().toLowerCase(),
-     category:String(recordMetadataInputs?.category.value||(record.categories||[])[0]||'TRANSMISSIONS').trim().toUpperCase(),
-     excerpt:String(recordMetadataInputs?.excerpt.value||'').trim()
+     title:String(recordMetadataInputs.title.value).trim(),
+     slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
+     category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
+     excerpt:String(recordMetadataInputs.excerpt.value).trim()
     };
     if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
     if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
