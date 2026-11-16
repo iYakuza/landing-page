@@ -1439,3 +1439,9 @@ body.image-viewer-open{overflow:hidden!important}
 .post-media-gallery .post-media-item{min-width:0;max-width:100%;overflow:hidden}
 .post-media-gallery img,.post-media-gallery video{display:block;width:100%;height:auto;max-height:620px;object-fit:contain}
 .post-media-gallery audio{display:block;width:100%;max-width:100%}
+
+/* Render every attached media item as an independent gallery tile. */
+.post-media-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px;align-items:start}
+.post-media-gallery .post-media-item{min-width:0;max-width:100%;overflow:hidden}
+.post-media-gallery img,.post-media-gallery video{display:block;width:100%;height:auto;max-height:620px;object-fit:contain}
+.post-media-gallery audio{display:block;width:100%;max-width:100%}
