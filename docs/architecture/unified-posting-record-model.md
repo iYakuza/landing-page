@@ -1,6 +1,6 @@
 # Unified posting system: record identity bridge
 
-**Phase:** 2 — unify record identity without migrating historical content  
+**Phase:** 3 — make Human Archive the canonical posting interface  
 **Status:** numeric identity bridge and immutable-ID trigger applied to production.
 
 ## Current sources of truth
@@ -18,7 +18,7 @@ Every Transmission will have two stable identifiers:
 | --- | --- | --- |
 | `vha_posts.id` (UUID) | Existing database primary key and foreign-key target | Never replace or regenerate |
 | `vha_posts.archive_record_id` (BIGINT) | Numeric Human Archive identity used by archive-facing features | Assigned once; immutable after assignment |
-| `vha_posts.slug` | Existing public URL identity | Preserve; do not regenerate during migration |
+| `vha_posts.slug` | Existing public URL identity | Preserve unless an admin explicitly edits it in the chamber |
 
 The historical static archive keeps its existing numeric IDs. New Transmission identities begin at **3001**, above the current legacy range. New records obtain their numeric identity from `human_archive_record_id_seq` through a database-owned trigger.
 
@@ -47,7 +47,7 @@ The `vha_posts` table has existing table-level write grants, so a SELECT-only co
 
 **Initial integration slice:** load database-backed Transmissions into the Human Archive index using `archive_record_id` as the visible numeric identity. Public visitors receive published rows only; authenticated archive admins also receive drafts. Existing UUIDs, slugs, content, status and media references remain in `vha_posts`. This is merged.
 
-**Canonical chamber-save slice:** admin users can open a Transmission chamber in REDESIGN CHAMBER. The editor preserves the CMS layout classes and supported formatting. Saving calls `save_human_archive_transmission`, a `SECURITY INVOKER` RPC that updates `vha_posts.content_html` and upserts the numeric-ID chamber structure in one database transaction under the existing RLS policies. The original UUID, archive numeric ID, slug, status and CMS media associations are not changed. This migration is applied as `20261116215410`; the UI change remains under review until its checks pass.
+**Canonical chamber-save slice (merged):** admin users can open a Transmission chamber in REDESIGN CHAMBER. The editor preserves the CMS layout classes and supported formatting. Saving calls `save_human_archive_transmission`, a `SECURITY INVOKER` RPC that updates `vha_posts.content_html` and upserts the numeric-ID chamber structure in one database transaction under the existing RLS policies. The original UUID, archive numeric ID, slug, status and CMS media associations are preserved. Migration `20261116215410` is applied to production; PR #77 is merged and the admin save flow has been browser-tested.
 
 - Human Archive reads published database-backed Transmissions alongside the historical snapshot.
 - The REDESIGN CHAMBER becomes the single editor for new and existing database-backed records.
@@ -55,6 +55,8 @@ The `vha_posts` table has existing table-level write grants, so a SELECT-only co
 - Drafts remain private; public archive views expose published records only.
 - The Transmissions page becomes a view of the same records, not a separate posting system.
 - Quick Post remains an entry point into the same editor and retains its local recovery and draft-save behaviour.
+
+**Metadata-editing slice (implementation in review):** the Transmission chamber exposes title, public slug, movement category and excerpt alongside the body and structure. These fields are saved atomically with the chamber through `save_human_archive_transmission_v2` (production migration `20261116233208`). The operation preserves the post UUID, archive numeric ID, current publication status, publication timestamp and all media associations. Existing slugs are loaded unchanged by default; changing one intentionally changes the public URL. Publication status remains read-only in this slice.
 
 ### Later retirement
 
@@ -64,7 +66,7 @@ Only after the unified editor and public views pass regression tests should the 
 
 1. Existing Human Archive numeric IDs remain unchanged.
 2. Existing Transmission UUIDs remain unchanged.
-3. Existing slugs and shareable URLs remain unchanged.
+3. Existing slugs and shareable URLs remain unchanged unless an admin explicitly changes the slug through the metadata editor; such a change intentionally updates the public URL.
 4. Existing published/draft status and content remain unchanged.
 5. Existing media paths and associations remain unchanged.
 6. Chamber structures and favourites continue to use numeric archive IDs.

@@ -792,3 +792,13 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
  .ha-chamber-transmission-body .suno-notes,
  .ha-chamber-transmission-body .plain-response{padding:16px}
 }
+
+/* Transmission metadata editor — title, public slug, category and excerpt. */
+.ha-chamber-metadata-panel{grid-column:1/-1}
+.ha-chamber-metadata-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ha-chamber-metadata-field{display:flex;flex-direction:column;gap:6px;min-width:0;color:#aebfae;font:8px/1.5 'DM Mono',monospace;letter-spacing:.1em}
+.ha-chamber-metadata-field:last-child{grid-column:1/-1}
+.ha-chamber-meta-input{min-height:42px;padding:10px;font-size:11px;letter-spacing:normal}
+.ha-chamber-metadata-field textarea.ha-chamber-meta-input{min-height:86px;resize:vertical}
+.ha-chamber-metadata-note{margin:12px 0 0;color:#8f9f91;font:8px/1.6 'DM Mono',monospace;letter-spacing:.08em}
+@media(max-width:700px){.ha-chamber-metadata-grid{grid-template-columns:1fr}.ha-chamber-metadata-field:last-child{grid-column:auto}}
