@@ -738,7 +738,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
      p_prompt_style:row.prompt_style,
      p_lyrics_style:row.lyrics_style,
      p_output_text:row.output_text,
-     p_output_media:row.output_media
+     p_output_media:row.output_media,
+     p_media_items:null
     });
     if(error)throw error;
     record.content_html=row.transmission_body;
