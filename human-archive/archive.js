@@ -250,7 +250,7 @@ async function loadArchiveFavorites(){
 }
 async function loadRecordStructureOverrides(){
  if(!archiveSupabase)return;
- const {data,error}=await archiveSupabase.from('human_archive_record_structures').select('record_id,prompt_style,lyrics_style,output_text,updated_at');
+ const {data,error}=await archiveSupabase.from('human_archive_record_structures').select('record_id,prompt_style,lyrics_style,output_text,output_media,updated_at');
  if(error){console.warn('Human Archive structures could not be loaded:',error);return;}
  recordStructureOverrides=new Map((data||[]).map(item=>[String(item.record_id),item]));
 }
@@ -341,7 +341,8 @@ function getRecordStructure(record){
  return {
   prompt_style:String(saved?.prompt_style||''),
   lyrics_style:String(saved?.lyrics_style||''),
-  output_text:typeof saved?.output_text==='string'?saved.output_text:defaultRecordOutputText(record)
+  output_text:typeof saved?.output_text==='string'?saved.output_text:defaultRecordOutputText(record),
+  output_media:saved?.output_media&&typeof saved.output_media==='object'&&!Array.isArray(saved.output_media)?saved.output_media:null
  };
 }
 function uniqueRecordMedia(record,mimePrefix){
@@ -356,118 +357,304 @@ function uniqueRecordMedia(record,mimePrefix){
   seen.add(key);return true;
  });
 }
-function appendChamberVideoOutput(section,record){
+function mediaName(item,record){
+ return String(item?.name||item?.title||record.title||'Archive media').replace(/&nbsp;/g,' ').trim();
+}
+function defaultChamberOutputMedia(record,type){
+ const prefix=type==='image'?'image/':type==='audio'?'audio/':'video/';
+ const recovered=mediaReady?uniqueRecordMedia(record,prefix).map(item=>({
+  id:'recovered-'+String(item.id),
+  name:mediaTitle(item,record),
+  url:localMediaUrl(item),
+  path:String(item.storage_path||''),
+  mime_type:String(item.mime_type||''),
+  storage:'recovered'
+ })): [];
+ if(type!=='video')return recovered;
  const allowedHosts=new Set(['www.youtube.com','www.youtube-nocookie.com']);
  const parsed=new DOMParser().parseFromString(String(record.content_html||''),'text/html');
- const iframeSources=[...parsed.querySelectorAll('iframe[src]')].map(frame=>safeExternalUrl(frame.getAttribute('src'),allowedHosts)).filter(Boolean);
  const seen=new Set();
- let count=0;
- iframeSources.forEach(src=>{
+ const embeds=[...parsed.querySelectorAll('iframe[src]')].map(frame=>safeExternalUrl(frame.getAttribute('src'),allowedHosts)).filter(Boolean).filter(src=>{
   const key=new URL(src).origin+new URL(src).pathname;
-  if(seen.has(key))return;
-  seen.add(key);
-  const frame=document.createElement('iframe');
-  frame.className='ha-chamber-video-frame';
-  frame.src=src;
-  frame.title=record.title+' — video';
-  frame.loading='lazy';
-  frame.referrerPolicy='strict-origin-when-cross-origin';
-  frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-  frame.allowFullscreen=true;
-  section.append(frame);count++;
- });
- const videos=mediaReady?uniqueRecordMedia(record,'video/'): [];
- videos.forEach(item=>{
-  const figure=makeChamberNode('figure','ha-local-media ha-local-video');
-  const video=document.createElement('video');video.controls=true;video.preload='metadata';video.playsInline=true;video.src=localMediaUrl(item);
-  video.setAttribute('aria-label','Video: '+mediaTitle(item,record));figure.append(video);
-  const caption=makeChamberNode('figcaption','',mediaTitle(item,record));figure.append(caption);section.append(figure);count++;
- });
- if(!count)section.append(makeChamberNode('p','ha-chamber-note','No recovered video output is attached to this record.'));
+  if(seen.has(key))return false;
+  seen.add(key);return true;
+ }).map((url,index)=>({id:'external-video-'+index,name:record.title+' — embedded video',url,mime_type:'video/embed',storage:'external'}));
+ return [...embeds,...recovered];
 }
-function appendChamberOutput(record,grid,structure){
- const output=makeChamberNode('section','ha-chamber-panel ha-chamber-output');
- output.append(makeChamberNode('h3','ha-chamber-panel-heading','03 // OUTPUT'));
- const textSection=makeChamberNode('section','ha-chamber-output-section');
- textSection.append(makeChamberNode('h4','ha-chamber-output-label','TEXT'));
- textSection.append(makeChamberNode('div','ha-chamber-text',structure.output_text||'No output text has been saved for this record yet.'));
- output.append(textSection);
- const images=uniqueRecordMedia(record,'image/');
- const imageSection=makeChamberNode('section','ha-chamber-output-section');
- imageSection.append(makeChamberNode('h4','ha-chamber-output-label','IMAGE'));
- if(mediaReady&&images.length){
-  const gallery=makeChamberNode('div','ha-chamber-media-grid');images.forEach(item=>appendLocalImage(gallery,item,record,new Set()));imageSection.append(gallery);
- }else imageSection.append(makeChamberNode('p','ha-chamber-note',mediaReady?'No recovered image output is attached to this record.':'IMAGE OUTPUT // MEDIA VAULT NOT VERIFIED'));
- output.append(imageSection);
- const audio=uniqueRecordMedia(record,'audio/');
- const audioSection=makeChamberNode('section','ha-chamber-output-section');
- audioSection.append(makeChamberNode('h4','ha-chamber-output-label','AUDIO'));
- if(mediaReady&&audio.length){
-  const gallery=makeChamberNode('div','ha-chamber-audio-list');audio.forEach(item=>appendLocalAudio(gallery,item,record,new Set()));audioSection.append(gallery);
- }else audioSection.append(makeChamberNode('p','ha-chamber-note',mediaReady?'No recovered audio output is attached to this record.':'AUDIO OUTPUT // MEDIA VAULT NOT VERIFIED'));
- output.append(audioSection);
- const videoSection=makeChamberNode('section','ha-chamber-output-section');
- videoSection.append(makeChamberNode('h4','ha-chamber-output-label','VIDEO'));
- appendChamberVideoOutput(videoSection,record);output.append(videoSection);
- grid.append(output);
+function getRecordOutputMedia(record,structure,type){
+ const saved=structure.output_media;
+ if(saved&&Object.prototype.hasOwnProperty.call(saved,type)&&Array.isArray(saved[type]))return saved[type];
+ return defaultChamberOutputMedia(record,type);
 }
-function renderRecordStructureView(record,grid,layoutLabel){
+function resolveChamberMediaUrl(item,type){
+ if(!item||typeof item.url!=='string')return null;
+ if(item.storage==='external'){
+  return type==='video'?safeExternalUrl(item.url,new Set(['www.youtube.com','www.youtube-nocookie.com'])):null;
+ }
+ const allowedHost=item.storage==='recovered'?'ioguymqdeuuursizifnn.supabase.co':
+  (item.storage==='vha-post-media'?'oeyxsqocldlovhsmzcjw.supabase.co':'');
+ if(!allowedHost)return null;
+ try{
+  const url=new URL(item.url);
+  if(url.protocol!=='https:'||url.hostname.toLowerCase()!==allowedHost||url.username||url.password)return null;
+  return url.href;
+ }catch{return null;}
+}
+function appendChamberMedia(section,record,type,items){
+ if(!items.length){
+  const note=!mediaReady&&!(recordStructureOverrides.get(String(record.id))?.output_media?.[type])
+   ?'MEDIA VAULT NOT VERIFIED // NO EDITED FILES AVAILABLE':'NO '+type.toUpperCase()+' OUTPUT IS ATTACHED TO THIS RECORD.';
+  section.append(makeChamberNode('p','ha-chamber-note',note));
+  return;
+ }
+ const gallery=makeChamberNode('div',type==='audio'?'ha-chamber-audio-list':'ha-chamber-media-grid');
+ items.forEach(item=>{
+  const src=resolveChamberMediaUrl(item,type);
+  if(!src){appendMissing(gallery,'A media item has an invalid or unsupported source URL.');return;}
+  const name=mediaName(item,record);
+  const figure=makeChamberNode('figure','ha-local-media ha-local-'+type+' ha-chamber-media-item');
+  if(type==='image'){
+   const img=document.createElement('img');img.src=src;img.alt=name;img.loading='lazy';img.decoding='async';
+   const open=makeChamberNode('button','ha-image-open');open.type='button';open.setAttribute('aria-label','Open image full screen: '+name);open.append(img);
+   open.addEventListener('click',()=>openImageSourceViewer(src,name,name));
+   figure.append(open);
+  }else if(type==='audio'){
+   const audio=document.createElement('audio');audio.controls=true;audio.preload='metadata';audio.src=src;audio.setAttribute('aria-label','Audio: '+name);figure.append(audio);
+  }else if(item.storage==='external'){
+   const frame=document.createElement('iframe');frame.className='ha-chamber-video-frame';frame.src=src;frame.title=name;frame.loading='lazy';
+   frame.referrerPolicy='strict-origin-when-cross-origin';frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;figure.append(frame);
+  }else{
+   const video=document.createElement('video');video.controls=true;video.preload='metadata';video.playsInline=true;video.src=src;video.setAttribute('aria-label','Video: '+name);figure.append(video);
+  }
+  const caption=makeChamberNode('figcaption','',name);figure.append(caption);gallery.append(figure);
+ });
+ section.append(gallery);
+}
+function makeChamberDisclosure(label,className,summaryClass){
+ const details=makeChamberNode('details','ha-chamber-disclosure '+(className||''));details.open=true;details.dataset.haDisclosure='true';
+ const summary=makeChamberNode('summary',summaryClass||'ha-chamber-panel-heading',label);
+ summary.setAttribute('aria-label',label+' — expand or retract');
+ const body=makeChamberNode('div','ha-chamber-disclosure-body');
+ details.append(summary,body);
+ return {details,body};
+}
+function syncChamberExpandButton(grid,button){
+ if(!button)return;
+ const disclosures=[...grid.querySelectorAll('details[data-ha-disclosure]')];
+ const allOpen=disclosures.length>0&&disclosures.every(item=>item.open);
+ button.textContent=allOpen?'SEAL ALL ↑':'UNSEAL ALL ↓';
+ button.setAttribute('aria-expanded',String(allOpen));
+ button.setAttribute('aria-label',allOpen?'Retract all chamber sections':'Expand all chamber sections');
+}
+function bindChamberDisclosureControls(grid,button){
+ grid.querySelectorAll('details[data-ha-disclosure]').forEach(details=>{
+  details.addEventListener('toggle',()=>syncChamberExpandButton(grid,button));
+ });
+ syncChamberExpandButton(grid,button);
+}
+function makeChamberTextPanel(record,grid,structure){
+ const panel=makeChamberDisclosure('01 // PROMPT STYLE','ha-chamber-panel','ha-chamber-panel-heading');
+ panel.body.append(makeChamberNode('div','ha-chamber-structure-text',structure.prompt_style||'No prompt style has been saved for this record yet.'));
+ grid.append(panel.details);
+ const lyrics=makeChamberDisclosure('02 // LYRICS STYLE','ha-chamber-panel','ha-chamber-panel-heading');
+ lyrics.body.append(makeChamberNode('div','ha-chamber-structure-text',structure.lyrics_style||'No lyrics-style notes have been saved for this record yet.'));
+ grid.append(lyrics.details);
+}
+function appendChamberOutputView(record,grid,structure){
+ const output=makeChamberDisclosure('03 // OUTPUT','ha-chamber-panel ha-chamber-output','ha-chamber-panel-heading');
+ const text=makeChamberDisclosure('TEXT','ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
+ text.body.append(makeChamberNode('div','ha-chamber-text',structure.output_text||'No output text has been saved for this record yet.'));
+ output.body.append(text.details);
+ ['image','audio','video'].forEach(type=>{
+  const child=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
+  appendChamberMedia(child.body,record,type,getRecordOutputMedia(record,structure,type));
+  output.body.append(child.details);
+ });
+ grid.append(output.details);
+}
+function renderRecordStructureView(record,grid,status,editButton,expandButton){
  const structure=getRecordStructure(record);
  grid.replaceChildren();
- const prompt=makeChamberNode('section','ha-chamber-panel');
- prompt.append(makeChamberNode('h3','ha-chamber-panel-heading','01 // PROMPT STYLE'));
- prompt.append(makeChamberNode('div','ha-chamber-structure-text',structure.prompt_style||'No prompt style has been saved for this record yet.'));
- grid.append(prompt);
- const lyrics=makeChamberNode('section','ha-chamber-panel');
- lyrics.append(makeChamberNode('h3','ha-chamber-panel-heading','02 // LYRICS STYLE'));
- lyrics.append(makeChamberNode('div','ha-chamber-structure-text',structure.lyrics_style||'No lyrics-style notes have been saved for this record yet.'));
- grid.append(lyrics);
- appendChamberOutput(record,grid,structure);
- layoutLabel.textContent='LAYOUT // SUNO LYRICS + STYLE BREAKDOWN';
+ makeChamberTextPanel(record,grid,structure);
+ appendChamberOutputView(record,grid,structure);
+ bindChamberDisclosureControls(grid,expandButton);
+ if(editButton)editButton.hidden=!archiveAdmin;
 }
-function renderRecordStructureEditor(record,grid,layoutLabel,status,editButton){
- const structure=getRecordStructure(record);
- grid.replaceChildren();
- layoutLabel.textContent='EDIT MODE // SUNO LYRICS + STYLE BREAKDOWN';
- const fields=[
-  ['prompt_style','01 // PROMPT STYLE',structure.prompt_style,'Paste or write the AI / Suno style prompt…'],
-  ['lyrics_style','02 // LYRICS STYLE',structure.lyrics_style,'Add lyric instructions, structure, vocal direction or generation notes…'],
-  ['output_text','03 // OUTPUT — TEXT',structure.output_text,'Edit the original text output…']
- ];
- const controls={};
- fields.forEach(([key,label,value,placeholder])=>{
-  const panel=makeChamberNode('section','ha-chamber-panel ha-chamber-edit-panel');
-  panel.append(makeChamberNode('h3','ha-chamber-panel-heading',label));
-  const area=document.createElement('textarea');area.className='ha-chamber-editor-field';area.name=key;area.rows=key==='output_text'?14:9;area.value=value;area.placeholder=placeholder;
-  panel.append(area);grid.append(panel);controls[key]=area;
+function chamberFileMime(file,type){
+ const supplied=String(file.type||'').toLowerCase();
+ const allowed={
+  image:new Set(['image/jpeg','image/png','image/webp','image/gif','image/avif']),
+  audio:new Set(['audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm']),
+  video:new Set(['video/mp4','video/webm'])
+ };
+ if(allowed[type].has(supplied))return supplied;
+ if(supplied)return null;
+ const extension=String(file.name||'').split('.').pop().toLowerCase();
+ const fallback={
+  image:{jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif'},
+  audio:{mp3:'audio/mpeg',m4a:'audio/mp4',mp4:'audio/mp4',wav:'audio/wav',ogg:'audio/ogg',weba:'audio/webm'},
+  video:{mp4:'video/mp4',webm:'video/webm'}
+ };
+ return fallback[type][extension]||null;
+}
+function chamberUploadToken(){
+ try{if(window.crypto?.randomUUID)return window.crypto.randomUUID();}catch{}
+ return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+}
+function renderChamberMediaEditor(sectionBody,record,type,items,status,onChange){
+ sectionBody.replaceChildren();
+ const list=makeChamberNode('div','ha-chamber-media-editor-list');
+ const repaint=()=>{
+  list.replaceChildren();
+  if(!items.length)list.append(makeChamberNode('p','ha-chamber-note','NO '+type.toUpperCase()+' FILES SELECTED.'));
+  items.forEach((item,index)=>{
+   const row=makeChamberNode('div','ha-chamber-media-editor-item');
+   const description=makeChamberNode('span','ha-chamber-media-editor-name',item.name||record.title);
+   const state=makeChamberNode('small','ha-chamber-media-editor-state',item.file?'READY TO UPLOAD':(item.storage==='recovered'?'ARCHIVE ORIGINAL':item.storage==='external'?'EMBEDDED VIDEO':'SAVED FILE'));
+   const remove=makeChamberNode('button','ha-chamber-media-remove','REMOVE ✕');remove.type='button';
+   remove.setAttribute('aria-label','Remove '+(item.name||'media file')+' from '+type.toUpperCase());
+   remove.addEventListener('click',()=>{
+    items.splice(index,1);
+    if(onChange)onChange();
+    repaint();
+    status.textContent='MEDIA SELECTION UPDATED — SAVE THE CHAMBER TO APPLY IT.';
+   });
+   row.append(description,state,remove);list.append(row);
+  });
+ };
+ const input=document.createElement('input');input.type='file';input.multiple=true;input.className='ha-chamber-file-input';
+ input.accept=type==='image'?'image/jpeg,image/png,image/webp,image/gif,image/avif':
+  type==='audio'?'audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm':'video/mp4,video/webm';
+ input.setAttribute('aria-label','Choose multiple '+type+' files');
+ const uploadLabel=makeChamberNode('label','ha-chamber-upload-label');
+ const uploadText=makeChamberNode('span','', 'ADD '+type.toUpperCase()+' FILES +');
+ uploadLabel.append(uploadText,input);
+ input.addEventListener('change',()=>{
+  const files=[...input.files||[]];
+  const accepted=files.slice(0,10);
+  const rejected=[];
+  accepted.forEach(file=>{
+   const mime=chamberFileMime(file,type);
+   if(!mime){rejected.push(file.name+' (unsupported format)');return;}
+   if(file.size>30*1024*1024){rejected.push(file.name+' (over 30 MB)');return;}
+   items.push({id:'pending-'+chamberUploadToken(),name:file.name,mime_type:mime,storage:'pending',file});
+  });
+  if(files.length>10)rejected.push('Only the first 10 files in this selection were checked.');
+  if(onChange)onChange();
+  status.textContent=rejected.length?'Some files were not added: '+rejected.join('; '):'FILES ADDED — SAVE THE CHAMBER TO UPLOAD.';
+  input.value='';
+  repaint();
  });
+ sectionBody.append(list,uploadLabel);
+ repaint();
+}
+function renderRecordStructureEditor(record,grid,status,editButton,expandButton){
+ const structure=getRecordStructure(record);
+ const editorMedia={
+  image:getRecordOutputMedia(record,structure,'image').map(item=>({...item})),
+  audio:getRecordOutputMedia(record,structure,'audio').map(item=>({...item})),
+  video:getRecordOutputMedia(record,structure,'video').map(item=>({...item}))
+ };
+ const mediaTouched={image:false,audio:false,video:false};
+ grid.replaceChildren();
+ const prompt=makeChamberDisclosure('01 // PROMPT STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
+ const promptArea=document.createElement('textarea');promptArea.className='ha-chamber-editor-field';promptArea.name='prompt_style';promptArea.rows=9;
+ promptArea.value=structure.prompt_style;promptArea.placeholder='Paste or write the AI / Suno style prompt…';prompt.body.append(promptArea);grid.append(prompt.details);
+ const lyrics=makeChamberDisclosure('02 // LYRICS STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
+ const lyricsArea=document.createElement('textarea');lyricsArea.className='ha-chamber-editor-field';lyricsArea.name='lyrics_style';lyricsArea.rows=9;
+ lyricsArea.value=structure.lyrics_style;lyricsArea.placeholder='Add lyric instructions, structure, vocal direction or generation notes…';lyrics.body.append(lyricsArea);grid.append(lyrics.details);
+ const output=makeChamberDisclosure('03 // OUTPUT','ha-chamber-panel ha-chamber-output ha-chamber-edit-panel','ha-chamber-panel-heading');
+ const text=makeChamberDisclosure('TEXT','ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
+ const textArea=document.createElement('textarea');textArea.className='ha-chamber-editor-field';textArea.name='output_text';textArea.rows=14;
+ textArea.value=structure.output_text;textArea.placeholder='Edit the original text output…';text.body.append(textArea);output.body.append(text.details);
+ ['image','audio','video'].forEach(type=>{
+  const media=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
+  const items=editorMedia[type];
+  const sectionBody=media.body;
+  renderChamberMediaEditor(sectionBody,record,type,items,status,()=>{mediaTouched[type]=true;});
+  output.body.append(media.details);
+ });
+ grid.append(output.details);
  const actions=makeChamberNode('div','ha-chamber-editor-actions');
- const save=makeChamberNode('button','ha-chamber-save','SAVE STRUCTURE');save.type='button';
+ const save=makeChamberNode('button','ha-chamber-save','SAVE CHAMBER');save.type='button';
  const cancel=makeChamberNode('button','ha-chamber-cancel','CANCEL');cancel.type='button';
  actions.append(save,cancel);grid.append(actions);
- cancel.addEventListener('click',()=>{status.textContent='';renderRecordStructureView(record,grid,layoutLabel);});
+ bindChamberDisclosureControls(grid,expandButton);
+ cancel.addEventListener('click',()=>{
+  status.textContent='';
+  renderRecordStructureView(record,grid,status,editButton,expandButton);
+ });
  save.addEventListener('click',async()=>{
   if(!archiveAdmin||!archiveSupabase||!archiveUserId){status.textContent='ADMIN SESSION REQUIRED';return;}
-  save.disabled=true;cancel.disabled=true;save.textContent='SAVING…';status.textContent='Saving your structure…';
-  const row={
-   record_id:Number(record.id),
-   prompt_style:controls.prompt_style.value,
-   lyrics_style:controls.lyrics_style.value,
-   output_text:controls.output_text.value,
-   updated_at:new Date().toISOString(),
-   updated_by:archiveUserId
-  };
+  save.disabled=true;cancel.disabled=true;save.textContent='SAVING…';status.textContent='PREPARING CHAMBER UPDATE…';
+  const uploadedPaths=[];
+  const oldStructure=recordStructureOverrides.get(String(record.id))||{};
+  const existingOutput=oldStructure.output_media&&typeof oldStructure.output_media==='object'?oldStructure.output_media:{};
+  const oldOwnedPaths=['image','audio','video'].flatMap(type=>Array.isArray(existingOutput[type])?existingOutput[type]:[])
+   .filter(item=>item&&item.storage==='vha-post-media'&&typeof item.path==='string'&&item.path.startsWith('human-archive/'+String(record.id)+'/'))
+   .map(item=>item.path);
   try{
+   const outputMedia={};
+   for(const type of ['image','audio','video']){
+    const savedItems=[];
+    for(const item of editorMedia[type]){
+     if(item.file){
+      status.textContent='UPLOADING '+type.toUpperCase()+' // '+item.name;
+      const token=chamberUploadToken();
+      const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
+      const path='human-archive/'+String(record.id)+'/'+type+'/'+token+'-'+safeName;
+      const {error:uploadError}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{
+       cacheControl:'3600',contentType:item.mime_type,upsert:false
+      });
+      if(uploadError)throw uploadError;
+      uploadedPaths.push(path);
+      const {data:publicData}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
+      if(!publicData?.publicUrl)throw new Error('The uploaded file URL could not be created.');
+      savedItems.push({id:'upload-'+token,name:item.name,url:publicData.publicUrl,path,mime_type:item.mime_type,storage:'vha-post-media'});
+     }else{
+      savedItems.push({
+       id:String(item.id||item.path||item.url||chamberUploadToken()),
+       name:String(item.name||record.title),
+       url:String(item.url||''),
+       path:typeof item.path==='string'?item.path:'',
+       mime_type:String(item.mime_type||''),
+       storage:String(item.storage||'recovered')
+      });
+     }
+    }
+    if(mediaTouched[type]||Array.isArray(existingOutput[type])||mediaReady)outputMedia[type]=savedItems;
+   }
+   const row={
+    record_id:Number(record.id),
+    prompt_style:promptArea.value,
+    lyrics_style:lyricsArea.value,
+    output_text:textArea.value,
+    output_media:outputMedia,
+    updated_at:new Date().toISOString(),
+    updated_by:archiveUserId
+   };
+   status.textContent='SAVING CHAMBER STRUCTURE…';
    const {error}=await archiveSupabase.from('human_archive_record_structures').upsert(row,{onConflict:'record_id'});
    if(error)throw error;
    recordStructureOverrides.set(String(record.id),row);
-   status.textContent='STRUCTURE SAVED';
-   renderRecordStructureView(record,grid,layoutLabel);
-   editButton.hidden=!archiveAdmin;
+   const keepPaths=new Set(['image','audio','video'].flatMap(type=>Array.isArray(outputMedia[type])?outputMedia[type]:[])
+    .filter(item=>item&&item.storage==='vha-post-media').map(item=>item.path).filter(Boolean));
+   const removedPaths=[...new Set(oldOwnedPaths)].filter(path=>!keepPaths.has(path));
+   let cleanupWarning=false;
+   if(removedPaths.length){
+    const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedPaths);
+    if(removeError){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from storage:',removeError);}
+   }
+   status.textContent=cleanupWarning?'CHAMBER SAVED — SOME REMOVED FILES COULD NOT BE CLEANED UP':'CHAMBER REDESIGNED // CHANGES SAVED';
+   renderRecordStructureView(record,grid,status,editButton,expandButton);
   }catch(error){
-   console.error('Human Archive structure could not be saved:',error);
+   if(uploadedPaths.length){
+    const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
+    if(cleanupError)console.error('New chamber uploads could not be rolled back:',cleanupError);
+   }
+   console.error('Human Archive chamber could not be saved:',error);
    status.textContent='SAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
-   save.disabled=false;cancel.disabled=false;save.textContent='SAVE STRUCTURE';
+   save.disabled=false;cancel.disabled=false;save.textContent='SAVE CHAMBER';
   }
  });
 }
@@ -476,26 +663,37 @@ function buildRecordChamber(record){
  const header=makeChamberNode('header','ha-chamber-header');
  const topbar=makeChamberNode('div','ha-chamber-topbar');
  topbar.append(makeChamberNode('span','ha-chamber-mark','EGO // HUMAN ARCHIVE'));
- const actions=makeChamberNode('div','ha-chamber-topbar-actions');actions.style.display='flex';actions.style.visibility='visible';actions.style.opacity='1';
- actions.setAttribute('aria-label','Chamber controls');
- const edit=makeChamberNode('button','ha-chamber-edit','EDIT STRUCTURE');
- edit.type='button';edit.hidden=!archiveAdmin;edit.setAttribute('aria-label','Edit archive record structure');
- const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.setAttribute('aria-label','Close record chamber');
- actions.append(edit,close);
+ header.append(topbar);
  const heading=makeChamberNode('div','ha-chamber-heading');
  const meta=makeChamberNode('p','ha-chamber-meta','HA-'+record.year+'-'+String(record.id).padStart(4,'0')+' // '+record.date+' // '+(record.categories||[]).join(' / '));
+ const titleRow=makeChamberNode('div','ha-chamber-title-row');
  const title=makeChamberNode('h2','',record.title);
- heading.append(meta,title);header.append(topbar,heading);
+ const expand=makeChamberNode('button','ha-chamber-expand-all','SEAL ALL ↑');expand.type='button';
+ expand.setAttribute('aria-expanded','true');expand.setAttribute('aria-label','Retract all chamber sections');
+ titleRow.append(title,expand);heading.append(meta,titleRow);header.append(heading);
  const main=makeChamberNode('main','ha-chamber-main');
  const shareRow=makeChamberNode('div','ha-chamber-share-row');
  const share=makeChamberNode('div','ha-chamber-share','');
  const shareStatus=makeChamberNode('span','ha-chamber-share-status','');
- appendChamberShareActions(share,record,shareStatus);shareRow.append(share,shareStatus,actions);main.append(shareRow);
- const layoutLabel=makeChamberNode('p','ha-chamber-layout-label','LAYOUT // SUNO LYRICS + STYLE BREAKDOWN');
- main.append(layoutLabel);
+ appendChamberShareActions(share,record,shareStatus);
+ const actions=makeChamberNode('div','ha-chamber-topbar-actions');
+ actions.setAttribute('aria-label','Chamber controls');
+ const edit=makeChamberNode('button','ha-chamber-edit','REDESIGN CHAMBER');
+ edit.type='button';edit.hidden=!archiveAdmin;edit.setAttribute('aria-label','Redesign this archive chamber');
+ const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.setAttribute('aria-label','Close record chamber');
+ actions.append(edit,close);shareRow.append(share,shareStatus,actions);main.append(shareRow);
  const grid=makeChamberNode('div','ha-chamber-grid');main.append(grid);
- renderRecordStructureView(record,grid,layoutLabel);
- edit.addEventListener('click',()=>{if(!archiveAdmin){shareStatus.textContent='ADMIN ACCESS REQUIRED';return;}renderRecordStructureEditor(record,grid,layoutLabel,shareStatus,edit);});
+ renderRecordStructureView(record,grid,shareStatus,edit,expand);
+ expand.addEventListener('click',()=>{
+  const disclosures=[...grid.querySelectorAll('details[data-ha-disclosure]')];
+  const shouldOpen=!disclosures.every(item=>item.open);
+  disclosures.forEach(item=>{item.open=shouldOpen;});
+  syncChamberExpandButton(grid,expand);
+ });
+ edit.addEventListener('click',()=>{
+  if(!archiveAdmin){shareStatus.textContent='ADMIN ACCESS REQUIRED';return;}
+  renderRecordStructureEditor(record,grid,shareStatus,edit,expand);
+ });
  close.addEventListener('click',()=>recordChamber.close());
  const footer=makeChamberNode('footer','ha-chamber-footer');
  const source=safeExternalUrl(record.url,new Set(['emanuelstefancu.wordpress.com']));
