@@ -1,7 +1,7 @@
 # Unified posting system: record identity bridge
 
-**Phase:** 2 — unify record identity without migrating historical content  
-**Status:** numeric identity bridge and immutable-ID trigger applied to production.
+**Phase:** 3A — read published Transmissions into Human Archive  
+**Status:** Phase 2 identity safeguards are applied and verified in production; Phase 3A read bridge is in review.
 
 ## Current sources of truth
 
@@ -45,12 +45,21 @@ The `vha_posts` table has existing table-level write grants, so a SELECT-only co
 
 ### Phase 3 — make Human Archive the posting interface
 
+#### Phase 3A — read bridge
+
 - Human Archive reads published database-backed Transmissions alongside the historical snapshot.
+- The bridge maps `archive_record_id` to the archive's numeric record identity and preserves the original Transmission slug.
+- Published Transmission media is resolved only from the existing `vha-post-media` public bucket and validated project host.
+- Drafts remain private; only rows with `status = 'published'` are loaded into the public Human Archive.
+- The REDESIGN CHAMBER is read-only for database-backed Transmissions during this first slice; its existing editor continues to manage legacy archive structures only. This prevents edits from diverging between `vha_posts.content_html` and `human_archive_record_structures.transmission_body`.
+
+#### Phase 3B — canonical write bridge
+
 - The REDESIGN CHAMBER becomes the single editor for new and existing database-backed records.
-- A save updates the canonical `vha_posts` row and its optional `human_archive_record_structures` extension.
-- Drafts remain private; public archive views expose published records only.
+- A save updates the canonical `vha_posts` row and its optional `human_archive_record_structures` extension with coordinated error handling.
 - The Transmissions page becomes a view of the same records, not a separate posting system.
 - Quick Post remains an entry point into the same editor and retains its local recovery and draft-save behaviour.
+- Only after write-through editing is verified should the legacy CMS posting surface be retired.
 
 ### Later retirement
 
