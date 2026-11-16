@@ -1,7 +1,7 @@
 # Unified posting system: record identity bridge
 
 **Phase:** 2 — unify record identity without migrating historical content  
-**Status:** proposed in PR; migration has not been applied to production.
+**Status:** numeric identity bridge applied to production; immutable-ID trigger is the final hardening change in review.
 
 ## Current sources of truth
 
@@ -20,7 +20,7 @@ Every Transmission will have two stable identifiers:
 | `vha_posts.archive_record_id` (BIGINT) | Numeric Human Archive identity used by archive-facing features | Assigned once; immutable after assignment |
 | `vha_posts.slug` | Existing public URL identity | Preserve; do not regenerate during migration |
 
-The historical static archive keeps its existing numeric IDs. New Transmission identities begin at **3001**, above the current legacy range. New records obtain their numeric identity from `human_archive_record_id_seq`.
+The historical static archive keeps its existing numeric IDs. New Transmission identities begin at **3001**, above the current legacy range. New records obtain their numeric identity from `human_archive_record_id_seq` through a database-owned trigger.
 
 Existing Transmissions receive deterministic numeric identities in `created_at, id` order. This is a metadata-only backfill: it does not rewrite content, title, slug, status, timestamps, UUIDs, or media.
 
@@ -30,13 +30,14 @@ The 140 historical records are currently delivered from versioned JSON files, no
 
 The chamber and favourites tables continue to accept numeric IDs for both legacy archive records and database-backed Transmissions. Do not add a foreign key that would invalidate the historical IDs.
 
-The new column is explicitly granted **SELECT only** to `anon`, `authenticated` and `service_role`, because `vha_posts` uses column-level grants. Client roles receive no INSERT or UPDATE grant for this column; the database default owns allocation.
+The `vha_posts` table has existing table-level write grants, so a SELECT-only column grant cannot by itself make this identity immutable. A `SECURITY DEFINER` trigger allocates a fresh sequence value on every insert and restores the previous value on any attempted update. The sequence is not directly accessible to client roles.
 
 ## Phase boundaries
 
 ### Phase 2 — this change
 
-- Add and backfill `archive_record_id` on `vha_posts`.
+- Add and backfill `archive_record_id` on `vha_posts` (applied to production as migration `20261116211929`).
+- Enforce database-owned allocation and immutability with a trigger (migration `20261116213000`, pending review/application).
 - Keep UUID primary keys, slugs, public URLs, statuses, content and media untouched.
 - Preserve the current Human Archive JSON snapshot and its IDs.
 - Do not copy or delete any post content or media.
