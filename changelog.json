@@ -1,8 +1,35 @@
 {
   "version": 1,
-  "updated_at": "2026-11-16T19:04:31.455359Z",
-  "last_processed_sha": "a1118852df64bebe2eac2855943dfdfb915eac54",
+  "updated_at": "2026-11-16T19:50:34.951217Z",
+  "last_processed_sha": "9508ea568c8cb1ed4ac863660519b05b7bda38a2",
   "entries": [
+    {
+      "id": "9508ea568c8cb1ed4ac863660519b05b7bda38a2",
+      "timestamp": "2026-11-16T20:50:20+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Human Archive: shared slug URLs and card identities (#69). It updates 404.html, archive.css, archive.js, index.html.",
+      "commit_count": 1,
+      "files": [
+        "404.html",
+        "human-archive/archive.css",
+        "human-archive/archive.js",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Human Archive: shared slug URLs and card identities (#69)",
+          "url": "https://github.com/iYakuza/landing-page/commit/9508ea568c8cb1ed4ac863660519b05b7bda38a2",
+          "files": [
+            "404.html",
+            "human-archive/archive.css",
+            "human-archive/archive.js",
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "a1118852df64bebe2eac2855943dfdfb915eac54",
       "timestamp": "2026-11-16T20:03:20+01:00",
@@ -1158,43 +1185,6 @@
             "cms/index.html",
             "docs/backup/README.md",
             "scripts/manage_recovery_pages_project.mjs"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "3c0fdebce73fae519ad77a77b119da5a244d9d61",
-      "timestamp": "2026-11-14T16:35:09+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Restore the Human Archive on GitHub Pages. It updates emanuel-ego-portrait.png, archive-content.json, archive.css, archive.js and related project files.",
-      "commit_count": 1,
-      "files": [
-        "assets/recovery/emanuel-ego-portrait.png",
-        "human-archive/archive-content.json",
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html",
-        "human-archive/media-import-report.json",
-        "human-archive/media-manifest.json",
-        "index.html",
-        "secure-your-soul/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Restore the Human Archive on GitHub Pages",
-          "url": "https://github.com/iYakuza/landing-page/commit/3c0fdebce73fae519ad77a77b119da5a244d9d61",
-          "files": [
-            "assets/recovery/emanuel-ego-portrait.png",
-            "human-archive/archive-content.json",
-            "human-archive/archive.css",
-            "human-archive/archive.js",
-            "human-archive/index.html",
-            "human-archive/media-import-report.json",
-            "human-archive/media-manifest.json",
-            "index.html",
-            "secure-your-soul/index.html"
           ]
         }
       ]
