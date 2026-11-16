@@ -281,7 +281,7 @@
     try{
       const result=isCommunityArchive
         ? await client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(postsOffset,postsOffset+PAGE_SIZE-1)
-        : await client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(postsOffset,postsOffset+PAGE_SIZE-1);
+        : await client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,media_items,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(postsOffset,postsOffset+PAGE_SIZE-1);
       if(result.error)throw result.error;
       const rows=result.data||[];
       postsOffset+=rows.length;postsHasMore=rows.length===PAGE_SIZE;
@@ -296,7 +296,7 @@
     postsOffset=0;
     try{
       const queries=Promise.all([
-        isCommunityArchive ? Promise.resolve({data:[],error:null}) : client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(0,PAGE_SIZE-1),
+        isCommunityArchive ? Promise.resolve({data:[],error:null}) : client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,media_items,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(0,PAGE_SIZE-1),
         isCommunityArchive ? client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(0,PAGE_SIZE-1) : Promise.resolve({data:[],error:null})
       ]);
       let timeoutId;
