@@ -596,3 +596,84 @@
 /* Ego portrait — accessible full-screen image trigger */
 .ha-ego-portrait-wrap{cursor:zoom-in}
 .ha-ego-portrait-wrap:focus-visible{outline:2px solid #b9d77a;outline-offset:5px}
+
+
+/* HUMAN ARCHIVE // shared chamber disclosure and multi-media redesign */
+.ha-chamber-title-row{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0
+}
+.ha-chamber-title-row h2{min-width:0;flex:1 1 auto;overflow-wrap:anywhere}
+.ha-chamber-expand-all{
+ flex:0 0 auto;min-height:34px;padding:8px 11px;border:1px solid rgba(185,215,122,.4);
+ background:rgba(185,215,122,.06);color:#cfe2aa;font:8px/1.2 'DM Mono',monospace;
+ letter-spacing:.1em;white-space:nowrap;cursor:pointer
+}
+.ha-chamber-expand-all:hover,.ha-chamber-expand-all:focus-visible{
+ border-color:#d8ff3e;background:rgba(185,215,122,.14);color:#eaff9b;
+ outline:2px solid #b9d77a;outline-offset:2px
+}
+.ha-chamber-disclosure{min-width:0}
+.ha-chamber-disclosure>summary{
+ display:flex;align-items:center;gap:10px;list-style:none;cursor:pointer;user-select:none
+}
+.ha-chamber-disclosure>summary::-webkit-details-marker{display:none}
+.ha-chamber-disclosure>summary::before{
+ content:'+';display:inline-grid;place-items:center;flex:0 0 18px;width:18px;height:18px;
+ border:1px solid rgba(185,215,122,.3);color:#b9d77a;font:12px/1 'DM Mono',monospace
+}
+.ha-chamber-disclosure[open]>summary::before{content:'−';background:rgba(185,215,122,.08)}
+.ha-chamber-disclosure>summary:hover,.ha-chamber-disclosure>summary:focus-visible{
+ color:#eaff9b;outline:1px solid rgba(185,215,122,.55);outline-offset:4px
+}
+.ha-chamber-disclosure-body{min-width:0}
+.ha-chamber-panel.ha-chamber-disclosure[open]>.ha-chamber-panel-heading{margin-bottom:15px}
+.ha-chamber-panel.ha-chamber-disclosure:not([open]){padding-bottom:14px}
+.ha-chamber-output.ha-chamber-disclosure>.ha-chamber-panel-heading{margin-bottom:0}
+.ha-chamber-output.ha-chamber-disclosure[open]>.ha-chamber-panel-heading{margin-bottom:16px}
+.ha-chamber-subdisclosure{
+ min-width:0;margin:0 0 13px;padding:0 0 12px;border-bottom:1px solid rgba(185,215,122,.13)
+}
+.ha-chamber-subdisclosure:last-child{margin-bottom:0;padding-bottom:0;border-bottom:0}
+.ha-chamber-subdisclosure>summary.ha-chamber-output-label{
+ display:flex;align-items:center;margin:0;padding:0 0 8px;border-bottom:1px solid rgba(185,215,122,.17)
+}
+.ha-chamber-subdisclosure[open]>summary.ha-chamber-output-label{margin-bottom:12px}
+.ha-chamber-subdisclosure:not([open])>summary.ha-chamber-output-label{margin-bottom:0}
+.ha-chamber-media-item{min-width:0}
+.ha-chamber-media-item img,.ha-chamber-media-item video{display:block;max-width:100%}
+.ha-chamber-media-item audio{display:block;width:100%;max-width:100%}
+.ha-chamber-edit-panel>.ha-chamber-disclosure-body{display:grid;gap:10px}
+.ha-chamber-edit-panel .ha-chamber-editor-field{margin:0}
+.ha-chamber-media-editor-list{display:grid;gap:7px;margin:0 0 10px}
+.ha-chamber-media-editor-item{
+ display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;
+ padding:9px;border:1px solid rgba(143,171,170,.18);background:rgba(2,8,5,.45)
+}
+.ha-chamber-media-editor-name{
+ min-width:0;color:#d5e2d7;font:10px/1.5 'DM Mono',monospace;overflow-wrap:anywhere
+}
+.ha-chamber-media-editor-state{
+ color:#91a891;font:8px/1.4 'DM Mono',monospace;letter-spacing:.06em;text-align:right
+}
+.ha-chamber-media-remove,.ha-chamber-upload-label{
+ display:inline-flex;align-items:center;justify-content:center;min-height:31px;padding:7px 9px;
+ border:1px solid rgba(143,190,188,.34);background:rgba(143,190,188,.055);color:#c1d5d1;
+ font:8px/1.2 'DM Mono',monospace;letter-spacing:.08em;cursor:pointer
+}
+.ha-chamber-media-remove:hover,.ha-chamber-media-remove:focus-visible,
+.ha-chamber-upload-label:hover,.ha-chamber-upload-label:focus-within{
+ border-color:#b9d77a;background:rgba(185,215,122,.1);color:#eaff9b;
+ outline:2px solid rgba(185,215,122,.6);outline-offset:2px
+}
+.ha-chamber-upload-label{position:relative;overflow:hidden;width:max-content;max-width:100%}
+.ha-chamber-file-input{
+ position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);
+ clip-path:inset(50%);white-space:nowrap;opacity:0
+}
+@media(max-width:640px){
+ .ha-chamber-title-row{align-items:flex-start;gap:9px}
+ .ha-chamber-expand-all{min-height:31px;padding:7px 8px;font-size:7px}
+ .ha-chamber-media-editor-item{grid-template-columns:minmax(0,1fr) auto;gap:6px}
+ .ha-chamber-media-editor-state{grid-column:1;text-align:left}
+ .ha-chamber-media-remove{grid-column:2;grid-row:1/3}
+}
