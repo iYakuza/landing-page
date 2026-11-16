@@ -746,3 +746,49 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
  body.ha-writing-focus .ha-rich-editor-top{top:54px;right:12px;left:auto}
  body.ha-writing-focus .ha-rich-content{margin-top:12px;min-height:calc(100dvh - 150px);padding:14px 4px}
 }
+
+/* Preserve the existing CMS Suno/plain editorial layouts inside Transmission chambers. */
+.ha-chamber-transmission-body .suno-post-layout,
+.ha-chamber-transmission-body .plain-post-layout{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+ gap:clamp(16px,3vw,36px);align-items:start;width:100%;max-width:100%;margin:clamp(16px,3vw,36px) 0
+}
+.ha-chamber-transmission-body .suno-lyrics,
+.ha-chamber-transmission-body .plain-copy{
+ min-width:0;padding:clamp(14px,2vw,24px);border-left:1px solid #b9d77a7a;
+ background:linear-gradient(145deg,#0b130d,#060906)
+}
+.ha-chamber-transmission-body .suno-notes,
+.ha-chamber-transmission-body .plain-response{
+ min-width:0;padding:clamp(14px,2vw,24px);border-top:1px solid #42f5e533;
+ background:linear-gradient(145deg,#07120f,#080c09)
+}
+.ha-chamber-transmission-body .suno-label{
+ margin:0 0 16px;color:#b9d77a;font:9px/1.7 ui-monospace,monospace;
+ letter-spacing:.12em;text-transform:uppercase
+}
+.ha-chamber-transmission-body .suno-lyrics pre{
+ margin:0;white-space:pre-wrap;overflow-wrap:anywhere;color:#e8f4df;
+ font:clamp(13px,1.4vw,16px)/1.85 Georgia,"Times New Roman",serif
+}
+.ha-chamber-transmission-body .suno-notes p,
+.ha-chamber-transmission-body .plain-copy p,
+.ha-chamber-transmission-body .suno-learned p{
+ color:#b8c8b7;font-size:13px;line-height:1.9;overflow-wrap:anywhere
+}
+.ha-chamber-transmission-body .suno-notes h2,
+.ha-chamber-transmission-body .plain-response h2{
+ font:italic clamp(24px,3vw,36px)/1.15 Georgia,"Times New Roman",serif;
+ color:#b9d77a;margin:0 0 16px
+}
+.ha-chamber-transmission-body .suno-learned{
+ margin-top:24px;padding-top:16px;border-top:1px dashed #b9d77a50
+}
+@media(max-width:700px){
+ .ha-chamber-transmission-body .suno-post-layout,
+ .ha-chamber-transmission-body .plain-post-layout{grid-template-columns:minmax(0,1fr);gap:12px}
+ .ha-chamber-transmission-body .suno-lyrics,
+ .ha-chamber-transmission-body .plain-copy,
+ .ha-chamber-transmission-body .suno-notes,
+ .ha-chamber-transmission-body .plain-response{padding:16px}
+}
