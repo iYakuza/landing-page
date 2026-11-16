@@ -640,6 +640,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   video:getRecordOutputMedia(record,structure,'video').map(item=>({...item}))
  };
  const mediaTouched={image:false,audio:false,video:false};
+ let recordMetadataInputs=null;
  grid.replaceChildren();
  if(record.source_type==='transmission'){
  const metadataDetails=makeChamberDisclosure('00 // RECORD DETAILS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-metadata-panel','ha-chamber-panel-heading');
@@ -660,7 +661,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  const excerptInput=addMetadataField('EXCERPT','excerpt',record.excerpt||'',{multiline:true,placeholder:'Short description shown in previews (up to 400 characters)',maxLength:400});
  metadataDetails.body.append(metadataFields,makeChamberNode('p','ha-chamber-metadata-note','PUBLICATION STATUS: '+String(record.status||'draft').toUpperCase()+' // STATUS CONTROLS WILL BE ADDED IN A LATER STEP.'));
  grid.append(metadataDetails.details);
- const recordMetadataInputs={title:titleInput,slug:slugInput,category:categoryInput,excerpt:excerptInput};
+ recordMetadataInputs={title:titleInput,slug:slugInput,category:categoryInput,excerpt:excerptInput};
  }
  const transmission=makeChamberDisclosure('01 // TRANSMISSION BODY','ha-chamber-panel ha-chamber-edit-panel ha-chamber-transmission-panel','ha-chamber-panel-heading');
  const transmissionTop=makeChamberNode('div','ha-rich-editor-top');
