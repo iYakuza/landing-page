@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-16T23:46:16.521001Z",
-  "last_processed_sha": "846ec5c4a986159b3318ff3f351f825ae50dff18",
+  "updated_at": "2026-11-16T23:58:33.721747Z",
+  "last_processed_sha": "55e36c0ffaff7e36f32fef9b51049af38f4d193c",
   "entries": [
+    {
+      "id": "55e36c0ffaff7e36f32fef9b51049af38f4d193c",
+      "timestamp": "2026-11-17T00:58:23+01:00",
+      "category": "FEATURE",
+      "component": "Website Updates",
+      "title": "New capabilities for Website Updates",
+      "description": "This update brings together Add publication controls to Human Archive Transmissions (#79). It updates unified-posting-record-model.md, archive.css, archive.js, index.html and related project files.",
+      "commit_count": 1,
+      "files": [
+        "docs/architecture/unified-posting-record-model.md",
+        "human-archive/archive.css",
+        "human-archive/archive.js",
+        "human-archive/index.html",
+        "supabase/migrations/20261116234717_save_human_archive_transmission_publication.sql"
+      ],
+      "commits": [
+        {
+          "message": "Add publication controls to Human Archive Transmissions (#79)",
+          "url": "https://github.com/iYakuza/landing-page/commit/55e36c0ffaff7e36f32fef9b51049af38f4d193c",
+          "files": [
+            "docs/architecture/unified-posting-record-model.md",
+            "human-archive/archive.css",
+            "human-archive/archive.js",
+            "human-archive/index.html",
+            "supabase/migrations/20261116234717_save_human_archive_transmission_publication.sql"
+          ]
+        }
+      ]
+    },
     {
       "id": "846ec5c4a986159b3318ff3f351f825ae50dff18",
       "timestamp": "2026-11-17T00:46:01+01:00",
@@ -1098,27 +1127,6 @@
             "posts/index.html",
             "posts/the-awakening/index.html",
             "posts/the-descent/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "93409ba2c4ef0200ca20cd966c9f4fb7a1d0b2ca",
-      "timestamp": "2026-11-14T19:49:07+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Crystal Experience",
-      "title": "A refined Crystal Experience",
-      "description": "This update brings together Preserve CSS grid positioning for pre-rendered Crystal (#38). It updates crystal.js.",
-      "commit_count": 1,
-      "files": [
-        "shared/crystal/crystal.js"
-      ],
-      "commits": [
-        {
-          "message": "Preserve CSS grid positioning for pre-rendered Crystal (#38)",
-          "url": "https://github.com/iYakuza/landing-page/commit/93409ba2c4ef0200ca20cd966c9f4fb7a1d0b2ca",
-          "files": [
-            "shared/crystal/crystal.js"
           ]
         }
       ]
