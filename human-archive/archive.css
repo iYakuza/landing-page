@@ -434,7 +434,7 @@
 
 /* HUMAN ARCHIVE // chamber editing, card-level favourite and unique media */
 .ha-record-card[data-ha-record-id="589"]>.ha-entry{padding-right:20px!important}
-.ha-record-card[data-ha-record-id="589"]>.ha-entry .ha-entry-year{visibility:visible}
+.ha-record-card[data-ha-record-id="589"]>.ha-entry .ha-entry-id{visibility:visible}
 .ha-entry-quick-actions{
   display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0;
   padding:9px 12px;border:1px solid rgba(143,171,170,.2);border-top:0;
