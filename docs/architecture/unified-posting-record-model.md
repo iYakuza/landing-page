@@ -1,7 +1,7 @@
 # Unified posting system: record identity bridge
 
 **Phase:** 2 — unify record identity without migrating historical content  
-**Status:** numeric identity bridge applied to production; immutable-ID trigger is the final hardening change in review.
+**Status:** numeric identity bridge and immutable-ID trigger applied to production.
 
 ## Current sources of truth
 
@@ -37,7 +37,7 @@ The `vha_posts` table has existing table-level write grants, so a SELECT-only co
 ### Phase 2 — this change
 
 - Add and backfill `archive_record_id` on `vha_posts` (applied to production as migration `20261116211929`).
-- Enforce database-owned allocation and immutability with a trigger (migration `20261116213000`, pending review/application).
+- Enforce database-owned allocation and immutability with a trigger (applied to production as migration `20261116212229`).
 - Keep UUID primary keys, slugs, public URLs, statuses, content and media untouched.
 - Preserve the current Human Archive JSON snapshot and its IDs.
 - Do not copy or delete any post content or media.
