@@ -1,8 +1,41 @@
 {
   "version": 1,
-  "updated_at": "2026-11-16T17:47:44.796096Z",
-  "last_processed_sha": "9b1abb19ab26050a20b5ced46571a5d699c6e571",
+  "updated_at": "2026-11-16T18:14:28.643031Z",
+  "last_processed_sha": "7d6c2427f9c379f4a1b2b869388c9df4ba568a6a",
   "entries": [
+    {
+      "id": "7d6c2427f9c379f4a1b2b869388c9df4ba568a6a",
+      "timestamp": "2026-11-16T19:14:08+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Fix Quick Post action buttons being covered (#65). It updates cms.css, cms.js, index.html and related project files.",
+      "commit_count": 1,
+      "files": [
+        "cms/cms.css",
+        "cms/cms.js",
+        "cms/index.html",
+        "posts/index.html",
+        "posts/posts.css",
+        "posts/posts.js",
+        "supabase/migrations/20261116180920_add_media_items_to_vha_posts.sql"
+      ],
+      "commits": [
+        {
+          "message": "Fix Quick Post action buttons being covered (#65)",
+          "url": "https://github.com/iYakuza/landing-page/commit/7d6c2427f9c379f4a1b2b869388c9df4ba568a6a",
+          "files": [
+            "cms/cms.css",
+            "cms/cms.js",
+            "cms/index.html",
+            "posts/index.html",
+            "posts/posts.css",
+            "posts/posts.js",
+            "supabase/migrations/20261116180920_add_media_items_to_vha_posts.sql"
+          ]
+        }
+      ]
+    },
     {
       "id": "9b1abb19ab26050a20b5ced46571a5d699c6e571",
       "timestamp": "2026-11-16T18:47:36+01:00",
@@ -1086,27 +1119,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/d86d92137bd5874b1490050e77fb514a94c6b096",
           "files": [
             ".github/workflows/recovery-asset-bootstrap.yml"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "94b775b0f90c4f03a42b5f5671f0b4bbdc538048",
-      "timestamp": "2026-11-14T14:52:53+01:00",
-      "category": "FEATURE",
-      "component": "Creator Workshop",
-      "title": "New capabilities for Creator Workshop",
-      "description": "This update brings together Add one-time recovery portrait import link. It updates index.html.",
-      "commit_count": 1,
-      "files": [
-        "cms/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Add one-time recovery portrait import link",
-          "url": "https://github.com/iYakuza/landing-page/commit/94b775b0f90c4f03a42b5f5671f0b4bbdc538048",
-          "files": [
-            "cms/index.html"
           ]
         }
       ]
