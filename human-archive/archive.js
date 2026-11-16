@@ -501,7 +501,7 @@ function chamberUploadToken(){
  try{if(window.crypto?.randomUUID)return window.crypto.randomUUID();}catch{}
  return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
 }
-function renderChamberMediaEditor(sectionBody,record,type,items,status){
+function renderChamberMediaEditor(sectionBody,record,type,items,status,onChange){
  sectionBody.replaceChildren();
  const list=makeChamberNode('div','ha-chamber-media-editor-list');
  const repaint=()=>{
@@ -515,6 +515,7 @@ function renderChamberMediaEditor(sectionBody,record,type,items,status){
    remove.setAttribute('aria-label','Remove '+(item.name||'media file')+' from '+type.toUpperCase());
    remove.addEventListener('click',()=>{
     items.splice(index,1);
+    if(onChange)onChange();
     repaint();
     status.textContent='MEDIA SELECTION UPDATED — SAVE THE CHAMBER TO APPLY IT.';
    });
@@ -539,6 +540,7 @@ function renderChamberMediaEditor(sectionBody,record,type,items,status){
    items.push({id:'pending-'+chamberUploadToken(),name:file.name,mime_type:mime,storage:'pending',file});
   });
   if(files.length>10)rejected.push('Only the first 10 files in this selection were checked.');
+  if(onChange)onChange();
   status.textContent=rejected.length?'Some files were not added: '+rejected.join('; '):'FILES ADDED — SAVE THE CHAMBER TO UPLOAD.';
   input.value='';
   repaint();
@@ -568,18 +570,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  ['image','audio','video'].forEach(type=>{
   const media=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
   const items=editorMedia[type];
-  const markTouched=()=>{
-   mediaTouched[type]=true;
-  };
   const sectionBody=media.body;
-  renderChamberMediaEditor(sectionBody,record,type,items,status);
-  // Changes are marked by the file-input and remove controls in the section.
-  sectionBody.addEventListener('click',event=>{
-   if(event.target.closest('.ha-chamber-media-remove'))markTouched();
-  });
-  sectionBody.addEventListener('change',event=>{
-   if(event.target.matches('.ha-chamber-file-input'))markTouched();
-  });
+  renderChamberMediaEditor(sectionBody,record,type,items,status,()=>{mediaTouched[type]=true;});
   output.body.append(media.details);
  });
  grid.append(output.details);
