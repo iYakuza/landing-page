@@ -45,6 +45,8 @@ The `vha_posts` table has existing table-level write grants, so a SELECT-only co
 
 ### Phase 3 — make Human Archive the posting interface
 
+**Initial integration slice:** load database-backed Transmissions into the Human Archive index using `archive_record_id` as the visible numeric identity. Public visitors receive published rows only; authenticated archive admins also receive drafts. Existing UUIDs, slugs, content, status and media references remain in `vha_posts`. Transmission chambers are read-only until the chamber save path updates the canonical post row and its optional structure together.
+
 - Human Archive reads published database-backed Transmissions alongside the historical snapshot.
 - The REDESIGN CHAMBER becomes the single editor for new and existing database-backed records.
 - A save updates the canonical `vha_posts` row and its optional `human_archive_record_structures` extension.
