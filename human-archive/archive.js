@@ -523,8 +523,9 @@ function sanitizeTransmissionBody(source){
 function makeChamberTransmissionBody(record,grid,structure){
  const panel=makeChamberDisclosure('01 // TRANSMISSION BODY','ha-chamber-panel ha-chamber-transmission-panel','ha-chamber-panel-heading');
  const body=makeChamberNode('div','ha-chamber-transmission-body');
- body.innerHTML=sanitizeTransmissionBody(structure.transmission_body);
- if(!body.innerHTML.trim())body.textContent='No transmission body has been saved for this record yet.';
+ if(record.source_type==='transmission')appendSafeContent(body,record.content_html||'',record,new Set());
+ else body.innerHTML=sanitizeTransmissionBody(structure.transmission_body);
+ if(!body.childNodes.length)body.textContent='No transmission body has been saved for this record yet.';
  panel.body.append(body);grid.append(panel.details);
 }
 function makeChamberTextPanel(record,grid,structure){
