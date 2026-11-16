@@ -301,7 +301,9 @@ async function toggleArchiveFavorite(recordId,button){
  finally{document.querySelectorAll('[data-ha-favorite-id="'+id+'"]').forEach(control=>{control.disabled=!archiveAdmin;});syncFavoriteControls();}
 }
 function chamberShareUrl(record){
- return new URL(encodeURIComponent(record.slug),new URL('./',window.location.href)).href;
+ const base=new URL('./',window.location.href);
+ if(record.isTransmission){base.searchParams.set('record',String(record.id));return base.href;}
+ return new URL(encodeURIComponent(record.slug),base).href;
 }
 function makeChamberNode(tag,className,text){
  const node=document.createElement(tag);
@@ -783,7 +785,10 @@ function openArchiveRecordChamber(record,trigger){
  if(!record||!records.some(item=>String(item.id)===String(record.id)))return;
  const dialog=ensureRecordChamber();if(dialog.open)dialog.close();
  dialog.replaceChildren(buildRecordChamber(record));chamberRecordId=String(record.id);recordChamberReturnFocus=trigger||null;
- const url=new URL(encodeURIComponent(record.slug),new URL('./',window.location.href));history.replaceState(history.state,'',url.pathname+url.hash);document.body.classList.add('ha-chamber-open');
+ const url=new URL('./',window.location.href);
+ if(record.isTransmission)url.searchParams.set('record',String(record.id));
+ else url.pathname=new URL(encodeURIComponent(record.slug),url).pathname;
+ history.replaceState(history.state,'',url.pathname+url.search+url.hash);document.body.classList.add('ha-chamber-open');
  try{dialog.showModal();}catch(error){document.body.classList.remove('ha-chamber-open');console.error('Could not open the Human Archive chamber:',error);}
 }
 function openRequestedRecordFromUrl(){
