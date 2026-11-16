@@ -516,7 +516,7 @@ function sanitizeTransmissionBody(source){
    try{const url=new URL(raw);if((url.protocol==='https:'&&url.hostname&&!url.username&&!url.password)||(url.protocol==='mailto:'&&url.pathname)){element.href=url.href;element.target='_blank';element.rel='noopener noreferrer';}}catch{}
   }
   if(node.hasAttribute('class')){
-   const classes=(node.getAttribute('class')||'').split(/\\s+/).filter(name=>allowedClasses.has(name));
+   const classes=(node.getAttribute('class')||'').split(/\s+/).filter(name=>allowedClasses.has(name));
    if(classes.length)element.className=classes.join(' ');
   }
   node.childNodes.forEach(child=>copy(child,element));parent.append(element);
