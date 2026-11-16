@@ -1,8 +1,33 @@
 {
   "version": 1,
-  "updated_at": "2026-11-16T19:50:34.951217Z",
-  "last_processed_sha": "9508ea568c8cb1ed4ac863660519b05b7bda38a2",
+  "updated_at": "2026-11-16T20:58:56.079498Z",
+  "last_processed_sha": "1fbd9da765f967fc953aec16cf9d2226646f3329",
   "entries": [
+    {
+      "id": "1fbd9da765f967fc953aec16cf9d2226646f3329",
+      "timestamp": "2026-11-16T21:58:47+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Extract reusable transmission rich-text editor (#70). It updates cms.js, index.html, rich-text-editor.js.",
+      "commit_count": 1,
+      "files": [
+        "cms/cms.js",
+        "cms/index.html",
+        "editor-ui/rich-text-editor.js"
+      ],
+      "commits": [
+        {
+          "message": "Extract reusable transmission rich-text editor (#70)",
+          "url": "https://github.com/iYakuza/landing-page/commit/1fbd9da765f967fc953aec16cf9d2226646f3329",
+          "files": [
+            "cms/cms.js",
+            "cms/index.html",
+            "editor-ui/rich-text-editor.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "9508ea568c8cb1ed4ac863660519b05b7bda38a2",
       "timestamp": "2026-11-16T20:50:20+01:00",
@@ -1156,35 +1181,6 @@
             "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
             "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html",
             "green-dream/guest-notes/ethical-framework/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "2f27c2176fed83b31d1ed54b41e93126bb5b966c",
-      "timestamp": "2026-11-14T17:15:24+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Make recovery website creation owner-initiated. It updates manual-recovery-preview.yml, site-safety.yml, index.html, README.md and related project files.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/manual-recovery-preview.yml",
-        ".github/workflows/site-safety.yml",
-        "cms/index.html",
-        "docs/backup/README.md",
-        "scripts/manage_recovery_pages_project.mjs"
-      ],
-      "commits": [
-        {
-          "message": "Make recovery website creation owner-initiated",
-          "url": "https://github.com/iYakuza/landing-page/commit/2f27c2176fed83b31d1ed54b41e93126bb5b966c",
-          "files": [
-            ".github/workflows/manual-recovery-preview.yml",
-            ".github/workflows/site-safety.yml",
-            "cms/index.html",
-            "docs/backup/README.md",
-            "scripts/manage_recovery_pages_project.mjs"
           ]
         }
       ]
