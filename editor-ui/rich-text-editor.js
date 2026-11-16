@@ -30,7 +30,7 @@
     insertLinkButton?.addEventListener('click', () => {
       editor.focus();
       const url = window.prompt('Enter an https:// or mailto: link');
-      if (url && /^(https?:\\/\\/|mailto:)/i.test(url.trim())) {
+      if (url && /^(https?:\/\/|mailto:)/i.test(url.trim())) {
         document.execCommand('createLink', false, url.trim());
         onChange();
       } else if (url) {
