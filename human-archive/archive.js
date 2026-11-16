@@ -276,6 +276,9 @@ async function loadRecordStructureOverrides(){
 }
 async function loadTransmissionRecords(){
  if(!archiveSupabase)return;
+ records=records.filter(record=>record.source_type!=='transmission');
+ mediaItems=mediaItems.filter(item=>item.storage!=='vha-post-media');
+ for(const [key,item] of mediaMap){if(item.storage==='vha-post-media')mediaMap.delete(key);}
  let query=archiveSupabase.from('vha_posts').select('id,archive_record_id,title,slug,category,excerpt,content_html,status,created_at,published_at,media_items,media_url,media_path,media_type,media_width').order('created_at',{ascending:false});
  if(!archiveAdmin)query=query.eq('status','published');
  const {data,error}=await query;
@@ -832,11 +835,12 @@ async function initArchiveFeatures(){
   archiveSupabase.auth.onAuthStateChange((_event,session)=>{
    window.setTimeout(async()=>{
     await refreshArchiveAdmin(session);
+    await loadTransmissionRecords();
     render();
     syncFavoriteControls();
     if(recordChamber?.open){
      const record=records.find(item=>String(item.id)===chamberRecordId);
-     if(record)openArchiveRecordChamber(record,null);
+     if(record)openArchiveRecordChamber(record,null);else recordChamber.close();
     }
    },0);
   });
