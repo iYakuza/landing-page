@@ -46,5 +46,16 @@
   </main>
   <script src="/landing-page/game-ui.js?v=20261112-mood-accessibility-2" defer></script>
 <script src="/landing-page/back-top.js?v=20261106-global-1"></script>
+
+  <script>
+    (function(){
+      var prefix='/landing-page/human-archive/';
+      var path=window.location.pathname;
+      if(!path.startsWith(prefix))return;
+      var slug=path.slice(prefix.length).replace(/\/+$/,'');
+      if(!slug||slug.includes('/'))return;
+      window.location.replace(prefix+'?slug='+encodeURIComponent(slug));
+    })();
+  </script>
 </body>
 </html>
