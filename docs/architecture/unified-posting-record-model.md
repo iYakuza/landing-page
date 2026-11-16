@@ -30,6 +30,8 @@ The 140 historical records are currently delivered from versioned JSON files, no
 
 The chamber and favourites tables continue to accept numeric IDs for both legacy archive records and database-backed Transmissions. Do not add a foreign key that would invalidate the historical IDs.
 
+The new column is explicitly granted **SELECT only** to `anon`, `authenticated` and `service_role`, because `vha_posts` uses column-level grants. Client roles receive no INSERT or UPDATE grant for this column; the database default owns allocation.
+
 ## Phase boundaries
 
 ### Phase 2 — this change
