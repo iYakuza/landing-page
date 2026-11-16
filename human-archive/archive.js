@@ -798,6 +798,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
     if(metaNode)metaNode.textContent='HA-'+record.year+'-'+String(record.id).padStart(4,'0')+' // '+record.date+' // '+record.categories.join(' / ');
     const shareNode=recordChamber?.querySelector('.ha-chamber-share'),shareStatus=recordChamber?.querySelector('.ha-chamber-share-status');
     if(shareNode&&shareStatus){shareNode.replaceChildren();appendChamberShareActions(shareNode,record,shareStatus);}
+    const chamberUrl=new URL(encodeURIComponent(record.slug),new URL('./',window.location.href));
+    history.replaceState(history.state,'',chamberUrl.pathname+chamberUrl.hash);
     render();
    }
    renderRecordStructureView(record,grid,status,editButton,expandButton);
