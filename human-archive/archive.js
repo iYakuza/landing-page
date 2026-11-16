@@ -269,7 +269,7 @@ async function loadArchiveFavorites(){
 }
 async function loadRecordStructureOverrides(){
  if(!archiveSupabase)return;
- const {data,error}=await archiveSupabase.from('human_archive_record_structures').select('record_id,prompt_style,lyrics_style,output_text,output_media,updated_at');
+ const {data,error}=await archiveSupabase.from('human_archive_record_structures').select('record_id,transmission_body,prompt_style,lyrics_style,output_text,output_media,updated_at');
  if(error){console.warn('Human Archive structures could not be loaded:',error);return;}
  recordStructureOverrides=new Map((data||[]).map(item=>[String(item.record_id),item]));
 }
@@ -356,6 +356,7 @@ function defaultRecordOutputText(record){
 function getRecordStructure(record){
  const saved=recordStructureOverrides.get(String(record.id));
  return {
+  transmission_body:typeof saved?.transmission_body==='string'?saved.transmission_body:'',
   prompt_style:String(saved?.prompt_style||''),
   lyrics_style:String(saved?.lyrics_style||''),
   output_text:typeof saved?.output_text==='string'?saved.output_text:defaultRecordOutputText(record),
@@ -469,16 +470,41 @@ function bindChamberDisclosureControls(grid,button){
  });
  syncChamberExpandButton(grid,button);
 }
+function sanitizeTransmissionBody(source){
+ const parsed=new DOMParser().parseFromString(String(source||''),'text/html');
+ const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','BLOCKQUOTE','UL','OL','LI','A']);
+ function copy(node,parent){
+  if(node.nodeType===Node.TEXT_NODE){parent.append(document.createTextNode(node.nodeValue||''));return;}
+  if(node.nodeType!==Node.ELEMENT_NODE)return;
+  if(!allowed.has(node.tagName)){node.childNodes.forEach(child=>copy(child,parent));return;}
+  const element=document.createElement(node.tagName.toLowerCase());
+  if(node.tagName==='A'){
+   const raw=node.getAttribute('href')||'';
+   try{const url=new URL(raw,document.baseURI);if((url.protocol==='https:'&&!url.username&&!url.password)||url.protocol==='mailto:'){element.href=url.href;element.target='_blank';element.rel='noopener noreferrer';}}catch{}
+  }
+  node.childNodes.forEach(child=>copy(child,element));parent.append(element);
+ }
+ const fragment=document.createDocumentFragment();
+ parsed.body.childNodes.forEach(node=>copy(node,fragment));
+ const holder=document.createElement('div');holder.append(fragment);return holder.innerHTML;
+}
+function makeChamberTransmissionBody(record,grid,structure){
+ const panel=makeChamberDisclosure('01 // TRANSMISSION BODY','ha-chamber-panel ha-chamber-transmission-panel','ha-chamber-panel-heading');
+ const body=makeChamberNode('div','ha-chamber-transmission-body');
+ body.innerHTML=sanitizeTransmissionBody(structure.transmission_body);
+ if(!body.innerHTML.trim())body.textContent='No transmission body has been saved for this record yet.';
+ panel.body.append(body);grid.append(panel.details);
+}
 function makeChamberTextPanel(record,grid,structure){
- const panel=makeChamberDisclosure('01 // PROMPT STYLE','ha-chamber-panel','ha-chamber-panel-heading');
+ const panel=makeChamberDisclosure('02 // PROMPT STYLE','ha-chamber-panel','ha-chamber-panel-heading');
  panel.body.append(makeChamberNode('div','ha-chamber-structure-text',structure.prompt_style||'No prompt style has been saved for this record yet.'));
  grid.append(panel.details);
- const lyrics=makeChamberDisclosure('02 // LYRICS STYLE','ha-chamber-panel','ha-chamber-panel-heading');
+ const lyrics=makeChamberDisclosure('03 // LYRICS STYLE','ha-chamber-panel','ha-chamber-panel-heading');
  lyrics.body.append(makeChamberNode('div','ha-chamber-structure-text',structure.lyrics_style||'No lyrics-style notes have been saved for this record yet.'));
  grid.append(lyrics.details);
 }
 function appendChamberOutputView(record,grid,structure){
- const output=makeChamberDisclosure('03 // OUTPUT','ha-chamber-panel ha-chamber-output','ha-chamber-panel-heading');
+ const output=makeChamberDisclosure('04 // OUTPUT','ha-chamber-panel ha-chamber-output','ha-chamber-panel-heading');
  const text=makeChamberDisclosure('TEXT','ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
  text.body.append(makeChamberNode('div','ha-chamber-text',structure.output_text||'No output text has been saved for this record yet.'));
  output.body.append(text.details);
@@ -492,6 +518,7 @@ function appendChamberOutputView(record,grid,structure){
 function renderRecordStructureView(record,grid,status,editButton,expandButton){
  const structure=getRecordStructure(record);
  grid.replaceChildren();
+ makeChamberTransmissionBody(record,grid,structure);
  makeChamberTextPanel(record,grid,structure);
  appendChamberOutputView(record,grid,structure);
  bindChamberDisclosureControls(grid,expandButton);
@@ -574,13 +601,26 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  };
  const mediaTouched={image:false,audio:false,video:false};
  grid.replaceChildren();
- const prompt=makeChamberDisclosure('01 // PROMPT STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
+ const transmission=makeChamberDisclosure('01 // TRANSMISSION BODY','ha-chamber-panel ha-chamber-edit-panel ha-chamber-transmission-panel','ha-chamber-panel-heading');
+ const transmissionTop=makeChamberNode('div','ha-rich-editor-top');
+ const transmissionHint=makeChamberNode('span','ha-rich-editor-hint','WRITE, FORMAT AND SHAPE THE ORIGINAL TRANSMISSION');
+ const focusButton=makeChamberNode('button','ha-chamber-focus-toggle','T');focusButton.type='button';focusButton.setAttribute('aria-pressed','false');
+ transmissionTop.append(transmissionHint,focusButton);
+ const toolbar=makeChamberNode('div','ha-rich-toolbar');toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','Transmission formatting');
+ [['B','bold'],['I','italic'],['U','underline'],['H2','formatBlock','h2'],['H3','formatBlock','h3'],['QUOTE','formatBlock','blockquote'],['• LIST','insertUnorderedList'],['1. LIST','insertOrderedList']].forEach(([label,command,value])=>{
+  const button=makeChamberNode('button','',label);button.type='button';button.dataset.command=command;if(value)button.dataset.value=value;toolbar.append(button);
+ });
+ const insertLinkButton=makeChamberNode('button','ha-rich-link','LINK');insertLinkButton.type='button';toolbar.append(insertLinkButton);
+ const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable='true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Transmission body');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Write the transmission body…';transmissionEditor.innerHTML=sanitizeTransmissionBody(structure.transmission_body);
+ transmission.body.append(transmissionTop,toolbar,transmissionEditor);grid.append(transmission.details);
+ const richEditorController=window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
+ const prompt=makeChamberDisclosure('02 // PROMPT STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
  const promptArea=document.createElement('textarea');promptArea.className='ha-chamber-editor-field';promptArea.name='prompt_style';promptArea.rows=9;
  promptArea.value=structure.prompt_style;promptArea.placeholder='Paste or write the AI / Suno style prompt…';prompt.body.append(promptArea);grid.append(prompt.details);
- const lyrics=makeChamberDisclosure('02 // LYRICS STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
+ const lyrics=makeChamberDisclosure('03 // LYRICS STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
  const lyricsArea=document.createElement('textarea');lyricsArea.className='ha-chamber-editor-field';lyricsArea.name='lyrics_style';lyricsArea.rows=9;
  lyricsArea.value=structure.lyrics_style;lyricsArea.placeholder='Add lyric instructions, structure, vocal direction or generation notes…';lyrics.body.append(lyricsArea);grid.append(lyrics.details);
- const output=makeChamberDisclosure('03 // OUTPUT','ha-chamber-panel ha-chamber-output ha-chamber-edit-panel','ha-chamber-panel-heading');
+ const output=makeChamberDisclosure('04 // OUTPUT','ha-chamber-panel ha-chamber-output ha-chamber-edit-panel','ha-chamber-panel-heading');
  const text=makeChamberDisclosure('TEXT','ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
  const textArea=document.createElement('textarea');textArea.className='ha-chamber-editor-field';textArea.name='output_text';textArea.rows=14;
  textArea.value=structure.output_text;textArea.placeholder='Edit the original text output…';text.body.append(textArea);output.body.append(text.details);
@@ -598,6 +638,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  actions.append(save,cancel);grid.append(actions);
  bindChamberDisclosureControls(grid,expandButton);
  cancel.addEventListener('click',()=>{
+  richEditorController?.destroy();
   status.textContent='';
   renderRecordStructureView(record,grid,status,editButton,expandButton);
  });
@@ -643,6 +684,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    }
    const row={
     record_id:Number(record.id),
+    transmission_body:sanitizeTransmissionBody(transmissionEditor.innerHTML),
     prompt_style:promptArea.value,
     lyrics_style:lyricsArea.value,
     output_text:textArea.value,
@@ -663,6 +705,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
     if(removeError){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from storage:',removeError);}
    }
    status.textContent=cleanupWarning?'CHAMBER SAVED — SOME REMOVED FILES COULD NOT BE CLEANED UP':'CHAMBER REDESIGNED // CHANGES SAVED';
+   richEditorController?.destroy();
    renderRecordStructureView(record,grid,status,editButton,expandButton);
   }catch(error){
    if(uploadedPaths.length){

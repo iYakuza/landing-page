@@ -14,6 +14,9 @@
       throw new TypeError('The rich-text editor requires an editor, toolbar, and focus button.');
     }
 
+    const listeners = new AbortController();
+    const signal = listeners.signal;
+
     toolbar.querySelectorAll('[data-command]').forEach(button => {
       button.addEventListener('click', () => {
         editor.focus();
@@ -24,7 +27,7 @@
           document.execCommand(command, false, null);
         }
         onChange();
-      });
+      }, { signal });
     });
 
     insertLinkButton?.addEventListener('click', () => {
@@ -36,9 +39,9 @@
       } else if (url) {
         onInvalidLink('Only https:// and mailto: links are allowed.');
       }
-    });
+    }, { signal });
 
-    editor.addEventListener('input', onChange);
+    editor.addEventListener('input', onChange, { signal });
 
     let toolbarDrag = null;
     let toolbarWasDragged = false;
@@ -54,7 +57,7 @@
 
     focusButton.addEventListener('click', () => {
       setWritingFocus(!document.body.classList.contains(focusClass));
-    });
+    }, { signal });
 
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && document.body.classList.contains(focusClass)) {
@@ -62,7 +65,7 @@
         setWritingFocus(false);
         focusButton.focus();
       }
-    });
+    }, { signal });
 
     const chain = document.createElement('span');
     chain.className = 'toolbar-invisible-chain';
@@ -82,7 +85,7 @@
       toolbar.style.transform = 'none';
       toolbar.style.left = (rect.left + (event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0)) + 'px';
       toolbar.style.top = (rect.top + (event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0)) + 'px';
-    });
+    }, { signal });
 
     toolbar.addEventListener('pointerdown', event => {
       if (!document.body.classList.contains(focusClass)) return;
@@ -103,7 +106,7 @@
         event.preventDefault();
         toolbar.setPointerCapture?.(event.pointerId);
       }
-    });
+    }, { signal });
 
     document.addEventListener('pointermove', event => {
       if (!toolbarDrag || toolbarDrag.id !== event.pointerId) return;
@@ -118,7 +121,7 @@
       const maxTop = Math.max(8, window.innerHeight - toolbar.offsetHeight - 8);
       toolbar.style.left = Math.max(8, Math.min(maxLeft, toolbarDrag.left + dx)) + 'px';
       toolbar.style.top = Math.max(8, Math.min(maxTop, toolbarDrag.top + dy)) + 'px';
-    });
+    }, { signal });
 
     const finishToolbarDrag = event => {
       if (!toolbarDrag || toolbarDrag.id !== event.pointerId) return;
@@ -129,19 +132,24 @@
         window.setTimeout(() => { delete toolbar.dataset.suppressClick; }, 0);
       }
     };
-    document.addEventListener('pointerup', finishToolbarDrag);
-    document.addEventListener('pointercancel', finishToolbarDrag);
+    document.addEventListener('pointerup', finishToolbarDrag, { signal });
+    document.addEventListener('pointercancel', finishToolbarDrag, { signal });
     toolbar.addEventListener('click', event => {
       if (toolbar.dataset.suppressClick === 'true') {
         event.preventDefault();
         event.stopImmediatePropagation();
       }
-    }, true);
+    }, { capture: true, signal });
 
     return {
       setFocus: setWritingFocus,
       destroy() {
-        document.body.classList.remove(focusClass);
+        setWritingFocus(false);
+        listeners.abort();
+        chain.remove();
+        toolbar.style.removeProperty('left');
+        toolbar.style.removeProperty('top');
+        toolbar.style.removeProperty('transform');
       }
     };
   }

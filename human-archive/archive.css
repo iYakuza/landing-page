@@ -683,3 +683,66 @@
 .ha-entry-top{align-items:flex-start!important}
 .ha-entry-code{max-width:calc(100% - 76px);overflow-wrap:anywhere;word-break:break-word}
 .ha-entry-id{white-space:nowrap;padding:2px 0 2px 8px}
+
+
+/* Shared rich-text editor in the Human Archive chamber. */
+.ha-rich-editor-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ha-rich-editor-hint{color:#8fa99a;font:8px/1.5 'DM Mono',monospace;letter-spacing:.1em}
+.ha-chamber-focus-toggle{
+ min-width:36px;min-height:32px;padding:6px 10px;border:1px solid rgba(185,215,122,.48);
+ background:rgba(185,215,122,.07);color:#d8ff3e;font:700 12px/1 'DM Mono',monospace;cursor:pointer
+}
+.ha-chamber-focus-toggle[aria-pressed="true"]{background:#b9d77a;color:#071009}
+.ha-rich-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:5px;padding:8px;border:1px solid rgba(185,215,122,.2);background:#09130c}
+.ha-rich-toolbar button{
+ min-width:34px;min-height:31px;padding:6px 9px;border:1px solid rgba(185,215,122,.24);
+ background:#0b170e;color:#d3e2d3;font:9px 'DM Mono',monospace;cursor:pointer
+}
+.ha-rich-toolbar button:hover,.ha-rich-toolbar button:focus-visible{border-color:#b9d77a;color:#eaff9b;outline:1px solid #b9d77a;outline-offset:1px}
+.ha-rich-content{
+ min-height:360px;max-height:65vh;overflow:auto;resize:vertical;
+ color:#dce8dc;font:14px/1.9 Georgia,'Times New Roman',serif;white-space:normal;overflow-wrap:anywhere
+}
+.ha-rich-content:empty::before{content:attr(data-placeholder);color:#718477;pointer-events:none}
+.ha-rich-content h2,.ha-rich-content h3{color:#d8ff3e;line-height:1.3}
+.ha-rich-content blockquote{margin:16px 0;padding:8px 14px;border-left:2px solid #b9d77a;color:#b6c7b8}
+.ha-rich-content a,.ha-chamber-transmission-body a{color:#d8ff3e;text-decoration:underline;text-underline-offset:3px}
+.ha-chamber-transmission-body{color:#d1dbd2;font:15px/1.95 Georgia,'Times New Roman',serif;overflow-wrap:anywhere}
+.ha-chamber-transmission-body p{margin:0 0 1.15em}
+.ha-chamber-transmission-body p:last-child{margin-bottom:0}
+.ha-chamber-transmission-body h2,.ha-chamber-transmission-body h3{color:#d8ff3e;line-height:1.3}
+.ha-chamber-transmission-body blockquote{margin:18px 0;padding:8px 16px;border-left:2px solid #b9d77a;color:#aab7a7}
+.ha-chamber-transmission-body ul,.ha-chamber-transmission-body ol{padding-left:1.5em}
+.ha-chamber-transmission-body[hidden]{display:none!important}
+
+/* Focus mode isolates the transmission editor without leaving the chamber. */
+body.ha-writing-focus{overflow:hidden!important}
+body.ha-writing-focus .ha-record-chamber[open]{
+ position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;
+ max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;
+ background:#050906!important;overflow:auto!important
+}
+body.ha-writing-focus .ha-record-chamber .ha-chamber-header,
+body.ha-writing-focus .ha-record-chamber .ha-chamber-heading,
+body.ha-writing-focus .ha-record-chamber .ha-chamber-title-row,
+body.ha-writing-focus .ha-record-chamber .ha-chamber-share-row,
+body.ha-writing-focus .ha-record-chamber .ha-chamber-footer,
+body.ha-writing-focus .ha-record-chamber .ha-chamber-grid>details:not(.ha-chamber-transmission-panel){display:none!important}
+body.ha-writing-focus .ha-record-chamber .ha-chamber-shell{min-height:100dvh;padding:28px clamp(18px,8vw,120px)!important}
+body.ha-writing-focus .ha-record-chamber .ha-chamber-main{padding-top:0!important}
+body.ha-writing-focus .ha-record-chamber .ha-chamber-grid{display:block!important}
+body.ha-writing-focus .ha-record-chamber .ha-chamber-transmission-panel{display:block!important;min-height:calc(100dvh - 56px);padding:0!important;border:0!important;background:transparent!important}
+body.ha-writing-focus .ha-record-chamber .ha-chamber-transmission-panel>.ha-chamber-panel-heading{display:none!important}
+body.ha-writing-focus .ha-rich-editor-top{position:fixed;top:14px;left:18px;right:18px;z-index:30;justify-content:flex-end;pointer-events:none}
+body.ha-writing-focus .ha-chamber-focus-toggle{pointer-events:auto}
+body.ha-writing-focus .ha-rich-toolbar{position:fixed;top:14px;left:50%;z-index:25;width:max-content;max-width:calc(100vw - 140px);transform:translateX(-50%);box-shadow:0 8px 30px rgba(0,0,0,.45)}
+body.ha-writing-focus .ha-rich-content{min-height:calc(100dvh - 170px);max-height:none;margin-top:64px;padding:22px clamp(14px,4vw,60px);border:0;background:transparent;font-size:clamp(15px,1.2vw,18px)}
+body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;bottom:14px;z-index:30}
+@media(max-width:700px){
+ .ha-rich-toolbar{gap:4px}
+ .ha-rich-toolbar button{min-width:30px;min-height:30px;padding:5px 7px}
+ body.ha-writing-focus .ha-record-chamber .ha-chamber-shell{padding:68px 14px 70px!important}
+ body.ha-writing-focus .ha-rich-toolbar{top:10px;left:10px;right:10px;width:auto;max-width:none;transform:none;justify-content:center}
+ body.ha-writing-focus .ha-rich-editor-top{top:54px;right:12px;left:auto}
+ body.ha-writing-focus .ha-rich-content{margin-top:12px;min-height:calc(100dvh - 150px);padding:14px 4px}
+}
