@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-16T21:08:03.703370Z",
-  "last_processed_sha": "7fd4d80d130b90c105e22b55dc4e3ae4943238d1",
+  "updated_at": "2026-11-16T21:18:05.541628Z",
+  "last_processed_sha": "e5306e9fd86afad5b7e8e501ed612d30ba35585e",
   "entries": [
+    {
+      "id": "e5306e9fd86afad5b7e8e501ed612d30ba35585e",
+      "timestamp": "2026-11-16T22:17:57+01:00",
+      "category": "FEATURE",
+      "component": "Website",
+      "title": "New capabilities for Website",
+      "description": "This update brings together Add stable Human Archive identity to Transmissions (#72). It updates unified-posting-record-model.md, 20261116211529_unified_posting_record_identity.sql.",
+      "commit_count": 1,
+      "files": [
+        "docs/architecture/unified-posting-record-model.md",
+        "supabase/migrations/20261116211529_unified_posting_record_identity.sql"
+      ],
+      "commits": [
+        {
+          "message": "Add stable Human Archive identity to Transmissions (#72)",
+          "url": "https://github.com/iYakuza/landing-page/commit/e5306e9fd86afad5b7e8e501ed612d30ba35585e",
+          "files": [
+            "docs/architecture/unified-posting-record-model.md",
+            "supabase/migrations/20261116211529_unified_posting_record_identity.sql"
+          ]
+        }
+      ]
+    },
     {
       "id": "7fd4d80d130b90c105e22b55dc4e3ae4943238d1",
       "timestamp": "2026-11-16T22:07:43+01:00",
@@ -1123,33 +1146,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/69f040f63d48119476cc6ea10c58f90b6214bc22",
           "files": [
             "cms/cms.js",
-            "creator-posting.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "d4ccb25cbf02207453454f4c5d3d15e060f98695",
-      "timestamp": "2026-11-14T18:50:25+01:00",
-      "category": "FEATURE",
-      "component": "Website Updates",
-      "title": "New capabilities for Website Updates",
-      "description": "This update brings together Add full-screen Quick Post with automatic draft recovery. It updates cms.css, cms.js, index.html, creator-posting.js.",
-      "commit_count": 1,
-      "files": [
-        "cms/cms.css",
-        "cms/cms.js",
-        "cms/index.html",
-        "creator-posting.js"
-      ],
-      "commits": [
-        {
-          "message": "Add full-screen Quick Post with automatic draft recovery",
-          "url": "https://github.com/iYakuza/landing-page/commit/d4ccb25cbf02207453454f4c5d3d15e060f98695",
-          "files": [
-            "cms/cms.css",
-            "cms/cms.js",
-            "cms/index.html",
             "creator-posting.js"
           ]
         }
