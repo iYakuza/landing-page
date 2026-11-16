@@ -421,7 +421,7 @@
   .ha-chamber-share-action{min-width:0;padding:7px 5px;font-size:7px}
   .ha-chamber-share-status{width:100%}
   .ha-chamber-media-grid{grid-template-columns:1fr}
-  .ha-chamber-heading h2{font-size:clamp(27px,8vw,38px)}
+  .ha-chamber-title-row h2{font-size:clamp(27px,8vw,38px)}
 }
 
 .ha-favorite-toggle.is-error{border-color:#e5a08f;color:#ffb6a6;text-shadow:none}
@@ -602,7 +602,8 @@
 .ha-chamber-title-row{
  display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0
 }
-.ha-chamber-title-row h2{min-width:0;flex:1 1 auto;overflow-wrap:anywhere}
+.ha-chamber-title-row{width:min(1500px,100%);margin:20px auto 0;padding:0 0 13px;border-bottom:1px solid rgba(185,215,122,.18)}
+.ha-chamber-title-row h2{min-width:0;flex:1 1 auto;margin:0;color:#edf4e8;font:500 clamp(27px,4.2vw,46px)/1.08 'Playfair Display',Georgia,serif;letter-spacing:-.035em;overflow-wrap:anywhere}
 .ha-chamber-expand-all{
  flex:0 0 auto;min-height:34px;padding:8px 11px;border:1px solid rgba(185,215,122,.4);
  background:rgba(185,215,122,.06);color:#cfe2aa;font:8px/1.2 'DM Mono',monospace;
