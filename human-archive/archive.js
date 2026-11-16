@@ -567,7 +567,6 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  textArea.value=structure.output_text;textArea.placeholder='Edit the original text output…';text.body.append(textArea);output.body.append(text.details);
  ['image','audio','video'].forEach(type=>{
   const media=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
-  const originalRender=renderChamberMediaEditor;
   const items=editorMedia[type];
   const markTouched=()=>{
    mediaTouched[type]=true;
