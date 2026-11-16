@@ -345,8 +345,13 @@ body.cms-embedded-composer:not(.cms-writing-focus) .cms-shell{
 body.cms-embedded-composer #vha-viewer-tools,
 body.cms-embedded-composer #vha-world-map,
 body.cms-embedded-composer #vha-crystal-blur-layer,
-body.cms-embedded-composer .vha-constellation-presets,
-body.cms-embedded-composer .vha-changelog-panel{
+body.cms-embedded-composer #vha-entry-prompt,
+body.cms-embedded-composer #vha-surface-dock,
+body.cms-embedded-composer #vha-surface-restore,
+body.cms-embedded-composer .vha-constellation-field,
+body.cms-embedded-composer .vha-constellation-lines,
+body.cms-embedded-composer .vha-star-tooltip,
+body.cms-embedded-composer .vha-journey-note{
   display:none!important;
   pointer-events:none!important;
 }
