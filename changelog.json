@@ -1,8 +1,39 @@
 {
   "version": 1,
-  "updated_at": "2026-11-15T02:38:15.515628Z",
-  "last_processed_sha": "b568d46fd4a859c639ebccaeaa41e21e89f6fa7d",
+  "updated_at": "2026-11-16T17:47:44.796096Z",
+  "last_processed_sha": "9b1abb19ab26050a20b5ced46571a5d699c6e571",
   "entries": [
+    {
+      "id": "9b1abb19ab26050a20b5ced46571a5d699c6e571",
+      "timestamp": "2026-11-16T18:47:36+01:00",
+      "category": "FIX",
+      "component": "Creative Archive",
+      "title": "More reliable Creative Archive",
+      "description": "This update brings together Fix Quick Post iframe CSP on transmission pages (#64). It updates index.html and related project files.",
+      "commit_count": 1,
+      "files": [
+        "posts/index.html",
+        "posts/the-awakening/index.html",
+        "posts/the-descent/index.html",
+        "posts/the-reconnection/index.html",
+        "posts/the-return/index.html",
+        "posts/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Fix Quick Post iframe CSP on transmission pages (#64)",
+          "url": "https://github.com/iYakuza/landing-page/commit/9b1abb19ab26050a20b5ced46571a5d699c6e571",
+          "files": [
+            "posts/index.html",
+            "posts/the-awakening/index.html",
+            "posts/the-descent/index.html",
+            "posts/the-reconnection/index.html",
+            "posts/the-return/index.html",
+            "posts/the-transformation/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "b568d46fd4a859c639ebccaeaa41e21e89f6fa7d",
       "timestamp": "2026-11-15T03:38:02+01:00",
@@ -1074,35 +1105,6 @@
         {
           "message": "Add one-time recovery portrait import link",
           "url": "https://github.com/iYakuza/landing-page/commit/94b775b0f90c4f03a42b5f5671f0b4bbdc538048",
-          "files": [
-            "cms/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "35e928c0f54f77d386c3c53154281d6cc55cd0d8",
-      "timestamp": "2026-11-14T14:51:59+01:00",
-      "category": "FEATURE",
-      "component": "Website Updates",
-      "title": "New capabilities for Website Updates",
-      "description": "This update brings together Add guarded cleanup for branches with merged PRs; Add guarded repository housekeeping link to Recovery Centre. It updates cleanup-merged-branches.yml, index.html.",
-      "commit_count": 2,
-      "files": [
-        ".github/workflows/cleanup-merged-branches.yml",
-        "cms/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Add guarded cleanup for branches with merged PRs",
-          "url": "https://github.com/iYakuza/landing-page/commit/4415ca434f8de4496cff9064b71fec71f6a8d3f5",
-          "files": [
-            ".github/workflows/cleanup-merged-branches.yml"
-          ]
-        },
-        {
-          "message": "Add guarded repository housekeeping link to Recovery Centre",
-          "url": "https://github.com/iYakuza/landing-page/commit/35e928c0f54f77d386c3c53154281d6cc55cd0d8",
           "files": [
             "cms/index.html"
           ]
