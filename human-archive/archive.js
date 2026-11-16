@@ -294,7 +294,7 @@ async function loadTransmissionRecords(){
    mime_type:item.type==='image'?'image/unknown':item.type==='video'?'video/unknown':'audio/unknown',
    storage_path:String(item.path||''),source_url:item.url,url:item.url,storage:'vha-post-media',post_ids:[id]
   }));
-  return {id,title:post.title,slug:post.slug,archiveIdentifier:'HA-'+year+'-'+String(id).padStart(4,'0'),year,date,url:'',categories:[post.category||'TRANSMISSIONS'],content_html:post.content_html||'',source_type:'transmission',post_id:post.id,status:post.status,excerpt:post.excerpt||'',media_items:attached,media_width:post.media_width||100};
+  return {id,title:post.title,slug:post.slug,archiveIdentifier:'HA-'+year+'-'+String(id).padStart(4,'0'),year,date,url:'',categories:[post.category||'TRANSMISSIONS'],content_html:post.content_html||'',source_type:'transmission',post_id:post.id,status:post.status,excerpt:post.excerpt||'',media_items:attached,created_at:post.created_at,published_at:post.published_at,updated_at:post.updated_at,media_width:post.media_width||100};
  });
  const existingIds=new Set(records.map(record=>String(record.id)));
  const unique=additions.filter(record=>!existingIds.has(String(record.id)));
@@ -659,9 +659,16 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  const slugInput=addMetadataField('PUBLIC URL SLUG','slug',record.slug,{placeholder:'lowercase-words-separated-by-hyphens',maxLength:180});
  const categoryInput=addMetadataField('MOVEMENT CATEGORY','category',(record.categories||[])[0]||'TRANSMISSIONS',{placeholder:'Category',maxLength:60});
  const excerptInput=addMetadataField('EXCERPT','excerpt',record.excerpt||'',{multiline:true,placeholder:'Short description shown in previews (up to 400 characters)',maxLength:400});
- metadataDetails.body.append(metadataFields,makeChamberNode('p','ha-chamber-metadata-note','PUBLICATION STATUS: '+String(record.status||'draft').toUpperCase()+' // STATUS CONTROLS WILL BE ADDED IN A LATER STEP.'));
+ const statusWrap=makeChamberNode('label','ha-chamber-metadata-field');
+ const statusLabel=makeChamberNode('span','ha-chamber-metadata-label','PUBLICATION STATUS');
+ const statusSelect=document.createElement('select');statusSelect.className='ha-chamber-editor-field ha-chamber-meta-input';statusSelect.name='status';
+ [['draft','DRAFT — PRIVATE'],['published','PUBLISHED — PUBLIC']].forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;statusSelect.append(option);});
+ statusSelect.value=record.status==='published'?'published':'draft';
+ statusWrap.append(statusLabel,statusSelect);metadataFields.append(statusWrap);
+ const statusNote=makeChamberNode('p','ha-chamber-metadata-note','Drafts are private. Published Transmissions appear on the public site. Saving as draft removes a published Transmission from public listings.');
+ metadataDetails.body.append(metadataFields,statusNote);
  grid.append(metadataDetails.details);
- recordMetadataInputs={title:titleInput,slug:slugInput,category:categoryInput,excerpt:excerptInput};
+ recordMetadataInputs={title:titleInput,slug:slugInput,category:categoryInput,excerpt:excerptInput,status:statusSelect};
  }
  const transmission=makeChamberDisclosure('01 // TRANSMISSION BODY','ha-chamber-panel ha-chamber-edit-panel ha-chamber-transmission-panel','ha-chamber-panel-heading');
  const transmissionTop=makeChamberNode('div','ha-rich-editor-top');
@@ -697,6 +704,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  const actions=makeChamberNode('div','ha-chamber-editor-actions');
  const save=makeChamberNode('button','ha-chamber-save','SAVE CHAMBER');save.type='button';
  const cancel=makeChamberNode('button','ha-chamber-cancel','CANCEL');cancel.type='button';
+ const updateSaveLabel=()=>{if(record.source_type!=='transmission')return;const next=recordMetadataInputs.status.value;save.textContent=next==='published'?(record.status==='published'?'SAVE PUBLISHED TRANSMISSION':'PUBLISH TRANSMISSION'):(record.status==='published'?'UNPUBLISH & SAVE DRAFT':'SAVE DRAFT');};
+ recordMetadataInputs?.status?.addEventListener('change',updateSaveLabel);updateSaveLabel();
  actions.append(save,cancel);grid.append(actions);
  bindChamberDisclosureControls(grid,expandButton);
  cancel.addEventListener('click',()=>{
@@ -706,6 +715,12 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  });
  save.addEventListener('click',async()=>{
   if(!archiveAdmin||!archiveSupabase||!archiveUserId){status.textContent='ADMIN SESSION REQUIRED';return;}
+  if(record.source_type==='transmission'&&recordMetadataInputs.status.value!==record.status){
+   const prompt=recordMetadataInputs.status.value==='published'
+    ?'Publish this Transmission? It will become visible on the public site.'
+    :'Unpublish this Transmission? It will become a private draft and disappear from public listings.';
+   if(!window.confirm(prompt))return;
+  }
   save.disabled=true;cancel.disabled=true;save.textContent='SAVING…';status.textContent='PREPARING CHAMBER UPDATE…';
   const uploadedPaths=[];
   const oldStructure=recordStructureOverrides.get(String(record.id))||{};
@@ -760,19 +775,26 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
      title:String(recordMetadataInputs.title.value).trim(),
      slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
      category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
-     excerpt:String(recordMetadataInputs.excerpt.value).trim()
+     excerpt:String(recordMetadataInputs.excerpt.value).trim(),
+     status:String(recordMetadataInputs.status.value).trim().toLowerCase()
     };
     if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
     if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
     if(!metadata.category||metadata.category.length>60)throw new Error('Category must contain between 1 and 60 characters.');
     if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
-    const {error}=await archiveSupabase.rpc('save_human_archive_transmission_v2',{
-     p_post_id:record.post_id,p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,
+    if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
+    if(metadata.status==='published'&&!row.transmission_body.trim())throw new Error('Add transmission content before publishing.');
+    if(metadata.status==='published'&&metadata.category==='UNASSIGNED')throw new Error('Choose a movement category before publishing.');
+    const {data:saveResult,error}=await archiveSupabase.rpc('save_human_archive_transmission_v3',{
+     p_post_id:record.post_id,p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,p_status:metadata.status,
      p_transmission_body:row.transmission_body,p_prompt_style:row.prompt_style,p_lyrics_style:row.lyrics_style,
      p_output_text:row.output_text,p_output_media:row.output_media
     });
     if(error)throw error;
+    const saved=Array.isArray(saveResult)?saveResult[0]:saveResult;
     record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.content_html=row.transmission_body;
+    record.status=metadata.status;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||new Date().toISOString();
+    const dateStamp=record.published_at||record.created_at||record.updated_at;record.date=String(dateStamp).slice(0,10);record.year=record.date.slice(0,4);
     if(!categoryOrder.includes(metadata.category))categoryOrder.push(metadata.category);
     if(![...category.options].some(option=>option.value===metadata.category)){
      const option=document.createElement('option');option.value=metadata.category;option.textContent=metadata.category;category.append(option);

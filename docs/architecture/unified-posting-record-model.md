@@ -58,6 +58,8 @@ The `vha_posts` table has existing table-level write grants, so a SELECT-only co
 
 **Metadata-editing slice (implementation in review):** the Transmission chamber exposes title, public slug, movement category and excerpt alongside the body and structure. These fields are saved atomically with the chamber through `save_human_archive_transmission_v2` (production migration `20261116233208`). The operation preserves the post UUID, archive numeric ID, current publication status, publication timestamp and all media associations. Existing slugs are loaded unchanged by default; changing one intentionally changes the public URL. Publication status remains read-only in this slice.
 
+**Publication-control slice (implementation in review):** admins can choose Draft (private) or Published (public) from the Transmission chamber. The chamber saves status together with metadata and structure through `save_human_archive_transmission_v3`. It uses the existing `vha_posts_touch_updated_at` trigger, which stamps `published_at` when a draft is published and clears it when a published post is saved as draft. The database function validates the status, content and category, checks CMS-admin membership, and preserves UUID, archive numeric ID and all media associations. The CMS remains available as fallback until browser regression is complete.
+
 ### Later retirement
 
 Only after the unified editor and public views pass regression tests should the legacy CMS posting surface be retired. Do not delete historical JSON snapshots, old media, UUID relationships, or compatibility code as part of this phase.
