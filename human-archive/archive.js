@@ -2,6 +2,7 @@
 const search=document.getElementById('ha-search'),year=document.getElementById('ha-year'),category=document.getElementById('ha-category'),list=document.getElementById('ha-list'),count=document.getElementById('ha-count'),mediaStatus=document.getElementById('ha-media-status');
 const newTransmissionButton=document.getElementById('ha-new-transmission'),createTransmissionStatus=document.getElementById('ha-create-status');
 const archiveHomeUrl=new URL('./',window.location.href);
+let chamberSaveConflict=false;
 let flushActiveChamberAutosave=async()=>true;
 let records=[],mediaItems=[],mediaMap=new Map(),mediaByPost=new Map(),mediaReady=false,publicBase='';
 let imageViewer=null,imageViewerImage=null,imageViewerCaption=null,imageViewerZoom=null,imageViewerOriginal=null,imageViewerClose=null;
@@ -830,7 +831,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const updateSaveLabel=()=>{if(record.source_type!=='transmission')return;const next=recordMetadataInputs.status.value;save.textContent=next==='published'?(record.status==='published'?'SAVE PUBLISHED TRANSMISSION':'PUBLISH TRANSMISSION'):(record.status==='published'?'UNPUBLISH & SAVE DRAFT':'SAVE DRAFT');};
  recordMetadataInputs?.status?.addEventListener('change',updateSaveLabel);updateSaveLabel();
  // Draft Transmissions are database-backed as the user types. Publication remains an explicit action.
- let draftAutosaveTimer=null,draftAutosaveInFlight=false,draftAutosaveQueued=false,draftAutosaveStopped=false,draftAutosaveFlushing=false,draftAutosaveLastSignature='';
+ let draftAutosaveTimer=null,draftAutosaveInFlight=false,draftAutosaveQueued=false,draftAutosaveStopped=false,draftAutosaveFlushing=false,draftAutosaveConflict=false,draftAutosaveLastSignature='';
  const draftAutosaveEnabled=record.source_type==='transmission'&&record.status==='draft';
  const deleteDraft=draftAutosaveEnabled?makeChamberNode('button','ha-chamber-delete-draft','DELETE DRAFT'):null;
  if(deleteDraft)deleteDraft.type='button';
@@ -902,6 +903,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   }
  };
  const runDraftAutosave=async()=>{
+  if(draftAutosaveConflict)return false;
   if(!draftAutosaveEnabled||draftAutosaveStopped||!archiveAdmin||!archiveSupabase||!archiveUserId)return true;
   if(draftAutosaveInFlight){draftAutosaveQueued=true;return null;}
   let state,signature,uploadedPaths=[];
@@ -915,18 +917,17 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     return true;
    }
    status.textContent='SAVING DRAFT…';
-   const {data,error}=await archiveSupabase.rpc('save_human_archive_transmission_v4',{
+   const {data,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
     p_post_id:record.post_id,p_title:state.metadata.title,p_slug:state.metadata.slug,
     p_category:state.metadata.category,p_excerpt:state.metadata.excerpt,p_status:'draft',
     p_transmission_body:state.row.transmission_body,p_prompt_style:state.row.prompt_style,
     p_lyrics_style:state.row.lyrics_style,p_output_text:state.row.output_text,
-    p_output_media:state.row.output_media,p_media_items:state.mediaItems
+    p_output_media:state.row.output_media,p_media_items:state.mediaItems,
+    p_media_width:state.metadata.mediaWidth,p_expected_updated_at:record.updated_at
    });
    if(error)throw error;
    const saved=Array.isArray(data)?data[0]:data;
-   const {error:mediaWidthError}=await archiveSupabase.from('vha_posts').update({media_width:state.metadata.mediaWidth}).eq('id',record.post_id);
-   if(mediaWidthError)console.warn('Transmission media width could not be saved:',mediaWidthError);
-   else record.media_width=state.metadata.mediaWidth;
+   record.media_width=state.metadata.mediaWidth;
    record.title=state.metadata.title;record.slug=state.metadata.slug;
    record.categories=[state.metadata.category];record.excerpt=state.metadata.excerpt;
    record.content_html=state.row.transmission_body;record.status='draft';
@@ -944,13 +945,17 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    });
    repaintAttachedPostMedia();
    draftAutosaveLastSignature=signature;
-   status.textContent=mediaWidthError?'DRAFT SAVED — MEDIA WIDTH UPDATE FAILED':'DRAFT SAVED AUTOMATICALLY';
+   status.textContent='DRAFT SAVED AUTOMATICALLY';
    return true;
   }catch(error){
    if(uploadedPaths.length)await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
    [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{delete item.uploadedDraft;});
    console.error('Human Archive draft autosave failed:',error);
-   status.textContent='AUTOSAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
+   if(error?.code==='40001'){
+    chamberSaveConflict=true;
+    draftAutosaveConflict=true;
+    status.textContent='EDIT CONFLICT — THIS TRANSMISSION CHANGED IN ANOTHER TAB. RELOAD BEFORE CONTINUING.';
+   }else status.textContent='AUTOSAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
    return false;
   }finally{
    draftAutosaveInFlight=false;
@@ -958,11 +963,12 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   }
  };
  const scheduleDraftAutosave=(delay=850)=>{
-  if(!draftAutosaveEnabled)return;
+  if(!draftAutosaveEnabled||draftAutosaveConflict)return;
   if(draftAutosaveTimer)clearTimeout(draftAutosaveTimer);
   draftAutosaveTimer=setTimeout(()=>{draftAutosaveTimer=null;runDraftAutosave();},delay);
  };
  const flushDraftAutosave=async()=>{
+  if(draftAutosaveConflict)return false;
   if(!draftAutosaveEnabled)return true;
   draftAutosaveFlushing=true;
   try{
@@ -1021,6 +1027,11 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  });
  bindChamberDisclosureControls(grid,expandButton);
  cancel.addEventListener('click',()=>{
+  if(chamberSaveConflict){
+   const discard=window.confirm('This tab has unsaved changes that conflict with a newer version. Discard this tab’s changes and return to the read-only chamber?');
+   if(!discard)return;
+   chamberSaveConflict=false;flushActiveChamberAutosave=async()=>true;
+  }
   richEditorController?.destroy();
   status.textContent='';
   renderRecordStructureView(record,grid,status,editButton,expandButton);
@@ -1125,37 +1136,43 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
     if(metadata.status==='published'&&!row.transmission_body.trim())throw new Error('Add transmission content before publishing.');
     if(metadata.status==='published'&&metadata.category==='UNASSIGNED')throw new Error('Choose a movement category before publishing.');
-    const {data:saveResult,error}=await archiveSupabase.rpc('save_human_archive_transmission_v4',{
+    const {data:saveResult,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
      p_post_id:record.post_id,p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,p_status:metadata.status,
      p_transmission_body:row.transmission_body,p_prompt_style:row.prompt_style,p_lyrics_style:row.lyrics_style,
-     p_output_text:row.output_text,p_output_media:row.output_media,p_media_items:savedPostMedia
+     p_output_text:row.output_text,p_output_media:row.output_media,p_media_items:savedPostMedia,
+     p_media_width:metadata.mediaWidth,p_expected_updated_at:record.updated_at
     });
     if(error)throw error;
     const saved=Array.isArray(saveResult)?saveResult[0]:saveResult;
     record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.content_html=row.transmission_body;
     record.media_items=savedPostMedia.map((item,index)=>({id:'transmission-'+record.post_id+'-'+index,title:item.name||record.title,alt_text:item.name||record.title,mime_type:item.type+'/unknown',storage_path:item.path||'',source_url:item.url,url:item.url,storage:'vha-post-media',post_ids:[Number(record.id)]}));
-    record.status=metadata.status;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||new Date().toISOString();
+    record.status=metadata.status;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||new Date().toISOString();record.media_width=metadata.mediaWidth;
     const dateStamp=record.published_at||record.created_at||record.updated_at;record.date=String(dateStamp).slice(0,10);record.year=record.date.slice(0,4);
     if(!categoryOrder.includes(metadata.category))categoryOrder.push(metadata.category);
     if(![...category.options].some(option=>option.value===metadata.category)){
      const option=document.createElement('option');option.value=metadata.category;option.textContent=metadata.category;category.append(option);
     }
    }else{
-    const {error}=await archiveSupabase.from('human_archive_record_structures').upsert(row,{onConflict:'record_id'});
+    const {data:structureResult,error}=await archiveSupabase.rpc('save_human_archive_record_structure_v1',{
+     p_record_id:Number(record.id),p_expected_updated_at:oldStructure.updated_at||null,
+     p_transmission_body:row.transmission_body,p_prompt_style:row.prompt_style,
+     p_lyrics_style:row.lyrics_style,p_output_text:row.output_text,p_output_media:row.output_media
+    });
     if(error)throw error;
+    const savedStructure=Array.isArray(structureResult)?structureResult[0]:structureResult;
+    row.updated_at=savedStructure?.updated_at||new Date().toISOString();
    }
    recordStructureOverrides.set(String(record.id),row);
    const keepPaths=new Set(['image','audio','video'].flatMap(type=>Array.isArray(outputMedia[type])?outputMedia[type]:[])
     .filter(item=>item&&item.storage==='vha-post-media').map(item=>item.path).filter(Boolean));
    const removedPaths=[...new Set(oldOwnedPaths)].filter(path=>!keepPaths.has(path));
    let cleanupWarning=false;
-   const {error:mediaWidthError}=await archiveSupabase.from('vha_posts').update({media_width:metadata.mediaWidth}).eq('id',record.post_id);
-    if(mediaWidthError){cleanupWarning=true;console.warn('Transmission media width could not be saved:',mediaWidthError);}else record.media_width=metadata.mediaWidth;
+   
     if(removedPaths.length){
     const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedPaths);
     if(removeError){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from storage:',removeError);}
    }
-   status.textContent=cleanupWarning?'CHAMBER SAVED — MEDIA WIDTH OR FILE CLEANUP NEEDS ATTENTION':'CHAMBER REDESIGNED // CHANGES SAVED';
+   status.textContent=cleanupWarning?'CHAMBER SAVED — FILE CLEANUP NEEDS ATTENTION':'CHAMBER REDESIGNED // CHANGES SAVED';
    richEditorController?.destroy();
    if(record.source_type==='transmission'){
     const titleNode=recordChamber?.querySelector('.ha-chamber-title');if(titleNode)titleNode.textContent=record.title;
@@ -1174,7 +1191,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     if(cleanupError)console.error('New chamber uploads could not be rolled back:',cleanupError);
    }
    console.error('Human Archive chamber could not be saved:',error);
-   status.textContent='SAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
+   if(error?.code==='40001')chamberSaveConflict=true;
+   status.textContent=error?.code==='40001'?'EDIT CONFLICT — THIS RECORD CHANGED IN ANOTHER TAB. RELOAD BEFORE CONTINUING.':'SAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
    save.disabled=false;cancel.disabled=false;save.textContent='SAVE CHAMBER';
   }
  });
@@ -1227,6 +1245,11 @@ function buildRecordChamber(record){
 let chamberCloseRequestedByUser=false;
 async function closeRecordChamberSafely(){
  if(!recordChamber?.open){if(window.parent!==window)window.parent.postMessage({type:'VHA_TRANSMISSION_EDITOR_CLOSED'},window.location.origin);return;}
+ if(chamberSaveConflict){
+  const discard=window.confirm('A newer version was saved in another tab. This tab has unsaved changes that cannot be merged safely. Close this chamber and discard this tab’s changes?');
+  if(!discard){if(window.parent!==window)window.parent.postMessage({type:'VHA_TRANSMISSION_EDITOR_CLOSE_FAILED'},window.location.origin);return;}
+  chamberCloseRequestedByUser=true;recordChamber.close();return;
+ }
  try{
   const flushed=await flushActiveChamberAutosave();
   if(flushed===false){if(window.parent!==window)window.parent.postMessage({type:'VHA_TRANSMISSION_EDITOR_CLOSE_FAILED'},window.location.origin);return;}
@@ -1258,6 +1281,7 @@ function ensureRecordChamber(){
 }
 function openArchiveRecordChamber(record,trigger,openInEditor=false){
  if(!record||!records.some(item=>String(item.id)===String(record.id)))return;
+ chamberSaveConflict=false;
  const dialog=ensureRecordChamber();if(dialog.open)dialog.close();
  dialog.replaceChildren(buildRecordChamber(record));chamberRecordId=String(record.id);recordChamberReturnFocus=trigger||null;
  const url=new URL(archiveHomeUrl.href);url.searchParams.set('record',String(record.id));history.replaceState(history.state,'',url.pathname+url.search+url.hash);document.body.classList.add('ha-chamber-open');
@@ -1320,10 +1344,10 @@ async function initArchiveFeatures(){
     await loadTransmissionRecords();
     render();
     syncFavoriteControls();
-    if(recordChamber?.open){
-     const record=records.find(item=>String(item.id)===chamberRecordId);
-     if(record)openArchiveRecordChamber(record,null);else recordChamber.close();
-    }
+    // Supabase auth is shared across tabs. Refresh permissions without rebuilding
+    // an open chamber, which would discard that tab's unsaved editor state.
+    const chamberEditButton=recordChamber?.querySelector('.ha-chamber-edit');
+    if(chamberEditButton)chamberEditButton.hidden=!archiveAdmin;
    },0);
   });
  }
