@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-17T17:05:17.023697Z",
-  "last_processed_sha": "0fb2ea0b6f5d411d68cfa2d0530481fedbb9389e",
+  "updated_at": "2026-11-17T17:22:29.729517Z",
+  "last_processed_sha": "db602ca3648119785dce06984ad79248bfb867cd",
   "entries": [
+    {
+      "id": "db602ca3648119785dce06984ad79248bfb867cd",
+      "timestamp": "2026-11-17T18:22:13+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Unify chamber form and remove unreliable local recovery (#104). It updates archive.js.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Unify chamber form and remove unreliable local recovery (#104)",
+          "url": "https://github.com/iYakuza/landing-page/commit/db602ca3648119785dce06984ad79248bfb867cd",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "0fb2ea0b6f5d411d68cfa2d0530481fedbb9389e",
       "timestamp": "2026-11-17T18:05:09+01:00",
@@ -1130,31 +1151,6 @@
           "message": "Make Human Archive Chamber and favourites shared across all records (#60)",
           "url": "https://github.com/iYakuza/landing-page/commit/299be2ecd95d34fbb8072258a8fb8cc0d84af40b",
           "files": [
-            "human-archive/archive.js",
-            "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "3cfe6e0d78ab513890f060f8f0f6bdd9b3323b37",
-      "timestamp": "2026-11-15T02:59:21+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Align Human Archive chamber controls in share row (#59). It updates archive.css, archive.js, index.html.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Align Human Archive chamber controls in share row (#59)",
-          "url": "https://github.com/iYakuza/landing-page/commit/3cfe6e0d78ab513890f060f8f0f6bdd9b3323b37",
-          "files": [
-            "human-archive/archive.css",
             "human-archive/archive.js",
             "human-archive/index.html"
           ]
