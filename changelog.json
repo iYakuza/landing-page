@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-17T01:35:39.065501Z",
-  "last_processed_sha": "91cfa1fc1c868e33d336eb383412dcf233c92a26",
+  "updated_at": "2026-11-17T01:42:17.009604Z",
+  "last_processed_sha": "3b28898b5a777804a2a59314c7a732d9a3c8fc9b",
   "entries": [
+    {
+      "id": "3b28898b5a777804a2a59314c7a732d9a3c8fc9b",
+      "timestamp": "2026-11-17T02:42:09+01:00",
+      "category": "FEATURE",
+      "component": "Website",
+      "title": "New capabilities for Website",
+      "description": "This update brings together Add local recovery to Human Archive chamber editor (#86). It updates archive.js.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Add local recovery to Human Archive chamber editor (#86)",
+          "url": "https://github.com/iYakuza/landing-page/commit/3b28898b5a777804a2a59314c7a732d9a3c8fc9b",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "91cfa1fc1c868e33d336eb383412dcf233c92a26",
       "timestamp": "2026-11-17T02:35:31+01:00",
@@ -1063,27 +1084,6 @@
           "files": [
             "posts/index.html",
             "posts/posts.css"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "601186a7b8a5f4f6104edb3724993f66e23d0ee2",
-      "timestamp": "2026-11-15T00:12:46+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Remove creator navigation from community archive (#44). It updates index.html.",
-      "commit_count": 1,
-      "files": [
-        "posts/community/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Remove creator navigation from community archive (#44)",
-          "url": "https://github.com/iYakuza/landing-page/commit/601186a7b8a5f4f6104edb3724993f66e23d0ee2",
-          "files": [
-            "posts/community/index.html"
           ]
         }
       ]
