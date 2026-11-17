@@ -1298,15 +1298,17 @@ function hasLocalChamberRecovery(record){
   return Boolean(snapshot&&snapshot.version===1);
  }catch{return false;}
 }
-function openArchiveRecordChamber(record,trigger){
+function openArchiveRecordChamber(record,trigger,openInEditor=false){
  if(!record||!records.some(item=>String(item.id)===String(record.id)))return;
  const dialog=ensureRecordChamber();if(dialog.open)dialog.close();
  dialog.replaceChildren(buildRecordChamber(record));chamberRecordId=String(record.id);recordChamberReturnFocus=trigger||null;
  const url=new URL(archiveHomeUrl.href);url.searchParams.set('record',String(record.id));history.replaceState(history.state,'',url.pathname+url.search+url.hash);document.body.classList.add('ha-chamber-open');
  try{
+  // Build the editor before opening the native dialog. This avoids relying on a
+  // post-navigation animation frame, which browsers may defer while a tab is
+  // backgrounded or restoring its rendering lifecycle.
+  if(archiveAdmin&&(openInEditor||hasLocalChamberRecovery(record)))dialog.querySelector('.ha-chamber-edit')?.click();
   dialog.showModal();
-  // Recovery is applied by the editor builder, so reopen the editor whenever this record has a local snapshot.
-  if(archiveAdmin&&hasLocalChamberRecovery(record))dialog.querySelector('.ha-chamber-edit')?.click();
  }catch(error){document.body.classList.remove('ha-chamber-open');console.error('Could not open the Human Archive chamber:',error);}
 }
 function openRequestedRecordFromUrl(){
@@ -1332,15 +1334,9 @@ async function createHumanArchiveTransmission(){
   render();syncFavoriteControls();
   const record=records.find(item=>item.source_type==='transmission'&&item.post_id===created.id);
   if(!record)throw new Error('The draft was created, but could not be loaded into the Archive. Refresh the page to find it.');
-  openArchiveRecordChamber(record,newTransmissionButton);
-  // Let the newly opened chamber paint before switching it into edit mode.
-  // This avoids a blank-looking chamber when creation follows a page navigation.
-  requestAnimationFrame(()=>{
-   if(!recordChamber?.open||chamberRecordId!==String(record.id))return;
-   const editButton=recordChamber.querySelector('.ha-chamber-edit');
-   editButton?.click();
-   recordChamber.querySelector('.ha-chamber-editor-field')?.focus({preventScroll:true});
-  });
+  openArchiveRecordChamber(record,newTransmissionButton,true);
+  // The editor was prepared before the dialog opened; focus its first field now.
+  recordChamber?.querySelector('.ha-chamber-editor-field')?.focus({preventScroll:true});
   if(createTransmissionStatus)createTransmissionStatus.textContent='NEW DRAFT READY // HA-'+record.year+'-'+String(record.id).padStart(4,'0');
  }catch(error){
   console.error('Human Archive Transmission could not be created:',error);
