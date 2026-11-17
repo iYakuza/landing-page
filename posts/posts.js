@@ -78,7 +78,7 @@
   const MOVEMENTS=['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'];
   function displayCategory(value){
     const category=String(value||'').trim().toUpperCase();
-    return MOVEMENTS.includes(category)?category:(category.startsWith('COMMUNITY')?'COMMUNITY SIGNAL':'UNASSIGNED');
+    return MOVEMENTS.includes(category)?category:(category==='HUMAN ARCHIVE'?'HUMAN ARCHIVE':(category.startsWith('COMMUNITY')?'COMMUNITY SIGNAL':'UNASSIGNED'));
   }
   function renderCategories(){
     const selected=categoryFilter.value;
@@ -202,7 +202,7 @@
     const term=search.value.trim().toLowerCase(),category=categoryFilter.value;
     const filtered=(permalink
       ? posts.filter(post=>post.slug===requestedSlug)
-      : posts.filter(post=>(!requestedMovement||displayCategory(post.category)===requestedMovement)&&(!category||displayCategory(post.category)===category)&&[post.title,post.category,post.excerpt,post.content_html].join(' ').replace(/<[^>]*>/g,' ').toLowerCase().includes(term)))
+      : posts.filter(post=>displayCategory(post.category)!=='HUMAN ARCHIVE'&&(!requestedMovement||displayCategory(post.category)===requestedMovement)&&(!category||displayCategory(post.category)===category)&&[post.title,post.category,post.excerpt,post.content_html].join(' ').replace(/<[^>]*>/g,' ').toLowerCase().includes(term)))
       .sort((a,b)=>new Date(b.published_at||b.created_at)-new Date(a.published_at||a.created_at));
     if(permalink){
       search.closest('label')?.setAttribute('hidden','');
