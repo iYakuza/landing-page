@@ -1367,6 +1367,14 @@ async function initArchiveFeatures(){
  render();
  syncFavoriteControls();
  openRequestedRecordFromUrl();
+ const launchParams=new URLSearchParams(window.location.search);
+ if(launchParams.get('new')==='1'){
+  launchParams.delete('new');
+  const cleanUrl=new URL(window.location.href);cleanUrl.searchParams.delete('new');
+  history.replaceState(history.state,'',cleanUrl.pathname+cleanUrl.search+cleanUrl.hash);
+  if(archiveAdmin)await createHumanArchiveTransmission();
+  else if(createTransmissionStatus)createTransmissionStatus.textContent='ADMIN SESSION REQUIRED';
+ }
 }
 
 function makeFavoriteMark(record){
