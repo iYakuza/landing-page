@@ -642,6 +642,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  };
  const mediaTouched={image:false,audio:false,video:false};
  let recordMetadataInputs=null;
+ let attachedPostMedia=[];
  grid.replaceChildren();
  if(record.source_type==='transmission'){
  const metadataDetails=makeChamberDisclosure('00 // RECORD DETAILS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-metadata-panel','ha-chamber-panel-heading');
@@ -670,6 +671,47 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  metadataDetails.body.append(metadataFields,statusNote);
  grid.append(metadataDetails.details);
  recordMetadataInputs={title:titleInput,slug:slugInput,category:categoryInput,excerpt:excerptInput,status:statusSelect};
+ }
+ if(record.source_type==='transmission'){
+ attachedPostMedia=(Array.isArray(record.media_items)?record.media_items:[]).map((item,index)=>{
+  const mime=String(item.mime_type||'').toLowerCase();
+  const type=['image','audio','video'].includes(item.type)?item.type:(mime.startsWith('image/')?'image':mime.startsWith('video/')?'video':'audio');
+  return {id:String(item.id||'attached-'+index),name:String(item.title||item.name||record.title),url:String(item.source_url||item.url||''),path:String(item.storage_path||item.path||''),type,mime_type:mime,storage:String(item.storage||'vha-post-media')};
+ }).filter(item=>item.url);
+ const attachedPanel=makeChamberDisclosure('00.5 // POST ATTACHMENTS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-attached-panel','ha-chamber-panel-heading');
+ const attachedList=makeChamberNode('div','ha-chamber-media-editor-list');
+ const repaintAttached=()=>{
+  attachedList.replaceChildren();
+  if(!attachedPostMedia.length)attachedList.append(makeChamberNode('p','ha-chamber-note','NO POST ATTACHMENTS SELECTED.'));
+  attachedPostMedia.forEach((item,index)=>{
+   const row=makeChamberNode('div','ha-chamber-media-editor-item');
+   row.append(makeChamberNode('span','ha-chamber-media-editor-name',item.name||record.title));
+   row.append(makeChamberNode('small','ha-chamber-media-editor-state',item.file?'READY TO UPLOAD':item.type.toUpperCase()+' // EXISTING ATTACHMENT'));
+   const remove=makeChamberNode('button','ha-chamber-media-remove','REMOVE ✕');remove.type='button';
+   remove.setAttribute('aria-label','Remove '+(item.name||'attachment'));
+   remove.addEventListener('click',()=>{attachedPostMedia.splice(index,1);repaintAttached();status.textContent='ATTACHMENTS UPDATED — SAVE THE CHAMBER TO APPLY';});
+   row.append(remove);attachedList.append(row);
+  });
+ };
+ const attachedInput=document.createElement('input');attachedInput.type='file';attachedInput.multiple=true;attachedInput.className='ha-chamber-file-input';
+ attachedInput.accept='image/jpeg,image/png,image/webp,image/gif,image/avif,audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm';
+ attachedInput.setAttribute('aria-label','Choose post attachments');
+ const attachedLabel=makeChamberNode('label','ha-chamber-upload-label');
+ attachedLabel.append(makeChamberNode('span','','ADD POST ATTACHMENTS +'),attachedInput);
+ attachedInput.addEventListener('change',()=>{
+  const files=[...attachedInput.files||[]],rejected=[];
+  files.slice(0,10).forEach(file=>{
+   const type=file.type.startsWith('image/')?'image':file.type.startsWith('audio/')?'audio':file.type.startsWith('video/')?'video':'';
+   const mime=type?chamberFileMime(file,type):null;
+   if(!mime){rejected.push(file.name+' (unsupported format)');return;}
+   if(file.size>30*1024*1024){rejected.push(file.name+' (over 30 MB)');return;}
+   attachedPostMedia.push({id:'pending-'+chamberUploadToken(),name:file.name,type,mime_type:mime,file,storage:'vha-post-media'});
+  });
+  if(files.length>10)rejected.push('Only the first 10 files were checked.');
+  repaintAttached();attachedInput.value='';
+  status.textContent=rejected.length?'Some files were not added: '+rejected.join('; '):'ATTACHMENTS ADDED — SAVE THE CHAMBER TO UPLOAD';
+ });
+ attachedPanel.body.append(attachedList,attachedLabel);grid.append(attachedPanel.details);repaintAttached();
  }
  const transmission=makeChamberDisclosure('01 // TRANSMISSION BODY','ha-chamber-panel ha-chamber-edit-panel ha-chamber-transmission-panel','ha-chamber-panel-heading');
  const transmissionTop=makeChamberNode('div','ha-rich-editor-top');
@@ -730,6 +772,23 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    .filter(item=>item&&item.storage==='vha-post-media'&&typeof item.path==='string'&&item.path.startsWith('human-archive/'+String(record.id)+'/'))
    .map(item=>item.path);
   try{
+   const savedPostMedia=[];
+   for(const item of attachedPostMedia){
+    if(item.file){
+     status.textContent='UPLOADING POST ATTACHMENT // '+item.name;
+     const token=chamberUploadToken();
+     const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
+     const path='human-archive/'+String(record.id)+'/attachments/'+token+'-'+safeName;
+     const {error:uploadError}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{cacheControl:'3600',contentType:item.mime_type,upsert:false});
+     if(uploadError)throw uploadError;
+     uploadedPaths.push(path);
+     const {data:publicData}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
+     if(!publicData?.publicUrl)throw new Error('The attachment URL could not be created.');
+     savedPostMedia.push({url:publicData.publicUrl,path,type:item.type,name:item.name});
+    }else{
+     savedPostMedia.push({url:item.url,path:item.path||null,type:item.type,name:item.name});
+    }
+   }
    const outputMedia={};
    for(const type of ['image','audio','video']){
     const savedItems=[];
@@ -786,14 +845,15 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
     if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
     if(metadata.status==='published'&&!row.transmission_body.trim())throw new Error('Add transmission content before publishing.');
     if(metadata.status==='published'&&metadata.category==='UNASSIGNED')throw new Error('Choose a movement category before publishing.');
-    const {data:saveResult,error}=await archiveSupabase.rpc('save_human_archive_transmission_v3',{
+    const {data:saveResult,error}=await archiveSupabase.rpc('save_human_archive_transmission_v4',{
      p_post_id:record.post_id,p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,p_status:metadata.status,
      p_transmission_body:row.transmission_body,p_prompt_style:row.prompt_style,p_lyrics_style:row.lyrics_style,
-     p_output_text:row.output_text,p_output_media:row.output_media
+     p_output_text:row.output_text,p_output_media:row.output_media,p_media_items:savedPostMedia
     });
     if(error)throw error;
     const saved=Array.isArray(saveResult)?saveResult[0]:saveResult;
     record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.content_html=row.transmission_body;
+    record.media_items=savedPostMedia.map((item,index)=>({id:'transmission-'+record.post_id+'-'+index,title:item.name||record.title,alt_text:item.name||record.title,mime_type:item.type+'/unknown',storage_path:item.path||'',source_url:item.url,url:item.url,storage:'vha-post-media',post_ids:[Number(record.id)]}));
     record.status=metadata.status;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||new Date().toISOString();
     const dateStamp=record.published_at||record.created_at||record.updated_at;record.date=String(dateStamp).slice(0,10);record.year=record.date.slice(0,4);
     if(!categoryOrder.includes(metadata.category))categoryOrder.push(metadata.category);
