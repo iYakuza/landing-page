@@ -1,8 +1,33 @@
 {
   "version": 1,
-  "updated_at": "2026-11-17T17:22:29.729517Z",
-  "last_processed_sha": "db602ca3648119785dce06984ad79248bfb867cd",
+  "updated_at": "2026-11-17T17:54:31.004134Z",
+  "last_processed_sha": "ccfe50d449c7e24398067ba01ce9cc2615c71622",
   "entries": [
+    {
+      "id": "ccfe50d449c7e24398067ba01ce9cc2615c71622",
+      "timestamp": "2026-11-17T18:54:18+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Make chamber sessions independent across browser tabs (#105). It updates archive.js, index.html, 20261117190000_independent_concurrent_chamber_sessions.sql.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js",
+        "human-archive/index.html",
+        "supabase/migrations/20261117190000_independent_concurrent_chamber_sessions.sql"
+      ],
+      "commits": [
+        {
+          "message": "Make chamber sessions independent across browser tabs (#105)",
+          "url": "https://github.com/iYakuza/landing-page/commit/ccfe50d449c7e24398067ba01ce9cc2615c71622",
+          "files": [
+            "human-archive/archive.js",
+            "human-archive/index.html",
+            "supabase/migrations/20261117190000_independent_concurrent_chamber_sessions.sql"
+          ]
+        }
+      ]
+    },
     {
       "id": "db602ca3648119785dce06984ad79248bfb867cd",
       "timestamp": "2026-11-17T18:22:13+01:00",
@@ -1128,29 +1153,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/b602eb8ace866d6987a5512b6821470cd0bd7c64",
           "files": [
             "human-archive/archive.css",
-            "human-archive/archive.js",
-            "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "299be2ecd95d34fbb8072258a8fb8cc0d84af40b",
-      "timestamp": "2026-11-15T03:10:23+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Make Human Archive Chamber and favourites shared across all records (#60). It updates archive.js, index.html.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.js",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Make Human Archive Chamber and favourites shared across all records (#60)",
-          "url": "https://github.com/iYakuza/landing-page/commit/299be2ecd95d34fbb8072258a8fb8cc0d84af40b",
-          "files": [
             "human-archive/archive.js",
             "human-archive/index.html"
           ]
