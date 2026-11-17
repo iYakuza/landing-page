@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-17T16:40:10.248255Z",
-  "last_processed_sha": "4449ed8ee2e364607c2de4a30046f6bf73800ccb",
+  "updated_at": "2026-11-17T17:05:17.023697Z",
+  "last_processed_sha": "0fb2ea0b6f5d411d68cfa2d0530481fedbb9389e",
   "entries": [
+    {
+      "id": "0fb2ea0b6f5d411d68cfa2d0530481fedbb9389e",
+      "timestamp": "2026-11-17T18:05:09+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Keep archive chamber in view mode by default (#103). It updates archive.js.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Keep archive chamber in view mode by default (#103)",
+          "url": "https://github.com/iYakuza/landing-page/commit/0fb2ea0b6f5d411d68cfa2d0530481fedbb9389e",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "4449ed8ee2e364607c2de4a30046f6bf73800ccb",
       "timestamp": "2026-11-17T17:40:02+01:00",
@@ -1132,31 +1153,6 @@
         {
           "message": "Align Human Archive chamber controls in share row (#59)",
           "url": "https://github.com/iYakuza/landing-page/commit/3cfe6e0d78ab513890f060f8f0f6bdd9b3323b37",
-          "files": [
-            "human-archive/archive.css",
-            "human-archive/archive.js",
-            "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "1fe1d3106a31fa532d758fc7a9ff426f88fea259",
-      "timestamp": "2026-11-15T02:52:27+01:00",
-      "category": "FIX",
-      "component": "Website Updates",
-      "title": "More reliable Website Updates",
-      "description": "This update brings together Fix Human Archive Chamber control visibility (#58). It updates archive.css, archive.js, index.html.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Fix Human Archive Chamber control visibility (#58)",
-          "url": "https://github.com/iYakuza/landing-page/commit/1fe1d3106a31fa532d758fc7a9ff426f88fea259",
           "files": [
             "human-archive/archive.css",
             "human-archive/archive.js",
