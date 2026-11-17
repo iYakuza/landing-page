@@ -170,7 +170,7 @@
     let changed=false;
     if(!titleInput.value.trim()){titleInput.value='Untitled transmission';changed=true;}
     if(!slugify(slugInput.value)){slugInput.value='untitled-transmission-'+Date.now().toString(36);changed=true;}
-    if(!categoryInput.value.trim()){categoryInput.value='UNASSIGNED';changed=true;}
+    if(!categoryInput.value.trim()){categoryInput.value='HUMAN ARCHIVE';changed=true;}
     if(changed){slugManuallyEdited=false;setStatus('DRAFT DETAILS AUTO-FILLED');}
     return changed;
   }
@@ -220,12 +220,12 @@
     if(requestedNewPost){
       blankEditor();
       if(embeddedComposer&&restoreLocalRecovery())return;
-      if(['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'].includes(requestedCategory)){
+      if(['HUMAN ARCHIVE','THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'].includes(requestedCategory)){
         categoryInput.value=requestedCategory;
         setStatus('NEW POST // '+requestedCategory);
         message(saveMessage,'New transmission for '+requestedCategory+'. Add the title and content, then save or publish.');
       }else{
-        message(saveMessage,'New transmission. Choose a movement, add the title and content, then save or publish.');
+        message(saveMessage,'New transmission. Choose Human Archive or one of the five Movements, then add the title and content.');
       }
     }
   }
@@ -345,7 +345,8 @@
     if(status==='draft'&&embeddedComposer&&ensureQuickPostDraftMetadata())persistLocalRecovery(false);
     if(saving||!currentUser){message(saveMessage,'The editor is not ready to save. Please wait for authentication and try again.',true);return false;}
     const title=titleInput.value.trim(),slug=slugify(slugInput.value),category=categoryInput.value.trim().toUpperCase();
-    if(!title||!slug||!category){message(saveMessage,'To keep this transmission, add a title and choose a movement category before closing.',true);return false;}
+    const validArchiveCategories=new Set(['HUMAN ARCHIVE','THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN']);
+    if(!title||!slug||!validArchiveCategories.has(category)){message(saveMessage,'Add a title, then choose Human Archive or one of the five Movements.',true);return false;}
     if(!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)){message(saveMessage,'Use a valid lowercase URL slug.',true);return false;}
     const revisionAtSave=recoveryRevision;
     const previousSavedMediaItems=originalMediaItems.map(item=>({...item}));
@@ -353,7 +354,6 @@
     const firstMedia=mediaItems[0]||null;
     const payload={title,slug,category,excerpt:excerptInput.value.trim(),content_html:cleanHtml(composedHtml),media_items:mediaItems,media_url:firstMedia?.url||null,media_path:firstMedia?.path||null,media_type:firstMedia?.type||null,media_width:postMediaWidth,status};
     if(status==='published'&&!payload.content_html.trim()){message(saveMessage,'Add some content before publishing.',true);return false;}
-    if(status==='published'&&category==='UNASSIGNED'){message(saveMessage,'Choose a movement category before publishing this transmission.',true);return false;}
     saving=true;$('save-draft').disabled=true;$('publish-post').disabled=true;message(saveMessage,status==='published'?'PUBLISHING…':'SAVING DRAFT…');
     try{
       let query=client.from('vha_posts');
