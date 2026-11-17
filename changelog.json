@@ -1,8 +1,35 @@
 {
   "version": 1,
-  "updated_at": "2026-11-17T00:16:13.903474Z",
-  "last_processed_sha": "d3ab70eb4a21fd91dd42cb62ebe4022e5cdcfb54",
+  "updated_at": "2026-11-17T00:33:02.677587Z",
+  "last_processed_sha": "1b0bfa64ae4660b525990e2e7aac2421d805b830",
   "entries": [
+    {
+      "id": "1b0bfa64ae4660b525990e2e7aac2421d805b830",
+      "timestamp": "2026-11-17T01:32:49+01:00",
+      "category": "FEATURE",
+      "component": "Website Updates",
+      "title": "New capabilities for Website Updates",
+      "description": "This update brings together Create new Transmissions directly in Human Archive (#83). It updates archive.css, archive.js, index.html, 20261117110000_create_human_archive_transmission.sql.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.css",
+        "human-archive/archive.js",
+        "human-archive/index.html",
+        "supabase/migrations/20261117110000_create_human_archive_transmission.sql"
+      ],
+      "commits": [
+        {
+          "message": "Create new Transmissions directly in Human Archive (#83)",
+          "url": "https://github.com/iYakuza/landing-page/commit/1b0bfa64ae4660b525990e2e7aac2421d805b830",
+          "files": [
+            "human-archive/archive.css",
+            "human-archive/archive.js",
+            "human-archive/index.html",
+            "supabase/migrations/20261117110000_create_human_archive_transmission.sql"
+          ]
+        }
+      ]
+    },
     {
       "id": "d3ab70eb4a21fd91dd42cb62ebe4022e5cdcfb54",
       "timestamp": "2026-11-17T01:16:06+01:00",
@@ -1051,29 +1078,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/abb55062c655069189410f3e618e0e71d3374519",
           "files": [
             "cv/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "72d06d40aee9c942b38ac6195dca803649f6c635",
-      "timestamp": "2026-11-15T00:02:55+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Hide Green Dream radio before first paint (#41). It updates game-ui.css, index.html.",
-      "commit_count": 1,
-      "files": [
-        "game-ui.css",
-        "green-dream/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Hide Green Dream radio before first paint (#41)",
-          "url": "https://github.com/iYakuza/landing-page/commit/72d06d40aee9c942b38ac6195dca803649f6c635",
-          "files": [
-            "game-ui.css",
-            "green-dream/index.html"
           ]
         }
       ]
