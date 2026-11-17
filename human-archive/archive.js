@@ -2,6 +2,7 @@
 const search=document.getElementById('ha-search'),year=document.getElementById('ha-year'),category=document.getElementById('ha-category'),list=document.getElementById('ha-list'),count=document.getElementById('ha-count'),mediaStatus=document.getElementById('ha-media-status');
 const newTransmissionButton=document.getElementById('ha-new-transmission'),createTransmissionStatus=document.getElementById('ha-create-status');
 const archiveHomeUrl=new URL('./',window.location.href);
+let chamberSaveConflict=false;
 let flushActiveChamberAutosave=async()=>true;
 let records=[],mediaItems=[],mediaMap=new Map(),mediaByPost=new Map(),mediaReady=false,publicBase='';
 let imageViewer=null,imageViewerImage=null,imageViewerCaption=null,imageViewerZoom=null,imageViewerOriginal=null,imageViewerClose=null;
@@ -951,6 +952,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{delete item.uploadedDraft;});
    console.error('Human Archive draft autosave failed:',error);
    if(error?.code==='40001'){
+    chamberSaveConflict=true;
     draftAutosaveConflict=true;
     status.textContent='EDIT CONFLICT — THIS TRANSMISSION CHANGED IN ANOTHER TAB. RELOAD BEFORE CONTINUING.';
    }else status.textContent='AUTOSAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
@@ -1184,6 +1186,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     if(cleanupError)console.error('New chamber uploads could not be rolled back:',cleanupError);
    }
    console.error('Human Archive chamber could not be saved:',error);
+   if(error?.code==='40001')chamberSaveConflict=true;
    status.textContent=error?.code==='40001'?'EDIT CONFLICT — THIS RECORD CHANGED IN ANOTHER TAB. RELOAD BEFORE CONTINUING.':'SAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
    save.disabled=false;cancel.disabled=false;save.textContent='SAVE CHAMBER';
   }
@@ -1237,6 +1240,11 @@ function buildRecordChamber(record){
 let chamberCloseRequestedByUser=false;
 async function closeRecordChamberSafely(){
  if(!recordChamber?.open){if(window.parent!==window)window.parent.postMessage({type:'VHA_TRANSMISSION_EDITOR_CLOSED'},window.location.origin);return;}
+ if(chamberSaveConflict){
+  const discard=window.confirm('A newer version was saved in another tab. This tab has unsaved changes that cannot be merged safely. Close this chamber and discard this tab’s changes?');
+  if(!discard){if(window.parent!==window)window.parent.postMessage({type:'VHA_TRANSMISSION_EDITOR_CLOSE_FAILED'},window.location.origin);return;}
+  chamberCloseRequestedByUser=true;recordChamber.close();return;
+ }
  try{
   const flushed=await flushActiveChamberAutosave();
   if(flushed===false){if(window.parent!==window)window.parent.postMessage({type:'VHA_TRANSMISSION_EDITOR_CLOSE_FAILED'},window.location.origin);return;}
@@ -1268,6 +1276,7 @@ function ensureRecordChamber(){
 }
 function openArchiveRecordChamber(record,trigger,openInEditor=false){
  if(!record||!records.some(item=>String(item.id)===String(record.id)))return;
+ chamberSaveConflict=false;
  const dialog=ensureRecordChamber();if(dialog.open)dialog.close();
  dialog.replaceChildren(buildRecordChamber(record));chamberRecordId=String(record.id);recordChamberReturnFocus=trigger||null;
  const url=new URL(archiveHomeUrl.href);url.searchParams.set('record',String(record.id));history.replaceState(history.state,'',url.pathname+url.search+url.hash);document.body.classList.add('ha-chamber-open');
@@ -1330,10 +1339,10 @@ async function initArchiveFeatures(){
     await loadTransmissionRecords();
     render();
     syncFavoriteControls();
-    if(recordChamber?.open){
-     const record=records.find(item=>String(item.id)===chamberRecordId);
-     if(record)openArchiveRecordChamber(record,null);else recordChamber.close();
-    }
+    // Supabase auth is shared across tabs. Refresh permissions without rebuilding
+    // an open chamber, which would discard that tab's unsaved editor state.
+    const chamberEditButton=recordChamber?.querySelector('.ha-chamber-edit');
+    if(chamberEditButton)chamberEditButton.hidden=!archiveAdmin;
    },0);
   });
  }
