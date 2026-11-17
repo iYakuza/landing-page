@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-17T01:55:38.772208Z",
-  "last_processed_sha": "2bd6b6068aa67b5e501086382ddfe8485eb692ff",
+  "updated_at": "2026-11-17T02:00:49.955597Z",
+  "last_processed_sha": "00cf0d14d9c261a888c2360c3c5d45d701a9eac6",
   "entries": [
+    {
+      "id": "00cf0d14d9c261a888c2360c3c5d45d701a9eac6",
+      "timestamp": "2026-11-17T03:00:39+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Restore Human Archive drafts automatically when reopening a chamber (#88). It updates archive.js, index.html.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Restore Human Archive drafts automatically when reopening a chamber (#88)",
+          "url": "https://github.com/iYakuza/landing-page/commit/00cf0d14d9c261a888c2360c3c5d45d701a9eac6",
+          "files": [
+            "human-archive/archive.js",
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "2bd6b6068aa67b5e501086382ddfe8485eb692ff",
       "timestamp": "2026-11-17T02:55:25+01:00",
@@ -1058,29 +1081,6 @@
         {
           "message": "Right-align category filter inside movement navigation (#47)",
           "url": "https://github.com/iYakuza/landing-page/commit/09ad3985cfce4b54f907241d19316f3d141645a0",
-          "files": [
-            "posts/index.html",
-            "posts/posts.css"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "7aa8a8698b0c01664d3d7f89f964e2d607831012",
-      "timestamp": "2026-11-15T00:18:57+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Keep only the category dropdown in archive controls (#46). It updates index.html, posts.css.",
-      "commit_count": 1,
-      "files": [
-        "posts/index.html",
-        "posts/posts.css"
-      ],
-      "commits": [
-        {
-          "message": "Keep only the category dropdown in archive controls (#46)",
-          "url": "https://github.com/iYakuza/landing-page/commit/7aa8a8698b0c01664d3d7f89f964e2d607831012",
           "files": [
             "posts/index.html",
             "posts/posts.css"
