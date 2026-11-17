@@ -907,16 +907,20 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   const existingOutput=structure.output_media&&typeof structure.output_media==='object'?structure.output_media:{};
   const outputMedia={};
   for(const type of ['image','audio','video']){
-   const hasPending=editorMedia[type].some(item=>item.file);
-   outputMedia[type]=hasPending?(Array.isArray(existingOutput[type])?existingOutput[type]:[]):editorMedia[type].map(item=>({
-    id:String(item.id||item.path||item.url||chamberUploadToken()),name:String(item.name||record.title),
-    url:String(item.url||''),path:typeof item.path==='string'?item.path:'',
-    mime_type:String(item.mime_type||''),storage:String(item.storage||'recovered')
-   }));
+   const hasUnuploaded=editorMedia[type].some(item=>item.file&&!item.uploadedDraft);
+   outputMedia[type]=hasUnuploaded?(Array.isArray(existingOutput[type])?existingOutput[type]:[]):editorMedia[type].map(item=>{
+    const uploaded=item.uploadedDraft||{};
+    return {
+     id:String(item.id||uploaded.path||item.path||item.url||chamberUploadToken()),name:String(item.name||record.title),
+     url:String(uploaded.url||item.url||''),path:String(uploaded.path||item.path||''),
+     mime_type:String(uploaded.mime_type||item.mime_type||''),storage:String(uploaded.storage||item.storage||'recovered')
+    };
+   });
   }
-  const mediaItems=attachedPostMedia.filter(item=>!item.file).map(item=>({
-   url:item.url,path:item.path||null,type:item.type,name:item.name
-  }));
+  const mediaItems=attachedPostMedia.map(item=>{
+   const uploaded=item.uploadedDraft||{};
+   return {url:uploaded.url||item.url,path:uploaded.path||item.path||null,type:item.type,name:item.name};
+  }).filter(item=>item.url);
   const row={
    record_id:Number(record.id),transmission_body:transmissionBody,
    prompt_style:promptArea.value,lyrics_style:lyricsArea.value,output_text:textArea.value,
@@ -924,17 +928,44 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   };
   return {metadata,row,mediaItems};
  };
+ const uploadPendingDraftMedia=async()=>{
+  const uploadedPaths=[];
+  const uploadOne=async(item,folder,type)=>{
+   if(!item.file||item.uploadedDraft)return;
+   const token=chamberUploadToken();
+   const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
+   const path='human-archive/'+String(record.id)+'/'+folder+'/'+token+'-'+safeName;
+   const {error}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{cacheControl:'3600',contentType:item.mime_type,upsert:false});
+   if(error)throw error;
+   uploadedPaths.push(path);
+   const {data}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
+   if(!data?.publicUrl)throw new Error('The uploaded media URL could not be created.');
+   item.uploadedDraft={url:data.publicUrl,path,type:type||item.type,name:item.name,mime_type:item.mime_type,storage:'vha-post-media'};
+  };
+  try{
+   for(const item of attachedPostMedia)await uploadOne(item,'attachments',item.type);
+   for(const type of ['image','audio','video'])for(const item of editorMedia[type])await uploadOne(item,type,type);
+   return uploadedPaths;
+  }catch(error){
+   if(uploadedPaths.length)await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
+   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{delete item.uploadedDraft;});
+   throw error;
+  }
+ };
  const runDraftAutosave=async()=>{
   if(!draftAutosaveEnabled||!archiveAdmin||!archiveSupabase||!archiveUserId)return;
   if(draftAutosaveInFlight){draftAutosaveQueued=true;return;}
-  let state,signature;
+  let state,signature,uploadedPaths=[];
+  draftAutosaveInFlight=true;
   try{
+   uploadedPaths=await uploadPendingDraftMedia();
    state=buildDraftAutosaveState();
    signature=JSON.stringify({metadata:state.metadata,row:{...state.row,updated_at:null,updated_by:null},mediaItems:state.mediaItems});
-  }catch(error){status.textContent='DRAFT NOT SAVED — '+String(error.message||'CHECK THE FIELDS');return;}
-  if(signature===draftAutosaveLastSignature)return;
-  draftAutosaveInFlight=true;status.textContent='SAVING DRAFT…';
-  try{
+   if(signature===draftAutosaveLastSignature){
+    uploadedPaths.forEach(path=>console.warn('Draft media already represented in the saved record:',path));
+    return;
+   }
+   status.textContent='SAVING DRAFT…';
    const {data,error}=await archiveSupabase.rpc('save_human_archive_transmission_v4',{
     p_post_id:record.post_id,p_title:state.metadata.title,p_slug:state.metadata.slug,
     p_category:state.metadata.category,p_excerpt:state.metadata.excerpt,p_status:'draft',
@@ -956,10 +987,15 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    record.updated_at=saved?.updated_at||state.row.updated_at;
    state.row.updated_at=record.updated_at;
    recordStructureOverrides.set(String(record.id),state.row);
+   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{
+    if(item.uploadedDraft){Object.assign(item,item.uploadedDraft);item.file=null;delete item.uploadedDraft;}
+   });
+   repaintAttachedPostMedia();
    draftAutosaveLastSignature=signature;
-   const pendingFiles=attachedPostMedia.some(item=>item.file)||['image','audio','video'].some(type=>editorMedia[type].some(item=>item.file));
-   status.textContent=pendingFiles?'DRAFT SAVED — NEW MEDIA WILL UPLOAD WHEN YOU SAVE THE CHAMBER':'DRAFT SAVED AUTOMATICALLY';
+   status.textContent='DRAFT SAVED AUTOMATICALLY';
   }catch(error){
+   if(uploadedPaths.length)await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
+   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{delete item.uploadedDraft;});
    console.error('Human Archive draft autosave failed:',error);
    status.textContent='AUTOSAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
   }finally{
