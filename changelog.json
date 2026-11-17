@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-17T18:34:59.424076Z",
-  "last_processed_sha": "3e66543449eae54b05697534bf318ef463520868",
+  "updated_at": "2026-11-17T20:15:17.451693Z",
+  "last_processed_sha": "dc8e8501638d11e383054b06633561bb95ca558b",
   "entries": [
+    {
+      "id": "dc8e8501638d11e383054b06633561bb95ca558b",
+      "timestamp": "2026-11-17T21:15:08+01:00",
+      "category": "FIX",
+      "component": "Website",
+      "title": "More reliable Website",
+      "description": "This update brings together Fix public Human Archive chamber read-only rendering. It updates archive.js.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Fix public Human Archive chamber read-only rendering",
+          "url": "https://github.com/iYakuza/landing-page/commit/dc8e8501638d11e383054b06633561bb95ca558b",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "3e66543449eae54b05697534bf318ef463520868",
       "timestamp": "2026-11-17T19:34:43+01:00",
@@ -1170,27 +1191,6 @@
             "human-archive/archive.css",
             "human-archive/archive.js",
             "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "84e088f4388c44c46af88a26ac9e82f10b20602c",
-      "timestamp": "2026-11-15T03:30:30+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Show original source link only when record is expanded (#62). It updates archive.js.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.js"
-      ],
-      "commits": [
-        {
-          "message": "Show original source link only when record is expanded (#62)",
-          "url": "https://github.com/iYakuza/landing-page/commit/84e088f4388c44c46af88a26ac9e82f10b20602c",
-          "files": [
-            "human-archive/archive.js"
           ]
         }
       ]
