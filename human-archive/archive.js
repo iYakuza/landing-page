@@ -1073,16 +1073,26 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
      slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
      category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
      excerpt:String(recordMetadataInputs.excerpt.value).trim(),
+     status:String(recordMetadataInputs.status.value).trim().toLowerCase(),
      mediaWidth:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100))
     };
     if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
     if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
     if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
     if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
+    if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
+    const initialBody=postLayoutControls&&postLayoutControls.select.value!=='standard'
+     ?(postLayoutControls.select.value==='plain'
+      ?'<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.plain.value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>'
+      :'<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.main.value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeLayoutText(postLayoutControls.fields.lyrics.value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+layoutParagraphs(postLayoutControls.fields.prompt.value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.learned.value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.chatgpt.value)+'</section></aside></div>')
+     :sanitizeTransmissionBody(transmissionEditor.innerHTML);
+    const publishText=postLayoutControls?.select.value==='plain'?postLayoutControls.fields.plain.value:
+     postLayoutControls?.select.value==='suno'?postLayoutControls.fields.main.value:transmissionEditor.innerText;
+    if(metadata.status==='published'&&!String(publishText||'').trim())throw new Error('Add transmission content before publishing.');
     status.textContent='CREATING TRANSMISSION…';
     const {data:createResult,error:createError}=await archiveSupabase.rpc('create_human_archive_transmission_v3',{
      p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,
-     p_status:'draft',p_transmission_body:'',p_prompt_style:'',p_lyrics_style:'',p_output_text:'',
+     p_status:'draft',p_transmission_body:initialBody,p_prompt_style:promptArea.value,p_lyrics_style:lyricsArea.value,p_output_text:textArea.value,
      p_output_media:{},p_media_items:[],p_media_width:metadata.mediaWidth
     });
     if(createError)throw createError;
