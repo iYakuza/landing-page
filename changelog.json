@@ -1,8 +1,69 @@
 {
   "version": 1,
-  "updated_at": "2026-11-17T11:43:22.197855Z",
-  "last_processed_sha": "04e89cb0b0b6c7e81de6700bee85e4625ea04aae",
+  "updated_at": "2026-11-17T11:53:21.257042Z",
+  "last_processed_sha": "a2010547c22a7495b6d78645ce65eebce319b67a",
   "entries": [
+    {
+      "id": "a2010547c22a7495b6d78645ce65eebce319b67a",
+      "timestamp": "2026-11-17T12:53:05+01:00",
+      "category": "CONTENT",
+      "component": "Website Experience",
+      "title": "Fresh additions to Website Experience",
+      "description": "This update brings together Route Quick Post into Human Archive (#94). It updates index.html, creator-posting.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        "community/index.html",
+        "creator-posting.js",
+        "cv/index.html",
+        "green-dream/guest-notes/architecture-of-harm/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html",
+        "green-dream/guest-notes/ethical-framework/index.html",
+        "green-dream/guest-notes/ethical-framework/ro/index.html",
+        "green-dream/guest-notes/index.html",
+        "green-dream/guest-notes/integration-without-assimilation/index.html",
+        "green-dream/guest-notes/revision-history/index.html",
+        "green-dream/index.html",
+        "human-archive/archive.js",
+        "human-archive/index.html",
+        "index.html",
+        "music/index.html",
+        "posts/community/index.html",
+        "posts/index.html",
+        "posts/the-awakening/index.html",
+        "posts/the-descent/index.html",
+        "posts/the-reconnection/index.html",
+        "posts/the-return/index.html",
+        "posts/the-transformation/index.html",
+        "secure-your-soul/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Route Quick Post into Human Archive (#94)",
+          "url": "https://github.com/iYakuza/landing-page/commit/a2010547c22a7495b6d78645ce65eebce319b67a",
+          "files": [
+            "community/index.html",
+            "creator-posting.js",
+            "cv/index.html",
+            "green-dream/guest-notes/architecture-of-harm/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "04e89cb0b0b6c7e81de6700bee85e4625ea04aae",
       "timestamp": "2026-11-17T12:43:10+01:00",
@@ -1045,33 +1106,6 @@
             "human-archive/archive.js",
             "human-archive/index.html",
             "supabase/migrations/20261115002237_human_archive_record_structures.sql"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "f11f6cb467736a64ef7e11041f604753379ed5ce",
-      "timestamp": "2026-11-15T00:56:10+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Pilot Human Archive favourites and full-screen record chamber (#50). It updates archive.css, archive.js, index.html, 20261114234943_human_archive_favorites.sql.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html",
-        "supabase/migrations/20261114234943_human_archive_favorites.sql"
-      ],
-      "commits": [
-        {
-          "message": "Pilot Human Archive favourites and full-screen record chamber (#50)",
-          "url": "https://github.com/iYakuza/landing-page/commit/f11f6cb467736a64ef7e11041f604753379ed5ce",
-          "files": [
-            "human-archive/archive.css",
-            "human-archive/archive.js",
-            "human-archive/index.html",
-            "supabase/migrations/20261114234943_human_archive_favorites.sql"
           ]
         }
       ]
