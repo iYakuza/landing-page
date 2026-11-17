@@ -643,6 +643,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  const mediaTouched={image:false,audio:false,video:false};
  let recordMetadataInputs=null;
  let attachedPostMedia=[];
+ let repaintAttachedPostMedia=()=>{};
  let postLayoutControls=null;
  const escapeLayoutText=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
  const layoutParagraphs=value=>String(value||'').split(/\n{2,}/).map(part=>'<p>'+escapeLayoutText(part).replace(/\n/g,'<br>')+'</p>').join('');
@@ -761,7 +762,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   repaintAttached();attachedInput.value='';
   status.textContent=rejected.length?'Some files were not added: '+rejected.join('; '):'ATTACHMENTS ADDED — SAVE THE CHAMBER TO UPLOAD';
  });
- attachedPanel.body.append(attachedList,attachedLabel);grid.append(attachedPanel.details);repaintAttached();
+ attachedPanel.body.append(attachedList,attachedLabel);grid.append(attachedPanel.details);repaintAttached();repaintAttachedPostMedia=repaintAttached;
  }
  const transmission=makeChamberDisclosure('01 // TRANSMISSION BODY','ha-chamber-panel ha-chamber-edit-panel ha-chamber-transmission-panel','ha-chamber-panel-heading');
  const transmissionTop=makeChamberNode('div','ha-rich-editor-top');
@@ -795,6 +796,76 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   output.body.append(media.details);
  });
  grid.append(output.details);
+ // Local recovery mirrors Quick Post without changing the chamber's explicit cloud-save workflow.
+ const chamberRecoveryKey=archiveUserId?'vha_human_archive_recovery_'+archiveUserId+'_'+String(record.id):null;
+ const chamberRecoveryBaseline=String(record.updated_at||record.created_at||'');
+ let chamberRecoveryTimer=null;
+ const chamberRecoveryFields={promptArea,lyricsArea,textArea};
+ const readChamberRecovery=()=>{
+  if(!chamberRecoveryKey)return null;
+  try{return JSON.parse(localStorage.getItem(chamberRecoveryKey)||'null');}catch{return null;}
+ };
+ const persistChamberRecovery=()=>{
+  if(!chamberRecoveryKey)return;
+  const snapshot={
+   version:1,updatedAt:new Date().toISOString(),baselineUpdatedAt:chamberRecoveryBaseline,
+   metadata:record.source_type==='transmission'?{
+    title:recordMetadataInputs.title.value,slug:recordMetadataInputs.slug.value,
+    category:recordMetadataInputs.category.value,excerpt:recordMetadataInputs.excerpt.value,
+    status:recordMetadataInputs.status.value
+   }:null,
+   transmissionHtml:transmissionEditor.innerHTML,
+   layout:postLayoutControls?{
+    selected:postLayoutControls.select.value,
+    fields:Object.fromEntries(Object.entries(postLayoutControls.fields).map(([key,field])=>[key,field.value]))
+   }:null,
+   prompt:chamberRecoveryFields.promptArea.value,lyrics:chamberRecoveryFields.lyricsArea.value,
+   outputText:chamberRecoveryFields.textArea.value,
+   postAttachments:attachedPostMedia.filter(item=>!item.file).map(item=>({
+    id:item.id,name:item.name,url:item.url,path:item.path||null,type:item.type,
+    mime_type:item.mime_type||'',storage:item.storage||'vha-post-media'
+   })),
+   pendingAttachmentCount:attachedPostMedia.filter(item=>item.file).length
+  };
+  try{
+   localStorage.setItem(chamberRecoveryKey,JSON.stringify(snapshot));
+   status.textContent='SAVED LOCALLY — CHAMBER RECOVERY READY';
+  }catch(error){
+   status.textContent='LOCAL RECOVERY UNAVAILABLE — '+String(error.message||'STORAGE ERROR');
+  }
+ };
+ const scheduleChamberRecovery=()=>{
+  if(chamberRecoveryTimer)clearTimeout(chamberRecoveryTimer);
+  chamberRecoveryTimer=setTimeout(persistChamberRecovery,350);
+ };
+ const recovery=readChamberRecovery();
+ if(recovery?.version===1){
+  if(recovery.baselineUpdatedAt===chamberRecoveryBaseline){
+   if(recovery.metadata&&recordMetadataInputs){
+    Object.entries(recovery.metadata).forEach(([key,value])=>{if(recordMetadataInputs[key])recordMetadataInputs[key].value=String(value??'');});
+   }
+   if(typeof recovery.transmissionHtml==='string')transmissionEditor.innerHTML=sanitizeTransmissionBody(recovery.transmissionHtml);
+   if(recovery.layout&&postLayoutControls){
+    if(typeof recovery.layout.selected==='string')postLayoutControls.select.value=recovery.layout.selected;
+    Object.entries(recovery.layout.fields||{}).forEach(([key,value])=>{const field=postLayoutControls.fields[key];if(field)field.value=String(value??'');});
+    postLayoutControls.sync();
+   }
+   chamberRecoveryFields.promptArea.value=String(recovery.prompt??promptArea.value);
+   chamberRecoveryFields.lyricsArea.value=String(recovery.lyrics??lyricsArea.value);
+   chamberRecoveryFields.textArea.value=String(recovery.outputText??textArea.value);
+   if(Array.isArray(recovery.postAttachments)){
+    attachedPostMedia=recovery.postAttachments.filter(item=>item&&typeof item.url==='string'&&typeof item.type==='string').map(item=>({...item,file:null}));
+    repaintAttachedPostMedia();
+   }
+   status.textContent='RECOVERED LOCAL CHAMBER EDIT — SAVE CHAMBER TO APPLY'+(recovery.pendingAttachmentCount?' // '+recovery.pendingAttachmentCount+' NEW FILE(S) MUST BE RE-SELECTED':'');
+  }else{
+   status.textContent='OLDER LOCAL RECOVERY COPY FOUND — NOT RESTORED BECAUSE THE RECORD HAS CHANGED';
+  }
+ }
+ grid.addEventListener('input',scheduleChamberRecovery);
+ grid.addEventListener('change',scheduleChamberRecovery);
+ const persistChamberRecoveryOnPageHide=()=>persistChamberRecovery();
+ window.addEventListener('pagehide',persistChamberRecoveryOnPageHide);
  const actions=makeChamberNode('div','ha-chamber-editor-actions');
  const save=makeChamberNode('button','ha-chamber-save','SAVE CHAMBER');save.type='button';
  const cancel=makeChamberNode('button','ha-chamber-cancel','CANCEL');cancel.type='button';
@@ -928,6 +999,9 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
     const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedPaths);
     if(removeError){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from storage:',removeError);}
    }
+   if(chamberRecoveryTimer)clearTimeout(chamberRecoveryTimer);
+   window.removeEventListener('pagehide',persistChamberRecoveryOnPageHide);
+   if(chamberRecoveryKey){try{localStorage.removeItem(chamberRecoveryKey);}catch{}}
    status.textContent=cleanupWarning?'CHAMBER SAVED — SOME REMOVED FILES COULD NOT BE CLEANED UP':'CHAMBER REDESIGNED // CHANGES SAVED';
    richEditorController?.destroy();
    if(record.source_type==='transmission'){
