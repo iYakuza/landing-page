@@ -66,8 +66,6 @@ grant execute on function public.create_human_archive_transmission() to authenti
 -- SECURITY INVOKER keeps existing RLS policies in force. The existing
 -- vha_posts_touch_updated_at trigger maintains published_at on status changes.
 
-begin;
-
 create or replace function public.save_human_archive_transmission_v5(
   p_post_id uuid,
   p_title text,
@@ -208,7 +206,6 @@ grant execute on function public.save_human_archive_transmission_v5(uuid,text,te
 comment on function public.save_human_archive_transmission_v5(uuid,text,text,text,text,text,text,text,text,text,jsonb,jsonb,integer,timestamptz) is
   'Atomically saves Transmission metadata, publication status and Human Archive chamber structure with optimistic concurrency control. Existing vha_posts status trigger sets published_at on first publication and clears it on unpublish. Preserves post UUID and archive numeric ID while updating the explicitly supplied CMS attachment list.';
 
-commit;
 
 -- Optimistic concurrency protection for Human Archive records edited in parallel tabs.
 create or replace function public.save_human_archive_record_structure_v1(
@@ -288,3 +285,5 @@ revoke all on function public.save_human_archive_record_structure_v1(bigint,time
   from public, anon, service_role;
 grant execute on function public.save_human_archive_record_structure_v1(bigint,timestamptz,text,text,text,text,jsonb)
   to authenticated;
+
+commit;
