@@ -117,10 +117,10 @@ $$;
 
 revoke all on function public.save_human_archive_transmission_v4(uuid,text,text,text,text,text,text,text,text,text,jsonb,jsonb)
   from public, anon, service_role;
-grant execute on function public.save_human_archive_transmission_v4(uuid,text,text,text,text,text,text,text,text,text,jsonb)
+grant execute on function public.save_human_archive_transmission_v4(uuid,text,text,text,text,text,text,text,text,text,jsonb,jsonb)
   to authenticated;
 
-comment on function public.save_human_archive_transmission_v4(uuid,text,text,text,text,text,text,text,text,text,jsonb) is
+comment on function public.save_human_archive_transmission_v4(uuid,text,text,text,text,text,text,text,text,text,jsonb,jsonb) is
   'Atomically saves Transmission metadata, publication status and Human Archive chamber structure. Existing vha_posts status trigger sets published_at on first publication and clears it on unpublish. Preserves post UUID and archive numeric ID while updating the explicitly supplied CMS attachment list.';
 
 commit;
