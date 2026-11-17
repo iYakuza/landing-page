@@ -804,3 +804,8 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
 @media(max-width:700px){.ha-chamber-metadata-grid{grid-template-columns:1fr}.ha-chamber-metadata-field:last-child{grid-column:auto}}
 /* Publication control in the Transmission record details panel. */
 .ha-chamber-metadata-field select.ha-chamber-meta-input{appearance:auto;cursor:pointer}
+
+/* Admin entry point for creating a new Human Archive-backed Transmission. */
+.ha-new-transmission{min-height:42px;padding:0 14px;font:9px 'DM Mono',monospace;letter-spacing:1px;white-space:nowrap}
+.ha-new-transmission:disabled{opacity:.55;cursor:wait}
+.ha-create-status{color:var(--muted);font:9px 'DM Mono',monospace;letter-spacing:.6px;min-width:0}
