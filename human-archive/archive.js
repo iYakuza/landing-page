@@ -1093,12 +1093,24 @@ function ensureRecordChamber(){
  });
  document.body.append(recordChamber);return recordChamber;
 }
+function hasLocalChamberRecovery(record){
+ if(!archiveUserId||!record)return false;
+ try{
+  const key='vha_human_archive_recovery_'+archiveUserId+'_'+String(record.id);
+  const snapshot=JSON.parse(localStorage.getItem(key)||'null');
+  return Boolean(snapshot&&snapshot.version===1);
+ }catch{return false;}
+}
 function openArchiveRecordChamber(record,trigger){
  if(!record||!records.some(item=>String(item.id)===String(record.id)))return;
  const dialog=ensureRecordChamber();if(dialog.open)dialog.close();
  dialog.replaceChildren(buildRecordChamber(record));chamberRecordId=String(record.id);recordChamberReturnFocus=trigger||null;
  const url=new URL(archiveHomeUrl.href);url.searchParams.set('record',String(record.id));history.replaceState(history.state,'',url.pathname+url.search+url.hash);document.body.classList.add('ha-chamber-open');
- try{dialog.showModal();}catch(error){document.body.classList.remove('ha-chamber-open');console.error('Could not open the Human Archive chamber:',error);}
+ try{
+  dialog.showModal();
+  // Recovery is applied by the editor builder, so reopen the editor whenever this record has a local snapshot.
+  if(archiveAdmin&&hasLocalChamberRecovery(record))dialog.querySelector('.ha-chamber-edit')?.click();
+ }catch(error){document.body.classList.remove('ha-chamber-open');console.error('Could not open the Human Archive chamber:',error);}
 }
 function openRequestedRecordFromUrl(){
  const params=new URLSearchParams(window.location.search);
