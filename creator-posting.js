@@ -53,11 +53,25 @@
 
   button.addEventListener('click', openNewTransmission);
 
+  async function ensureSupabase() {
+    if (window.supabase?.createClient) return true;
+    return new Promise(resolve => {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';
+      script.async = true;
+      script.crossOrigin = 'anonymous';
+      script.referrerPolicy = 'no-referrer';
+      script.onload = () => resolve(Boolean(window.supabase?.createClient));
+      script.onerror = () => resolve(false);
+      document.head.appendChild(script);
+    });
+  }
+
   async function refresh(sessionOverride) {
     if (refreshing) return;
     refreshing = true;
     try {
-      if (!window.supabase?.createClient) {
+      if (!await ensureSupabase()) {
         isCreator = false;
         return;
       }
