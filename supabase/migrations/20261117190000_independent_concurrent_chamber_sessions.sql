@@ -279,7 +279,7 @@ begin
       output_media = excluded.output_media,
       updated_at = excluded.updated_at,
       updated_by = excluded.updated_by
-  returning updated_at into v_saved_updated_at;
+  returning human_archive_record_structures.updated_at into v_saved_updated_at;
 
   return query select v_saved_updated_at;
 end;
