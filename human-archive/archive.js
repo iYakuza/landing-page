@@ -1085,6 +1085,7 @@ function ensureRecordChamber(){
  recordChamber.addEventListener('click',event=>{if(event.target===recordChamber)recordChamber.close();});
  recordChamber.addEventListener('close',()=>{
   persistActiveChamberRecovery();
+  persistActiveChamberRecovery=()=>{};
   document.body.classList.remove('ha-chamber-open');
   history.replaceState(history.state,'',archiveHomeUrl.pathname+archiveHomeUrl.hash);
   if(recordChamberReturnFocus?.isConnected)recordChamberReturnFocus.focus();
