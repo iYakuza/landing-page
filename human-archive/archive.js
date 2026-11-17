@@ -1295,7 +1295,7 @@ function buildRecordChamber(record){
 }
 let chamberCloseRequestedByUser=false;
 async function closeRecordChamberSafely(){
- if(!recordChamber?.open)return;
+ if(!recordChamber?.open){if(window.parent!==window)window.parent.postMessage({type:'VHA_TRANSMISSION_EDITOR_CLOSED'},window.location.origin);return;}
  try{
   const flushed=await persistActiveChamberRecovery();
   if(flushed===false){if(window.parent!==window)window.parent.postMessage({type:'VHA_TRANSMISSION_EDITOR_CLOSE_FAILED'},window.location.origin);return;}
