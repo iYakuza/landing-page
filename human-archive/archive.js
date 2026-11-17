@@ -1,6 +1,8 @@
 (()=>{'use strict';
 const search=document.getElementById('ha-search'),year=document.getElementById('ha-year'),category=document.getElementById('ha-category'),list=document.getElementById('ha-list'),count=document.getElementById('ha-count'),mediaStatus=document.getElementById('ha-media-status');
 const newTransmissionButton=document.getElementById('ha-new-transmission'),createTransmissionStatus=document.getElementById('ha-create-status');
+const archiveHomeUrl=new URL('./',window.location.href);
+let persistActiveChamberRecovery=()=>{};
 let records=[],mediaItems=[],mediaMap=new Map(),mediaByPost=new Map(),mediaReady=false,publicBase='';
 let imageViewer=null,imageViewerImage=null,imageViewerCaption=null,imageViewerZoom=null,imageViewerOriginal=null,imageViewerClose=null;
 const expandedCategories=new Set();
@@ -838,6 +840,10 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   if(chamberRecoveryTimer)clearTimeout(chamberRecoveryTimer);
   chamberRecoveryTimer=setTimeout(persistChamberRecovery,350);
  };
+ persistActiveChamberRecovery=()=>{
+  if(chamberRecoveryTimer)clearTimeout(chamberRecoveryTimer);
+  persistChamberRecovery();
+ };
  const recovery=readChamberRecovery();
  if(recovery?.version===1){
   if(recovery.baselineUpdatedAt===chamberRecoveryBaseline){
@@ -1001,6 +1007,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    }
    if(chamberRecoveryTimer)clearTimeout(chamberRecoveryTimer);
    window.removeEventListener('pagehide',persistChamberRecoveryOnPageHide);
+   if(chamberRecordId===String(record.id))persistActiveChamberRecovery=()=>{};
    if(chamberRecoveryKey){try{localStorage.removeItem(chamberRecoveryKey);}catch{}}
    status.textContent=cleanupWarning?'CHAMBER SAVED — SOME REMOVED FILES COULD NOT BE CLEANED UP':'CHAMBER REDESIGNED // CHANGES SAVED';
    richEditorController?.destroy();
@@ -1010,8 +1017,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
     if(metaNode)metaNode.textContent='HA-'+record.year+'-'+String(record.id).padStart(4,'0')+' // '+record.date+' // '+record.categories.join(' / ');
     const shareNode=recordChamber?.querySelector('.ha-chamber-share'),shareStatus=recordChamber?.querySelector('.ha-chamber-share-status');
     if(shareNode&&shareStatus){shareNode.replaceChildren();appendChamberShareActions(shareNode,record,shareStatus);}
-    const chamberUrl=new URL(encodeURIComponent(record.slug),new URL('./',window.location.href));
-    history.replaceState(history.state,'',chamberUrl.pathname+chamberUrl.hash);
+    const chamberUrl=new URL(archiveHomeUrl.href);chamberUrl.searchParams.set('record',String(record.id));
+    history.replaceState(history.state,'',chamberUrl.pathname+chamberUrl.search+chamberUrl.hash);
     render();
    }
    renderRecordStructureView(record,grid,status,editButton,expandButton);
@@ -1077,9 +1084,9 @@ function ensureRecordChamber(){
  recordChamber.setAttribute('aria-label','Human Archive record chamber');
  recordChamber.addEventListener('click',event=>{if(event.target===recordChamber)recordChamber.close();});
  recordChamber.addEventListener('close',()=>{
+  persistActiveChamberRecovery();
   document.body.classList.remove('ha-chamber-open');
-  const url=new URL('./',window.location.href);
-  history.replaceState(history.state,'',url.pathname+url.hash);
+  history.replaceState(history.state,'',archiveHomeUrl.pathname+archiveHomeUrl.hash);
   if(recordChamberReturnFocus?.isConnected)recordChamberReturnFocus.focus();
   recordChamberReturnFocus=null;
  });
@@ -1089,7 +1096,7 @@ function openArchiveRecordChamber(record,trigger){
  if(!record||!records.some(item=>String(item.id)===String(record.id)))return;
  const dialog=ensureRecordChamber();if(dialog.open)dialog.close();
  dialog.replaceChildren(buildRecordChamber(record));chamberRecordId=String(record.id);recordChamberReturnFocus=trigger||null;
- const url=new URL(encodeURIComponent(record.slug),new URL('./',window.location.href));history.replaceState(history.state,'',url.pathname+url.hash);document.body.classList.add('ha-chamber-open');
+ const url=new URL(archiveHomeUrl.href);url.searchParams.set('record',String(record.id));history.replaceState(history.state,'',url.pathname+url.search+url.hash);document.body.classList.add('ha-chamber-open');
  try{dialog.showModal();}catch(error){document.body.classList.remove('ha-chamber-open');console.error('Could not open the Human Archive chamber:',error);}
 }
 function openRequestedRecordFromUrl(){
