@@ -117,7 +117,8 @@
     refreshing = true;
     try {
       await ensureSupabase();
-      if (!client) client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+      if (!client) client = window.__vhaSupabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+      window.__vhaSupabaseClient = client;
       let session = sessionOverride;
       if (sessionOverride === undefined) {
         const result = await client.auth.getSession();
