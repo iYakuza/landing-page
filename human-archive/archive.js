@@ -1071,7 +1071,7 @@ function buildRecordChamber(record){
   if(!archiveAdmin){shareStatus.textContent='ADMIN ACCESS REQUIRED';return;}
   renderRecordStructureEditor(record,grid,shareStatus,edit,expand);
  });
- close.addEventListener('click',()=>recordChamber.close());
+ close.addEventListener('click',()=>{persistActiveChamberRecovery();recordChamber.close();});
  const footer=makeChamberNode('footer','ha-chamber-footer');
  const source=safeExternalUrl(record.url,new Set(['emanuelstefancu.wordpress.com']));
  if(source){const link=makeChamberNode('a','ha-chamber-source','OPEN ORIGINAL SOURCE ↗');link.href=source;link.target='_blank';link.rel='noopener noreferrer';footer.append(link);}
@@ -1082,9 +1082,20 @@ function ensureRecordChamber(){
  if(recordChamber)return recordChamber;
  recordChamber=makeChamberNode('dialog','ha-record-chamber');
  recordChamber.setAttribute('aria-label','Human Archive record chamber');
- recordChamber.addEventListener('click',event=>{if(event.target===recordChamber)recordChamber.close();});
+ const flushRecovery=()=>{
+  try{persistActiveChamberRecovery();}catch(error){console.warn('Could not flush Human Archive local recovery:',error);}
+ };
+ // Capture reloads before the browser starts unloading the page. This covers both
+ // ordinary and hard refresh shortcuts, including repeated refreshes.
+ window.addEventListener('keydown',event=>{
+  if((event.ctrlKey||event.metaKey)&&String(event.key).toLowerCase()==='r')flushRecovery();
+ },true);
+ window.addEventListener('beforeunload',flushRecovery);
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushRecovery();});
+ recordChamber.addEventListener('cancel',flushRecovery);
+ recordChamber.addEventListener('click',event=>{if(event.target===recordChamber){flushRecovery();recordChamber.close();}});
  recordChamber.addEventListener('close',()=>{
-  persistActiveChamberRecovery();
+  flushRecovery();
   persistActiveChamberRecovery=()=>{};
   document.body.classList.remove('ha-chamber-open');
   history.replaceState(history.state,'',archiveHomeUrl.pathname+archiveHomeUrl.hash);
