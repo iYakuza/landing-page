@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-16T23:58:33.721747Z",
-  "last_processed_sha": "55e36c0ffaff7e36f32fef9b51049af38f4d193c",
+  "updated_at": "2026-11-17T00:08:04.526279Z",
+  "last_processed_sha": "2f604fd78a3559dbc487651f38f8cd367a6f61d5",
   "entries": [
+    {
+      "id": "2f604fd78a3559dbc487651f38f8cd367a6f61d5",
+      "timestamp": "2026-11-17T01:07:51+01:00",
+      "category": "FIX",
+      "component": "Creator Workshop",
+      "title": "More reliable Creator Workshop",
+      "description": "This update brings together Fix Quick Post duplicate slug collisions (#80). It updates cms.js.",
+      "commit_count": 1,
+      "files": [
+        "cms/cms.js"
+      ],
+      "commits": [
+        {
+          "message": "Fix Quick Post duplicate slug collisions (#80)",
+          "url": "https://github.com/iYakuza/landing-page/commit/2f604fd78a3559dbc487651f38f8cd367a6f61d5",
+          "files": [
+            "cms/cms.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "55e36c0ffaff7e36f32fef9b51049af38f4d193c",
       "timestamp": "2026-11-17T00:58:23+01:00",
@@ -1080,53 +1101,6 @@
             "posts/community/index.html",
             "posts/index.html",
             "posts/the-awakening/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "5aeaf19cf3d098a33fa021c69ef479b9368c568a",
-      "timestamp": "2026-11-14T19:58:42+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Experience",
-      "title": "A refined Website Experience",
-      "description": "This update brings together Apply shared visual theme before first paint (#39). It updates 404.html, analytics.html, index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "404.html",
-        "cms/analytics.html",
-        "cms/index.html",
-        "community/index.html",
-        "cv/index.html",
-        "green-dream/index.html",
-        "human-archive/index.html",
-        "index.html",
-        "posts/community/index.html",
-        "posts/index.html",
-        "posts/the-awakening/index.html",
-        "posts/the-descent/index.html",
-        "posts/the-reconnection/index.html",
-        "posts/the-return/index.html",
-        "posts/the-transformation/index.html",
-        "secure-your-soul/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Apply shared visual theme before first paint (#39)",
-          "url": "https://github.com/iYakuza/landing-page/commit/5aeaf19cf3d098a33fa021c69ef479b9368c568a",
-          "files": [
-            "404.html",
-            "cms/analytics.html",
-            "cms/index.html",
-            "community/index.html",
-            "cv/index.html",
-            "green-dream/index.html",
-            "human-archive/index.html",
-            "index.html",
-            "posts/community/index.html",
-            "posts/index.html",
-            "posts/the-awakening/index.html",
-            "posts/the-descent/index.html"
           ]
         }
       ]
