@@ -357,8 +357,32 @@
     saving=true;$('save-draft').disabled=true;$('publish-post').disabled=true;message(saveMessage,status==='published'?'PUBLISHING…':'SAVING DRAFT…');
     try{
       let query=client.from('vha_posts');
-      const result=editingId?await query.update(payload).eq('id',editingId).select().single():await query.insert(payload).select().single();
+      let result;
+      if(editingId){
+        result=await query.update(payload).eq('id',editingId).select().single();
+      }else{
+        // New posts must not reuse a slug already owned by another Transmission.
+        // Keep existing slugs stable; only suffix the new record when a collision exists.
+        let candidateSlug=slug;
+        for(let attempt=0;attempt<8;attempt++){
+          const {data:matches,error:lookupError}=await client.from('vha_posts').select('id').eq('slug',candidateSlug).limit(1);
+          if(lookupError)throw lookupError;
+          if(matches?.length){
+            candidateSlug=slug+'-'+(attempt+2);
+            continue;
+          }
+          result=await query.insert({...payload,slug:candidateSlug}).select().single();
+          if(!result.error)break;
+          if(result.error.code==='23505'&&String(result.error.message||'').includes('vha_posts_slug_key')){
+            candidateSlug=slug+'-'+(attempt+2);
+            continue;
+          }
+          throw result.error;
+        }
+        if(!result||result.error)throw result?.error||new Error('Could not generate an available URL slug. Please try again.');
+      }
       if(result.error)throw result.error;
+      if(result.data.slug&&result.data.slug!==slugInput.value){slugInput.value=result.data.slug;}
       editingId=result.data.id;slugManuallyEdited=true;
       const currentPaths=new Set(mediaItems.map(item=>item.path).filter(Boolean));
       const removedPaths=previousSavedMediaItems.map(item=>item.path).filter(path=>path&&!currentPaths.has(path));
