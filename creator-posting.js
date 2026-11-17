@@ -4,7 +4,7 @@
   window.__vhaUnifiedNewTransmissionLoaded = true;
 
   const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
-  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpIw6bzg_ddvb521h';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
   const MOVEMENTS = [
     ['THE AWAKENING', 'the-awakening'],
     ['THE DESCENT', 'the-descent'],
