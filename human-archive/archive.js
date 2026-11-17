@@ -1333,7 +1333,14 @@ async function createHumanArchiveTransmission(){
   const record=records.find(item=>item.source_type==='transmission'&&item.post_id===created.id);
   if(!record)throw new Error('The draft was created, but could not be loaded into the Archive. Refresh the page to find it.');
   openArchiveRecordChamber(record,newTransmissionButton);
-  recordChamber?.querySelector('.ha-chamber-edit')?.click();
+  // Let the newly opened chamber paint before switching it into edit mode.
+  // This avoids a blank-looking chamber when creation follows a page navigation.
+  requestAnimationFrame(()=>{
+   if(!recordChamber?.open||chamberRecordId!==String(record.id))return;
+   const editButton=recordChamber.querySelector('.ha-chamber-edit');
+   editButton?.click();
+   recordChamber.querySelector('.ha-chamber-editor-field')?.focus({preventScroll:true});
+  });
   if(createTransmissionStatus)createTransmissionStatus.textContent='NEW DRAFT READY // HA-'+record.year+'-'+String(record.id).padStart(4,'0');
  }catch(error){
   console.error('Human Archive Transmission could not be created:',error);
@@ -1372,7 +1379,7 @@ async function initArchiveFeatures(){
   launchParams.delete('new');
   const cleanUrl=new URL(window.location.href);cleanUrl.searchParams.delete('new');
   history.replaceState(history.state,'',cleanUrl.pathname+cleanUrl.search+cleanUrl.hash);
-  if(archiveAdmin)await createHumanArchiveTransmission();
+  if(archiveAdmin&&newTransmissionButton&&!newTransmissionButton.disabled)newTransmissionButton.click();
   else if(createTransmissionStatus)createTransmissionStatus.textContent='ADMIN SESSION REQUIRED';
  }
 }
