@@ -560,13 +560,7 @@ function appendChamberOutputView(record,grid,structure){
  grid.append(output.details);
 }
 function renderRecordStructureView(record,grid,status,editButton,expandButton){
- const structure=getRecordStructure(record);
- grid.replaceChildren();
- makeChamberTransmissionBody(record,grid,structure);
- makeChamberTextPanel(record,grid,structure);
- appendChamberOutputView(record,grid,structure);
- bindChamberDisclosureControls(grid,expandButton);
- if(editButton)editButton.hidden=!archiveAdmin;
+ renderRecordStructureEditor(record,grid,status,editButton,expandButton,true);
 }
 function chamberFileMime(file,type){
  const supplied=String(file.type||'').toLowerCase();
@@ -636,7 +630,7 @@ function renderChamberMediaEditor(sectionBody,record,type,items,status,onChange)
  sectionBody.append(list,uploadLabel);
  repaint();
 }
-function renderRecordStructureEditor(record,grid,status,editButton,expandButton){
+function renderRecordStructureEditor(record,grid,status,editButton,expandButton,readOnly=false){
  const structure=getRecordStructure(record);
  const editorMedia={
   image:getRecordOutputMedia(record,structure,'image').map(item=>({...item})),
@@ -793,10 +787,10 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   const button=makeChamberNode('button','',label);button.type='button';button.dataset.command=command;if(value)button.dataset.value=value;toolbar.append(button);
  });
  const insertLinkButton=makeChamberNode('button','ha-rich-link','LINK');insertLinkButton.type='button';toolbar.append(insertLinkButton);
- const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable='true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Transmission body');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Write the transmission body…';transmissionEditor.innerHTML=sanitizeTransmissionBody(record.source_type==='transmission'?(record.content_html||structure.transmission_body):structure.transmission_body);
+ const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable=readOnly?'false':'true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Transmission body');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Write the transmission body…';transmissionEditor.innerHTML=sanitizeTransmissionBody(record.source_type==='transmission'?(record.content_html||structure.transmission_body):structure.transmission_body);
  transmission.body.append(transmissionTop,toolbar,transmissionEditor);grid.append(transmission.details);
  if(postLayoutControls){postLayoutControls.transmissionDetails=transmission.details;postLayoutControls.transmissionEditor=transmissionEditor;postLayoutControls.sync();}
- const richEditorController=window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
+ const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
  const prompt=makeChamberDisclosure('02 // PROMPT STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
  const promptArea=document.createElement('textarea');promptArea.className='ha-chamber-editor-field';promptArea.name='prompt_style';promptArea.rows=9;
  promptArea.value=structure.prompt_style;promptArea.placeholder='Paste or write the AI / Suno style prompt…';prompt.body.append(promptArea);grid.append(prompt.details);
@@ -818,6 +812,16 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  if(record.source_type==='transmission'){
   grid.addEventListener('input',scheduleDraftAutosave);
   grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});
+ }
+ if(readOnly){
+  grid.classList.add('ha-chamber-read-only');
+  grid.querySelectorAll('input,textarea').forEach(control=>{control.readOnly=true;control.disabled=control.type==='file'||control.type==='range';});
+  grid.querySelectorAll('select,button').forEach(control=>{control.disabled=true;});
+  grid.querySelectorAll('[contenteditable="true"]').forEach(control=>{control.contentEditable='false';});
+  grid.querySelectorAll('.ha-chamber-upload-label,.ha-chamber-media-remove').forEach(control=>{control.hidden=true;});
+  if(editButton)editButton.hidden=!archiveAdmin;
+  bindChamberDisclosureControls(grid,expandButton);
+  return;
  }
  const actions=makeChamberNode('div','ha-chamber-editor-actions');
  const save=makeChamberNode('button','ha-chamber-save','SAVE CHAMBER');save.type='button';
