@@ -825,7 +825,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   try{return JSON.parse(localStorage.getItem(chamberRecoveryKey)||'null');}catch{return null;}
  };
  const persistChamberRecovery=()=>{
-  if(!chamberRecoveryKey)return;
+  if(!chamberRecoveryKey)return false;
   const snapshot={
    version:1,updatedAt:new Date().toISOString(),baselineUpdatedAt:chamberRecoveryBaseline,
    metadata:record.source_type==='transmission'?{
@@ -849,8 +849,10 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   try{
    localStorage.setItem(chamberRecoveryKey,JSON.stringify(snapshot));
    status.textContent='SAVED LOCALLY — CHAMBER RECOVERY READY';
+   return true;
   }catch(error){
    status.textContent='LOCAL RECOVERY UNAVAILABLE — '+String(error.message||'STORAGE ERROR');
+   return false;
   }
  };
  const scheduleChamberRecovery=()=>{
@@ -1051,10 +1053,11 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    return !draftAutosaveInFlight&&!draftAutosaveQueued&&!draftAutosaveTimer;
   }finally{draftAutosaveFlushing=false;}
  };
- if(draftAutosaveEnabled)persistActiveChamberRecovery=()=>{
+ if(draftAutosaveEnabled)persistActiveChamberRecovery=async()=>{
   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
-  persistChamberRecovery();
-  return flushDraftAutosave();
+  const localSaved=persistChamberRecovery();
+  const cloudSaved=await flushDraftAutosave();
+  return localSaved||cloudSaved;
  };
 
  if(deleteDraft)actions.append(deleteDraft);
