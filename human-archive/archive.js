@@ -799,7 +799,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  });
  grid.append(output.details);
  // Local recovery mirrors Quick Post without changing the chamber's explicit cloud-save workflow.
- const chamberRecoveryKey=archiveUserId?'vha_human_archive_recovery_'+archiveUserId+'_'+String(record.id):null;
+ const chamberRecoveryKey=record.source_type==='transmission'?null:(archiveUserId?'vha_human_archive_recovery_'+archiveUserId+'_'+String(record.id):null);
  const chamberRecoveryBaseline=String(record.updated_at||record.created_at||'');
  let chamberRecoveryTimer=null;
  const chamberRecoveryFields={promptArea,lyricsArea,textArea};
@@ -868,15 +868,111 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    status.textContent='OLDER LOCAL RECOVERY COPY FOUND — NOT RESTORED BECAUSE THE RECORD HAS CHANGED';
   }
  }
- grid.addEventListener('input',scheduleChamberRecovery);
- grid.addEventListener('change',scheduleChamberRecovery);
+ if(record.source_type==='transmission'){
+  grid.addEventListener('input',()=>scheduleDraftAutosave());
+  grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});
+ }else{
+  grid.addEventListener('input',scheduleChamberRecovery);
+  grid.addEventListener('change',scheduleChamberRecovery);
+ }
  const persistChamberRecoveryOnPageHide=()=>persistChamberRecovery();
  window.addEventListener('pagehide',persistChamberRecoveryOnPageHide);
  const actions=makeChamberNode('div','ha-chamber-editor-actions');
  const save=makeChamberNode('button','ha-chamber-save','SAVE CHAMBER');save.type='button';
  const cancel=makeChamberNode('button','ha-chamber-cancel','CANCEL');cancel.type='button';
+
  const updateSaveLabel=()=>{if(record.source_type!=='transmission')return;const next=recordMetadataInputs.status.value;save.textContent=next==='published'?(record.status==='published'?'SAVE PUBLISHED TRANSMISSION':'PUBLISH TRANSMISSION'):(record.status==='published'?'UNPUBLISH & SAVE DRAFT':'SAVE DRAFT');};
  recordMetadataInputs?.status?.addEventListener('change',updateSaveLabel);updateSaveLabel();
+ // Draft Transmissions are database-backed as the user types. Publication remains an explicit action.
+ let draftAutosaveTimer=null,draftAutosaveInFlight=false,draftAutosaveQueued=false,draftAutosaveLastSignature='';
+ const draftAutosaveEnabled=record.source_type==='transmission'&&record.status==='draft';
+ const buildDraftAutosaveState=()=>{
+  const metadata={
+   title:String(recordMetadataInputs.title.value).trim(),
+   slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
+   category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
+   excerpt:String(recordMetadataInputs.excerpt.value).trim(),
+   status:'draft'
+  };
+  if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
+  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
+  if(!metadata.category||metadata.category.length>60)throw new Error('Category must contain between 1 and 60 characters.');
+  if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
+  let transmissionBody=sanitizeTransmissionBody(transmissionEditor.innerHTML);
+  if(postLayoutControls&&postLayoutControls.select.value!=='standard'){
+   transmissionBody=postLayoutControls.select.value==='plain'
+    ?'<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.plain.value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>'
+    :'<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.main.value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeLayoutText(postLayoutControls.fields.lyrics.value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+layoutParagraphs(postLayoutControls.fields.prompt.value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.learned.value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.chatgpt.value)+'</section></aside></div>';
+  }
+  const existingOutput=structure.output_media&&typeof structure.output_media==='object'?structure.output_media:{};
+  const outputMedia={};
+  for(const type of ['image','audio','video']){
+   const hasPending=editorMedia[type].some(item=>item.file);
+   outputMedia[type]=hasPending?(Array.isArray(existingOutput[type])?existingOutput[type]:[]):editorMedia[type].map(item=>({
+    id:String(item.id||item.path||item.url||chamberUploadToken()),name:String(item.name||record.title),
+    url:String(item.url||''),path:typeof item.path==='string'?item.path:'',
+    mime_type:String(item.mime_type||''),storage:String(item.storage||'recovered')
+   }));
+  }
+  const mediaItems=attachedPostMedia.filter(item=>!item.file).map(item=>({
+   url:item.url,path:item.path||null,type:item.type,name:item.name
+  }));
+  const row={
+   record_id:Number(record.id),transmission_body:transmissionBody,
+   prompt_style:promptArea.value,lyrics_style:lyricsArea.value,output_text:textArea.value,
+   output_media:outputMedia,updated_at:new Date().toISOString(),updated_by:archiveUserId
+  };
+  return {metadata,row,mediaItems};
+ };
+ const runDraftAutosave=async()=>{
+  if(!draftAutosaveEnabled||!archiveAdmin||!archiveSupabase||!archiveUserId)return;
+  if(draftAutosaveInFlight){draftAutosaveQueued=true;return;}
+  let state,signature;
+  try{
+   state=buildDraftAutosaveState();
+   signature=JSON.stringify({metadata:state.metadata,row:state.row,mediaItems:state.mediaItems});
+  }catch(error){status.textContent='DRAFT NOT SAVED — '+String(error.message||'CHECK THE FIELDS');return;}
+  if(signature===draftAutosaveLastSignature)return;
+  draftAutosaveInFlight=true;status.textContent='SAVING DRAFT…';
+  try{
+   const {data,error}=await archiveSupabase.rpc('save_human_archive_transmission_v4',{
+    p_post_id:record.post_id,p_title:state.metadata.title,p_slug:state.metadata.slug,
+    p_category:state.metadata.category,p_excerpt:state.metadata.excerpt,p_status:'draft',
+    p_transmission_body:state.row.transmission_body,p_prompt_style:state.row.prompt_style,
+    p_lyrics_style:state.row.lyrics_style,p_output_text:state.row.output_text,
+    p_output_media:state.row.output_media,p_media_items:state.mediaItems
+   });
+   if(error)throw error;
+   const saved=Array.isArray(data)?data[0]:data;
+   record.title=state.metadata.title;record.slug=state.metadata.slug;
+   record.categories=[state.metadata.category];record.excerpt=state.metadata.excerpt;
+   record.content_html=state.row.transmission_body;record.status='draft';
+   record.media_items=state.mediaItems.map((item,index)=>({
+    id:'transmission-'+record.post_id+'-'+index,title:item.name||record.title,
+    alt_text:item.name||record.title,mime_type:item.type+'/unknown',
+    storage_path:item.path||'',source_url:item.url,url:item.url,
+    storage:'vha-post-media',post_ids:[Number(record.id)]
+   }));
+   record.updated_at=saved?.updated_at||state.row.updated_at;
+   state.row.updated_at=record.updated_at;
+   recordStructureOverrides.set(String(record.id),state.row);
+   draftAutosaveLastSignature=signature;
+   const pendingFiles=attachedPostMedia.some(item=>item.file)||['image','audio','video'].some(type=>editorMedia[type].some(item=>item.file));
+   status.textContent=pendingFiles?'DRAFT SAVED — NEW MEDIA WILL UPLOAD WHEN YOU SAVE THE CHAMBER':'DRAFT SAVED AUTOMATICALLY';
+  }catch(error){
+   console.error('Human Archive draft autosave failed:',error);
+   status.textContent='AUTOSAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
+  }finally{
+   draftAutosaveInFlight=false;
+   if(draftAutosaveQueued){draftAutosaveQueued=false;scheduleDraftAutosave(0);}
+  }
+ };
+ const scheduleDraftAutosave=(delay=850)=>{
+  if(!draftAutosaveEnabled)return;
+  if(draftAutosaveTimer)clearTimeout(draftAutosaveTimer);
+  draftAutosaveTimer=setTimeout(runDraftAutosave,delay);
+ };
+
  actions.append(save,cancel);grid.append(actions);
  bindChamberDisclosureControls(grid,expandButton);
  cancel.addEventListener('click',()=>{
