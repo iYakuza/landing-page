@@ -208,6 +208,10 @@ comment on function public.save_human_archive_transmission_v5(uuid,text,text,tex
 
 
 -- Optimistic concurrency protection for Human Archive records edited in parallel tabs.
+-- Prevent stale cached clients from bypassing the new version check.
+revoke all on function public.save_human_archive_transmission_v4(uuid,text,text,text,text,text,text,text,text,text,jsonb,jsonb)
+  from public, anon, service_role, authenticated;
+
 create or replace function public.save_human_archive_record_structure_v1(
   p_record_id bigint,
   p_expected_updated_at timestamptz,
