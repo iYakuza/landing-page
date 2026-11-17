@@ -1,5 +1,6 @@
 (()=>{'use strict';
 const search=document.getElementById('ha-search'),year=document.getElementById('ha-year'),category=document.getElementById('ha-category'),list=document.getElementById('ha-list'),count=document.getElementById('ha-count'),mediaStatus=document.getElementById('ha-media-status');
+const newTransmissionButton=document.getElementById('ha-new-transmission'),createTransmissionStatus=document.getElementById('ha-create-status');
 let records=[],mediaItems=[],mediaMap=new Map(),mediaByPost=new Map(),mediaReady=false,publicBase='';
 let imageViewer=null,imageViewerImage=null,imageViewerCaption=null,imageViewerZoom=null,imageViewerOriginal=null,imageViewerClose=null;
 const expandedCategories=new Set();
@@ -911,16 +912,42 @@ function openRequestedRecordFromUrl(){
  search.value=record.title;year.value='';category.value='';render();
  const card=list.querySelector('.ha-record-card[data-ha-record-id="'+record.id+'"]');card?.scrollIntoView({behavior:'smooth',block:'center'});openArchiveRecordChamber(record,null);
 }
+async function createHumanArchiveTransmission(){
+ if(!archiveAdmin||!archiveSupabase||!archiveUserId){if(createTransmissionStatus)createTransmissionStatus.textContent='ADMIN SESSION REQUIRED';return;}
+ if(!newTransmissionButton||newTransmissionButton.disabled)return;
+ newTransmissionButton.disabled=true;
+ if(createTransmissionStatus)createTransmissionStatus.textContent='CREATING DRAFT…';
+ try{
+  const {data,error}=await archiveSupabase.rpc('create_human_archive_transmission');
+  if(error)throw error;
+  const created=Array.isArray(data)?data[0]:data;
+  if(!created?.id||!created?.archive_record_id)throw new Error('The new Transmission could not be confirmed.');
+  await loadTransmissionRecords();
+  render();syncFavoriteControls();
+  const record=records.find(item=>item.source_type==='transmission'&&item.post_id===created.id);
+  if(!record)throw new Error('The draft was created, but could not be loaded into the Archive. Refresh the page to find it.');
+  openArchiveRecordChamber(record,newTransmissionButton);
+  recordChamber?.querySelector('.ha-chamber-edit')?.click();
+  if(createTransmissionStatus)createTransmissionStatus.textContent='NEW DRAFT READY // HA-'+record.year+'-'+String(record.id).padStart(4,'0');
+ }catch(error){
+  console.error('Human Archive Transmission could not be created:',error);
+  if(createTransmissionStatus)createTransmissionStatus.textContent='CREATE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
+ }finally{
+  newTransmissionButton.disabled=false;
+ }
+}
 async function initArchiveFeatures(){
  if(!window.supabase?.createClient){openRequestedRecordFromUrl();return;}
  archiveSupabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
  await refreshArchiveAdmin();
+ if(newTransmissionButton){newTransmissionButton.hidden=!archiveAdmin;newTransmissionButton.disabled=!archiveAdmin;newTransmissionButton.addEventListener('click',createHumanArchiveTransmission);}
  await Promise.all([loadArchiveFavorites(),loadRecordStructureOverrides(),loadTransmissionRecords()]);
  if(!archiveAuthBound){
   archiveAuthBound=true;
   archiveSupabase.auth.onAuthStateChange((_event,session)=>{
    window.setTimeout(async()=>{
     await refreshArchiveAdmin(session);
+    if(newTransmissionButton){newTransmissionButton.hidden=!archiveAdmin;newTransmissionButton.disabled=!archiveAdmin;}
     await loadTransmissionRecords();
     render();
     syncFavoriteControls();
