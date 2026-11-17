@@ -1027,6 +1027,11 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  });
  bindChamberDisclosureControls(grid,expandButton);
  cancel.addEventListener('click',()=>{
+  if(chamberSaveConflict){
+   const discard=window.confirm('This tab has unsaved changes that conflict with a newer version. Discard this tab’s changes and return to the read-only chamber?');
+   if(!discard)return;
+   chamberSaveConflict=false;flushActiveChamberAutosave=async()=>true;
+  }
   richEditorController?.destroy();
   status.textContent='';
   renderRecordStructureView(record,grid,status,editButton,expandButton);
