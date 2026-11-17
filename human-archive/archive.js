@@ -1361,7 +1361,8 @@ function createHumanArchiveTransmission(){
 }
 async function initArchiveFeatures(){
  if(!window.supabase?.createClient)throw new Error('Supabase is unavailable; the Transmission editor cannot start.');
- archiveSupabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+ archiveSupabase=window.__vhaSupabaseClient||window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+ window.__vhaSupabaseClient=archiveSupabase;
  await refreshArchiveAdmin();
  if(newTransmissionButton){newTransmissionButton.hidden=!archiveAdmin;newTransmissionButton.disabled=!archiveAdmin;newTransmissionButton.addEventListener('click',createHumanArchiveTransmission);}
  if(hasArchiveIndex)await Promise.all([loadArchiveFavorites(),loadRecordStructureOverrides(),loadTransmissionRecords()]);
