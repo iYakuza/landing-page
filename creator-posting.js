@@ -35,8 +35,8 @@
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';
       script.async = true;
-      script.crossOrigin = 'anonymous';
-      script.referrerPolicy = 'no-referrer';
+      script.crossOrigin='anonymous';
+      script.referrerPolicy='no-referrer';
       script.onload = () => window.supabase?.createClient ? resolve(true) : reject(new Error('Supabase loaded without createClient.'));
       script.onerror = () => reject(new Error('Supabase could not be loaded.'));
       document.head.appendChild(script);
