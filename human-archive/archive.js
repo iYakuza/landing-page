@@ -990,6 +990,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   if(draftAutosaveInFlight){
    status.textContent='WAITING FOR AUTOMATIC DRAFT SAVE…';
    await new Promise(resolve=>{const wait=()=>draftAutosaveInFlight?setTimeout(wait,50):resolve();wait();});
+   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
   }
   if(record.source_type==='transmission'&&recordMetadataInputs.status.value!==record.status){
    const prompt=recordMetadataInputs.status.value==='published'
