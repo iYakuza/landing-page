@@ -32,7 +32,7 @@ begin
   end if;
 
   -- Serialize concurrent new-draft requests before choosing a globally unique slug.
-  perform pg_advisory_xact_lock(hashtext('public.vha_posts:create_human_archive_transmission'));
+  perform pg_advisory_xact_lock(hashtext('public.vha_posts:create_human_archive_transmission')::bigint);
 
   while exists (select 1 from public.vha_posts post where post.slug = v_slug) loop
     v_slug := v_base_slug || '-' || v_suffix::text;
@@ -278,7 +278,7 @@ begin
       output_media = excluded.output_media,
       updated_at = excluded.updated_at,
       updated_by = excluded.updated_by
-  returning human_archive_record_structures.updated_at into v_saved_updated_at;
+  returning updated_at into v_saved_updated_at;
 
   return query select v_saved_updated_at;
 end;
@@ -288,6 +288,3 @@ revoke all on function public.save_human_archive_record_structure_v1(bigint,time
   from public, anon, service_role;
 grant execute on function public.save_human_archive_record_structure_v1(bigint,timestamptz,text,text,text,text,jsonb)
   to authenticated;
-
-
-commit;
