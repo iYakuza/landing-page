@@ -562,7 +562,13 @@ function appendChamberOutputView(record,grid,structure){
  grid.append(output.details);
 }
 function renderRecordStructureView(record,grid,status,editButton,expandButton){
- renderRecordStructureEditor(record,grid,status,editButton,expandButton,true);
+ const structure=getRecordStructure(record);
+ grid.replaceChildren();
+ makeChamberTransmissionBody(record,grid,structure);
+ makeChamberTextPanel(record,grid,structure);
+ appendChamberOutputView(record,grid,structure);
+ if(editButton)editButton.hidden=!archiveAdmin;
+ bindChamberDisclosureControls(grid,expandButton);
 }
 function chamberFileMime(file,type){
  const supplied=String(file.type||'').toLowerCase();
