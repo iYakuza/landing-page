@@ -39,8 +39,8 @@
   <main class="cms-shell">
     <section class="cms-hero">
       <p class="gd-kicker">VERSE AFTER HOURS // OWNER STUDIO</p>
-      <h1>POST<br><em>STUDIO.</em></h1>
-      <p>Your writing desk. Draft privately, edit your posts, and publish when they are ready.</p>
+      <h1>ADMIN<br><em>CONSOLE.</em></h1>
+      <p>Administrative access, recovery operations and community-submission review. Post creation and editing happen through the shared Human Archive chamber.</p>
     </section>
     <section id="login-panel" class="cms-login cms-panel">
       <p class="gd-kicker">AUTHENTICATION REQUIRED</p>
@@ -51,7 +51,7 @@
         <button class="cms-button primary vha-editor-action" data-action-variant="primary" type="submit">SIGN IN ↗</button>
       </form>
       <p class="cms-help">Forgot your password? <button type="button" id="forgot-password" class="cms-text-button">EMAIL ME A RESET LINK ↗</button></p>
-      <p class="cms-help">This console has no public sign-up. Your account must be created and granted editor access by the site owner in Supabase.</p>
+      <p class="cms-help">This console has no public sign-up. Your account must be created and granted the CMS admin role by the site owner in Supabase.</p>
       <p id="login-message" class="cms-message" role="status"></p>
     </section>
     <section id="password-reset-panel" class="cms-login cms-panel" hidden>
@@ -66,8 +66,8 @@
     </section>
     <section id="workspace" hidden>
       <div class="cms-toolbar">
-        <div><p class="gd-kicker">EDITORIAL WORKSPACE</p><h2>POST <em>MANIFEST</em></h2><p id="user-line" class="cms-help"></p></div>
-        <div class="cms-toolbar-actions"><button id="new-post" class="cms-button vha-editor-action">+ NEW POST</button><button id="sign-out" class="cms-button subtle vha-editor-action" data-action-variant="subtle">SIGN OUT</button></div>
+        <div><p class="gd-kicker">ADMINISTRATIVE WORKSPACE</p><h2>ADMIN <em>TOOLS</em></h2><p id="user-line" class="cms-help"></p></div>
+        <div class="cms-toolbar-actions"><button id="sign-out" class="cms-button subtle vha-editor-action" data-action-variant="subtle">SIGN OUT</button></div>
       </div>
       <section id="recovery-centre" class="cms-panel recovery-centre-panel" aria-labelledby="recovery-centre-title">
         <div class="cms-recovery-head">
@@ -130,64 +130,6 @@
         </div>
         <p class="cms-recovery-foot">THE RECOVERY WEBSITE IS OFFLINE BY DEFAULT. ONLY AN EXPLICIT OWNER-INITIATED CMS WORKFLOW CAN CREATE IT. RESTORE IS ALWAYS MANUAL. BACKUP SCHEDULING REMAINS DISABLED. The known successful drill used <code>system-20261113T000000Z-428ddefb</code> and destination <code>green-dream-restore-drill-2</code>.</p>
       </section>
-      <div class="cms-layout">
-        <aside class="cms-panel cms-posts-panel">
-          <div class="cms-list-head"><h3>YOUR POSTS</h3><button id="refresh-posts" class="cms-text-button">REFRESH ↻</button></div>
-          <div class="cms-tabs"><button class="selected" data-status-filter="all">ALL</button><button data-status-filter="draft">DRAFTS</button><button data-status-filter="published">PUBLISHED</button></div>
-          <div id="manage-posts" class="manage-posts"><p class="cms-help">Loading posts…</p></div>
-          <button type="button" id="load-more-posts" class="cms-text-button" hidden>LOAD OLDER POSTS ↓</button>
-        </aside>
-        <section class="cms-panel cms-editor-panel">
-          <div class="cms-editor-top"><p class="gd-kicker" id="editor-mode">NEW TRANSMISSION</p><span id="editor-status" class="cms-status">UNSAVED</span></div>
-          <form id="post-form">
-            <label for="post-title">TITLE</label><input id="post-title" maxlength="180" required placeholder="Give the signal a name">
-            <section class="cms-media-field" aria-labelledby="media-heading">
-              <div class="cms-label-row"><label id="media-heading" for="post-media">MEDIA UNDER TITLE</label><span class="cms-help">Image, audio, or video (MP4, WebM, MOV) · max 30 MB</span></div>
-              <input id="post-media" type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,image/avif,audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm,video/quicktime">
-              <div id="media-preview" class="cms-media-preview" hidden></div><div class="media-width-control"><label for="media-width">MEDIA WIDTH</label><input id="media-width" type="range" min="20" max="100" step="5" value="100"><output id="media-width-value" for="media-width">100%</output><p class="cms-help">Media is capped at the text column width. Reduce this to make it narrower.</p></div>
-              <div class="cms-media-actions"><span id="media-message" class="cms-message" role="status"></span><button type="button" id="remove-media" class="cms-button subtle vha-editor-action" data-action-variant="subtle" hidden>REMOVE MEDIA</button></div>
-            </section>
-            <div class="cms-two-col">
-              <div><label for="post-slug">URL SLUG</label><input id="post-slug" maxlength="180" required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="lowercase-words"></div>
-              <div><label for="post-category">ARCHIVE / MOVEMENT</label><select id="post-category" required><option value="">CHOOSE AN ARCHIVE</option><option value="HUMAN ARCHIVE">HUMAN ARCHIVE</option><option value="THE AWAKENING">THE AWAKENING</option><option value="THE DESCENT">THE DESCENT</option><option value="THE RECONNECTION">THE RECONNECTION</option><option value="THE TRANSFORMATION">THE TRANSFORMATION</option><option value="THE RETURN">THE RETURN</option></select></div>
-            </div>
-            <label for="post-excerpt">EXCERPT / DECK <small>UP TO 400 CHARACTERS</small></label><textarea id="post-excerpt" rows="3" maxlength="400" placeholder="A short signal preview for the archive…"></textarea>
-            <section class="post-composition" aria-labelledby="composition-heading">
-              <div class="cms-label-row"><label id="composition-heading">CHATGPT POST FORMAT</label><span class="cms-help">Choose how the post should read</span></div>
-              <label for="post-layout">LAYOUT</label>
-              <select id="post-layout"><option value="suno">SUNO LYRICS + STYLE BREAKDOWN</option><option value="plain">PLAIN TEXT + “OH, SUN.”</option><option value="standard">STANDARD ARTICLE</option></select>
-              <div id="suno-fields" class="suno-fields">
-                <label for="post-main-text">TEXT // COLUMN 1</label><textarea id="post-main-text" rows="6" placeholder="The poem, reflection, or accompanying text for the first column…"></textarea>
-                <details class="cms-lyrics-field"><summary>LYRICS <span>CLICK TO EXPAND / COLLAPSE</span></summary><label for="post-lyrics">SUNO STYLE LYRICS // COLUMN 2</label><textarea id="post-lyrics" rows="12" placeholder="Paste the poem here, including [Verse], [Chorus], [Bridge] and other Suno tags…"></textarea></details>
-                <label for="post-style-prompt">SUNO STYLE PROMPT</label><textarea id="post-style-prompt" rows="7" placeholder="Paste the exact style prompt used in Suno…"></textarea>
-                <label for="post-learned">WHAT I LEARNED</label><textarea id="post-learned" rows="4" placeholder="The lesson, discovery, or creative insight behind this piece…"></textarea><label for="post-chatgpt-learned">WHAT CHATGPT LEARNED</label><textarea id="post-chatgpt-learned" rows="4" placeholder="What the collaboration revealed, improved, or learned along the way…"></textarea>
-              </div>
-              <div id="plain-fields" class="suno-fields" hidden>
-                <label for="post-plain-text">LEFT COLUMN // TEXT</label><textarea id="post-plain-text" rows="12" placeholder="Your poem, note, or message…"></textarea>
-                <p class="cms-help">The right column will show “Oh, sun.” as a quiet response.</p>
-              </div>
-            </section>
-            <div class="cms-label-row transmission-body-heading"><label for="post-content">TRANSMISSION BODY</label><div class="transmission-body-actions"><span class="cms-help">Visual editor · formatted text</span><button type="button" id="post-content-focus" class="cms-button transmission-focus-toggle" aria-label="Open focused writing mode" aria-pressed="false" title="Focused writing mode">T</button></div></div>
-            <div class="rich-editor">
-              <div class="rich-toolbar" role="toolbar" aria-label="Text formatting">
-                <button type="button" data-command="bold" aria-label="Bold"><b>B</b></button>
-                <button type="button" data-command="italic" aria-label="Italic"><i>I</i></button>
-                <button type="button" data-command="formatBlock" data-value="h2" aria-label="Heading">H2</button>
-                <button type="button" data-command="formatBlock" data-value="blockquote" aria-label="Quote">❝</button>
-                <button type="button" data-command="insertUnorderedList" aria-label="Bulleted list">• LIST</button>
-                <button type="button" data-command="insertOrderedList" aria-label="Numbered list">1. LIST</button>
-                <button type="button" id="insert-link" aria-label="Insert link">LINK ↗</button>
-                <button type="button" data-command="removeFormat" aria-label="Clear formatting">CLEAR</button>
-              </div>
-              <div id="post-content" class="rich-content" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Post content" data-placeholder="Begin writing here…"></div>
-            </div>
-            <div class="cms-editor-footer">
-              <span id="save-message" class="cms-message" role="status"></span>
-              <div class="cms-save-actions"><button type="button" id="delete-post" class="cms-button danger vha-editor-action" data-action-variant="danger" hidden>DELETE POST</button><button type="button" id="save-draft" class="cms-button vha-editor-action">SAVE DRAFT</button><button type="submit" id="publish-post" class="cms-button primary vha-editor-action" data-action-variant="primary">PUBLISH ↗</button></div>
-            </div>
-          </form>
-        </section>
-      </div>
     </section>
     <section id="community-review" class="cms-panel community-review" hidden>
       <div class="cms-list-head"><div><p class="gd-kicker">INCOMING FROM THE COMMUNITY</p><h2>REVIEW <em>QUEUE</em></h2></div><button type="button" id="refresh-submissions" class="cms-text-button">REFRESH ↻</button></div>
@@ -196,15 +138,14 @@
       <button type="button" id="load-more-submissions" class="cms-text-button" hidden>LOAD OLDER SUBMISSIONS ↓</button>
     </section>
     <section id="setup-note" class="cms-panel cms-setup-note" hidden>
-      <p class="gd-kicker">OWNER ACCESS</p><h2>PRIVATE <em>EDITOR CONSOLE.</em></h2>
-      <p>Owner Studio is not public. Access is limited to accounts explicitly authorized by the site owner. If you are the site owner and need access provisioned, use the site's private Supabase administration account.</p>
+      <p class="gd-kicker">OWNER ACCESS</p><h2>PRIVATE <em>ADMIN CONSOLE.</em></h2>
+      <p>This console is private. Access is limited to accounts listed in the vha_cms_admins role table. Post creation is available through the global New Transmission action and uses the Human Archive record chamber.</p>
     </section>
   </main>
   <footer class="gd-footer"><span>THE CITY IS LOUD. LEAVE A TRACE.</span></footer>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
-<script src="../editor-ui/rich-text-editor.js?v=20261116-shared-rich-editor-1"></script>
-<script src="cms.js?v=20261117-transmission-modal-1"></script>
+<script src="cms.js?v=20261117-admin-console-1"></script>
   <script src="/landing-page/tools.js?v=20261105-crystal-shared-9"></script>
 
   <script src="/landing-page/game-ui.js?v=20261112-mood-accessibility-2" defer></script>
