@@ -679,6 +679,12 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   ['','CHOOSE DESTINATION'],...transmissionCategories.map(name=>[name,name])
  ]);
  const excerptInput=addMetadataField('EXCERPT','excerpt',record.excerpt||'',{multiline:true,placeholder:'Short description shown in previews (up to 400 characters)',maxLength:400});
+ const mediaWidthWrap=makeChamberNode('label','ha-chamber-metadata-field');
+ const mediaWidthLabel=makeChamberNode('span','ha-chamber-metadata-label','MEDIA WIDTH');
+ const mediaWidthInput=document.createElement('input');mediaWidthInput.type='range';mediaWidthInput.min='20';mediaWidthInput.max='100';mediaWidthInput.step='5';mediaWidthInput.value=String(Math.max(20,Math.min(100,Number(record.media_width)||100)));mediaWidthInput.className='ha-chamber-editor-field ha-chamber-meta-input';mediaWidthInput.name='media_width';
+ const mediaWidthOutput=makeChamberNode('output','ha-chamber-media-width-value',mediaWidthInput.value+'%');
+ mediaWidthInput.addEventListener('input',()=>{mediaWidthOutput.textContent=mediaWidthInput.value+'%';});
+ mediaWidthWrap.append(mediaWidthLabel,mediaWidthInput,mediaWidthOutput);metadataFields.append(mediaWidthWrap);
  const statusWrap=makeChamberNode('label','ha-chamber-metadata-field');
  const statusLabel=makeChamberNode('span','ha-chamber-metadata-label','PUBLICATION STATUS');
  const statusSelect=document.createElement('select');statusSelect.className='ha-chamber-editor-field ha-chamber-meta-input';statusSelect.name='status';
@@ -688,7 +694,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  const statusNote=makeChamberNode('p','ha-chamber-metadata-note','Drafts are private. Published Transmissions appear on the public site. Saving as draft removes a published Transmission from public listings.');
  metadataDetails.body.append(metadataFields,statusNote);
  grid.append(metadataDetails.details);
- recordMetadataInputs={title:titleInput,slug:slugInput,category:categoryInput,excerpt:excerptInput,status:statusSelect};
+ recordMetadataInputs={title:titleInput,slug:slugInput,category:categoryInput,excerpt:excerptInput,mediaWidth:mediaWidthInput,status:statusSelect};
  const savedLayoutDoc=new DOMParser().parseFromString(String(record.content_html||''),'text/html');
  const savedSuno=savedLayoutDoc.querySelector('.suno-post-layout');
  const savedPlain=savedLayoutDoc.querySelector('.plain-post-layout');
@@ -825,7 +831,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    metadata:record.source_type==='transmission'?{
     title:recordMetadataInputs.title.value,slug:recordMetadataInputs.slug.value,
     category:recordMetadataInputs.category.value,excerpt:recordMetadataInputs.excerpt.value,
-    status:recordMetadataInputs.status.value
+    status:recordMetadataInputs.status.value,mediaWidth:recordMetadataInputs.mediaWidth.value
    }:null,
    transmissionHtml:transmissionEditor.innerHTML,
    layout:postLayoutControls?{
@@ -905,6 +911,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
    category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
    excerpt:String(recordMetadataInputs.excerpt.value).trim(),
+   mediaWidth:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100)),
    status:'draft'
   };
   if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
@@ -988,6 +995,9 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    });
    if(error)throw error;
    const saved=Array.isArray(data)?data[0]:data;
+   const {error:mediaWidthError}=await archiveSupabase.from('vha_posts').update({media_width:state.metadata.mediaWidth}).eq('id',record.post_id);
+   if(mediaWidthError)console.warn('Transmission media width could not be saved:',mediaWidthError);
+   record.media_width=state.metadata.mediaWidth;
    record.title=state.metadata.title;record.slug=state.metadata.slug;
    record.categories=[state.metadata.category];record.excerpt=state.metadata.excerpt;
    record.content_html=state.row.transmission_body;record.status='draft';
@@ -1007,7 +1017,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    });
    repaintAttachedPostMedia();
    draftAutosaveLastSignature=signature;
-   status.textContent='DRAFT SAVED AUTOMATICALLY';
+   status.textContent=mediaWidthError?'DRAFT SAVED — MEDIA WIDTH UPDATE FAILED':'DRAFT SAVED AUTOMATICALLY';
    return true;
   }catch(error){
    if(uploadedPaths.length)await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
@@ -1183,7 +1193,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
      slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
      category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
      excerpt:String(recordMetadataInputs.excerpt.value).trim(),
-     status:String(recordMetadataInputs.status.value).trim().toLowerCase()
+     status:String(recordMetadataInputs.status.value).trim().toLowerCase(),
+     mediaWidth:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100))
     };
     if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
     if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
@@ -1199,7 +1210,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
     });
     if(error)throw error;
     const saved=Array.isArray(saveResult)?saveResult[0]:saveResult;
-    record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.content_html=row.transmission_body;
+    record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.media_width=metadata.mediaWidth;record.content_html=row.transmission_body;
     record.media_items=savedPostMedia.map((item,index)=>({id:'transmission-'+record.post_id+'-'+index,title:item.name||record.title,alt_text:item.name||record.title,mime_type:item.type+'/unknown',storage_path:item.path||'',source_url:item.url,url:item.url,storage:'vha-post-media',post_ids:[Number(record.id)]}));
     record.status=metadata.status;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||new Date().toISOString();
     const dateStamp=record.published_at||record.created_at||record.updated_at;record.date=String(dateStamp).slice(0,10);record.year=record.date.slice(0,4);
@@ -1216,7 +1227,9 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
     .filter(item=>item&&item.storage==='vha-post-media').map(item=>item.path).filter(Boolean));
    const removedPaths=[...new Set(oldOwnedPaths)].filter(path=>!keepPaths.has(path));
    let cleanupWarning=false;
-   if(removedPaths.length){
+   const {error:mediaWidthError}=await archiveSupabase.from('vha_posts').update({media_width:metadata.mediaWidth}).eq('id',record.post_id);
+    if(mediaWidthError){cleanupWarning=true;console.warn('Transmission media width could not be saved:',mediaWidthError);}
+    if(removedPaths.length){
     const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedPaths);
     if(removeError){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from storage:',removeError);}
    }
