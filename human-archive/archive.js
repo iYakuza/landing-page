@@ -1146,8 +1146,14 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
      const option=document.createElement('option');option.value=metadata.category;option.textContent=metadata.category;category.append(option);
     }
    }else{
-    const {error}=await archiveSupabase.from('human_archive_record_structures').upsert(row,{onConflict:'record_id'});
+    const {data:structureResult,error}=await archiveSupabase.rpc('save_human_archive_record_structure_v1',{
+     p_record_id:Number(record.id),p_expected_updated_at:oldStructure.updated_at||null,
+     p_transmission_body:row.transmission_body,p_prompt_style:row.prompt_style,
+     p_lyrics_style:row.lyrics_style,p_output_text:row.output_text,p_output_media:row.output_media
+    });
     if(error)throw error;
+    const savedStructure=Array.isArray(structureResult)?structureResult[0]:structureResult;
+    row.updated_at=savedStructure?.updated_at||new Date().toISOString();
    }
    recordStructureOverrides.set(String(record.id),row);
    const keepPaths=new Set(['image','audio','video'].flatMap(type=>Array.isArray(outputMedia[type])?outputMedia[type]:[])
