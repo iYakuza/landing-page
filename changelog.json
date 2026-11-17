@@ -1,8 +1,51 @@
 {
   "version": 1,
-  "updated_at": "2026-11-17T13:59:49.308020Z",
-  "last_processed_sha": "8602afda768815d39cd3c9316ab21a7d1c66245a",
+  "updated_at": "2026-11-17T14:26:22.048492Z",
+  "last_processed_sha": "48db90496b6bcbdaf31d3b40c84315fc01fef4b5",
   "entries": [
+    {
+      "id": "48db90496b6bcbdaf31d3b40c84315fc01fef4b5",
+      "timestamp": "2026-11-17T15:26:13+01:00",
+      "category": "FEATURE",
+      "component": "Website Experience",
+      "title": "New capabilities for Website Experience",
+      "description": "This update brings together Unify New Transmission across archive contexts (#98). It updates cms.js, index.html, creator-posting.js, archive.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        "cms/cms.js",
+        "cms/index.html",
+        "creator-posting.js",
+        "human-archive/archive.js",
+        "human-archive/index.html",
+        "posts/index.html",
+        "posts/posts.js",
+        "posts/the-awakening/index.html",
+        "posts/the-descent/index.html",
+        "posts/the-reconnection/index.html",
+        "posts/the-return/index.html",
+        "posts/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Unify New Transmission across archive contexts (#98)",
+          "url": "https://github.com/iYakuza/landing-page/commit/48db90496b6bcbdaf31d3b40c84315fc01fef4b5",
+          "files": [
+            "cms/cms.js",
+            "cms/index.html",
+            "creator-posting.js",
+            "human-archive/archive.js",
+            "human-archive/index.html",
+            "posts/index.html",
+            "posts/posts.js",
+            "posts/the-awakening/index.html",
+            "posts/the-descent/index.html",
+            "posts/the-reconnection/index.html",
+            "posts/the-return/index.html",
+            "posts/the-transformation/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "8602afda768815d39cd3c9316ab21a7d1c66245a",
       "timestamp": "2026-11-17T14:59:33+01:00",
@@ -1076,29 +1119,6 @@
         {
           "message": "Restore Human Archive category ordering (#54)",
           "url": "https://github.com/iYakuza/landing-page/commit/16fe00f916481639a4e192210b2a4375ff670da2",
-          "files": [
-            "human-archive/archive.js",
-            "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "b3c8a27755d178cf0a15cbb0b09e6eca939468d5",
-      "timestamp": "2026-11-15T01:47:45+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Initialize Human Archive chamber state (#53). It updates archive.js, index.html.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.js",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Initialize Human Archive chamber state (#53)",
-          "url": "https://github.com/iYakuza/landing-page/commit/b3c8a27755d178cf0a15cbb0b09e6eca939468d5",
           "files": [
             "human-archive/archive.js",
             "human-archive/index.html"
