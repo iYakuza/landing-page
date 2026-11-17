@@ -15,6 +15,7 @@
   let client = null;
   let isCreator = false;
   let refreshing = false;
+  let authBound = false;
 
   const button = document.createElement('button');
   button.type = 'button';
@@ -74,8 +75,8 @@
           .select('user_id').eq('user_id', session.user.id).maybeSingle();
         isCreator = !error && Boolean(data);
       }
-      if (!client.__vhaNewTransmissionAuthBound) {
-        client.__vhaNewTransmissionAuthBound = true;
+      if (!authBound) {
+        authBound = true;
         client.auth.onAuthStateChange((_event, session) => {
           window.setTimeout(() => refresh(session), 0);
         });
