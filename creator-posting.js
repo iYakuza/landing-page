@@ -51,7 +51,10 @@
       link.href = '/landing-page/human-archive/chamber.css?v=' + EDITOR_VERSION;
       link.dataset.vhaChamberStyles = 'true';
       link.onload = () => resolve();
-      link.onerror = () => reject(new Error('The shared chamber styles could not be loaded.'));
+      link.onerror = () => {
+        link.remove();
+        reject(new Error('The shared chamber styles could not be loaded.'));
+      };
       document.head.appendChild(link);
     });
   }
