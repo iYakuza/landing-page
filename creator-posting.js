@@ -60,11 +60,11 @@ async function closeStudio(){
 }
 function handleComposerKeydown(event){if(event.key==='Escape'){event.preventDefault();closeStudio();}}
 function openStudio(selected=''){
-  if(composerOverlay)return;
-  previousFocus=document.activeElement;
-  const url=new URL('/landing-page/cms/',location.origin);
-  url.searchParams.set('new','1');url.searchParams.set('embed','1');
-  if(M.some(m=>m[0]===selected))url.searchParams.set('category',selected);
+  const url=new URL('/landing-page/human-archive/',location.origin);
+  url.searchParams.set('new','1');
+  // Quick Post remains the familiar entry point, but creation now belongs to Human Archive.
+  location.assign(url.toString());
+}
   const overlay=document.createElement('div');
   overlay.className='vha-quick-post-overlay';
   overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','New transmission editor');
