@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-17T01:42:17.009604Z",
-  "last_processed_sha": "3b28898b5a777804a2a59314c7a732d9a3c8fc9b",
+  "updated_at": "2026-11-17T01:55:38.772208Z",
+  "last_processed_sha": "2bd6b6068aa67b5e501086382ddfe8485eb692ff",
   "entries": [
+    {
+      "id": "2bd6b6068aa67b5e501086382ddfe8485eb692ff",
+      "timestamp": "2026-11-17T02:55:25+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Fix Human Archive local recovery lifecycle (#87). It updates archive.js, index.html.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Fix Human Archive local recovery lifecycle (#87)",
+          "url": "https://github.com/iYakuza/landing-page/commit/2bd6b6068aa67b5e501086382ddfe8485eb692ff",
+          "files": [
+            "human-archive/archive.js",
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "3b28898b5a777804a2a59314c7a732d9a3c8fc9b",
       "timestamp": "2026-11-17T02:42:09+01:00",
@@ -1058,29 +1081,6 @@
         {
           "message": "Keep only the category dropdown in archive controls (#46)",
           "url": "https://github.com/iYakuza/landing-page/commit/7aa8a8698b0c01664d3d7f89f964e2d607831012",
-          "files": [
-            "posts/index.html",
-            "posts/posts.css"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "b8e0eac8f148836256eae1e011a146f762587c51",
-      "timestamp": "2026-11-15T00:15:47+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Refine transmissions archive layout and heading (#45). It updates index.html, posts.css.",
-      "commit_count": 1,
-      "files": [
-        "posts/index.html",
-        "posts/posts.css"
-      ],
-      "commits": [
-        {
-          "message": "Refine transmissions archive layout and heading (#45)",
-          "url": "https://github.com/iYakuza/landing-page/commit/b8e0eac8f148836256eae1e011a146f762587c51",
           "files": [
             "posts/index.html",
             "posts/posts.css"
