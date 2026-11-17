@@ -997,7 +997,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    const saved=Array.isArray(data)?data[0]:data;
    const {error:mediaWidthError}=await archiveSupabase.from('vha_posts').update({media_width:state.metadata.mediaWidth}).eq('id',record.post_id);
    if(mediaWidthError)console.warn('Transmission media width could not be saved:',mediaWidthError);
-   record.media_width=state.metadata.mediaWidth;
+   else record.media_width=state.metadata.mediaWidth;
    record.title=state.metadata.title;record.slug=state.metadata.slug;
    record.categories=[state.metadata.category];record.excerpt=state.metadata.excerpt;
    record.content_html=state.row.transmission_body;record.status='draft';
@@ -1210,7 +1210,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
     });
     if(error)throw error;
     const saved=Array.isArray(saveResult)?saveResult[0]:saveResult;
-    record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.media_width=metadata.mediaWidth;record.content_html=row.transmission_body;
+    record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.content_html=row.transmission_body;
     record.media_items=savedPostMedia.map((item,index)=>({id:'transmission-'+record.post_id+'-'+index,title:item.name||record.title,alt_text:item.name||record.title,mime_type:item.type+'/unknown',storage_path:item.path||'',source_url:item.url,url:item.url,storage:'vha-post-media',post_ids:[Number(record.id)]}));
     record.status=metadata.status;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||new Date().toISOString();
     const dateStamp=record.published_at||record.created_at||record.updated_at;record.date=String(dateStamp).slice(0,10);record.year=record.date.slice(0,4);
@@ -1228,7 +1228,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    const removedPaths=[...new Set(oldOwnedPaths)].filter(path=>!keepPaths.has(path));
    let cleanupWarning=false;
    const {error:mediaWidthError}=await archiveSupabase.from('vha_posts').update({media_width:metadata.mediaWidth}).eq('id',record.post_id);
-    if(mediaWidthError){cleanupWarning=true;console.warn('Transmission media width could not be saved:',mediaWidthError);}
+    if(mediaWidthError){cleanupWarning=true;console.warn('Transmission media width could not be saved:',mediaWidthError);}else record.media_width=metadata.mediaWidth;
     if(removedPaths.length){
     const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedPaths);
     if(removeError){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from storage:',removeError);}
@@ -1237,7 +1237,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    window.removeEventListener('pagehide',persistChamberRecoveryOnPageHide);
    if(chamberRecordId===String(record.id))persistActiveChamberRecovery=()=>{};
    if(chamberRecoveryKey){try{localStorage.removeItem(chamberRecoveryKey);}catch{}}
-   status.textContent=cleanupWarning?'CHAMBER SAVED — SOME REMOVED FILES COULD NOT BE CLEANED UP':'CHAMBER REDESIGNED // CHANGES SAVED';
+   status.textContent=cleanupWarning?'CHAMBER SAVED — MEDIA WIDTH OR FILE CLEANUP NEEDS ATTENTION':'CHAMBER REDESIGNED // CHANGES SAVED';
    richEditorController?.destroy();
    if(record.source_type==='transmission'){
     const titleNode=recordChamber?.querySelector('.ha-chamber-title');if(titleNode)titleNode.textContent=record.title;
