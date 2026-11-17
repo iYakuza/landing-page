@@ -799,8 +799,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  });
  grid.append(output.details);
  // Local recovery mirrors Quick Post without changing the chamber's explicit cloud-save workflow.
- const chamberRecoveryKey=record.source_type==='transmission'?null:(archiveUserId?'vha_human_archive_recovery_'+archiveUserId+'_'+String(record.id):null);
- const chamberRecoveryBaseline=String(record.updated_at||record.created_at||'');
+ const chamberRecoveryKey=archiveUserId?'vha_human_archive_recovery_'+archiveUserId+'_'+String(record.id):null;
+ let chamberRecoveryBaseline=String(record.updated_at||record.created_at||'');
  let chamberRecoveryTimer=null;
  const chamberRecoveryFields={promptArea,lyricsArea,textArea};
  const readChamberRecovery=()=>{
@@ -869,8 +869,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   }
  }
  if(record.source_type==='transmission'){
-  grid.addEventListener('input',()=>scheduleDraftAutosave());
-  grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});
+  grid.addEventListener('input',()=>{scheduleDraftAutosave();scheduleChamberRecovery();});
+  grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();scheduleChamberRecovery();});
  }else{
   grid.addEventListener('input',scheduleChamberRecovery);
   grid.addEventListener('change',scheduleChamberRecovery);
@@ -987,8 +987,10 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
     storage:'vha-post-media',post_ids:[Number(record.id)]
    }));
    record.updated_at=saved?.updated_at||state.row.updated_at;
+   chamberRecoveryBaseline=String(record.updated_at||record.created_at||'');
    state.row.updated_at=record.updated_at;
    recordStructureOverrides.set(String(record.id),state.row);
+   persistChamberRecovery();
    [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{
     if(item.uploadedDraft){Object.assign(item,item.uploadedDraft);item.file=null;delete item.uploadedDraft;}
    });
@@ -1012,6 +1014,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  };
  if(draftAutosaveEnabled)persistActiveChamberRecovery=()=>{
   if(draftAutosaveTimer)clearTimeout(draftAutosaveTimer);
+  persistChamberRecovery();
   runDraftAutosave();
  };
 
@@ -1040,6 +1043,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    persistActiveChamberRecovery=()=>{};
    if(chamberRecoveryTimer)clearTimeout(chamberRecoveryTimer);
    window.removeEventListener('pagehide',persistChamberRecoveryOnPageHide);
+   if(chamberRecoveryKey){try{localStorage.removeItem(chamberRecoveryKey);}catch{}}
    records=records.filter(item=>String(item.id)!==String(record.id));
    const removedMediaUrls=new Set((record.media_items||[]).map(item=>item.url).filter(Boolean));
    mediaItems=mediaItems.filter(item=>!(item.post_ids||[]).includes(Number(record.id))&&!removedMediaUrls.has(item.url));
@@ -1287,7 +1291,7 @@ function ensureRecordChamber(){
  document.body.append(recordChamber);return recordChamber;
 }
 function hasLocalChamberRecovery(record){
- if(!archiveUserId||!record||record.source_type==='transmission')return false;
+ if(!archiveUserId||!record)return false;
  try{
   const key='vha_human_archive_recovery_'+archiveUserId+'_'+String(record.id);
   const snapshot=JSON.parse(localStorage.getItem(key)||'null');
