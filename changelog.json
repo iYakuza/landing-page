@@ -1,8 +1,35 @@
 {
   "version": 1,
-  "updated_at": "2026-11-17T02:08:59.328633Z",
-  "last_processed_sha": "9ec7c1027ad5636ee9afa3c348a3b24db5b50587",
+  "updated_at": "2026-11-17T10:27:07.793793Z",
+  "last_processed_sha": "7768b4f7542c28d3440ec3190baccdc6174d1518",
   "entries": [
+    {
+      "id": "7768b4f7542c28d3440ec3190baccdc6174d1518",
+      "timestamp": "2026-11-17T11:26:54+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Persist Human Archive drafts automatically (#90). It updates archive.css, archive.js, index.html, 20261117150000_delete_human_archive_draft_transmission.sql.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.css",
+        "human-archive/archive.js",
+        "human-archive/index.html",
+        "supabase/migrations/20261117150000_delete_human_archive_draft_transmission.sql"
+      ],
+      "commits": [
+        {
+          "message": "Persist Human Archive drafts automatically (#90)",
+          "url": "https://github.com/iYakuza/landing-page/commit/7768b4f7542c28d3440ec3190baccdc6174d1518",
+          "files": [
+            "human-archive/archive.css",
+            "human-archive/archive.js",
+            "human-archive/index.html",
+            "supabase/migrations/20261117150000_delete_human_archive_draft_transmission.sql"
+          ]
+        }
+      ]
+    },
     {
       "id": "9ec7c1027ad5636ee9afa3c348a3b24db5b50587",
       "timestamp": "2026-11-17T03:08:46+01:00",
@@ -1061,29 +1088,6 @@
             "posts/the-reconnection/index.html",
             "posts/the-return/index.html",
             "posts/the-transformation/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "33274628a1bb990eab9dc697e0aea043b2208173",
-      "timestamp": "2026-11-15T00:26:17+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Keep category filter inline with movement navigation (#48). It updates index.html, posts.css.",
-      "commit_count": 1,
-      "files": [
-        "posts/index.html",
-        "posts/posts.css"
-      ],
-      "commits": [
-        {
-          "message": "Keep category filter inline with movement navigation (#48)",
-          "url": "https://github.com/iYakuza/landing-page/commit/33274628a1bb990eab9dc697e0aea043b2208173",
-          "files": [
-            "posts/index.html",
-            "posts/posts.css"
           ]
         }
       ]
