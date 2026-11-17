@@ -2,7 +2,7 @@
 const search=document.getElementById('ha-search'),year=document.getElementById('ha-year'),category=document.getElementById('ha-category'),list=document.getElementById('ha-list'),count=document.getElementById('ha-count'),mediaStatus=document.getElementById('ha-media-status');
 const newTransmissionButton=document.getElementById('ha-new-transmission'),createTransmissionStatus=document.getElementById('ha-create-status');
 const archiveHomeUrl=new URL('./',window.location.href);
-let persistActiveChamberRecovery=()=>{};
+let flushActiveChamberAutosave=async()=>true;
 let records=[],mediaItems=[],mediaMap=new Map(),mediaByPost=new Map(),mediaReady=false,publicBase='';
 let imageViewer=null,imageViewerImage=null,imageViewerCaption=null,imageViewerZoom=null,imageViewerOriginal=null,imageViewerClose=null;
 const expandedCategories=new Set();
@@ -560,13 +560,7 @@ function appendChamberOutputView(record,grid,structure){
  grid.append(output.details);
 }
 function renderRecordStructureView(record,grid,status,editButton,expandButton){
- const structure=getRecordStructure(record);
- grid.replaceChildren();
- makeChamberTransmissionBody(record,grid,structure);
- makeChamberTextPanel(record,grid,structure);
- appendChamberOutputView(record,grid,structure);
- bindChamberDisclosureControls(grid,expandButton);
- if(editButton)editButton.hidden=!archiveAdmin;
+ renderRecordStructureEditor(record,grid,status,editButton,expandButton,true);
 }
 function chamberFileMime(file,type){
  const supplied=String(file.type||'').toLowerCase();
@@ -636,7 +630,7 @@ function renderChamberMediaEditor(sectionBody,record,type,items,status,onChange)
  sectionBody.append(list,uploadLabel);
  repaint();
 }
-function renderRecordStructureEditor(record,grid,status,editButton,expandButton){
+function renderRecordStructureEditor(record,grid,status,editButton,expandButton,readOnly=false){
  const structure=getRecordStructure(record);
  const editorMedia={
   image:getRecordOutputMedia(record,structure,'image').map(item=>({...item})),
@@ -793,10 +787,10 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   const button=makeChamberNode('button','',label);button.type='button';button.dataset.command=command;if(value)button.dataset.value=value;toolbar.append(button);
  });
  const insertLinkButton=makeChamberNode('button','ha-rich-link','LINK');insertLinkButton.type='button';toolbar.append(insertLinkButton);
- const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable='true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Transmission body');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Write the transmission body…';transmissionEditor.innerHTML=sanitizeTransmissionBody(record.source_type==='transmission'?(record.content_html||structure.transmission_body):structure.transmission_body);
+ const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable=readOnly?'false':'true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Transmission body');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Write the transmission body…';transmissionEditor.innerHTML=sanitizeTransmissionBody(record.source_type==='transmission'?(record.content_html||structure.transmission_body):structure.transmission_body);
  transmission.body.append(transmissionTop,toolbar,transmissionEditor);grid.append(transmission.details);
  if(postLayoutControls){postLayoutControls.transmissionDetails=transmission.details;postLayoutControls.transmissionEditor=transmissionEditor;postLayoutControls.sync();}
- const richEditorController=window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
+ const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
  const prompt=makeChamberDisclosure('02 // PROMPT STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
  const promptArea=document.createElement('textarea');promptArea.className='ha-chamber-editor-field';promptArea.name='prompt_style';promptArea.rows=9;
  promptArea.value=structure.prompt_style;promptArea.placeholder='Paste or write the AI / Suno style prompt…';prompt.body.append(promptArea);grid.append(prompt.details);
@@ -815,87 +809,20 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   output.body.append(media.details);
  });
  grid.append(output.details);
- // Local recovery mirrors Quick Post without changing the chamber's explicit cloud-save workflow.
- const chamberRecoveryKey=archiveUserId?'vha_human_archive_recovery_'+archiveUserId+'_'+String(record.id):null;
- let chamberRecoveryBaseline=String(record.updated_at||record.created_at||'');
- let chamberRecoveryTimer=null;
- const chamberRecoveryFields={promptArea,lyricsArea,textArea};
- const readChamberRecovery=()=>{
-  if(!chamberRecoveryKey)return null;
-  try{return JSON.parse(localStorage.getItem(chamberRecoveryKey)||'null');}catch{return null;}
- };
- const persistChamberRecovery=()=>{
-  if(!chamberRecoveryKey)return false;
-  const snapshot={
-   version:1,updatedAt:new Date().toISOString(),baselineUpdatedAt:chamberRecoveryBaseline,
-   metadata:record.source_type==='transmission'?{
-    title:recordMetadataInputs.title.value,slug:recordMetadataInputs.slug.value,
-    category:recordMetadataInputs.category.value,excerpt:recordMetadataInputs.excerpt.value,
-    status:recordMetadataInputs.status.value,mediaWidth:recordMetadataInputs.mediaWidth.value
-   }:null,
-   transmissionHtml:transmissionEditor.innerHTML,
-   layout:postLayoutControls?{
-    selected:postLayoutControls.select.value,
-    fields:Object.fromEntries(Object.entries(postLayoutControls.fields).map(([key,field])=>[key,field.value]))
-   }:null,
-   prompt:chamberRecoveryFields.promptArea.value,lyrics:chamberRecoveryFields.lyricsArea.value,
-   outputText:chamberRecoveryFields.textArea.value,
-   postAttachments:attachedPostMedia.filter(item=>!item.file).map(item=>({
-    id:item.id,name:item.name,url:item.url,path:item.path||null,type:item.type,
-    mime_type:item.mime_type||'',storage:item.storage||'vha-post-media'
-   })),
-   pendingAttachmentCount:attachedPostMedia.filter(item=>item.file).length
-  };
-  try{
-   localStorage.setItem(chamberRecoveryKey,JSON.stringify(snapshot));
-   status.textContent='SAVED LOCALLY — CHAMBER RECOVERY READY';
-   return true;
-  }catch(error){
-   status.textContent='LOCAL RECOVERY UNAVAILABLE — '+String(error.message||'STORAGE ERROR');
-   return false;
-  }
- };
- const scheduleChamberRecovery=()=>{
-  if(chamberRecoveryTimer)clearTimeout(chamberRecoveryTimer);
-  chamberRecoveryTimer=setTimeout(persistChamberRecovery,350);
- };
- persistActiveChamberRecovery=()=>{
-  if(chamberRecoveryTimer)clearTimeout(chamberRecoveryTimer);
-  persistChamberRecovery();
- };
- const recovery=readChamberRecovery();
- if(recovery?.version===1){
-  if(recovery.baselineUpdatedAt===chamberRecoveryBaseline){
-   if(recovery.metadata&&recordMetadataInputs){
-    Object.entries(recovery.metadata).forEach(([key,value])=>{if(recordMetadataInputs[key])recordMetadataInputs[key].value=String(value??'');});
-   }
-   if(typeof recovery.transmissionHtml==='string')transmissionEditor.innerHTML=sanitizeTransmissionBody(recovery.transmissionHtml);
-   if(recovery.layout&&postLayoutControls){
-    if(typeof recovery.layout.selected==='string')postLayoutControls.select.value=recovery.layout.selected;
-    Object.entries(recovery.layout.fields||{}).forEach(([key,value])=>{const field=postLayoutControls.fields[key];if(field)field.value=String(value??'');});
-    postLayoutControls.sync();
-   }
-   chamberRecoveryFields.promptArea.value=String(recovery.prompt??promptArea.value);
-   chamberRecoveryFields.lyricsArea.value=String(recovery.lyrics??lyricsArea.value);
-   chamberRecoveryFields.textArea.value=String(recovery.outputText??textArea.value);
-   if(Array.isArray(recovery.postAttachments)){
-    attachedPostMedia=recovery.postAttachments.filter(item=>item&&typeof item.url==='string'&&typeof item.type==='string').map(item=>({...item,file:null}));
-    repaintAttachedPostMedia();
-   }
-   status.textContent='RECOVERED LOCAL CHAMBER EDIT — SAVE CHAMBER TO APPLY'+(recovery.pendingAttachmentCount?' // '+recovery.pendingAttachmentCount+' NEW FILE(S) MUST BE RE-SELECTED':'');
-  }else{
-   status.textContent='OLDER LOCAL RECOVERY COPY FOUND — NOT RESTORED BECAUSE THE RECORD HAS CHANGED';
-  }
+ if(!readOnly&&record.source_type==='transmission'){
+  grid.addEventListener('input',scheduleDraftAutosave);
+  grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});
  }
- if(record.source_type==='transmission'){
-  grid.addEventListener('input',()=>{scheduleDraftAutosave();scheduleChamberRecovery();});
-  grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();scheduleChamberRecovery();});
- }else{
-  grid.addEventListener('input',scheduleChamberRecovery);
-  grid.addEventListener('change',scheduleChamberRecovery);
+ if(readOnly){
+  grid.classList.add('ha-chamber-read-only');
+  grid.querySelectorAll('input,textarea').forEach(control=>{control.readOnly=true;control.disabled=control.type==='file'||control.type==='range';});
+  grid.querySelectorAll('select,button').forEach(control=>{control.disabled=true;});
+  grid.querySelectorAll('[contenteditable="true"]').forEach(control=>{control.contentEditable='false';});
+  grid.querySelectorAll('.ha-chamber-upload-label,.ha-chamber-media-remove').forEach(control=>{control.hidden=true;});
+  if(editButton)editButton.hidden=!archiveAdmin;
+  bindChamberDisclosureControls(grid,expandButton);
+  return;
  }
- const persistChamberRecoveryOnPageHide=()=>persistChamberRecovery();
- window.addEventListener('pagehide',persistChamberRecoveryOnPageHide);
  const actions=makeChamberNode('div','ha-chamber-editor-actions');
  const save=makeChamberNode('button','ha-chamber-save','SAVE CHAMBER');save.type='button';
  const cancel=makeChamberNode('button','ha-chamber-cancel','CANCEL');cancel.type='button';
@@ -1010,10 +937,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
     storage:'vha-post-media',post_ids:[Number(record.id)]
    }));
    record.updated_at=saved?.updated_at||state.row.updated_at;
-   chamberRecoveryBaseline=String(record.updated_at||record.created_at||'');
    state.row.updated_at=record.updated_at;
    recordStructureOverrides.set(String(record.id),state.row);
-   persistChamberRecovery();
    [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{
     if(item.uploadedDraft){Object.assign(item,item.uploadedDraft);item.file=null;delete item.uploadedDraft;}
    });
@@ -1053,11 +978,9 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    return !draftAutosaveInFlight&&!draftAutosaveQueued&&!draftAutosaveTimer;
   }finally{draftAutosaveFlushing=false;}
  };
- if(draftAutosaveEnabled)persistActiveChamberRecovery=async()=>{
+ if(draftAutosaveEnabled)flushActiveChamberAutosave=async()=>{
   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
-  const localSaved=persistChamberRecovery();
-  const cloudSaved=await flushDraftAutosave();
-  return localSaved||cloudSaved;
+  return await flushDraftAutosave();
  };
 
  if(deleteDraft)actions.append(deleteDraft);
@@ -1082,10 +1005,6 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
     const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(paths);
     if(cleanupError){cleanupWarning=true;console.warn('Draft was deleted, but some associated storage files remain:',cleanupError);}
    }
-   persistActiveChamberRecovery=()=>{};
-   if(chamberRecoveryTimer)clearTimeout(chamberRecoveryTimer);
-   window.removeEventListener('pagehide',persistChamberRecoveryOnPageHide);
-   if(chamberRecoveryKey){try{localStorage.removeItem(chamberRecoveryKey);}catch{}}
    records=records.filter(item=>String(item.id)!==String(record.id));
    const removedMediaUrls=new Set((record.media_items||[]).map(item=>item.url).filter(Boolean));
    mediaItems=mediaItems.filter(item=>!(item.post_ids||[]).includes(Number(record.id))&&!removedMediaUrls.has(item.url));
@@ -1236,10 +1155,6 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
     const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedPaths);
     if(removeError){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from storage:',removeError);}
    }
-   if(chamberRecoveryTimer)clearTimeout(chamberRecoveryTimer);
-   window.removeEventListener('pagehide',persistChamberRecoveryOnPageHide);
-   if(chamberRecordId===String(record.id))persistActiveChamberRecovery=()=>{};
-   if(chamberRecoveryKey){try{localStorage.removeItem(chamberRecoveryKey);}catch{}}
    status.textContent=cleanupWarning?'CHAMBER SAVED — MEDIA WIDTH OR FILE CLEANUP NEEDS ATTENTION':'CHAMBER REDESIGNED // CHANGES SAVED';
    richEditorController?.destroy();
    if(record.source_type==='transmission'){
@@ -1313,7 +1228,7 @@ let chamberCloseRequestedByUser=false;
 async function closeRecordChamberSafely(){
  if(!recordChamber?.open){if(window.parent!==window)window.parent.postMessage({type:'VHA_TRANSMISSION_EDITOR_CLOSED'},window.location.origin);return;}
  try{
-  const flushed=await persistActiveChamberRecovery();
+  const flushed=await flushActiveChamberAutosave();
   if(flushed===false){if(window.parent!==window)window.parent.postMessage({type:'VHA_TRANSMISSION_EDITOR_CLOSE_FAILED'},window.location.origin);return;}
   chamberCloseRequestedByUser=true;recordChamber.close();
  }catch(error){
@@ -1325,21 +1240,9 @@ function ensureRecordChamber(){
  if(recordChamber)return recordChamber;
  recordChamber=makeChamberNode('dialog','ha-record-chamber');
  recordChamber.setAttribute('aria-label','Human Archive record chamber');
- const flushRecovery=()=>{
-  try{persistActiveChamberRecovery();}catch(error){console.warn('Could not flush Human Archive local recovery:',error);}
- };
- // Capture reloads before the browser starts unloading the page. This covers both
- // ordinary and hard refresh shortcuts, including repeated refreshes.
- window.addEventListener('keydown',event=>{
-  if((event.ctrlKey||event.metaKey)&&String(event.key).toLowerCase()==='r')flushRecovery();
- },true);
- window.addEventListener('beforeunload',flushRecovery);
- document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')flushRecovery();});
  recordChamber.addEventListener('cancel',event=>{event.preventDefault();closeRecordChamberSafely();});
  recordChamber.addEventListener('click',event=>{if(event.target===recordChamber)closeRecordChamberSafely();});
  recordChamber.addEventListener('close',()=>{
-  flushRecovery();
-  persistActiveChamberRecovery=()=>{};
   document.body.classList.remove('ha-chamber-open');
   if(chamberCloseRequestedByUser&&window.parent!==window)window.parent.postMessage({type:'VHA_TRANSMISSION_EDITOR_CLOSED'},window.location.origin);
   chamberCloseRequestedByUser=false;
@@ -1353,23 +1256,12 @@ function ensureRecordChamber(){
  });
  document.body.append(recordChamber);return recordChamber;
 }
-function hasLocalChamberRecovery(record){
- if(!archiveUserId||!record)return false;
- try{
-  const key='vha_human_archive_recovery_'+archiveUserId+'_'+String(record.id);
-  const snapshot=JSON.parse(localStorage.getItem(key)||'null');
-  return Boolean(snapshot&&snapshot.version===1);
- }catch{return false;}
-}
 function openArchiveRecordChamber(record,trigger,openInEditor=false){
  if(!record||!records.some(item=>String(item.id)===String(record.id)))return;
  const dialog=ensureRecordChamber();if(dialog.open)dialog.close();
  dialog.replaceChildren(buildRecordChamber(record));chamberRecordId=String(record.id);recordChamberReturnFocus=trigger||null;
  const url=new URL(archiveHomeUrl.href);url.searchParams.set('record',String(record.id));history.replaceState(history.state,'',url.pathname+url.search+url.hash);document.body.classList.add('ha-chamber-open');
  try{
-  // Build the editor before opening the native dialog. This avoids relying on a
-  // post-navigation animation frame, which browsers may defer while a tab is
-  // backgrounded or restoring its rendering lifecycle.
   if(archiveAdmin&&openInEditor)dialog.querySelector('.ha-chamber-edit')?.click();
   dialog.showModal();
  }catch(error){document.body.classList.remove('ha-chamber-open');console.error('Could not open the Human Archive chamber:',error);}
