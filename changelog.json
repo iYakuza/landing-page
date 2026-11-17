@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-17T15:08:25.872718Z",
-  "last_processed_sha": "ab1073f27efd30323ba0002144261c32832dfe56",
+  "updated_at": "2026-11-17T16:39:05.609070Z",
+  "last_processed_sha": "a58f80095502a3a42de53d02fd8705e5cb891db8",
   "entries": [
+    {
+      "id": "a58f80095502a3a42de53d02fd8705e5cb891db8",
+      "timestamp": "2026-11-17T17:38:56+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Fix Supabase publishable key in CMS and global launcher (#101). It updates cms.js, creator-posting.js.",
+      "commit_count": 1,
+      "files": [
+        "cms/cms.js",
+        "creator-posting.js"
+      ],
+      "commits": [
+        {
+          "message": "Fix Supabase publishable key in CMS and global launcher (#101)",
+          "url": "https://github.com/iYakuza/landing-page/commit/a58f80095502a3a42de53d02fd8705e5cb891db8",
+          "files": [
+            "cms/cms.js",
+            "creator-posting.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "ab1073f27efd30323ba0002144261c32832dfe56",
       "timestamp": "2026-11-17T16:08:09+01:00",
@@ -1142,35 +1165,6 @@
             "human-archive/archive.css",
             "human-archive/archive.js",
             "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "2ad79a13b87a29327e1b213e8c887619aae65eb8",
-      "timestamp": "2026-11-15T02:22:22+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Restrict favourites to admins and mark favourite cards; Style glowing Human Archive favourite marker and chamber controls. It updates archive.css, archive.js.",
-      "commit_count": 2,
-      "files": [
-        "human-archive/archive.css",
-        "human-archive/archive.js"
-      ],
-      "commits": [
-        {
-          "message": "Restrict favourites to admins and mark favourite cards",
-          "url": "https://github.com/iYakuza/landing-page/commit/a4cbbfc34f9afc5104227e9d23c25fa235298ce7",
-          "files": [
-            "human-archive/archive.js"
-          ]
-        },
-        {
-          "message": "Style glowing Human Archive favourite marker and chamber controls",
-          "url": "https://github.com/iYakuza/landing-page/commit/fed1e77c9fb9fe51b74c7e04975c7aaa24cf3ffa",
-          "files": [
-            "human-archive/archive.css"
           ]
         }
       ]
