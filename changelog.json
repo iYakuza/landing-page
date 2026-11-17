@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-17T10:27:07.793793Z",
-  "last_processed_sha": "7768b4f7542c28d3440ec3190baccdc6174d1518",
+  "updated_at": "2026-11-17T11:43:22.197855Z",
+  "last_processed_sha": "04e89cb0b0b6c7e81de6700bee85e4625ea04aae",
   "entries": [
+    {
+      "id": "04e89cb0b0b6c7e81de6700bee85e4625ea04aae",
+      "timestamp": "2026-11-17T12:43:10+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Restore anonymous read access to published creator posts (#93). It updates 20261117170000_grant_public_read_vha_posts.sql.",
+      "commit_count": 1,
+      "files": [
+        "supabase/migrations/20261117170000_grant_public_read_vha_posts.sql"
+      ],
+      "commits": [
+        {
+          "message": "Restore anonymous read access to published creator posts (#93)",
+          "url": "https://github.com/iYakuza/landing-page/commit/04e89cb0b0b6c7e81de6700bee85e4625ea04aae",
+          "files": [
+            "supabase/migrations/20261117170000_grant_public_read_vha_posts.sql"
+          ]
+        }
+      ]
+    },
     {
       "id": "7768b4f7542c28d3440ec3190baccdc6174d1518",
       "timestamp": "2026-11-17T11:26:54+01:00",
@@ -1051,43 +1072,6 @@
             "human-archive/archive.js",
             "human-archive/index.html",
             "supabase/migrations/20261114234943_human_archive_favorites.sql"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "17d9da021f0718570245a6fbf8a779f348b36314",
-      "timestamp": "2026-11-15T00:30:18+01:00",
-      "category": "CONTENT",
-      "component": "Creative Archive",
-      "title": "Fresh additions to Creative Archive",
-      "description": "This update brings together Standardize post metadata and collapsed card titles (#49). It updates index.html, posts.css, posts.js and related project files.",
-      "commit_count": 1,
-      "files": [
-        "posts/community/index.html",
-        "posts/index.html",
-        "posts/posts.css",
-        "posts/posts.js",
-        "posts/the-awakening/index.html",
-        "posts/the-descent/index.html",
-        "posts/the-reconnection/index.html",
-        "posts/the-return/index.html",
-        "posts/the-transformation/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Standardize post metadata and collapsed card titles (#49)",
-          "url": "https://github.com/iYakuza/landing-page/commit/17d9da021f0718570245a6fbf8a779f348b36314",
-          "files": [
-            "posts/community/index.html",
-            "posts/index.html",
-            "posts/posts.css",
-            "posts/posts.js",
-            "posts/the-awakening/index.html",
-            "posts/the-descent/index.html",
-            "posts/the-reconnection/index.html",
-            "posts/the-return/index.html",
-            "posts/the-transformation/index.html"
           ]
         }
       ]
