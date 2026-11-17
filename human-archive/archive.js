@@ -864,7 +864,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  }
  grid.addEventListener('input',scheduleChamberRecovery);
  grid.addEventListener('change',scheduleChamberRecovery);
- window.addEventListener('pagehide',persistChamberRecovery,{once:true});
+ const persistChamberRecoveryOnPageHide=()=>persistChamberRecovery();
+ window.addEventListener('pagehide',persistChamberRecoveryOnPageHide);
  const actions=makeChamberNode('div','ha-chamber-editor-actions');
  const save=makeChamberNode('button','ha-chamber-save','SAVE CHAMBER');save.type='button';
  const cancel=makeChamberNode('button','ha-chamber-cancel','CANCEL');cancel.type='button';
@@ -999,6 +1000,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
     if(removeError){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from storage:',removeError);}
    }
    if(chamberRecoveryTimer)clearTimeout(chamberRecoveryTimer);
+   window.removeEventListener('pagehide',persistChamberRecoveryOnPageHide);
    if(chamberRecoveryKey){try{localStorage.removeItem(chamberRecoveryKey);}catch{}}
    status.textContent=cleanupWarning?'CHAMBER SAVED — SOME REMOVED FILES COULD NOT BE CLEANED UP':'CHAMBER REDESIGNED // CHANGES SAVED';
    richEditorController?.destroy();
