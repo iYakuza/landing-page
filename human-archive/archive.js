@@ -707,7 +707,16 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   layoutFields.querySelectorAll('[data-layout-group]').forEach(field=>{field.hidden=field.dataset.layoutGroup!==layoutSelect.value;});
   if(postLayoutControls?.transmissionDetails)postLayoutControls.transmissionDetails.hidden=layoutSelect.value!=='standard';
  };
- layoutSelect.addEventListener('change',()=>{syncLayoutControls();status.textContent='POST LAYOUT CHANGED — SAVE THE CHAMBER TO APPLY';});
+ layoutSelect.dataset.previousValue=layoutSelect.value;
+ layoutSelect.addEventListener('change',()=>{
+  const previous=layoutSelect.dataset.previousValue||'standard';
+  if(layoutSelect.value==='standard'&&previous!=='standard'&&postLayoutControls?.transmissionEditor){
+   const source=previous==='plain'?layoutPlain.value:layoutMain.value;
+   postLayoutControls.transmissionEditor.innerHTML=layoutParagraphs(source);
+  }
+  layoutSelect.dataset.previousValue=layoutSelect.value;
+  syncLayoutControls();status.textContent='POST LAYOUT CHANGED — SAVE THE CHAMBER TO APPLY';
+ });
  [layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain].forEach(area=>area.addEventListener('input',()=>{status.textContent='POST LAYOUT EDITED — SAVE THE CHAMBER TO APPLY';}));
  layoutPanel.body.append(layoutSelectWrap,layoutFields);grid.append(layoutPanel.details);
  postLayoutControls={select:layoutSelect,fields:{main:layoutMain,lyrics:layoutLyrics,prompt:layoutPrompt,learned:layoutLearned,chatgpt:layoutChatgpt,plain:layoutPlain},transmissionDetails:null,sync:syncLayoutControls};
@@ -766,7 +775,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  const insertLinkButton=makeChamberNode('button','ha-rich-link','LINK');insertLinkButton.type='button';toolbar.append(insertLinkButton);
  const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable='true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Transmission body');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Write the transmission body…';transmissionEditor.innerHTML=sanitizeTransmissionBody(record.source_type==='transmission'?(record.content_html||structure.transmission_body):structure.transmission_body);
  transmission.body.append(transmissionTop,toolbar,transmissionEditor);grid.append(transmission.details);
- if(postLayoutControls){postLayoutControls.transmissionDetails=transmission.details;postLayoutControls.sync();}
+ if(postLayoutControls){postLayoutControls.transmissionDetails=transmission.details;postLayoutControls.transmissionEditor=transmissionEditor;postLayoutControls.sync();}
  const richEditorController=window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
  const prompt=makeChamberDisclosure('02 // PROMPT STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
  const promptArea=document.createElement('textarea');promptArea.className='ha-chamber-editor-field';promptArea.name='prompt_style';promptArea.rows=9;
