@@ -972,6 +972,10 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   if(draftAutosaveTimer)clearTimeout(draftAutosaveTimer);
   draftAutosaveTimer=setTimeout(runDraftAutosave,delay);
  };
+ if(draftAutosaveEnabled)persistActiveChamberRecovery=()=>{
+  if(draftAutosaveTimer)clearTimeout(draftAutosaveTimer);
+  runDraftAutosave();
+ };
 
  actions.append(save,cancel);grid.append(actions);
  bindChamberDisclosureControls(grid,expandButton);
@@ -982,6 +986,11 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  });
  save.addEventListener('click',async()=>{
   if(!archiveAdmin||!archiveSupabase||!archiveUserId){status.textContent='ADMIN SESSION REQUIRED';return;}
+  if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
+  if(draftAutosaveInFlight){
+   status.textContent='WAITING FOR AUTOMATIC DRAFT SAVE…';
+   await new Promise(resolve=>{const wait=()=>draftAutosaveInFlight?setTimeout(wait,50):resolve();wait();});
+  }
   if(record.source_type==='transmission'&&recordMetadataInputs.status.value!==record.status){
    const prompt=recordMetadataInputs.status.value==='published'
     ?'Publish this Transmission? It will become visible on the public site.'
