@@ -4,7 +4,7 @@
   window.__vhaUnifiedNewTransmissionLoaded = true;
 
   const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
-  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
+  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZPIw6bzg_ddvb521h';
   const MOVEMENTS = [
     ['THE AWAKENING', 'the-awakening'],
     ['THE DESCENT', 'the-descent'],
@@ -16,8 +16,7 @@
   let isCreator = false;
   let refreshing = false;
   let authBound = false;
-  let closeRequestId = null;
-  let closeTimeout = null;
+  let closePending = false;
 
   const button = document.createElement('button');
   button.type = 'button';
@@ -47,70 +46,48 @@
 
   const dialog = document.createElement('dialog');
   dialog.className = 'vha-new-transmission-dialog';
-  dialog.setAttribute('aria-label', 'New Transmission editor');
-  dialog.innerHTML = [
-    '<div class="vha-new-transmission-dialog-head">',
-    '<span>NEW TRANSMISSION // CMS EDITOR</span>',
-    '<button type="button" class="vha-new-transmission-dialog-close" aria-label="Save and close editor">CLOSE ×</button>',
-    '</div>',
-    '<iframe title="CMS New Transmission editor" loading="eager"></iframe>'
-  ].join('');
+  dialog.setAttribute('aria-label', 'Human Archive Transmission editor');
+  dialog.innerHTML = '<iframe title="Human Archive Transmission editor" loading="eager"></iframe>';
   document.body.appendChild(dialog);
-
   const dialogFrame = dialog.querySelector('iframe');
-  const closeButton = dialog.querySelector('.vha-new-transmission-dialog-close');
 
   const modalStyle = document.createElement('style');
   modalStyle.textContent = [
-    '.vha-new-transmission-dialog{width:min(1500px,96vw);height:min(960px,94dvh);max-width:none;max-height:none;padding:0;border:1px solid #b9d77a66;border-radius:2px;background:#050906;color:#edf4e8;box-shadow:0 24px 90px #000c;overflow:hidden}',
+    '.vha-new-transmission-dialog{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:transparent;overflow:hidden}',
     '.vha-new-transmission-dialog::backdrop{background:#020604d9;backdrop-filter:blur(7px)}',
-    '.vha-new-transmission-dialog-head{height:42px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border-bottom:1px solid #b9d77a35;background:#071316;color:#b9d77a;font:10px monospace;letter-spacing:1.3px}',
-    '.vha-new-transmission-dialog-close{border:1px solid #b9d77a55;background:transparent;color:#edf4e8;padding:7px 11px;font:10px monospace;letter-spacing:1px;cursor:pointer}',
-    '.vha-new-transmission-dialog iframe{display:block;width:100%;height:calc(100% - 42px);border:0;background:#050906}',
-    '.vha-new-transmission-dialog[open]{display:flex;flex-direction:column}',
-    '@media(max-width:600px){.vha-new-transmission-dialog{width:100vw;height:100dvh;border:0}.vha-new-transmission-dialog-head{height:48px;flex:0 0 48px}}'
+    '.vha-new-transmission-dialog iframe{display:block;width:100%;height:100%;border:0;background:#050906}',
+    '.vha-new-transmission-dialog[open]{display:block}'
   ].join('');
   document.head.appendChild(modalStyle);
 
-  function closeEditorAfterSave() {
-    window.clearTimeout(closeTimeout);
-    closeTimeout = null;
-    closeRequestId = null;
+  function closeEditor() {
+    if (!dialog.open) return;
+    closePending = false;
     dialog.close();
     dialogFrame.src = 'about:blank';
-    closeButton.disabled = false;
-    closeButton.textContent = 'CLOSE ×';
   }
 
   function requestEditorClose() {
-    if (!dialog.open || !dialogFrame.contentWindow || closeRequestId) return;
-    closeRequestId = (window.crypto?.randomUUID?.() || String(Date.now()));
-    closeButton.disabled = true;
-    closeButton.textContent = 'SAVING…';
-    dialogFrame.contentWindow.postMessage({
-      type: 'VHA_QUICK_POST_CLOSE_REQUEST',
-      requestId: closeRequestId
-    }, window.location.origin);
-    closeTimeout = window.setTimeout(() => {
-      if (!closeRequestId) return;
-      closeRequestId = null;
-      closeButton.disabled = false;
-      closeButton.textContent = 'CLOSE ×';
-    }, 20000);
+    if (!dialog.open || closePending) return;
+    if (!dialogFrame.contentWindow || !dialogFrame.src || dialogFrame.src === 'about:blank') {
+      closeEditor();
+      return;
+    }
+    closePending = true;
+    dialogFrame.contentWindow.postMessage({ type: 'VHA_TRANSMISSION_EDITOR_CLOSE_REQUEST' }, window.location.origin);
   }
 
   function openNewTransmission() {
-    const url = new URL('/landing-page/cms/', window.location.origin);
-    url.searchParams.set('embed', '1');
+    const url = new URL('/landing-page/human-archive/', window.location.origin);
     url.searchParams.set('new', '1');
     const category = selectedCategoryForPage();
     if (category) url.searchParams.set('category', category);
+    closePending = false;
     dialogFrame.src = url.toString();
     dialog.showModal();
   }
 
   button.addEventListener('click', openNewTransmission);
-  closeButton.addEventListener('click', requestEditorClose);
   dialog.addEventListener('cancel', event => {
     event.preventDefault();
     requestEditorClose();
@@ -118,19 +95,16 @@
   dialog.addEventListener('click', event => {
     if (event.target === dialog) requestEditorClose();
   });
+  dialog.addEventListener('close', () => {
+    closePending = false;
+    dialogFrame.src = 'about:blank';
+  });
   window.addEventListener('message', event => {
-    if (event.origin !== window.location.origin ||
-        event.source !== dialogFrame.contentWindow ||
-        event.data?.type !== 'VHA_QUICK_POST_CLOSE_RESULT' ||
-        event.data?.requestId !== closeRequestId) return;
-    if (event.data.saved) {
-      closeEditorAfterSave();
-    } else {
-      window.clearTimeout(closeTimeout);
-      closeTimeout = null;
-      closeRequestId = null;
-      closeButton.disabled = false;
-      closeButton.textContent = 'CLOSE ×';
+    if (event.origin !== window.location.origin || event.source !== dialogFrame.contentWindow) return;
+    if (event.data?.type === 'VHA_TRANSMISSION_EDITOR_CLOSED') {
+      closeEditor();
+    } else if (event.data?.type === 'VHA_TRANSMISSION_EDITOR_CLOSE_FAILED') {
+      closePending = false;
     }
   });
 
