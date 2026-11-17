@@ -389,8 +389,18 @@
       if(removedPaths.length){const cleanup=await client.storage.from(MEDIA_BUCKET).remove(removedPaths);if(cleanup.error)message(mediaMessage,'Post saved, but previous media cleanup failed: '+cleanup.error.message,true);}
       originalMediaItems=mediaItems.map(item=>({...item}));originalMediaPath=mediaPath;setStatus(status.toUpperCase());$('delete-post').hidden=false;
       if(status==='published'){
-        const postUrl=new URL('../posts/',window.location.href);
-        postUrl.searchParams.set('post',result.data.slug);
+        const movementPaths={
+          'THE AWAKENING':'the-awakening',
+          'THE DESCENT':'the-descent',
+          'THE RECONNECTION':'the-reconnection',
+          'THE TRANSFORMATION':'the-transformation',
+          'THE RETURN':'the-return'
+        };
+        const humanArchive=category==='HUMAN ARCHIVE';
+        const postUrl=humanArchive
+          ?new URL('../human-archive/',window.location.href)
+          :new URL('../posts/'+movementPaths[category]+'/',window.location.href);
+        postUrl.searchParams.set(humanArchive?'slug':'post',result.data.slug);
         window.location.assign(postUrl.toString());
         return true;
       }
