@@ -1370,7 +1370,7 @@ function openArchiveRecordChamber(record,trigger,openInEditor=false){
   // Build the editor before opening the native dialog. This avoids relying on a
   // post-navigation animation frame, which browsers may defer while a tab is
   // backgrounded or restoring its rendering lifecycle.
-  if(archiveAdmin&&(openInEditor||hasLocalChamberRecovery(record)))dialog.querySelector('.ha-chamber-edit')?.click();
+  if(archiveAdmin&&openInEditor)dialog.querySelector('.ha-chamber-edit')?.click();
   dialog.showModal();
  }catch(error){document.body.classList.remove('ha-chamber-open');console.error('Could not open the Human Archive chamber:',error);}
 }
