@@ -742,7 +742,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    row.append(makeChamberNode('small','ha-chamber-media-editor-state',item.file?'READY TO UPLOAD':item.type.toUpperCase()+' // EXISTING ATTACHMENT'));
    const remove=makeChamberNode('button','ha-chamber-media-remove','REMOVE ✕');remove.type='button';
    remove.setAttribute('aria-label','Remove '+(item.name||'attachment'));
-   remove.addEventListener('click',()=>{attachedPostMedia.splice(index,1);repaintAttached();status.textContent='ATTACHMENTS UPDATED — SAVE THE CHAMBER TO APPLY';});
+   remove.addEventListener('click',()=>{attachedPostMedia.splice(index,1);repaintAttached();status.textContent='ATTACHMENTS UPDATED — AUTOSAVE PENDING';scheduleDraftAutosave();});
    row.append(remove);attachedList.append(row);
   });
  };
@@ -794,13 +794,13 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   const media=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
   const items=editorMedia[type];
   const sectionBody=media.body;
-  renderChamberMediaEditor(sectionBody,record,type,items,status,()=>{mediaTouched[type]=true;});
+  renderChamberMediaEditor(sectionBody,record,type,items,status,()=>{mediaTouched[type]=true;scheduleDraftAutosave();});
   output.body.append(media.details);
  });
  grid.append(output.details);
  // Local recovery mirrors Quick Post without changing the chamber's explicit cloud-save workflow.
  const chamberRecoveryKey=archiveUserId?'vha_human_archive_recovery_'+archiveUserId+'_'+String(record.id):null;
- const chamberRecoveryBaseline=String(record.updated_at||record.created_at||'');
+ let chamberRecoveryBaseline=String(record.updated_at||record.created_at||'');
  let chamberRecoveryTimer=null;
  const chamberRecoveryFields={promptArea,lyricsArea,textArea};
  const readChamberRecovery=()=>{
@@ -868,16 +868,196 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    status.textContent='OLDER LOCAL RECOVERY COPY FOUND — NOT RESTORED BECAUSE THE RECORD HAS CHANGED';
   }
  }
- grid.addEventListener('input',scheduleChamberRecovery);
- grid.addEventListener('change',scheduleChamberRecovery);
+ if(record.source_type==='transmission'){
+  grid.addEventListener('input',()=>{scheduleDraftAutosave();scheduleChamberRecovery();});
+  grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();scheduleChamberRecovery();});
+ }else{
+  grid.addEventListener('input',scheduleChamberRecovery);
+  grid.addEventListener('change',scheduleChamberRecovery);
+ }
  const persistChamberRecoveryOnPageHide=()=>persistChamberRecovery();
  window.addEventListener('pagehide',persistChamberRecoveryOnPageHide);
  const actions=makeChamberNode('div','ha-chamber-editor-actions');
  const save=makeChamberNode('button','ha-chamber-save','SAVE CHAMBER');save.type='button';
  const cancel=makeChamberNode('button','ha-chamber-cancel','CANCEL');cancel.type='button';
+
  const updateSaveLabel=()=>{if(record.source_type!=='transmission')return;const next=recordMetadataInputs.status.value;save.textContent=next==='published'?(record.status==='published'?'SAVE PUBLISHED TRANSMISSION':'PUBLISH TRANSMISSION'):(record.status==='published'?'UNPUBLISH & SAVE DRAFT':'SAVE DRAFT');};
  recordMetadataInputs?.status?.addEventListener('change',updateSaveLabel);updateSaveLabel();
+ // Draft Transmissions are database-backed as the user types. Publication remains an explicit action.
+ let draftAutosaveTimer=null,draftAutosaveInFlight=false,draftAutosaveQueued=false,draftAutosaveStopped=false,draftAutosaveLastSignature='';
+ const draftAutosaveEnabled=record.source_type==='transmission'&&record.status==='draft';
+ const deleteDraft=draftAutosaveEnabled?makeChamberNode('button','ha-chamber-delete-draft','DELETE DRAFT'):null;
+ if(deleteDraft)deleteDraft.type='button';
+ const buildDraftAutosaveState=()=>{
+  const metadata={
+   title:String(recordMetadataInputs.title.value).trim(),
+   slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
+   category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
+   excerpt:String(recordMetadataInputs.excerpt.value).trim(),
+   status:'draft'
+  };
+  if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
+  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
+  if(!metadata.category||metadata.category.length>60)throw new Error('Category must contain between 1 and 60 characters.');
+  if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
+  let transmissionBody=sanitizeTransmissionBody(transmissionEditor.innerHTML);
+  if(postLayoutControls&&postLayoutControls.select.value!=='standard'){
+   transmissionBody=postLayoutControls.select.value==='plain'
+    ?'<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.plain.value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>'
+    :'<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.main.value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeLayoutText(postLayoutControls.fields.lyrics.value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+layoutParagraphs(postLayoutControls.fields.prompt.value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.learned.value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.chatgpt.value)+'</section></aside></div>';
+  }
+  const existingOutput=structure.output_media&&typeof structure.output_media==='object'?structure.output_media:{};
+  const outputMedia={};
+  for(const type of ['image','audio','video']){
+   const hasUnuploaded=editorMedia[type].some(item=>item.file&&!item.uploadedDraft);
+   outputMedia[type]=hasUnuploaded?(Array.isArray(existingOutput[type])?existingOutput[type]:[]):editorMedia[type].map(item=>{
+    const uploaded=item.uploadedDraft||{};
+    return {
+     id:String(item.id||uploaded.path||item.path||item.url||chamberUploadToken()),name:String(item.name||record.title),
+     url:String(uploaded.url||item.url||''),path:String(uploaded.path||item.path||''),
+     mime_type:String(uploaded.mime_type||item.mime_type||''),storage:String(uploaded.storage||item.storage||'recovered')
+    };
+   });
+  }
+  const mediaItems=attachedPostMedia.map(item=>{
+   const uploaded=item.uploadedDraft||{};
+   return {url:uploaded.url||item.url,path:uploaded.path||item.path||null,type:item.type,name:item.name};
+  }).filter(item=>item.url);
+  const row={
+   record_id:Number(record.id),transmission_body:transmissionBody,
+   prompt_style:promptArea.value,lyrics_style:lyricsArea.value,output_text:textArea.value,
+   output_media:outputMedia,updated_at:new Date().toISOString(),updated_by:archiveUserId
+  };
+  return {metadata,row,mediaItems};
+ };
+ const uploadPendingDraftMedia=async()=>{
+  const uploadedPaths=[];
+  const uploadOne=async(item,folder,type)=>{
+   if(!item.file||item.uploadedDraft)return;
+   const token=chamberUploadToken();
+   const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
+   const path='human-archive/'+String(record.id)+'/'+folder+'/'+token+'-'+safeName;
+   const {error}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{cacheControl:'3600',contentType:item.mime_type,upsert:false});
+   if(error)throw error;
+   uploadedPaths.push(path);
+   const {data}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
+   if(!data?.publicUrl)throw new Error('The uploaded media URL could not be created.');
+   item.uploadedDraft={url:data.publicUrl,path,type:type||item.type,name:item.name,mime_type:item.mime_type,storage:'vha-post-media'};
+  };
+  try{
+   for(const item of attachedPostMedia)await uploadOne(item,'attachments',item.type);
+   for(const type of ['image','audio','video'])for(const item of editorMedia[type])await uploadOne(item,type,type);
+   return uploadedPaths;
+  }catch(error){
+   if(uploadedPaths.length)await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
+   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{delete item.uploadedDraft;});
+   throw error;
+  }
+ };
+ const runDraftAutosave=async()=>{
+  if(!draftAutosaveEnabled||draftAutosaveStopped||!archiveAdmin||!archiveSupabase||!archiveUserId)return;
+  if(draftAutosaveInFlight){draftAutosaveQueued=true;return;}
+  let state,signature,uploadedPaths=[];
+  draftAutosaveInFlight=true;
+  try{
+   uploadedPaths=await uploadPendingDraftMedia();
+   state=buildDraftAutosaveState();
+   signature=JSON.stringify({metadata:state.metadata,row:{...state.row,updated_at:null,updated_by:null},mediaItems:state.mediaItems});
+   if(signature===draftAutosaveLastSignature){
+    uploadedPaths.forEach(path=>console.warn('Draft media already represented in the saved record:',path));
+    return;
+   }
+   status.textContent='SAVING DRAFT…';
+   const {data,error}=await archiveSupabase.rpc('save_human_archive_transmission_v4',{
+    p_post_id:record.post_id,p_title:state.metadata.title,p_slug:state.metadata.slug,
+    p_category:state.metadata.category,p_excerpt:state.metadata.excerpt,p_status:'draft',
+    p_transmission_body:state.row.transmission_body,p_prompt_style:state.row.prompt_style,
+    p_lyrics_style:state.row.lyrics_style,p_output_text:state.row.output_text,
+    p_output_media:state.row.output_media,p_media_items:state.mediaItems
+   });
+   if(error)throw error;
+   const saved=Array.isArray(data)?data[0]:data;
+   record.title=state.metadata.title;record.slug=state.metadata.slug;
+   record.categories=[state.metadata.category];record.excerpt=state.metadata.excerpt;
+   record.content_html=state.row.transmission_body;record.status='draft';
+   record.media_items=state.mediaItems.map((item,index)=>({
+    id:'transmission-'+record.post_id+'-'+index,title:item.name||record.title,
+    alt_text:item.name||record.title,mime_type:item.type+'/unknown',
+    storage_path:item.path||'',source_url:item.url,url:item.url,
+    storage:'vha-post-media',post_ids:[Number(record.id)]
+   }));
+   record.updated_at=saved?.updated_at||state.row.updated_at;
+   chamberRecoveryBaseline=String(record.updated_at||record.created_at||'');
+   state.row.updated_at=record.updated_at;
+   recordStructureOverrides.set(String(record.id),state.row);
+   persistChamberRecovery();
+   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{
+    if(item.uploadedDraft){Object.assign(item,item.uploadedDraft);item.file=null;delete item.uploadedDraft;}
+   });
+   repaintAttachedPostMedia();
+   draftAutosaveLastSignature=signature;
+   status.textContent='DRAFT SAVED AUTOMATICALLY';
+  }catch(error){
+   if(uploadedPaths.length)await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
+   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{delete item.uploadedDraft;});
+   console.error('Human Archive draft autosave failed:',error);
+   status.textContent='AUTOSAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
+  }finally{
+   draftAutosaveInFlight=false;
+   if(draftAutosaveQueued){draftAutosaveQueued=false;scheduleDraftAutosave(0);}
+  }
+ };
+ const scheduleDraftAutosave=(delay=850)=>{
+  if(!draftAutosaveEnabled)return;
+  if(draftAutosaveTimer)clearTimeout(draftAutosaveTimer);
+  draftAutosaveTimer=setTimeout(runDraftAutosave,delay);
+ };
+ if(draftAutosaveEnabled)persistActiveChamberRecovery=()=>{
+  if(draftAutosaveTimer)clearTimeout(draftAutosaveTimer);
+  persistChamberRecovery();
+  runDraftAutosave();
+ };
+
+ if(deleteDraft)actions.append(deleteDraft);
  actions.append(save,cancel);grid.append(actions);
+ deleteDraft?.addEventListener('click',async()=>{
+  if(!draftAutosaveEnabled||draftAutosaveStopped||!archiveAdmin||!archiveSupabase||!archiveUserId)return;
+  if(!window.confirm('Permanently delete this draft Transmission? Its Human Archive record and associated Human Archive attachment files will be removed. This cannot be undone.'))return;
+  draftAutosaveStopped=true;
+  if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
+  deleteDraft.disabled=true;save.disabled=true;cancel.disabled=true;status.textContent='WAITING FOR ANY ACTIVE DRAFT SAVE…';
+  try{
+   while(draftAutosaveInFlight)await new Promise(resolve=>setTimeout(resolve,50));
+   draftAutosaveQueued=false;
+   status.textContent='DELETING DRAFT…';
+   const {data,error}=await archiveSupabase.rpc('delete_human_archive_transmission_draft_v1',{p_post_id:record.post_id});
+   if(error)throw error;
+   const deleted=Array.isArray(data)?data[0]:data;
+   if(!deleted||Number(deleted.archive_record_id)!==Number(record.id))throw new Error('The database did not confirm deletion of this exact Archive record.');
+   let cleanupWarning=false;
+   const paths=Array.isArray(deleted.storage_paths)?deleted.storage_paths.filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')):[];
+   if(paths.length){
+    const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(paths);
+    if(cleanupError){cleanupWarning=true;console.warn('Draft was deleted, but some associated storage files remain:',cleanupError);}
+   }
+   persistActiveChamberRecovery=()=>{};
+   if(chamberRecoveryTimer)clearTimeout(chamberRecoveryTimer);
+   window.removeEventListener('pagehide',persistChamberRecoveryOnPageHide);
+   if(chamberRecoveryKey){try{localStorage.removeItem(chamberRecoveryKey);}catch{}}
+   records=records.filter(item=>String(item.id)!==String(record.id));
+   const removedMediaUrls=new Set((record.media_items||[]).map(item=>item.url).filter(Boolean));
+   mediaItems=mediaItems.filter(item=>!(item.post_ids||[]).includes(Number(record.id))&&!removedMediaUrls.has(item.url));
+   removedMediaUrls.forEach(url=>mediaMap.delete(urlKey(url)));
+   recordStructureOverrides.delete(String(record.id));favoriteRecordIds.delete(String(record.id));
+   recordChamber?.close();render();
+   setMediaStatus(cleanupWarning?'DRAFT DELETED — SOME STORAGE FILES COULD NOT BE CLEANED UP':'DRAFT DELETED',!cleanupWarning);
+  }catch(error){
+   draftAutosaveStopped=false;deleteDraft.disabled=false;save.disabled=false;cancel.disabled=false;
+   console.error('Human Archive draft could not be deleted:',error);
+   status.textContent='DELETE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
+   scheduleDraftAutosave(0);
+  }
+ });
  bindChamberDisclosureControls(grid,expandButton);
  cancel.addEventListener('click',()=>{
   richEditorController?.destroy();
@@ -886,6 +1066,12 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
  });
  save.addEventListener('click',async()=>{
   if(!archiveAdmin||!archiveSupabase||!archiveUserId){status.textContent='ADMIN SESSION REQUIRED';return;}
+  if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
+  if(draftAutosaveInFlight){
+   status.textContent='WAITING FOR AUTOMATIC DRAFT SAVE…';
+   await new Promise(resolve=>{const wait=()=>draftAutosaveInFlight?setTimeout(wait,50):resolve();wait();});
+   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
+  }
   if(record.source_type==='transmission'&&recordMetadataInputs.status.value!==record.status){
    const prompt=recordMetadataInputs.status.value==='published'
     ?'Publish this Transmission? It will become visible on the public site.'
