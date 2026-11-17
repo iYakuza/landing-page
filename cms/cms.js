@@ -1,7 +1,7 @@
 (() => {
   'use strict';
   const SUPABASE_URL='https://oeyxsqocldlovhsmzcjw.supabase.co';
-  const SUPABASE_PUBLISHABLE_KEY='sb_publishable_kuUFxaClmROwgZPIw6bzg_ddvb521h';
+  const SUPABASE_PUBLISHABLE_KEY='sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
   const client=window.supabase?.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
   const $=id=>document.getElementById(id);
   const loginPanel=$('login-panel'),workspace=$('workspace'),setupNote=$('setup-note');
