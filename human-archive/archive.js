@@ -1058,6 +1058,34 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    .filter(item=>item&&item.storage==='vha-post-media'&&typeof item.path==='string'&&item.path.startsWith('human-archive/'+String(record.id)+'/'))
    .map(item=>item.path);
   try{
+   if(record.source_type==='transmission'&&!record.post_id){
+    const metadata={
+     title:String(recordMetadataInputs.title.value).trim(),
+     slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
+     category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
+     excerpt:String(recordMetadataInputs.excerpt.value).trim(),
+     mediaWidth:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100))
+    };
+    if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
+    if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
+    if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
+    if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
+    status.textContent='CREATING TRANSMISSION…';
+    const {data:createResult,error:createError}=await archiveSupabase.rpc('create_human_archive_transmission_v2',{
+     p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,
+     p_status:'draft',p_transmission_body:'',p_prompt_style:'',p_lyrics_style:'',p_output_text:'',
+     p_output_media:{},p_media_items:[],p_media_width:metadata.mediaWidth
+    });
+    if(createError)throw createError;
+    const created=Array.isArray(createResult)?createResult[0]:createResult;
+    if(!created?.post_id||!created?.archive_record_id||!created?.updated_at)throw new Error('The Transmission record could not be confirmed.');
+    record.id=Number(created.archive_record_id);record.post_id=created.post_id;record.updated_at=created.updated_at;
+    record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;
+    record.status='draft';record.media_width=metadata.mediaWidth;record.created_at=new Date().toISOString();
+    record.date=record.created_at.slice(0,10);record.year=record.date.slice(0,4);
+    record.archiveIdentifier='HA-'+record.year+'-'+String(record.id).padStart(4,'0');
+    record.isNew=false;
+   }
    const savedPostMedia=[];
    for(const item of attachedPostMedia){
     if(item.file){
@@ -1163,6 +1191,13 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     row.updated_at=savedStructure?.updated_at||new Date().toISOString();
    }
    recordStructureOverrides.set(String(record.id),row);
+   if(!records.some(item=>String(item.id)===String(record.id))){
+    records.push(record);
+    if(!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);
+    if(![...category.options].some(option=>option.value===record.categories[0])){
+     const option=document.createElement('option');option.value=record.categories[0];option.textContent=record.categories[0];category.append(option);
+    }
+   }
    const keepPaths=new Set(['image','audio','video'].flatMap(type=>Array.isArray(outputMedia[type])?outputMedia[type]:[])
     .filter(item=>item&&item.storage==='vha-post-media').map(item=>item.path).filter(Boolean));
    const removedPaths=[...new Set(oldOwnedPaths)].filter(path=>!keepPaths.has(path));
@@ -1280,7 +1315,7 @@ function ensureRecordChamber(){
  document.body.append(recordChamber);return recordChamber;
 }
 function openArchiveRecordChamber(record,trigger,openInEditor=false){
- if(!record||!records.some(item=>String(item.id)===String(record.id)))return;
+ if(!record||(!record.isNew&&!records.some(item=>String(item.id)===String(record.id))))return;
  chamberSaveConflict=false;
  const dialog=ensureRecordChamber();if(dialog.open)dialog.close();
  dialog.replaceChildren(buildRecordChamber(record));chamberRecordId=String(record.id);recordChamberReturnFocus=trigger||null;
@@ -1299,38 +1334,22 @@ function openRequestedRecordFromUrl(){
  search.value=record.title;year.value='';category.value='';render();
  const card=list.querySelector('.ha-record-card[data-ha-record-id="'+record.id+'"]');card?.scrollIntoView({behavior:'smooth',block:'center'});openArchiveRecordChamber(record,null);
 }
-async function createHumanArchiveTransmission(requestedCategory=''){
+function createHumanArchiveTransmission(){
  if(!archiveAdmin||!archiveSupabase||!archiveUserId){if(createTransmissionStatus)createTransmissionStatus.textContent='ADMIN SESSION REQUIRED';return;}
- const chosenCategory=transmissionCategories.includes(String(requestedCategory||'').trim().toUpperCase())?String(requestedCategory).trim().toUpperCase():'';
- if(newTransmissionButton)newTransmissionButton.disabled=true;
- if(createTransmissionStatus)createTransmissionStatus.textContent='CREATING DRAFT…';
- try{
-  const {data,error}=await archiveSupabase.rpc('create_human_archive_transmission');
-  if(error)throw error;
-  const created=Array.isArray(data)?data[0]:data;
-  if(!created?.id||!created?.archive_record_id)throw new Error('The new Transmission could not be confirmed.');
-  await loadTransmissionRecords();
-  render();syncFavoriteControls();
-  const record=records.find(item=>item.source_type==='transmission'&&item.post_id===created.id);
-  if(!record)throw new Error('The draft was created, but could not be loaded into the Archive. Refresh the page to find it.');
-  record.categories=[chosenCategory];
-  openArchiveRecordChamber(record,newTransmissionButton,true);
-  if(chosenCategory){const destination=recordChamber?.querySelector('[name="category"]');if(destination){destination.value=chosenCategory;destination.dispatchEvent(new Event('input',{bubbles:true}));}}
-  recordChamber?.querySelector('.ha-chamber-editor-field')?.focus({preventScroll:true});
-  if(createTransmissionStatus)createTransmissionStatus.textContent='NEW DRAFT READY // HA-'+record.year+'-'+String(record.id).padStart(4,'0');
- }catch(error){
-  console.error('Human Archive Transmission could not be created:',error);
-  if(createTransmissionStatus)createTransmissionStatus.textContent='CREATE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
- }finally{
-  if(newTransmissionButton)newTransmissionButton.disabled=false;
- }
+ const temporaryId=Date.now();
+ const now=new Date().toISOString();
+ const record={
+  id:temporaryId,post_id:null,source_type:'transmission',title:'',slug:'untitled-transmission',
+  categories:[],excerpt:'',content_html:'',status:'new',media_items:[],media_width:100,
+  created_at:now,updated_at:now,published_at:null,date:now.slice(0,10),year:now.slice(0,4),
+  url:'',archiveIdentifier:'UNSAVED TRANSMISSION',isNew:true
+ };
+ openArchiveRecordChamber(record,newTransmissionButton,true);
+ if(createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // UNSAVED';
+ recordChamber?.querySelector('[name="title"]')?.focus({preventScroll:true});
 }
 async function initArchiveFeatures(){
- const launchParams=new URLSearchParams(window.location.search);
- const launchNewTransmission=launchParams.get('new')==='1';
- const launchCategory=launchParams.get('category')||'';
- if(launchNewTransmission){launchParams.delete('new');launchParams.delete('category');const nextUrl=new URL(window.location.href);nextUrl.search=launchParams.toString();history.replaceState(history.state,'',nextUrl.pathname+nextUrl.search+nextUrl.hash);}
- if(!window.supabase?.createClient){openRequestedRecordFromUrl();return;}
+  if(!window.supabase?.createClient){openRequestedRecordFromUrl();return;}
  archiveSupabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
  await refreshArchiveAdmin();
  if(newTransmissionButton){newTransmissionButton.hidden=!archiveAdmin;newTransmissionButton.disabled=!archiveAdmin;newTransmissionButton.addEventListener('click',createHumanArchiveTransmission);}
@@ -1353,7 +1372,6 @@ async function initArchiveFeatures(){
  }
  render();
  syncFavoriteControls();
- if(launchNewTransmission){await createHumanArchiveTransmission(launchCategory);return;}
  openRequestedRecordFromUrl();
 }
 
@@ -1453,5 +1471,7 @@ async function init(){
  }catch(error){console.error('Human Archive local index failed:',error);list.textContent='THE LOCAL ARCHIVE COULD NOT BE LOADED. PLEASE REFRESH IN A MOMENT.';count.textContent='LOCAL ARCHIVE UNAVAILABLE';}
 }
 bindEgoPortraitViewer();
-search.addEventListener('input',render);year.addEventListener('change',render);category.addEventListener('change',render);init();
+search.addEventListener('input',render);year.addEventListener('change',render);category.addEventListener('change',render);
+window.addEventListener('VHA_OPEN_NEW_TRANSMISSION',()=>createHumanArchiveTransmission());
+init();
 })();
