@@ -1333,14 +1333,14 @@ async function createHumanArchiveTransmission(){
   const record=records.find(item=>item.source_type==='transmission'&&item.post_id===created.id);
   if(!record)throw new Error('The draft was created, but could not be loaded into the Archive. Refresh the page to find it.');
   openArchiveRecordChamber(record,newTransmissionButton);
-  // Let the newly opened chamber paint before switching it into edit mode.
-  // This avoids a blank-looking chamber when creation follows a page navigation.
-  requestAnimationFrame(()=>{
-   if(!recordChamber?.open||chamberRecordId!==String(record.id))return;
+  // Activate the editor synchronously: requestAnimationFrame may be paused
+  // while the destination tab is backgrounded, leaving the draft in read mode.
+  if(recordChamber?.open&&chamberRecordId===String(record.id)){
    const editButton=recordChamber.querySelector('.ha-chamber-edit');
    editButton?.click();
-   recordChamber.querySelector('.ha-chamber-editor-field')?.focus({preventScroll:true});
-  });
+   const firstField=recordChamber.querySelector('.ha-chamber-editor-field');
+   if(firstField)requestAnimationFrame(()=>firstField.focus({preventScroll:true}));
+  }
   if(createTransmissionStatus)createTransmissionStatus.textContent='NEW DRAFT READY // HA-'+record.year+'-'+String(record.id).padStart(4,'0');
  }catch(error){
   console.error('Human Archive Transmission could not be created:',error);
