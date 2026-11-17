@@ -1,317 +1,70 @@
 (() => {
-  const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
-  // Supabase publishable key: intentionally public; database RLS protects all writes.
-  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-  const client = window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-  const $ = id => document.getElementById(id);
-  const loginPanel = $('login-panel'), workspace = $('workspace'), setupNote = $('setup-note');
-  const loginForm = $('login-form'), loginMessage = $('login-message');
-  const postForm = $('post-form'), managePosts = $('manage-posts'), saveMessage = $('save-message');
-  const titleInput = $('post-title'), slugInput = $('post-slug'), categoryInput = $('post-category');
-  const excerptInput = $('post-excerpt'), contentEditor = $('post-content');
-  const mediaInput = $('post-media'), mediaPreview = $('media-preview'), mediaMessage = $('media-message');
-  const layoutInput = $('post-layout'), mediaWidthInput = $('media-width'), mediaWidthValue = $('media-width-value');
-  const sunoFields = $('suno-fields'), plainFields = $('plain-fields');
-  let postLayout = 'suno', postMediaWidth = 100;
-  let currentUser = null, allPosts = [], editingId = null, slugManuallyEdited = false, statusFilter = 'all', saving = false;
-  const POSTS_PAGE_SIZE = 20, SUBMISSIONS_PAGE_SIZE = 10;
-  let postsOffset = 0, hasMorePosts = false, communityItems = [], communityOffset = 0, hasMoreCommunity = false, openingPostToken = 0;
-  const requestedParams = new URLSearchParams(window.location.search);
-  const requestedEditSlug = requestedParams.get('edit');
-  const requestedCategory = (requestedParams.get('category') || '').trim().toUpperCase();
-  const requestedNewPost = requestedParams.get('new') === '1';
-  const embeddedComposer = requestedParams.get('embed') === '1';
-  if(embeddedComposer) document.body.classList.add('cms-embedded-composer');
-  const recoveryStorageKey = () => currentUser ? 'vha_quick_post_recovery_' + currentUser.id : null;
-  let recoveryRevision = 0, autosaveTimer = null;
-  let mediaUrl = null, mediaPath = null, mediaType = null, originalMediaPath = null, mediaItems = [], originalMediaItems = [], mediaUploading = false;
-  const MEDIA_BUCKET = 'vha-post-media';
-  const MAX_MEDIA_BYTES = 30 * 1024 * 1024;
-  const ALLOWED_MEDIA = new Set(['image/jpeg','image/png','image/webp','image/gif','image/avif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm','video/mp4','video/webm','video/quicktime']);
-  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const slugify = value => String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,180);
-  function message(el, text, error=false){el.textContent=text;el.classList.toggle('error',error);}
+  'use strict';
+  const SUPABASE_URL='https://oeyxsqocldlovhsmzcjw.supabase.co';
+  const SUPABASE_PUBLISHABLE_KEY='sb_publishable_kuUFxaClmROwgZPIw6bzg_ddvb521h';
+  const client=window.supabase?.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+  const $=id=>document.getElementById(id);
+  const loginPanel=$('login-panel'),workspace=$('workspace'),setupNote=$('setup-note');
+  const loginForm=$('login-form'),loginMessage=$('login-message');
+  const PAGE_SIZE=10;
+  let currentUser=null,submissions=[],offset=0,hasMore=false;
+  const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  function message(element,value,isError=false){if(!element)return;element.textContent=value;element.classList.toggle('error',Boolean(isError));}
   function showLogin(){loginPanel.hidden=false;workspace.hidden=true;setupNote.hidden=false;}
-  function showWorkspace(user){loginPanel.hidden=true;workspace.hidden=false;setupNote.hidden=true;$('community-review').hidden=false;$('user-line').textContent='SIGNED IN // '+(user.email||'EDITOR');}
-  function setStatus(text){$('editor-status').textContent=text;}
-  function safeLink(value){
-    try{
-      const url=new URL(String(value||''));
-      if(url.protocol==='https:'&&url.hostname)return url.href;
-      if(url.protocol==='mailto:'&&url.pathname)return url.href;
-    }catch{}
-    return '';
-  }
-  function cleanHtml(html){
-    const doc = new DOMParser().parseFromString(String(html||''),'text/html');
-    const allowed = new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','DIV','SECTION','ASIDE','DETAILS','SUMMARY']);
-    function clean(node){
-      [...node.childNodes].forEach(child=>{
-        if(child.nodeType===Node.TEXT_NODE) return;
-        if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
-        if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
-        const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
-        const originalClass=(child.getAttribute('class')||'').split(/\s+/).filter(name=>['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response'].includes(name)).join(' ');
-        [...child.attributes].forEach(attr=>child.removeAttribute(attr.name));
-        if(originalClass)child.setAttribute('class',originalClass);
-        const safeHref=child.tagName==='A'?safeLink(originalHref):'';
-        if(child.tagName==='A'&&safeHref){
-          child.setAttribute('href',safeHref);child.setAttribute('target','_blank');child.setAttribute('rel','noopener noreferrer');
-        }
-        clean(child);
-      });
-    }
-    clean(doc.body);return doc.body.innerHTML;
-  }
-  function syncLegacyMediaFields(){const first=mediaItems[0]||null;mediaUrl=first?.url||null;mediaPath=first?.path||null;mediaType=first?.type||null;}
-  function renderMediaPreview(){
-    mediaPreview.innerHTML='';mediaPreview.hidden=!mediaItems.length;$('remove-media').hidden=!mediaItems.length;
-    mediaItems.forEach((item,index)=>{
-      const card=document.createElement('div');card.className='cms-media-preview-item';
-      let el;if(item.type==='image'){el=document.createElement('img');el.alt=item.name||'Post media preview';}
-      else if(item.type==='video'){el=document.createElement('video');el.controls=true;el.preload='metadata';}
-      else{el=document.createElement('audio');el.controls=true;el.preload='metadata';}
-      el.src=item.url;el.style.width=postMediaWidth+'%';el.style.maxWidth='100%';card.appendChild(el);
-      const caption=document.createElement('span');caption.className='cms-media-preview-name';caption.textContent=item.name||('Media '+(index+1));card.appendChild(caption);
-      const remove=document.createElement('button');remove.type='button';remove.className='cms-button subtle cms-media-remove-one';remove.textContent='REMOVE';remove.setAttribute('aria-label','Remove '+(item.name||'media '+(index+1)));
-      remove.addEventListener('click',async()=>{
-        const [removed]=mediaItems.splice(index,1);syncLegacyMediaFields();renderMediaPreview();
-        message(mediaMessage,'Media removed from this post. Save changes to confirm.');setStatus('UNSAVED');persistLocalRecovery();
-        if(removed?.path&&!originalMediaItems.some(item=>item.path===removed.path)){
-          const {error}=await client.storage.from(MEDIA_BUCKET).remove([removed.path]);
-          if(error)message(mediaMessage,'Removed from the draft, but uploaded-file cleanup failed: '+error.message,true);
-        }
-      });
-      card.appendChild(remove);mediaPreview.appendChild(card);
-    });
-  }
-
-  function syncLayoutFields(){
-    postLayout=layoutInput.value;sunoFields.hidden=postLayout!=='suno';plainFields.hidden=postLayout!=='plain';
-    contentEditor.closest('.rich-editor').hidden=postLayout!=='standard';contentEditor.closest('.rich-editor').previousElementSibling.hidden=postLayout!=='standard';
-  }
-  function htmlToEditorText(container,skipFirstLabel=false){
-    if(!container)return '';
-    const blocks=[];
-    const nodes=Array.from(container.childNodes).filter(node=>!(skipFirstLabel&&node.nodeType===Node.ELEMENT_NODE&&node.classList.contains('suno-label')));
-    function read(node){
-      if(node.nodeType===Node.TEXT_NODE)return node.nodeValue||'';
-      if(node.nodeType!==Node.ELEMENT_NODE)return '';
-      if(node.tagName==='BR')return '\n';
-      const inner=Array.from(node.childNodes).map(read).join('');
-      return ['P','DIV','SECTION','ASIDE','H2','H3','BLOCKQUOTE','LI'].includes(node.tagName)?'\n\n'+inner+'\n\n':inner;
-    }
-    return nodes.map(read).join('').replace(/\r/g,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').replace(/^\n+|\n+$/g,'');
-  }
-  function textAsParagraphs(value){return String(value||'').split(/\n{2,}/).map(part=>'<p>'+escapeHtml(part).replace(/\n/g,'<br>')+'</p>').join('');}
-  function buildPostContent(){
-    const bodyHtml=contentEditor?.innerHTML?.trim()||'';
-    const bodyHasText=Boolean((contentEditor?.innerText||contentEditor?.textContent||'').trim());
-    if(postLayout==='standard')return bodyHtml;
-    if(postLayout==='plain'){
-      const plainText=$('post-plain-text').value.trim();
-      if(embeddedComposer&&!plainText&&bodyHasText)return bodyHtml;
-      return '<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+textAsParagraphs($('post-plain-text').value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>';
-    }
-    const sunoHasText=['post-main-text','post-lyrics','post-style-prompt','post-learned','post-chatgpt-learned'].some(id=>$(id).value.trim());
-    if(embeddedComposer&&!sunoHasText&&bodyHasText)return bodyHtml;
-    return '<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+textAsParagraphs($('post-main-text').value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeHtml($('post-lyrics').value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+textAsParagraphs($('post-style-prompt').value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+textAsParagraphs($('post-learned').value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+textAsParagraphs($('post-chatgpt-learned').value)+'</section></aside></div>';
-  }
-  layoutInput.addEventListener('change',()=>{syncLayoutFields();setStatus('UNSAVED');});
-  mediaWidthInput.addEventListener('input',()=>{postMediaWidth=Number(mediaWidthInput.value)||100;mediaWidthValue.value=postMediaWidth+'%';const media=mediaPreview.firstElementChild;if(media)media.style.width=postMediaWidth+'%';setStatus('UNSAVED');});
-  ['post-main-text','post-lyrics','post-style-prompt','post-learned','post-chatgpt-learned','post-plain-text'].forEach(id=>$(id).addEventListener('input',()=>setStatus('UNSAVED')));
-
-  function blankEditor(){
-    openingPostToken++;editingId=null;slugManuallyEdited=false;postForm.reset();contentEditor.innerHTML='';postLayout='suno';postMediaWidth=100;layoutInput.value='suno';mediaWidthInput.value='100';mediaWidthValue.value='100%';syncLayoutFields();
-    mediaItems=[];originalMediaItems=[];mediaUrl=null;mediaPath=null;mediaType=null;originalMediaPath=null;renderMediaPreview();message(mediaMessage,'');
-    $('delete-post').hidden=true;
-    $('editor-mode').textContent='NEW TRANSMISSION';setStatus('UNSAVED');message(saveMessage,'');
-    $('save-draft').disabled=false;$('publish-post').disabled=false;
-    document.querySelectorAll('.manage-item').forEach(x=>x.classList.remove('active'));
-  }
-  async function openPost(post){
-    const token=++openingPostToken;
-    message(saveMessage,'LOADING TRANSMISSION…');
-    const {data:fullPost,error}=await client.from('vha_posts').select('*').eq('id',post.id).single();
-    if(token!==openingPostToken)return;
-    if(error||!fullPost){message(saveMessage,error?.message||'Could not load this post.',true);return;}
-    post=fullPost;
-    editingId=post.id;slugManuallyEdited=true;titleInput.value=post.title||'';slugInput.value=post.slug||'';
-    categoryInput.value=post.category||'';excerptInput.value=post.excerpt||'';contentEditor.innerHTML=cleanHtml(post.content_html||'');
-    postMediaWidth=Math.max(20,Math.min(100,Number(post.media_width)||100));mediaWidthInput.value=String(postMediaWidth);mediaWidthValue.value=postMediaWidth+'%';
-    const savedDoc=new DOMParser().parseFromString(post.content_html||'','text/html');const suno=savedDoc.querySelector('.suno-post-layout'),plain=savedDoc.querySelector('.plain-post-layout');
-    if(suno){postLayout='suno';$('post-main-text').value=htmlToEditorText(savedDoc.querySelector('.suno-text-column'),true);$('post-lyrics').value=savedDoc.querySelector('.suno-lyrics pre')?.textContent||'';$('post-style-prompt').value=htmlToEditorText(savedDoc.querySelector('.suno-style-prompt')||savedDoc.querySelector('.suno-notes'),!savedDoc.querySelector('.suno-style-prompt'));$('post-learned').value=htmlToEditorText(savedDoc.querySelector('.suno-learned'),true);$('post-chatgpt-learned').value=htmlToEditorText(savedDoc.querySelector('.suno-chatgpt-learned'),true); }else if(plain){postLayout='plain';$('post-plain-text').value=htmlToEditorText(savedDoc.querySelector('.plain-copy'),true);}else postLayout='standard';layoutInput.value=postLayout;syncLayoutFields();
-    mediaItems=Array.isArray(post.media_items)&&post.media_items.length?post.media_items.filter(item=>item&&typeof item.url==='string'&&['image','video','audio'].includes(item.type)).map(item=>({url:item.url,path:item.path||null,type:item.type,name:item.name||''})):(post.media_url?[{url:post.media_url,path:post.media_path||null,type:post.media_type||'audio',name:''}]:[]);originalMediaItems=mediaItems.map(item=>({...item}));originalMediaPath=post.media_path||null;syncLegacyMediaFields();
-    mediaInput.value='';renderMediaPreview();message(mediaMessage,'');$('delete-post').hidden=false;
-    $('editor-mode').textContent='EDIT TRANSMISSION';setStatus(post.status==='published'?'PUBLISHED':'DRAFT');
-    message(saveMessage,'');renderPosts();
-  }
-  function renderPosts(){
-    const posts=allPosts.filter(p=>statusFilter==='all'||p.status===statusFilter);
-    if(!posts.length){managePosts.innerHTML='<p class="cms-help" style="padding:16px">No '+(statusFilter==='all'?'transmissions':statusFilter==='published'?'published posts':'drafts')+' yet. Start a new post.</p>';return;}
-    managePosts.innerHTML=posts.map(p=>'<button type="button" class="manage-item '+(p.id===editingId?'active':'')+'" data-id="'+escapeHtml(p.id)+'"><strong>'+escapeHtml(p.title)+'</strong><small><span class="'+(p.status==='draft'?'draft-label':'published-label')+'">'+escapeHtml(p.status.toUpperCase())+'</span> · '+escapeHtml(p.category)+'<br>UPDATED '+new Date(p.updated_at).toLocaleDateString('en-GB')+'</small></button>').join('');
-    managePosts.querySelectorAll('[data-id]').forEach(btn=>btn.addEventListener('click',()=>{const post=allPosts.find(p=>p.id===btn.dataset.id);if(post)openPost(post);}));
-  }
-  function persistLocalRecovery(scheduleSync=true){
-    if(!embeddedComposer||!currentUser||!hasTransmissionContent())return;
-    const key=recoveryStorageKey();if(!key)return;
-    const fields={};
-    postForm.querySelectorAll('input,textarea,select').forEach(el=>{
-      if(!el.id||el.type==='file'||el.type==='submit'||el.type==='button')return;
-      fields[el.id]=el.value;
-    });
-    const snapshot={version:1,updatedAt:new Date().toISOString(),fields,contentHtml:contentEditor.innerHTML,
-      editingId,postLayout,postMediaWidth,mediaUrl,mediaPath,mediaType,mediaItems};
-    try{localStorage.setItem(key,JSON.stringify(snapshot));recoveryRevision++;setStatus('SAVED LOCALLY');if(scheduleSync)scheduleCloudAutosave();}
-    catch(error){message(saveMessage,'LOCAL RECOVERY STORAGE IS FULL OR UNAVAILABLE. Copy your text somewhere safe.',true);}
-  }
-  function ensureQuickPostDraftMetadata(){
-    if(!embeddedComposer||!hasTransmissionContent())return false;
-    let changed=false;
-    if(!titleInput.value.trim()){titleInput.value='Untitled transmission';changed=true;}
-    if(!slugify(slugInput.value)){slugInput.value='untitled-transmission-'+Date.now().toString(36);changed=true;}
-    if(!categoryInput.value.trim()){categoryInput.value='HUMAN ARCHIVE';changed=true;}
-    if(changed){slugManuallyEdited=false;setStatus('DRAFT DETAILS AUTO-FILLED');}
-    return changed;
-  }
-  function scheduleCloudAutosave(){
-    clearTimeout(autosaveTimer);
-    if(!currentUser||!hasTransmissionContent())return;
-    if(ensureQuickPostDraftMetadata())persistLocalRecovery(false);
-    const title=titleInput.value.trim(),slug=slugify(slugInput.value),category=categoryInput.value.trim();
-    if(!title||!slug||!category||!navigator.onLine)return;
-    autosaveTimer=setTimeout(()=>{if(!saving)savePost('draft');},1200);
-  }
-  window.addEventListener('online',scheduleCloudAutosave);
-  function restoreLocalRecovery(){
-    if(!embeddedComposer||!currentUser)return false;
-    const key=recoveryStorageKey();if(!key)return false;
-    let snapshot;
-    try{snapshot=JSON.parse(localStorage.getItem(key)||'null');}catch{return false;}
-    if(!snapshot||snapshot.version!==1||!snapshot.fields)return false;
-    Object.entries(snapshot.fields).forEach(([id,value])=>{const el=$(id);if(el&&el.type!=='file')el.value=value;});
-    contentEditor.innerHTML=snapshot.contentHtml||'';
-    editingId=snapshot.editingId||null;postLayout=snapshot.postLayout||layoutInput.value||'suno';
-    layoutInput.value=postLayout;postMediaWidth=Number(snapshot.postMediaWidth)||100;
-    mediaWidthInput.value=String(postMediaWidth);mediaWidthValue.value=postMediaWidth+'%';
-    mediaItems=Array.isArray(snapshot.mediaItems)?snapshot.mediaItems:(snapshot.mediaUrl?[{url:snapshot.mediaUrl,path:snapshot.mediaPath||null,type:snapshot.mediaType||'audio',name:''}]:[]);originalMediaItems=mediaItems.map(item=>({...item}));syncLegacyMediaFields();
-    originalMediaPath=mediaPath;syncLayoutFields();renderMediaPreview();
-    $('delete-post').hidden=!editingId;$('editor-mode').textContent=editingId?'EDIT TRANSMISSION':'NEW TRANSMISSION';
-    setStatus('RECOVERED LOCAL DRAFT');
-    message(saveMessage,'Recovered your latest local draft from '+new Date(snapshot.updatedAt).toLocaleString()+'. It is saved on this device; cloud sync will follow when required fields are complete.');
-    scheduleCloudAutosave();
+  function showWorkspace(user){loginPanel.hidden=true;workspace.hidden=false;setupNote.hidden=true;$('community-review').hidden=false;$('user-line').textContent='SIGNED IN // '+(user.email||'CMS ADMIN');}
+  async function ensureAdmin(user){
+    const {data,error}=await client.from('vha_cms_admins').select('user_id').eq('user_id',user.id).maybeSingle();
+    if(error||!data){await client.auth.signOut();showLogin();message(loginMessage,'This account has no CMS admin role. An owner must grant access through vha_cms_admins.',true);return false;}
     return true;
   }
-  postForm.addEventListener('input',persistLocalRecovery);
-  postForm.addEventListener('change',persistLocalRecovery);
-
-  async function openRequestedPost(){
-    if(requestedEditSlug){
-      let post=allPosts.find(item=>item.slug===requestedEditSlug);
-      if(!post){
-        const {data,error}=await client.from('vha_posts').select('id,title,slug,category,status,updated_at,media_path').eq('slug',requestedEditSlug).maybeSingle();
-        if(error){message(saveMessage,error.message,true);return;}
-        post=data;
-      }
-      if(post)openPost(post);
-      else message(saveMessage,'The requested post could not be found in the editor. It may have been deleted or is not accessible.',true);
-      return;
-    }
-    if(requestedNewPost){
-      blankEditor();
-      if(embeddedComposer&&restoreLocalRecovery())return;
-      if(['HUMAN ARCHIVE','THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'].includes(requestedCategory)){
-        categoryInput.value=requestedCategory;
-        setStatus('NEW POST // '+requestedCategory);
-        message(saveMessage,'New transmission for '+requestedCategory+'. Add the title and content, then save or publish.');
-      }else{
-        message(saveMessage,'New transmission. Choose Human Archive or one of the five Movements, then add the title and content.');
-      }
-    }
-  }
-  async function loadPosts(reset = true){
-    if(reset){postsOffset=0;allPosts=[];}
-    managePosts.innerHTML=reset?'<p class="cms-help" style="padding:16px">Loading recent transmissions…</p>':managePosts.innerHTML;
-    const start=postsOffset;
-    const {data,error}=await client.from('vha_posts').select('id,title,slug,category,status,updated_at,media_path').order('updated_at',{ascending:false}).range(start,start+POSTS_PAGE_SIZE-1);
-    if(error){managePosts.innerHTML='<p class="cms-message error" style="padding:16px">'+escapeHtml(error.message)+'</p>';return;}
-    const items=data||[];allPosts=reset?items:allPosts.concat(items);postsOffset+=items.length;hasMorePosts=items.length===POSTS_PAGE_SIZE;
-    renderPosts();$('load-more-posts').hidden=!hasMorePosts;
-  }
-
-  async function loadCommunitySubmissions(reset = true){
+  async function loadCommunitySubmissions(reset=true){
     const target=$('community-submissions');if(!target)return;
-    if(reset){communityOffset=0;communityItems=[];target.innerHTML='<p class="cms-help">Loading recent community submissions…</p>';}
-    const start=communityOffset;
-    const {data,error}=await client.from('poetry_submissions').select('id,title,medium,body,byline,media_url,created_at,status').order('created_at',{ascending:false}).range(start,start+SUBMISSIONS_PAGE_SIZE-1);
+    if(reset){offset=0;submissions=[];target.innerHTML='<p class="cms-help">Loading recent community submissions…</p>';}
+    const {data,error}=await client.from('poetry_submissions').select('id,title,medium,body,byline,media_url,created_at,status').order('created_at',{ascending:false}).range(offset,offset+PAGE_SIZE-1);
     if(error){target.innerHTML='<p class="cms-message error">Could not load community submissions: '+escapeHtml(error.message)+'</p>';return;}
-    const items=data||[];communityItems=reset?items:communityItems.concat(items);communityOffset+=items.length;hasMoreCommunity=items.length===SUBMISSIONS_PAGE_SIZE;
-    if(!communityItems.length){target.innerHTML='<p class="cms-help">No visitor submissions yet.</p>';}
-    else target.innerHTML=communityItems.map(item=>{
+    const items=data||[];submissions=reset?items:submissions.concat(items);offset+=items.length;hasMore=items.length===PAGE_SIZE;
+    if(!submissions.length)target.innerHTML='<p class="cms-help">No visitor submissions yet.</p>';
+    else target.innerHTML=submissions.map(item=>{
       const media=item.media_url?'<p><a href="'+escapeHtml(item.media_url)+'" target="_blank" rel="noopener noreferrer">OPEN ATTACHED MEDIA ↗</a></p>':'';
       const body=item.body?'<p class="community-submission-body">'+escapeHtml(item.body).replace(/\n/g,'<br>')+'</p>':'';
       const actions=item.status==='pending'?'<div class="community-submission-actions"><button type="button" class="cms-button primary vha-editor-action" data-action-variant="primary" data-submission-action="published" data-submission-id="'+escapeHtml(item.id)+'">APPROVE & PUBLISH</button><button type="button" class="cms-button danger vha-editor-action" data-action-variant="danger" data-submission-action="rejected" data-submission-id="'+escapeHtml(item.id)+'">DECLINE</button></div>':'';
-      return '<article class="community-submission"><div class="community-submission-top"><div><p class="gd-kicker">'+escapeHtml(item.medium.toUpperCase())+' // '+escapeHtml(item.byline||'ANONYMOUS')+'</p><h3>'+escapeHtml(item.title)+'</h3></div><span class="'+(item.status==='published'?'published-label':item.status==='pending'?'draft-label':item.status==='rejected'?'rejected-label':item.status==='failed'?'failed-label':'')+'">'+escapeHtml(item.status.toUpperCase())+'</span></div>'+body+media+'<small class="cms-help">RECEIVED '+new Date(item.created_at).toLocaleString('en-GB')+'</small>'+actions+'</article>';
+      return '<article class="community-submission"><div class="community-submission-top"><div><p class="gd-kicker">'+escapeHtml(String(item.medium||'').toUpperCase())+' // '+escapeHtml(item.byline||'ANONYMOUS')+'</p><h3>'+escapeHtml(item.title)+'</h3></div><span class="'+(item.status==='published'?'published-label':item.status==='pending'?'draft-label':item.status==='rejected'?'rejected-label':item.status==='failed'?'failed-label':'')+'">'+escapeHtml(String(item.status||'').toUpperCase())+'</span></div>'+body+media+'<small class="cms-help">RECEIVED '+new Date(item.created_at).toLocaleString('en-GB')+'</small>'+actions+'</article>';
     }).join('');
-    $('load-more-submissions').hidden=!hasMoreCommunity;
+    $('load-more-submissions').hidden=!hasMore;
   }
   $('refresh-submissions')?.addEventListener('click',()=>loadCommunitySubmissions(true));
   $('load-more-submissions')?.addEventListener('click',()=>loadCommunitySubmissions(false));
-  $('load-more-posts')?.addEventListener('click',()=>loadPosts(false));
   $('community-submissions')?.addEventListener('click',async event=>{
     const button=event.target.closest('[data-submission-action]');if(!button)return;
     button.disabled=true;const status=button.dataset.submissionAction,id=button.dataset.submissionId;
     const {error}=await client.from('poetry_submissions').update({status,...(status==='published'?{published_at:new Date().toISOString()}:{})}).eq('id',id);
     if(error){button.disabled=false;alert('Could not update submission: '+error.message);return;}
-    await loadCommunitySubmissions();
+    await loadCommunitySubmissions(true);
   });
-  async function ensureAdmin(user){
-    const {data,error}=await client.from('vha_cms_admins').select('user_id').eq('user_id',user.id).maybeSingle();
-    if(error||!data){
-      await client.auth.signOut();showLogin();
-      message(loginMessage,'This account has no CMS editor access. An owner must add its user UUID to vha_cms_admins.',true);
-      return false;
-    }
-    return true;
-  }
   async function restoreSession(){
-    if(!client){showLogin();message(loginMessage,'The publishing client could not initialise. Reload the page or contact the site owner.',true);return;}
+    if(!client){showLogin();message(loginMessage,'The admin client could not initialise. Reload the page or contact the site owner.',true);return;}
     const {data:{session}}=await client.auth.getSession();
-    const resetPanel=$('password-reset-panel');
-    if(new URLSearchParams(window.location.hash.slice(1)).get('type')==='recovery' && session?.user){
-      $('login-panel').hidden=true;$('workspace').hidden=true;resetPanel.hidden=false;
-      $('password-reset-message').textContent='Choose a new password for your account.';
-      return;
+    if(new URLSearchParams(window.location.hash.slice(1)).get('type')==='recovery'&&session?.user){
+      loginPanel.hidden=true;workspace.hidden=true;$('password-reset-panel').hidden=false;$('password-reset-message').textContent='Choose a new password for your account.';return;
     }
-    if(session?.user&&await ensureAdmin(session.user)){currentUser=session.user;showWorkspace(currentUser);if(embeddedComposer){openRequestedPost();}else{await Promise.all([loadPosts(),loadCommunitySubmissions()]);openRequestedPost();}}else showLogin();
+    if(session?.user&&await ensureAdmin(session.user)){currentUser=session.user;showWorkspace(currentUser);await loadCommunitySubmissions(true);}
+    else showLogin();
   }
   $('forgot-password')?.addEventListener('click',async()=>{
     const email=$('login-email').value.trim();
     if(!email){message(loginMessage,'Enter your account email above first, then request a reset link.',true);$('login-email').focus();return;}
     const button=$('forgot-password');button.disabled=true;message(loginMessage,'REQUESTING PASSWORD RESET…');
-    try{
-      const redirectTo=new URL('/landing-page/cms/',window.location.origin).href;
-      const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo});
-      if(error)throw error;
-      message(loginMessage,'If an account exists for that email, a password reset link has been sent. Check your inbox and spam folder.');
-    }catch(err){message(loginMessage,err.message||'Could not request a reset link.',true);}
+    try{const redirectTo=new URL('/landing-page/cms/',window.location.origin).href;const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo});if(error)throw error;message(loginMessage,'If an account exists for that email, a password reset link has been sent. Check your inbox and spam folder.');}
+    catch(error){message(loginMessage,error.message||'Could not request a reset link.',true);}
     finally{button.disabled=false;}
   });
   $('password-reset-form')?.addEventListener('submit',async event=>{
-    event.preventDefault();
-    const password=$('new-password').value,confirmPassword=$('confirm-password').value;
+    event.preventDefault();const password=$('new-password').value,confirmPassword=$('confirm-password').value;
     if(password.length<8){message($('password-reset-message'),'Use at least 8 characters.',true);return;}
     if(password!==confirmPassword){message($('password-reset-message'),'The passwords do not match.',true);return;}
     const button=event.currentTarget.querySelector('button');button.disabled=true;message($('password-reset-message'),'UPDATING PASSWORD…');
-    try{
-      const {error}=await client.auth.updateUser({password});
-      if(error)throw error;
-      await client.auth.signOut();
-      window.history.replaceState({},document.title,window.location.pathname);
-      $('password-reset-panel').hidden=true;showLogin();
-      $('login-password').value='';
-      message(loginMessage,'Password updated. Sign in with your new password.');
-    }catch(err){message($('password-reset-message'),err.message||'Could not update the password. Request a fresh reset link and try again.',true);}
+    try{const {error}=await client.auth.updateUser({password});if(error)throw error;await client.auth.signOut();window.history.replaceState({},document.title,window.location.pathname);$('password-reset-panel').hidden=true;showLogin();$('login-password').value='';message(loginMessage,'Password updated. Sign in with your admin account.');}
+    catch(error){message($('password-reset-message'),error.message||'Could not update the password. Request a fresh reset link and try again.',true);}
     finally{button.disabled=false;}
   });
   loginForm.addEventListener('submit',async event=>{
@@ -319,176 +72,9 @@
     const {data,error}=await client.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-password').value});
     if(error){message(loginMessage,error.message,true);return;}
     if(!(await ensureAdmin(data.user)))return;
-    currentUser=data.user;showWorkspace(currentUser);message(loginMessage,'');if(embeddedComposer){openRequestedPost();}else{await Promise.all([loadPosts(),loadCommunitySubmissions()]);openRequestedPost();}
+    currentUser=data.user;showWorkspace(currentUser);message(loginMessage,'');await loadCommunitySubmissions(true);
   });
   $('sign-out').addEventListener('click',async()=>{await client.auth.signOut();currentUser=null;showLogin();message(loginMessage,'Signed out.');});
-  $('new-post').addEventListener('click',blankEditor);
-  $('refresh-posts').addEventListener('click',loadPosts);
-  document.querySelectorAll('[data-status-filter]').forEach(btn=>btn.addEventListener('click',()=>{statusFilter=btn.dataset.statusFilter;document.querySelectorAll('[data-status-filter]').forEach(b=>b.classList.toggle('selected',b===btn));renderPosts();}));
-  titleInput.addEventListener('input',()=>{if(!slugManuallyEdited)slugInput.value=slugify(titleInput.value);});
-  slugInput.addEventListener('input',()=>{slugManuallyEdited=true;slugInput.value=slugify(slugInput.value);});
-  // Shared editor behaviour: formatting, safe link insertion, and focused writing mode.
-  window.VHAEditorUI.mountRichTextEditor({
-    editor: contentEditor,
-    toolbar: document.querySelector('.rich-toolbar'),
-    focusButton: $('post-content-focus'),
-    insertLinkButton: $('insert-link'),
-    onChange: () => setStatus('UNSAVED'),
-    onInvalidLink: text => message(saveMessage, text, true)
-  });
-
-  postForm.addEventListener('submit',event=>{event.preventDefault();savePost('published');});
-  $('save-draft').addEventListener('click',()=>savePost('draft'));
-  async function savePost(status){
-    clearTimeout(autosaveTimer);
-    if(mediaUploading){message(saveMessage,'Media is still uploading. Please wait before saving.',true);return false;}
-    if(status==='draft'&&embeddedComposer&&ensureQuickPostDraftMetadata())persistLocalRecovery(false);
-    if(saving||!currentUser){message(saveMessage,'The editor is not ready to save. Please wait for authentication and try again.',true);return false;}
-    const title=titleInput.value.trim(),slug=slugify(slugInput.value),category=categoryInput.value.trim().toUpperCase();
-    const validArchiveCategories=new Set(['HUMAN ARCHIVE','THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN']);
-    if(!title||!slug||!validArchiveCategories.has(category)){message(saveMessage,'Add a title, then choose Human Archive or one of the five Movements.',true);return false;}
-    if(!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)){message(saveMessage,'Use a valid lowercase URL slug.',true);return false;}
-    const revisionAtSave=recoveryRevision;
-    const previousSavedMediaItems=originalMediaItems.map(item=>({...item}));
-    const composedHtml=buildPostContent();
-    const firstMedia=mediaItems[0]||null;
-    const payload={title,slug,category,excerpt:excerptInput.value.trim(),content_html:cleanHtml(composedHtml),media_items:mediaItems,media_url:firstMedia?.url||null,media_path:firstMedia?.path||null,media_type:firstMedia?.type||null,media_width:postMediaWidth,status};
-    if(status==='published'&&!payload.content_html.trim()){message(saveMessage,'Add some content before publishing.',true);return false;}
-    saving=true;$('save-draft').disabled=true;$('publish-post').disabled=true;message(saveMessage,status==='published'?'PUBLISHING…':'SAVING DRAFT…');
-    try{
-      let query=client.from('vha_posts');
-      let result;
-      if(editingId){
-        result=await query.update(payload).eq('id',editingId).select().single();
-      }else{
-        // New posts must not reuse a slug already owned by another Transmission.
-        // Keep existing slugs stable; only suffix the new record when a collision exists.
-        let candidateSlug=slug;
-        for(let attempt=0;attempt<8;attempt++){
-          const {data:matches,error:lookupError}=await client.from('vha_posts').select('id').eq('slug',candidateSlug).limit(1);
-          if(lookupError)throw lookupError;
-          if(matches?.length){
-            candidateSlug=slug+'-'+(attempt+2);
-            continue;
-          }
-          result=await query.insert({...payload,slug:candidateSlug}).select().single();
-          if(!result.error)break;
-          if(result.error.code==='23505'&&String(result.error.message||'').includes('vha_posts_slug_key')){
-            candidateSlug=slug+'-'+(attempt+2);
-            continue;
-          }
-          throw result.error;
-        }
-        if(!result||result.error)throw result?.error||new Error('Could not generate an available URL slug. Please try again.');
-      }
-      if(result.error)throw result.error;
-      if(result.data.slug&&result.data.slug!==slugInput.value){slugInput.value=result.data.slug;}
-      editingId=result.data.id;slugManuallyEdited=true;
-      const currentPaths=new Set(mediaItems.map(item=>item.path).filter(Boolean));
-      const removedPaths=previousSavedMediaItems.map(item=>item.path).filter(path=>path&&!currentPaths.has(path));
-      if(removedPaths.length){const cleanup=await client.storage.from(MEDIA_BUCKET).remove(removedPaths);if(cleanup.error)message(mediaMessage,'Post saved, but previous media cleanup failed: '+cleanup.error.message,true);}
-      originalMediaItems=mediaItems.map(item=>({...item}));originalMediaPath=mediaPath;setStatus(status.toUpperCase());$('delete-post').hidden=false;
-      if(status==='published'){
-        const movementPaths={
-          'THE AWAKENING':'the-awakening',
-          'THE DESCENT':'the-descent',
-          'THE RECONNECTION':'the-reconnection',
-          'THE TRANSFORMATION':'the-transformation',
-          'THE RETURN':'the-return'
-        };
-        const humanArchive=category==='HUMAN ARCHIVE';
-        const postUrl=humanArchive
-          ?new URL('../human-archive/',window.location.href)
-          :new URL('../posts/'+movementPaths[category]+'/',window.location.href);
-        postUrl.searchParams.set(humanArchive?'slug':'post',result.data.slug);
-        window.location.assign(postUrl.toString());
-        return true;
-      }
-      if(recoveryRevision===revisionAtSave){try{localStorage.removeItem(recoveryStorageKey());}catch{}}
-      message(saveMessage,'Draft saved. It remains private.');
-      await loadPosts();renderPosts();
-      return true;
-    }catch(err){message(saveMessage,err.message||'Could not save this post.',true);return false;}
-    finally{saving=false;$('save-draft').disabled=false;$('publish-post').disabled=false;}
-  }
-  window.vhaQuickPostSaveDraft=async function(){
-    if(!embeddedComposer)return {saved:false,message:'Quick Post save bridge is unavailable.'};
-    clearTimeout(autosaveTimer);
-    const deadline=Date.now()+20000;
-    while((!currentUser||saving)&&Date.now()<deadline)await new Promise(resolve=>setTimeout(resolve,100));
-    if(!currentUser)return {saved:false,message:'CMS authentication is not ready. Your local recovery copy is retained; please try CLOSE again.'};
-    if(saving)return {saved:false,message:'A previous draft save is still running. Your local recovery copy is retained; please try CLOSE again.'};
-    if(mediaUploading)return {saved:false,message:'Media is still uploading. Your text is saved locally; wait for the upload to finish before closing.'};
-    if(!hasTransmissionContent())return {saved:true,message:'No new content to save.'};
-    ensureQuickPostDraftMetadata();
-    persistLocalRecovery(false);
-    const saved=await savePost('draft');
-    return {saved,message:saveMessage.textContent|| (saved?'Draft saved.':'The draft could not be saved. Your local recovery copy is retained.')};
-  };
-
-  function hasTransmissionContent(){
-    const bodyText=(contentEditor?.innerText||contentEditor?.textContent||'').trim();
-    return Boolean(titleInput.value.trim()||excerptInput.value.trim()||bodyText||
-      ['post-main-text','post-lyrics','post-style-prompt','post-learned','post-chatgpt-learned','post-plain-text'].some(id=>$(id).value.trim())||mediaItems.length);
-  }
-  window.addEventListener('message',async event=>{
-    if(event.origin!==window.location.origin||event.source!==window.parent||!embeddedComposer)return;
-    if(event.data?.type==='VHA_QUICK_POST_CLOSE_REQUEST'){
-      clearTimeout(autosaveTimer);
-      if(mediaUploading){message(saveMessage,'Please wait for the media upload to finish before closing. Your text is already saved locally.',true);event.source.postMessage({type:'VHA_QUICK_POST_CLOSE_RESULT',requestId:event.data.requestId,saved:false},event.origin);return;}
-      let saved=true;
-      if(hasTransmissionContent()){
-        ensureQuickPostDraftMetadata();
-        persistLocalRecovery(false);
-        const saveDeadline=Date.now()+15000;
-        while(saving&&Date.now()<saveDeadline)await new Promise(resolve=>setTimeout(resolve,100));
-        saved=!saving&&await savePost('draft');
-      }
-      if(saved){try{localStorage.removeItem(recoveryStorageKey());}catch{}}
-      event.source.postMessage({type:'VHA_QUICK_POST_CLOSE_RESULT',requestId:event.data.requestId,saved},event.origin);
-    }else if(event.data?.type==='VHA_QUICK_POST_CLOSE_FAILED'){
-      message(saveMessage,'Draft could not be saved. The editor remains open so your work is not lost.',true);
-    }
-  });
-  mediaInput.addEventListener('change',async()=>{
-    const files=Array.from(mediaInput.files||[]);if(!files.length)return;
-    if(mediaItems.length+files.length>10){message(mediaMessage,'A post can contain up to 10 media files.',true);mediaInput.value='';return;}
-    const invalid=files.find(file=>!ALLOWED_MEDIA.has(file.type)||file.size>MAX_MEDIA_BYTES);
-    if(invalid){message(mediaMessage,!ALLOWED_MEDIA.has(invalid.type)?'Unsupported media format: '+invalid.name:'File exceeds the 30 MB per-file limit: '+invalid.name,true);mediaInput.value='';return;}
-    mediaUploading=true;mediaInput.disabled=true;message(mediaMessage,'UPLOADING '+files.length+' MEDIA FILE(S)…');const uploaded=[];
-    try{
-      for(const file of files){
-        const safeName=file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-').replace(/^-+|-+$/g,'').slice(-100)||'upload';
-        const path=currentUser.id+'/'+crypto.randomUUID()+'-'+safeName;
-        const {error}=await client.storage.from(MEDIA_BUCKET).upload(path,file,{contentType:file.type,upsert:false,cacheControl:'3600'});if(error)throw error;
-        const {data}=client.storage.from(MEDIA_BUCKET).getPublicUrl(path);
-        uploaded.push({url:data.publicUrl,path,type:file.type.startsWith('image/')?'image':file.type.startsWith('video/')?'video':'audio',name:file.name});
-      }
-      mediaItems=[...mediaItems,...uploaded];syncLegacyMediaFields();renderMediaPreview();message(mediaMessage,mediaItems.length+' media file(s) attached. Save or publish the post to keep them.');setStatus('UNSAVED');persistLocalRecovery();
-    }catch(err){const paths=uploaded.map(item=>item.path);if(paths.length)await client.storage.from(MEDIA_BUCKET).remove(paths);message(mediaMessage,err.message||'Media upload failed. No files from this selection were attached.',true);}
-    finally{mediaUploading=false;mediaInput.disabled=false;mediaInput.value='';}
-  });
-  $('remove-media').addEventListener('click',async()=>{
-    const removedPaths=mediaItems.map(item=>item.path).filter(path=>path&&!originalMediaItems.some(item=>item.path===path));
-    mediaItems=[];syncLegacyMediaFields();mediaInput.value='';renderMediaPreview();message(mediaMessage,'All media removed from this post. Save changes to confirm.');setStatus('UNSAVED');persistLocalRecovery();
-    if(removedPaths.length){const {error}=await client.storage.from(MEDIA_BUCKET).remove(removedPaths);if(error)message(mediaMessage,'Removed from the draft, but uploaded-file cleanup failed: '+error.message,true);}
-  });
-  $('delete-post').addEventListener('click',async()=>{
-    if(!editingId||saving)return;
-    const post=allPosts.find(p=>p.id===editingId);
-    if(!confirm('Permanently delete “'+(post?.title||titleInput.value)+'”? This cannot be undone.'))return;
-    saving=true;$('delete-post').disabled=true;$('save-draft').disabled=true;$('publish-post').disabled=true;message(saveMessage,'DELETING POST…');
-    try{
-      const id=editingId,paths=[...new Set([...(post?.media_items||[]).map(item=>item.path),post?.media_path,...mediaItems.map(item=>item.path)].filter(Boolean))];
-      const {error}=await client.from('vha_posts').delete().eq('id',id);if(error)throw error;
-      let cleanupError=null;if(paths.length){const removal=await client.storage.from(MEDIA_BUCKET).remove(paths);cleanupError=removal.error;}
-      allPosts=allPosts.filter(p=>p.id!==id);blankEditor();renderPosts();
-      message(saveMessage,cleanupError?'Post deleted, but media cleanup failed: '+cleanupError.message:'Post deleted.');
-    }catch(err){message(saveMessage,err.message||'Could not delete this post.',true);}
-    finally{saving=false;$('delete-post').disabled=false;$('save-draft').disabled=false;$('publish-post').disabled=false;}
-  });
-  client?.auth.onAuthStateChange((_event,session)=>{
-    if(!session){currentUser=null;showLogin();}
-  });
+  client?.auth.onAuthStateChange((_event,session)=>{if(!session){currentUser=null;showLogin();}});
   restoreSession();
 })();
