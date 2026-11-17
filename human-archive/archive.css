@@ -486,6 +486,9 @@
   background:rgba(185,215,122,.08);color:#d8e4d8;font:9px 'DM Mono',monospace;letter-spacing:.08em;cursor:pointer
 }
 .ha-chamber-save{border-color:#b9d77a;background:rgba(185,215,122,.16);color:#e3f2c7}
+.ha-chamber-delete-draft{min-height:36px;padding:8px 13px;border:1px solid rgba(220,112,112,.55);background:rgba(220,112,112,.08);color:#efb0b0;font:9px 'DM Mono',monospace;letter-spacing:.08em;cursor:pointer}
+.ha-chamber-delete-draft:hover,.ha-chamber-delete-draft:focus-visible{background:#a33b3b;color:#fff;outline:2px solid #d66;outline-offset:2px}
+.ha-chamber-delete-draft:disabled{opacity:.55;cursor:wait}
 .ha-chamber-save:hover,.ha-chamber-cancel:hover,.ha-chamber-save:focus-visible,.ha-chamber-cancel:focus-visible{
   background:#b9d77a;color:#071009;outline:2px solid #b9d77a;outline-offset:2px
 }
