@@ -5,18 +5,12 @@
 
   const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-  const MOVEMENTS = [
-    ['THE AWAKENING', 'the-awakening'],
-    ['THE DESCENT', 'the-descent'],
-    ['THE RECONNECTION', 'the-reconnection'],
-    ['THE TRANSFORMATION', 'the-transformation'],
-    ['THE RETURN', 'the-return']
-  ];
+  const EDITOR_VERSION = '20261117-in-place-transmission-1';
   let client = null;
   let isCreator = false;
   let refreshing = false;
   let authBound = false;
-  let closePending = false;
+  let editorLoadPromise = null;
 
   const button = document.createElement('button');
   button.type = 'button';
@@ -35,102 +29,99 @@
   ].join('');
   document.head.appendChild(style);
 
-  function selectedCategoryForPage() {
-    const path = window.location.pathname.toLowerCase();
-    if (path.includes('/human-archive/')) return 'HUMAN ARCHIVE';
-    const bodyMovement = String(document.body.dataset.movement || '').trim().toUpperCase();
-    if (MOVEMENTS.some(([name]) => name === bodyMovement)) return bodyMovement;
-    const movement = MOVEMENTS.find(([, slug]) => path.split('/').includes(slug));
-    return movement ? movement[0] : '';
-  }
-
-  const dialog = document.createElement('dialog');
-  dialog.className = 'vha-new-transmission-dialog';
-  dialog.setAttribute('aria-label', 'Human Archive Transmission editor');
-  dialog.innerHTML = '<iframe title="Human Archive Transmission editor" loading="eager"></iframe>';
-  document.body.appendChild(dialog);
-  const dialogFrame = dialog.querySelector('iframe');
-
-  const modalStyle = document.createElement('style');
-  modalStyle.textContent = [
-    '.vha-new-transmission-dialog{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:transparent;overflow:hidden}',
-    '.vha-new-transmission-dialog::backdrop{background:#020604d9;backdrop-filter:blur(7px)}',
-    '.vha-new-transmission-dialog iframe{display:block;width:100%;height:100%;border:0;background:#050906}',
-    '.vha-new-transmission-dialog[open]{display:block}'
-  ].join('');
-  document.head.appendChild(modalStyle);
-
-  function closeEditor() {
-    if (!dialog.open) return;
-    closePending = false;
-    dialog.close();
-    dialogFrame.src = 'about:blank';
-  }
-
-  function requestEditorClose() {
-    if (!dialog.open || closePending) return;
-    if (!dialogFrame.contentWindow || !dialogFrame.src || dialogFrame.src === 'about:blank') {
-      closeEditor();
-      return;
-    }
-    closePending = true;
-    dialogFrame.contentWindow.postMessage({ type: 'VHA_TRANSMISSION_EDITOR_CLOSE_REQUEST' }, window.location.origin);
-  }
-
-  function openNewTransmission() {
-    const url = new URL('/landing-page/human-archive/', window.location.origin);
-    url.searchParams.set('new', '1');
-    const category = selectedCategoryForPage();
-    if (category) url.searchParams.set('category', category);
-    closePending = false;
-    dialogFrame.src = url.toString();
-    dialog.showModal();
-  }
-
-  button.addEventListener('click', openNewTransmission);
-  dialog.addEventListener('cancel', event => {
-    event.preventDefault();
-    requestEditorClose();
-  });
-  dialog.addEventListener('click', event => {
-    if (event.target === dialog) requestEditorClose();
-  });
-  dialog.addEventListener('close', () => {
-    closePending = false;
-    dialogFrame.src = 'about:blank';
-  });
-  window.addEventListener('message', event => {
-    if (event.origin !== window.location.origin || event.source !== dialogFrame.contentWindow) return;
-    if (event.data?.type === 'VHA_TRANSMISSION_EDITOR_CLOSED') {
-      closeEditor();
-    } else if (event.data?.type === 'VHA_TRANSMISSION_EDITOR_CLOSE_FAILED') {
-      closePending = false;
-    }
-  });
-
-  async function ensureSupabase() {
-    if (window.supabase?.createClient) return true;
-    return new Promise(resolve => {
+  function ensureSupabase() {
+    if (window.supabase?.createClient) return Promise.resolve(true);
+    return new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';
       script.async = true;
       script.crossOrigin='anonymous';
       script.referrerPolicy='no-referrer';
-      script.onload = () => resolve(Boolean(window.supabase?.createClient));
-      script.onerror = () => resolve(false);
+      script.onload = () => window.supabase?.createClient ? resolve(true) : reject(new Error('Supabase loaded without createClient.'));
+      script.onerror = () => reject(new Error('Supabase could not be loaded.'));
       document.head.appendChild(script);
     });
   }
+
+  function loadStylesheet() {
+    if (document.querySelector('link[data-vha-chamber-styles]')) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/landing-page/human-archive/chamber.css?v=' + EDITOR_VERSION;
+      link.dataset.vhaChamberStyles = 'true';
+      link.onload = () => resolve();
+      link.onerror = () => {
+        link.remove();
+        reject(new Error('The shared chamber styles could not be loaded.'));
+      };
+      document.head.appendChild(link);
+    });
+  }
+
+  function loadScript(src, isReady) {
+    if (isReady()) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const target = new URL(src, window.location.href).href;
+      const existing = [...document.scripts].find(item => item.src === target);
+      if (existing) {
+        const done = () => isReady() ? resolve() : reject(new Error('A shared editor dependency loaded but did not initialize: ' + src));
+        existing.addEventListener('load', done, { once: true });
+        existing.addEventListener('error', () => reject(new Error('A shared editor dependency could not be loaded: ' + src)), { once: true });
+        if (isReady()) resolve();
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = src;
+      script.async = true;
+      script.addEventListener('load', () => isReady() ? resolve() : reject(new Error('A shared editor dependency loaded but did not initialize: ' + src)), { once: true });
+      script.addEventListener('error', () => reject(new Error('A shared editor dependency could not be loaded: ' + src)), { once: true });
+      document.head.appendChild(script);
+    });
+  }
+
+  async function ensureSharedEditor() {
+    if (editorLoadPromise) return editorLoadPromise;
+    editorLoadPromise = (async () => {
+      await ensureSupabase();
+      await loadStylesheet();
+      await loadScript('/landing-page/editor-ui/rich-text-editor.js?v=' + EDITOR_VERSION, () => Boolean(window.VHAEditorUI?.mountRichTextEditor));
+      await loadScript('/landing-page/human-archive/archive.js?v=' + EDITOR_VERSION, () => Boolean(window.__vhaArchiveChamberControllerLoaded));
+      if (!window.__vhaArchiveChamberReady) throw new Error('The shared Transmission editor did not start.');
+      await window.__vhaArchiveChamberReady;
+    })().catch(error => {
+      editorLoadPromise = null;
+      throw error;
+    });
+    return editorLoadPromise;
+  }
+
+  async function openNewTransmission() {
+    if (!isCreator || button.disabled) return;
+    button.disabled = true;
+    button.textContent = 'OPENING TRANSMISSION…';
+    button.removeAttribute('title');
+    try {
+      await ensureSharedEditor();
+      window.dispatchEvent(new CustomEvent('VHA_OPEN_NEW_TRANSMISSION'));
+    } catch (error) {
+      console.error('The shared Transmission editor could not be opened:', error);
+      button.title = String(error?.message || 'The editor could not be loaded. Please try again.');
+    } finally {
+      button.disabled = false;
+      button.textContent = '+ NEW TRANSMISSION';
+    }
+  }
+
+  button.addEventListener('click', openNewTransmission);
 
   async function refresh(sessionOverride) {
     if (refreshing) return;
     refreshing = true;
     try {
-      if (!await ensureSupabase()) {
-        isCreator = false;
-        return;
-      }
-      if (!client) client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+      await ensureSupabase();
+      if (!client) client = window.__vhaSupabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+      window.__vhaSupabaseClient = client;
       let session = sessionOverride;
       if (sessionOverride === undefined) {
         const result = await client.auth.getSession();
@@ -150,11 +141,13 @@
           window.setTimeout(() => refresh(session), 0);
         });
       }
-    } catch {
+    } catch (error) {
+      console.error('Transmission creator permissions could not be refreshed:', error);
       isCreator = false;
     } finally {
       refreshing = false;
       button.hidden = !isCreator;
+      button.disabled = !isCreator;
     }
   }
 

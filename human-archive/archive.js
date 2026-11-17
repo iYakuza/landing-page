@@ -1,7 +1,8 @@
 (()=>{'use strict';
 const search=document.getElementById('ha-search'),year=document.getElementById('ha-year'),category=document.getElementById('ha-category'),list=document.getElementById('ha-list'),count=document.getElementById('ha-count'),mediaStatus=document.getElementById('ha-media-status');
 const newTransmissionButton=document.getElementById('ha-new-transmission'),createTransmissionStatus=document.getElementById('ha-create-status');
-const archiveHomeUrl=new URL('./',window.location.href);
+const hasArchiveIndex=Boolean(search&&year&&category&&list&&count);
+const archiveHomeUrl=new URL('/landing-page/human-archive/',window.location.origin);
 let chamberSaveConflict=false;
 let flushActiveChamberAutosave=async()=>true;
 let records=[],mediaItems=[],mediaMap=new Map(),mediaByPost=new Map(),mediaReady=false,publicBase='';
@@ -339,7 +340,7 @@ async function toggleArchiveFavorite(recordId,button){
  finally{document.querySelectorAll('[data-ha-favorite-id="'+id+'"]').forEach(control=>{control.disabled=!archiveAdmin;});syncFavoriteControls();}
 }
 function chamberShareUrl(record){
- return new URL(encodeURIComponent(record.slug),new URL('./',window.location.href)).href;
+ return new URL(encodeURIComponent(record.slug),archiveHomeUrl).href;
 }
 function makeChamberNode(tag,className,text){
  const node=document.createElement(tag);
@@ -640,6 +641,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  };
  const mediaTouched={image:false,audio:false,video:false};
  let recordMetadataInputs=null;
+ let slugManuallyEdited=false;
  let attachedPostMedia=[];
  let repaintAttachedPostMedia=()=>{};
  let postLayoutControls=null;
@@ -690,6 +692,13 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  metadataDetails.body.append(metadataFields,statusNote);
  grid.append(metadataDetails.details);
  recordMetadataInputs={title:titleInput,slug:slugInput,category:categoryInput,excerpt:excerptInput,mediaWidth:mediaWidthInput,status:statusSelect};
+ if(record.isNew){
+  slugInput.addEventListener('input',()=>{slugManuallyEdited=true;});
+  titleInput.addEventListener('input',()=>{
+   if(slugManuallyEdited)return;
+   slugInput.value=String(titleInput.value||'').normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,180);
+  });
+ }
  const savedLayoutDoc=new DOMParser().parseFromString(String(record.content_html||''),'text/html');
  const savedSuno=savedLayoutDoc.querySelector('.suno-post-layout');
  const savedPlain=savedLayoutDoc.querySelector('.plain-post-layout');
@@ -1044,7 +1053,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    await new Promise(resolve=>{const wait=()=>draftAutosaveInFlight?setTimeout(wait,50):resolve();wait();});
    if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
   }
-  if(record.source_type==='transmission'&&recordMetadataInputs.status.value!==record.status){
+  if(record.source_type==='transmission'&&record.post_id&&recordMetadataInputs.status.value!==record.status){
    const prompt=recordMetadataInputs.status.value==='published'
     ?'Publish this Transmission? It will become visible on the public site.'
     :'Unpublish this Transmission? It will become a private draft and disappear from public listings.';
@@ -1058,6 +1067,47 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    .filter(item=>item&&item.storage==='vha-post-media'&&typeof item.path==='string'&&item.path.startsWith('human-archive/'+String(record.id)+'/'))
    .map(item=>item.path);
   try{
+   if(record.source_type==='transmission'&&!record.post_id){
+    const metadata={
+     title:String(recordMetadataInputs.title.value).trim(),
+     slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
+     category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
+     excerpt:String(recordMetadataInputs.excerpt.value).trim(),
+     status:String(recordMetadataInputs.status.value).trim().toLowerCase(),
+     mediaWidth:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100))
+    };
+    if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
+    if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
+    if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
+    if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
+    if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
+    const initialBody=postLayoutControls&&postLayoutControls.select.value!=='standard'
+     ?(postLayoutControls.select.value==='plain'
+      ?'<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.plain.value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>'
+      :'<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.main.value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeLayoutText(postLayoutControls.fields.lyrics.value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+layoutParagraphs(postLayoutControls.fields.prompt.value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.learned.value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.chatgpt.value)+'</section></aside></div>')
+     :sanitizeTransmissionBody(transmissionEditor.innerHTML);
+    const publishText=postLayoutControls?.select.value==='plain'?postLayoutControls.fields.plain.value:
+     postLayoutControls?.select.value==='suno'?postLayoutControls.fields.main.value:transmissionEditor.innerText;
+    if(metadata.status==='published'&&!String(publishText||'').trim())throw new Error('Add transmission content before publishing.');
+    status.textContent='CREATING TRANSMISSION…';
+    const {data:createResult,error:createError}=await archiveSupabase.rpc('create_human_archive_transmission_v3',{
+     p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,
+     p_status:'draft',p_transmission_body:initialBody,p_prompt_style:promptArea.value,p_lyrics_style:lyricsArea.value,p_output_text:textArea.value,
+     p_output_media:{},p_media_items:[],p_media_width:metadata.mediaWidth
+    });
+    if(createError)throw createError;
+    const created=Array.isArray(createResult)?createResult[0]:createResult;
+    if(!created?.post_id||!created?.archive_record_id||!created?.slug||!created?.updated_at)throw new Error('The Transmission record could not be confirmed.');
+    metadata.slug=String(created.slug);
+    recordMetadataInputs.slug.value=metadata.slug;
+    slugManuallyEdited=true;
+    record.id=Number(created.archive_record_id);record.post_id=created.post_id;record.updated_at=created.updated_at;
+    record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;
+    record.status='draft';record.media_width=metadata.mediaWidth;record.created_at=new Date().toISOString();
+    record.date=record.created_at.slice(0,10);record.year=record.date.slice(0,4);
+    record.archiveIdentifier='HA-'+record.year+'-'+String(record.id).padStart(4,'0');
+    record.isNew=false;chamberRecordId=String(record.id);
+   }
    const savedPostMedia=[];
    for(const item of attachedPostMedia){
     if(item.file){
@@ -1149,7 +1199,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     record.status=metadata.status;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||new Date().toISOString();record.media_width=metadata.mediaWidth;
     const dateStamp=record.published_at||record.created_at||record.updated_at;record.date=String(dateStamp).slice(0,10);record.year=record.date.slice(0,4);
     if(!categoryOrder.includes(metadata.category))categoryOrder.push(metadata.category);
-    if(![...category.options].some(option=>option.value===metadata.category)){
+    if(category&&![...category.options].some(option=>option.value===metadata.category)){
      const option=document.createElement('option');option.value=metadata.category;option.textContent=metadata.category;category.append(option);
     }
    }else{
@@ -1163,6 +1213,13 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     row.updated_at=savedStructure?.updated_at||new Date().toISOString();
    }
    recordStructureOverrides.set(String(record.id),row);
+   if(!records.some(item=>String(item.id)===String(record.id))){
+    records.push(record);
+    if(!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);
+    if(category&&![...category.options].some(option=>option.value===record.categories[0])){
+     const option=document.createElement('option');option.value=record.categories[0];option.textContent=record.categories[0];category.append(option);
+    }
+   }
    const keepPaths=new Set(['image','audio','video'].flatMap(type=>Array.isArray(outputMedia[type])?outputMedia[type]:[])
     .filter(item=>item&&item.storage==='vha-post-media').map(item=>item.path).filter(Boolean));
    const removedPaths=[...new Set(oldOwnedPaths)].filter(path=>!keepPaths.has(path));
@@ -1180,9 +1237,11 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     if(metaNode)metaNode.textContent='HA-'+record.year+'-'+String(record.id).padStart(4,'0')+' // '+record.date+' // '+record.categories.join(' / ');
     const shareNode=recordChamber?.querySelector('.ha-chamber-share'),shareStatus=recordChamber?.querySelector('.ha-chamber-share-status');
     if(shareNode&&shareStatus){shareNode.replaceChildren();appendChamberShareActions(shareNode,record,shareStatus);}
-    const chamberUrl=new URL(archiveHomeUrl.href);chamberUrl.searchParams.set('record',String(record.id));
-    history.replaceState(history.state,'',chamberUrl.pathname+chamberUrl.search+chamberUrl.hash);
-    render();
+    if(hasArchiveIndex){
+     const chamberUrl=new URL(archiveHomeUrl.href);chamberUrl.searchParams.set('record',String(record.id));
+     history.replaceState(history.state,'',chamberUrl.pathname+chamberUrl.search+chamberUrl.hash);
+     render();
+    }
    }
    renderRecordStructureView(record,grid,status,editButton,expandButton);
   }catch(error){
@@ -1269,7 +1328,7 @@ function ensureRecordChamber(){
   document.body.classList.remove('ha-chamber-open');
   if(chamberCloseRequestedByUser&&window.parent!==window)window.parent.postMessage({type:'VHA_TRANSMISSION_EDITOR_CLOSED'},window.location.origin);
   chamberCloseRequestedByUser=false;
-  history.replaceState(history.state,'',archiveHomeUrl.pathname+archiveHomeUrl.hash);
+  if(hasArchiveIndex)history.replaceState(history.state,'',archiveHomeUrl.pathname+archiveHomeUrl.hash);
   if(recordChamberReturnFocus?.isConnected)recordChamberReturnFocus.focus();
   recordChamberReturnFocus=null;
  });
@@ -1280,11 +1339,11 @@ function ensureRecordChamber(){
  document.body.append(recordChamber);return recordChamber;
 }
 function openArchiveRecordChamber(record,trigger,openInEditor=false){
- if(!record||!records.some(item=>String(item.id)===String(record.id)))return;
+ if(!record||(!record.isNew&&!records.some(item=>String(item.id)===String(record.id))))return;
  chamberSaveConflict=false;
  const dialog=ensureRecordChamber();if(dialog.open)dialog.close();
  dialog.replaceChildren(buildRecordChamber(record));chamberRecordId=String(record.id);recordChamberReturnFocus=trigger||null;
- const url=new URL(archiveHomeUrl.href);url.searchParams.set('record',String(record.id));history.replaceState(history.state,'',url.pathname+url.search+url.hash);document.body.classList.add('ha-chamber-open');
+ if(hasArchiveIndex&&!record.isNew){const url=new URL(archiveHomeUrl.href);url.searchParams.set('record',String(record.id));history.replaceState(history.state,'',url.pathname+url.search+url.hash);}document.body.classList.add('ha-chamber-open');
  try{
   if(archiveAdmin&&openInEditor)dialog.querySelector('.ha-chamber-edit')?.click();
   dialog.showModal();
@@ -1299,62 +1358,50 @@ function openRequestedRecordFromUrl(){
  search.value=record.title;year.value='';category.value='';render();
  const card=list.querySelector('.ha-record-card[data-ha-record-id="'+record.id+'"]');card?.scrollIntoView({behavior:'smooth',block:'center'});openArchiveRecordChamber(record,null);
 }
-async function createHumanArchiveTransmission(requestedCategory=''){
+function createHumanArchiveTransmission(){
+ if(recordChamber?.open){recordChamber.focus();return;}
  if(!archiveAdmin||!archiveSupabase||!archiveUserId){if(createTransmissionStatus)createTransmissionStatus.textContent='ADMIN SESSION REQUIRED';return;}
- const chosenCategory=transmissionCategories.includes(String(requestedCategory||'').trim().toUpperCase())?String(requestedCategory).trim().toUpperCase():'';
- if(newTransmissionButton)newTransmissionButton.disabled=true;
- if(createTransmissionStatus)createTransmissionStatus.textContent='CREATING DRAFT…';
- try{
-  const {data,error}=await archiveSupabase.rpc('create_human_archive_transmission');
-  if(error)throw error;
-  const created=Array.isArray(data)?data[0]:data;
-  if(!created?.id||!created?.archive_record_id)throw new Error('The new Transmission could not be confirmed.');
-  await loadTransmissionRecords();
-  render();syncFavoriteControls();
-  const record=records.find(item=>item.source_type==='transmission'&&item.post_id===created.id);
-  if(!record)throw new Error('The draft was created, but could not be loaded into the Archive. Refresh the page to find it.');
-  record.categories=[chosenCategory];
-  openArchiveRecordChamber(record,newTransmissionButton,true);
-  if(chosenCategory){const destination=recordChamber?.querySelector('[name="category"]');if(destination){destination.value=chosenCategory;destination.dispatchEvent(new Event('input',{bubbles:true}));}}
-  recordChamber?.querySelector('.ha-chamber-editor-field')?.focus({preventScroll:true});
-  if(createTransmissionStatus)createTransmissionStatus.textContent='NEW DRAFT READY // HA-'+record.year+'-'+String(record.id).padStart(4,'0');
- }catch(error){
-  console.error('Human Archive Transmission could not be created:',error);
-  if(createTransmissionStatus)createTransmissionStatus.textContent='CREATE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
- }finally{
-  if(newTransmissionButton)newTransmissionButton.disabled=false;
- }
+ const temporaryId=Date.now();
+ const now=new Date().toISOString();
+ const record={
+  id:temporaryId,post_id:null,source_type:'transmission',title:'',slug:'untitled-transmission',
+  categories:[],excerpt:'',content_html:'',status:'new',media_items:[],media_width:100,
+  created_at:now,updated_at:now,published_at:null,date:now.slice(0,10),year:now.slice(0,4),
+  url:'',archiveIdentifier:'UNSAVED TRANSMISSION',isNew:true
+ };
+ openArchiveRecordChamber(record,newTransmissionButton,true);
+ if(createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // UNSAVED';
+ recordChamber?.querySelector('[name="title"]')?.focus({preventScroll:true});
 }
 async function initArchiveFeatures(){
- const launchParams=new URLSearchParams(window.location.search);
- const launchNewTransmission=launchParams.get('new')==='1';
- const launchCategory=launchParams.get('category')||'';
- if(launchNewTransmission){launchParams.delete('new');launchParams.delete('category');const nextUrl=new URL(window.location.href);nextUrl.search=launchParams.toString();history.replaceState(history.state,'',nextUrl.pathname+nextUrl.search+nextUrl.hash);}
- if(!window.supabase?.createClient){openRequestedRecordFromUrl();return;}
- archiveSupabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+ if(!window.supabase?.createClient)throw new Error('Supabase is unavailable; the Transmission editor cannot start.');
+ archiveSupabase=window.__vhaSupabaseClient||window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+ window.__vhaSupabaseClient=archiveSupabase;
  await refreshArchiveAdmin();
  if(newTransmissionButton){newTransmissionButton.hidden=!archiveAdmin;newTransmissionButton.disabled=!archiveAdmin;newTransmissionButton.addEventListener('click',createHumanArchiveTransmission);}
- await Promise.all([loadArchiveFavorites(),loadRecordStructureOverrides(),loadTransmissionRecords()]);
+ if(hasArchiveIndex)await Promise.all([loadArchiveFavorites(),loadRecordStructureOverrides(),loadTransmissionRecords()]);
  if(!archiveAuthBound){
   archiveAuthBound=true;
   archiveSupabase.auth.onAuthStateChange((_event,session)=>{
    window.setTimeout(async()=>{
     await refreshArchiveAdmin(session);
     if(newTransmissionButton){newTransmissionButton.hidden=!archiveAdmin;newTransmissionButton.disabled=!archiveAdmin;}
-    await loadTransmissionRecords();
-    render();
-    syncFavoriteControls();
-    // Supabase auth is shared across tabs. Refresh permissions without rebuilding
-    // an open chamber, which would discard that tab's unsaved editor state.
+    if(hasArchiveIndex){
+     await loadTransmissionRecords();
+     render();
+     syncFavoriteControls();
+    }
+    // Refresh permissions without rebuilding an open chamber or discarding editor state.
     const chamberEditButton=recordChamber?.querySelector('.ha-chamber-edit');
     if(chamberEditButton)chamberEditButton.hidden=!archiveAdmin;
    },0);
   });
  }
- render();
- syncFavoriteControls();
- if(launchNewTransmission){await createHumanArchiveTransmission(launchCategory);return;}
- openRequestedRecordFromUrl();
+ if(hasArchiveIndex){
+  render();
+  syncFavoriteControls();
+  openRequestedRecordFromUrl();
+ }
 }
 
 function makeFavoriteMark(record){
@@ -1383,6 +1430,7 @@ function makeEntry(record,index){
  return wrapper;
 }
 function render(){
+ if(!hasArchiveIndex)return;
  const query=clean(search.value),selectedYear=year.value,selectedCategory=category.value;
  const filtered=records.filter(r=>(!selectedYear||r.year===selectedYear)&&(!query||[r.title,r.year,r.date,r.id,...(r.categories||[])].some(v=>clean(v).includes(query))));
  const visible=filtered.filter(r=>!selectedCategory||(r.categories||[]).includes(selectedCategory));
@@ -1449,9 +1497,26 @@ async function init(){
   else setMediaStatus('MEDIA INVENTORY TEMPORARILY UNAVAILABLE // LOCAL TEXT REMAINS AVAILABLE',false);
   categoryOrder.filter(name=>records.some(r=>r.categories.includes(name))).forEach(name=>{expandedCategories.add(name);const option=document.createElement('option');option.value=name;option.textContent=name;category.append(option)});
   render();
-  initArchiveFeatures().catch(error=>{console.error('Human Archive interactive features failed:',error);openRequestedRecordFromUrl();});
+  try{await initArchiveFeatures();}
+  catch(error){console.error('Human Archive interactive features failed:',error);openRequestedRecordFromUrl();}
  }catch(error){console.error('Human Archive local index failed:',error);list.textContent='THE LOCAL ARCHIVE COULD NOT BE LOADED. PLEASE REFRESH IN A MOMENT.';count.textContent='LOCAL ARCHIVE UNAVAILABLE';}
 }
-bindEgoPortraitViewer();
-search.addEventListener('input',render);year.addEventListener('change',render);category.addEventListener('change',render);init();
+window.__vhaArchiveChamberControllerLoaded=true;
+window.addEventListener('VHA_OPEN_NEW_TRANSMISSION',async()=>{
+ try{
+  await window.__vhaArchiveChamberReady;
+  if(!archiveAdmin||!archiveSupabase||!archiveUserId){
+   console.warn('New Transmission was requested without an active archive administrator session.');
+   return;
+  }
+  createHumanArchiveTransmission();
+ }catch(error){console.error('The shared Transmission editor could not open:',error);}
+});
+if(hasArchiveIndex){
+ bindEgoPortraitViewer();
+ search.addEventListener('input',render);year.addEventListener('change',render);category.addEventListener('change',render);
+ window.__vhaArchiveChamberReady=init();
+}else{
+ window.__vhaArchiveChamberReady=initArchiveFeatures();
+}
 })();
