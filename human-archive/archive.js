@@ -1287,7 +1287,7 @@ function ensureRecordChamber(){
  document.body.append(recordChamber);return recordChamber;
 }
 function hasLocalChamberRecovery(record){
- if(!archiveUserId||!record)return false;
+ if(!archiveUserId||!record||record.source_type==='transmission')return false;
  try{
   const key='vha_human_archive_recovery_'+archiveUserId+'_'+String(record.id);
   const snapshot=JSON.parse(localStorage.getItem(key)||'null');
