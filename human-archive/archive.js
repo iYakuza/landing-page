@@ -641,6 +641,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  };
  const mediaTouched={image:false,audio:false,video:false};
  let recordMetadataInputs=null;
+ let slugManuallyEdited=false;
  let attachedPostMedia=[];
  let repaintAttachedPostMedia=()=>{};
  let postLayoutControls=null;
@@ -692,7 +693,6 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  grid.append(metadataDetails.details);
  recordMetadataInputs={title:titleInput,slug:slugInput,category:categoryInput,excerpt:excerptInput,mediaWidth:mediaWidthInput,status:statusSelect};
  if(record.isNew){
-  let slugManuallyEdited=false;
   slugInput.addEventListener('input',()=>{slugManuallyEdited=true;});
   titleInput.addEventListener('input',()=>{
    if(slugManuallyEdited)return;
@@ -1080,14 +1080,17 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
     if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
     status.textContent='CREATING TRANSMISSION…';
-    const {data:createResult,error:createError}=await archiveSupabase.rpc('create_human_archive_transmission_v2',{
+    const {data:createResult,error:createError}=await archiveSupabase.rpc('create_human_archive_transmission_v3',{
      p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,
      p_status:'draft',p_transmission_body:'',p_prompt_style:'',p_lyrics_style:'',p_output_text:'',
      p_output_media:{},p_media_items:[],p_media_width:metadata.mediaWidth
     });
     if(createError)throw createError;
     const created=Array.isArray(createResult)?createResult[0]:createResult;
-    if(!created?.post_id||!created?.archive_record_id||!created?.updated_at)throw new Error('The Transmission record could not be confirmed.');
+    if(!created?.post_id||!created?.archive_record_id||!created?.slug||!created?.updated_at)throw new Error('The Transmission record could not be confirmed.');
+    metadata.slug=String(created.slug);
+    recordMetadataInputs.slug.value=metadata.slug;
+    slugManuallyEdited=true;
     record.id=Number(created.archive_record_id);record.post_id=created.post_id;record.updated_at=created.updated_at;
     record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;
     record.status='draft';record.media_width=metadata.mediaWidth;record.created_at=new Date().toISOString();
