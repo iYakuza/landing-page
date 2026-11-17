@@ -64,7 +64,10 @@ begin
   if v_status = 'published' and char_length(btrim(v_body)) = 0 then
     raise exception 'Add transmission content before publishing' using errcode = '22023';
   end if;
-  if jsonb_typeof(v_media_items) <> 'array' or jsonb_array_length(v_media_items) > 30 then
+  if jsonb_typeof(v_media_items) is distinct from 'array' then
+    raise exception 'Post media must be an array containing at most 30 attachments' using errcode = '22023';
+  end if;
+  if jsonb_array_length(v_media_items) > 30 then
     raise exception 'Post media must be an array containing at most 30 attachments' using errcode = '22023';
   end if;
   if exists (
@@ -118,7 +121,7 @@ $function$;
 
 revoke all on function public.create_human_archive_transmission_v2(
   text, text, text, text, text, text, text, text, text, jsonb, jsonb, integer
-) from public, anon;
+) from public, anon, service_role;
 grant execute on function public.create_human_archive_transmission_v2(
   text, text, text, text, text, text, text, text, text, jsonb, jsonb, integer
 ) to authenticated;
