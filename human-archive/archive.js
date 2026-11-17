@@ -1346,6 +1346,7 @@ function openRequestedRecordFromUrl(){
  const card=list.querySelector('.ha-record-card[data-ha-record-id="'+record.id+'"]');card?.scrollIntoView({behavior:'smooth',block:'center'});openArchiveRecordChamber(record,null);
 }
 function createHumanArchiveTransmission(){
+ if(recordChamber?.open){recordChamber.focus();return;}
  if(!archiveAdmin||!archiveSupabase||!archiveUserId){if(createTransmissionStatus)createTransmissionStatus.textContent='ADMIN SESSION REQUIRED';return;}
  const temporaryId=Date.now();
  const now=new Date().toISOString();
