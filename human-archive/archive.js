@@ -742,7 +742,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
    row.append(makeChamberNode('small','ha-chamber-media-editor-state',item.file?'READY TO UPLOAD':item.type.toUpperCase()+' // EXISTING ATTACHMENT'));
    const remove=makeChamberNode('button','ha-chamber-media-remove','REMOVE ✕');remove.type='button';
    remove.setAttribute('aria-label','Remove '+(item.name||'attachment'));
-   remove.addEventListener('click',()=>{attachedPostMedia.splice(index,1);repaintAttached();status.textContent='ATTACHMENTS UPDATED — SAVE THE CHAMBER TO APPLY';});
+   remove.addEventListener('click',()=>{attachedPostMedia.splice(index,1);repaintAttached();status.textContent='ATTACHMENTS UPDATED — AUTOSAVE PENDING';scheduleDraftAutosave();});
    row.append(remove);attachedList.append(row);
   });
  };
@@ -794,7 +794,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   const media=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
   const items=editorMedia[type];
   const sectionBody=media.body;
-  renderChamberMediaEditor(sectionBody,record,type,items,status,()=>{mediaTouched[type]=true;});
+  renderChamberMediaEditor(sectionBody,record,type,items,status,()=>{mediaTouched[type]=true;scheduleDraftAutosave();});
   output.body.append(media.details);
  });
  grid.append(output.details);
