@@ -78,7 +78,7 @@
   const MOVEMENTS=['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'];
   function displayCategory(value){
     const category=String(value||'').trim().toUpperCase();
-    return MOVEMENTS.includes(category)?category:(category.startsWith('COMMUNITY')?'COMMUNITY SIGNAL':'UNASSIGNED');
+    return MOVEMENTS.includes(category)?category:(category==='HUMAN ARCHIVE'?'HUMAN ARCHIVE':(category.startsWith('COMMUNITY')?'COMMUNITY SIGNAL':'UNASSIGNED'));
   }
   function renderCategories(){
     const selected=categoryFilter.value;
