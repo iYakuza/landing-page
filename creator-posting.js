@@ -60,30 +60,10 @@ async function closeStudio(){
 }
 function handleComposerKeydown(event){if(event.key==='Escape'){event.preventDefault();closeStudio();}}
 function openStudio(selected=''){
-  if(composerOverlay)return;
-  previousFocus=document.activeElement;
-  const url=new URL('/landing-page/cms/',location.origin);
-  url.searchParams.set('new','1');url.searchParams.set('embed','1');
-  if(M.some(m=>m[0]===selected))url.searchParams.set('category',selected);
-  const overlay=document.createElement('div');
-  overlay.className='vha-quick-post-overlay';
-  overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','New transmission editor');
-  const topbar=document.createElement('div');
-  topbar.className='vha-quick-post-topbar';
-  const status=document.createElement('span');
-  status.className='vha-quick-post-close-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');
-  const close=document.createElement('button');
-  close.type='button';close.className='vha-quick-post-close';close.textContent='CLOSE ✕';close.setAttribute('aria-label','Close new transmission editor');
-  close.addEventListener('click',closeStudio);
-  topbar.append(status,close);
-  const frame=document.createElement('iframe');
-  frame.className='vha-quick-post-frame';frame.title='New Transmission editor';frame.src=url.pathname+url.search;
-  frame.setAttribute('allow','clipboard-read; clipboard-write');
-  frame.addEventListener('load',()=>{try{frame.contentWindow.addEventListener('keydown',handleComposerKeydown);}catch{}});
-  overlay.addEventListener('click',event=>{if(event.target===overlay)closeStudio()});
-  overlay.append(topbar,frame);document.body.appendChild(overlay);composerOverlay=overlay;
-  document.body.style.overflow='hidden';window.addEventListener('keydown',handleComposerKeydown);
-  close.focus();
+  const url=new URL('/landing-page/human-archive/',location.origin);
+  url.searchParams.set('new','1');
+  // Quick Post remains the familiar entry point, but creation now belongs to Human Archive.
+  location.assign(url.toString());
 }
 function addControls(){document.querySelectorAll('.vha-nav-menu').forEach(menu=>{const allLink=[...menu.querySelectorAll('a')].find(x=>x.textContent.toUpperCase().includes('ALL TRANSMISSIONS'));if(allLink&&!allLink.parentElement.classList.contains('vha-movement-row')){const allRow=document.createElement('div');allRow.className='vha-movement-row';allLink.parentNode.insertBefore(allRow,allLink);allRow.appendChild(allLink);const allPlus=document.createElement('button');allPlus.type='button';allPlus.className='vha-create-plus vha-editor-action';allPlus.dataset.actionVariant='subtle';allPlus.textContent='+';allPlus.setAttribute('aria-label','Create a post in any movement');allPlus.title='Create a post';allPlus.hidden=true;allPlus.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openStudio('')});allRow.appendChild(allPlus)}M.forEach(m=>{const a=[...menu.querySelectorAll('a')].find(x=>x.textContent.toUpperCase().includes(m[0]));if(!a||a.parentElement.classList.contains('vha-movement-row'))return;const row=document.createElement('div');row.className='vha-movement-row';a.parentNode.insertBefore(row,a);row.appendChild(a);const plus=document.createElement('button');plus.type='button';plus.className='vha-create-plus vha-editor-action';plus.dataset.actionVariant='subtle';plus.textContent='+';plus.setAttribute('aria-label','Create post in '+m[0]);plus.title='Create a post in '+m[0];plus.hidden=true;plus.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openStudio(m[0])});row.appendChild(plus)})});const q=document.createElement('button');q.type='button';q.className='vha-quick-post vha-editor-action';q.dataset.actionVariant='primary';q.hidden=true;q.textContent='+ QUICK POST';document.body.appendChild(q);return q}
 const quick=addControls();
