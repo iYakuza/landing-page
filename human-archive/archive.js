@@ -809,7 +809,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   output.body.append(media.details);
  });
  grid.append(output.details);
- if(record.source_type==='transmission'){
+ if(!readOnly&&record.source_type==='transmission'){
   grid.addEventListener('input',scheduleDraftAutosave);
   grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});
  }
