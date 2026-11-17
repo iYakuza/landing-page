@@ -59,8 +59,8 @@
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';
       script.async = true;
-      script.crossOrigin = 'anonymous';
-      script.referrerPolicy = 'no-referrer';
+      script.crossOrigin='anonymous';
+      script.referrerPolicy='no-referrer';
       script.onload = () => resolve(Boolean(window.supabase?.createClient));
       script.onerror = () => resolve(false);
       document.head.appendChild(script);
