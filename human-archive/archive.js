@@ -930,7 +930,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton)
   let state,signature;
   try{
    state=buildDraftAutosaveState();
-   signature=JSON.stringify({metadata:state.metadata,row:state.row,mediaItems:state.mediaItems});
+   signature=JSON.stringify({metadata:state.metadata,row:{...state.row,updated_at:null,updated_by:null},mediaItems:state.mediaItems});
   }catch(error){status.textContent='DRAFT NOT SAVED — '+String(error.message||'CHECK THE FIELDS');return;}
   if(signature===draftAutosaveLastSignature)return;
   draftAutosaveInFlight=true;status.textContent='SAVING DRAFT…';
