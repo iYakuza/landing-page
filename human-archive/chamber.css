@@ -1,0 +1,527 @@
+/* Scoped Human Archive chamber styles. Loaded only when the shared editor is needed. */
+.ha-record-chamber{--bg:#07090c;--panel:#0c1116;--ink:#e5e8e7;--muted:#89969a;--line:rgba(133,164,171,.22);--acid:#b9d77a;--jade:#83b96a;color-scheme:dark}
+.ha-image-viewer{color-scheme:dark}
+.ha-image-viewer{
+ position:fixed;inset:0;width:min(96vw,1800px);max-width:96vw;height:min(94dvh,1200px);max-height:94dvh;
+ margin:auto;padding:0;border:1px solid rgba(184,166,126,.48);border-radius:4px;
+ background:#07090c;color:#e5e8e7;box-shadow:0 30px 100px rgba(0,0,0,.8);overflow:hidden;
+}
+.ha-image-viewer::backdrop{background:rgba(0,0,0,.88);backdrop-filter:blur(5px)}
+.ha-image-viewer-panel{display:grid;grid-template-rows:auto minmax(0,1fr);width:100%;height:100%;min-height:0}
+.ha-image-viewer-toolbar{
+ position:relative;z-index:1;display:flex;align-items:center;gap:9px;min-height:54px;padding:9px 12px;
+ border-bottom:1px solid rgba(145,171,171,.2);background:#0b1115;
+}
+.ha-image-viewer-caption{
+ flex:1;min-width:0;color:#c7d1cc;font:9px/1.6 'DM Mono',monospace;letter-spacing:.06em;overflow-wrap:anywhere;
+}
+.ha-image-viewer-control{
+ display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:7px 10px;
+ border:1px solid rgba(184,166,126,.32);background:rgba(184,166,126,.06);color:#c8bd9a;
+ font:8px 'DM Mono',monospace;letter-spacing:.06em;text-decoration:none;white-space:nowrap;cursor:pointer;
+}
+.ha-image-viewer-control:hover,.ha-image-viewer-control:focus-visible{
+ border-color:rgba(184,166,126,.75);background:rgba(184,166,126,.13);outline:none;
+}
+.ha-image-viewer-close{border-color:rgba(145,171,171,.3);color:#c1d0ca}
+.ha-image-viewer-stage{
+ display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;overflow:auto;padding:12px;background:#030507;
+}
+.ha-image-viewer-image{
+ display:block;flex:none;width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in;
+}
+.ha-image-viewer.is-zoomed .ha-image-viewer-stage{align-items:flex-start;justify-content:flex-start}
+.ha-image-viewer.is-zoomed .ha-image-viewer-image{max-width:none;max-height:none;margin:0;cursor:zoom-out}
+@media(max-width:600px){
+ .ha-image-viewer{width:98vw;max-width:98vw;height:96dvh;max-height:96dvh}
+ .ha-image-viewer-toolbar{flex-wrap:wrap;gap:6px;padding:8px}
+ .ha-image-viewer-caption{flex-basis:100%}
+ .ha-image-viewer-control{min-height:32px;padding:6px 8px;font-size:7px}
+ .ha-image-viewer-stage{padding:6px}
+}
+.ha-favorite-toggle:hover,.ha-favorite-toggle:focus-visible{
+  border-color:#d8ff3e;background:#172313;outline:2px solid #d8ff3e;outline-offset:2px
+}
+.ha-favorite-toggle:disabled{opacity:.55;cursor:wait}
+.ha-favorite-mark{
+  min-height:28px;max-width:170px;padding:6px 8px;font:8px/1.2 'DM Mono',monospace;
+  letter-spacing:.08em;white-space:nowrap;pointer-events:none;
+}
+.ha-favorite-toggle[hidden],.ha-favorite-mark[hidden]{display:none!important}
+.ha-entry-actions{
+  display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:9px;
+  margin:0 0 20px;padding:0 0 14px;border-bottom:1px solid rgba(145,171,171,.2)
+}
+.ha-entry-edit,.ha-entry-chamber{
+  display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:8px 12px;
+  border:1px solid rgba(185,215,122,.38);background:rgba(185,215,122,.055);
+  color:#c3d58d!important;text-decoration:none!important;font:9px/1.2 'DM Mono',monospace;
+  letter-spacing:.08em;cursor:pointer
+}
+.ha-entry-chamber{border-color:rgba(143,190,188,.4);color:#c1d5d1!important}
+.ha-entry-edit:hover,.ha-entry-edit:focus-visible,.ha-entry-chamber:hover,.ha-entry-chamber:focus-visible{
+  background:#b9d77a;color:#071009!important;outline:2px solid #b9d77a;outline-offset:2px
+}
+.ha-record-chamber{
+  position:fixed;inset:0;margin:0;padding:0;width:100vw;max-width:none;height:100vh;height:100dvh;max-height:none;
+  overflow:hidden;border:0;background:#050a08;color:#e7eee8
+}
+.ha-record-chamber::backdrop{background:rgba(0,0,0,.88);backdrop-filter:blur(9px)}
+.ha-chamber-shell{display:flex;flex-direction:column;width:100%;height:100%;min-height:0;background:
+  radial-gradient(ellipse at 50% 0%,rgba(34,74,47,.32),transparent 44%),#050a08}
+.ha-chamber-header{position:relative;z-index:2;flex:0 0 auto;border-bottom:1px solid rgba(185,215,122,.2);background:rgba(5,10,8,.96)}
+.ha-chamber-topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:48px;padding:6px clamp(14px,3vw,38px);border-bottom:1px solid rgba(145,171,171,.12)}
+.ha-chamber-mark,.ha-chamber-meta{color:#98aa9b;font:9px/1.6 'DM Mono',monospace;letter-spacing:.13em}
+.ha-chamber-close{
+  min-height:34px;padding:7px 11px;border:1px solid rgba(185,215,122,.4);background:transparent;
+  color:#d8e4d8;font:9px 'DM Mono',monospace;letter-spacing:.1em;cursor:pointer
+}
+.ha-chamber-close:hover,.ha-chamber-close:focus-visible{background:#b9d77a;color:#071009;outline:2px solid #b9d77a;outline-offset:2px}
+.ha-chamber-heading{width:min(1500px,94vw);margin:0 auto;padding:16px 0 19px}
+.ha-chamber-meta{margin:0 0 9px;color:#afc18e}
+.ha-chamber-heading h2{margin:0;color:#edf4e8;font:500 clamp(27px,4.2vw,46px)/1.08 'Playfair Display',Georgia,serif;letter-spacing:-.035em}
+.ha-chamber-main{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 clamp(14px,3vw,38px) 42px}
+.ha-chamber-share-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;width:min(1500px,100%);margin:0 auto;padding:13px 0 17px;border-bottom:1px solid rgba(145,171,171,.16)}
+.ha-chamber-share{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.ha-chamber-share-action{
+  display:inline-flex;align-items:center;justify-content:center;min-height:32px;padding:7px 10px;
+  border:1px solid rgba(143,171,170,.28);background:rgba(15,25,19,.7);color:#c7d5c9;
+  font:8px/1.2 'DM Mono',monospace;letter-spacing:.07em;text-decoration:none;white-space:nowrap;cursor:pointer
+}
+.ha-chamber-share-action:hover,.ha-chamber-share-action:focus-visible{
+  border-color:#b9d77a;background:rgba(185,215,122,.1);color:#d8ff3e;outline:1px solid #b9d77a;outline-offset:1px
+}
+.ha-chamber-share-status{min-height:1.2em;color:#9fb38d;font:8px/1.5 'DM Mono',monospace;letter-spacing:.08em}
+.ha-chamber-grid{
+  display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,.9fr) minmax(0,1.55fr);
+  align-items:start;gap:12px;width:min(1500px,100%);margin:22px auto 0
+}
+.ha-chamber-panel{min-width:0;padding:17px;border:1px solid rgba(143,171,170,.22);background:linear-gradient(145deg,rgba(15,29,22,.9),rgba(7,13,10,.96))}
+.ha-chamber-panel-heading,.ha-chamber-output-label{
+  margin:0 0 13px;color:#b9d77a;font:9px/1.5 'DM Mono',monospace;letter-spacing:.13em
+}
+.ha-chamber-note{margin:0;color:#a7b7ad;font:12px/1.8 Georgia,'Times New Roman',serif;overflow-wrap:anywhere}
+.ha-chamber-output{border-color:rgba(185,215,122,.32);background:linear-gradient(145deg,rgba(20,35,24,.94),rgba(6,12,8,.98))}
+.ha-chamber-output-section{min-width:0;margin:0 0 22px}
+.ha-chamber-output-section:last-child{margin-bottom:0}
+.ha-chamber-output-label{margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(185,215,122,.17);color:#d0e2a5}
+.ha-chamber-text{color:#d1dbd2;font:14px/1.95 Georgia,'Times New Roman',serif}
+.ha-chamber-text p{margin:0 0 1.15em;white-space:pre-wrap}
+.ha-chamber-text p:last-child{margin-bottom:0}
+.ha-chamber-media-grid,.ha-chamber-audio-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.ha-chamber-media-grid .ha-local-media,.ha-chamber-audio-list .ha-local-media{min-width:0;margin:0;padding:8px;border-color:rgba(143,171,170,.2);background:rgba(4,9,7,.55)}
+.ha-chamber-media-grid .ha-local-media img{max-height:300px}
+.ha-chamber-audio-list{grid-template-columns:1fr}
+.ha-chamber-audio-list .ha-local-media audio{width:100%;max-width:100%}
+.ha-chamber-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;width:min(1500px,100%);margin:24px auto 0;padding-top:14px;border-top:1px solid rgba(145,171,171,.15)}
+.ha-chamber-source{color:#b9d77a;font:8px 'DM Mono',monospace;letter-spacing:.1em;text-decoration:none}
+.ha-chamber-source:hover{text-decoration:underline}
+.ha-chamber-footer-note{color:#74877c;font:8px 'DM Mono',monospace;letter-spacing:.1em}
+@media(max-width:1050px){
+  .ha-chamber-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ha-chamber-output{grid-column:1/-1}
+}
+@media(max-width:640px){
+  .ha-chamber-topbar{min-height:44px}
+  .ha-chamber-heading{padding:13px 0 15px}
+  .ha-chamber-grid{grid-template-columns:1fr;gap:9px;margin-top:14px}
+  .ha-chamber-output{grid-column:auto}
+  .ha-chamber-panel{padding:14px}
+  .ha-chamber-share-row{align-items:flex-start}
+  .ha-chamber-share{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+  .ha-chamber-share-action{min-width:0;padding:7px 5px;font-size:7px}
+  .ha-chamber-share-status{width:100%}
+  .ha-chamber-media-grid{grid-template-columns:1fr}
+  .ha-chamber-title-row h2{font-size:clamp(27px,8vw,38px)}
+}
+
+.ha-favorite-toggle.is-error{border-color:#e5a08f;color:#ffb6a6;text-shadow:none}
+.ha-chamber-layout-label{
+  width:min(1500px,100%);margin:20px auto 0;padding:0 0 8px;
+  border-bottom:1px solid rgba(185,215,122,.18);color:#a8bf98;
+  font:9px/1.5 'DM Mono',monospace;letter-spacing:.13em
+}
+
+
+/* HUMAN ARCHIVE // chamber editing, card-level favourite and unique media */
+.ha-record-card[data-ha-record-id="589"]>.ha-entry{padding-right:20px!important}
+.ha-record-card[data-ha-record-id="589"]>.ha-entry .ha-entry-id{visibility:visible}
+.ha-entry-quick-actions{
+  display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:0;
+  padding:9px 12px;border:1px solid rgba(143,171,170,.2);border-top:0;
+  background:linear-gradient(90deg,rgba(131,185,106,.055),rgba(5,10,13,.4))
+}
+.ha-entry-quick-actions .ha-entry-chamber{
+  min-height:32px;padding:7px 10px;border:1px solid rgba(143,190,188,.4);
+  background:rgba(143,190,188,.06);color:#c1d5d1;font:8px/1.2 'DM Mono',monospace;
+  letter-spacing:.08em;cursor:pointer
+}
+.ha-entry-quick-actions .ha-entry-chamber:hover,.ha-entry-quick-actions .ha-entry-chamber:focus-visible{
+  border-color:#b9d77a;background:rgba(185,215,122,.1);color:#d8ff3e;outline:1px solid #b9d77a;outline-offset:2px
+}
+.ha-favorite-toggle{
+  position:static!important;display:inline-flex!important;align-items:center;justify-content:center;
+  min-width:36px;min-height:32px;margin:0;padding:5px 9px;border:1px solid rgba(216,255,62,.4);
+  background:rgba(216,255,62,.05);color:#d8ff3e;font:20px/1 ui-monospace,monospace;
+  cursor:pointer;text-shadow:0 0 10px rgba(216,255,62,.25)
+}
+.ha-favorite-toggle[hidden]{display:none!important}
+.ha-favorite-toggle.is-saved{border-color:rgba(216,255,62,.72);background:rgba(216,255,62,.12);color:#e6ff83}
+.ha-favorite-toggle:disabled{opacity:1;cursor:default}
+.ha-favorite-toggle:not(:disabled):hover,.ha-favorite-toggle:focus-visible{
+  border-color:#d8ff3e;background:rgba(216,255,62,.14);outline:2px solid #d8ff3e;outline-offset:2px
+}
+.ha-record-chamber::backdrop{background:rgba(2,5,3,.99)!important;backdrop-filter:none!important}
+.ha-chamber-topbar-actions{display:flex;align-items:center;gap:8px}
+.ha-chamber-edit,.ha-chamber-close{
+  min-height:34px;padding:7px 11px;border:1px solid rgba(185,215,122,.4);
+  background:transparent;color:#d8e4d8;font:9px 'DM Mono',monospace;letter-spacing:.1em;cursor:pointer
+}
+.ha-chamber-edit{border-color:rgba(143,190,188,.48);color:#c1d5d1}
+.ha-chamber-edit:hover,.ha-chamber-edit:focus-visible,.ha-chamber-close:hover,.ha-chamber-close:focus-visible{
+  background:#b9d77a;color:#071009;outline:2px solid #b9d77a;outline-offset:2px
+}
+.ha-chamber-edit[hidden]{display:none!important}
+.ha-chamber-structure-text{color:#c4d3c8;font:13px/1.85 Georgia,'Times New Roman',serif;white-space:pre-wrap;overflow-wrap:anywhere}
+.ha-chamber-edit-panel{grid-column:1/-1}
+.ha-chamber-editor-field{
+  display:block;width:100%;min-height:150px;box-sizing:border-box;padding:12px;
+  border:1px solid rgba(143,190,188,.34);border-radius:0;background:#07100b;color:#dce8dc;
+  font:12px/1.8 ui-monospace,monospace;resize:vertical
+}
+.ha-chamber-editor-field:focus{outline:2px solid #b9d77a;outline-offset:2px;border-color:#b9d77a}
+.ha-chamber-editor-actions{display:flex;align-items:center;gap:8px;grid-column:1/-1;flex-wrap:wrap}
+.ha-chamber-save,.ha-chamber-cancel{
+  min-height:36px;padding:8px 13px;border:1px solid rgba(185,215,122,.48);
+  background:rgba(185,215,122,.08);color:#d8e4d8;font:9px 'DM Mono',monospace;letter-spacing:.08em;cursor:pointer
+}
+.ha-chamber-save{border-color:#b9d77a;background:rgba(185,215,122,.16);color:#e3f2c7}
+.ha-chamber-delete-draft{min-height:36px;padding:8px 13px;border:1px solid rgba(220,112,112,.55);background:rgba(220,112,112,.08);color:#efb0b0;font:9px 'DM Mono',monospace;letter-spacing:.08em;cursor:pointer}
+.ha-chamber-delete-draft:hover,.ha-chamber-delete-draft:focus-visible{background:#a33b3b;color:#fff;outline:2px solid #d66;outline-offset:2px}
+.ha-chamber-delete-draft:disabled{opacity:.55;cursor:wait}
+.ha-chamber-save:hover,.ha-chamber-cancel:hover,.ha-chamber-save:focus-visible,.ha-chamber-cancel:focus-visible{
+  background:#b9d77a;color:#071009;outline:2px solid #b9d77a;outline-offset:2px
+}
+.ha-chamber-save:disabled,.ha-chamber-cancel:disabled{opacity:.55;cursor:wait}
+.ha-chamber-video-frame{
+  display:block;width:100%;aspect-ratio:16/9;min-height:180px;border:1px solid rgba(143,171,170,.22);
+  background:#000
+}
+.ha-chamber-text{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:640px){
+ .ha-chamber-topbar-actions{gap:5px}
+ .ha-chamber-edit,.ha-chamber-close{padding:7px 8px;font-size:8px}
+ .ha-entry-quick-actions{padding:8px 10px}
+}
+
+/* Human Archive admin favourite control and visible card-level constellation marker. */
+.ha-entry-quick-actions[hidden]{display:none!important}
+.ha-favorite-toggle[hidden]{display:none!important}
+.ha-entry{position:relative}
+.ha-favorite-mark{position:absolute;top:13px;right:15px;z-index:2;width:30px;height:30px;display:grid;place-items:center;pointer-events:none}
+.ha-favorite-mark svg{display:block;width:100%;height:100%;overflow:visible;fill:#ffe66b;stroke:#fff2a6;stroke-width:.65;filter:drop-shadow(0 0 3px #ffe66b) drop-shadow(0 0 8px rgba(255,218,76,.95)) drop-shadow(0 0 17px rgba(255,194,48,.65));animation:ha-favourite-glow 2.8s ease-in-out infinite}
+.ha-favorite-mark[hidden]{display:none!important}
+@keyframes ha-favourite-glow{0%,100%{filter:drop-shadow(0 0 3px #ffe66b) drop-shadow(0 0 8px rgba(255,218,76,.85)) drop-shadow(0 0 14px rgba(255,194,48,.5))}50%{filter:drop-shadow(0 0 5px #fff0a0) drop-shadow(0 0 12px #ffe66b) drop-shadow(0 0 22px rgba(255,194,48,.9))}}
+.ha-chamber-topbar{position:relative;z-index:5}
+.ha-chamber-topbar-actions{display:flex!important;visibility:visible!important;opacity:1!important;position:relative;z-index:6}
+.ha-chamber-close{display:inline-flex!important;visibility:visible!important;opacity:1!important;align-items:center;justify-content:center;position:relative;z-index:7}
+.ha-chamber-edit:not([hidden]){display:inline-flex!important;visibility:visible!important;opacity:1!important}
+@media(prefers-reduced-motion:reduce){.ha-favorite-mark svg{animation:none}}
+
+
+/* Human Archive pilot refinements: expanded-state actions and a floating favourite mark. */
+.ha-entry-quick-actions[hidden]{display:none!important}
+.ha-favorite-mark{
+  top:auto!important;right:14px!important;bottom:39px!important;z-index:3;
+  display:grid!important;place-items:center;width:26px;height:26px;min-width:0!important;min-height:0!important;
+  max-width:none!important;margin:0!important;padding:0!important;
+  border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
+  color:inherit!important;pointer-events:none!important;
+}
+.ha-favorite-mark svg{
+  display:block;width:100%;height:100%;margin:0;padding:0;border:0;background:transparent;
+}
+.ha-chamber-topbar-actions{display:flex!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:20!important;}
+.ha-chamber-edit:not([hidden]),.ha-chamber-close:not([hidden]){
+  display:inline-flex!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:21!important;
+}
+
+
+/* Chamber controls are a dedicated overlay, independent of header layout. */
+.ha-chamber-shell{position:relative!important;}
+.ha-chamber-topbar{padding-right:clamp(14px,3vw,38px)!important;}
+.ha-chamber-topbar-actions{
+ position:absolute!important;top:12px!important;right:clamp(14px,3vw,38px)!important;
+ z-index:1000!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;
+ gap:8px!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+}
+.ha-chamber-topbar-actions .ha-chamber-close,
+.ha-chamber-topbar-actions .ha-chamber-edit:not([hidden]){
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-height:36px!important;padding:8px 12px!important;visibility:visible!important;opacity:1!important;
+ position:relative!important;z-index:1001!important;white-space:nowrap!important;
+}
+.ha-chamber-topbar-actions .ha-chamber-edit[hidden]{display:none!important;}
+@media(max-width:640px){
+ .ha-chamber-topbar-actions{top:8px!important;right:10px!important;gap:5px!important;}
+ .ha-chamber-topbar-actions .ha-chamber-close,
+ .ha-chamber-topbar-actions .ha-chamber-edit:not([hidden]){min-height:32px!important;padding:7px 8px!important;font-size:8px!important;}
+ .ha-chamber-mark{max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+}
+
+
+/* Chamber actions share the share-row baseline, with controls aligned at the far right. */
+.ha-chamber-share-row{
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;
+}
+.ha-chamber-share{flex:0 1 auto;min-width:0}
+.ha-chamber-share-status{margin-left:auto;flex:0 1 auto;text-align:right}
+.ha-chamber-topbar-actions{
+  position:static!important;inset:auto!important;top:auto!important;right:auto!important;
+  z-index:1!important;display:flex!important;flex:0 0 auto!important;align-items:center!important;
+  justify-content:flex-end!important;gap:8px!important;margin-left:0!important;
+  visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+}
+.ha-chamber-topbar-actions .ha-chamber-edit:not([hidden]),
+.ha-chamber-topbar-actions .ha-chamber-close{
+  position:static!important;z-index:auto!important;display:inline-flex!important;
+  align-items:center!important;justify-content:center!important;
+}
+.ha-chamber-topbar-actions .ha-chamber-edit[hidden]{display:none!important}
+@media(max-width:640px){
+  .ha-chamber-share-row{align-items:center!important;gap:8px!important}
+  .ha-chamber-share{display:flex!important;flex:1 1 100%;width:auto!important}
+  .ha-chamber-share-status{order:3;flex:1 1 100%;width:auto!important;margin-left:0;text-align:left}
+  .ha-chamber-topbar-actions{order:2;margin-left:auto!important;gap:5px!important}
+}
+
+
+/* Original WordPress source link at the foot of each archive record card. */
+.ha-record-source{
+ align-self:flex-start;margin:0;padding:10px 12px;border:1px solid rgba(145,171,171,.2);border-top:0;
+ color:#b9d77a;font:8px/1.4 'DM Mono',monospace;letter-spacing:.1em;text-decoration:none;
+}
+.ha-record-source:hover,.ha-record-source:focus-visible{
+ border-color:rgba(185,215,122,.6);background:rgba(185,215,122,.06);color:#d8ff3e;outline:1px solid #b9d77a;outline-offset:1px;
+}
+
+
+/* Ego portrait — accessible full-screen image trigger */
+.ha-ego-portrait-wrap{cursor:zoom-in}
+.ha-ego-portrait-wrap:focus-visible{outline:2px solid #b9d77a;outline-offset:5px}
+
+
+/* HUMAN ARCHIVE // shared chamber disclosure and multi-media redesign */
+.ha-chamber-title-row{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0
+}
+.ha-chamber-title-row{width:min(1500px,100%);margin:20px auto 0;padding:0 0 13px;border-bottom:1px solid rgba(185,215,122,.18)}
+.ha-chamber-title-row h2{min-width:0;flex:1 1 auto;margin:0;color:#edf4e8;font:500 clamp(27px,4.2vw,46px)/1.08 'Playfair Display',Georgia,serif;letter-spacing:-.035em;overflow-wrap:anywhere}
+.ha-chamber-expand-all{
+ flex:0 0 auto;min-height:34px;padding:8px 11px;border:1px solid rgba(185,215,122,.4);
+ background:rgba(185,215,122,.06);color:#cfe2aa;font:8px/1.2 'DM Mono',monospace;
+ letter-spacing:.1em;white-space:nowrap;cursor:pointer
+}
+.ha-chamber-expand-all:hover,.ha-chamber-expand-all:focus-visible{
+ border-color:#d8ff3e;background:rgba(185,215,122,.14);color:#eaff9b;
+ outline:2px solid #b9d77a;outline-offset:2px
+}
+.ha-chamber-disclosure{min-width:0}
+.ha-chamber-disclosure>summary{
+ display:flex;align-items:center;gap:10px;list-style:none;cursor:pointer;user-select:none
+}
+.ha-chamber-disclosure>summary::-webkit-details-marker{display:none}
+.ha-chamber-disclosure>summary::before{
+ content:'+';display:inline-grid;place-items:center;flex:0 0 18px;width:18px;height:18px;
+ border:1px solid rgba(185,215,122,.3);color:#b9d77a;font:12px/1 'DM Mono',monospace
+}
+.ha-chamber-disclosure[open]>summary::before{content:'−';background:rgba(185,215,122,.08)}
+.ha-chamber-disclosure>summary:hover,.ha-chamber-disclosure>summary:focus-visible{
+ color:#eaff9b;outline:1px solid rgba(185,215,122,.55);outline-offset:4px
+}
+.ha-chamber-disclosure-body{min-width:0}
+.ha-chamber-panel.ha-chamber-disclosure[open]>.ha-chamber-panel-heading{margin-bottom:15px}
+.ha-chamber-panel.ha-chamber-disclosure:not([open]){padding-bottom:14px}
+.ha-chamber-output.ha-chamber-disclosure>.ha-chamber-panel-heading{margin-bottom:0}
+.ha-chamber-output.ha-chamber-disclosure[open]>.ha-chamber-panel-heading{margin-bottom:16px}
+.ha-chamber-subdisclosure{
+ min-width:0;margin:0 0 13px;padding:0 0 12px;border-bottom:1px solid rgba(185,215,122,.13)
+}
+.ha-chamber-subdisclosure:last-child{margin-bottom:0;padding-bottom:0;border-bottom:0}
+.ha-chamber-subdisclosure>summary.ha-chamber-output-label{
+ display:flex;align-items:center;margin:0;padding:0 0 8px;border-bottom:1px solid rgba(185,215,122,.17)
+}
+.ha-chamber-subdisclosure[open]>summary.ha-chamber-output-label{margin-bottom:12px}
+.ha-chamber-subdisclosure:not([open])>summary.ha-chamber-output-label{margin-bottom:0}
+.ha-chamber-media-item{min-width:0}
+.ha-chamber-media-item img,.ha-chamber-media-item video{display:block;max-width:100%}
+.ha-chamber-media-item audio{display:block;width:100%;max-width:100%}
+.ha-chamber-edit-panel>.ha-chamber-disclosure-body{display:grid;gap:10px}
+.ha-chamber-edit-panel .ha-chamber-editor-field{margin:0}
+.ha-chamber-media-editor-list{display:grid;gap:7px;margin:0 0 10px}
+.ha-chamber-media-editor-item{
+ display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:10px;
+ padding:9px;border:1px solid rgba(143,171,170,.18);background:rgba(2,8,5,.45)
+}
+.ha-chamber-media-editor-name{
+ min-width:0;color:#d5e2d7;font:10px/1.5 'DM Mono',monospace;overflow-wrap:anywhere
+}
+.ha-chamber-media-editor-state{
+ color:#91a891;font:8px/1.4 'DM Mono',monospace;letter-spacing:.06em;text-align:right
+}
+.ha-chamber-media-remove,.ha-chamber-upload-label{
+ display:inline-flex;align-items:center;justify-content:center;min-height:31px;padding:7px 9px;
+ border:1px solid rgba(143,190,188,.34);background:rgba(143,190,188,.055);color:#c1d5d1;
+ font:8px/1.2 'DM Mono',monospace;letter-spacing:.08em;cursor:pointer
+}
+.ha-chamber-media-remove:hover,.ha-chamber-media-remove:focus-visible,
+.ha-chamber-upload-label:hover,.ha-chamber-upload-label:focus-within{
+ border-color:#b9d77a;background:rgba(185,215,122,.1);color:#eaff9b;
+ outline:2px solid rgba(185,215,122,.6);outline-offset:2px
+}
+.ha-chamber-upload-label{position:relative;overflow:hidden;width:max-content;max-width:100%}
+.ha-chamber-file-input{
+ position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);
+ clip-path:inset(50%);white-space:nowrap;opacity:0
+}
+@media(max-width:640px){
+ .ha-chamber-title-row{align-items:flex-start;gap:9px}
+ .ha-chamber-expand-all{min-height:31px;padding:7px 8px;font-size:7px}
+ .ha-chamber-media-editor-item{grid-template-columns:minmax(0,1fr) auto;gap:6px}
+ .ha-chamber-media-editor-state{grid-column:1;text-align:left}
+ .ha-chamber-media-remove{grid-column:2;grid-row:1/3}
+}
+
+/* Slug identity and retained database key on every shared archive card. */
+.ha-entry-top{align-items:flex-start!important}
+.ha-entry-code{max-width:calc(100% - 76px);overflow-wrap:anywhere;word-break:break-word}
+.ha-entry-id{white-space:nowrap;padding:2px 0 2px 8px}
+
+
+/* Shared rich-text editor in the Human Archive chamber. */
+.ha-rich-editor-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.ha-rich-editor-hint{color:#8fa99a;font:8px/1.5 'DM Mono',monospace;letter-spacing:.1em}
+.ha-chamber-focus-toggle{
+ min-width:36px;min-height:32px;padding:6px 10px;border:1px solid rgba(185,215,122,.48);
+ background:rgba(185,215,122,.07);color:#d8ff3e;font:700 12px/1 'DM Mono',monospace;cursor:pointer
+}
+.ha-chamber-focus-toggle[aria-pressed="true"]{background:#b9d77a;color:#071009}
+.ha-rich-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:5px;padding:8px;border:1px solid rgba(185,215,122,.2);background:#09130c}
+.ha-rich-toolbar button{
+ min-width:34px;min-height:31px;padding:6px 9px;border:1px solid rgba(185,215,122,.24);
+ background:#0b170e;color:#d3e2d3;font:9px 'DM Mono',monospace;cursor:pointer
+}
+.ha-rich-toolbar button:hover,.ha-rich-toolbar button:focus-visible{border-color:#b9d77a;color:#eaff9b;outline:1px solid #b9d77a;outline-offset:1px}
+.ha-rich-content{
+ min-height:360px;max-height:65vh;overflow:auto;resize:vertical;
+ color:#dce8dc;font:14px/1.9 Georgia,'Times New Roman',serif;white-space:normal;overflow-wrap:anywhere
+}
+.ha-rich-content:empty::before{content:attr(data-placeholder);color:#718477;pointer-events:none}
+.ha-rich-content h2,.ha-rich-content h3{color:#d8ff3e;line-height:1.3}
+.ha-rich-content blockquote{margin:16px 0;padding:8px 14px;border-left:2px solid #b9d77a;color:#b6c7b8}
+.ha-rich-content a,.ha-chamber-transmission-body a{color:#d8ff3e;text-decoration:underline;text-underline-offset:3px}
+.ha-chamber-transmission-body{color:#d1dbd2;font:15px/1.95 Georgia,'Times New Roman',serif;overflow-wrap:anywhere}
+.ha-chamber-transmission-body p{margin:0 0 1.15em}
+.ha-chamber-transmission-body p:last-child{margin-bottom:0}
+.ha-chamber-transmission-body h2,.ha-chamber-transmission-body h3{color:#d8ff3e;line-height:1.3}
+.ha-chamber-transmission-body blockquote{margin:18px 0;padding:8px 16px;border-left:2px solid #b9d77a;color:#aab7a7}
+.ha-chamber-transmission-body ul,.ha-chamber-transmission-body ol{padding-left:1.5em}
+.ha-chamber-transmission-body[hidden]{display:none!important}
+
+/* Focus mode isolates the transmission editor without leaving the chamber. */
+body.ha-writing-focus{overflow:hidden!important}
+body.ha-writing-focus .ha-record-chamber[open]{
+ position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;
+ max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;border:0!important;
+ background:#050906!important;overflow:auto!important
+}
+body.ha-writing-focus .ha-record-chamber .ha-chamber-header,
+body.ha-writing-focus .ha-record-chamber .ha-chamber-heading,
+body.ha-writing-focus .ha-record-chamber .ha-chamber-title-row,
+body.ha-writing-focus .ha-record-chamber .ha-chamber-share-row,
+body.ha-writing-focus .ha-record-chamber .ha-chamber-footer,
+body.ha-writing-focus .ha-record-chamber .ha-chamber-grid>details:not(.ha-chamber-transmission-panel){display:none!important}
+body.ha-writing-focus .ha-record-chamber .ha-chamber-shell{min-height:100dvh;padding:28px clamp(18px,8vw,120px)!important}
+body.ha-writing-focus .ha-record-chamber .ha-chamber-main{padding-top:0!important}
+body.ha-writing-focus .ha-record-chamber .ha-chamber-grid{display:block!important}
+body.ha-writing-focus .ha-record-chamber .ha-chamber-transmission-panel{display:block!important;min-height:calc(100dvh - 56px);padding:0!important;border:0!important;background:transparent!important}
+body.ha-writing-focus .ha-record-chamber .ha-chamber-transmission-panel>.ha-chamber-panel-heading{display:none!important}
+body.ha-writing-focus .ha-rich-editor-top{position:fixed;top:14px;left:18px;right:18px;z-index:30;justify-content:flex-end;pointer-events:none}
+body.ha-writing-focus .ha-chamber-focus-toggle{pointer-events:auto}
+body.ha-writing-focus .ha-rich-toolbar{position:fixed;top:14px;left:50%;z-index:25;width:max-content;max-width:calc(100vw - 140px);transform:translateX(-50%);box-shadow:0 8px 30px rgba(0,0,0,.45)}
+body.ha-writing-focus .ha-rich-content{min-height:calc(100dvh - 170px);max-height:none;margin-top:64px;padding:22px clamp(14px,4vw,60px);border:0;background:transparent;font-size:clamp(15px,1.2vw,18px)}
+body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;bottom:14px;z-index:30}
+@media(max-width:700px){
+ .ha-rich-toolbar{gap:4px}
+ .ha-rich-toolbar button{min-width:30px;min-height:30px;padding:5px 7px}
+ body.ha-writing-focus .ha-record-chamber .ha-chamber-shell{padding:68px 14px 70px!important}
+ body.ha-writing-focus .ha-rich-toolbar{top:10px;left:10px;right:10px;width:auto;max-width:none;transform:none;justify-content:center}
+ body.ha-writing-focus .ha-rich-editor-top{top:54px;right:12px;left:auto}
+ body.ha-writing-focus .ha-rich-content{margin-top:12px;min-height:calc(100dvh - 150px);padding:14px 4px}
+}
+
+/* Preserve the existing CMS Suno/plain editorial layouts inside Transmission chambers. */
+.ha-chamber-transmission-body .suno-post-layout,
+.ha-chamber-transmission-body .plain-post-layout{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+ gap:clamp(16px,3vw,36px);align-items:start;width:100%;max-width:100%;margin:clamp(16px,3vw,36px) 0
+}
+.ha-chamber-transmission-body .suno-lyrics,
+.ha-chamber-transmission-body .plain-copy{
+ min-width:0;padding:clamp(14px,2vw,24px);border-left:1px solid #b9d77a7a;
+ background:linear-gradient(145deg,#0b130d,#060906)
+}
+.ha-chamber-transmission-body .suno-notes,
+.ha-chamber-transmission-body .plain-response{
+ min-width:0;padding:clamp(14px,2vw,24px);border-top:1px solid #42f5e533;
+ background:linear-gradient(145deg,#07120f,#080c09)
+}
+.ha-chamber-transmission-body .suno-label{
+ margin:0 0 16px;color:#b9d77a;font:9px/1.7 ui-monospace,monospace;
+ letter-spacing:.12em;text-transform:uppercase
+}
+.ha-chamber-transmission-body .suno-lyrics pre{
+ margin:0;white-space:pre-wrap;overflow-wrap:anywhere;color:#e8f4df;
+ font:clamp(13px,1.4vw,16px)/1.85 Georgia,"Times New Roman",serif
+}
+.ha-chamber-transmission-body .suno-notes p,
+.ha-chamber-transmission-body .plain-copy p,
+.ha-chamber-transmission-body .suno-learned p{
+ color:#b8c8b7;font-size:13px;line-height:1.9;overflow-wrap:anywhere
+}
+.ha-chamber-transmission-body .suno-notes h2,
+.ha-chamber-transmission-body .plain-response h2{
+ font:italic clamp(24px,3vw,36px)/1.15 Georgia,"Times New Roman",serif;
+ color:#b9d77a;margin:0 0 16px
+}
+.ha-chamber-transmission-body .suno-learned{
+ margin-top:24px;padding-top:16px;border-top:1px dashed #b9d77a50
+}
+@media(max-width:700px){
+ .ha-chamber-transmission-body .suno-post-layout,
+ .ha-chamber-transmission-body .plain-post-layout{grid-template-columns:minmax(0,1fr);gap:12px}
+ .ha-chamber-transmission-body .suno-lyrics,
+ .ha-chamber-transmission-body .plain-copy,
+ .ha-chamber-transmission-body .suno-notes,
+ .ha-chamber-transmission-body .plain-response{padding:16px}
+}
+
+/* Transmission metadata editor — title, public slug, category and excerpt. */
+.ha-chamber-metadata-panel{grid-column:1/-1}
+.ha-chamber-metadata-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.ha-chamber-metadata-field{display:flex;flex-direction:column;gap:6px;min-width:0;color:#aebfae;font:8px/1.5 'DM Mono',monospace;letter-spacing:.1em}
+.ha-chamber-metadata-field:last-child{grid-column:1/-1}
+.ha-chamber-meta-input{min-height:42px;padding:10px;font-size:11px;letter-spacing:normal}
+.ha-chamber-metadata-field textarea.ha-chamber-meta-input{min-height:86px;resize:vertical}
+.ha-chamber-metadata-note{margin:12px 0 0;color:#8f9f91;font:8px/1.6 'DM Mono',monospace;letter-spacing:.08em}
+@media(max-width:700px){.ha-chamber-metadata-grid{grid-template-columns:1fr}.ha-chamber-metadata-field:last-child{grid-column:auto}}
+/* Publication control in the Transmission record details panel. */
+.ha-chamber-metadata-field select.ha-chamber-meta-input{appearance:auto;cursor:pointer}
+
+/* Admin entry point for creating a new Human Archive-backed Transmission. */
+.ha-new-transmission{min-height:42px;padding:0 14px;font:9px 'DM Mono',monospace;letter-spacing:1px;white-space:nowrap}
+.ha-new-transmission:disabled{opacity:.55;cursor:wait}
+.ha-create-status{color:var(--muted);font:9px 'DM Mono',monospace;letter-spacing:.6px;min-width:0}
+
+/* Keep the editor overlay independent of the host page's box model. */
+.ha-record-chamber,.ha-record-chamber *,.ha-image-viewer,.ha-image-viewer *{box-sizing:border-box}
