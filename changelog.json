@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T17:22:08.830535Z",
-  "last_processed_sha": "60adda92892cd5977dbe4e784876184b92ba629c",
+  "updated_at": "2026-11-18T17:22:30.277402Z",
+  "last_processed_sha": "677c4b1129e509cf95ec9f387a7344eb59692fc1",
   "entries": [
+    {
+      "id": "677c4b1129e509cf95ec9f387a7344eb59692fc1",
+      "timestamp": "2026-11-18T18:22:22+01:00",
+      "category": "FEATURE",
+      "component": "Website Updates",
+      "title": "New capabilities for Website Updates",
+      "description": "This update brings together Hide column controls in read-only mode; Hide add-column controls in read-only layouts. It updates block-editor.css, block-editor.js.",
+      "commit_count": 2,
+      "files": [
+        "editor-ui/block-editor.css",
+        "editor-ui/block-editor.js"
+      ],
+      "commits": [
+        {
+          "message": "Hide column controls in read-only mode",
+          "url": "https://github.com/iYakuza/landing-page/commit/1b10d82d7613ceebf6d2ea76b142e6420657e75b",
+          "files": [
+            "editor-ui/block-editor.js"
+          ]
+        },
+        {
+          "message": "Hide add-column controls in read-only layouts",
+          "url": "https://github.com/iYakuza/landing-page/commit/677c4b1129e509cf95ec9f387a7344eb59692fc1",
+          "files": [
+            "editor-ui/block-editor.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "60adda92892cd5977dbe4e784876184b92ba629c",
       "timestamp": "2026-11-18T18:21:54+01:00",
@@ -1196,47 +1225,6 @@
           "message": "Match Posts cards to Human Archive record layout",
           "url": "https://github.com/iYakuza/landing-page/commit/96f6aaf507027835b43685746ca026c7f6747ee4",
           "files": [
-            "posts/index.html",
-            "posts/posts.css",
-            "posts/posts.js",
-            "posts/the-awakening/index.html",
-            "posts/the-descent/index.html",
-            "posts/the-reconnection/index.html",
-            "posts/the-return/index.html",
-            "posts/the-transformation/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "4d1537161735e585f3024bded41a164fc641b87c",
-      "timestamp": "2026-11-18T06:28:31+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Restore direct Posts redesign controls. It updates creator-posting.js, archive.js, index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "creator-posting.js",
-        "human-archive/archive.js",
-        "human-archive/index.html",
-        "posts/index.html",
-        "posts/posts.css",
-        "posts/posts.js",
-        "posts/the-awakening/index.html",
-        "posts/the-descent/index.html",
-        "posts/the-reconnection/index.html",
-        "posts/the-return/index.html",
-        "posts/the-transformation/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Restore direct Posts redesign controls",
-          "url": "https://github.com/iYakuza/landing-page/commit/4d1537161735e585f3024bded41a164fc641b87c",
-          "files": [
-            "creator-posting.js",
-            "human-archive/archive.js",
-            "human-archive/index.html",
             "posts/index.html",
             "posts/posts.css",
             "posts/posts.js",
