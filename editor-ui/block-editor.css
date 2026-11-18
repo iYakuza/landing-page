@@ -59,3 +59,7 @@
 .ha-layout-block-field .ha-editor-block-content{font-size:13px;}
 .ha-chamber-layout-field{display:flex;flex-direction:column;align-items:stretch;}
 .ha-chamber-layout-field>.ha-layout-block-field{width:100%;}
+
+.ha-chamber-layout-field>.ha-block-editor-shell{margin:0;border:0;background:transparent;}
+.ha-chamber-layout-field>.ha-block-editor-shell .ha-block-editor-topbar{padding:7px 9px;}
+.ha-chamber-layout-field>.ha-block-editor-shell .ha-block-editor-canvas{min-height:95px;padding:10px;}
