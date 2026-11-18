@@ -818,7 +818,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   wrap.append(makeChamberNode('span','ha-chamber-metadata-label',label));
   const area=makeChamberNode('div','ha-chamber-editor-field ha-rich-content ha-layout-block-field');
   area.name=name;area.contentEditable=readOnly?'false':'true';area.setAttribute('role','textbox');area.setAttribute('aria-multiline','true');area.setAttribute('aria-label',label);
-  area.innerHTML=value||'<p><br></p>';
+  area.innerHTML=layoutParagraphs(value)||'<p><br></p>';
   Object.defineProperty(area,'value',{configurable:true,get(){
    const html=area.__haBlockEditor?.getHTML()||area.innerHTML;
    if(name==='layout_lyrics'){const parsed=new DOMParser().parseFromString(html,'text/html');return parsed.body.textContent||'';}
