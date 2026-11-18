@@ -241,28 +241,28 @@
         const sectionsControl=/<details\\b/i.test(post.content_html||'')?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
         return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+sectionsControl+chamberButton+'</div><h3>'+safe(post.title)+'</h3><div class="post-detail-grid">'+detailCopy+detailMedia+'</div>'+shareActions(post)+permalinkBack+'</article>';
       }
-      // Archive cards begin retracted; the date control expands the transmission.
+      // Render creator posts using the Human Archive record-plate layout.
       const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
       const chamberButton=!post.community?'<div class="post-chamber-actions"><button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button><button type="button" class="post-chamber-button post-redesign-button" data-vha-edit-transmission="'+safe(post.slug)+'" aria-label="Redesign '+safe(post.title)+'"'+(canRedesignPosts?'':' hidden')+'>REDESIGN CHAMBER ↗</button></div>':'';
       const movementSlugs={'THE AWAKENING':'the-awakening','THE DESCENT':'the-descent','THE RECONNECTION':'the-reconnection','THE TRANSFORMATION':'the-transformation','THE RETURN':'the-return'};
       const movementHref='/landing-page/posts/'+(movementSlugs[displayCategory(post.category)]||'')+'/';
       const categoryLink='<a class="post-category" href="'+movementHref+'" aria-label="Browse '+safe(displayCategory(post.category))+'">'+safe(displayCategory(post.category))+'</a>';
-      const isExpanded=permalink;
       const isSuno=/class=["']suno-post-layout["']/.test(post.content_html||'');
-      const sectionsControl=(isSuno||/<details\\b/i.test(post.content_html||''))?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
-      const recordDate=new Date(post.published_at||post.created_at);
-      const recordYear=Number.isNaN(recordDate.getTime())?'UNDATED':String(recordDate.getUTCFullYear());
-      const recordMonth=Number.isNaN(recordDate.getTime())?'--':String(recordDate.getUTCMonth()+1).padStart(2,'0');
-      const recordDay=Number.isNaN(recordDate.getTime())?'--':String(recordDate.getUTCDate()).padStart(2,'0');
-      const recordSlug=String(post.slug||'').trim();
-      const recordCode='VHA-'+recordYear+'-'+recordMonth+recordDay+'-'+recordSlug;
-      const titleRow='<div class="post-card-title-row"'+(isExpanded?'':' hidden')+'><h3>'+safe(post.title)+'</h3>'+sectionsControl+'</div>';
-      const lead='<div class="post-card-top"><span class="post-record-code">'+safe(recordCode)+'</span><button type="button" class="post-date-toggle" data-post-toggle="'+safe(post.slug)+'" aria-expanded="'+(isExpanded?'true':'false')+'" aria-controls="post-content-'+safe(post.slug)+'"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-disclosure-mark" aria-hidden="true">'+(isExpanded?'−':'+')+'</span></button>'+categoryLink+chamberButton+shareActions(post)+'</div><div class="post-card-identity">'+titleRow+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+'</div>';
-      const expandedBody=isSuno
-        ? renderSunoGrid(post,media,'','')
-        : media+body;
-      const expandedContent='<div class="post-collapsible'+(isSuno?' suno-three-column':'')+'" id="post-content-'+safe(post.slug)+'"'+(isExpanded?'':' hidden')+'>'+expandedBody+'</div>';
-      return '<article class="post-card '+shapeClass+' post-archive-composition'+(isSuno?' suno-three-column':'')+'" id="post-'+safe(post.slug)+'" data-record="'+safe(recordCode)+'">'+lead+expandedContent+'</article>';
+      const sectionsControl=(isSuno||/<details\b/i.test(post.content_html||''))?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
+      const stamp=String(post.published_at||post.created_at||'');
+      const recordDate=/^\d{4}-\d{2}-\d{2}/.test(stamp)?stamp.slice(0,10):'UNDATED';
+      const recordYear=recordDate==='UNDATED'?'UNDATED':recordDate.slice(0,4);
+      const archiveId=Number(post.archive_record_id);
+      const hasArchiveId=Number.isSafeInteger(archiveId)&&archiveId>0;
+      const recordId=hasArchiveId?String(archiveId):String(post.id||'UNKNOWN');
+      const recordCode=hasArchiveId?'HA-'+recordYear+'-'+String(archiveId).padStart(4,'0'):'HA-'+recordYear+'-'+String(post.slug||'record').trim();
+      const sourceLabel=post.community?'COMMUNITY SIGNAL':'TRANSMISSION'+(post.status==='draft'?' // DRAFT':'');
+      const entry='<button type="button" class="ha-entry post-record-entry" data-post-toggle="'+safe(post.slug)+'" aria-expanded="false" aria-controls="post-content-'+safe(post.slug)+'" aria-label="Read local archive record: '+safe(post.title)+', '+safe(recordDate)+'"><span class="ha-entry-top"><small class="ha-entry-code">'+safe(recordCode)+'</small><small class="ha-entry-id">ID // '+safe(recordId)+'</small></span><strong>'+safe(post.title)+'</strong><span class="ha-entry-bottom"><small>'+safe(recordDate)+' // '+safe(sourceLabel)+'</small><span data-post-read-label>READ LOCAL TEXT ↓</span></span></button>';
+      const excerptHtml=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
+      const expandedBody=isSuno?renderSunoGrid(post,media,'',''):media+body;
+      const expandedContent='<div class="ha-entry-content post-collapsible post-record-content'+(isSuno?' suno-three-column':'')+'" id="post-content-'+safe(post.slug)+'" hidden><div class="post-record-content-meta">'+categoryLink+sectionsControl+'</div>'+excerptHtml+expandedBody+'</div>';
+      const quickActions='<div class="post-record-quick-actions" hidden>'+chamberButton+shareActions(post)+'</div>';
+      return '<article class="post-card ha-record-card post-record-card" id="post-'+safe(post.slug)+'" data-record="'+safe(recordCode)+'">'+entry+quickActions+expandedContent+'</article>';
     }).join('');
     if(permalink){
       document.title=filtered[0].title+' // VERSE AFTER HOURS';
@@ -275,7 +275,7 @@
     try{
       const result=isCommunityArchive
         ? await client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(postsOffset,postsOffset+PAGE_SIZE-1)
-        : await client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,media_items,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(postsOffset,postsOffset+PAGE_SIZE-1);
+        : await client.from('vha_posts').select('id,archive_record_id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,media_items,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(postsOffset,postsOffset+PAGE_SIZE-1);
       if(result.error)throw result.error;
       const rows=result.data||[];
       postsOffset+=rows.length;postsHasMore=rows.length===PAGE_SIZE;
@@ -316,7 +316,7 @@
     postsOffset=0;
     try{
       const queries=Promise.all([
-        isCommunityArchive ? Promise.resolve({data:[],error:null}) : client.from('vha_posts').select('id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,media_items,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(0,PAGE_SIZE-1),
+        isCommunityArchive ? Promise.resolve({data:[],error:null}) : client.from('vha_posts').select('id,archive_record_id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,media_items,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(0,PAGE_SIZE-1),
         isCommunityArchive ? client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(0,PAGE_SIZE-1) : Promise.resolve({data:[],error:null})
       ]);
       let timeoutId;
@@ -393,10 +393,15 @@
       const content=document.getElementById('post-content-'+slug);
       if(content){
         const opening=content.hidden;
+        const article=toggleButton.closest('.post-card');
         content.hidden=!opening;
-        const titleRow=toggleButton.closest('.post-card')?.querySelector('.post-card-title-row');
+        const titleRow=article?.querySelector('.post-card-title-row');
         if(titleRow)titleRow.hidden=!opening;
+        const quickActions=article?.querySelector('.post-record-quick-actions');
+        if(quickActions)quickActions.hidden=!opening;
         toggleButton.setAttribute('aria-expanded',String(opening));
+        const label=toggleButton.querySelector('[data-post-read-label]');
+        if(label)label.textContent=opening?'CLOSE LOCAL TEXT ↑':'READ LOCAL TEXT ↓';
         const mark=toggleButton.querySelector('.post-disclosure-mark');
         if(mark)mark.textContent=opening?'−':'+';
       }
