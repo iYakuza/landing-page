@@ -434,12 +434,95 @@ function defaultRecordOutputText(record){
 function getRecordStructure(record){
  const saved=recordStructureOverrides.get(String(record.id));
  return {
-  transmission_body:record.source_type==='transmission'?String(record.content_html||saved?.transmission_body||''):(typeof saved?.transmission_body==='string'?saved.transmission_body:''),
+  transmission_body:typeof saved?.transmission_body==='string'?saved.transmission_body:String(record.content_html||''),
   prompt_style:String(saved?.prompt_style||''),
   lyrics_style:String(saved?.lyrics_style||''),
-  output_text:typeof saved?.output_text==='string'?saved.output_text:defaultRecordOutputText(record),
+  output_text:typeof saved?.output_text==='string'?saved.output_text:'',
   output_media:saved?.output_media&&typeof saved.output_media==='object'&&!Array.isArray(saved.output_media)?saved.output_media:null
  };
+}
+function archiveHasContent(html){
+ const parsed=new DOMParser().parseFromString(String(html||''),'text/html');
+ return Boolean((parsed.body.textContent||'').trim()||parsed.body.querySelector('img,audio,video,iframe,hr,table,figure,ul,ol'));
+}
+function archiveSectionHTML(label,html){
+ if(!archiveHasContent(html))return '';
+ return '<h2>'+String(label).replace(/[&<>"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]))+'</h2>'+html;
+}
+function flattenArchivePostLayout(html){
+ const parsed=new DOMParser().parseFromString(String(html||''),'text/html');
+ const suno=parsed.querySelector('.suno-post-layout');
+ const plain=parsed.querySelector('.plain-post-layout');
+ if(!suno&&!plain)return String(html||'');
+ const output=document.createElement('div');
+ const extract=(selector)=>{
+  const node=parsed.querySelector(selector);
+  if(!node)return '';
+  const clone=node.cloneNode(true);
+  clone.querySelectorAll('.suno-label,.suno-collapse-hint').forEach(item=>item.remove());
+  return clone.innerHTML;
+ };
+ const append=(label,content)=>{if(archiveHasContent(content))output.insertAdjacentHTML('beforeend',archiveSectionHTML(label,content));};
+ if(suno){
+  append('THE TEXT',extract('.suno-text-column'));
+  append('SUNO STYLE LYRICS',extract('.suno-lyrics pre')||extract('.suno-lyrics'));
+  append('SUNO STYLE PROMPT',extract('.suno-style-prompt'));
+  append('WHAT I LEARNED',extract('.suno-learned'));
+  append('WHAT CHATGPT LEARNED',extract('.suno-chatgpt-learned'));
+  if(!output.childNodes.length){
+   const notes=parsed.querySelector('.suno-notes');
+   if(notes){const clone=notes.cloneNode(true);clone.querySelectorAll('.suno-label,.suno-collapse-hint,.suno-learned,.suno-chatgpt-learned').forEach(item=>item.remove());append('SUNO STYLE PROMPT',clone.innerHTML);}
+  }
+ }else{
+  append('THE TEXT',extract('.plain-copy'));
+  append('A SMALL RESPONSE',extract('.plain-response'));
+ }
+ return output.innerHTML;
+}
+function archiveMediaBlockHTML(item,type,record){
+ const src=resolveChamberMediaUrl(item,type);
+ if(!src)return '';
+ const esc=value=>String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+ const name=mediaName(item,record),caption='<figcaption>'+esc(name)+'</figcaption>';
+ if(type==='image')return '<figure><img src="'+esc(src)+'" alt="'+esc(name)+'" loading="lazy">'+caption+'</figure>';
+ if(type==='audio')return '<figure><audio controls preload="metadata" src="'+esc(src)+'"></audio>'+caption+'</figure>';
+ if(type==='video'){
+  const url=new URL(src);
+  if(item.storage==='external'){
+   if(url.pathname.startsWith('/embed/'))return '<figure class="ha-embed ha-embed-youtube"><iframe src="'+esc(src)+'" title="'+esc(name)+'" loading="lazy" allowfullscreen></iframe>'+caption+'</figure>';
+   return '<p><a href="'+esc(src)+'" target="_blank" rel="noopener noreferrer">OPEN VIDEO — '+esc(name)+'</a></p>';
+  }
+  return '<figure><video controls preload="metadata" playsinline src="'+esc(src)+'"></video>'+caption+'</figure>';
+ }
+ return '<p><a href="'+esc(src)+'" target="_blank" rel="noopener noreferrer">'+esc(name)+'</a></p>';
+}
+function getUnifiedRecordHTML(record,structure=getRecordStructure(record)){
+ const savedBody=String(structure.transmission_body||'');
+ const base=archiveHasContent(savedBody)?savedBody:String(record.content_html||'');
+ const parts=[flattenArchivePostLayout(base)];
+ parts.push(archiveSectionHTML('PROMPT STYLE',structure.prompt_style));
+ parts.push(archiveSectionHTML('LYRICS STYLE',structure.lyrics_style));
+ parts.push(archiveSectionHTML('OUTPUT',structure.output_text));
+ const seen=new Set();
+ const parsed=new DOMParser().parseFromString(parts.join(''),'text/html');
+ parsed.querySelectorAll('[src],a[href]').forEach(node=>{const value=node.getAttribute('src')||node.getAttribute('href');if(value)seen.add(value);});
+ ['image','audio','video'].forEach(type=>{
+  getRecordOutputMedia(record,structure,type).forEach(item=>{
+   const url=String(item?.url||'');
+   if(!url||seen.has(url))return;
+   const html=archiveMediaBlockHTML(item,type,record);
+   if(html){parts.push(html);seen.add(url);}
+  });
+ });
+ (Array.isArray(record.media_items)?record.media_items:[]).forEach(item=>{
+  const type=String(item.type||'').toLowerCase();
+  if(!['image','audio','video'].includes(type))return;
+  const url=String(item.url||item.source_url||'');
+  if(!url||seen.has(url))return;
+  const html=archiveMediaBlockHTML({...item,url,storage:item.storage||'vha-post-media'},type,record);
+  if(html){parts.push(html);seen.add(url);}
+ });
+ return parts.filter(Boolean).join('')||'<p><br></p>';
 }
 function uniqueRecordMedia(record,mimePrefix){
  const items=mediaItems.filter(item=>(item.post_ids||[]).some(id=>String(id)===String(record.id))&&String(item.mime_type||'').startsWith(mimePrefix));
