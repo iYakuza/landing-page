@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T16:30:58.119037Z",
-  "last_processed_sha": "3cd2f6f3c24fe82a67d5e38405950d7f1782302c",
+  "updated_at": "2026-11-18T16:31:54.247618Z",
+  "last_processed_sha": "edb786c05388f167818d7cf38b45e051f2518f68",
   "entries": [
+    {
+      "id": "edb786c05388f167818d7cf38b45e051f2518f68",
+      "timestamp": "2026-11-18T17:31:45+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Load shared block editor on every Transmission launcher page. It updates creator-posting.js, index.html and related project files.",
+      "commit_count": 3,
+      "files": [
+        "creator-posting.js",
+        "index.html",
+        "posts/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Load shared block editor on every Transmission launcher page",
+          "url": "https://github.com/iYakuza/landing-page/commit/349d1934c08a17664b8ca1833f17b56f9fb0b5e9",
+          "files": [
+            "creator-posting.js"
+          ]
+        },
+        {
+          "message": "Load shared block editor on every Transmission launcher page",
+          "url": "https://github.com/iYakuza/landing-page/commit/3c7b767c210627e16d3093c15df26ca242827376",
+          "files": [
+            "index.html"
+          ]
+        },
+        {
+          "message": "Load shared block editor on every Transmission launcher page",
+          "url": "https://github.com/iYakuza/landing-page/commit/edb786c05388f167818d7cf38b45e051f2518f68",
+          "files": [
+            "posts/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "ff64dc67956073b6669d39990e514205396b899c",
       "timestamp": "2026-11-18T17:30:52+01:00",
@@ -1224,27 +1261,6 @@
             "human-archive/archive.js",
             "human-archive/index.html",
             "supabase/migrations/20261117190000_independent_concurrent_chamber_sessions.sql"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "db602ca3648119785dce06984ad79248bfb867cd",
-      "timestamp": "2026-11-17T18:22:13+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Unify chamber form and remove unreliable local recovery (#104). It updates archive.js.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.js"
-      ],
-      "commits": [
-        {
-          "message": "Unify chamber form and remove unreliable local recovery (#104)",
-          "url": "https://github.com/iYakuza/landing-page/commit/db602ca3648119785dce06984ad79248bfb867cd",
-          "files": [
-            "human-archive/archive.js"
           ]
         }
       ]
