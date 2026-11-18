@@ -737,7 +737,6 @@ body.ha-writing-focus .ha-rich-editor-top{position:fixed;top:14px;left:18px;righ
 body.ha-writing-focus .ha-chamber-focus-toggle{pointer-events:auto}
 body.ha-writing-focus .ha-rich-toolbar{position:fixed;top:14px;left:50%;z-index:25;width:max-content;max-width:calc(100vw - 140px);transform:translateX(-50%);box-shadow:0 8px 30px rgba(0,0,0,.45)}
 body.ha-writing-focus .ha-rich-content{min-height:calc(100dvh - 170px);max-height:none;margin-top:64px;padding:22px clamp(14px,4vw,60px);border:0;background:transparent;font-size:clamp(15px,1.2vw,18px)}
-body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;bottom:14px;z-index:30}
 @media(max-width:700px){
  .ha-rich-toolbar{gap:4px}
  .ha-rich-toolbar button{min-width:30px;min-height:30px;padding:5px 7px}
@@ -1041,15 +1040,29 @@ main[data-vha-layout-root]{
 }
 
 
-/* Shared floating formatting panel across all Human Archive editor sections. */
+/* Human Archive editor: fixed two-column formatting rail outside the scrolling chamber. */
 .ha-chamber-main{margin:0!important}
-.ha-record-chamber[open] .ha-rich-toolbar{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:1000;width:max-content;max-width:calc(100vw - 24px);max-height:42vh;overflow:auto;padding:8px;box-shadow:0 12px 36px rgba(0,0,0,.62);border:1px solid rgba(185,215,122,.42);background:rgba(5,13,8,.97);backdrop-filter:blur(14px);cursor:grab}
-.ha-record-chamber[open] .ha-rich-toolbar:active{cursor:grabbing}
-.ha-record-chamber[open] .ha-rich-toolbar .toolbar-invisible-chain{display:inline-flex;width:20px;height:30px;align-items:center;justify-content:center;flex:0 0 20px;border:1px solid rgba(185,215,122,.5);color:#d8ff3e;cursor:grab;touch-action:none}
-.ha-record-chamber[open] .ha-rich-toolbar .toolbar-invisible-chain:before{content:'⠿';font:16px/1 sans-serif}
+.ha-record-chamber.has-floating-formatting-toolbar .ha-chamber-main{padding-right:clamp(132px,13vw,180px)!important}
+.ha-record-chamber[open] .ha-rich-toolbar{
+ position:fixed;top:50%;right:clamp(10px,2vw,24px);left:auto;transform:translateY(-50%);z-index:1000;
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:5px;
+ width:116px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 24px);overflow:auto;
+ padding:8px;box-shadow:0 12px 36px rgba(0,0,0,.62);border:1px solid rgba(185,215,122,.42);
+ background:rgba(5,13,8,.97);backdrop-filter:blur(14px);cursor:default
+}
+.ha-record-chamber[open] .ha-rich-toolbar button{width:100%;min-width:0;min-height:30px;padding:5px 3px;text-align:center;white-space:normal;font-size:8px}
+.ha-record-chamber[open] .ha-rich-toolbar .ha-chamber-focus-toggle{
+ grid-column:1/-1;min-height:35px;border-color:rgba(255,230,107,.72);background:rgba(255,230,107,.09);
+ color:#ffe66b;text-shadow:0 0 4px rgba(255,230,107,.8),0 0 12px rgba(255,210,76,.7)
+}
+.ha-record-chamber[open] .ha-rich-toolbar .ha-chamber-focus-toggle[aria-pressed="true"]{background:#ffe66b;color:#071009;text-shadow:none}
 .ha-record-chamber[open] .ha-rich-content{min-height:220px;max-height:60vh;overflow:auto;resize:vertical;padding:12px}
-.ha-record-chamber[open] .ha-rich-editor-top{padding-top:58px}
-@media(max-width:700px){.ha-record-chamber[open] .ha-rich-toolbar{top:8px;left:8px;right:8px;width:auto;max-width:none;transform:none;max-height:34vh;justify-content:center}.ha-record-chamber[open] .ha-rich-editor-top{padding-top:calc(34vh + 16px)}}
+.ha-record-chamber[open] .ha-rich-editor-top{padding-top:0}
+@media(max-width:700px){
+ .ha-record-chamber.has-floating-formatting-toolbar .ha-chamber-main{padding-right:126px!important}
+ .ha-record-chamber[open] .ha-rich-toolbar{right:8px;width:108px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);padding:6px;gap:4px}
+ .ha-record-chamber[open] .ha-rich-editor-top{padding-top:0}
+}
 
 
 /* Unified Human Archive block stream */
@@ -1067,6 +1080,7 @@ main[data-vha-layout-root]{
 .ha-chamber-blocks-view a{color:#d8ff3e;text-decoration:underline;text-underline-offset:3px}
 .ha-chamber-grid>.ha-rich-editor-top{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#aab7a7;font:9px/1.5 'DM Mono',monospace;letter-spacing:.12em}
 .ha-chamber-grid>.ha-rich-toolbar,.ha-chamber-grid>.ha-block-editor-shell,.ha-chamber-grid>.ha-rich-content{width:100%;min-width:0}
+.ha-chamber-grid>.ha-block-editor-shell{max-width:none;box-sizing:border-box}
 .ha-legacy-hidden-field{display:none!important}
 
 .ha-chamber-blocks-view .ha-verse{margin:0 0 1.15em;line-height:1.85;white-space:normal}
