@@ -775,12 +775,12 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   const area=document.createElement('textarea');area.className='ha-chamber-editor-field';area.name=name;area.rows=rows;area.value=value||'';
   wrap.append(area);layoutFields.append(wrap);return area;
  };
- const layoutMain=addLayoutField('COLUMN 1 // THE TEXT','layout_main',savedSuno?readLayoutText('.suno-text-column'):savedPlain?readLayoutText('.plain-copy'):(savedLayoutDoc.body.innerText||''),'suno',8);
- const layoutLyrics=addLayoutField('COLUMN 2 // SUNO LYRICS','layout_lyrics',savedLayoutDoc.querySelector('.suno-lyrics pre')?.textContent||'','suno',12);
+ const layoutMain=addLayoutField('COLUMN 1 // THE TEXT','layout_main',savedSuno?readLayoutText('.suno-text-column'):savedPlain?readLayoutText('.plain-copy'):readLayoutText('body'),'suno',8);
+ const layoutLyrics=addLayoutField('COLUMN 2 // SUNO LYRICS','layout_lyrics',readLayoutText('.suno-lyrics pre'),'suno',12);
  const layoutPrompt=addLayoutField('SUNO STYLE PROMPT','layout_prompt',readLayoutText('.suno-style-prompt')||readLayoutText('.suno-notes'),'suno',6);
  const layoutLearned=addLayoutField('WHAT I LEARNED','layout_learned',readLayoutText('.suno-learned'),'suno',4);
  const layoutChatgpt=addLayoutField('WHAT CHATGPT LEARNED','layout_chatgpt',readLayoutText('.suno-chatgpt-learned'),'suno',4);
- const layoutPlain=addLayoutField('PLAIN TEXT','layout_plain',savedPlain?readLayoutText('.plain-copy'):savedSuno?readLayoutText('.suno-text-column'):(savedLayoutDoc.body.innerText||''),'plain',12);
+ const layoutPlain=addLayoutField('PLAIN TEXT','layout_plain',savedPlain?readLayoutText('.plain-copy'):savedSuno?readLayoutText('.suno-text-column'):readLayoutText('body'),'plain',12);
  const syncLayoutControls=()=>{
   layoutFields.querySelectorAll('[data-layout-group]').forEach(field=>{field.hidden=field.dataset.layoutGroup!==layoutSelect.value;});
   if(postLayoutControls?.transmissionDetails)postLayoutControls.transmissionDetails.hidden=layoutSelect.value!=='standard';
