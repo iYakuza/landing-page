@@ -85,6 +85,11 @@ function safeExternalUrl(raw,allowedHosts){
   return url.href;
  }catch{return null;}
 }
+function safeArchiveMediaUrl(raw,allowedHosts){
+ const remote=safeExternalUrl(raw,allowedHosts);if(remote)return remote;
+ try{const url=new URL(String(raw||''),document.baseURI);if(url.protocol==='https:'&&url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/'))return url.href;}catch{}
+ return null;
+}
 function mediaTitle(item,record){
  return String(item.title||record.title||'Archive media').replace(/&nbsp;/g,' ').trim();
 }
@@ -196,9 +201,9 @@ function appendSafeContent(container,source,record,used){
    const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){appendLocalImage(parent,item,record,used);}
    else{
-    const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
+    const src=safeArchiveMediaUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
     let valid=Boolean(src);
-    if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else valid=url.pathname.includes('/wp-content/uploads/');}
+    if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else if(url.hostname==='ioguymqdeuuursizifnn.supabase.co')valid=/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname);else if(url.origin===window.location.origin)valid=url.pathname.startsWith('/landing-page/');else valid=url.pathname.includes('/wp-content/uploads/');}
     if(valid){const image=document.createElement('img');image.src=src;image.alt=node.getAttribute('alt')||record.title;image.loading='lazy';image.style.maxWidth='100%';image.style.height='auto';parent.append(image);}
     else appendMissing(parent,'Image not yet available in the recovered media collection.');
    }
@@ -208,8 +213,8 @@ function appendSafeContent(container,source,record,used){
    const raw=node.getAttribute('src')||'';
    const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){if(tag==='AUDIO')appendLocalAudio(parent,item,record,used);else appendLocalVideo(parent,item,record,used);return;}
-   const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
-   const valid=Boolean(src)&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname);
+   const src=safeArchiveMediaUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
+   const valid=Boolean(src)&&(()=>{const url=new URL(src);return url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'?/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname):url.hostname==='ioguymqdeuuursizifnn.supabase.co'?/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname):url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/');})();
    const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='metadata';
    if(valid)mediaNode.src=src;
    if(tag==='VIDEO')mediaNode.playsInline=true;
@@ -585,8 +590,6 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  let repaintAttachedPostMedia=()=>{};
  let postLayoutControls=null;
  const outputMediaRepaint={};
- const escapeLayoutText=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
- const layoutParagraphs=value=>{const raw=String(value||'');return /<\/?[a-z][^>]*>/i.test(raw)?sanitizeTransmissionBody(raw):raw.split(/\n{2,}/).map(part=>'<p>'+escapeLayoutText(part).replace(/\n/g,'<br>')+'</p>').join('');};
 
  grid.replaceChildren();
  const metadataDetails=makeChamberDisclosure('00 // RECORD DETAILS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-metadata-panel','ha-chamber-panel-heading');
