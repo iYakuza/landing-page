@@ -24,6 +24,7 @@
     if (!node || node.nodeType !== Node.ELEMENT_NODE) return 'paragraph';
     const tag = node.tagName;
     if (/^H[1-4]$/.test(tag)) return 'heading';
+    if (node.classList?.contains('ha-columns')) return 'columns'; if (node.classList?.contains('ha-group')) return 'group'; if (node.classList?.contains('ha-row')) return 'row'; if (node.classList?.contains('ha-stack')) return 'stack'; if (node.classList?.contains('ha-grid')) return 'grid'; if (node.classList?.contains('ha-cover')) return 'cover'; if (node.classList?.contains('ha-gallery')) return 'gallery'; if (node.classList?.contains('ha-slideshow')) return 'slideshow'; if (node.classList?.contains('ha-tiled-gallery')) return 'tiled-gallery'; if (node.classList?.contains('ha-media-text')) return 'media-text'; if (node.classList?.contains('ha-buttons')) return 'buttons'; if (node.classList?.contains('ha-callout')) return 'callout'; if (node.classList?.contains('ha-card')) return 'card'; if (node.classList?.contains('ha-tabs')) return 'tabs'; if (node.classList?.contains('ha-timeline')) return 'timeline'; if (node.classList?.contains('ha-page-break')) return 'page-break';
     if (tag === 'DIV' || tag === 'SECTION' || tag === 'ASIDE') return 'classic';
     if (tag === 'UL') return 'unordered-list';
     if (tag === 'TABLE') return 'table';
@@ -60,7 +61,7 @@
     content.className = 'ha-editor-block-content';
     content.dataset.haBlockContent = '';
     content.innerHTML = html;
-    if (['separator','image','audio','video','embed'].includes(type)) content.contentEditable = 'false';
+    if (['separator','image','gallery','slideshow','tiled-gallery','cover','media-text','image-compare','audio','video','file','playlist','podcast','embed','youtube','spotify','soundcloud','spacer'].includes(type)) content.contentEditable = 'false';
     else content.contentEditable = 'true';
 
     const footer = document.createElement('div');
