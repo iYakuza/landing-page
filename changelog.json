@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T21:28:59.051997Z",
-  "last_processed_sha": "05b218393782115c0c8330ea0c9f578adc56e6df",
+  "updated_at": "2026-11-18T21:29:16.598767Z",
+  "last_processed_sha": "309ebe84632c5cfa5ae469c1c3914606b95456fc",
   "entries": [
+    {
+      "id": "309ebe84632c5cfa5ae469c1c3914606b95456fc",
+      "timestamp": "2026-11-18T22:29:12+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Correct block-name control-character sanitization; Clarify renamed block label is clickable. It updates block-editor.css, block-editor.js, archive.js.",
+      "commit_count": 3,
+      "files": [
+        "editor-ui/block-editor.css",
+        "editor-ui/block-editor.js",
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Correct block-name control-character sanitization",
+          "url": "https://github.com/iYakuza/landing-page/commit/d75467bc0bd539f03e7f12f30aa44ad4e150316d",
+          "files": [
+            "editor-ui/block-editor.js"
+          ]
+        },
+        {
+          "message": "Correct block-name control-character sanitization",
+          "url": "https://github.com/iYakuza/landing-page/commit/8e8b92b3c655b4760acfe77c93dae7dfda48b469",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Clarify renamed block label is clickable",
+          "url": "https://github.com/iYakuza/landing-page/commit/309ebe84632c5cfa5ae469c1c3914606b95456fc",
+          "files": [
+            "editor-ui/block-editor.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "05b218393782115c0c8330ea0c9f578adc56e6df",
       "timestamp": "2026-11-18T22:28:44+01:00",
@@ -1296,33 +1333,6 @@
             "supabase/migrations/20261118150236_human_archive_recovered_media_blocks.sql",
             "supabase/migrations/20261118150324_human_archive_external_file_block.sql",
             "supabase/migrations/20261118151200_human_archive_verse_blocks.sql"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "9b14733da4a25cb0bc7cbff481cf186d5623cf49",
-      "timestamp": "2026-11-18T13:48:25+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Integrate Human Archive media block picker. It updates block-editor.css, block-editor.js, archive.js, index.html.",
-      "commit_count": 1,
-      "files": [
-        "editor-ui/block-editor.css",
-        "editor-ui/block-editor.js",
-        "human-archive/archive.js",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Integrate Human Archive media block picker",
-          "url": "https://github.com/iYakuza/landing-page/commit/9b14733da4a25cb0bc7cbff481cf186d5623cf49",
-          "files": [
-            "editor-ui/block-editor.css",
-            "editor-ui/block-editor.js",
-            "human-archive/archive.js",
-            "human-archive/index.html"
           ]
         }
       ]
