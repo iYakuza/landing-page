@@ -142,7 +142,7 @@
 .theme-swatch,.theme-prompt-examples button,.theme-result{background:var(--theme-surface);color:var(--theme-text);border-color:var(--theme-border)}
 .theme-generate,.theme-result-actions button{background:var(--theme-accent);color:var(--theme-page);border-color:var(--theme-accent)}
 .theme-progress-track span{background:linear-gradient(90deg,var(--theme-secondary),var(--theme-accent));box-shadow:0 0 14px var(--theme-glow)}
-.posts-note{background:linear-gradient(110deg,var(--theme-surface),var(--theme-page));border-color:var(--theme-border)}
+.posts-note{background:linear-gradient(110deg,var(--theme-surface),var(--theme-page))}
 .posts-note-mark{border-color:var(--theme-border);color:var(--theme-accent);box-shadow:0 0 0 12px color-mix(in srgb,var(--theme-glow) 20%,transparent),0 0 0 24px color-mix(in srgb,var(--theme-glow) 12%,transparent)}
 /* Typography systems */
 :root[data-theme-heading="editorial"]{--theme-heading-font:Georgia,"Times New Roman",serif;--theme-heading-spacing:-.055em}
@@ -574,7 +574,7 @@ body.post-edit-open{overflow:hidden}
 .post-card{background-color:var(--theme-surface,#080e09);background-image:linear-gradient(135deg,color-mix(in srgb,var(--theme-accent,#b9d77a) 4%,transparent),transparent 48%),linear-gradient(315deg,color-mix(in srgb,var(--theme-secondary,#9aab9c) 5%,transparent) 25%,transparent 25%)}
 .post-card h3,.viewer-console-head h2,.post-body h2,.post-body h3{color:var(--theme-text,#e8f4df)}
 .posts-intro,.post-card p,.post-body{color:var(--theme-muted,#9aab9c)}
-.posts-note{background:linear-gradient(110deg,var(--theme-surface,#080e09),var(--theme-page,#050906));border-color:var(--theme-border,#b9d77a35)}
+.posts-note{background:linear-gradient(110deg,var(--theme-surface,#080e09),var(--theme-page,#050906))}
 .posts-note-mark{border-color:color-mix(in srgb,var(--theme-accent,#b9d77a) 45%,transparent);color:var(--theme-accent,#b9d77a)}
 .posts-hero:before{background-image:linear-gradient(color-mix(in srgb,var(--theme-accent,#b9d77a) 7%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--theme-accent,#b9d77a) 7%,transparent) 1px,transparent 1px)}
 
