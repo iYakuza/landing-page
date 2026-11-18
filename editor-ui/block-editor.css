@@ -126,3 +126,13 @@
 .ha-media-picker-actions button:first-child{border-color:#a8c7c2;background:rgba(168,199,194,.12);}
 .ha-media-picker-actions button:disabled{opacity:.35;cursor:not-allowed;}
 @media(max-width:520px){.ha-media-picker{padding:10px;}.ha-media-picker-panel{padding:16px;}.ha-media-picker-options{grid-template-columns:1fr;}.ha-media-picker-actions button{flex:1;}}
+
+/* The category toggles are visually distinct from selectable block options. */
+.ha-block-inserter-menu .ha-block-category{
+ display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+ padding:9px 7px 7px;border:0;border-bottom:1px solid rgba(168,199,194,.15);
+ background:rgba(168,199,194,.045);color:#a8c7c2;
+ font:8px 'DM Mono',monospace;letter-spacing:.16em;text-align:left;text-transform:uppercase
+}
+.ha-block-inserter-menu .ha-block-category:after{content:'−';font-size:12px;line-height:1}
+.ha-block-inserter-menu .ha-block-category[aria-expanded="false"]:after{content:'+'}
