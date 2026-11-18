@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T16:30:19.570029Z",
-  "last_processed_sha": "21c7138ed109ff70966005ff871b21f1bad4e23d",
+  "updated_at": "2026-11-18T16:30:58.119037Z",
+  "last_processed_sha": "ff64dc67956073b6669d39990e514205396b899c",
   "entries": [
+    {
+      "id": "ff64dc67956073b6669d39990e514205396b899c",
+      "timestamp": "2026-11-18T17:30:52+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Refine expandable block category controls; Refresh block inserter category styles. It updates block-editor.css, index.html.",
+      "commit_count": 2,
+      "files": [
+        "editor-ui/block-editor.css",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Refine expandable block category controls",
+          "url": "https://github.com/iYakuza/landing-page/commit/d5e3480d4b15d1bc4f5da836d1941aa1145af3f8",
+          "files": [
+            "editor-ui/block-editor.css"
+          ]
+        },
+        {
+          "message": "Refresh block inserter category styles",
+          "url": "https://github.com/iYakuza/landing-page/commit/ff64dc67956073b6669d39990e514205396b899c",
+          "files": [
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "01432bc90d1f113aa6f2c73a847f292d878fe45c",
       "timestamp": "2026-11-18T17:30:11+01:00",
@@ -1214,27 +1243,6 @@
         {
           "message": "Unify chamber form and remove unreliable local recovery (#104)",
           "url": "https://github.com/iYakuza/landing-page/commit/db602ca3648119785dce06984ad79248bfb867cd",
-          "files": [
-            "human-archive/archive.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "0fb2ea0b6f5d411d68cfa2d0530481fedbb9389e",
-      "timestamp": "2026-11-17T18:05:09+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Keep archive chamber in view mode by default (#103). It updates archive.js.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.js"
-      ],
-      "commits": [
-        {
-          "message": "Keep archive chamber in view mode by default (#103)",
-          "url": "https://github.com/iYakuza/landing-page/commit/0fb2ea0b6f5d411d68cfa2d0530481fedbb9389e",
           "files": [
             "human-archive/archive.js"
           ]
