@@ -1380,6 +1380,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     if(removeError){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from storage:',removeError);}
    }
    status.textContent=cleanupWarning?'CHAMBER SAVED — FILE CLEANUP NEEDS ATTENTION':'CHAMBER REDESIGNED // CHANGES SAVED';
+   blockEditorControllers.forEach(controller=>controller.destroy());
    richEditorController?.destroy();
    if(record.source_type==='transmission'){
     const titleNode=recordChamber?.querySelector('.ha-chamber-title');if(titleNode)titleNode.textContent=record.title;
