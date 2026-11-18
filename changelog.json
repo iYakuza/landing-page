@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T10:41:34.036825Z",
-  "last_processed_sha": "e900017041b161778351b82a4d610a49b87ee02f",
+  "updated_at": "2026-11-18T11:03:04.832715Z",
+  "last_processed_sha": "82fec6a873249adc3d7597b3c0aefa4c8106d791",
   "entries": [
+    {
+      "id": "82fec6a873249adc3d7597b3c0aefa4c8106d791",
+      "timestamp": "2026-11-18T12:02:56+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Turn Human Archive into a Gutenberg-style block editor. It updates block-editor.css, block-editor.js, rich-text-editor.js, archive.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        "editor-ui/block-editor.css",
+        "editor-ui/block-editor.js",
+        "editor-ui/rich-text-editor.js",
+        "human-archive/archive.js",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Turn Human Archive into a Gutenberg-style block editor",
+          "url": "https://github.com/iYakuza/landing-page/commit/82fec6a873249adc3d7597b3c0aefa4c8106d791",
+          "files": [
+            "editor-ui/block-editor.css",
+            "editor-ui/block-editor.js",
+            "editor-ui/rich-text-editor.js",
+            "human-archive/archive.js",
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "e900017041b161778351b82a4d610a49b87ee02f",
       "timestamp": "2026-11-18T11:41:25+01:00",
@@ -1156,67 +1185,6 @@
           "files": [
             "human-archive/archive.js",
             "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "a2010547c22a7495b6d78645ce65eebce319b67a",
-      "timestamp": "2026-11-17T12:53:05+01:00",
-      "category": "CONTENT",
-      "component": "Website Experience",
-      "title": "Fresh additions to Website Experience",
-      "description": "This update brings together Route Quick Post into Human Archive (#94). It updates index.html, creator-posting.js and related project files.",
-      "commit_count": 1,
-      "files": [
-        "community/index.html",
-        "creator-posting.js",
-        "cv/index.html",
-        "green-dream/guest-notes/architecture-of-harm/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html",
-        "green-dream/guest-notes/ethical-framework/index.html",
-        "green-dream/guest-notes/ethical-framework/ro/index.html",
-        "green-dream/guest-notes/index.html",
-        "green-dream/guest-notes/integration-without-assimilation/index.html",
-        "green-dream/guest-notes/revision-history/index.html",
-        "green-dream/index.html",
-        "human-archive/archive.js",
-        "human-archive/index.html",
-        "index.html",
-        "music/index.html",
-        "posts/community/index.html",
-        "posts/index.html",
-        "posts/the-awakening/index.html",
-        "posts/the-descent/index.html",
-        "posts/the-reconnection/index.html",
-        "posts/the-return/index.html",
-        "posts/the-transformation/index.html",
-        "secure-your-soul/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Route Quick Post into Human Archive (#94)",
-          "url": "https://github.com/iYakuza/landing-page/commit/a2010547c22a7495b6d78645ce65eebce319b67a",
-          "files": [
-            "community/index.html",
-            "creator-posting.js",
-            "cv/index.html",
-            "green-dream/guest-notes/architecture-of-harm/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html"
           ]
         }
       ]
