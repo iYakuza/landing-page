@@ -505,74 +505,9 @@ function renderRecordStructureView(record,grid,status,editButton,expandButton){
  if(expandButton)expandButton.hidden=true;
 }
 
-function chamberFileMime(file,type){
- const supplied=String(file.type||'').toLowerCase();
- const allowed={
-  image:new Set(['image/jpeg','image/png','image/webp','image/gif','image/avif']),
-  audio:new Set(['audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm']),
-  video:new Set(['video/mp4','video/webm'])
- };
- if(allowed[type].has(supplied))return supplied;
- if(supplied)return null;
- const extension=String(file.name||'').split('.').pop().toLowerCase();
- const fallback={
-  image:{jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif'},
-  audio:{mp3:'audio/mpeg',m4a:'audio/mp4',mp4:'audio/mp4',wav:'audio/wav',ogg:'audio/ogg',weba:'audio/webm'},
-  video:{mp4:'video/mp4',webm:'video/webm'}
- };
- return fallback[type][extension]||null;
-}
 function chamberUploadToken(){
  try{if(window.crypto?.randomUUID)return window.crypto.randomUUID();}catch{}
  return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
-}
-function renderChamberMediaEditor(sectionBody,record,type,items,status,onChange){
- sectionBody.replaceChildren();
- const list=makeChamberNode('div','ha-chamber-media-editor-list');
- const repaint=()=>{
-  list.replaceChildren();
-  if(!items.length)list.append(makeChamberNode('p','ha-chamber-note','NO '+type.toUpperCase()+' FILES SELECTED.'));
-  items.forEach((item,index)=>{
-   const row=makeChamberNode('div','ha-chamber-media-editor-item');
-   const description=makeChamberNode('span','ha-chamber-media-editor-name',item.name||record.title);
-   const state=makeChamberNode('small','ha-chamber-media-editor-state',item.file?'READY TO UPLOAD':(item.storage==='recovered'?'ARCHIVE ORIGINAL':item.storage==='external'?'EMBEDDED VIDEO':'SAVED FILE'));
-   const remove=makeChamberNode('button','ha-chamber-media-remove','REMOVE ✕');remove.type='button';
-   remove.setAttribute('aria-label','Remove '+(item.name||'media file')+' from '+type.toUpperCase());
-   remove.addEventListener('click',()=>{
-    items.splice(index,1);
-    if(onChange)onChange();
-    repaint();
-    status.textContent='MEDIA SELECTION UPDATED — SAVE THE CHAMBER TO APPLY IT.';
-   });
-   row.append(description,state,remove);list.append(row);
-  });
- };
- const input=document.createElement('input');input.type='file';input.multiple=true;input.className='ha-chamber-file-input';
- input.accept=type==='image'?'image/jpeg,image/png,image/webp,image/gif,image/avif':
-  type==='audio'?'audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm':'video/mp4,video/webm';
- input.setAttribute('aria-label','Choose multiple '+type+' files');
- const uploadLabel=makeChamberNode('label','ha-chamber-upload-label');
- const uploadText=makeChamberNode('span','', 'ADD '+type.toUpperCase()+' FILES +');
- uploadLabel.append(uploadText,input);
- input.addEventListener('change',()=>{
-  const files=[...input.files||[]];
-  const accepted=files.slice(0,10);
-  const rejected=[];
-  accepted.forEach(file=>{
-   const mime=chamberFileMime(file,type);
-   if(!mime){rejected.push(file.name+' (unsupported format)');return;}
-   if(file.size>30*1024*1024){rejected.push(file.name+' (over 30 MB)');return;}
-   items.push({id:'pending-'+chamberUploadToken(),name:file.name,mime_type:mime,storage:'pending',file});
-  });
-  if(files.length>10)rejected.push('Only the first 10 files in this selection were checked.');
-  if(onChange)onChange();
-  status.textContent=rejected.length?'Some files were not added: '+rejected.join('; '):'FILES ADDED — SAVE THE CHAMBER TO UPLOAD.';
-  input.value='';
-  repaint();
- });
- sectionBody.append(list,uploadLabel);
- repaint();
- return repaint;
 }
 function renderRecordStructureEditor(record,grid,status,editButton,expandButton,readOnly=false){
  const structure=getRecordStructure(record);
@@ -589,7 +524,6 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const blockMediaUploadedAssets=[];
  let repaintAttachedPostMedia=()=>{};
  let postLayoutControls=null;
- const outputMediaRepaint={};
 
  grid.replaceChildren();
  const metadataDetails=makeChamberDisclosure('00 // RECORD DETAILS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-metadata-panel','ha-chamber-panel-heading');
@@ -747,14 +681,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const getEditorHTML=()=>transmissionEditor.__haBlockEditor?.getHTML()||transmissionEditor.innerHTML;
  const getEditorBlocks=()=>transmissionEditor.__haBlockEditor?.getBlocks()||[];
  const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,editors:[transmissionEditor],toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
- ['image','audio','video'].forEach(type=>{
-  const media=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
-  const items=editorMedia[type];
-  const sectionBody=media.body;
-  outputMediaRepaint[type]=renderChamberMediaEditor(sectionBody,record,type,items,status,()=>{mediaTouched[type]=true;if(record.source_type!=='transmission')repaintAttachedPostMedia();scheduleDraftAutosave();});
-  output.body.append(media.details);
- });
- grid.append(output.details);
+
  if(!readOnly&&record.source_type==='transmission'){
   grid.addEventListener('input',scheduleDraftAutosave);
   grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});
