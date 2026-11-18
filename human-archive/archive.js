@@ -207,13 +207,23 @@ function appendSafeContent(container,source,record,used){
    if(item&&(mediaReady||item.storage==='vha-post-media')){if(tag==='AUDIO')appendLocalAudio(parent,item,record,used);else appendLocalVideo(parent,item,record,used);return;}
    const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
    const valid=Boolean(src)&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname);
-   if(valid){const mediaNode=document.createElement(tag.toLowerCase());mediaNode.src=src;mediaNode.controls=true;mediaNode.preload='metadata';if(tag==='VIDEO')mediaNode.playsInline=true;parent.append(mediaNode);return;}
+   const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='metadata';
+   if(valid)mediaNode.src=src;
+   if(tag==='VIDEO')mediaNode.playsInline=true;
+   node.childNodes.forEach(child=>copy(child,mediaNode));
+   if(valid||mediaNode.childNodes.length){parent.append(mediaNode);return;}
    appendMissing(parent,'Audio/video file not yet available in the recovered media collection.');return;
   }
   if(tag==='SOURCE'){
-   const item=getMedia(node.getAttribute('src')||'');
+   const raw=node.getAttribute('src')||'';
+   const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
     const source=document.createElement('source');source.src=localMediaUrl(item);source.type=item.mime_type;parent.append(source);markUsed(item,used);
+   }else{
+    const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
+    if(src&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname)&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
+     const source=document.createElement('source');source.src=src;source.type=node.getAttribute('type')||'';parent.append(source);
+    }
    }
    return;
   }
@@ -576,9 +586,13 @@ function sanitizeTransmissionBody(source){
    element.src=src;element.alt=String(node.getAttribute('alt')||'');element.loading='lazy';element.style.maxWidth='100%';element.style.height='auto';
   }
   if(node.tagName==='AUDIO'||node.tagName==='VIDEO'){
-   const src=safeExternalUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
-   if(!src||!/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname))return;
-   element.src=src;element.controls=true;element.preload='metadata';
+   const rawSrc=node.getAttribute('src')||'';
+   if(rawSrc){
+    const src=safeExternalUrl(rawSrc,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
+    if(!src||!/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname))return;
+    element.src=src;
+   }else if(!node.querySelector('source'))return;
+   element.controls=true;element.preload='metadata';
    if(node.tagName==='VIDEO')element.playsInline=true;
   }
   if(node.tagName==='SOURCE'){
