@@ -205,6 +205,8 @@
     function addBlockControls(block) {
       const type = block.dataset.haBlock || 'paragraph';
       block.querySelector('.ha-editor-block-name').textContent = labelFor(type);
+      const grip = block.querySelector('.ha-editor-block-grip');
+      if(grip)grip.draggable=true;
       const actions = block.querySelector('.ha-editor-block-actions');
       actions.replaceChildren();
       const transform = document.createElement('select');
@@ -324,8 +326,7 @@
         const holder=document.createElement('div');
         blocks().forEach(block=>{
           const content=block.querySelector('[data-ha-block-content]');
-          if(content) holder.append(content.cloneNode(true).childNodes.length===1
-            ? content.cloneNode(true).firstChild : content.cloneNode(true));
+          if(content){const clone=content.cloneNode(true);holder.append(...clone.childNodes);}
         });
         return holder.innerHTML;
       },
