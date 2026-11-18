@@ -926,7 +926,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    if(error)throw error;
    const saved=Array.isArray(data)?data[0]:data;
    record.media_width=state.metadata.mediaWidth;record.title=state.metadata.title;record.slug=state.metadata.slug;record.categories=[state.metadata.category];record.excerpt=state.metadata.excerpt;record.media_items=state.mediaItems;
-   const removedBlockPaths=getOwnedBlockMediaPaths(record.content_html,record.id).filter(path=>!state.row.transmission_body.includes(path));
+   const removedBlockPaths=[...new Set([...getOwnedBlockMediaPaths(record.content_html,record.id).filter(path=>!state.row.transmission_body.includes(path)),...(record.blockMediaPaths||[]).filter(path=>!state.row.transmission_body.includes(path))])];
    if(removedBlockPaths.length){const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedBlockPaths);if(removeError)console.warn('Removed draft block media could not be cleaned up:',removeError);}
    record.blockMediaPaths=(record.blockMediaPaths||[]).filter(path=>state.row.transmission_body.includes(path));
    record.content_html=state.row.transmission_body;record.status='draft';record.updated_at=saved?.updated_at||state.row.updated_at;state.row.updated_at=record.updated_at;
@@ -1049,7 +1049,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     const saved=Array.isArray(structureResult)?structureResult[0]:structureResult;row.updated_at=saved?.updated_at||row.updated_at;
    }
    const previousBody=String(record.content_html||'');
-   const removedBlockPaths=getOwnedBlockMediaPaths(previousBody,record.id).filter(path=>!row.transmission_body.includes(path));
+   const removedBlockPaths=[...new Set([...getOwnedBlockMediaPaths(previousBody,record.id).filter(path=>!row.transmission_body.includes(path)),...(record.blockMediaPaths||[]).filter(path=>!row.transmission_body.includes(path))])];
    if(removedBlockPaths.length){const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedBlockPaths);if(removeError)console.warn('Removed block media could not be cleaned from storage:',removeError);}
    record.blockMediaPaths=(record.blockMediaPaths||[]).filter(path=>row.transmission_body.includes(path));
    record.content_html=row.transmission_body;recordStructureOverrides.set(String(record.id),row);
