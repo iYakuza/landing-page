@@ -941,3 +941,11 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
   padding:0!important;
   text-align:left!important;
 }
+
+
+/* Columbarium niche header spacing and justified layout. */
+.ha-record-card>.ha-entry .ha-entry-top{
+  padding:10px!important;
+  justify-content:space-between!important;
+  text-align:justify!important;
+}
