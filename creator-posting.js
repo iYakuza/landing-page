@@ -5,7 +5,7 @@
 
   const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-  const EDITOR_VERSION = '20261118-ha-chamber-actions-9';
+  const EDITOR_VERSION = '20261118-ha-new-transmission-actions-10';
   let client = null;
   let isCreator = false;
   let refreshing = false;
