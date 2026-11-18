@@ -510,7 +510,7 @@ function getUnifiedRecordHTML(record,structure=getRecordStructure(record)){
  parts.push(archiveSectionHTML('OUTPUT',structure.output_text));
  const seen=new Set();
  const parsed=new DOMParser().parseFromString(parts.join(''),'text/html');
- parsed.querySelectorAll('[src],a[href]').forEach(node=>{const value=node.getAttribute('src')||node.getAttribute('href');if(value)seen.add(value);});
+ parsed.querySelectorAll('[src],a[href]').forEach(node=>{const value=node.getAttribute('src')||node.getAttribute('href');if(value){seen.add(value);const recovered=getMedia(value);if(recovered)seen.add(localMediaUrl(recovered));}});
  ['image','audio','video'].forEach(type=>{
   getRecordOutputMedia(record,structure,type).forEach(item=>{
    const url=String(item?.url||'');
@@ -968,7 +968,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     if(error)throw error;
     const saved=Array.isArray(saveResult)?saveResult[0]:saveResult;
     record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.status=metadata.status;
-    record.media_width=metadata.mediaWidth;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||row.updated_at;
+    record.media_width=metadata.mediaWidth;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||row.updated_at;row.updated_at=record.updated_at;
     const stamp=record.published_at||record.created_at||record.updated_at;record.date=String(stamp).slice(0,10);record.year=record.date.slice(0,4);
    }else{
     const {data:structureResult,error}=await archiveSupabase.rpc('save_human_archive_record_structure_v1',{
