@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T21:36:18.884903Z",
-  "last_processed_sha": "7ffb2679f57e4c33732d12b84445a5eb5bb83e55",
+  "updated_at": "2026-11-18T21:51:06.055960Z",
+  "last_processed_sha": "81135f0fd2de970c3308580e7979c471838793ca",
   "entries": [
+    {
+      "id": "81135f0fd2de970c3308580e7979c471838793ca",
+      "timestamp": "2026-11-18T22:50:56+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Fix public chamber redesign button visibility; Refresh Human Archive visibility fix assets. It updates archive.css, index.html.",
+      "commit_count": 2,
+      "files": [
+        "human-archive/archive.css",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Fix public chamber redesign button visibility",
+          "url": "https://github.com/iYakuza/landing-page/commit/7982d752ffd2ba045f758644a4dd23f4cdc612f7",
+          "files": [
+            "human-archive/archive.css"
+          ]
+        },
+        {
+          "message": "Refresh Human Archive visibility fix assets",
+          "url": "https://github.com/iYakuza/landing-page/commit/81135f0fd2de970c3308580e7979c471838793ca",
+          "files": [
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "c306f336d11631be0fc5110ed3dc9f85893af4ca",
       "timestamp": "2026-11-18T22:36:16+01:00",
@@ -1282,59 +1311,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/6c4f27f51114ecdfbfba8e3be8bb9b8983699990",
           "files": [
             "human-archive/archive.css"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "a63a67586d5be25b231110ec6d686deeb1b9fbd8",
-      "timestamp": "2026-11-18T17:11:34+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Refine Human Archive chamber editor controls and layout. It updates block-editor.css, block-editor.js, rich-text-editor.js, archive.css and related project files.",
-      "commit_count": 5,
-      "files": [
-        "editor-ui/block-editor.css",
-        "editor-ui/block-editor.js",
-        "editor-ui/rich-text-editor.js",
-        "human-archive/archive.css",
-        "human-archive/archive.js"
-      ],
-      "commits": [
-        {
-          "message": "Refine Human Archive chamber editor controls and layout",
-          "url": "https://github.com/iYakuza/landing-page/commit/f6565ad4701bf737eade7889fa20365c5c91473a",
-          "files": [
-            "human-archive/archive.js"
-          ]
-        },
-        {
-          "message": "Refine Human Archive chamber editor controls and layout",
-          "url": "https://github.com/iYakuza/landing-page/commit/ced758dc5766a1ff8f781f246269973049ade8ce",
-          "files": [
-            "editor-ui/block-editor.js"
-          ]
-        },
-        {
-          "message": "Refine Human Archive chamber editor controls and layout",
-          "url": "https://github.com/iYakuza/landing-page/commit/cb4f5a9e90027791a962f8396f27c8dcc9130014",
-          "files": [
-            "editor-ui/rich-text-editor.js"
-          ]
-        },
-        {
-          "message": "Refine Human Archive chamber editor controls and layout",
-          "url": "https://github.com/iYakuza/landing-page/commit/80be809676f8ead064dd9d7e8537abdd21327a1c",
-          "files": [
-            "human-archive/archive.css"
-          ]
-        },
-        {
-          "message": "Refine Human Archive chamber editor controls and layout",
-          "url": "https://github.com/iYakuza/landing-page/commit/a63a67586d5be25b231110ec6d686deeb1b9fbd8",
-          "files": [
-            "editor-ui/block-editor.css"
           ]
         }
       ]
