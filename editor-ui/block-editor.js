@@ -187,8 +187,10 @@
       const target = block?.querySelector('[data-ha-block-content][contenteditable="true"]');
       if (!target) return;
       target.focus();
+      const editableBlocks=target.querySelectorAll('p,h1,h2,h3,h4,li,pre,blockquote');
+      const caretTarget=editableBlocks[editableBlocks.length-1]||target;
       const range = document.createRange();
-      range.selectNodeContents(target);
+      range.selectNodeContents(caretTarget);
       range.collapse(false);
       const selection = window.getSelection();
       selection.removeAllRanges(); selection.addRange(range);
