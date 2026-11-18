@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-17T20:15:17.451693Z",
-  "last_processed_sha": "dc8e8501638d11e383054b06633561bb95ca558b",
+  "updated_at": "2026-11-18T04:31:22.246257Z",
+  "last_processed_sha": "7a9385842bd18dca4130c7900c1a16832a5a77bd",
   "entries": [
+    {
+      "id": "7a9385842bd18dca4130c7900c1a16832a5a77bd",
+      "timestamp": "2026-11-18T05:31:13+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Use full shared editor for legacy archive posts. It updates archive.js.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Use full shared editor for legacy archive posts",
+          "url": "https://github.com/iYakuza/landing-page/commit/7a9385842bd18dca4130c7900c1a16832a5a77bd",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "dc8e8501638d11e383054b06633561bb95ca558b",
       "timestamp": "2026-11-17T21:15:08+01:00",
@@ -1166,31 +1187,6 @@
             "posts/the-reconnection/index.html",
             "posts/the-return/index.html",
             "posts/the-transformation/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "b568d46fd4a859c639ebccaeaa41e21e89f6fa7d",
-      "timestamp": "2026-11-15T03:38:02+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Make Human Archive ego portrait open full screen (#63). It updates archive.css, archive.js, index.html.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Make Human Archive ego portrait open full screen (#63)",
-          "url": "https://github.com/iYakuza/landing-page/commit/b568d46fd4a859c639ebccaeaa41e21e89f6fa7d",
-          "files": [
-            "human-archive/archive.css",
-            "human-archive/archive.js",
-            "human-archive/index.html"
           ]
         }
       ]
