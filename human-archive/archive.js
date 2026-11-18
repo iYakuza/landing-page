@@ -268,7 +268,8 @@ function appendSafeContent(container,source,record,used){
    }
   }
   if(tag==='TD'||tag==='TH'){const span=node.getAttribute('colspan');if(span&&/^\d{1,2}$/.test(span))el.colSpan=Number(span);}
-  if(node.hasAttribute('class')){const classes=(node.getAttribute('class')||'').split(/\s+/).filter(name=>layoutClasses.has(name));if(classes.length)el.className=classes.join(' ');}
+  if(node.getAttribute('data-ha-block-version')==='1')element.setAttribute('data-ha-block-version','1');
+   if(node.hasAttribute('class')){const classes=(node.getAttribute('class')||'').split(/\s+/).filter(name=>layoutClasses.has(name));if(classes.length)el.className=classes.join(' ');}
   const alignment=(node.style?.textAlign||'').toLowerCase();
   if(['left','center','right','justify'].includes(alignment))el.style.textAlign=alignment;
   node.childNodes.forEach(child=>copy(child,el));parent.append(el);
@@ -441,6 +442,73 @@ function getRecordStructure(record){
   output_media:saved?.output_media&&typeof saved.output_media==='object'&&!Array.isArray(saved.output_media)?saved.output_media:null
  };
 }
+function hasUnifiedBlockDocument(html){
+ return /data-ha-block-version=["']1["']/.test(String(html||''));
+}
+function markUnifiedBlockDocument(html){
+ const parsed=new DOMParser().parseFromString(String(html||''),'text/html');
+ let first=parsed.body.firstElementChild;
+ if(!first){first=document.createElement('p');first.innerHTML='<br>';parsed.body.append(first);}
+ first.setAttribute('data-ha-block-version','1');
+ return parsed.body.innerHTML;
+}
+function stripLegacyLayout(html){
+ const parsed=new DOMParser().parseFromString(String(html||''),'text/html');
+ const suno=parsed.querySelector('.suno-post-layout');
+ const plain=parsed.querySelector('.plain-post-layout');
+ if(suno){
+  const parts=[];
+  const add=(label,node,tag='h2')=>{if(!node)return;const clone=node.cloneNode(true);clone.querySelectorAll('.suno-label,.suno-collapse-hint').forEach(item=>item.remove());const content=clone.innerHTML.trim();if(content)parts.push('<'+tag+'>'+label+'</'+tag+'>'+content);};
+  add('01 // THE TEXT',suno.querySelector('.suno-text-column'));
+  const lyrics=suno.querySelector('.suno-lyrics pre');if(lyrics)parts.push('<h2>02 // SUNO STYLE LYRICS</h2>'+lyrics.outerHTML);
+  add('03 // SUNO STYLE PROMPT',suno.querySelector('.suno-style-prompt')||suno.querySelector('.suno-notes'));
+  add('WHAT I LEARNED',suno.querySelector('.suno-learned'),'h3');
+  add('WHAT CHATGPT LEARNED',suno.querySelector('.suno-chatgpt-learned'),'h3');
+  return parts.join('');
+ }
+ if(plain){
+  const copy=plain.querySelector('.plain-copy');const response=plain.querySelector('.plain-response');
+  const parts=[];
+  if(copy){const clone=copy.cloneNode(true);clone.querySelectorAll('.suno-label').forEach(item=>item.remove());parts.push(clone.innerHTML);}
+  if(response){const clone=response.cloneNode(true);clone.querySelectorAll('.suno-label').forEach(item=>item.remove());parts.push(clone.innerHTML);}
+  return parts.join('');
+ }
+ return parsed.body.innerHTML;
+}
+function buildUnifiedBlockDocument(record,structure){
+ const savedBody=record.source_type==='transmission'?String(record.content_html||structure.transmission_body||''):String(structure.transmission_body||record.content_html||'');
+ if(hasUnifiedBlockDocument(savedBody))return savedBody;
+ const parts=[];
+ const base=stripLegacyLayout(savedBody);
+ const plainText=value=>{const doc=new DOMParser().parseFromString(String(value||''),'text/html');return (doc.body.textContent||'').replace(/\\s+/g,' ').trim().toLowerCase();};
+ if(base.trim())parts.push(base);
+ const baseText=plainText(base);
+ const appendSection=(label,value)=>{
+  const html=sanitizeTransmissionBody(value||'').trim();
+  if(!html||plainText(html)===baseText||parts.some(part=>plainText(part)===plainText(html)))return;
+  parts.push('<h2>'+label+'</h2>'+html);
+ };
+ appendSection('PROMPT STYLE',structure.prompt_style);
+ appendSection('LYRICS STYLE',structure.lyrics_style);
+ appendSection('OUTPUT TEXT',structure.output_text);
+ const used=new Set();
+ const appendMedia=(type,item)=>{
+  const url=resolveChamberMediaUrl(item,type);if(!url||used.has(url))return;used.add(url);
+  const esc=value=>String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const name=esc(mediaName(item,record));
+  if(type==='image')parts.push('<figure><img src="'+esc(url)+'" alt="'+name+'" loading="lazy"><figcaption>'+name+'</figcaption></figure>');
+  else if(type==='audio')parts.push('<figure><audio controls preload="metadata" src="'+esc(url)+'"></audio><figcaption>'+name+'</figcaption></figure>');
+  else if(item.storage==='external')parts.push('<iframe src="'+esc(url)+'" title="'+name+'" loading="lazy"></iframe>');
+  else parts.push('<figure><video controls playsinline preload="metadata" src="'+esc(url)+'"></video><figcaption>'+name+'</figcaption></figure>');
+ };
+ for(const type of ['image','audio','video'])getRecordOutputMedia(record,structure,type).forEach(item=>appendMedia(type,item));
+ (Array.isArray(record.media_items)?record.media_items:[]).forEach(item=>{
+  const mime=String(item.mime_type||'').toLowerCase();
+  const type=mime.startsWith('image/')?'image':mime.startsWith('video/')?'video':'audio';
+  appendMedia(type,{...item,url:item.source_url||item.url,name:item.title||item.name,storage:item.storage||'vha-post-media'});
+ });
+ return markUnifiedBlockDocument(parts.join(''));
+}
 function uniqueRecordMedia(record,mimePrefix){
  const items=mediaItems.filter(item=>(item.post_ids||[]).some(id=>String(id)===String(record.id))&&String(item.mime_type||'').startsWith(mimePrefix));
  if(mimePrefix==='audio/')items.sort((a,b)=>Number(clean(b.title)===clean(record.title))-Number(clean(a.title)===clean(record.title)));
@@ -579,7 +647,7 @@ function sanitizeTransmissionBody(source){
   if(!allowed.has(node.tagName)){node.childNodes.forEach(child=>copy(child,parent));return;}
   const element=document.createElement(node.tagName.toLowerCase());
   if(node.tagName==='IMG'){
-   const src=safeExternalUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
+   const src=safeExternalUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
    let valid=Boolean(src);
    if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else valid=url.pathname.includes('/wp-content/uploads/');}
    if(!valid)return;
@@ -588,7 +656,7 @@ function sanitizeTransmissionBody(source){
   if(node.tagName==='AUDIO'||node.tagName==='VIDEO'){
    const rawSrc=node.getAttribute('src')||'';
    if(rawSrc){
-    const src=safeExternalUrl(rawSrc,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
+    const src=safeExternalUrl(rawSrc,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
     if(!src||!/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname))return;
     element.src=src;
    }else if(!node.querySelector('source'))return;
@@ -596,7 +664,7 @@ function sanitizeTransmissionBody(source){
    if(node.tagName==='VIDEO')element.playsInline=true;
   }
   if(node.tagName==='SOURCE'){
-   const src=safeExternalUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
+   const src=safeExternalUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
    if(!src||!/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname))return;
    element.src=src;element.type=String(node.getAttribute('type')||'');
   }
@@ -652,11 +720,12 @@ function appendChamberOutputView(record,grid,structure){
 function renderRecordStructureView(record,grid,status,editButton,expandButton){
  const structure=getRecordStructure(record);
  grid.replaceChildren();
- makeChamberTransmissionBody(record,grid,structure);
- makeChamberTextPanel(record,grid,structure);
- appendChamberOutputView(record,grid,structure);
+ const content=makeChamberNode('div','ha-chamber-block-document');
+ content.innerHTML=sanitizeTransmissionBody(buildUnifiedBlockDocument(record,structure));
+ grid.append(content);
+ window.VHABlockEditor?.mountBlockEditor({editor:content,readOnly:true});
  if(editButton)editButton.hidden=!archiveAdmin;
- bindChamberDisclosureControls(grid,expandButton);
+ if(expandButton)expandButton.hidden=true;
 }
 function chamberFileMime(file,type){
  const supplied=String(file.type||'').toLowerCase();
