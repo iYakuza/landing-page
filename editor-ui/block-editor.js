@@ -199,9 +199,11 @@
           url = new URL('https://www.youtube-nocookie.com/embed/'+id);
         } else if (host === 'open.spotify.com' && !url.pathname.includes('/embed/')) {
           url.pathname = '/embed'+url.pathname;
+        } else if(host==='soundcloud.com') {
+          url=new URL('https://w.soundcloud.com/player/?url='+encodeURIComponent(url.href));
         } else if (host === 'w.soundcloud.com' && !url.pathname.startsWith('/player/')) {
           return window.alert('Use a SoundCloud player embed URL.');
-        } else if (host==='vimeo.com') { const id=url.pathname.split('/').filter(Boolean)[0]; if(!/^\\d+$/.test(id||''))return window.alert('That Vimeo URL is not valid.');url=new URL('https://player.vimeo.com/video/'+id); } else if(host==='www.dailymotion.com'&&url.pathname.startsWith('/video/')) { const id=url.pathname.split('/')[2];url=new URL('https://www.dailymotion.com/embed/video/'+id); }
+        }
         if(host==='vimeo.com'){const id=url.pathname.split('/').filter(Boolean)[0];if(!/^\\d+$/.test(id||''))return window.alert('That Vimeo URL is not valid.');url=new URL('https://player.vimeo.com/video/'+id);}
         if(host==='www.dailymotion.com'&&url.pathname.startsWith('/video/')){const id=url.pathname.split('/')[2];url=new URL('https://www.dailymotion.com/embed/video/'+id);}
         if(host==='www.loom.com'&&url.pathname.startsWith('/share/')){url=new URL('https://www.loom.com/embed/'+url.pathname.split('/')[2]);}
