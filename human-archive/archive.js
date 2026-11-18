@@ -934,7 +934,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const save=makeChamberNode('button','ha-chamber-save','SAVE CHAMBER');save.type='button';
  const cancel=makeChamberNode('button','ha-chamber-cancel','CANCEL');cancel.type='button';
 
- const getCurrentTransmissionText=()=>postLayoutControls?.select.value==='plain'?(postLayoutControls.fields.plain.__haBlockEditor?.getText()||''):postLayoutControls?.select.value==='suno'?(postLayoutControls.fields.main.__haBlockEditor?.getText()||''):(transmissionEditor.__haBlockEditor?.getText()||'');
+ const getCurrentTransmissionText=()=>transmissionEditor.__haBlockEditor?.getText()||transmissionEditor.innerText||'';
  const updateSaveLabel=()=>{if(record.source_type!=='transmission')return;const next=recordMetadataInputs.status.value;save.textContent=next==='published'?(record.status==='published'?'SAVE PUBLISHED TRANSMISSION':'PUBLISH TRANSMISSION'):(record.status==='published'?'UNPUBLISH & SAVE DRAFT':'SAVE DRAFT');};
  recordMetadataInputs?.status?.addEventListener('change',updateSaveLabel);updateSaveLabel();
  // Draft Transmissions are database-backed as the user types. Publication remains an explicit action.
@@ -955,12 +955,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
   if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
   if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
-  let transmissionBody=sanitizeTransmissionBody(transmissionEditor.innerHTML);
-  if(postLayoutControls&&postLayoutControls.select.value!=='standard'){
-   transmissionBody=postLayoutControls.select.value==='plain'
-    ?'<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.plain.value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>'
-    :'<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.main.value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeLayoutText(postLayoutControls.fields.lyrics.value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+layoutParagraphs(postLayoutControls.fields.prompt.value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.learned.value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.chatgpt.value)+'</section></aside></div>';
-  }
+  const transmissionBody=sanitizeTransmissionBody(getEditorHTML());
+  const blocks=getEditorBlocks();
   const existingOutput=structure.output_media&&typeof structure.output_media==='object'?structure.output_media:{};
   const outputMedia={};
   for(const type of ['image','audio','video']){
@@ -980,10 +976,10 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   }).filter(item=>item.url);
   const row={
    record_id:Number(record.id),transmission_body:transmissionBody,
-   prompt_style:sanitizeTransmissionBody(promptArea.innerHTML),lyrics_style:sanitizeTransmissionBody(lyricsArea.innerHTML),output_text:sanitizeTransmissionBody(textArea.innerHTML),
+   prompt_style:'',lyrics_style:'',output_text:'',
    output_media:outputMedia,updated_at:new Date().toISOString(),updated_by:archiveUserId
   };
-  return {metadata,row,mediaItems};
+  return {metadata,row,mediaItems,blocks};
  };
  const uploadPendingDraftMedia=async()=>{
   const uploadedPaths=[];
@@ -1019,7 +1015,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   try{
    uploadedPaths=await uploadPendingDraftMedia();
    state=buildDraftAutosaveState();
-   signature=JSON.stringify({metadata:state.metadata,row:{...state.row,updated_at:null,updated_by:null},mediaItems:state.mediaItems});
+   signature=JSON.stringify({metadata:state.metadata,row:{...state.row,updated_at:null,updated_by:null},mediaItems:state.mediaItems,blocks:state.blocks});
    if(signature===draftAutosaveLastSignature){
     uploadedPaths.forEach(path=>console.warn('Draft media already represented in the saved record:',path));
     return true;
@@ -1035,6 +1031,10 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    });
    if(error)throw error;
    const saved=Array.isArray(data)?data[0]:data;
+   const {data:blockSaveData,error:blockSaveError}=await archiveSupabase.rpc('save_human_archive_record_blocks_v1',{p_record_id:Number(record.id),p_blocks:state.blocks,p_expected_updated_at:saved?.updated_at||record.updated_at});
+   if(blockSaveError)throw blockSaveError;
+   state.row.blocks=state.blocks;
+   state.row.updated_at=blockSaveData||saved?.updated_at||state.row.updated_at;
    record.media_width=state.metadata.mediaWidth;
    record.title=state.metadata.title;record.slug=state.metadata.slug;
    record.categories=[state.metadata.category];record.excerpt=state.metadata.excerpt;
@@ -1045,10 +1045,9 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     storage_path:item.path||'',source_url:item.url,url:item.url,
     storage:'vha-post-media',post_ids:[Number(record.id)]
    }));
-   record.updated_at=saved?.updated_at||state.row.updated_at;
-   state.row.updated_at=record.updated_at;
+   record.updated_at=saved?.updated_at||record.updated_at;
    recordStructureOverrides.set(String(record.id),state.row);
-   await cleanupBlockMediaUploads([state.row.transmission_body,state.row.prompt_style,state.row.lyrics_style,state.row.output_text].join('\n'));
+   await cleanupBlockMediaUploads(state.row.transmission_body);
    [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{
     if(item.uploadedDraft){Object.assign(item,item.uploadedDraft);item.file=null;delete item.uploadedDraft;}
    });
@@ -1183,17 +1182,13 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
     if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
     if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
-    const initialBody=postLayoutControls&&postLayoutControls.select.value!=='standard'
-     ?(postLayoutControls.select.value==='plain'
-      ?'<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.plain.value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>'
-      :'<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.main.value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeLayoutText(postLayoutControls.fields.lyrics.value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+layoutParagraphs(postLayoutControls.fields.prompt.value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.learned.value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.chatgpt.value)+'</section></aside></div>')
-     :sanitizeTransmissionBody(transmissionEditor.innerHTML);
+    const initialBody=sanitizeTransmissionBody(getEditorHTML());
     const publishText=getCurrentTransmissionText();
     if(metadata.status==='published'&&!String(publishText||'').trim())throw new Error('Add transmission content before publishing.');
     status.textContent='CREATING TRANSMISSION…';
     const {data:createResult,error:createError}=await archiveSupabase.rpc('create_human_archive_transmission_v3',{
      p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,
-     p_status:'draft',p_transmission_body:initialBody,p_prompt_style:sanitizeTransmissionBody(promptArea.innerHTML),p_lyrics_style:sanitizeTransmissionBody(lyricsArea.innerHTML),p_output_text:sanitizeTransmissionBody(textArea.innerHTML),
+     p_status:'draft',p_transmission_body:initialBody,p_prompt_style:'',p_lyrics_style:'',p_output_text:'',
      p_output_media:{},p_media_items:[],p_media_width:metadata.mediaWidth
     });
     if(createError)throw createError;
@@ -1256,21 +1251,20 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     }
     if(mediaTouched[type]||Array.isArray(existingOutput[type])||mediaReady)outputMedia[type]=savedItems;
    }
+   const blocks=getEditorBlocks();
    const row={
     record_id:Number(record.id),
-    transmission_body:postLayoutControls&&postLayoutControls.select.value!=='standard'
-     ?(postLayoutControls.select.value==='plain'
-      ?'<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.plain.value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>'
-      :'<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.main.value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeLayoutText(postLayoutControls.fields.lyrics.value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+layoutParagraphs(postLayoutControls.fields.prompt.value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.learned.value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.chatgpt.value)+'</section></aside></div>')
-     :sanitizeTransmissionBody(transmissionEditor.innerHTML),
-    prompt_style:sanitizeTransmissionBody(promptArea.innerHTML),
-    lyrics_style:sanitizeTransmissionBody(lyricsArea.innerHTML),
-    output_text:sanitizeTransmissionBody(textArea.innerHTML),
+    transmission_body:sanitizeTransmissionBody(getEditorHTML()),
+    prompt_style:'',
+    lyrics_style:'',
+    output_text:'',
     output_media:outputMedia,
+    blocks,
     updated_at:new Date().toISOString(),
     updated_by:archiveUserId
    };
    status.textContent='SAVING CHAMBER STRUCTURE…';
+   let blocksExpectedUpdatedAt=oldStructure.updated_at||null;
    if(record.source_type==='transmission'){
     const metadata={
      title:String(recordMetadataInputs.title.value).trim(),
@@ -1298,6 +1292,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.content_html=row.transmission_body;
     record.media_items=savedPostMedia.map((item,index)=>({id:'transmission-'+record.post_id+'-'+index,title:item.name||record.title,alt_text:item.name||record.title,mime_type:item.type+'/unknown',storage_path:item.path||'',source_url:item.url,url:item.url,storage:'vha-post-media',post_ids:[Number(record.id)]}));
     record.status=metadata.status;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||new Date().toISOString();record.media_width=metadata.mediaWidth;
+    blocksExpectedUpdatedAt=saved?.updated_at||null;
     const dateStamp=record.published_at||record.created_at||record.updated_at;record.date=String(dateStamp).slice(0,10);record.year=record.date.slice(0,4);
     if(!categoryOrder.includes(metadata.category))categoryOrder.push(metadata.category);
     if(category&&![...category.options].some(option=>option.value===metadata.category)){
@@ -1312,9 +1307,14 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     if(error)throw error;
     const savedStructure=Array.isArray(structureResult)?structureResult[0]:structureResult;
     row.updated_at=savedStructure?.updated_at||new Date().toISOString();
+    blocksExpectedUpdatedAt=row.updated_at;
    }
+   const {data:blockSaveData,error:blockSaveError}=await archiveSupabase.rpc('save_human_archive_record_blocks_v1',{p_record_id:Number(record.id),p_blocks:blocks,p_expected_updated_at:blocksExpectedUpdatedAt});
+   if(blockSaveError)throw blockSaveError;
+   row.blocks=blocks;
+   row.updated_at=blockSaveData||row.updated_at;
    recordStructureOverrides.set(String(record.id),row);
-   await cleanupBlockMediaUploads([row.transmission_body,row.prompt_style,row.lyrics_style,row.output_text].join('\n'));
+   await cleanupBlockMediaUploads(row.transmission_body);
    if(!records.some(item=>String(item.id)===String(record.id))){
     records.push(record);
     if(!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);
