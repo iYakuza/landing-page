@@ -223,3 +223,29 @@
  .ha-editor-column>.ha-editor-add-column{right:-26px!important;opacity:1!important}
 }
 .ha-block-editor-shell.is-read-only .ha-editor-add-column{display:none!important}
+
+
+/* Canvas-level column control: available before a Columns block exists. */
+.ha-block-editor-shell{position:relative;overflow:visible!important}
+.ha-editor-add-canvas-column{
+ position:absolute!important;top:50%!important;right:-14px!important;z-index:18!important;
+ display:grid!important;place-items:center!important;width:26px!important;height:26px!important;min-width:26px!important;
+ margin:0!important;padding:0!important;border:1px solid rgba(185,215,122,.8)!important;border-radius:50%!important;
+ background:#08110c!important;color:#d8ff3e!important;font:18px/1 sans-serif!important;
+ opacity:.94!important;transform:translateY(-50%)!important;cursor:pointer!important;
+ box-shadow:0 0 0 3px rgba(5,10,8,.72)!important;pointer-events:auto!important
+}
+.ha-editor-add-canvas-column:hover,.ha-editor-add-canvas-column:focus-visible{
+ background:#d8ff3e!important;color:#071009!important;border-color:#d8ff3e!important;
+ outline:2px solid #d8ff3e!important;outline-offset:2px!important
+}
+.ha-editor-add-canvas-column[hidden]{display:none!important}
+@media(max-width:650px){
+ .ha-editor-add-canvas-column{right:-9px!important;width:25px!important;height:25px!important;min-width:25px!important}
+}
+
+/* Between-column controls remain visible and insert a sibling column. */
+.ha-editor-column>.ha-editor-add-column{
+ display:grid!important;opacity:.94!important;pointer-events:auto!important
+}
+.ha-editor-column>.ha-editor-add-column[hidden]{display:none!important}
