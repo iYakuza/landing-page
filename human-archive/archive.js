@@ -585,6 +585,8 @@ function sanitizeTransmissionBody(source){
    const classes=(node.getAttribute('class')||'').split(/\s+/).filter(name=>allowedClasses.has(name));
    if(classes.length)element.className=classes.join(' ');
   }
+  const blockName=String(node.getAttribute('data-ha-block-name')||'').replace(/[\\u0000-\\u001f\\u007f]/g,'').trim().slice(0,80);
+  if(blockName)element.setAttribute('data-ha-block-name',blockName);
   const alignment=(node.style?.textAlign||'').toLowerCase();
   if(['left','center','right','justify'].includes(alignment))element.style.textAlign=alignment;
   node.childNodes.forEach(child=>copy(child,element));parent.append(element);
