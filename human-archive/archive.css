@@ -1270,3 +1270,9 @@ main[data-vha-layout-root]{
   min-height:32px!important;padding:7px 8px!important;font-size:8px!important
  }
 }
+
+
+/* Saved block labels are visible in the chamber; Columns containers remain unlabelled. */
+.ha-chamber-saved-block{min-width:0;margin:0 0 22px}
+.ha-chamber-saved-block-name{margin:0 0 7px;color:#9aacab;font:8px/1.5 'DM Mono',monospace;letter-spacing:.14em;text-transform:uppercase;overflow-wrap:anywhere}
+.ha-chamber-saved-block>*:last-child{margin-bottom:0}
