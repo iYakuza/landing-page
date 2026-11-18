@@ -856,7 +856,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   const previous=layoutSelect.dataset.previousValue||'standard';
   if(layoutSelect.value==='standard'&&previous!=='standard'&&postLayoutControls?.transmissionEditor){
    const source=previous==='plain'?layoutPlain.value:layoutMain.value;
-   if(blockEditorControllers[0])blockEditorControllers[0]=blockEditorControllers[0].replaceHTML(layoutParagraphs(source));else postLayoutControls.transmissionEditor.innerHTML=layoutParagraphs(source);
+   if(blockEditorControllers[0]){blockEditorControllers[0]=blockEditorControllers[0].replaceHTML(layoutParagraphs(source));blockEditorControllers[0].focus();}else postLayoutControls.transmissionEditor.innerHTML=layoutParagraphs(source);
   }
   layoutSelect.dataset.previousValue=layoutSelect.value;
   syncLayoutControls();status.textContent='POST LAYOUT CHANGED — SAVE THE CHAMBER TO APPLY';
