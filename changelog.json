@@ -1,8 +1,35 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T11:03:04.832715Z",
-  "last_processed_sha": "82fec6a873249adc3d7597b3c0aefa4c8106d791",
+  "updated_at": "2026-11-18T12:36:36.459254Z",
+  "last_processed_sha": "bce70f539862cf4a7ec4bfe8d0a074a4407a2f45",
   "entries": [
+    {
+      "id": "bce70f539862cf4a7ec4bfe8d0a074a4407a2f45",
+      "timestamp": "2026-11-18T13:36:24+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Expand Human Archive Gutenberg block library. It updates block-editor.css, block-editor.js, archive.js, index.html.",
+      "commit_count": 1,
+      "files": [
+        "editor-ui/block-editor.css",
+        "editor-ui/block-editor.js",
+        "human-archive/archive.js",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Expand Human Archive Gutenberg block library",
+          "url": "https://github.com/iYakuza/landing-page/commit/bce70f539862cf4a7ec4bfe8d0a074a4407a2f45",
+          "files": [
+            "editor-ui/block-editor.css",
+            "editor-ui/block-editor.js",
+            "human-archive/archive.js",
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "82fec6a873249adc3d7597b3c0aefa4c8106d791",
       "timestamp": "2026-11-18T12:02:56+01:00",
@@ -1159,29 +1186,6 @@
         {
           "message": "Prepare Quick Post editor before opening chamber (#97)",
           "url": "https://github.com/iYakuza/landing-page/commit/8602afda768815d39cd3c9316ab21a7d1c66245a",
-          "files": [
-            "human-archive/archive.js",
-            "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "a5d7b686dbd74656bcb1413bf049ef4566d83d33",
-      "timestamp": "2026-11-17T13:01:17+01:00",
-      "category": "CONTENT",
-      "component": "Website Updates",
-      "title": "Fresh additions to Website Updates",
-      "description": "This update brings together Open Quick Post editor immediately (#95). It updates archive.js, index.html.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.js",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Open Quick Post editor immediately (#95)",
-          "url": "https://github.com/iYakuza/landing-page/commit/a5d7b686dbd74656bcb1413bf049ef4566d83d33",
           "files": [
             "human-archive/archive.js",
             "human-archive/index.html"
