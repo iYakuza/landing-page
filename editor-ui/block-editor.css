@@ -11,7 +11,10 @@
 .ha-editor-block-controls{display:flex;align-items:center;gap:8px;min-height:29px;padding:3px 7px;background:rgba(168,199,194,.045);border-bottom:1px solid rgba(168,199,194,.1);opacity:.28;transition:opacity .15s;}
 .ha-editor-block:hover>.ha-editor-block-controls,.ha-editor-block.is-selected>.ha-editor-block-controls,.ha-editor-block:focus-within>.ha-editor-block-controls{opacity:1;}
 .ha-editor-block-grip{color:#a8c7c2;font:15px/1 sans-serif;cursor:grab;user-select:none;}
-.ha-editor-block-name{flex:1;color:#9aacab;font:8px 'DM Mono',monospace;letter-spacing:.13em;text-transform:uppercase;}
+.ha-editor-block-name{flex:1;min-width:0;padding:0;border:0;background:transparent;color:#9aacab;font:8px 'DM Mono',monospace;letter-spacing:.13em;text-align:left;text-transform:uppercase;cursor:text;}
+.ha-editor-block-name::after{content:' ✎';color:#a8c7c2;opacity:.55;}
+.ha-editor-block-name:hover,.ha-editor-block-name:focus-visible{color:#d8ff3e;outline:none;}
+.ha-editor-block-name:hover::after,.ha-editor-block-name:focus-visible::after{opacity:1;}
 .ha-editor-block-actions{display:flex;align-items:center;gap:3px;}
 .ha-editor-block-actions button,.ha-editor-block-transform{height:24px;min-width:25px;padding:0 6px;border:1px solid rgba(168,199,194,.16);background:#10191d;color:#b9c9c6;font:10px 'DM Mono',monospace;cursor:pointer;}
 .ha-editor-block-actions button:hover,.ha-editor-block-transform:focus-visible{border-color:#a8c7c2;color:#edf4ef;}
@@ -277,3 +280,12 @@
     padding:0!important;
   }
 }
+
+
+/* Drag placement is explicit: the upper and lower halves mark before/after insertion. */
+.ha-editor-block.is-drop-before::before,.ha-editor-block.is-drop-after::after{
+ content:'';position:absolute;left:0;right:0;z-index:12;height:3px;background:#d8ff3e;box-shadow:0 0 10px rgba(216,255,62,.55);pointer-events:none
+}
+.ha-editor-block.is-drop-before::before{top:-2px}
+.ha-editor-block.is-drop-after::after{bottom:-2px}
+.ha-editor-block.is-dragging{opacity:.42}
