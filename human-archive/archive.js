@@ -593,7 +593,16 @@ function sanitizeTransmissionBody(source){
  parsed.body.childNodes.forEach(node=>copy(node,fragment));
  const holder=document.createElement('div');holder.append(fragment);return holder.innerHTML;
 }
-function renderRecordStructureView(record,grid,status,editButton,expandButton){
+function clearChamberFormattingToolbar(){
+ const toolbar=recordChamber?.querySelector(':scope > .ha-rich-toolbar');
+ toolbar?.remove();
+ recordChamber?.querySelector('.ha-chamber-delete-draft')?.remove();
+ recordChamber?.classList.remove('has-floating-formatting-toolbar');
+}
+function renderRecordStructureView(record,grid,status,editButton,expandButton,closeButton){
+ clearChamberFormattingToolbar();
+ const titleNode=recordChamber?.querySelector('.ha-chamber-title');
+ if(titleNode)titleNode.textContent=record.title||'';
  const structure=getRecordStructure(record);
  grid.replaceChildren();
  const body=makeChamberNode('div','ha-chamber-blocks-view');
@@ -603,7 +612,19 @@ function renderRecordStructureView(record,grid,status,editButton,expandButton){
  if(html)appendSafeContent(body,html,record,new Set());
  else body.append(makeChamberNode('p','ha-chamber-note','NO CONTENT BLOCKS HAVE BEEN ADDED TO THIS RECORD.'));
  grid.append(body);
- if(editButton)editButton.hidden=!archiveAdmin;
+ if(editButton){
+  editButton.hidden=!archiveAdmin;editButton.disabled=false;editButton.textContent='REDESIGN CHAMBER';
+  editButton.setAttribute('aria-label','Redesign this archive chamber');
+  editButton.onclick=()=>{
+   if(!archiveAdmin){status.textContent='ADMIN ACCESS REQUIRED';return;}
+   renderRecordStructureEditor(record,grid,status,editButton,expandButton,closeButton);
+  };
+ }
+ if(closeButton){
+  closeButton.className='ha-chamber-close';closeButton.textContent='CLOSE ✕';closeButton.disabled=false;
+  closeButton.setAttribute('aria-label','Close record chamber');
+  closeButton.onclick=()=>{closeRecordChamberSafely();};
+ }
  if(expandButton)expandButton.hidden=true;
 }
 
@@ -611,8 +632,10 @@ function chamberUploadToken(){
  try{if(window.crypto?.randomUUID)return window.crypto.randomUUID();}catch{}
  return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
 }
-function renderRecordStructureEditor(record,grid,status,editButton,expandButton,readOnly=false){
+function renderRecordStructureEditor(record,grid,status,editButton,expandButton,closeButton,readOnly=false){
  const structure=getRecordStructure(record);
+ const initialRecordSnapshot=JSON.parse(JSON.stringify(record));
+ const initialStructureSnapshot=JSON.parse(JSON.stringify(structure));
  const editorMedia={
   image:getRecordOutputMedia(record,structure,'image').map(item=>({...item})),
   audio:getRecordOutputMedia(record,structure,'audio').map(item=>({...item})),
@@ -679,11 +702,15 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  metadataDetails.body.append(metadataFields,statusNote);
  grid.append(metadataDetails.details);
  recordMetadataInputs={title:titleInput,slug:slugInput,category:categoryInput,excerpt:excerptInput,mediaWidth:mediaWidthInput,status:statusSelect};
- if(record.source_type==='transmission'&&record.isNew){
+ if(record.source_type==='transmission'){
   slugInput.addEventListener('input',()=>{slugManuallyEdited=true;});
   titleInput.addEventListener('input',()=>{
-   if(slugManuallyEdited)return;
-   slugInput.value=String(titleInput.value||'').normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,180);
+   const title=String(titleInput.value||'');
+   const titleNode=recordChamber?.querySelector('.ha-chamber-title');
+   if(titleNode)titleNode.textContent=title;
+   if(!slugManuallyEdited){
+    slugInput.value=title.normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,180);
+   }
   });
  }
  const focusButton=makeChamberNode('button','ha-chamber-focus-toggle','T');focusButton.type='button';focusButton.setAttribute('aria-pressed','false');
@@ -692,14 +719,18 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  formattingTools.forEach(([label,command,value])=>{const button=makeChamberNode('button','',label);button.type='button';button.dataset.command=command;if(value)button.dataset.value=value;button.title=label;toolbar.append(button);});
  const insertLinkButton=makeChamberNode('button','ha-rich-link','LINK');insertLinkButton.type='button';toolbar.append(insertLinkButton);
  const unlinkButton=makeChamberNode('button','','UNLINK');unlinkButton.type='button';unlinkButton.dataset.command='unlink';toolbar.append(unlinkButton);
+ toolbar.append(focusButton);
  const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable=readOnly?'false':'true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Archive blocks');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Start writing or add a block…';
  const savedBlocks=Array.isArray(structure.blocks)?structure.blocks:[];
  const legacyHTML=[structure.transmission_body,structure.prompt_style,structure.lyrics_style,structure.output_text].filter(value=>String(value||'').trim()).join('');
  const initialBlockHTML=savedBlocks.length?savedBlocks.map(block=>String(block?.html||'')).join(''):(legacyHTML||record.content_html||'');
  transmissionEditor.innerHTML=sanitizeTransmissionBody(initialBlockHTML);
  const editorTop=makeChamberNode('div','ha-rich-editor-top');
- editorTop.append(makeChamberNode('span','ha-rich-editor-hint','ONE CANVAS // EVERY PIECE OF CONTENT IS A BLOCK'),focusButton);
- grid.append(editorTop,toolbar,transmissionEditor);
+ editorTop.append(makeChamberNode('span','ha-rich-editor-hint','ONE CANVAS // EVERY PIECE OF CONTENT IS A BLOCK'));
+ grid.append(editorTop,transmissionEditor);
+ const toolbarHost=recordChamber||grid.closest('.ha-record-chamber');
+ toolbarHost?.append(toolbar);
+ toolbarHost?.classList.add('has-floating-formatting-toolbar');
  const promptArea=makeChamberNode('div','ha-legacy-hidden-field');promptArea.innerHTML='';
  const lyricsArea=makeChamberNode('div','ha-legacy-hidden-field');lyricsArea.innerHTML='';
  const textArea=makeChamberNode('div','ha-legacy-hidden-field');textArea.innerHTML='';
@@ -762,14 +793,14 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   const remove=paths.filter(path=>!keep.includes(path));
   if(remove.length&&archiveSupabase){const {error}=await archiveSupabase.storage.from('vha-post-media').remove(remove);if(error)console.warn('Unreferenced block media could not be cleaned up:',error);}
  };
- const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
+ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,showTopbar:false,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
  const getEditorHTML=()=>transmissionEditor.__haBlockEditor?.getHTML()||transmissionEditor.innerHTML;
  const getEditorBlocks=()=>{
   const current=transmissionEditor.__haBlockEditor?.getBlocks?.();
   const source=Array.isArray(current)?current:(getEditorHTML().trim()?[{id:'block-001',type:'classic',html:getEditorHTML()}]:[]);
   return source.map((block,index)=>({id:String(block.id||'block-'+String(index+1).padStart(3,'0')),type:String(block.type||'classic'),html:sanitizeTransmissionBody(block.html||'')})).filter(block=>block.html.trim());
  };
- const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,editors:[transmissionEditor],toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
+ const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,editors:[transmissionEditor],toolbar,focusButton,insertLinkButton,draggableToolbar:false,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
 
  if(!readOnly&&record.source_type==='transmission'){
   grid.addEventListener('input',scheduleDraftAutosave);
@@ -782,21 +813,30 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   grid.querySelectorAll('[contenteditable="true"]').forEach(control=>{control.contentEditable='false';});
   grid.querySelectorAll('.ha-chamber-upload-label,.ha-chamber-media-remove').forEach(control=>{control.hidden=true;});
   if(editButton)editButton.hidden=!archiveAdmin;
+  clearChamberFormattingToolbar();
   bindChamberDisclosureControls(grid,expandButton);
   return;
  }
- const actions=makeChamberNode('div','ha-chamber-editor-actions');
- const save=makeChamberNode('button','ha-chamber-save','SAVE CHAMBER');save.type='button';
- const cancel=makeChamberNode('button','ha-chamber-cancel','CANCEL');cancel.type='button';
+ const save=closeButton;
+ if(!save)throw new Error('The chamber save control is unavailable.');
+ save.className='ha-chamber-close ha-chamber-save';save.type='button';save.textContent='SAVE CHAMBER';
+ save.setAttribute('aria-label','Save chamber changes');
+ if(editButton){
+  editButton.hidden=false;editButton.disabled=false;editButton.textContent='DISCARD';
+  editButton.setAttribute('aria-label','Discard editor changes');
+ }
 
  const getCurrentTransmissionText=()=>transmissionEditor.__haBlockEditor?.getText()||transmissionEditor.innerText||'';
- const updateSaveLabel=()=>{if(record.source_type!=='transmission')return;const next=recordMetadataInputs.status.value;save.textContent=next==='published'?(record.status==='published'?'SAVE PUBLISHED TRANSMISSION':'PUBLISH TRANSMISSION'):(record.status==='published'?'UNPUBLISH & SAVE DRAFT':'SAVE DRAFT');};
+ const updateSaveLabel=()=>{save.textContent='SAVE CHAMBER';};
  recordMetadataInputs?.status?.addEventListener('change',updateSaveLabel);updateSaveLabel();
  // Draft Transmissions are database-backed as the user types. Publication remains an explicit action.
  let draftAutosaveTimer=null,draftAutosaveInFlight=false,draftAutosaveQueued=false,draftAutosaveStopped=false,draftAutosaveFlushing=false,draftAutosaveConflict=false,draftAutosaveLastSignature='';
  const draftAutosaveEnabled=record.source_type==='transmission'&&record.status==='draft';
  const deleteDraft=draftAutosaveEnabled?makeChamberNode('button','ha-chamber-delete-draft','DELETE DRAFT'):null;
- if(deleteDraft)deleteDraft.type='button';
+ if(deleteDraft){
+  deleteDraft.type='button';
+  recordChamber?.querySelector('.ha-chamber-topbar-actions')?.append(deleteDraft);
+ }
  const buildDraftAutosaveState=()=>{
   const metadata={
    title:String(recordMetadataInputs.title.value).trim(),
@@ -955,14 +995,12 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   return await flushDraftAutosave();
  };
 
- if(deleteDraft)actions.append(deleteDraft);
- actions.append(save,cancel);grid.append(actions);
  deleteDraft?.addEventListener('click',async()=>{
   if(!draftAutosaveEnabled||draftAutosaveStopped||!archiveAdmin||!archiveSupabase||!archiveUserId)return;
   if(!window.confirm('Permanently delete this draft Transmission? Its Human Archive record and associated Human Archive attachment files will be removed. This cannot be undone.'))return;
   draftAutosaveStopped=true;
   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
-  deleteDraft.disabled=true;save.disabled=true;cancel.disabled=true;status.textContent='WAITING FOR ANY ACTIVE DRAFT SAVE…';
+  deleteDraft.disabled=true;save.disabled=true;editButton.disabled=true;status.textContent='WAITING FOR ANY ACTIVE DRAFT SAVE…';
   try{
    while(draftAutosaveInFlight)await new Promise(resolve=>setTimeout(resolve,50));
    draftAutosaveQueued=false;
@@ -982,29 +1020,133 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    mediaItems=mediaItems.filter(item=>!(item.post_ids||[]).includes(Number(record.id))&&!removedMediaUrls.has(item.url));
    removedMediaUrls.forEach(url=>mediaMap.delete(urlKey(url)));
    recordStructureOverrides.delete(String(record.id));favoriteRecordIds.delete(String(record.id));
+   blockEditorControllers.forEach(controller=>controller.destroy());
+   richEditorController?.destroy();clearChamberFormattingToolbar();
    chamberCloseRequestedByUser=true;recordChamber?.close();render();
    setMediaStatus(cleanupWarning?'DRAFT DELETED — SOME STORAGE FILES COULD NOT BE CLEANED UP':'DRAFT DELETED',!cleanupWarning);
   }catch(error){
-   draftAutosaveStopped=false;deleteDraft.disabled=false;save.disabled=false;cancel.disabled=false;
+   draftAutosaveStopped=false;deleteDraft.disabled=false;save.disabled=false;editButton.disabled=false;
    console.error('Human Archive draft could not be deleted:',error);
    status.textContent='DELETE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
    scheduleDraftAutosave(0);
   }
  });
  bindChamberDisclosureControls(grid,expandButton);
- cancel.addEventListener('click',()=>{
-  void cleanupBlockMediaUploads('');
-  if(chamberSaveConflict){
-   const discard=window.confirm('This tab has unsaved changes that conflict with a newer version. Discard this tab’s changes and return to the read-only chamber?');
-   if(!discard)return;
-   chamberSaveConflict=false;flushActiveChamberAutosave=async()=>true;
-  }
+ const destroyEditor=()=>{
   blockEditorControllers.forEach(controller=>controller.destroy());
   richEditorController?.destroy();
-  status.textContent='';
-  renderRecordStructureView(record,grid,status,editButton,expandButton);
- });
- save.addEventListener('click',async()=>{
+  clearChamberFormattingToolbar();
+ };
+ const waitForDraftSave=async()=>{
+  while(draftAutosaveInFlight)await new Promise(resolve=>setTimeout(resolve,50));
+ };
+ const removeNewDraftStorage=async(paths)=>{
+  const safe=[...new Set((paths||[]).filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')))];
+  if(!safe.length)return;
+  const {error}=await archiveSupabase.storage.from('vha-post-media').remove(safe);
+  if(error)console.warn('Discarded draft media could not be fully cleaned up:',error);
+ };
+ const discardChanges=async()=>{
+  if(editButton.disabled)return;
+  editButton.disabled=true;save.disabled=true;if(deleteDraft)deleteDraft.disabled=true;
+  status.textContent='DISCARDING CHANGES…';
+  try{
+   const wasNewBeforeEditing=Boolean(initialRecordSnapshot.isNew&&!initialRecordSnapshot.post_id);
+   if(wasNewBeforeEditing&&!record.post_id){
+    if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
+    await cleanupBlockMediaUploads('');
+    destroyEditor();
+    if(createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // DISCARDED';
+    chamberCloseRequestedByUser=true;recordChamber?.close();
+    return;
+   }
+   if(wasNewBeforeEditing&&record.post_id){
+    draftAutosaveStopped=true;
+    if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
+    await waitForDraftSave();
+    const {data,error}=await archiveSupabase.rpc('delete_human_archive_transmission_draft_v1',{p_post_id:record.post_id});
+    if(error)throw error;
+    const deleted=Array.isArray(data)?data[0]:data;
+    if(!deleted||Number(deleted.archive_record_id)!==Number(record.id))throw new Error('The newly created draft could not be confirmed for deletion.');
+    await cleanupBlockMediaUploads('');
+    await removeNewDraftStorage(Array.isArray(deleted.storage_paths)?deleted.storage_paths:[]);
+    records=records.filter(item=>String(item.id)!==String(record.id));
+    recordStructureOverrides.delete(String(record.id));favoriteRecordIds.delete(String(record.id));
+    destroyEditor();chamberCloseRequestedByUser=true;recordChamber?.close();render();
+    if(createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // DISCARDED';
+    return;
+   }
+   if(draftAutosaveEnabled){
+    draftAutosaveStopped=true;
+    if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
+    draftAutosaveQueued=false;
+    await waitForDraftSave();
+    if(chamberSaveConflict||draftAutosaveConflict){
+     if(!window.confirm('A newer version of this draft was saved elsewhere. Discard this editor session without overwriting that version?')){
+      draftAutosaveStopped=false;editButton.disabled=false;save.disabled=false;if(deleteDraft)deleteDraft.disabled=false;return;
+     }
+     await Promise.all([loadRecordStructureOverrides(),loadTransmissionRecords()]);
+     const latest=records.find(item=>String(item.id)===String(record.id));
+     if(latest)Object.assign(record,latest);
+    }else{
+     const original=initialRecordSnapshot;
+     const originalStructure=initialStructureSnapshot;
+     const originalBody=sanitizeTransmissionBody(originalStructure.transmission_body||original.content_html||'');
+     const originalBlocks=Array.isArray(originalStructure.blocks)?originalStructure.blocks:[];
+     const originalOutput=originalStructure.output_media&&typeof originalStructure.output_media==='object'?originalStructure.output_media:{};
+     const originalMedia=(Array.isArray(original.media_items)?original.media_items:[]).map(item=>{
+      const mime=String(item.mime_type||'').toLowerCase();
+      const type=['image','audio','video'].includes(item.type)?item.type:(mime.split('/')[0]||'file');
+      return {url:String(item.source_url||item.url||''),path:item.storage_path||item.path||null,type,name:String(item.title||item.name||original.title)};
+     }).filter(item=>item.url);
+     const expectedUpdatedAt=record.updated_at;
+     status.textContent='RESTORING THE ORIGINAL DRAFT…';
+     const {data,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
+      p_post_id:original.post_id,p_title:original.title,p_slug:original.slug,
+      p_category:String((original.categories||[])[0]||'').toUpperCase(),p_excerpt:original.excerpt||'',p_status:'draft',
+      p_transmission_body:originalBody,p_prompt_style:originalStructure.prompt_style||'',
+      p_lyrics_style:originalStructure.lyrics_style||'',p_output_text:originalStructure.output_text||'',
+      p_output_media:originalOutput,p_media_items:originalMedia,p_media_width:original.media_width||100,
+      p_expected_updated_at:expectedUpdatedAt
+     });
+     if(error)throw error;
+     const saved=Array.isArray(data)?data[0]:data;
+     const {data:blockSaveData,error:blockSaveError}=await archiveSupabase.rpc('save_human_archive_record_blocks_v1',{
+      p_record_id:Number(record.id),p_blocks:originalBlocks,p_expected_updated_at:saved?.updated_at||expectedUpdatedAt
+     });
+     if(blockSaveError)throw blockSaveError;
+     Object.assign(record,original);
+     record.content_html=originalBody;
+     record.updated_at=blockSaveData||saved?.updated_at||expectedUpdatedAt;
+     recordStructureOverrides.set(String(record.id),{
+      ...originalStructure,transmission_body:originalBody,output_media:originalOutput,
+      blocks:originalBlocks,updated_at:record.updated_at
+     });
+     const originalPaths=new Set([
+      ...(Array.isArray(original.media_items)?original.media_items:[]).map(item=>item.storage_path||item.path||''),
+      ...Object.values(originalOutput).flatMap(items=>Array.isArray(items)?items.map(item=>item?.path||''):[])
+     ].filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')));
+     const newPaths=[
+      ...attachedPostMedia.map(item=>item.uploadedDraft?.path||item.path||''),
+      ...['image','audio','video'].flatMap(type=>editorMedia[type].map(item=>item.uploadedDraft?.path||item.path||''))
+     ].filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')&&!originalPaths.has(path));
+     await removeNewDraftStorage(newPaths);
+    }
+   }
+   await cleanupBlockMediaUploads('');
+   draftAutosaveStopped=true;
+   destroyEditor();
+   status.textContent='EDITOR CHANGES DISCARDED';
+   if(hasArchiveIndex)render();
+   renderRecordStructureView(record,grid,status,editButton,expandButton,closeButton);
+  }catch(error){
+   console.error('Human Archive editor changes could not be discarded:',error);
+   draftAutosaveStopped=false;editButton.disabled=false;save.disabled=false;if(deleteDraft)deleteDraft.disabled=false;
+   status.textContent='DISCARD FAILED — '+String(error.message||'PLEASE TRY AGAIN');
+  }
+ };
+ if(editButton)editButton.onclick=discardChanges;
+ save.onclick=async()=>{
   if(!archiveAdmin||!archiveSupabase||!archiveUserId){status.textContent='ADMIN SESSION REQUIRED';return;}
   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
   if(draftAutosaveInFlight){
@@ -1018,7 +1160,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     :'Unpublish this Transmission? It will become a private draft and disappear from public listings.';
    if(!window.confirm(prompt))return;
   }
-  save.disabled=true;cancel.disabled=true;save.textContent='SAVING…';status.textContent='PREPARING CHAMBER UPDATE…';
+  save.disabled=true;editButton.disabled=true;if(deleteDraft)deleteDraft.disabled=true;save.textContent='SAVING…';status.textContent='PREPARING CHAMBER UPDATE…';
   const uploadedPaths=[];
   const oldStructure=recordStructureOverrides.get(String(record.id))||{};
   const existingOutput=oldStructure.output_media&&typeof oldStructure.output_media==='object'?oldStructure.output_media:{};
@@ -1206,7 +1348,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
      render();
     }
    }
-   renderRecordStructureView(record,grid,status,editButton,expandButton);
+   renderRecordStructureView(record,grid,status,editButton,expandButton,closeButton);
   }catch(error){
    if(uploadedPaths.length){
     const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
@@ -1215,9 +1357,9 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    console.error('Human Archive chamber could not be saved:',error);
    if(error?.code==='40001')chamberSaveConflict=true;
    status.textContent=error?.code==='40001'?'EDIT CONFLICT — THIS RECORD CHANGED IN ANOTHER TAB. RELOAD BEFORE CONTINUING.':'SAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
-   save.disabled=false;cancel.disabled=false;save.textContent='SAVE CHAMBER';
+   save.disabled=false;editButton.disabled=false;if(deleteDraft)deleteDraft.disabled=false;save.textContent='SAVE CHAMBER';
   }
- });
+ }; 
 }
 function buildRecordChamber(record){
  const shell=makeChamberNode('div','ha-chamber-shell');
@@ -1246,18 +1388,14 @@ function buildRecordChamber(record){
  actions.append(edit,close);shareRow.append(share,shareStatus,actions);main.append(shareRow);
  main.append(titleRow);
  const grid=makeChamberNode('div','ha-chamber-grid');main.append(grid);
- renderRecordStructureView(record,grid,shareStatus,edit,expand);
+ renderRecordStructureView(record,grid,shareStatus,edit,expand,close);
  expand.addEventListener('click',()=>{
   const disclosures=[...grid.querySelectorAll('details[data-ha-disclosure]')];
   const shouldOpen=!disclosures.every(item=>item.open);
   disclosures.forEach(item=>{item.open=shouldOpen;});
   syncChamberExpandButton(grid,expand);
  });
- edit.addEventListener('click',()=>{
-  if(!archiveAdmin){shareStatus.textContent='ADMIN ACCESS REQUIRED';return;}
-  renderRecordStructureEditor(record,grid,shareStatus,edit,expand);
- });
- close.addEventListener('click',()=>{closeRecordChamberSafely();});
+ // The view renderer assigns the shared REDESIGN / CLOSE actions.
  const footer=makeChamberNode('footer','ha-chamber-footer');
  const source=safeExternalUrl(record.url,new Set(['emanuelstefancu.wordpress.com']));
  if(source){const link=makeChamberNode('a','ha-chamber-source','OPEN ORIGINAL SOURCE ↗');link.href=source;link.target='_blank';link.rel='noopener noreferrer';footer.append(link);}
