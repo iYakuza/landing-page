@@ -498,6 +498,7 @@
       else if(type==='ordered-list') html='<ol><li>'+plain.innerHTML+'</li></ol>';
       if(type==='columns')html=defaultHTML('columns');
       const next=makeBlock(/^h[1-4]$/.test(type)?'heading':type,html);
+      if(block.dataset.haBlockName)next.dataset.haBlockName=block.dataset.haBlockName;
       block.replaceWith(next); wireBlock(next); setSelected(next); focusBlock(next); sync();
     }
 
