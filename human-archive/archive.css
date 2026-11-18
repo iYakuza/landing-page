@@ -943,9 +943,59 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
 }
 
 
-/* Columbarium niche header spacing and justified layout. */
+/* Columbarium niche header — 10px type, no added padding. */
 .ha-record-card>.ha-entry .ha-entry-top{
-  padding:10px!important;
+  padding:0!important;
   justify-content:space-between!important;
   text-align:justify!important;
+}
+.ha-record-card>.ha-entry .ha-entry-code{
+  font-size:10px!important;
+  text-align:justify!important;
+}
+
+/* Keep the memorial divider visibly rendered between the hero and intro. */
+.ha-divider{
+  display:block!important;
+  width:100%!important;
+  height:1px!important;
+  min-height:1px!important;
+  margin:24px 0 36px!important;
+  opacity:1!important;
+  background:linear-gradient(90deg,transparent,rgba(184,198,190,.72) 18%,rgba(184,198,190,.72) 82%,transparent)!important;
+  border:0!important;
+}
+
+/* The intro heading is a fixed two-line typographic block. */
+.ha-memorial-intro:before{
+  content:none!important;
+  display:none!important;
+}
+.ha-memorial-intro h2{
+  display:block!important;
+  white-space:normal!important;
+}
+.ha-memorial-intro h2>span,
+.ha-memorial-intro h2>em{
+  display:block!important;
+  white-space:nowrap!important;
+  max-width:100%;
+}
+.ha-memorial-intro h2{
+  font-size:clamp(24px,3.3vw,44px)!important;
+}
+.ha-memorial-intro h2>em{
+  font-size:inherit!important;
+}
+
+/* Archive niches: never show more than two columns at any viewport width. */
+.ha-category-entries{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+@media(max-width:590px){
+  .ha-category-entries{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:9px!important;
+  }
+  .ha-record-card>.ha-entry .ha-entry-code{font-size:10px!important}
 }
