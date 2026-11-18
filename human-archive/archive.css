@@ -1161,3 +1161,52 @@ main[data-vha-layout-root]{
  .ha-chamber-share-row>.ha-chamber-topbar-actions>.ha-chamber-edit,
  .ha-chamber-share-row>.ha-chamber-topbar-actions>.ha-chamber-close{min-height:32px!important;padding:7px 8px!important;font-size:8px!important}
 }
+
+
+/* The chamber action pair always occupies the top header: REDESIGN/CLOSE in view,
+   DISCARD/SAVE CHAMBER while editing. */
+.ha-chamber-topbar{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ flex-wrap:nowrap!important;gap:12px!important
+}
+.ha-chamber-topbar-actions{
+ position:static!important;inset:auto!important;top:auto!important;right:auto!important;
+ z-index:20!important;display:flex!important;flex:0 0 auto!important;align-items:center!important;
+ justify-content:flex-end!important;gap:8px!important;margin:0 0 0 auto!important;padding:0!important;
+ width:auto!important;height:auto!important;min-width:0!important;max-width:none!important;overflow:visible!important;
+ visibility:visible!important;opacity:1!important;pointer-events:auto!important
+}
+.ha-chamber-topbar-actions>.ha-chamber-edit,
+.ha-chamber-topbar-actions>.ha-chamber-close{
+ position:static!important;display:inline-flex!important;flex:0 0 auto!important;
+ align-items:center!important;justify-content:center!important;min-width:max-content!important;
+ min-height:36px!important;margin:0!important;padding:8px 12px!important;
+ white-space:nowrap!important;visibility:visible!important;opacity:1!important
+}
+.ha-chamber-topbar-actions>.ha-chamber-edit{
+ border:1px solid rgba(143,190,188,.65)!important;background:#07100b!important;color:#c1d5d1!important
+}
+.ha-chamber-topbar-actions>.ha-chamber-close{
+ border:1px solid rgba(185,215,122,.55)!important;background:#07100b!important;color:#d8e4d8!important
+}
+.ha-chamber-topbar-actions>.ha-chamber-save{
+ border-color:#b9d77a!important;background:rgba(185,215,122,.16)!important;color:#e3f2c7!important
+}
+.ha-chamber-topbar-actions>.ha-chamber-delete-draft{
+ min-height:36px!important;margin:0!important;white-space:nowrap!important
+}
+.ha-chamber-topbar-actions>button:hover,
+.ha-chamber-topbar-actions>button:focus-visible{
+ background:#b9d77a!important;color:#071009!important;outline:2px solid #b9d77a!important;outline-offset:2px!important
+}
+.ha-chamber-topbar-actions>button:disabled{opacity:.58!important;cursor:not-allowed!important}
+@media(max-width:640px){
+ .ha-chamber-topbar{gap:7px!important}
+ .ha-chamber-topbar-actions{gap:5px!important}
+ .ha-chamber-topbar-actions>.ha-chamber-edit,
+ .ha-chamber-topbar-actions>.ha-chamber-close{
+  min-height:32px!important;padding:7px 8px!important;font-size:8px!important
+ }
+ .ha-chamber-topbar-actions>.ha-chamber-delete-draft{min-height:32px!important;padding:7px 8px!important;font-size:8px!important}
+ .ha-chamber-mark{max-width:42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
