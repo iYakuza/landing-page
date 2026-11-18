@@ -457,6 +457,16 @@
         });
         return holder.innerHTML;
       },
+      getBlocks() {
+        return blocks().map((block,index)=>{
+          const content=block.querySelector('[data-ha-block-content]');
+          return content ? {
+            id:block.dataset.haBlockId || 'block-'+String(index+1).padStart(3,'0'),
+            type:block.dataset.haBlock || 'classic',
+            html:content.innerHTML
+          } : null;
+        }).filter(Boolean);
+      },
       getText() { return blocks().map(block=>{const content=block.querySelector('[data-ha-block-content]');const text=content?.innerText||'';return text.trim()|| (content?.querySelector('img,audio,video,iframe')?'media':'');}).filter(Boolean).join('\n\n'); },
       replaceHTML(html) { this.destroy(); editor.innerHTML=String(html||'<p><br></p>'); return mountBlockEditor({editor,onChange,readOnly}); },
       focus() { focusBlock(selected||blocks()[0]); },
