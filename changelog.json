@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T10:09:53.204734Z",
-  "last_processed_sha": "26ffb6df171bd647de4482f4a9583d09b25ec6a1",
+  "updated_at": "2026-11-18T10:32:14.981952Z",
+  "last_processed_sha": "307933d58a9c3ac735f15357ba930f2eb3f191c7",
   "entries": [
+    {
+      "id": "307933d58a9c3ac735f15357ba930f2eb3f191c7",
+      "timestamp": "2026-11-18T11:32:06+01:00",
+      "category": "FIX",
+      "component": "Website",
+      "title": "More reliable Website",
+      "description": "This update brings together Fix Human Archive text line breaks. It updates rich-text-editor.js, archive.js.",
+      "commit_count": 1,
+      "files": [
+        "editor-ui/rich-text-editor.js",
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Fix Human Archive text line breaks",
+          "url": "https://github.com/iYakuza/landing-page/commit/307933d58a9c3ac735f15357ba930f2eb3f191c7",
+          "files": [
+            "editor-ui/rich-text-editor.js",
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "26ffb6df171bd647de4482f4a9583d09b25ec6a1",
       "timestamp": "2026-11-18T11:09:35+01:00",
@@ -1199,29 +1222,6 @@
         {
           "message": "Flush Human Archive recovery on every exit and reload (#89)",
           "url": "https://github.com/iYakuza/landing-page/commit/9ec7c1027ad5636ee9afa3c348a3b24db5b50587",
-          "files": [
-            "human-archive/archive.js",
-            "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "00cf0d14d9c261a888c2360c3c5d45d701a9eac6",
-      "timestamp": "2026-11-17T03:00:39+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Restore Human Archive drafts automatically when reopening a chamber (#88). It updates archive.js, index.html.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.js",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Restore Human Archive drafts automatically when reopening a chamber (#88)",
-          "url": "https://github.com/iYakuza/landing-page/commit/00cf0d14d9c261a888c2360c3c5d45d701a9eac6",
           "files": [
             "human-archive/archive.js",
             "human-archive/index.html"
