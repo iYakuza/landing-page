@@ -583,3 +583,35 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
  .ha-chamber-topbar-actions .ha-chamber-edit,
  .ha-chamber-topbar-actions .ha-chamber-close{min-height:32px!important;padding:7px 8px!important;font-size:8px!important}
 }
+
+
+/* Chamber controls: keep the action row directly beneath the chamber header and force its buttons to render. */
+.ha-chamber-share-row>.ha-chamber-topbar-actions{
+ display:flex!important;position:static!important;inset:auto!important;top:auto!important;right:auto!important;
+ flex:0 0 auto!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;
+ width:auto!important;height:auto!important;min-width:0!important;max-width:100%!important;
+ margin:0 0 0 12px!important;padding:0!important;overflow:visible!important;
+ visibility:visible!important;opacity:1!important;pointer-events:auto!important;z-index:1002!important
+}
+.ha-chamber-share-row>.ha-chamber-topbar-actions>.ha-chamber-edit,
+.ha-chamber-share-row>.ha-chamber-topbar-actions>.ha-chamber-close{
+ display:inline-flex!important;position:static!important;flex:0 0 auto!important;
+ align-items:center!important;justify-content:center!important;
+ width:auto!important;min-width:max-content!important;min-height:36px!important;
+ max-width:none!important;margin:0!important;padding:8px 12px!important;
+ visibility:visible!important;opacity:1!important;white-space:nowrap!important;
+ color:#d8e4d8!important;background:#07100b!important;border:1px solid rgba(185,215,122,.55)!important;
+ font:9px/1.2 'DM Mono',monospace!important;letter-spacing:.08em!important;
+}
+.ha-chamber-share-row>.ha-chamber-topbar-actions>.ha-chamber-edit{color:#c1d5d1!important;border-color:rgba(143,190,188,.65)!important}
+.ha-chamber-share-row>.ha-chamber-topbar-actions>.ha-chamber-save{border-color:#b9d77a!important;background:rgba(185,215,122,.16)!important;color:#e3f2c7!important}
+.ha-chamber-share-row>.ha-chamber-topbar-actions>button:hover,
+.ha-chamber-share-row>.ha-chamber-topbar-actions>button:focus-visible{
+ background:#b9d77a!important;color:#071009!important;outline:2px solid #b9d77a!important;outline-offset:2px!important
+}
+.ha-chamber-share-row>.ha-chamber-topbar-actions>button:disabled{opacity:.58!important;cursor:not-allowed!important}
+@media(max-width:640px){
+ .ha-chamber-share-row>.ha-chamber-topbar-actions{gap:5px!important;margin-left:auto!important}
+ .ha-chamber-share-row>.ha-chamber-topbar-actions>.ha-chamber-edit,
+ .ha-chamber-share-row>.ha-chamber-topbar-actions>.ha-chamber-close{min-height:32px!important;padding:7px 8px!important;font-size:8px!important}
+}
