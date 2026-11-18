@@ -1609,3 +1609,25 @@ body.image-viewer-open{overflow:hidden!important}
 .posts-list.ha-list .ha-empty-record{margin:0;color:#9ca9a9;font:12px/1.8 'DM Mono',monospace}
 @media(max-width:900px){.posts-list.ha-list .ha-category-entries{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.ha-controls{gap:10px;padding:15px 0}.ha-controls input{flex:1 1 100%;min-width:0}.ha-controls select{flex:1 1 130px;min-width:0}.ha-count{width:100%;margin:4px 0 0}.posts-list.ha-list .ha-category-entries{grid-template-columns:1fr;gap:9px}.posts-list.ha-list .post-record-entry{height:154px;min-height:154px;max-height:154px;padding:16px}.posts-list.ha-list .ha-category-heading{align-items:center}.posts-list.ha-list .ha-category-title{font-size:20px}}
+
+
+/* MATCH HUMAN ARCHIVE // same outer width and content alignment as .ha-main. */
+.posts-main{
+ width:min(1160px,90vw)!important;
+ max-width:1160px!important;
+ margin-left:auto!important;
+ margin-right:auto!important;
+}
+.posts-main>.posts-hero,
+.posts-main>.posts-content,
+.posts-main>.posts-note{
+ padding-left:0!important;
+ padding-right:0!important;
+}
+.posts-main>.posts-content{
+ width:100%!important;
+ max-width:none!important;
+ margin-left:0!important;
+ margin-right:0!important;
+ box-sizing:border-box!important;
+}
