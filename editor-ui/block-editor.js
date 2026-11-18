@@ -109,6 +109,7 @@
     let selected = null;
     let menu = null;
     let syncing = false;
+    const listeners = new AbortController();
 
     const labelFor = type => TYPES.find(item => item[0] === type)?.[1] || 'Classic';
     const blocks = () => [...editor.querySelectorAll(':scope > [data-ha-editor-block]')];
@@ -141,7 +142,9 @@
       if (type === 'image') {
         const src = safeURL(raw,IMAGE_HOSTS);
         if (!src) return window.alert('Use a secure image URL from the archive media library or WordPress media.');
-        html = '<figure><img src="'+src+'" alt="" loading="lazy"><figcaption contenteditable="true">Image caption</figcaption></figure>';
+        const alt=window.prompt('Alternative text for this image (optional)','')||'';
+        const figure=document.createElement('figure'),image=document.createElement('img'),caption=document.createElement('figcaption');
+        image.src=src;image.alt=alt;image.loading='lazy';caption.contentEditable='true';caption.textContent='Image caption';figure.append(image,caption);html=figure.outerHTML;
       } else if (type === 'audio' || type === 'video') {
         const src = safeURL(raw,MEDIA_HOSTS);
         if (!src) return window.alert('Use a secure URL from the Human Archive media library.');
@@ -231,13 +234,13 @@
       if(['classic','image','audio','video','embed','separator'].includes(type))transform.disabled=true;
       actions.append(transform);
 
-      const up = document.createElement('button'); up.type='button'; up.textContent='↑'; up.title='Move block up';
+      const up = document.createElement('button'); up.type='button'; up.textContent='↑'; up.title='Move block up'; up.setAttribute('aria-label','Move block up');
       up.addEventListener('click',() => { if(block.previousElementSibling){block.parentNode.insertBefore(block,block.previousElementSibling);sync();} });
-      const down = document.createElement('button'); down.type='button'; down.textContent='↓'; down.title='Move block down';
+      const down = document.createElement('button'); down.type='button'; down.textContent='↓'; down.title='Move block down'; down.setAttribute('aria-label','Move block down');
       down.addEventListener('click',() => { if(block.nextElementSibling){block.parentNode.insertBefore(block.nextElementSibling,block);sync();} });
-      const duplicate = document.createElement('button'); duplicate.type='button'; duplicate.textContent='＋'; duplicate.title='Duplicate block';
+      const duplicate = document.createElement('button'); duplicate.type='button'; duplicate.textContent='＋'; duplicate.title='Duplicate block'; duplicate.setAttribute('aria-label','Duplicate block');
       duplicate.addEventListener('click',() => { const copy=block.cloneNode(true); block.after(copy); wireBlock(copy); setSelected(copy); sync(); });
-      const remove = document.createElement('button'); remove.type='button'; remove.textContent='×'; remove.title='Delete block';
+      const remove = document.createElement('button'); remove.type='button'; remove.textContent='×'; remove.title='Delete block'; remove.setAttribute('aria-label','Delete block');
       remove.addEventListener('click',() => {
         const next=block.nextElementSibling||block.previousElementSibling;
         block.remove();
@@ -329,6 +332,8 @@
     });
 
     addTop.addEventListener('click',()=>createMenu(addTop,null));
+    shell.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu){event.preventDefault();closeMenu();addTop.focus();}});
+    document.addEventListener('pointerdown',event=>{if(menu&&!shell.contains(event.target))closeMenu();},{signal:listeners.signal});
     editor.addEventListener('focusin',event=>{
       const block=event.target.closest('[data-ha-editor-block]');
       if(block)setSelected(block);
@@ -363,6 +368,7 @@
       replaceHTML(html) { this.destroy(); editor.innerHTML=String(html||'<p><br></p>'); return mountBlockEditor({editor,onChange,readOnly}); },
       focus() { focusBlock(selected||blocks()[0]); },
       destroy() {
+        listeners.abort();closeMenu();
         const html=this.getHTML();
         shell.replaceWith(editor);
         editor.classList.remove('ha-block-editor-canvas');
