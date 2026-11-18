@@ -718,7 +718,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  widthWrap.append(makeChamberNode('span','ha-chamber-metadata-label','MEDIA WIDTH'));
  const mediaWidthInput=document.createElement('input');mediaWidthInput.type='range';mediaWidthInput.min='20';mediaWidthInput.max='100';mediaWidthInput.step='5';mediaWidthInput.value=String(Math.max(20,Math.min(100,Number(record.media_width)||100)));mediaWidthInput.name='media_width';mediaWidthInput.className='ha-chamber-editor-field ha-chamber-meta-input';
  const widthOutput=makeChamberNode('output','ha-chamber-media-width-value',mediaWidthInput.value+'%');
- mediaWidthInput.addEventListener('input',()=>{widthOutput.textContent=mediaWidthInput.value+'%';});
+ mediaWidthInput.addEventListener('input',()=>{widthOutput.textContent=mediaWidthInput.value+'%';canvas?.style.setProperty('--ha-media-width',mediaWidthInput.value+'%');});
  widthWrap.append(mediaWidthInput,widthOutput);metadataFields.append(widthWrap);
  const statusInput=addSelect('PUBLICATION STATUS','status',record.status==='published'?'published':'draft',[
   ['draft','DRAFT — PRIVATE'],['published','PUBLISHED — PUBLIC']
@@ -742,6 +742,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  canvas.contentEditable=readOnly?'false':'true';canvas.setAttribute('role','textbox');canvas.setAttribute('aria-multiline','true');canvas.setAttribute('aria-label','Human Archive content');canvas.spellcheck=true;
  canvas.dataset.placeholder='Write your archive entry. Use Add block or / to insert any block…';
  canvas.innerHTML=sanitizeTransmissionBody(getUnifiedRecordHTML(record,structure));
+ canvas.style.setProperty('--ha-media-width',mediaWidthInput.value+'%');
  grid.append(focusButton,toolbar,canvas);
  const blockMediaMime=(file,type)=>{
   const mime=String(file.type||'').toLowerCase();
