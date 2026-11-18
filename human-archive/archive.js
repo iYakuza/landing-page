@@ -666,6 +666,8 @@ function sanitizeTransmissionBody(source){
   }
   const alignment=(node.style?.textAlign||'').toLowerCase();
   if(['left','center','right','justify'].includes(alignment))element.style.textAlign=alignment;
+  const mediaWidth=(node.style?.width||'').trim();
+  if(['FIGURE','IMG','AUDIO','VIDEO','IFRAME'].includes(node.tagName)&&/^(?:[2-9]\d|100)%$/.test(mediaWidth)){element.style.width=mediaWidth;element.style.maxWidth='100%';}
   node.childNodes.forEach(child=>copy(child,element));parent.append(element);
  }
  const fragment=document.createDocumentFragment();
