@@ -2,8 +2,8 @@
   'use strict';
 
   const EMBED_HOSTS = new Set(['www.youtube.com','www.youtube-nocookie.com','youtu.be','youtube.com','open.spotify.com','w.soundcloud.com','soundcloud.com','player.vimeo.com','vimeo.com','www.tiktok.com','www.instagram.com','www.facebook.com','www.dailymotion.com','www.loom.com','www.ted.com','codepen.io','www.redditmedia.com','www.slideshare.net','www.mixcloud.com','audiomack.com','www.pinterest.com']);
-  const IMAGE_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']);
-  const MEDIA_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co']);
+  const IMAGE_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']);
+  const MEDIA_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']);
   const TYPES = [
     ['paragraph','Paragraph','Text'],['heading','Heading','Text'],['unordered-list','List','Text'],['ordered-list','Numbered list','Text'],['quote','Quote','Text'],['pullquote','Pullquote','Text'],['verse','Verse','Text'],['preformatted','Preformatted','Text'],['code','Code','Text'],['table','Table','Text'],['details','Details / Accordion','Text'],['markdown','Markdown','Text'],['html','Custom HTML','Text'],['classic','Classic content','Text'],['separator','Separator','Text'],['page-break','Page break','Text'],['more','More / Read more','Text'],
     ['image','Image','Media'],['gallery','Gallery','Media'],['slideshow','Slideshow','Media'],['tiled-gallery','Tiled gallery','Media'],['cover','Cover','Media'],['media-text','Media & text','Media'],['image-compare','Image compare','Media'],['audio','Audio','Media'],['video','Video','Media'],['file','File download','Media'],['playlist','Audio playlist','Media'],['podcast','Podcast player','Media'],['embed','Embed','Media'],['youtube','YouTube','Media'],['spotify','Spotify','Media'],['soundcloud','SoundCloud','Media'],
@@ -15,7 +15,7 @@
       const url = new URL(String(value || '').trim());
       if (url.protocol !== 'https:' || !url.hostname || url.username || url.password || !hosts.has(url.hostname.toLowerCase())) return '';
       if (url.hostname.toLowerCase() === 'oeyxsqocldlovhsmzcjw.supabase.co' &&
-          !/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname)) return '';
+          !/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media|human-archive-media)\//.test(url.pathname)) return '';
       return url.href;
     } catch { return ''; }
   }
@@ -42,7 +42,14 @@
     if (tag === 'IMG' || node.querySelector?.('img')) return 'image';
     if (tag === 'AUDIO' || node.querySelector?.('audio')) return 'audio';
     if (tag === 'VIDEO' || node.querySelector?.('video')) return 'video';
-    if (tag === 'IFRAME' || node.querySelector?.('iframe')) return 'embed';
+    if (tag === 'IFRAME' || node.querySelector?.('iframe')) {
+      const frame = tag === 'IFRAME' ? node : node.querySelector('iframe');
+      const src = frame?.getAttribute('src') || '';
+      if (/spotify\.com/i.test(src)) return 'spotify';
+      if (/soundcloud\.com/i.test(src)) return 'soundcloud';
+      if (/youtube(?:-nocookie)?\.com|youtu\.be/i.test(src)) return 'youtube';
+      return 'embed';
+    }
     if (tag === 'DIV' || tag === 'SECTION' || tag === 'ASIDE' || tag === 'NAV' || tag === 'ARTICLE') return 'classic';
     return 'paragraph';
   }
@@ -456,6 +463,16 @@
           if(content){const clone=content.cloneNode(true);holder.append(...clone.childNodes);}
         });
         return holder.innerHTML;
+      },
+      getBlocks() {
+        return blocks().map((block,index)=>{
+          const content=block.querySelector('[data-ha-block-content]');
+          return content ? {
+            id:block.dataset.haBlockId || 'block-'+String(index+1).padStart(3,'0'),
+            type:block.dataset.haBlock || 'classic',
+            html:content.innerHTML
+          } : null;
+        }).filter(Boolean);
       },
       getText() { return blocks().map(block=>{const content=block.querySelector('[data-ha-block-content]');const text=content?.innerText||'';return text.trim()|| (content?.querySelector('img,audio,video,iframe')?'media':'');}).filter(Boolean).join('\n\n'); },
       replaceHTML(html) { this.destroy(); editor.innerHTML=String(html||'<p><br></p>'); return mountBlockEditor({editor,onChange,readOnly}); },
