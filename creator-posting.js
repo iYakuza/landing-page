@@ -5,7 +5,7 @@
 
   const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-  const EDITOR_VERSION = '20261118-ha-editor-refinements-3';
+  const EDITOR_VERSION = '20261118-ha-editor-refinements-4';
   let client = null;
   let isCreator = false;
   let refreshing = false;
@@ -59,6 +59,22 @@
     });
   }
 
+  function loadBlockEditorStylesheet() {
+    if (document.querySelector('link[data-vha-block-editor-styles],link[href*="/editor-ui/block-editor.css"]')) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/landing-page/editor-ui/block-editor.css?v=' + EDITOR_VERSION;
+      link.dataset.vhaBlockEditorStyles = 'true';
+      link.onload = () => resolve();
+      link.onerror = () => {
+        link.remove();
+        reject(new Error('The shared block editor styles could not be loaded.'));
+      };
+      document.head.appendChild(link);
+    });
+  }
+
   function loadScript(src, isReady) {
     if (isReady()) return Promise.resolve();
     return new Promise((resolve, reject) => {
@@ -85,6 +101,8 @@
     editorLoadPromise = (async () => {
       await ensureSupabase();
       await loadStylesheet();
+      await loadBlockEditorStylesheet();
+      await loadScript('/landing-page/editor-ui/block-editor.js?v=' + EDITOR_VERSION, () => Boolean(window.VHABlockEditor?.mountBlockEditor));
       await loadScript('/landing-page/editor-ui/rich-text-editor.js?v=' + EDITOR_VERSION, () => Boolean(window.VHAEditorUI?.mountRichTextEditor));
       await loadScript('/landing-page/human-archive/archive.js?v=' + EDITOR_VERSION, () => Boolean(window.__vhaArchiveChamberControllerLoaded));
       if (!window.__vhaArchiveChamberReady) throw new Error('The shared Transmission editor did not start.');
