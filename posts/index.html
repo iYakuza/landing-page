@@ -11,7 +11,7 @@
   <meta name="description" content="Transmissions from Verse After Hours — writing, ideas, notes, and creative experiments by Emanuel Ștefancu.">
   <title>TRANSMISSIONS — Verse After Hours</title>
   <link rel="stylesheet" href="../green-dream/style.css?v=20261102-palette-3">
-  <link rel="stylesheet" href="posts.css?v=20261118-human-archive-width-3">
+  <link rel="stylesheet" href="posts.css?v=20261118-shared-layout-1">
   <link rel="stylesheet" href="/landing-page/tools.css?v=20261105-mood-contrast-regression-2">
   <link rel="stylesheet" href="../editor-ui.css?v=20261027-shared-actions-1">
   <style id="posts-critical-theme">
@@ -30,6 +30,7 @@
   </style>
   <link rel="stylesheet" href="/landing-page/game-ui.css?v=20261114-crystal-only-nav-1">
   <link rel="stylesheet" href="/landing-page/typography.css?v=20261106-type-1">
+  <link rel="stylesheet" href="/landing-page/shared/components/layout.css?v=20261118-shared-layout-1">
 </head>
 <body class="vha-game-interface">
 <div class="gd" id="gd-top">
@@ -53,8 +54,8 @@
 </nav>
     <span class="gd-status">● ARCHIVE // OPEN CHANNEL</span>
   </header>
-  <main class="posts-main">
-    <section class="posts-hero">
+  <main class="posts-main" data-vha-layout-root>
+    <template data-vha-component="section" data-vha-kind="hero" data-vha-classes="posts-hero">
       <p class="gd-kicker">VERSE AFTER HOURS // OPEN CHANNEL</p>
       <div class="hero-pixel-art" role="img" aria-label="Pixel-art falling blocks in acid green, violet, and electric blue">
         <svg viewBox="0 0 240 220" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-hidden="true">
@@ -75,8 +76,8 @@
       <h1 class="posts-title-single-line">TRANSMISSIONS.</h1>
       <p class="posts-intro">The creator archive: poems, reflections, and creative transmissions published by Emanuel Ștefancu. Community submissions have their own separate channel.</p>
       <div class="posts-meta"><span>COMMUNITY SIGNALS / OPEN CHANNEL</span><span>HUMAN ARCHIVE // TRANSMISSIONS</span></div>
-    </section>
-    <section class="posts-content" aria-label="Transmissions archive">
+    </template>
+    <template data-vha-component="section" data-vha-kind="intro" data-vha-classes="posts-content" aria-label="Transmissions archive">
       <div class="ha-controls" id="posts-controls" role="search" aria-label="Filter transmissions">
         <label for="post-search">SEARCH TRANSMISSIONS</label>
         <input id="post-search" type="search" placeholder="A title, a word, a year…" autocomplete="off">
@@ -89,12 +90,13 @@
       <div id="posts-list" class="posts-list ha-list" aria-live="polite"><p class="posts-empty">CONNECTING TO THE ARCHIVE…</p></div>
       <button type="button" id="posts-load-more" class="cms-text-button" hidden>LOAD OLDER TRANSMISSIONS ↓</button>
       
-    </section>
-    <section class="posts-note">
+    </template>
+    <template data-vha-component="section" data-vha-kind="records" data-vha-classes="posts-note">
       <span class="posts-note-mark">V/A</span>
       <div><p class="gd-kicker">LEAVE A TRACE</p><h2>EVERY SIGNAL<br><em>STARTS SOMEWHERE.</em></h2><p>This page is reserved for creator posts. Community submissions and their public gallery live on a separate page.</p><a class="posts-admin-link" href="/landing-page/posts/community/">COMMUNITY UPLINK ↗</a></div>
-    </section>
+    </template>
   </main>
+  <script src="/landing-page/shared/components/layout.js?v=20261118-shared-layout-1"></script>
   <footer class="gd-footer"><span>THE CITY IS LOUD. LEAVE A TRACE.</span></footer>
 </div>
 
