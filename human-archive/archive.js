@@ -531,7 +531,22 @@ function bindChamberDisclosureControls(grid,button){
  syncChamberExpandButton(grid,button);
 }
 function sanitizeTransmissionBody(source){
- const parsed=new DOMParser().parseFromString(String(source||''),'text/html');
+ const raw=String(source??'');
+ const parsed=new DOMParser().parseFromString(raw,'text/html');
+ // Legacy archive fields may contain plain text rather than HTML. Convert their
+ // newline structure into real paragraph and line-break nodes before sanitizing.
+ if(!parsed.body.children.length&&/[\\r\\n]/.test(raw)){
+  const fragment=document.createDocumentFragment();
+  raw.replace(/\\r\\n?/g,'\\n').split(/\\n{2,}/).forEach(paragraph=>{
+   const block=document.createElement('p');
+   paragraph.split('\\n').forEach((line,index)=>{
+    if(index)block.append(document.createElement('br'));
+    block.append(document.createTextNode(line));
+   });
+   fragment.append(block);
+  });
+  const holder=document.createElement('div');holder.append(fragment);return holder.innerHTML;
+ }
  const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','BLOCKQUOTE','UL','OL','LI','A','HR','CODE','PRE','DIV','SECTION','ASIDE','DETAILS','SUMMARY']);
  const allowedClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response']);
  function copy(node,parent){

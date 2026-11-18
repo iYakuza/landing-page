@@ -21,6 +21,12 @@
     targets.forEach(target => {
       target.addEventListener('focusin', () => { activeEditor = target; }, { signal });
       target.addEventListener('input', onChange, { signal });
+      target.addEventListener('keydown', event => {
+        if (event.key !== 'Enter' || event.isComposing || event.defaultPrevented) return;
+        event.preventDefault();
+        document.execCommand(event.shiftKey ? 'insertLineBreak' : 'insertParagraph', false, null);
+        onChange();
+      }, { signal });
     });
 
     toolbar.addEventListener('mousedown', event => {
