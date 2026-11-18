@@ -1,8 +1,49 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T05:09:46.092974Z",
-  "last_processed_sha": "1a00bdb02de9d0e19d1335c4307eb8f42975ecc6",
+  "updated_at": "2026-11-18T05:28:44.466625Z",
+  "last_processed_sha": "4d1537161735e585f3024bded41a164fc641b87c",
   "entries": [
+    {
+      "id": "4d1537161735e585f3024bded41a164fc641b87c",
+      "timestamp": "2026-11-18T06:28:31+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Restore direct Posts redesign controls. It updates creator-posting.js, archive.js, index.html and related project files.",
+      "commit_count": 1,
+      "files": [
+        "creator-posting.js",
+        "human-archive/archive.js",
+        "human-archive/index.html",
+        "posts/index.html",
+        "posts/posts.css",
+        "posts/posts.js",
+        "posts/the-awakening/index.html",
+        "posts/the-descent/index.html",
+        "posts/the-reconnection/index.html",
+        "posts/the-return/index.html",
+        "posts/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Restore direct Posts redesign controls",
+          "url": "https://github.com/iYakuza/landing-page/commit/4d1537161735e585f3024bded41a164fc641b87c",
+          "files": [
+            "creator-posting.js",
+            "human-archive/archive.js",
+            "human-archive/index.html",
+            "posts/index.html",
+            "posts/posts.css",
+            "posts/posts.js",
+            "posts/the-awakening/index.html",
+            "posts/the-descent/index.html",
+            "posts/the-reconnection/index.html",
+            "posts/the-return/index.html",
+            "posts/the-transformation/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "1a00bdb02de9d0e19d1335c4307eb8f42975ecc6",
       "timestamp": "2026-11-18T06:09:30+01:00",
@@ -1172,27 +1213,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/5dd6037ba1a8ea702c048df1d01d183000d55dda",
           "files": [
             "human-archive/archive.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "ce55f0e836606d01c7f31096243dfc14ecd04de4",
-      "timestamp": "2026-11-16T19:15:07+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Select multi-media metadata for public posts (#66). It updates posts.js.",
-      "commit_count": 1,
-      "files": [
-        "posts/posts.js"
-      ],
-      "commits": [
-        {
-          "message": "Select multi-media metadata for public posts (#66)",
-          "url": "https://github.com/iYakuza/landing-page/commit/ce55f0e836606d01c7f31096243dfc14ecd04de4",
-          "files": [
-            "posts/posts.js"
           ]
         }
       ]
