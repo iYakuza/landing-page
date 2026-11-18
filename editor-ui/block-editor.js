@@ -201,6 +201,9 @@
         });
         menu.append(button);
       });
+      const anchorRect=anchor.getBoundingClientRect(),shellRect=shell.getBoundingClientRect();
+      menu.style.left=Math.max(8,anchorRect.left-shellRect.left)+'px';
+      menu.style.top=(anchorRect.bottom-shellRect.top+5)+'px';
       anchor.after(menu);
     }
 
@@ -222,6 +225,7 @@
       const currentContent=block.querySelector('[data-ha-block-content]')?.firstElementChild;
       transform.value = /^H[1-4]$/.test(currentContent?.tagName||'') ? currentContent.tagName.toLowerCase() : (['image','audio','video','embed','separator','classic'].includes(type) ? 'paragraph' : type==='heading'?'h2':type);
       transform.addEventListener('change',() => transformBlock(block,transform.value));
+      if(type==='classic')transform.disabled=true;
       actions.append(transform);
 
       const up = document.createElement('button'); up.type='button'; up.textContent='↑'; up.title='Move block up';
