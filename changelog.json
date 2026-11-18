@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T19:12:05.939150Z",
-  "last_processed_sha": "ba61f5efa1fcb5a506cf1c5950b6e8c20ec8233d",
+  "updated_at": "2026-11-18T19:12:39.647229Z",
+  "last_processed_sha": "c4babef8ca22f8dc93ecb5cfacec398397b8f00a",
   "entries": [
+    {
+      "id": "c4babef8ca22f8dc93ecb5cfacec398397b8f00a",
+      "timestamp": "2026-11-18T20:12:33+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Refresh shared Human Archive editor assets; Refresh Human Archive editor assets. It updates index.html and related project files.",
+      "commit_count": 2,
+      "files": [
+        "human-archive/index.html",
+        "posts/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Refresh shared Human Archive editor assets",
+          "url": "https://github.com/iYakuza/landing-page/commit/d5ad97504c92ff14c276d7f6c4883371fca6e5c6",
+          "files": [
+            "posts/index.html"
+          ]
+        },
+        {
+          "message": "Refresh Human Archive editor assets",
+          "url": "https://github.com/iYakuza/landing-page/commit/c4babef8ca22f8dc93ecb5cfacec398397b8f00a",
+          "files": [
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "93397e9a089280bf2abf1e780abd889517d1ba5f",
       "timestamp": "2026-11-18T20:12:04+01:00",
@@ -1198,43 +1227,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/d67657c10247146f366039b50a1c27311870f160",
           "files": [
             "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "86f20af6a2523a9c29ae33db18833fe74b8f7a5c",
-      "timestamp": "2026-11-18T10:43:47+01:00",
-      "category": "CONTENT",
-      "component": "Website Updates",
-      "title": "Fresh additions to Website Updates",
-      "description": "This update brings together Update Human Archive columbarium memorial copy; Tighten Human Archive section spacing and quote styling; Search Human Archive post body text. It updates archive.css, archive.js, index.html.",
-      "commit_count": 3,
-      "files": [
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Update Human Archive columbarium memorial copy",
-          "url": "https://github.com/iYakuza/landing-page/commit/53d14d850acafdbc8b103805a9b4be768f3b3ecc",
-          "files": [
-            "human-archive/index.html"
-          ]
-        },
-        {
-          "message": "Tighten Human Archive section spacing and quote styling",
-          "url": "https://github.com/iYakuza/landing-page/commit/8ee67461de3d60353ef0267fad6012071da8e0a3",
-          "files": [
-            "human-archive/archive.css"
-          ]
-        },
-        {
-          "message": "Search Human Archive post body text",
-          "url": "https://github.com/iYakuza/landing-page/commit/86f20af6a2523a9c29ae33db18833fe74b8f7a5c",
-          "files": [
-            "human-archive/archive.js"
           ]
         }
       ]
