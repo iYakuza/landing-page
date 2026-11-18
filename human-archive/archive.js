@@ -179,7 +179,7 @@ function appendMediaLink(parent,item,record,used){
 }
 function appendSafeContent(container,source,record,used){
  const doc=new DOMParser().parseFromString(String(source||''),'text/html');
- const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','H4','UL','OL','LI','BLOCKQUOTE','HR','PRE','CODE','A','FIGURE','FIGCAPTION','DIV','SPAN','SMALL','SUP','SUB','TABLE','THEAD','TBODY','TR','TH','TD']);
+ const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','H4','UL','OL','LI','BLOCKQUOTE','HR','PRE','CODE','A','FIGURE','FIGCAPTION','DIV','SPAN','SMALL','SUP','SUB','TABLE','THEAD','TBODY','TR','TH','TD']);
  const blocked=new Set(['SCRIPT','STYLE','OBJECT','EMBED','SVG','MATH','FORM','INPUT','BUTTON','TEXTAREA','SELECT','OPTION','LINK','META']);
  const iframeHosts=new Set(['www.youtube.com','www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com']);
  const layoutClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response']);
@@ -251,6 +251,8 @@ function appendSafeContent(container,source,record,used){
   }
   if(tag==='TD'||tag==='TH'){const span=node.getAttribute('colspan');if(span&&/^\d{1,2}$/.test(span))el.colSpan=Number(span);}
   if(node.hasAttribute('class')){const classes=(node.getAttribute('class')||'').split(/\s+/).filter(name=>layoutClasses.has(name));if(classes.length)el.className=classes.join(' ');}
+  const alignment=(node.style?.textAlign||'').toLowerCase();
+  if(['left','center','right','justify'].includes(alignment))el.style.textAlign=alignment;
   node.childNodes.forEach(child=>copy(child,el));parent.append(el);
  }
  doc.body.childNodes.forEach(node=>copy(node,container));
@@ -530,7 +532,7 @@ function bindChamberDisclosureControls(grid,button){
 }
 function sanitizeTransmissionBody(source){
  const parsed=new DOMParser().parseFromString(String(source||''),'text/html');
- const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','BLOCKQUOTE','UL','OL','LI','A','HR','CODE','PRE','DIV','SECTION','ASIDE','DETAILS','SUMMARY']);
+ const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','BLOCKQUOTE','UL','OL','LI','A','HR','CODE','PRE','DIV','SECTION','ASIDE','DETAILS','SUMMARY']);
  const allowedClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response']);
  function copy(node,parent){
   if(node.nodeType===Node.TEXT_NODE){parent.append(document.createTextNode(node.nodeValue||''));return;}
@@ -545,6 +547,8 @@ function sanitizeTransmissionBody(source){
    const classes=(node.getAttribute('class')||'').split(/\s+/).filter(name=>allowedClasses.has(name));
    if(classes.length)element.className=classes.join(' ');
   }
+  const alignment=(node.style?.textAlign||'').toLowerCase();
+  if(['left','center','right','justify'].includes(alignment))element.style.textAlign=alignment;
   node.childNodes.forEach(child=>copy(child,element));parent.append(element);
  }
  const fragment=document.createDocumentFragment();
