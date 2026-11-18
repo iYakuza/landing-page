@@ -206,7 +206,7 @@
           }else if(type==='file'){
             const item=safe[0];html='<p class="ha-file-block"><a href="'+esc(item.url)+'" download>'+esc(item.name||'Download file')+'</a></p>';
           }else{
-            html='<div class="'+(type==='podcast'?'ha-podcast':'ha-audio-block')+'">'+safe.map(item=>'<figure><audio controls preload="metadata" src="'+esc(item.url)+'"></audio><figcaption contenteditable="true">'+esc(item.name)+'</figcaption></figure>').join('')+'</div>';
+            html='<div class="'+(type==='podcast'?'ha-podcast':type==='playlist'?'ha-playlist':'ha-audio-block')+'">'+safe.map(item=>'<figure><audio controls preload="metadata" src="'+esc(item.url)+'"></audio><figcaption contenteditable="true">'+esc(item.name)+'</figcaption></figure>').join('')+'</div>';
           }
           const next=makeBlock(type,html);if(block)block.after(next);else editor.append(next);wireBlock(next);setSelected(next);focusBlock(next);sync();close();
         };
