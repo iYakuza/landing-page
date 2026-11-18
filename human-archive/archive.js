@@ -182,7 +182,7 @@ function appendSafeContent(container,source,record,used){
  const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','H4','UL','OL','LI','BLOCKQUOTE','HR','PRE','CODE','A','FIGURE','FIGCAPTION','DIV','SPAN','SMALL','SUP','SUB','TABLE','THEAD','TBODY','TR','TH','TD']);
  const blocked=new Set(['SCRIPT','STYLE','OBJECT','EMBED','SVG','MATH','FORM','INPUT','BUTTON','TEXTAREA','SELECT','OPTION','LINK','META']);
  const iframeHosts=new Set(['www.youtube.com','www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com']);
- const layoutClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response']);
+ const layoutClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response','ha-pullquote','ha-verse','ha-markdown-source','ha-html-source','ha-buttons','ha-button','ha-columns','ha-group','ha-row','ha-stack','ha-grid','ha-spacer','ha-social-icons','ha-icon-block','ha-timeline','ha-tabs','ha-callout','ha-card','ha-media-text','ha-image-compare','ha-gallery','ha-slideshow','ha-tiled-gallery','ha-cover','ha-embed','ha-embed-card','ha-embed-link','ha-file-block','ha-audio-block','ha-podcast','ha-playlist','ha-page-break','wp-block-pullquote']);
  function copy(node,parent){
   if(node.nodeType===Node.TEXT_NODE){parent.append(document.createTextNode(node.nodeValue||''));return;}
   if(node.nodeType!==Node.ELEMENT_NODE)return;
@@ -565,7 +565,7 @@ function sanitizeTransmissionBody(source){
   });
   const holder=document.createElement('div');holder.append(fragment);return holder.innerHTML;
  }
- const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','H4','BLOCKQUOTE','UL','OL','LI','A','HR','CODE','PRE','DIV','SECTION','ASIDE','DETAILS','SUMMARY','FIGURE','FIGCAPTION','IMG','AUDIO','VIDEO','SOURCE','IFRAME']);
+ const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','H4','BLOCKQUOTE','UL','OL','LI','A','HR','CODE','PRE','DIV','SECTION','ASIDE','DETAILS','SUMMARY','FIGURE','FIGCAPTION','IMG','AUDIO','VIDEO','SOURCE','IFRAME','TABLE','THEAD','TBODY','TR','TH','TD','NAV','ARTICLE','MARK','SMALL','SPAN']);
  const allowedClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response']);
  function copy(node,parent){
   if(node.nodeType===Node.TEXT_NODE){parent.append(document.createTextNode(node.nodeValue||''));return;}
@@ -601,10 +601,10 @@ function sanitizeTransmissionBody(source){
    element.src=src;element.type=String(node.getAttribute('type')||'');
   }
   if(node.tagName==='IFRAME'){
-   const src=safeExternalUrl(node.getAttribute('src'),new Set(['www.youtube.com','www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com']));
+   const src=safeExternalUrl(node.getAttribute('src'),new Set(['www.youtube.com','www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com','player.vimeo.com','www.dailymotion.com','www.loom.com']));
    if(!src)return;
    const url=new URL(src),host=url.hostname.toLowerCase();
-   if((host.includes('youtube')&&!url.pathname.startsWith('/embed/'))||(host==='open.spotify.com'&&!url.pathname.startsWith('/embed/'))||(host==='w.soundcloud.com'&&!url.pathname.startsWith('/player/')))return;
+   if((host.includes('youtube')&&!url.pathname.startsWith('/embed/'))||(host==='open.spotify.com'&&!url.pathname.startsWith('/embed/'))||(host==='w.soundcloud.com'&&!url.pathname.startsWith('/player/'))||(host==='player.vimeo.com'&&!url.pathname.startsWith('/video/'))||(host==='www.dailymotion.com'&&!url.pathname.startsWith('/embed/video/'))||(host==='www.loom.com'&&!url.pathname.startsWith('/embed/')))return;
    element.src=src;element.title=String(node.getAttribute('title')||'Embedded media');element.loading='lazy';element.referrerPolicy='strict-origin-when-cross-origin';element.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';element.allowFullscreen=true;
   }
   if(node.tagName==='A'){
