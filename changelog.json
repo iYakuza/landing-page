@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T21:28:18.999278Z",
-  "last_processed_sha": "263665d54148da45e32558e23933441ea1e97f07",
+  "updated_at": "2026-11-18T21:28:59.051997Z",
+  "last_processed_sha": "05b218393782115c0c8330ea0c9f578adc56e6df",
   "entries": [
+    {
+      "id": "05b218393782115c0c8330ea0c9f578adc56e6df",
+      "timestamp": "2026-11-18T22:28:44+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Preserve custom block names when transforming block types. It updates block-editor.js.",
+      "commit_count": 1,
+      "files": [
+        "editor-ui/block-editor.js"
+      ],
+      "commits": [
+        {
+          "message": "Preserve custom block names when transforming block types",
+          "url": "https://github.com/iYakuza/landing-page/commit/05b218393782115c0c8330ea0c9f578adc56e6df",
+          "files": [
+            "editor-ui/block-editor.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "bc9974fffbcf94b0943015d5e1ae1f30516cf577",
       "timestamp": "2026-11-18T22:28:16+01:00",
@@ -1297,33 +1318,6 @@
         {
           "message": "Integrate Human Archive media block picker",
           "url": "https://github.com/iYakuza/landing-page/commit/9b14733da4a25cb0bc7cbff481cf186d5623cf49",
-          "files": [
-            "editor-ui/block-editor.css",
-            "editor-ui/block-editor.js",
-            "human-archive/archive.js",
-            "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "bce70f539862cf4a7ec4bfe8d0a074a4407a2f45",
-      "timestamp": "2026-11-18T13:36:24+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Expand Human Archive Gutenberg block library. It updates block-editor.css, block-editor.js, archive.js, index.html.",
-      "commit_count": 1,
-      "files": [
-        "editor-ui/block-editor.css",
-        "editor-ui/block-editor.js",
-        "human-archive/archive.js",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Expand Human Archive Gutenberg block library",
-          "url": "https://github.com/iYakuza/landing-page/commit/bce70f539862cf4a7ec4bfe8d0a074a4407a2f45",
           "files": [
             "editor-ui/block-editor.css",
             "editor-ui/block-editor.js",
