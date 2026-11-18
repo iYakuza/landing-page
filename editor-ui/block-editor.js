@@ -151,11 +151,27 @@
     function insertMedia(type, block) {
       const ask=label=>window.prompt(label);
       const imageHosts=new Set([...IMAGE_HOSTS,'*.files.wordpress.com','*.wp.com']);
-      const mediaHosts=new Set([...MEDIA_HOSTS]);
-      const raw=ask(type==='gallery'?'Image URLs (one per line or comma-separated)':type==='cover'?'Cover image URL':type==='image'?'Image URL':type==='audio'?'Audio file URL':type==='video'?'Video file URL':type==='file'?'File download URL':'Paste a YouTube, Spotify, SoundCloud, Vimeo, TikTok, Instagram, Facebook or Dailymotion URL');
+      const mediaHosts=new Set([...MEDIA_HOSTS,'*.files.wordpress.com']);
+      const raw=ask(type==='html'?'Paste HTML to insert (unsafe elements and attributes are removed)':type==='gallery'?'Image URLs (one per line or comma-separated)':type==='cover'?'Cover image URL':type==='image'?'Image URL':type==='audio'?'Audio file URL':type==='video'?'Video file URL':type==='file'?'File download URL':'Paste a YouTube, Spotify, SoundCloud, Vimeo, TikTok, Instagram, Facebook or Dailymotion URL');
       if(!raw)return;
       let html='';
-      if(['image','gallery','cover'].includes(type)){
+      if(type==='html'){
+        const parsed=new DOMParser().parseFromString(raw,'text/html');
+        parsed.querySelectorAll('script,style,object,embed,form,input,button,textarea,select,option,svg,math,link,meta').forEach(node=>node.remove());
+        const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','DEL','H1','H2','H3','H4','UL','OL','LI','BLOCKQUOTE','HR','PRE','CODE','A','FIGURE','FIGCAPTION','IMG','AUDIO','VIDEO','SOURCE','IFRAME','TABLE','THEAD','TBODY','TR','TH','TD','DETAILS','SUMMARY','DIV','SPAN']);
+        parsed.body.querySelectorAll('*').forEach(node=>{
+          if(!allowed.has(node.tagName)){node.replaceWith(...node.childNodes);return;}
+          [...node.attributes].forEach(attr=>{
+            const name=attr.name.toLowerCase();
+            if(name.startsWith('on')||['srcdoc','srcset','contenteditable'].includes(name))node.removeAttribute(attr.name);
+            else if(name==='href'){try{const u=new URL(attr.value);if(!((u.protocol==='https:'&&u.hostname&&!u.username&&!u.password)||(u.protocol==='mailto:'&&u.pathname)))node.removeAttribute(attr.name);}catch{node.removeAttribute(attr.name);}}
+            else if(name==='src'){const hosts=node.tagName==='IMG'?new Set([...IMAGE_HOSTS,'*.files.wordpress.com','*.wp.com']):['AUDIO','VIDEO','SOURCE'].includes(node.tagName)?mediaHosts:node.tagName==='IFRAME'?EMBED_HOSTS:null;const safe=hosts&&safeURL(attr.value,hosts);if(safe)node.setAttribute('src',safe);else node.removeAttribute(attr.name);}
+            else if(!['alt','title','class','width','height','controls','preload','target','rel','allow','allowfullscreen','loading','style'].includes(name))node.removeAttribute(attr.name);
+          });
+        });
+        html=parsed.body.innerHTML;
+        if(!html.trim())return window.alert('No supported HTML elements were found.');
+      } else if(['image','gallery','cover'].includes(type)){
         const urls=(type==='gallery'?raw.split(/[\n,]+/):[raw]).map(value=>safeURL(value,imageHosts)).filter(Boolean);
         if(!urls.length)return window.alert('Use a secure image URL from the archive media library or a supported WordPress media host.');
         const figures=urls.map((src,index)=>{
@@ -169,7 +185,7 @@
       } else if(['audio','video','file'].includes(type)){
         const src=safeURL(raw,mediaHosts);
         if(!src)return window.alert('Use a secure URL from the Human Archive media library or a supported WordPress media host.');
-        if(type!=='file'&&new URL(src).hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&!new URL(src).pathname.startsWith('/storage/v1/object/public/vha-post-media/'))return window.alert('That file is outside the Human Archive media bucket.');
+        if(new URL(src).hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&type!=='file'&&!new URL(src).pathname.startsWith('/storage/v1/object/public/vha-post-media/'))return window.alert('That file is outside the Human Archive media bucket.');
         if(type==='audio')html='<figure class="wp-block-audio"><audio controls preload="metadata" src="'+src+'"></audio></figure>';
         else if(type==='video')html='<figure class="wp-block-video"><video controls playsinline preload="metadata" src="'+src+'"></video></figure>';
         else html='<div class="wp-block-file"><a href="'+src+'" target="_blank" rel="noopener noreferrer">Download file</a></div>';
@@ -180,11 +196,12 @@
         else if(host==='www.youtube.com'&&url.pathname==='/watch'){const id=url.searchParams.get('v');if(!id||!/^[\w-]{6,20}$/.test(id))return window.alert('Invalid YouTube URL.');url=new URL('https://www.youtube-nocookie.com/embed/'+id);}
         else if(host==='www.youtube.com'&&url.pathname.startsWith('/shorts/')){const id=url.pathname.split('/')[2];if(!/^[\w-]{6,20}$/.test(id))return window.alert('Invalid YouTube URL.');url=new URL('https://www.youtube-nocookie.com/embed/'+id);}
         else if(host==='open.spotify.com'&&!url.pathname.startsWith('/embed/'))url.pathname='/embed'+url.pathname;
+        else if(host==='soundcloud.com'||host==='www.soundcloud.com'){url=new URL('https://w.soundcloud.com/player/?url='+encodeURIComponent(url.href));}
         else if(host==='vimeo.com'){const id=url.pathname.split('/').filter(Boolean)[0];if(!/^\d+$/.test(id||''))return window.alert('Invalid Vimeo URL.');url=new URL('https://player.vimeo.com/video/'+id);}
         else if(host==='www.dailymotion.com'){const id=url.pathname.match(/video\/([a-zA-Z0-9]+)/)?.[1];if(!id)return window.alert('Invalid Dailymotion URL.');url=new URL('https://www.dailymotion.com/embed/video/'+id);}
         else if(host==='www.tiktok.com'&&!url.pathname.startsWith('/embed/'))return window.alert('Use the TikTok embed URL copied from Share → Embed.');
         else if(host==='www.instagram.com'&&!url.pathname.endsWith('/embed/'))url.pathname=url.pathname.replace(/\/$/,'')+'/embed/';
-        else if(host==='www.x.com'||host==='platform.twitter.com')return window.alert('X posts need official embed HTML; use a Custom HTML block for the embed snippet.');
+        else if(host==='www.x.com'||host==='twitter.com'){const match=url.pathname.split('/');const status=match.indexOf('status');const id=status>=0?match[status+1]:'';if(!/^\\d+$/.test(id||''))return window.alert('Open a specific X post URL to embed it.');url=new URL('https://platform.twitter.com/embed/Tweet.html?id='+id);}
         const src=safeURL(url.href,EMBED_HOSTS);
         if(!src)return window.alert('That embed URL is not supported.');
         html='<figure class="wp-block-embed"><iframe src="'+src+'" title="Embedded media" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></figure>';
@@ -216,7 +233,7 @@
         button.type = 'button'; button.textContent = label; button.setAttribute('role','menuitem');
         button.addEventListener('click',() => {
           closeMenu();
-          if (['image','gallery','cover','audio','video','file','embed'].includes(type)) return insertMedia(type,block);
+          if (['image','gallery','cover','audio','video','file','embed','html'].includes(type)) return insertMedia(type,block);
           const next = makeBlock(type,defaultHTML(type));
           if (block) block.after(next); else editor.append(next);
           wireBlock(next);setSelected(next); focusBlock(next); sync();
