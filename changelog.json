@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T22:05:37.775255Z",
-  "last_processed_sha": "d5161331fea8b9fd232292e75e792e2389931695",
+  "updated_at": "2026-11-18T22:05:55.596009Z",
+  "last_processed_sha": "fb4d4ccb79bb7ae0c44472cff02606a0656b0ab2",
   "entries": [
+    {
+      "id": "fb4d4ccb79bb7ae0c44472cff02606a0656b0ab2",
+      "timestamp": "2026-11-18T23:05:47+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Refresh archive movement dropdown assets; Clean up movement dropdown guard. It updates archive.js, index.html.",
+      "commit_count": 2,
+      "files": [
+        "human-archive/archive.js",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Refresh archive movement dropdown assets",
+          "url": "https://github.com/iYakuza/landing-page/commit/c98e550ed8fb6041c62be7d5bb3ef6a09652f189",
+          "files": [
+            "human-archive/index.html"
+          ]
+        },
+        {
+          "message": "Clean up movement dropdown guard",
+          "url": "https://github.com/iYakuza/landing-page/commit/fb4d4ccb79bb7ae0c44472cff02606a0656b0ab2",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "d5161331fea8b9fd232292e75e792e2389931695",
       "timestamp": "2026-11-18T23:05:30+01:00",
@@ -1226,35 +1255,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/edb786c05388f167818d7cf38b45e051f2518f68",
           "files": [
             "posts/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "ff64dc67956073b6669d39990e514205396b899c",
-      "timestamp": "2026-11-18T17:30:52+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Refine expandable block category controls; Refresh block inserter category styles. It updates block-editor.css, index.html.",
-      "commit_count": 2,
-      "files": [
-        "editor-ui/block-editor.css",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Refine expandable block category controls",
-          "url": "https://github.com/iYakuza/landing-page/commit/d5e3480d4b15d1bc4f5da836d1941aa1145af3f8",
-          "files": [
-            "editor-ui/block-editor.css"
-          ]
-        },
-        {
-          "message": "Refresh block inserter category styles",
-          "url": "https://github.com/iYakuza/landing-page/commit/ff64dc67956073b6669d39990e514205396b899c",
-          "files": [
-            "human-archive/index.html"
           ]
         }
       ]
