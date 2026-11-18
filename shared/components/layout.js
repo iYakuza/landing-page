@@ -46,9 +46,6 @@
       if (section) template.replaceWith(section);
     });
 
-    root.querySelectorAll(".ha-controls").forEach(control => {
-      control.classList.add("vha-layout-controls");
-    });
 
     root.dataset.vhaLayoutReady = "true";
     document.dispatchEvent(new CustomEvent("vha-layout-ready", { detail: { root } }));
