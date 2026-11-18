@@ -13,8 +13,7 @@
   width:min(var(--vha-layout-max-width),var(--vha-layout-viewport-width))!important;
   max-width:var(--vha-layout-max-width)!important;
   margin:0 auto!important;
-  padding-left:0!important;
-  padding-right:0!important;
+  padding:42px!important;
   box-sizing:border-box!important;
 }
 
