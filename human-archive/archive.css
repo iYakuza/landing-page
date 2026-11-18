@@ -1127,3 +1127,5 @@ main[data-vha-layout-root]{
  background:rgba(143,171,170,.035)
 }
 .ha-chamber-blocks-view .ha-columns>section>*:last-child{margin-bottom:0}
+
+.ha-chamber-edit:disabled,.ha-chamber-close:disabled{opacity:.58!important;cursor:not-allowed!important}
