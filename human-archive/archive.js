@@ -738,6 +738,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  let recordMetadataInputs=null;
  let slugManuallyEdited=false;
  let attachedPostMedia=[];
+ const blockMediaUploadedPaths=[];
  let repaintAttachedPostMedia=()=>{};
  let postLayoutControls=null;
  const outputMediaRepaint={};
@@ -972,7 +973,61 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const output=makeChamberDisclosure('04 // OUTPUT','ha-chamber-panel ha-chamber-output ha-chamber-edit-panel','ha-chamber-panel-heading');
  const text=makeChamberDisclosure('TEXT','ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
  const textArea=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');textArea.contentEditable=readOnly?'false':'true';textArea.name='output_text';textArea.setAttribute('role','textbox');textArea.setAttribute('aria-multiline','true');textArea.setAttribute('aria-label','Output text');textArea.dataset.placeholder='Edit the original text output…';textArea.innerHTML=sanitizeTransmissionBody(structure.output_text);text.body.append(textArea);output.body.append(text.details);
- const blockEditorControllers=readOnly?[]:[transmissionEditor,promptArea,lyricsArea,textArea,layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
+ const blockMediaMime=(file,type)=>{
+  const mime=String(file.type||'').toLowerCase();
+  const accepted={
+   image:['image/jpeg','image/png','image/webp','image/gif','image/avif'],
+   audio:['audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm'],
+   video:['video/mp4','video/webm'],
+   file:['image/jpeg','image/png','image/webp','image/gif','image/avif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm','video/mp4','video/webm','application/pdf','text/plain','application/zip','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+  };
+  if(accepted[type]?.includes(mime))return mime;
+  if(mime)return null;
+  const ext=String(file.name||'').split('.').pop().toLowerCase();
+  const byExt={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',mp3:'audio/mpeg',m4a:'audio/mp4',wav:'audio/wav',ogg:'audio/ogg',weba:'audio/webm',mp4:'video/mp4',webm:'video/webm',pdf:'application/pdf',txt:'text/plain',zip:'application/zip',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'};
+  const inferred=byExt[ext]||'';return accepted[type]?.includes(inferred)?inferred:null;
+ };
+ const uploadBlockMedia=async(files,type)=>{
+  if(!archiveAdmin||!archiveSupabase||!archiveUserId)throw new Error('An active CMS admin session is required to upload media.');
+  const acceptedType=type==='image'||type==='gallery'||type==='slideshow'||type==='tiled-gallery'||type==='cover'||type==='media-text'||type==='image-compare'?'image':type==='audio'||type==='playlist'||type==='podcast'?'audio':type==='video'?'video':'file';
+  const assets=[];
+  for(const file of files){
+   const mime=blockMediaMime(file,acceptedType);
+   if(!mime)throw new Error(file.name+' has an unsupported file format.');
+   if(file.size>30*1024*1024)throw new Error(file.name+' exceeds the 30 MB upload limit.');
+   const token=chamberUploadToken();
+   const safeName=String(file.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
+   const folder=mime.startsWith('image/')?'image':mime.startsWith('audio/')?'audio':mime.startsWith('video/')?'video':'files';
+   const path='human-archive/'+String(record.id)+'/blocks/'+folder+'/'+token+'-'+safeName;
+   const {error}=await archiveSupabase.storage.from('vha-post-media').upload(path,file,{cacheControl:'3600',contentType:mime,upsert:false});
+   if(error)throw error;
+   blockMediaUploadedPaths.push(path);
+   const {data}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
+   if(!data?.publicUrl)throw new Error('The uploaded media URL could not be created.');
+   assets.push({url:data.publicUrl,path,name:file.name,mime_type:mime,type:folder,storage:'vha-post-media'});
+  }
+  status.textContent=assets.length+' MEDIA FILE'+(assets.length===1?'':'S')+' UPLOADED — SAVE TO KEEP CHANGES.';
+  return assets;
+ };
+ const getBlockMediaLibrary=type=>{
+  const desired=type==='image'||type==='gallery'||type==='slideshow'||type==='tiled-gallery'||type==='cover'||type==='media-text'||type==='image-compare'?'image':type==='audio'||type==='playlist'||type==='podcast'?'audio':type==='video'?'video':'';
+  const source=[...['image','audio','video'].flatMap(kind=>editorMedia[kind].map(item=>({...item,type:kind}))),...attachedPostMedia,...(Array.isArray(record.media_items)?record.media_items:[])];
+  const seen=new Set();
+  return source.filter(item=>{
+   const itemType=String(item.type||item.mime_type||'').toLowerCase();
+   const matches=!desired||itemType===desired||itemType.startsWith(desired+'/')||(desired==='image'&&itemType.startsWith('image/'))||(desired==='audio'&&itemType.startsWith('audio/'))||(desired==='video'&&itemType.startsWith('video/'));
+   const url=item.uploadedDraft?.url||item.url||item.source_url;
+   if(!matches||!url||seen.has(url))return false;seen.add(url);return true;
+  }).map(item=>({url:item.uploadedDraft?.url||item.url||item.source_url,path:item.uploadedDraft?.path||item.path||item.storage_path,name:item.name||item.title||record.title,mime_type:item.mime_type||item.type||''}));
+ };
+ const cleanupBlockMediaUploads=async(keepContent='')=>{
+  if(!blockMediaUploadedPaths.length)return;
+  const paths=blockMediaUploadedPaths.splice(0);
+  const keep=paths.filter(path=>String(keepContent||'').includes(path));
+  const remove=paths.filter(path=>!keep.includes(path));
+  if(remove.length&&archiveSupabase){const {error}=await archiveSupabase.storage.from('vha-post-media').remove(remove);if(error)console.warn('Unreferenced block media could not be cleaned up:',error);}
+ };
+ const blockEditorControllers=readOnly?[]:[transmissionEditor,promptArea,lyricsArea,textArea,layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
  const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,editors:[promptArea,lyricsArea,textArea,layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain],toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
  ['image','audio','video'].forEach(type=>{
   const media=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
