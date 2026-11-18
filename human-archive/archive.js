@@ -707,11 +707,19 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const categoryInput=document.createElement('select');
  categoryInput.className='ha-chamber-editor-field ha-chamber-meta-input';categoryInput.name='category';
  const archiveCategoryGroup=document.createElement('optgroup');archiveCategoryGroup.label='HUMAN ARCHIVE';
- categoryOrder.forEach(name=>{const option=document.createElement('option');option.value=name;option.textContent=name;archiveCategoryGroup.append(option);});
  const movementGroup=document.createElement('optgroup');movementGroup.label='TRANSMISSIONS';
- transmissionCategories.filter(name=>name!=='HUMAN ARCHIVE').forEach(name=>{const option=document.createElement('option');option.value=name;option.textContent=name;movementGroup.append(option);});
- if(currentCategory==='HUMAN ARCHIVE'){const legacyOption=document.createElement('option');legacyOption.value='HUMAN ARCHIVE';legacyOption.textContent='HUMAN ARCHIVE — LEGACY';movementGroup.prepend(legacyOption);}
+ const addedCategoryValues=new Set();
+ const appendUniqueCategory=(group,name,label=name)=>{
+  const key=String(name).normalize('NFKC').trim().toLocaleUpperCase();
+  if(!key||addedCategoryValues.has(key))return;
+  addedCategoryValues.add(key);
+  const option=document.createElement('option');option.value=name;option.textContent=label;group.append(option);
+ };
+ categoryOrder.forEach(name=>appendUniqueCategory(archiveCategoryGroup,name));
+ transmissionCategories.filter(name=>name!=='HUMAN ARCHIVE').forEach(name=>appendUniqueCategory(movementGroup,name));
+ if(currentCategory==='HUMAN ARCHIVE')appendUniqueCategory(movementGroup,'HUMAN ARCHIVE','HUMAN ARCHIVE — LEGACY');
  categoryInput.append(archiveCategoryGroup,movementGroup);
+ // Defensive final pass: each destination must appear exactly once, retaining its original value.
  categoryInput.value=categoryOrder.includes(currentCategory)||transmissionCategories.includes(currentCategory)?currentCategory:categoryOrder[0];
  categoryInputWrap.append(categoryInputLabel,categoryInput);metadataFields.append(categoryInputWrap);
  const excerptInput=addMetadataField('EXCERPT','excerpt',record.excerpt||'',{multiline:true,placeholder:'Short description shown in previews (up to 400 characters)',maxLength:400});
