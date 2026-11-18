@@ -624,7 +624,6 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const blockMediaUploadedPaths=[];
  const blockMediaUploadedAssets=[];
  let repaintAttachedPostMedia=()=>{};
- let postLayoutControls=null;
 
  grid.replaceChildren();
  const metadataDetails=makeChamberDisclosure('00 // RECORD DETAILS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-metadata-panel','ha-chamber-panel-heading');
@@ -666,7 +665,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  [['draft','DRAFT — PRIVATE'],['published','PUBLISHED — PUBLIC']].forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;statusSelect.append(option);});
  statusSelect.value=record.source_type==='transmission'?(record.status==='published'?'published':'draft'):'published';
  statusWrap.append(statusLabel,statusSelect);metadataFields.append(statusWrap);
- const statusNote=makeChamberNode('p','ha-chamber-metadata-note',record.source_type==='transmission'?'Drafts are private. Published Transmissions appear on the public site. Saving as draft removes a published Transmission from public listings.':'Legacy archive metadata is anchored to the original archive source. Shared content, presentation and media sections below remain editable.');
+ const statusNote=makeChamberNode('p','ha-chamber-metadata-note',record.source_type==='transmission'?'Drafts are private. Published Transmissions appear on the public site. Saving as draft removes a published Transmission from public listings.':'This legacy record remains anchored to its original archive source. Its content is edited as one ordered block stream.');
  if(record.source_type!=='transmission'){
   [titleInput,slugInput,categoryInput,excerptInput,mediaWidthInput,statusSelect].forEach(control=>{control.disabled=true;});
  }
@@ -680,27 +679,6 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    slugInput.value=String(titleInput.value||'').normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,180);
   });
  }
- const savedLayoutSource=record.source_type==='transmission'?(record.content_html||structure.transmission_body):(structure.transmission_body||record.content_html||'');
- const savedLayoutDoc=new DOMParser().parseFromString(String(savedLayoutSource),'text/html');
- const savedSuno=savedLayoutDoc.querySelector('.suno-post-layout');
- const savedPlain=savedLayoutDoc.querySelector('.plain-post-layout');
- const readLayoutText=selector=>{
-  const node=savedLayoutDoc.querySelector(selector);if(!node)return '';
-  const clone=node.cloneNode(true);clone.querySelectorAll('.suno-label,.suno-collapse-hint').forEach(label=>label.remove());
-  const read=node=>{
-   if(node.nodeType===Node.TEXT_NODE)return node.nodeValue||'';
-   if(node.nodeType!==Node.ELEMENT_NODE)return '';
-   if(node.tagName==='BR')return '\n';
-   const value=[...node.childNodes].map(read).join('');
-   return ['P','DIV','LI','H1','H2','H3','H4','BLOCKQUOTE'].includes(node.tagName)?value+'\n\n':value;
-  };
-  return read(clone).replace(/\r/g,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
- };
- const readLayoutHtml=selector=>{
-  const node=savedLayoutDoc.querySelector(selector);if(!node)return '';
-  const clone=node.cloneNode(true);clone.querySelectorAll('.suno-label,.suno-collapse-hint').forEach(label=>label.remove());
-  return clone.innerHTML;
- };
  const focusButton=makeChamberNode('button','ha-chamber-focus-toggle','T');focusButton.type='button';focusButton.setAttribute('aria-pressed','false');
  const toolbar=makeChamberNode('div','ha-rich-toolbar');toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','Block formatting tools');
  const formattingTools=[['B','bold'],['I','italic'],['U','underline'],['S','strikeThrough'],['P','formatBlock','p'],['H1','formatBlock','h1'],['H2','formatBlock','h2'],['H3','formatBlock','h3'],['H4','formatBlock','h4'],['QUOTE','formatBlock','blockquote'],['• LIST','insertUnorderedList'],['1. LIST','insertOrderedList'],['LEFT','justifyLeft'],['CENTER','justifyCenter'],['RIGHT','justifyRight'],['JUSTIFY','justifyFull'],['UNDO','undo'],['REDO','redo'],['CLEAR','removeFormat']];
@@ -718,7 +696,6 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const promptArea=makeChamberNode('div','ha-legacy-hidden-field');promptArea.innerHTML='';
  const lyricsArea=makeChamberNode('div','ha-legacy-hidden-field');lyricsArea.innerHTML='';
  const textArea=makeChamberNode('div','ha-legacy-hidden-field');textArea.innerHTML='';
- postLayoutControls=null;
  const blockMediaMime=(file,type)=>{
   const mime=String(file.type||'').toLowerCase();
   const accepted={
