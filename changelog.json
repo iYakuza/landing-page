@@ -1,8 +1,35 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T08:15:10.150715Z",
-  "last_processed_sha": "41c20c26feff54fe1cf2ece319176ab35c032a1f",
+  "updated_at": "2026-11-18T08:22:22.816332Z",
+  "last_processed_sha": "7a1a8d20e7bb99057c9ea9739f33a02e156aca89",
   "entries": [
+    {
+      "id": "7a1a8d20e7bb99057c9ea9739f33a02e156aca89",
+      "timestamp": "2026-11-18T09:22:07+01:00",
+      "category": "FIX",
+      "component": "Website Experience",
+      "title": "More reliable Website Experience",
+      "description": "This update brings together Fix shared main padding and remove Posts frame. It updates game-ui.css, index.html, layout.css and related project files.",
+      "commit_count": 1,
+      "files": [
+        "game-ui.css",
+        "human-archive/index.html",
+        "posts/index.html",
+        "shared/components/layout.css"
+      ],
+      "commits": [
+        {
+          "message": "Fix shared main padding and remove Posts frame",
+          "url": "https://github.com/iYakuza/landing-page/commit/7a1a8d20e7bb99057c9ea9739f33a02e156aca89",
+          "files": [
+            "game-ui.css",
+            "human-archive/index.html",
+            "posts/index.html",
+            "shared/components/layout.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "41c20c26feff54fe1cf2ece319176ab35c032a1f",
       "timestamp": "2026-11-18T09:15:02+01:00",
@@ -1156,35 +1183,6 @@
             "human-archive/archive.js",
             "human-archive/index.html",
             "supabase/migrations/20261116233208_save_human_archive_transmission_metadata.sql"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "353a48f9c410ed85144b6873d28b2f4eaa07b82c",
-      "timestamp": "2026-11-17T00:24:58+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Save Transmissions from the Human Archive chamber (#77). It updates unified-posting-record-model.md, archive.css, archive.js, index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "docs/architecture/unified-posting-record-model.md",
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html",
-        "supabase/migrations/20261116215410_save_human_archive_transmission.sql"
-      ],
-      "commits": [
-        {
-          "message": "Save Transmissions from the Human Archive chamber (#77)",
-          "url": "https://github.com/iYakuza/landing-page/commit/353a48f9c410ed85144b6873d28b2f4eaa07b82c",
-          "files": [
-            "docs/architecture/unified-posting-record-model.md",
-            "human-archive/archive.css",
-            "human-archive/archive.js",
-            "human-archive/index.html",
-            "supabase/migrations/20261116215410_save_human_archive_transmission.sql"
           ]
         }
       ]
