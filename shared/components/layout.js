@@ -39,8 +39,6 @@
     const root = document.querySelector("[data-vha-layout-root]");
     if (!root || root.dataset.vhaLayoutReady === "true") return;
 
-    root.classList.add("vha-layout-main");
-
     root.querySelectorAll('template[data-vha-component="section"]').forEach(template => {
       const section = createSection(template);
       if (section) template.replaceWith(section);

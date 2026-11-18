@@ -508,7 +508,7 @@ body.vha-entry-intro #vha-viewer-tools .vha-map-toggle svg{width:58px!important;
 @media(prefers-reduced-motion:reduce){.vha-journey-note:not([hidden]),.vha-journey-note:not([hidden]):hover,.vha-journey-note:not([hidden]):focus-within{animation:none!important;opacity:.82;visibility:visible;transition:none!important}}
 
 /* A quieter, more compact rhythm across the site. */
-body.vha-game-interface:not(.gd-home) main:not(.vha-layout-main){max-width:1240px;margin-inline:auto;padding-inline:clamp(16px,3.2vw,42px)}
+body.vha-game-interface:not(.gd-home) main:not([data-vha-layout-root]){max-width:1240px;margin-inline:auto;padding-inline:clamp(16px,3.2vw,42px)}
 body.vha-game-interface:not(.gd-home) main>section{padding-block:clamp(26px,4vw,54px)!important}
 body.vha-game-interface:not(.gd-home) :is(.post-card,.ha-card,.ha-entry,.archive-card,.cv-card,.signal-card,.song-card,.protocol-card,.case-file){padding:clamp(14px,1.8vw,24px)!important}
 body.vha-game-interface:not(.gd-home) :is(.post-card h1,.post-card h2,.ha-hero h1,.ha-intro h2,.movement-hero h1,.posts-hero h1,.song-hero h1,.cv-hero h1){font-size:clamp(28px,4.8vw,58px)!important;line-height:1.04!important}

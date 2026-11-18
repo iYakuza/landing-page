@@ -9,7 +9,7 @@
   --vha-layout-intro-padding-bottom:44px;
 }
 
-.vha-layout-main{
+main[data-vha-layout-root]{
   width:min(var(--vha-layout-max-width),var(--vha-layout-viewport-width))!important;
   max-width:var(--vha-layout-max-width)!important;
   margin:0 auto!important;
