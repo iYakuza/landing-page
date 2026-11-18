@@ -918,3 +918,26 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
 @media(prefers-reduced-motion:reduce){
   .ha-record-card>.ha-entry{transition:none!important}
 }
+
+
+/* COLUMBARIUM CARD CONTENT — shared by every archive record. */
+.ha-record-card>.ha-entry .ha-entry-top{
+  justify-content:center!important;
+  text-align:center!important;
+}
+.ha-record-card>.ha-entry .ha-entry-code{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  text-align:center!important;
+  overflow-wrap:anywhere;
+}
+.ha-record-card>.ha-entry .ha-entry-bottom{
+  justify-content:space-between!important;
+  align-items:center!important;
+}
+.ha-record-card>.ha-entry .ha-entry-bottom .ha-entry-id{
+  flex:0 0 auto!important;
+  padding:0!important;
+  text-align:left!important;
+}
