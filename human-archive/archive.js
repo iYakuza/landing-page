@@ -616,7 +616,7 @@ function renderRecordStructureView(record,grid,status,editButton,expandButton,cl
  else body.append(makeChamberNode('p','ha-chamber-note','NO CONTENT BLOCKS HAVE BEEN ADDED TO THIS RECORD.'));
  grid.append(body);
  if(editButton){
-  editButton.hidden=!archiveSignedIn;editButton.disabled=!archiveAdmin;editButton.textContent='REDESIGN CHAMBER';editButton.title=archiveAdmin?'':'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';
+  editButton.hidden=false;editButton.disabled=!archiveAdmin;editButton.textContent='REDESIGN CHAMBER';editButton.title=archiveAdmin?'':'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';
   editButton.setAttribute('aria-label','Redesign this archive chamber');
   editButton.onclick=()=>{
    if(!archiveAdmin){status.textContent='ADMIN ACCESS REQUIRED';return;}
@@ -831,7 +831,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   grid.querySelectorAll('select,button').forEach(control=>{control.disabled=true;});
   grid.querySelectorAll('[contenteditable="true"]').forEach(control=>{control.contentEditable='false';});
   grid.querySelectorAll('.ha-chamber-upload-label,.ha-chamber-media-remove').forEach(control=>{control.hidden=true;});
-  if(editButton){editButton.hidden=!archiveSignedIn;editButton.disabled=!archiveAdmin;editButton.title=archiveAdmin?'':'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';}
+  if(editButton){editButton.hidden=false;editButton.disabled=!archiveAdmin;editButton.title=archiveAdmin?'':'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';}
   clearChamberFormattingToolbar();
   bindChamberDisclosureControls(grid,expandButton);
   return;
@@ -1402,7 +1402,7 @@ function buildRecordChamber(record){
  const actions=makeChamberNode('div','ha-chamber-topbar-actions');
  actions.setAttribute('aria-label','Chamber controls');
  const edit=makeChamberNode('button','ha-chamber-edit','REDESIGN CHAMBER');
- edit.type='button';edit.hidden=!archiveSignedIn;edit.disabled=!archiveAdmin;edit.title=archiveAdmin?'':'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';edit.setAttribute('aria-label','Redesign this archive chamber');
+ edit.type='button';edit.hidden=false;edit.disabled=!archiveAdmin;edit.title=archiveAdmin?'':'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';edit.setAttribute('aria-label','Redesign this archive chamber');
  const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.setAttribute('aria-label','Close record chamber');
  actions.append(edit,close);topbar.append(actions);shareRow.append(share,shareStatus);main.append(shareRow);
  main.append(titleRow);
@@ -1511,14 +1511,14 @@ async function initArchiveFeatures(){
  archiveSupabase=window.__vhaSupabaseClient||window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
  window.__vhaSupabaseClient=archiveSupabase;
  await refreshArchiveAdmin();
- if(newTransmissionButton){newTransmissionButton.hidden=!archiveSignedIn;newTransmissionButton.disabled=!archiveAdmin;newTransmissionButton.title=archiveAdmin?'':'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';newTransmissionButton.addEventListener('click',createHumanArchiveTransmission);}
+ if(newTransmissionButton){newTransmissionButton.hidden=false;newTransmissionButton.disabled=!archiveAdmin;newTransmissionButton.title=archiveAdmin?'':'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';newTransmissionButton.addEventListener('click',createHumanArchiveTransmission);}
  if(hasArchiveIndex)await Promise.all([loadArchiveFavorites(),loadRecordStructureOverrides(),loadTransmissionRecords()]);
  if(!archiveAuthBound){
   archiveAuthBound=true;
   archiveSupabase.auth.onAuthStateChange((_event,session)=>{
    window.setTimeout(async()=>{
     await refreshArchiveAdmin(session);
-    if(newTransmissionButton){newTransmissionButton.hidden=!archiveSignedIn;newTransmissionButton.disabled=!archiveAdmin;newTransmissionButton.title=archiveAdmin?'':'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';}
+    if(newTransmissionButton){newTransmissionButton.hidden=false;newTransmissionButton.disabled=!archiveAdmin;newTransmissionButton.title=archiveAdmin?'':'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';}
     if(hasArchiveIndex){
      await loadTransmissionRecords();
      render();
@@ -1526,7 +1526,7 @@ async function initArchiveFeatures(){
     }
     // Refresh permissions without rebuilding an open chamber or discarding editor state.
     const chamberEditButton=recordChamber?.querySelector('.ha-chamber-edit');
-    if(chamberEditButton){chamberEditButton.hidden=!archiveSignedIn;chamberEditButton.disabled=!archiveAdmin;chamberEditButton.title=archiveAdmin?'':'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';}
+    if(chamberEditButton){chamberEditButton.hidden=false;chamberEditButton.disabled=!archiveAdmin;chamberEditButton.title=archiveAdmin?'':'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';}
    },0);
   });
  }
