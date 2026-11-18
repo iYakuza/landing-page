@@ -447,7 +447,7 @@
       const content=document.getElementById('post-content-'+slug);
       if(content){
         const opening=content.hidden;
-        const article=toggleButton.closest('.post-card');
+        const article=toggleButton.closest('.post-card, .post-record-card');
         content.hidden=!opening;
         const titleRow=article?.querySelector('.post-card-title-row');
         if(titleRow)titleRow.hidden=!opening;
