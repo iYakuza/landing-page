@@ -739,6 +739,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  let slugManuallyEdited=false;
  let attachedPostMedia=[];
  const blockMediaUploadedPaths=[];
+ const blockMediaUploadedAssets=[];
  let repaintAttachedPostMedia=()=>{};
  let postLayoutControls=null;
  const outputMediaRepaint={};
@@ -979,12 +980,12 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    image:['image/jpeg','image/png','image/webp','image/gif','image/avif'],
    audio:['audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm'],
    video:['video/mp4','video/webm'],
-   file:['image/jpeg','image/png','image/webp','image/gif','image/avif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm','video/mp4','video/webm','application/pdf','text/plain','application/zip','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+   file:['image/jpeg','image/png','image/webp','image/gif','image/avif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm','video/mp4','video/webm']
   };
   if(accepted[type]?.includes(mime))return mime;
   if(mime)return null;
   const ext=String(file.name||'').split('.').pop().toLowerCase();
-  const byExt={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',mp3:'audio/mpeg',m4a:'audio/mp4',wav:'audio/wav',ogg:'audio/ogg',weba:'audio/webm',mp4:'video/mp4',webm:'video/webm',pdf:'application/pdf',txt:'text/plain',zip:'application/zip',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'};
+  const byExt={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',mp3:'audio/mpeg',m4a:'audio/mp4',wav:'audio/wav',ogg:'audio/ogg',weba:'audio/webm',mp4:'video/mp4',webm:'video/webm',};
   const inferred=byExt[ext]||'';return accepted[type]?.includes(inferred)?inferred:null;
  };
  const uploadBlockMedia=async(files,type)=>{
@@ -1004,7 +1005,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    blockMediaUploadedPaths.push(path);
    const {data}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
    if(!data?.publicUrl)throw new Error('The uploaded media URL could not be created.');
-   assets.push({url:data.publicUrl,path,name:file.name,mime_type:mime,type:folder,storage:'vha-post-media'});
+   const asset={url:data.publicUrl,path,name:file.name,mime_type:mime,type:folder,storage:'vha-post-media'};assets.push(asset);blockMediaUploadedAssets.push(asset);
   }
   status.textContent=assets.length+' MEDIA FILE'+(assets.length===1?'':'S')+' UPLOADED — SAVE TO KEEP CHANGES.';
   return assets;
@@ -1015,7 +1016,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    const archiveStructure=getRecordStructure(archiveRecord);
    return [...['image','audio','video'].flatMap(kind=>getRecordOutputMedia(archiveRecord,archiveStructure,kind).map(item=>({...item,type:kind}))),...(Array.isArray(archiveRecord.media_items)?archiveRecord.media_items:[])];
   });
-  const source=[...archiveAssets,...['image','audio','video'].flatMap(kind=>editorMedia[kind].map(item=>({...item,type:kind}))),...attachedPostMedia];
+  const source=[...archiveAssets,...['image','audio','video'].flatMap(kind=>editorMedia[kind].map(item=>({...item,type:kind}))),...attachedPostMedia,...blockMediaUploadedAssets];
   const seen=new Set();
   return source.filter(item=>{
    const itemType=String(item.type||item.mime_type||'').toLowerCase();
@@ -1027,6 +1028,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const cleanupBlockMediaUploads=async(keepContent='')=>{
   if(!blockMediaUploadedPaths.length)return;
   const paths=blockMediaUploadedPaths.splice(0);
+  blockMediaUploadedAssets.splice(0);
   const keep=paths.filter(path=>String(keepContent||'').includes(path));
   const remove=paths.filter(path=>!keep.includes(path));
   if(remove.length&&archiveSupabase){const {error}=await archiveSupabase.storage.from('vha-post-media').remove(remove);if(error)console.warn('Unreferenced block media could not be cleaned up:',error);}
