@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T19:42:58.732763Z",
-  "last_processed_sha": "429b99bef90ddc6c382ce3abf30ccbf690796b6d",
+  "updated_at": "2026-11-18T20:52:22.263880Z",
+  "last_processed_sha": "c581578992112e63061c4c4367f58bd0517daaaa",
   "entries": [
+    {
+      "id": "c581578992112e63061c4c4367f58bd0517daaaa",
+      "timestamp": "2026-11-18T21:52:11+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Make Human Archive columns divide chamber width equally; Refresh Human Archive assets for equal-width columns. It updates block-editor.css, index.html.",
+      "commit_count": 2,
+      "files": [
+        "editor-ui/block-editor.css",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Make Human Archive columns divide chamber width equally",
+          "url": "https://github.com/iYakuza/landing-page/commit/7191cfa1bc8e7d8dc129b5566eb58aa7db131330",
+          "files": [
+            "editor-ui/block-editor.css"
+          ]
+        },
+        {
+          "message": "Refresh Human Archive assets for equal-width columns",
+          "url": "https://github.com/iYakuza/landing-page/commit/c581578992112e63061c4c4367f58bd0517daaaa",
+          "files": [
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "a6238dae4ee49e05f21ddcee7d6c9f3e6e59d459",
       "timestamp": "2026-11-18T20:42:49+01:00",
@@ -1251,29 +1280,6 @@
           "message": "Preserve Human Archive layout line breaks",
           "url": "https://github.com/iYakuza/landing-page/commit/f8f199a2d9841c8486579f8c977c70c2d58a1415",
           "files": [
-            "human-archive/archive.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "307933d58a9c3ac735f15357ba930f2eb3f191c7",
-      "timestamp": "2026-11-18T11:32:06+01:00",
-      "category": "FIX",
-      "component": "Website",
-      "title": "More reliable Website",
-      "description": "This update brings together Fix Human Archive text line breaks. It updates rich-text-editor.js, archive.js.",
-      "commit_count": 1,
-      "files": [
-        "editor-ui/rich-text-editor.js",
-        "human-archive/archive.js"
-      ],
-      "commits": [
-        {
-          "message": "Fix Human Archive text line breaks",
-          "url": "https://github.com/iYakuza/landing-page/commit/307933d58a9c3ac735f15357ba930f2eb3f191c7",
-          "files": [
-            "editor-ui/rich-text-editor.js",
             "human-archive/archive.js"
           ]
         }
