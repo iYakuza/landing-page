@@ -457,7 +457,7 @@ function flattenArchivePostLayout(html){
   append('SUNO STYLE PROMPT',extract('.suno-style-prompt'));
   append('WHAT I LEARNED',extract('.suno-learned'));
   append('WHAT CHATGPT LEARNED',extract('.suno-chatgpt-learned'));
-  if(!output.childNodes.length){
+  if(!parsed.querySelector('.suno-style-prompt')){
    const notes=parsed.querySelector('.suno-notes');
    if(notes){const clone=notes.cloneNode(true);clone.querySelectorAll('.suno-label,.suno-collapse-hint,.suno-learned,.suno-chatgpt-learned').forEach(item=>item.remove());append('SUNO STYLE PROMPT',clone.innerHTML);}
   }
@@ -487,7 +487,7 @@ function archiveMediaBlockHTML(item,type,record){
 function getUnifiedRecordHTML(record,structure=getRecordStructure(record)){
  const savedBody=String(structure.transmission_body||'');
  const base=archiveHasContent(savedBody)?savedBody:String(record.content_html||'');
- const parts=[flattenArchivePostLayout(base)];
+ const parts=[flattenArchivePostLayout(sanitizeTransmissionBody(base))];
  parts.push(archiveSectionHTML('PROMPT STYLE',structure.prompt_style));
  parts.push(archiveSectionHTML('LYRICS STYLE',structure.lyrics_style));
  parts.push(archiveSectionHTML('OUTPUT',structure.output_text));
@@ -1205,7 +1205,7 @@ async function init(){
    mediaReady=Boolean(report&&report.status==='complete'&&report.target_project_ref==='ioguymqdeuuursizifnn'&&report.asset_count===manifest.item_count&&report.successful_count===manifest.item_count&&report.failed_count===0&&successes.size===manifest.item_count&&manifest.bucket==='human-archive-media'&&publicBase.startsWith('https://ioguymqdeuuursizifnn.supabase.co/'));
    if(mediaReady){
     for(const item of mediaItems){
-     const keys=[item.source_url,...(item.aliases||[])].map(urlKey).filter(Boolean);
+     const keys=[item.source_url,...(item.aliases||[]),localMediaUrl(item)].map(urlKey).filter(Boolean);
      keys.forEach(key=>mediaMap.set(key,item));
      (item.post_ids||[]).forEach(id=>{if(!mediaByPost.has(id))mediaByPost.set(id,[]);mediaByPost.get(id).push(item);});
     }
