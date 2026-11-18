@@ -1,13 +1,13 @@
 (() => {
   'use strict';
 
-  const EMBED_HOSTS = new Set(['www.youtube.com','www.youtube-nocookie.com','youtu.be','open.spotify.com','w.soundcloud.com']);
+  const EMBED_HOSTS = new Set(['www.youtube.com','www.youtube-nocookie.com','youtu.be','open.spotify.com','w.soundcloud.com','player.vimeo.com','vimeo.com','www.tiktok.com','www.instagram.com','www.facebook.com','www.dailymotion.com','www.loom.com','www.ted.com','codepen.io','www.redditmedia.com','www.slideshare.net','www.mixcloud.com','audiomack.com','www.pinterest.com']);
   const IMAGE_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']);
   const MEDIA_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co']);
   const TYPES = [
-    ['paragraph','Paragraph'],['heading','Heading'],['unordered-list','Unordered list'],['ordered-list','Ordered list'],['quote','Quote'],
-    ['preformatted','Preformatted'],['code','Code'],['separator','Separator'],
-    ['image','Image'],['audio','Audio'],['video','Video'],['embed','Embed']
+    ['paragraph','Paragraph','Text'],['heading','Heading','Text'],['unordered-list','List','Text'],['ordered-list','Numbered list','Text'],['quote','Quote','Text'],['pullquote','Pullquote','Text'],['verse','Verse','Text'],['preformatted','Preformatted','Text'],['code','Code','Text'],['table','Table','Text'],['details','Details / Accordion','Text'],['markdown','Markdown','Text'],['html','Custom HTML','Text'],['classic','Classic content','Text'],['separator','Separator','Text'],['page-break','Page break','Text'],['more','More / Read more','Text'],
+    ['image','Image','Media'],['gallery','Gallery','Media'],['slideshow','Slideshow','Media'],['tiled-gallery','Tiled gallery','Media'],['cover','Cover','Media'],['media-text','Media & text','Media'],['image-compare','Image compare','Media'],['audio','Audio','Media'],['video','Video','Media'],['file','File download','Media'],['playlist','Audio playlist','Media'],['podcast','Podcast player','Media'],['embed','Embed','Media'],['youtube','YouTube','Media'],['spotify','Spotify','Media'],['soundcloud','SoundCloud','Media'],
+    ['buttons','Buttons','Design'],['button','Button','Design'],['columns','Columns','Design'],['group','Group','Design'],['row','Row','Design'],['stack','Stack','Design'],['grid','Grid','Design'],['spacer','Spacer','Design'],['social-icons','Social icons','Design'],['icon','Icon','Design'],['timeline','Timeline','Design'],['tabs','Tabs','Design'],['callout','Callout','Design'],['card','Card','Design']
   ];
 
   function safeURL(value, hosts) {
@@ -26,12 +26,19 @@
     if (/^H[1-4]$/.test(tag)) return 'heading';
     if (tag === 'DIV' || tag === 'SECTION' || tag === 'ASIDE') return 'classic';
     if (tag === 'UL') return 'unordered-list';
+    if (tag === 'TABLE') return 'table';
+    if (tag === 'DETAILS') return 'details';
+    if (tag === 'FIGURE' && node.querySelectorAll('img').length > 1) return 'gallery';
+    if (tag === 'FIGURE' && node.querySelector('img')) return 'image';
+    if (tag === 'HR') return 'separator';
     if (tag === 'OL') return 'ordered-list';
     if (tag === 'PRE' && node.querySelector('code')) return 'code';
     if (tag === 'BLOCKQUOTE') return 'quote';
     if (tag === 'PRE') return 'preformatted';
     if (tag === 'CODE') return 'code';
     if (tag === 'HR') return 'separator';
+    if (tag === 'TABLE') return 'table';
+    if (tag === 'DETAILS') return 'details';
     if (tag === 'IMG' || node.querySelector?.('img')) return 'image';
     if (tag === 'AUDIO' || node.querySelector?.('audio')) return 'audio';
     if (tag === 'VIDEO' || node.querySelector?.('video')) return 'video';
@@ -71,16 +78,30 @@
   }
 
   function defaultHTML(type) {
-    switch(type) {
-      case 'heading': return '<h2>Heading</h2>';
-      case 'unordered-list': return '<ul><li>List item</li></ul>';
-      case 'ordered-list': return '<ol><li>List item</li></ol>';
-      case 'quote': return '<blockquote><p>Write a quote…</p></blockquote>';
-      case 'preformatted': return '<pre>Write preformatted text…</pre>';
-      case 'code': return '<pre><code>Write code…</code></pre>';
-      case 'separator': return '<hr>';
-      default: return '<p><br></p>';
-    }
+    const templates = {
+      heading:'<h2>Heading</h2>', 'unordered-list':'<ul><li>List item</li></ul>', 'ordered-list':'<ol><li>List item</li></ol>',
+      quote:'<blockquote><p>Write a quote…</p></blockquote>', pullquote:'<figure class="wp-block-pullquote"><blockquote><p>A thought worth highlighting.</p></blockquote></figure>',
+      verse:'<pre class="wp-block-verse">Write verse or poetry…</pre>', preformatted:'<pre>Write preformatted text…</pre>', code:'<pre><code>Write code…</code></pre>',
+      separator:'<hr>', 'page-break':'<div class="ha-page-break" data-page-break="true"><span>PAGE BREAK</span></div>', more:'<p><!--more--></p>',
+      table:'<table><thead><tr><th>Heading 1</th><th>Heading 2</th></tr></thead><tbody><tr><td>Cell 1</td><td>Cell 2</td></tr></tbody></table>',
+      details:'<details open><summary>Click to expand</summary><p>Add the hidden content here.</p></details>',
+      markdown:'<pre class="ha-markdown-source"># Markdown\n\nWrite Markdown here…</pre>', html:'<pre class="ha-html-source">&lt;div&gt;Custom HTML&lt;/div&gt;</pre>',
+      buttons:'<div class="ha-buttons"><a class="ha-button" href="https://example.com">Button label</a><a class="ha-button" href="https://example.com">Another button</a></div>',
+      button:'<p><a class="ha-button" href="https://example.com">Button label</a></p>',
+      columns:'<div class="ha-columns"><section><h3>Column one</h3><p>Write here…</p></section><section><h3>Column two</h3><p>Write here…</p></section></div>',
+      group:'<section class="ha-group"><h3>Group heading</h3><p>Add blocks or content inside this group…</p></section>',
+      row:'<div class="ha-row"><p>First item</p><p>Second item</p></div>', stack:'<div class="ha-stack"><p>First item</p><p>Second item</p></div>',
+      grid:'<div class="ha-grid"><section><h3>Item one</h3><p>Content…</p></section><section><h3>Item two</h3><p>Content…</p></section><section><h3>Item three</h3><p>Content…</p></section></div>',
+      spacer:'<div class="ha-spacer" contenteditable="false" aria-label="Spacer"></div>',
+      'social-icons':'<nav class="ha-social-icons" aria-label="Social links"><a href="https://instagram.com/" rel="noopener noreferrer">Instagram</a><a href="https://youtube.com/" rel="noopener noreferrer">YouTube</a><a href="https://open.spotify.com/" rel="noopener noreferrer">Spotify</a></nav>',
+      icon:'<p class="ha-icon-block">✦ <span>Icon label</span></p>', timeline:'<ol class="ha-timeline"><li><strong>Moment one</strong><p>Describe this moment…</p></li><li><strong>Moment two</strong><p>Describe this moment…</p></li></ol>',
+      tabs:'<div class="ha-tabs"><section><h3>Tab one</h3><p>Tab content…</p></section><section><h3>Tab two</h3><p>Tab content…</p></section></div>',
+      callout:'<aside class="ha-callout"><strong>Note</strong><p>Write an important note…</p></aside>', card:'<article class="ha-card"><h3>Card title</h3><p>Card content…</p></article>',
+      'media-text':'<div class="ha-media-text"><div><img src="" alt="" data-media-placeholder="image"><p>Media URL required</p></div><section><h3>Heading</h3><p>Write alongside your media…</p></section></div>',
+      'image-compare':'<figure class="ha-image-compare"><p>Add two image URLs using the block settings.</p></figure>',
+      playlist:'<div class="ha-playlist"><p>Add audio tracks using the media library.</p></div>', podcast:'<div class="ha-podcast"><p>Add a podcast episode URL.</p></div>'
+    };
+    return templates[type] || '<p><br></p>';
   }
 
   function mountBlockEditor({ editor, onChange = () => {}, readOnly = false } = {}) {
@@ -133,27 +154,36 @@
     }
 
     function insertMedia(type, block) {
-      const promptText = type === 'image' ? 'Image URL (archive media URL)' :
-        type === 'audio' ? 'Audio URL (Human Archive media storage)' :
-        type === 'video' ? 'Video URL (Human Archive media storage)' : 'YouTube, Spotify or SoundCloud embed URL';
+      const promptText = ['image','cover','media-text'].includes(type) ? 'Image URL (archive or WordPress media URL)' :
+        ['audio','playlist','podcast'].includes(type) ? 'Audio URL (Human Archive media storage)' :
+        ['video','slideshow'].includes(type) ? 'Video URL (Human Archive media storage)' :
+        type==='file' ? 'File URL (Human Archive media storage)' : type==='gallery'||type==='tiled-gallery' ? 'Image URLs, separated by commas' : type==='image-compare' ? 'Two image URLs, separated by a comma' : 'Paste a YouTube, Spotify, SoundCloud, Vimeo, TikTok, Instagram, Facebook, Dailymotion, Loom, TED, CodePen, Reddit or Mixcloud URL';
       const raw = window.prompt(promptText);
       if (!raw) return;
       let html = '';
-      if (type === 'image') {
+      if (['image','cover','media-text'].includes(type)) {
         const src = safeURL(raw,IMAGE_HOSTS);
         if (!src) return window.alert('Use a secure image URL from the archive media library or WordPress media.');
         const alt=window.prompt('Alternative text for this image (optional)','')||'';
         const figure=document.createElement('figure'),image=document.createElement('img'),caption=document.createElement('figcaption');
         image.src=src;image.alt=alt;image.loading='lazy';caption.contentEditable='true';caption.textContent='Image caption';figure.append(image,caption);html=figure.outerHTML;
-      } else if (type === 'audio' || type === 'video') {
+        if(type==='cover')html='<section class="ha-cover" style="--ha-cover-image:url(&quot;'+src+'&quot;)"><img src="'+src+'" alt="'+alt.replace(/[&<>\"]/g,'')+'"><div class="ha-cover-content"><h2>Cover heading</h2><p>Write over the image…</p></div></section>';
+        if(type==='media-text')html='<div class="ha-media-text"><figure><img src="'+src+'" alt="'+alt.replace(/[&<>\"]/g,'')+'"></figure><section><h2>Heading</h2><p>Write alongside your media…</p></section></div>';
+      } else if (type==='gallery'||type==='tiled-gallery'||type==='slideshow'||type==='image-compare') {
+        const urls=raw.split(',').map(value=>safeURL(value.trim(),IMAGE_HOSTS)).filter(Boolean);
+        if(urls.length<(type==='image-compare'?2:1))return window.alert('Add valid image URLs from the archive media library or WordPress media.');
+        if(type==='image-compare'&&urls.length>=2)html='<div class="ha-image-compare"><figure><img src="'+urls[0]+'" alt="Before"></figure><figure><img src="'+urls[1]+'" alt="After"></figure></div>';
+        else html='<div class="'+(type==='slideshow'?'ha-slideshow':type==='tiled-gallery'?'ha-tiled-gallery':'ha-gallery')+'">'+urls.map((src,index)=>'<figure><img src="'+src+'" alt="" loading="lazy"><figcaption contenteditable="true">Image '+(index+1)+'</figcaption></figure>').join('')+'</div>';
+      } else if (type === 'audio' || type === 'video' || type==='playlist' || type==='podcast' || type==='file') {
         const src = safeURL(raw,MEDIA_HOSTS);
         if (!src || !new URL(src).pathname.startsWith('/storage/v1/object/public/vha-post-media/')) return window.alert('Use a secure URL from the Human Archive media library.');
-        html = type === 'audio' ? '<audio controls preload="metadata" src="'+src+'"></audio>' : '<video controls playsinline preload="metadata" src="'+src+'"></video>';
+        html = type === 'audio' || type==='playlist' || type==='podcast' ? '<div class="'+(type==='podcast'?'ha-podcast':'ha-audio-block')+'"><audio controls preload="metadata" src="'+src+'"></audio></div>' : type==='file' ? '<p class="ha-file-block"><a href="'+src+'" download>Download file</a></p>' : '<video controls playsinline preload="metadata" src="'+src+'"></video>';
       } else {
         let url;
         try { url = new URL(raw.trim()); } catch { return window.alert('Enter a valid embed URL.'); }
         const host = url.hostname.toLowerCase();
-        if (!EMBED_HOSTS.has(host)) return window.alert('Supported embeds: YouTube, Spotify and SoundCloud.');
+        if (!EMBED_HOSTS.has(host)) return window.alert('That provider is not in the secure embed allowlist. Use the Custom HTML block only for trusted code, or add a link.');
+        if (['youtube','spotify','soundcloud'].includes(type) && !((type==='youtube'&&['www.youtube.com','www.youtube-nocookie.com','youtu.be'].includes(host))||(type==='spotify'&&host==='open.spotify.com')||(type==='soundcloud'&&host==='w.soundcloud.com'))) return window.alert('The URL does not match the selected embed block.');
         if (host === 'youtu.be') {
           const id=url.pathname.slice(1).split('/')[0];
           if(!/^[\w-]{6,20}$/.test(id))return window.alert('That YouTube URL is not valid.');
@@ -170,10 +200,10 @@
           url.pathname = '/embed'+url.pathname;
         } else if (host === 'w.soundcloud.com' && !url.pathname.startsWith('/player/')) {
           return window.alert('Use a SoundCloud player embed URL.');
-        }
+        } else if (host==='vimeo.com') { const id=url.pathname.split('/').filter(Boolean)[0]; if(!/^\\d+$/.test(id||''))return window.alert('That Vimeo URL is not valid.');url=new URL('https://player.vimeo.com/video/'+id); } else if(host==='www.dailymotion.com'&&url.pathname.startsWith('/video/')) { const id=url.pathname.split('/')[2];url=new URL('https://www.dailymotion.com/embed/video/'+id); }
         const src = safeURL(url.href,EMBED_HOSTS);
         if (!src) return window.alert('That embed URL is not supported.');
-        html = '<iframe src="'+src+'" title="Embedded media" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+        html = '<figure class="ha-embed"><iframe src="'+src+'" title="Embedded media" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><figcaption contenteditable="true">Embedded media</figcaption></figure>';
       }
       const next = makeBlock(type,html);
       if(block)block.after(next);else editor.append(next);
@@ -198,25 +228,21 @@
 
     function createMenu(anchor, block) {
       closeMenu();
-      menu = document.createElement('div');
-      menu.className = 'ha-block-inserter-menu';
-      menu.setAttribute('role','menu');
-      TYPES.forEach(([type,label]) => {
-        const button = document.createElement('button');
-        button.type = 'button'; button.textContent = label; button.setAttribute('role','menuitem');
-        button.addEventListener('click',() => {
-          closeMenu();
-          if (['image','audio','video','embed'].includes(type)) return insertMedia(type,block);
-          const next = makeBlock(type,defaultHTML(type));
-          if (block) block.after(next); else editor.append(next);
-          wireBlock(next);setSelected(next); focusBlock(next); sync();
+      menu = document.createElement('div'); menu.className = 'ha-block-inserter-menu'; menu.setAttribute('role','dialog'); menu.setAttribute('aria-label','Choose a block');
+      const search = document.createElement('input'); search.type='search'; search.className='ha-block-search'; search.placeholder='Search all blocks…'; search.setAttribute('aria-label','Search blocks'); menu.append(search);
+      const results = document.createElement('div'); results.className='ha-block-results'; menu.append(results);
+      function render(filter='') {
+        results.replaceChildren(); const q=filter.trim().toLowerCase(); let lastCategory=''; let count=0;
+        TYPES.filter(([type,label,category])=>!q||`${type} ${label} ${category}`.toLowerCase().includes(q)).forEach(([type,label,category])=>{
+          if(category!==lastCategory){const heading=document.createElement('div');heading.className='ha-block-category';heading.textContent=category;results.append(heading);lastCategory=category;}
+          const button=document.createElement('button');button.type='button';button.className='ha-block-option';button.textContent=label;button.setAttribute('role','menuitem');
+          button.addEventListener('click',()=>{closeMenu();if(['image','gallery','slideshow','tiled-gallery','cover','audio','video','file','embed','youtube','spotify','soundcloud','podcast','playlist','media-text','image-compare'].includes(type))return insertMedia(type,block);const next=makeBlock(type,defaultHTML(type));if(block)block.after(next);else editor.append(next);wireBlock(next);setSelected(next);focusBlock(next);sync();});
+          results.append(button);count++;
         });
-        menu.append(button);
-      });
-      const anchorRect=anchor.getBoundingClientRect(),shellRect=shell.getBoundingClientRect();
-      menu.style.left=Math.max(8,anchorRect.left-shellRect.left)+'px';
-      menu.style.top=(anchorRect.bottom-shellRect.top+5)+'px';
-      anchor.after(menu);
+        if(!count){const empty=document.createElement('p');empty.className='ha-block-empty';empty.textContent='No matching blocks';results.append(empty);}
+      }
+      search.addEventListener('input',()=>render(search.value)); render();
+      const anchorRect=anchor.getBoundingClientRect(),shellRect=shell.getBoundingClientRect();menu.style.left=Math.max(8,anchorRect.left-shellRect.left)+'px';menu.style.top=(anchorRect.bottom-shellRect.top+5)+'px';anchor.after(menu);search.focus();
     }
 
     function addBlockControls(block) {
@@ -229,7 +255,7 @@
       const transform = document.createElement('select');
       transform.className = 'ha-editor-block-transform';
       transform.setAttribute('aria-label','Transform block');
-      TYPES.filter(([key]) => !['image','audio','video','embed','separator'].includes(key)).forEach(([key,label]) => {
+      TYPES.filter(([key]) => !['image','gallery','slideshow','tiled-gallery','cover','media-text','image-compare','audio','video','file','playlist','podcast','embed','youtube','spotify','soundcloud','separator','spacer'].includes(key)).forEach(([key,label]) => {
         if(key==='heading'){
           [['h1','Heading 1'],['h2','Heading 2'],['h3','Heading 3'],['h4','Heading 4']].forEach(([value,text])=>{const option=document.createElement('option');option.value=value;option.textContent=text;transform.append(option);});
         }else{const option = document.createElement('option'); option.value=key; option.textContent=label; transform.append(option);}
@@ -237,7 +263,7 @@
       const currentContent=block.querySelector('[data-ha-block-content]')?.firstElementChild;
       transform.value = /^H[1-4]$/.test(currentContent?.tagName||'') ? currentContent.tagName.toLowerCase() : (['image','audio','video','embed','separator','classic'].includes(type) ? 'paragraph' : type==='heading'?'h2':type);
       transform.addEventListener('change',() => transformBlock(block,transform.value));
-      if(['classic','image','audio','video','embed','separator'].includes(type))transform.disabled=true;
+      if(['classic','image','gallery','slideshow','tiled-gallery','cover','media-text','image-compare','audio','video','file','playlist','podcast','embed','youtube','spotify','soundcloud','separator','spacer'].includes(type))transform.disabled=true;
       actions.append(transform);
 
       const up = document.createElement('button'); up.type='button'; up.textContent='↑'; up.title='Move block up'; up.setAttribute('aria-label','Move block up');
