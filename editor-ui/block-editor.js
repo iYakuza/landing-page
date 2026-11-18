@@ -187,12 +187,16 @@
       }
       add.title='Add a column after this column';
       add.setAttribute('aria-label','Add a column after this column');
-      add.onclick=()=>{
+      add.dataset.haColumnInserter='true';
+      add.onclick=event=>{
+        event.preventDefault();
+        event.stopPropagation();
         const next=buildEditorColumn(null,columns,ownerBlock);
-        column.after(next);
+        columns.insertBefore(next,column.nextSibling);
         updateColumnCount(columns);
         sync();
-        focusBlock(blocks(next.querySelector('.ha-editor-column-blocks'))[0]);
+        const firstBlock=blocks(next.querySelector('.ha-editor-column-blocks'))[0];
+        if(firstBlock)focusBlock(firstBlock);
       };
       stack.ondragover=event=>{
         if(event.dataTransfer?.types.includes('text/plain'))event.preventDefault();
