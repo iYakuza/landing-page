@@ -287,6 +287,34 @@
       });
       const content=block.querySelector('[data-ha-block-content]');
       if(content && content.contentEditable==='true') {
+        content.addEventListener('paste',event=>{
+          const html=event.clipboardData?.getData('text/html');
+          if(!html)return;
+          event.preventDefault();
+          const pasted=new DOMParser().parseFromString(html,'text/html');
+          pasted.querySelectorAll('script,style,object,embed,form,input,button,textarea,select,option,svg,math').forEach(node=>node.remove());
+          pasted.querySelectorAll('*').forEach(node=>{
+            [...node.attributes].forEach(attribute=>{
+              const name=attribute.name.toLowerCase(),value=attribute.value||'';
+              if(name.startsWith('on')||name==='srcdoc'||name==='srcset'||name==='contenteditable')node.removeAttribute(attribute.name);
+              else if(name==='style'&&!/text-align\\s*:\\s*(left|center|right|justify)/i.test(value))node.removeAttribute(attribute.name);
+              else if(name==='href'){
+                try{const url=new URL(value);if(!((url.protocol==='https:'&&url.hostname&&!url.username&&!url.password)||(url.protocol==='mailto:'&&url.pathname)))node.removeAttribute(attribute.name);}catch{node.removeAttribute(attribute.name);}
+              }else if(name==='src'){
+                const hosts=node.tagName==='IMG'?IMAGE_HOSTS:['AUDIO','VIDEO','SOURCE'].includes(node.tagName)?MEDIA_HOSTS:node.tagName==='IFRAME'?EMBED_HOSTS:null;
+                if(hosts){const safe=safeURL(value,hosts);if(safe)node.setAttribute('src',safe);else node.removeAttribute(attribute.name);}
+                else node.removeAttribute(attribute.name);
+              }
+            });
+            if(node.tagName==='IFRAME'){
+              const url=new URL(node.getAttribute('src')||'https://invalid.local');
+              const valid=(url.hostname.includes('youtube')&&url.pathname.startsWith('/embed/'))||(url.hostname==='open.spotify.com'&&url.pathname.startsWith('/embed/'))||(url.hostname==='w.soundcloud.com'&&url.pathname.startsWith('/player/'));
+              if(!valid)node.remove();
+            }
+          });
+          document.execCommand('insertHTML',false,pasted.body.innerHTML);
+          sync();
+        });
         content.addEventListener('input',()=>{
           const first=content.firstElementChild;
           if(first){const type=blockType(first);block.dataset.haBlock=type;block.querySelector('.ha-editor-block-name').textContent=labelFor(type);}
