@@ -544,7 +544,9 @@ function sanitizeTransmissionBody(source){
   if(!allowed.has(node.tagName)){node.childNodes.forEach(child=>copy(child,parent));return;}
   const element=document.createElement(node.tagName.toLowerCase());
   if(node.tagName==='IMG'){
-   const src=safeArchiveMediaUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
+   const rawSrc=node.getAttribute('src')||'';
+   const media=getMedia(rawSrc);
+   const src=media&&mediaReady?localMediaUrl(media):safeArchiveMediaUrl(rawSrc,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
    let valid=Boolean(src);
    if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else if(url.hostname==='ioguymqdeuuursizifnn.supabase.co')valid=/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname);else if(url.origin===window.location.origin)valid=url.pathname.startsWith('/landing-page/');else valid=url.pathname.includes('/wp-content/uploads/');}
    if(!valid)return;
@@ -553,7 +555,8 @@ function sanitizeTransmissionBody(source){
   if(node.tagName==='AUDIO'||node.tagName==='VIDEO'){
    const rawSrc=node.getAttribute('src')||'';
    if(rawSrc){
-    const src=safeArchiveMediaUrl(rawSrc,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
+    const media=getMedia(rawSrc);
+    const src=media&&mediaReady?localMediaUrl(media):safeArchiveMediaUrl(rawSrc,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
     if(!src||!(()=>{const url=new URL(src);return url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'?/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname):url.hostname==='ioguymqdeuuursizifnn.supabase.co'?/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname):url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/');})())return;
     element.src=src;
    }else if(!node.querySelector('source'))return;
@@ -561,7 +564,9 @@ function sanitizeTransmissionBody(source){
    if(node.tagName==='VIDEO')element.playsInline=true;
   }
   if(node.tagName==='SOURCE'){
-   const src=safeArchiveMediaUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
+   const rawSrc=node.getAttribute('src')||'';
+   const media=getMedia(rawSrc);
+   const src=media&&mediaReady?localMediaUrl(media):safeArchiveMediaUrl(rawSrc,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
    if(!src||!(()=>{const url=new URL(src);return url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'?/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname):url.hostname==='ioguymqdeuuursizifnn.supabase.co'?/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname):url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/');})())return;
    element.src=src;element.type=String(node.getAttribute('type')||'');
   }
