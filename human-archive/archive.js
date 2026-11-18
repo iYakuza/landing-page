@@ -702,10 +702,18 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const titleInput=addMetadataField('TITLE','title',record.title,{placeholder:'Transmission title',maxLength:180});
  const slugInput=addMetadataField('PUBLIC URL SLUG','slug',record.slug,{placeholder:'lowercase-words-separated-by-hyphens',maxLength:180});
  const currentCategory=(record.categories||[])[0]||'';
- const metadataCategories=[...new Set([...transmissionCategories,...categoryOrder,...(record.categories||[])])];
- const categoryInput=addMetadataSelect('ARCHIVE / MOVEMENT','category',metadataCategories.includes(currentCategory)?currentCategory:'',[
-  ['','CHOOSE DESTINATION'],...metadataCategories.map(name=>[name,name])
- ]);
+ const categoryInputWrap=makeChamberNode('label','ha-chamber-metadata-field');
+ const categoryInputLabel=makeChamberNode('span','ha-chamber-metadata-label','ARCHIVE / MOVEMENT');
+ const categoryInput=document.createElement('select');
+ categoryInput.className='ha-chamber-editor-field ha-chamber-meta-input';categoryInput.name='category';
+ const archiveCategoryGroup=document.createElement('optgroup');archiveCategoryGroup.label='HUMAN ARCHIVE';
+ categoryOrder.forEach(name=>{const option=document.createElement('option');option.value=name;option.textContent=name;archiveCategoryGroup.append(option);});
+ const movementGroup=document.createElement('optgroup');movementGroup.label='TRANSMISSIONS';
+ transmissionCategories.filter(name=>name!=='HUMAN ARCHIVE').forEach(name=>{const option=document.createElement('option');option.value=name;option.textContent=name;movementGroup.append(option);});
+ if(currentCategory==='HUMAN ARCHIVE'){const legacyOption=document.createElement('option');legacyOption.value='HUMAN ARCHIVE';legacyOption.textContent='HUMAN ARCHIVE — LEGACY';movementGroup.prepend(legacyOption);}
+ categoryInput.append(archiveCategoryGroup,movementGroup);
+ categoryInput.value=categoryOrder.includes(currentCategory)||transmissionCategories.includes(currentCategory)?currentCategory:categoryOrder[0];
+ categoryInputWrap.append(categoryInputLabel,categoryInput);metadataFields.append(categoryInputWrap);
  const excerptInput=addMetadataField('EXCERPT','excerpt',record.excerpt||'',{multiline:true,placeholder:'Short description shown in previews (up to 400 characters)',maxLength:400});
  const mediaWidthWrap=makeChamberNode('label','ha-chamber-metadata-field');
  const mediaWidthLabel=makeChamberNode('span','ha-chamber-metadata-label','MEDIA WIDTH');
@@ -883,7 +891,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   };
   if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
   if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
-  if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
+  if(![...categoryOrder.map(name=>name.toUpperCase()),...transmissionCategories].includes(metadata.category))throw new Error('Choose a Human Archive category or one of the five Transmissions movements.');
   if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
   const transmissionBody=sanitizeTransmissionBody(getEditorHTML());
   const blocks=getEditorBlocks();
