@@ -1073,6 +1073,8 @@ main[data-vha-layout-root]{
 /* Unified Human Archive block stream */
 .ha-chamber-grid{display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;gap:16px;width:min(1200px,100%);margin:22px auto 0}
 .ha-chamber-blocks-view{width:min(900px,100%);margin:18px auto 0;color:#d1dbd2;font:15px/1.95 Georgia,'Times New Roman',serif;overflow-wrap:anywhere}
+/* Records with Columns blocks use the full chamber grid width; text-only records retain the reading measure. */
+.ha-chamber-blocks-view.ha-chamber-blocks-view-wide{width:100%;max-width:none}
 .ha-chamber-blocks-view>*{max-width:100%;margin-top:0;margin-bottom:1.15em}
 .ha-chamber-blocks-view p:last-child{margin-bottom:0}
 .ha-chamber-blocks-view h1,.ha-chamber-blocks-view h2,.ha-chamber-blocks-view h3,.ha-chamber-blocks-view h4{color:#d8ff3e;line-height:1.3}
