@@ -22,6 +22,7 @@
       target.addEventListener('focusin', event => { activeEditor = event.target.closest('[data-ha-block-content]') || target; }, { signal });
       target.addEventListener('input', onChange, { signal });
       target.addEventListener('keydown', event => {
+        if (event.target.closest('[data-ha-block-content]')) return;
         if (event.key !== 'Enter' || event.isComposing || event.defaultPrevented) return;
         event.preventDefault();
         document.execCommand(event.shiftKey ? 'insertLineBreak' : 'insertParagraph', false, null);
