@@ -1011,7 +1011,11 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  };
  const getBlockMediaLibrary=type=>{
   const desired=type==='image'||type==='gallery'||type==='slideshow'||type==='tiled-gallery'||type==='cover'||type==='media-text'||type==='image-compare'?'image':type==='audio'||type==='playlist'||type==='podcast'?'audio':type==='video'?'video':'';
-  const source=[...['image','audio','video'].flatMap(kind=>editorMedia[kind].map(item=>({...item,type:kind}))),...attachedPostMedia,...(Array.isArray(record.media_items)?record.media_items:[])];
+  const archiveAssets=records.flatMap(archiveRecord=>{
+   const archiveStructure=getRecordStructure(archiveRecord);
+   return [...['image','audio','video'].flatMap(kind=>getRecordOutputMedia(archiveRecord,archiveStructure,kind).map(item=>({...item,type:kind}))),...(Array.isArray(archiveRecord.media_items)?archiveRecord.media_items:[])];
+  });
+  const source=[...archiveAssets,...['image','audio','video'].flatMap(kind=>editorMedia[kind].map(item=>({...item,type:kind}))),...attachedPostMedia];
   const seen=new Set();
   return source.filter(item=>{
    const itemType=String(item.type||item.mime_type||'').toLowerCase();
