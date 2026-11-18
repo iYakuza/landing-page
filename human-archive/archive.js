@@ -821,8 +821,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   onChange:()=>{status.textContent='CONTENT EDITED — SAVE THE CHAMBER TO APPLY';scheduleDraftAutosave?.();},
   onInvalidLink:message=>{status.textContent=message;}
  });
- const getBody=()=>sanitizeTransmissionBody(blockEditorController?.getHTML()||canvas.innerHTML);
- const getText=()=>blockEditorController?.getText()||canvas.innerText||'';
+ const getBody=()=>sanitizeTransmissionBody(blockEditorController?blockEditorController.getHTML():canvas.innerHTML);
+ const getText=()=>blockEditorController?blockEditorController.getText():(canvas.innerText||'');
  if(readOnly){grid.classList.add('ha-chamber-read-only');canvas.contentEditable='false';return;}
  const actions=makeChamberNode('div','ha-chamber-editor-actions');
  const save=makeChamberNode('button','ha-chamber-save','SAVE CHAMBER');save.type='button';
