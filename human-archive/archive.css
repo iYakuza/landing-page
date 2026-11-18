@@ -1276,3 +1276,7 @@ main[data-vha-layout-root]{
 .ha-chamber-saved-block{min-width:0;margin:0 0 22px}
 .ha-chamber-saved-block-name{margin:0 0 7px;color:#9aacab;font:8px/1.5 'DM Mono',monospace;letter-spacing:.14em;text-transform:uppercase;overflow-wrap:anywhere}
 .ha-chamber-saved-block>*:last-child{margin-bottom:0}
+
+
+/* Never let action-row styling override the admin-only hidden state. */
+.ha-chamber-share-row>.ha-chamber-topbar-actions>.ha-chamber-edit[hidden]{display:none!important;visibility:hidden!important;pointer-events:none!important}
