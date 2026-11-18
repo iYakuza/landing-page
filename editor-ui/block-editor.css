@@ -185,3 +185,41 @@
 }
 
 .ha-block-editor-shell.is-read-only .ha-editor-add-column{display:none!important}
+
+
+/* Inserter category labels use the same restrained treatment as rich-toolbar headings. */
+.ha-block-inserter-menu .ha-block-category{
+ display:block!important;grid-column:1/-1;width:100%!important;margin:3px 0 0!important;padding:7px 2px 2px!important;
+ border:0!important;border-bottom:1px solid rgba(185,215,122,.2)!important;border-radius:0!important;
+ background:transparent!important;box-shadow:none!important;color:#a8bf98!important;
+ font:7px/1.2 'DM Mono',monospace!important;letter-spacing:.14em!important;
+ text-align:left!important;text-transform:uppercase;cursor:pointer
+}
+.ha-block-inserter-menu .ha-block-category:hover,
+.ha-block-inserter-menu .ha-block-category:focus-visible{
+ background:transparent!important;box-shadow:none!important;color:#a8bf98!important;outline:1px dotted rgba(185,215,122,.48);outline-offset:2px
+}
+.ha-block-inserter-menu .ha-block-category::after{display:none!important;content:none!important}
+
+/* A visible, keyboard-accessible plus sits in the gap and inserts a sibling column. */
+.ha-editor-block-content .ha-columns.ha-editor-columns-layout{
+ gap:28px!important;overflow:visible!important
+}
+.ha-editor-block-content .ha-columns.ha-editor-columns-layout>.ha-editor-column{overflow:visible!important}
+.ha-editor-column>.ha-editor-add-column{
+ position:absolute!important;top:50%!important;right:-26px!important;z-index:8!important;
+ display:grid!important;place-items:center!important;width:24px!important;height:24px!important;min-width:24px!important;
+ margin:0!important;padding:0!important;border:1px solid rgba(185,215,122,.75)!important;border-radius:50%!important;
+ background:#08110c!important;color:#d8ff3e!important;font:16px/1 sans-serif!important;
+ opacity:.9!important;transform:translateY(-50%)!important;cursor:pointer!important;
+ box-shadow:0 0 0 3px rgba(5,10,8,.7)!important;pointer-events:auto!important
+}
+.ha-editor-column>.ha-editor-add-column:hover,
+.ha-editor-column>.ha-editor-add-column:focus-visible{
+ opacity:1!important;border-color:#d8ff3e!important;background:#d8ff3e!important;color:#071009!important;
+ outline:2px solid #d8ff3e!important;outline-offset:2px!important
+}
+@media(max-width:650px){
+ .ha-editor-column>.ha-editor-add-column{right:-26px!important;opacity:1!important}
+}
+.ha-block-editor-shell.is-read-only .ha-editor-add-column{display:none!important}
