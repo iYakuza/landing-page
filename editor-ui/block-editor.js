@@ -250,14 +250,17 @@
 
     function transformBlock(block,type) {
       const current=block.querySelector('[data-ha-block-content]');
-      const text=current?.innerHTML || '<br>';
-      let html=text;
-      if(type==='heading') html='<h2>'+text+'</h2>';
-      else if(type==='paragraph') html='<p>'+text+'</p>';
-      else if(type==='quote') html='<blockquote><p>'+text+'</p></blockquote>';
-      else if(type==='preformatted'||type==='code') html=type==='code'?'<pre><code>'+current.textContent+'</code></pre>':'<pre>'+current.textContent+'</pre>';
-      else if(type==='unordered-list') html='<ul><li>'+current.textContent+'</li></ul>';
-      else if(type==='ordered-list') html='<ol><li>'+current.textContent+'</li></ol>';
+      const first=current?.firstElementChild;
+      const plain=document.createElement('span');plain.textContent=current?.textContent||'';
+      const inlineHTML=first&&['P','H1','H2','H3','H4'].includes(first.tagName)?first.innerHTML:plain.innerHTML;
+      const quoteHTML=first?.tagName==='BLOCKQUOTE'?first.innerHTML:'<p>'+inlineHTML+'</p>';
+      let html=inlineHTML;
+      if(/^h[1-4]$/.test(type)) html='<'+type+'>'+inlineHTML+'</'+type+'>';
+      else if(type==='paragraph') html='<p>'+inlineHTML+'</p>';
+      else if(type==='quote') html='<blockquote>'+quoteHTML+'</blockquote>';
+      else if(type==='preformatted'||type==='code') html=type==='code'?'<pre><code>'+plain.innerHTML+'</code></pre>':'<pre>'+plain.innerHTML+'</pre>';
+      else if(type==='unordered-list') html='<ul><li>'+plain.innerHTML+'</li></ul>';
+      else if(type==='ordered-list') html='<ol><li>'+plain.innerHTML+'</li></ol>';
       const next=makeBlock(/^h[1-4]$/.test(type)?'heading':type,html);
       block.replaceWith(next); wireBlock(next); setSelected(next); focusBlock(next); sync();
     }
