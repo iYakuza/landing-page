@@ -836,10 +836,10 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  }
  const save=closeButton;
  if(!save)throw new Error('The chamber save control is unavailable.');
- save.className='ha-chamber-close ha-chamber-save';save.type='button';save.textContent='SAVE CHAMBER';
+ save.className='ha-chamber-close ha-chamber-save';save.type='button';save.disabled=false;save.textContent='SAVE CHAMBER';
  save.setAttribute('aria-label','Save chamber changes');
  if(editButton){
-  editButton.hidden=false;editButton.disabled=false;editButton.textContent='DISCARD';
+  editButton.className='ha-chamber-edit';editButton.hidden=false;editButton.disabled=false;editButton.textContent='DISCARD';
   editButton.setAttribute('aria-label','Discard editor changes');
  }
 
@@ -1382,7 +1382,15 @@ function buildRecordChamber(record){
  const shell=makeChamberNode('div','ha-chamber-shell');
  const header=makeChamberNode('header','ha-chamber-header');
  const topbar=makeChamberNode('div','ha-chamber-topbar');
- topbar.append(makeChamberNode('span','ha-chamber-mark','EGO // HUMAN ARCHIVE'));
+ const mark=makeChamberNode('span','ha-chamber-mark','EGO // HUMAN ARCHIVE');
+ const actions=makeChamberNode('div','ha-chamber-topbar-actions');
+ actions.setAttribute('aria-label','Chamber controls');
+ const edit=makeChamberNode('button','ha-chamber-edit','REDESIGN CHAMBER');
+ edit.type='button';edit.hidden=!archiveAdmin;edit.setAttribute('aria-label','Redesign this archive chamber');
+ const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');
+ close.type='button';close.setAttribute('aria-label','Close record chamber');
+ actions.append(edit,close);
+ topbar.append(mark,actions);
  header.append(topbar);
  const heading=makeChamberNode('div','ha-chamber-heading');
  const meta=makeChamberNode('p','ha-chamber-meta','HA-'+record.year+'-'+String(record.id).padStart(4,'0')+' // '+record.date+' // '+(record.categories||[]).join(' / '));
@@ -1397,12 +1405,7 @@ function buildRecordChamber(record){
  const share=makeChamberNode('div','ha-chamber-share','');
  const shareStatus=makeChamberNode('span','ha-chamber-share-status','');
  appendChamberShareActions(share,record,shareStatus);
- const actions=makeChamberNode('div','ha-chamber-topbar-actions');
- actions.setAttribute('aria-label','Chamber controls');
- const edit=makeChamberNode('button','ha-chamber-edit','REDESIGN CHAMBER');
- edit.type='button';edit.hidden=!archiveAdmin;edit.setAttribute('aria-label','Redesign this archive chamber');
- const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.setAttribute('aria-label','Close record chamber');
- actions.append(edit,close);shareRow.append(share,shareStatus,actions);main.append(shareRow);
+ shareRow.append(share,shareStatus);main.append(shareRow);
  main.append(titleRow);
  const grid=makeChamberNode('div','ha-chamber-grid');main.append(grid);
  renderRecordStructureView(record,grid,shareStatus,edit,expand,close);
@@ -1486,8 +1489,6 @@ function openArchiveRecordChamber(record,trigger,openInEditor=false){
    const saveButton=dialog.querySelector('.ha-chamber-close');
    if(!grid||!status||!editButton||!saveButton)throw new Error('The new Transmission editor controls could not be initialized.');
    renderRecordStructureEditor(record,grid,status,editButton,expandButton,saveButton);
-   editButton.textContent='DISCARD';
-   saveButton.textContent='SAVE CHAMBER';
   }
  }catch(error){document.body.classList.remove('ha-chamber-open');console.error('Could not open the Human Archive chamber:',error);}
 }
