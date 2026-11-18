@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T17:56:30.631373Z",
-  "last_processed_sha": "7f3b0449877b41a90152f2847b55b172309fdae0",
+  "updated_at": "2026-11-18T18:53:45.875231Z",
+  "last_processed_sha": "661ec1da437ae059c3b960bf2e1e8e3301563dfa",
   "entries": [
+    {
+      "id": "661ec1da437ae059c3b960bf2e1e8e3301563dfa",
+      "timestamp": "2026-11-18T19:53:37+01:00",
+      "category": "FEATURE",
+      "component": "Website",
+      "title": "New capabilities for Website",
+      "description": "This update brings together Open new Transmissions directly in editor mode. It updates archive.js.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Open new Transmissions directly in editor mode",
+          "url": "https://github.com/iYakuza/landing-page/commit/661ec1da437ae059c3b960bf2e1e8e3301563dfa",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "839c48b3daafb613e3f14cb2976b71a65f482f8f",
       "timestamp": "2026-11-18T18:56:29+01:00",
@@ -1166,35 +1187,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/39a323d2d7835feafff381736207b9e84858ec2b",
           "files": [
             "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "c91ee875e58c058aabacfdc0b61eb8a0ac1d363d",
-      "timestamp": "2026-11-18T09:52:19+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Simplify archive niche card inscriptions; Align archive niche identifiers and footer. It updates archive.css, archive.js.",
-      "commit_count": 2,
-      "files": [
-        "human-archive/archive.css",
-        "human-archive/archive.js"
-      ],
-      "commits": [
-        {
-          "message": "Simplify archive niche card inscriptions",
-          "url": "https://github.com/iYakuza/landing-page/commit/55b782ac7146214c6a636462bef39b1c119840f2",
-          "files": [
-            "human-archive/archive.js"
-          ]
-        },
-        {
-          "message": "Align archive niche identifiers and footer",
-          "url": "https://github.com/iYakuza/landing-page/commit/d01908afe9aeb8033b64b14aea3d477593fcd7a9",
-          "files": [
-            "human-archive/archive.css"
           ]
         }
       ]
