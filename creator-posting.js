@@ -5,10 +5,9 @@
 
   const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-  const EDITOR_VERSION = '20261118-ha-actions-visible-8';
+  const EDITOR_VERSION = '20261118-ha-chamber-actions-9';
   let client = null;
   let isCreator = false;
-  let isSignedIn = false;
   let refreshing = false;
   let authBound = false;
   let editorLoadPromise = null;
@@ -18,7 +17,7 @@
   button.className = 'vha-new-transmission-global vha-editor-action';
   button.dataset.actionVariant = 'primary';
   button.textContent = '+ NEW TRANSMISSION';
-  button.hidden = false;
+  button.hidden = true;
   button.disabled = true;
   button.setAttribute('aria-label', 'Create a new transmission');
   document.body.appendChild(button);
@@ -179,14 +178,12 @@
         session = result.data?.session;
         if (result.error) isCreator = false;
       }
-      isSignedIn = Boolean(session?.user);
-      if (!isSignedIn) {
+      if (!session?.user) {
         isCreator = false;
       } else {
         const { data, error } = await client.from('vha_cms_admins')
           .select('user_id').eq('user_id', session.user.id).maybeSingle();
         isCreator = !error && Boolean(data);
-        if (error) console.warn('Transmission admin permission could not be confirmed:', error);
       }
       if (!authBound) {
         authBound = true;
@@ -199,15 +196,11 @@
       isCreator = false;
     } finally {
       refreshing = false;
-      button.hidden = false;
+      button.hidden = !isCreator;
       button.disabled = !isCreator;
-      button.setAttribute('aria-disabled',String(!isCreator));
-      button.title = isCreator ? '' : 'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';
       document.querySelectorAll('[data-vha-new-transmission]').forEach(trigger => {
-        trigger.hidden = false;
+        trigger.hidden = !isCreator;
         if ('disabled' in trigger) trigger.disabled = !isCreator;
-        trigger.setAttribute('aria-disabled',String(!isCreator));
-        if(!isCreator)trigger.title='ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';
       });
     }
   }
