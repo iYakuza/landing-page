@@ -19,7 +19,7 @@
     const listeners = new AbortController();
     const signal = listeners.signal;
     targets.forEach(target => {
-      target.addEventListener('focusin', () => { activeEditor = target; }, { signal });
+      target.addEventListener('focusin', event => { activeEditor = event.target.closest('[data-ha-block-content]') || target; }, { signal });
       target.addEventListener('input', onChange, { signal });
       target.addEventListener('keydown', event => {
         if (event.key !== 'Enter' || event.isComposing || event.defaultPrevented) return;
