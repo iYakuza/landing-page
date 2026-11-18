@@ -206,7 +206,8 @@ function appendSafeContent(container,source,record,used){
    const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){if(tag==='AUDIO')appendLocalAudio(parent,item,record,used);else appendLocalVideo(parent,item,record,used);return;}
    const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
-   const valid=Boolean(src)&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname);
+   const wpMedia=(()=>{try{const u=new URL(raw);return u.protocol==='https:'&&u.hostname.endsWith('.files.wordpress.com')&&u.pathname.length>1;}catch{return false;}})();
+   const valid=(Boolean(src)&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname))||wpMedia;
    const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='metadata';
    if(valid)mediaNode.src=src;
    if(tag==='VIDEO')mediaNode.playsInline=true;
@@ -221,8 +222,9 @@ function appendSafeContent(container,source,record,used){
     const source=document.createElement('source');source.src=localMediaUrl(item);source.type=item.mime_type;parent.append(source);markUsed(item,used);
    }else{
     const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
-    if(src&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname)&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
-     const source=document.createElement('source');source.src=src;source.type=node.getAttribute('type')||'';parent.append(source);
+    const wpMedia=(()=>{try{const u=new URL(raw);return u.protocol==='https:'&&u.hostname.endsWith('.files.wordpress.com')&&u.pathname.length>1;}catch{return false;}})();
+    if(((src&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname))||wpMedia)&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
+     const source=document.createElement('source');source.src=src||raw;source.type=node.getAttribute('type')||'';parent.append(source);
     }
    }
    return;
