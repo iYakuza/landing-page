@@ -34,7 +34,7 @@
 .ha-editor-block:hover>.ha-editor-block-footer,.ha-editor-block.is-selected>.ha-editor-block-footer{opacity:1;}
 .ha-editor-add-after{position:absolute;top:-4px;width:23px;height:23px;border:1px solid rgba(168,199,194,.45);border-radius:50%;background:#0b1216;color:#c9d8d4;font:16px/1 sans-serif;cursor:pointer;}
 .ha-editor-add-after:hover,.ha-editor-add-after:focus-visible{background:#a8c7c2;color:#071013;outline:2px solid #a8c7c2;outline-offset:2px;}
-.ha-block-inserter-menu{position:absolute;z-index:30;display:grid;grid-template-columns:repeat(2,minmax(130px,1fr));gap:3px;min-width:290px;max-width:min(440px,calc(100vw - 32px));padding:8px;border:1px solid rgba(168,199,194,.35);background:#0b1216;box-shadow:0 18px 55px #000b;}
+.ha-block-inserter-menu{position:absolute;z-index:30;display:flex;flex-direction:column;gap:6px;min-width:290px;max-width:min(440px,calc(100vw - 16px));padding:8px;border:1px solid rgba(168,199,194,.35);background:#0b1216;box-shadow:0 18px 55px #000b;}
 .ha-block-inserter-menu button{padding:10px 12px;border:1px solid transparent;background:transparent;color:#d5e0dc;text-align:left;font:10px 'DM Mono',monospace;cursor:pointer;}
 .ha-block-inserter-menu button:hover,.ha-block-inserter-menu button:focus-visible{border-color:rgba(168,199,194,.4);background:rgba(168,199,194,.09);outline:none;}
 .ha-block-editor-shell.is-read-only .ha-block-editor-canvas{padding:0;border:0;}
@@ -47,7 +47,8 @@
  .ha-editor-block-controls{opacity:1;flex-wrap:wrap;}
  .ha-editor-block-transform{max-width:88px;}
  .ha-editor-block-content{padding:10px 8px;font-size:14px;}
- .ha-block-inserter-menu{grid-template-columns:1fr;min-width:220px;}
+ .ha-block-inserter-menu{min-width:min(220px,calc(100vw - 16px));max-width:calc(100vw - 16px);}
+ .ha-block-results{grid-template-columns:1fr;}
  .ha-block-editor-hint{display:none;}
 }
 .ha-layout-block-field{display:block;min-height:110px;padding:0!important;border:1px solid rgba(168,199,194,.18)!important;background:#080e12!important;}
@@ -65,7 +66,7 @@
 .ha-chamber-layout-field>.ha-block-editor-shell .ha-block-editor-canvas{min-height:95px;padding:10px;}
 
 /* Expanded Gutenberg-style block catalogue */
-.ha-block-search{width:100%;padding:10px 12px;border:1px solid rgba(168,199,194,.2);background:#10191d;color:#e5e8e7;font:11px 'DM Mono',monospace;outline:none;}
+.ha-block-search{display:block;flex:0 0 auto;box-sizing:border-box;width:100%;min-width:0;padding:10px 12px;border:1px solid rgba(168,199,194,.2);background:#10191d;color:#e5e8e7;font:11px 'DM Mono',monospace;outline:none;}
 .ha-block-search:focus{border-color:#a8c7c2;}
 .ha-block-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px;max-height:min(55vh,440px);overflow:auto;}
 .ha-block-category{grid-column:1/-1;padding:9px 7px 4px;color:#8fa7a4;font:8px 'DM Mono',monospace;letter-spacing:.16em;text-transform:uppercase;}
