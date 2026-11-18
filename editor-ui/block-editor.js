@@ -5,7 +5,7 @@
   const IMAGE_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']);
   const MEDIA_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co']);
   const TYPES = [
-    ['paragraph','Paragraph'],['heading','Heading'],['list','List'],['quote','Quote'],
+    ['paragraph','Paragraph'],['heading','Heading'],['unordered-list','Unordered list'],['ordered-list','Ordered list'],['quote','Quote'],
     ['preformatted','Preformatted'],['code','Code'],['separator','Separator'],
     ['image','Image'],['audio','Audio'],['video','Video'],['embed','Embed']
   ];
@@ -25,7 +25,9 @@
     const tag = node.tagName;
     if (/^H[1-4]$/.test(tag)) return 'heading';
     if (tag === 'DIV' || tag === 'SECTION' || tag === 'ASIDE') return 'classic';
-    if (tag === 'UL' || tag === 'OL') return 'list';
+    if (tag === 'UL') return 'unordered-list';
+    if (tag === 'OL') return 'ordered-list';
+    if (tag === 'PRE' && node.querySelector('code')) return 'code';
     if (tag === 'BLOCKQUOTE') return 'quote';
     if (tag === 'PRE') return 'preformatted';
     if (tag === 'CODE') return 'code';
@@ -71,7 +73,8 @@
   function defaultHTML(type) {
     switch(type) {
       case 'heading': return '<h2>Heading</h2>';
-      case 'list': return '<ul><li>List item</li></ul>';
+      case 'unordered-list': return '<ul><li>List item</li></ul>';
+      case 'ordered-list': return '<ol><li>List item</li></ol>';
       case 'quote': return '<blockquote><p>Write a quote…</p></blockquote>';
       case 'preformatted': return '<pre>Write preformatted text…</pre>';
       case 'code': return '<pre><code>Write code…</code></pre>';
@@ -225,7 +228,7 @@
       const currentContent=block.querySelector('[data-ha-block-content]')?.firstElementChild;
       transform.value = /^H[1-4]$/.test(currentContent?.tagName||'') ? currentContent.tagName.toLowerCase() : (['image','audio','video','embed','separator','classic'].includes(type) ? 'paragraph' : type==='heading'?'h2':type);
       transform.addEventListener('change',() => transformBlock(block,transform.value));
-      if(type==='classic')transform.disabled=true;
+      if(['classic','image','audio','video','embed','separator'].includes(type))transform.disabled=true;
       actions.append(transform);
 
       const up = document.createElement('button'); up.type='button'; up.textContent='↑'; up.title='Move block up';
@@ -253,7 +256,8 @@
       else if(type==='paragraph') html='<p>'+text+'</p>';
       else if(type==='quote') html='<blockquote><p>'+text+'</p></blockquote>';
       else if(type==='preformatted'||type==='code') html=type==='code'?'<pre><code>'+current.textContent+'</code></pre>':'<pre>'+current.textContent+'</pre>';
-      else if(type==='list') html='<ul><li>'+current.textContent+'</li></ul>';
+      else if(type==='unordered-list') html='<ul><li>'+current.textContent+'</li></ul>';
+      else if(type==='ordered-list') html='<ol><li>'+current.textContent+'</li></ol>';
       const next=makeBlock(type,html);
       block.replaceWith(next); wireBlock(next); setSelected(next); focusBlock(next); sync();
     }
