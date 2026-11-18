@@ -1039,3 +1039,14 @@ main[data-vha-layout-root]{
   .ha-divider{margin:6px 0 12px!important}
   .ha-memorial-intro.vha-layout-section--intro{padding-bottom:14px!important}
 }
+
+
+/* Shared floating formatting panel across all Human Archive editor sections. */
+.ha-chamber-main{margin:0!important}
+.ha-record-chamber[open] .ha-rich-toolbar{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:1000;width:max-content;max-width:calc(100vw - 24px);max-height:42vh;overflow:auto;padding:8px;box-shadow:0 12px 36px rgba(0,0,0,.62);border:1px solid rgba(185,215,122,.42);background:rgba(5,13,8,.97);backdrop-filter:blur(14px);cursor:grab}
+.ha-record-chamber[open] .ha-rich-toolbar:active{cursor:grabbing}
+.ha-record-chamber[open] .ha-rich-toolbar .toolbar-invisible-chain{display:inline-flex;width:20px;height:30px;align-items:center;justify-content:center;flex:0 0 20px;border:1px solid rgba(185,215,122,.5);color:#d8ff3e;cursor:grab;touch-action:none}
+.ha-record-chamber[open] .ha-rich-toolbar .toolbar-invisible-chain:before{content:'⠿';font:16px/1 sans-serif}
+.ha-record-chamber[open] .ha-rich-content{min-height:220px;max-height:60vh;overflow:auto;resize:vertical;padding:12px}
+.ha-record-chamber[open] .ha-rich-editor-top{padding-top:58px}
+@media(max-width:700px){.ha-record-chamber[open] .ha-rich-toolbar{top:8px;left:8px;right:8px;width:auto;max-width:none;transform:none;max-height:34vh;justify-content:center}.ha-record-chamber[open] .ha-rich-editor-top{padding-top:calc(34vh + 16px)}}
