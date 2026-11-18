@@ -147,7 +147,7 @@
         image.src=src;image.alt=alt;image.loading='lazy';caption.contentEditable='true';caption.textContent='Image caption';figure.append(image,caption);html=figure.outerHTML;
       } else if (type === 'audio' || type === 'video') {
         const src = safeURL(raw,MEDIA_HOSTS);
-        if (!src) return window.alert('Use a secure URL from the Human Archive media library.');
+        if (!src || !new URL(src).pathname.startsWith('/storage/v1/object/public/vha-post-media/')) return window.alert('Use a secure URL from the Human Archive media library.');
         html = type === 'audio' ? '<audio controls preload="metadata" src="'+src+'"></audio>' : '<video controls playsinline preload="metadata" src="'+src+'"></video>';
       } else {
         let url;
@@ -302,7 +302,7 @@
                 try{const url=new URL(value);if(!((url.protocol==='https:'&&url.hostname&&!url.username&&!url.password)||(url.protocol==='mailto:'&&url.pathname)))node.removeAttribute(attribute.name);}catch{node.removeAttribute(attribute.name);}
               }else if(name==='src'){
                 const hosts=node.tagName==='IMG'?IMAGE_HOSTS:['AUDIO','VIDEO','SOURCE'].includes(node.tagName)?MEDIA_HOSTS:node.tagName==='IFRAME'?EMBED_HOSTS:null;
-                if(hosts){const safe=safeURL(value,hosts);if(safe)node.setAttribute('src',safe);else node.removeAttribute(attribute.name);}
+                if(hosts){const safe=safeURL(value,hosts);const valid=safe&&(!['AUDIO','VIDEO','SOURCE'].includes(node.tagName)||new URL(safe).pathname.startsWith('/storage/v1/object/public/vha-post-media/'));if(valid)node.setAttribute('src',safe);else node.removeAttribute(attribute.name);}
                 else node.removeAttribute(attribute.name);
               }
             });
