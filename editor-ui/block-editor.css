@@ -183,3 +183,5 @@
  }
  .ha-editor-column .ha-editor-add-column{right:-23px;opacity:1}
 }
+
+.ha-block-editor-shell.is-read-only .ha-editor-add-column{display:none!important}
