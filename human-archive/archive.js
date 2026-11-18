@@ -842,7 +842,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   const previous=layoutSelect.dataset.previousValue||'standard';
   if(layoutSelect.value==='standard'&&previous!=='standard'&&postLayoutControls?.transmissionEditor){
    const source=previous==='plain'?layoutPlain.value:layoutMain.value;
-   postLayoutControls.transmissionEditor.innerHTML=layoutParagraphs(source);
+   if(blockEditorControllers[0])blockEditorControllers[0]=blockEditorControllers[0].replaceHTML(layoutParagraphs(source));else postLayoutControls.transmissionEditor.innerHTML=layoutParagraphs(source);
   }
   layoutSelect.dataset.previousValue=layoutSelect.value;
   syncLayoutControls();status.textContent='POST LAYOUT CHANGED — SAVE THE CHAMBER TO APPLY';
@@ -958,8 +958,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const output=makeChamberDisclosure('04 // OUTPUT','ha-chamber-panel ha-chamber-output ha-chamber-edit-panel','ha-chamber-panel-heading');
  const text=makeChamberDisclosure('TEXT','ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
  const textArea=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');textArea.contentEditable=readOnly?'false':'true';textArea.name='output_text';textArea.setAttribute('role','textbox');textArea.setAttribute('aria-multiline','true');textArea.setAttribute('aria-label','Output text');textArea.dataset.placeholder='Edit the original text output…';textArea.innerHTML=sanitizeTransmissionBody(structure.output_text);text.body.append(textArea);output.body.append(text.details);
- const blockEditorControllers=readOnly?[]:[transmissionEditor,promptArea,lyricsArea,textArea].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
- const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,editors:[promptArea,lyricsArea,textArea],toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
+ const blockEditorControllers=readOnly?[]:[transmissionEditor,promptArea,lyricsArea,textArea,layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
+ const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,editors:[promptArea,lyricsArea,textArea,layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain],toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
  ['image','audio','video'].forEach(type=>{
   const media=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
   const items=editorMedia[type];
@@ -1236,8 +1236,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
       ?'<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.plain.value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>'
       :'<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.main.value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeLayoutText(postLayoutControls.fields.lyrics.value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+layoutParagraphs(postLayoutControls.fields.prompt.value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.learned.value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.chatgpt.value)+'</section></aside></div>')
      :sanitizeTransmissionBody(transmissionEditor.innerHTML);
-    const publishText=postLayoutControls?.select.value==='plain'?postLayoutControls.fields.plain.value:
-     postLayoutControls?.select.value==='suno'?postLayoutControls.fields.main.value:transmissionEditor.innerText;
+    const publishText=postLayoutControls?.select.value==='plain'?(postLayoutControls.fields.plain.__haBlockEditor?.getText()||''):
+     postLayoutControls?.select.value==='suno'?(postLayoutControls.fields.main.__haBlockEditor?.getText()||''):transmissionEditor.innerText;
     if(metadata.status==='published'&&!String(publishText||'').trim())throw new Error('Add transmission content before publishing.');
     status.textContent='CREATING TRANSMISSION…';
     const {data:createResult,error:createError}=await archiveSupabase.rpc('create_human_archive_transmission_v3',{
