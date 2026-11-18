@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T09:46:40.986665Z",
-  "last_processed_sha": "d67657c10247146f366039b50a1c27311870f160",
+  "updated_at": "2026-11-18T09:50:26.066207Z",
+  "last_processed_sha": "72e068c380103c49878f2c348c6b4abaf00fbc68",
   "entries": [
+    {
+      "id": "72e068c380103c49878f2c348c6b4abaf00fbc68",
+      "timestamp": "2026-11-18T10:50:19+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Experience",
+      "title": "A refined Website Experience",
+      "description": "This update brings together Remove Human Archive divider. It updates index.html.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Remove Human Archive divider",
+          "url": "https://github.com/iYakuza/landing-page/commit/72e068c380103c49878f2c348c6b4abaf00fbc68",
+          "files": [
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "d67657c10247146f366039b50a1c27311870f160",
       "timestamp": "2026-11-18T10:46:32+01:00",
@@ -1198,27 +1219,6 @@
           "files": [
             "human-archive/archive.js",
             "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "3b28898b5a777804a2a59314c7a732d9a3c8fc9b",
-      "timestamp": "2026-11-17T02:42:09+01:00",
-      "category": "FEATURE",
-      "component": "Website",
-      "title": "New capabilities for Website",
-      "description": "This update brings together Add local recovery to Human Archive chamber editor (#86). It updates archive.js.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.js"
-      ],
-      "commits": [
-        {
-          "message": "Add local recovery to Human Archive chamber editor (#86)",
-          "url": "https://github.com/iYakuza/landing-page/commit/3b28898b5a777804a2a59314c7a732d9a3c8fc9b",
-          "files": [
-            "human-archive/archive.js"
           ]
         }
       ]
