@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T17:32:51.591202Z",
-  "last_processed_sha": "f3c40dfbc7f1a8b9af59ceb95ce72e56b3939d51",
+  "updated_at": "2026-11-18T17:56:02.800193Z",
+  "last_processed_sha": "12ef8da52798c98c9a067730afd8365c1f6daebd",
   "entries": [
+    {
+      "id": "12ef8da52798c98c9a067730afd8365c1f6daebd",
+      "timestamp": "2026-11-18T18:55:49+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Restore chamber action row and revert unrelated launcher visibility changes. It updates archive.js.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Restore chamber action row and revert unrelated launcher visibility changes",
+          "url": "https://github.com/iYakuza/landing-page/commit/12ef8da52798c98c9a067730afd8365c1f6daebd",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "7b51c2c486e255abaed1159863eb404744314bbb",
       "timestamp": "2026-11-18T18:32:49+01:00",
@@ -1158,33 +1179,6 @@
             "posts/index.html",
             "shared/components/layout.css",
             "shared/components/layout.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "7a1a8d20e7bb99057c9ea9739f33a02e156aca89",
-      "timestamp": "2026-11-18T09:22:07+01:00",
-      "category": "FIX",
-      "component": "Website Experience",
-      "title": "More reliable Website Experience",
-      "description": "This update brings together Fix shared main padding and remove Posts frame. It updates game-ui.css, index.html, layout.css and related project files.",
-      "commit_count": 1,
-      "files": [
-        "game-ui.css",
-        "human-archive/index.html",
-        "posts/index.html",
-        "shared/components/layout.css"
-      ],
-      "commits": [
-        {
-          "message": "Fix shared main padding and remove Posts frame",
-          "url": "https://github.com/iYakuza/landing-page/commit/7a1a8d20e7bb99057c9ea9739f33a02e156aca89",
-          "files": [
-            "game-ui.css",
-            "human-archive/index.html",
-            "posts/index.html",
-            "shared/components/layout.css"
           ]
         }
       ]
