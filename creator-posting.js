@@ -18,7 +18,7 @@
   button.className = 'vha-new-transmission-global vha-editor-action';
   button.dataset.actionVariant = 'primary';
   button.textContent = '+ NEW TRANSMISSION';
-  button.hidden = true;
+  button.hidden = false;
   button.disabled = true;
   button.setAttribute('aria-label', 'Create a new transmission');
   document.body.appendChild(button);
@@ -199,12 +199,12 @@
       isCreator = false;
     } finally {
       refreshing = false;
-      button.hidden = !isSignedIn;
+      button.hidden = false;
       button.disabled = !isCreator;
       button.setAttribute('aria-disabled',String(!isCreator));
       button.title = isCreator ? '' : 'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';
       document.querySelectorAll('[data-vha-new-transmission]').forEach(trigger => {
-        trigger.hidden = !isSignedIn;
+        trigger.hidden = false;
         if ('disabled' in trigger) trigger.disabled = !isCreator;
         trigger.setAttribute('aria-disabled',String(!isCreator));
         if(!isCreator)trigger.title='ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';
