@@ -5,7 +5,7 @@
 
   const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-  const EDITOR_VERSION = '20261118-unified-editor-sections-1';
+  const EDITOR_VERSION = '20261118-posts-shared-chamber-1';
   let client = null;
   let isCreator = false;
   let refreshing = false;
@@ -96,24 +96,54 @@
     return editorLoadPromise;
   }
 
-  async function openNewTransmission() {
-    if (!isCreator || button.disabled) return;
-    button.disabled = true;
-    button.textContent = 'OPENING TRANSMISSION…';
-    button.removeAttribute('title');
+  async function openNewTransmission(trigger = button) {
+    if (!isCreator || (trigger === button && button.disabled)) return;
+    const isGlobalButton = trigger === button;
+    if (isGlobalButton) {
+      button.disabled = true;
+      button.textContent = 'OPENING TRANSMISSION…';
+      button.removeAttribute('title');
+    }
     try {
       await ensureSharedEditor();
-      window.dispatchEvent(new CustomEvent('VHA_OPEN_NEW_TRANSMISSION'));
+      window.dispatchEvent(new CustomEvent('VHA_OPEN_NEW_TRANSMISSION', { detail: { trigger } }));
     } catch (error) {
       console.error('The shared Transmission editor could not be opened:', error);
-      button.title = String(error?.message || 'The editor could not be loaded. Please try again.');
+      if (isGlobalButton) button.title = String(error?.message || 'The editor could not be loaded. Please try again.');
+      else if (trigger) trigger.title = String(error?.message || 'The editor could not be loaded. Please try again.');
     } finally {
-      button.disabled = false;
-      button.textContent = '+ NEW TRANSMISSION';
+      if (isGlobalButton) {
+        button.disabled = false;
+        button.textContent = '+ NEW TRANSMISSION';
+      }
     }
   }
 
-  button.addEventListener('click', openNewTransmission);
+  async function openExistingTransmission(event) {
+    const slug = String(event.detail?.slug || '').trim();
+    const trigger = event.detail?.trigger || null;
+    if (!slug) return;
+    try {
+      await ensureSharedEditor();
+      window.dispatchEvent(new CustomEvent('VHA_OPEN_EXISTING_TRANSMISSION', { detail: { slug, trigger } }));
+    } catch (error) {
+      console.error('The shared Transmission chamber could not be opened:', error);
+      if (trigger) trigger.title = String(error?.message || 'The chamber could not be opened. Please try again.');
+    }
+  }
+
+  button.addEventListener('click', () => openNewTransmission());
+  window.addEventListener('VHA_REQUEST_OPEN_TRANSMISSION', openExistingTransmission);
+  window.addEventListener('VHA_TRANSMISSION_CHAMBER_ERROR', event => {
+    const trigger = event.detail?.trigger;
+    if (trigger) trigger.title = String(event.detail?.message || 'The chamber could not be opened.');
+  });
+  document.addEventListener('click', event => {
+    const trigger = event.target.closest?.('[data-vha-new-transmission]');
+    if (!trigger) return;
+    event.preventDefault();
+    openNewTransmission(trigger);
+  });
 
   async function refresh(sessionOverride) {
     if (refreshing) return;
@@ -148,6 +178,10 @@
       refreshing = false;
       button.hidden = !isCreator;
       button.disabled = !isCreator;
+      document.querySelectorAll('[data-vha-new-transmission]').forEach(trigger => {
+        trigger.hidden = !isCreator;
+        if ('disabled' in trigger) trigger.disabled = !isCreator;
+      });
     }
   }
 

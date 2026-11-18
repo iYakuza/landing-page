@@ -16,6 +16,7 @@ let chamberRecordId=null;
 const SUPABASE_URL='https://oeyxsqocldlovhsmzcjw.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
 let archiveSupabase=null,archiveAdmin=false,archiveUserId=null,archiveAuthBound=false;
+let standaloneTransmissionRecordsPromise=null;
 let favoriteRecordIds=new Set(),favoriteSaveError=false,recordStructureOverrides=new Map();
 let mediaHashByPath=new Map();
 let recordChamber=null,recordChamberReturnFocus=null;
@@ -287,7 +288,7 @@ async function loadTransmissionRecords(){
  records=records.filter(record=>record.source_type!=='transmission');
  mediaItems=mediaItems.filter(item=>item.storage!=='vha-post-media');
  for(const [key,item] of mediaMap){if(item.storage==='vha-post-media')mediaMap.delete(key);}
- let query=archiveSupabase.from('vha_posts').select('id,archive_record_id,title,slug,category,excerpt,content_html,status,created_at,published_at,media_items,media_url,media_path,media_type,media_width').order('created_at',{ascending:false});
+ let query=archiveSupabase.from('vha_posts').select('id,archive_record_id,title,slug,category,excerpt,content_html,status,created_at,updated_at,published_at,media_items,media_url,media_path,media_type,media_width').order('created_at',{ascending:false});
  if(!archiveAdmin)query=query.eq('status','published');
  const {data,error}=await query;
  if(error){console.warn('Database-backed Transmissions could not be loaded into Human Archive:',error);return;}
@@ -309,9 +310,17 @@ async function loadTransmissionRecords(){
   record.media_items.forEach(item=>{mediaItems.push(item);if(item.url)mediaMap.set(urlKey(item.url),item);});
   const name=record.categories[0];
   if(!categoryOrder.includes(name))categoryOrder.push(name);
-  if(![...category.options].some(option=>option.value===name)){const option=document.createElement('option');option.value=name;option.textContent=name;category.append(option);}
+  if(category&&![...category.options].some(option=>option.value===name)){const option=document.createElement('option');option.value=name;option.textContent=name;category.append(option);}
   expandedCategories.add(name);
  });
+}
+async function ensureStandaloneTransmissionRecords(){
+ if(hasArchiveIndex)return;
+ if(!standaloneTransmissionRecordsPromise){
+  standaloneTransmissionRecordsPromise=Promise.all([loadRecordStructureOverrides(),loadTransmissionRecords()])
+   .catch(error=>{standaloneTransmissionRecordsPromise=null;throw error;});
+ }
+ await standaloneTransmissionRecordsPromise;
 }
 async function refreshArchiveAdmin(sessionOverride){
  if(!archiveSupabase){archiveAdmin=false;archiveUserId=null;return false;}
@@ -1415,7 +1424,7 @@ function openRequestedRecordFromUrl(){
  search.value=record.title;year.value='';category.value='';render();
  const card=list.querySelector('.ha-record-card[data-ha-record-id="'+record.id+'"]');card?.scrollIntoView({behavior:'smooth',block:'center'});openArchiveRecordChamber(record,null);
 }
-function createHumanArchiveTransmission(){
+function createHumanArchiveTransmission(trigger){
  if(recordChamber?.open){recordChamber.focus();return;}
  if(!archiveAdmin||!archiveSupabase||!archiveUserId){if(createTransmissionStatus)createTransmissionStatus.textContent='ADMIN SESSION REQUIRED';return;}
  const temporaryId=Date.now();
@@ -1426,7 +1435,7 @@ function createHumanArchiveTransmission(){
   created_at:now,updated_at:now,published_at:null,date:now.slice(0,10),year:now.slice(0,4),
   url:'',archiveIdentifier:'UNSAVED TRANSMISSION',isNew:true
  };
- openArchiveRecordChamber(record,newTransmissionButton,true);
+ openArchiveRecordChamber(record,trigger||newTransmissionButton,true);
  if(createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // UNSAVED';
  recordChamber?.querySelector('[name="title"]')?.focus({preventScroll:true});
 }
@@ -1559,15 +1568,29 @@ async function init(){
  }catch(error){console.error('Human Archive local index failed:',error);list.textContent='THE LOCAL ARCHIVE COULD NOT BE LOADED. PLEASE REFRESH IN A MOMENT.';count.textContent='LOCAL ARCHIVE UNAVAILABLE';}
 }
 window.__vhaArchiveChamberControllerLoaded=true;
-window.addEventListener('VHA_OPEN_NEW_TRANSMISSION',async()=>{
+window.addEventListener('VHA_OPEN_NEW_TRANSMISSION',async event=>{
  try{
   await window.__vhaArchiveChamberReady;
   if(!archiveAdmin||!archiveSupabase||!archiveUserId){
    console.warn('New Transmission was requested without an active archive administrator session.');
    return;
   }
-  createHumanArchiveTransmission();
+  createHumanArchiveTransmission(event.detail?.trigger||null);
  }catch(error){console.error('The shared Transmission editor could not open:',error);}
+});
+window.addEventListener('VHA_OPEN_EXISTING_TRANSMISSION',async event=>{
+ const slug=String(event.detail?.slug||'').trim();
+ const trigger=event.detail?.trigger||null;
+ try{
+  await window.__vhaArchiveChamberReady;
+  await ensureStandaloneTransmissionRecords();
+  const record=records.find(item=>item.source_type==='transmission'&&item.slug===slug);
+  if(!record)throw new Error('This Transmission is unavailable. It may have been unpublished or removed.');
+  openArchiveRecordChamber(record,trigger);
+ }catch(error){
+  console.error('The shared Transmission chamber could not be opened:',error);
+  window.dispatchEvent(new CustomEvent('VHA_TRANSMISSION_CHAMBER_ERROR',{detail:{message:String(error?.message||'The chamber could not be opened.'),trigger}}));
+ }
 });
 if(hasArchiveIndex){
  bindEgoPortraitViewer();

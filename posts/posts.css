@@ -498,6 +498,12 @@
   white-space:nowrap;
 }
 .post-edit-button:hover{background:var(--viewer-accent,#b9d77a);color:#050906!important}
+.post-chamber-button{
+  appearance:none;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;align-self:flex-start;
+  border:1px solid var(--viewer-accent,#b9d77a);padding:5px 7px;color:var(--viewer-accent,#b9d77a)!important;
+  background:rgba(5,9,6,.8);font:700 9px/1.2 ui-monospace,monospace;letter-spacing:.8px;text-decoration:none;white-space:nowrap;cursor:pointer;
+}
+.post-chamber-button:hover,.post-chamber-button:focus-visible{background:var(--viewer-accent,#b9d77a);color:#050906!important;outline:2px solid var(--viewer-accent,#b9d77a);outline-offset:2px}
 .posts-list:has(.post-back) .post-card-top{align-items:center;flex-wrap:wrap}
 
 
@@ -534,6 +540,9 @@ body.post-edit-open{overflow:hidden}
 .movement-index a{display:inline-flex;padding:8px 10px;border:1px solid var(--theme-border,#52613e);color:var(--theme-muted,#aab7a7);text-decoration:none;font:9px/1.3 ui-monospace,monospace;letter-spacing:.4px}
 .movement-index a:hover,.movement-index a.movement-current{border-color:var(--theme-accent,#b9d77a);color:var(--theme-accent,#b9d77a);background:rgba(182,232,51,.07)}
 .movement-back{display:inline-block;margin-top:20px;color:var(--theme-accent,#b9d77a);font:10px ui-monospace,monospace;text-decoration:none}
+.movement-create[data-vha-new-transmission]{appearance:none;padding:0;border:0;background:transparent;text-align:left;cursor:pointer}
+.movement-create[data-vha-new-transmission]:hover,.movement-create[data-vha-new-transmission]:focus-visible{color:var(--viewer-accent,#b9d77a);text-decoration:underline;outline:none}
+.movement-create[data-vha-new-transmission][hidden]{display:none!important}
 .movement-hero h1{max-width:900px;font-size:clamp(42px,8vw,104px);line-height:.92}
 .movement-hero h1 em{display:block}
 
@@ -1411,11 +1420,11 @@ body.image-viewer-open{overflow:hidden!important}
 
 
 /* POST CARD METADATA: swap the date and edit positions, and hide titles until expanded. */
-.posts-list:not(:has(.post-back)) .post-card-top:has(.post-edit-button) .post-date-toggle{
+.posts-list:not(:has(.post-back)) .post-card-top:has(.post-chamber-button) .post-date-toggle{
   order:0!important;
   margin-left:0!important;
 }
-.posts-list:not(:has(.post-back)) .post-card-top .post-edit-button{
+.posts-list:not(:has(.post-back)) .post-card-top .post-chamber-button{
   order:2!important;
   margin-left:auto!important;
 }

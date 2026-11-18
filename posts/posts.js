@@ -14,14 +14,6 @@
   let postsOffset=0,postsHasMore=false;
   const isCommunityArchive=document.body.dataset.archive==='community';
   let posts = [];
-  let canEditPosts = false;
-  async function checkEditorAccess(){
-    if(!client)return false;
-    const {data:{session}}=await client.auth.getSession();
-    if(!session?.user)return false;
-    const {data,error}=await client.from('vha_cms_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
-    return !error&&Boolean(data);
-  }
   const safe = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const slugify = value => String(value||'').normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,180);
   const prettyDate = value => {
@@ -234,22 +226,22 @@
       const shapeClass=['shape-i','shape-l','shape-square','shape-t','shape-z','shape-j','shape-s'][index%7];
       if(permalink){
         const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
-        const editButton=canEditPosts&&!post.community?'<a class="post-edit-button vha-editor-action" href="/landing-page/cms/?edit='+encodeURIComponent(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</a>':'';
+        const chamberButton=!post.community?'<button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button>':'';
         if(/class=["']suno-post-layout["']/.test(post.content_html||'')){
           const titleHtml='';
           const excerptHtml=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
-          const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+editButton+'</div>';
+          const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+chamberButton+'</div>';
           const titleRow='<div class="suno-post-title-row"><h3>'+safe(post.title)+'</h3><button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button></div>';
           return renderSunoColumns(post,media,titleHtml,excerptHtml,lead,titleRow,permalinkBack,shapeClass);
         }
         const detailCopy='<div class="post-detail-copy">'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'</div>';
         const detailMedia=media?'<aside class="post-detail-media" aria-label="Transmission media">'+media+'<p class="post-media-caption">TRANSMISSION MEDIA // '+mediaItems.length+' FILE(S)</p></aside>':'';
         const sectionsControl=/<details\\b/i.test(post.content_html||'')?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
-        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+sectionsControl+editButton+'</div><h3>'+safe(post.title)+'</h3><div class="post-detail-grid">'+detailCopy+detailMedia+'</div>'+shareActions(post)+permalinkBack+'</article>';
+        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+sectionsControl+chamberButton+'</div><h3>'+safe(post.title)+'</h3><div class="post-detail-grid">'+detailCopy+detailMedia+'</div>'+shareActions(post)+permalinkBack+'</article>';
       }
       // Archive cards begin retracted; the date control expands the transmission.
       const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
-      const editButton=canEditPosts&&!post.community?'<a class="post-edit-button vha-editor-action" href="/landing-page/cms/?edit='+encodeURIComponent(post.slug)+'" aria-label="Edit '+safe(post.title)+'">EDIT ↗</a>':'';
+      const chamberButton=!post.community?'<button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button>':'';
       const movementSlugs={'THE AWAKENING':'the-awakening','THE DESCENT':'the-descent','THE RECONNECTION':'the-reconnection','THE TRANSFORMATION':'the-transformation','THE RETURN':'the-return'};
       const movementHref='/landing-page/posts/'+(movementSlugs[displayCategory(post.category)]||'')+'/';
       const categoryLink='<a class="post-category" href="'+movementHref+'" aria-label="Browse '+safe(displayCategory(post.category))+'">'+safe(displayCategory(post.category))+'</a>';
@@ -263,7 +255,7 @@
       const recordSlug=String(post.slug||'').trim();
       const recordCode='VHA-'+recordYear+'-'+recordMonth+recordDay+'-'+recordSlug;
       const titleRow='<div class="post-card-title-row"'+(isExpanded?'':' hidden')+'><h3>'+safe(post.title)+'</h3>'+sectionsControl+'</div>';
-      const lead='<div class="post-card-top"><span class="post-record-code">'+safe(recordCode)+'</span><button type="button" class="post-date-toggle" data-post-toggle="'+safe(post.slug)+'" aria-expanded="'+(isExpanded?'true':'false')+'" aria-controls="post-content-'+safe(post.slug)+'"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-disclosure-mark" aria-hidden="true">'+(isExpanded?'−':'+')+'</span></button>'+categoryLink+editButton+shareActions(post)+'</div><div class="post-card-identity">'+titleRow+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+'</div>';
+      const lead='<div class="post-card-top"><span class="post-record-code">'+safe(recordCode)+'</span><button type="button" class="post-date-toggle" data-post-toggle="'+safe(post.slug)+'" aria-expanded="'+(isExpanded?'true':'false')+'" aria-controls="post-content-'+safe(post.slug)+'"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-disclosure-mark" aria-hidden="true">'+(isExpanded?'−':'+')+'</span></button>'+categoryLink+chamberButton+shareActions(post)+'</div><div class="post-card-identity">'+titleRow+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+'</div>';
       const expandedBody=isSuno
         ? renderSunoGrid(post,media,'','')
         : media+body;
@@ -318,11 +310,6 @@
       posts=[...ownerPosts.map(p=>({...p,community:false})),...communityPosts].sort((a,b)=>new Date(b.published_at||b.created_at)-new Date(a.published_at||a.created_at));
       renderCategories();
       render();
-      // Authentication is only needed for owner controls; it must never block the public archive.
-      checkEditorAccess().then(canEdit=>{
-        canEditPosts=Boolean(canEdit);
-        if(canEditPosts)render();
-      }).catch(()=>{canEditPosts=false;});
     }catch(error){
       console.error('Archive loading failed:',error);
       list.innerHTML='<p class="posts-empty">THE ARCHIVE COULD NOT LOAD. CHECK YOUR CONNECTION AND REFRESH TO TRY AGAIN.</p>';
@@ -339,6 +326,12 @@
     }
   },true);
   list.addEventListener('click',async event=>{
+    const chamberButton=event.target.closest('[data-vha-open-transmission]');
+    if(chamberButton){
+      event.preventDefault();
+      window.dispatchEvent(new CustomEvent('VHA_REQUEST_OPEN_TRANSMISSION',{detail:{slug:chamberButton.dataset.vhaOpenTransmission,trigger:chamberButton}}));
+      return;
+    }
     const imageLink=event.target.closest('.post-image-open');
     if(imageLink){
       event.preventDefault();
