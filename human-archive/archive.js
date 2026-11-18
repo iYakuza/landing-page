@@ -343,7 +343,70 @@ async function loadTransmissionRecords(){
   if(category&&![...category.options].some(option=>option.value===name)){const option=document.createElement('option');option.value=name;option.textContent=name;category.append(option);}
   expandedCategories.add(name);
  });
+} 
+async function migrateArchiveRecordsToBlockDocuments(){
+ if(!archiveAdmin||!archiveSupabase||!archiveUserId||!hasArchiveIndex)return;
+ const pending=records.filter(record=>{
+  const structure=getRecordStructure(record);
+  const source=record.source_type==='transmission'?record.content_html:structure.transmission_body;
+  return !hasUnifiedBlockDocument(source);
+ });
+ if(!pending.length)return;
+ let completed=0,failed=[];
+ setMediaStatus('CONVERTING '+pending.length+' LEGACY RECORDS INTO BLOCKS // 0/'+pending.length,false);
+ for(let offset=0;offset<pending.length;offset+=4){
+  const batch=pending.slice(offset,offset+4);
+  const results=await Promise.allSettled(batch.map(async record=>{
+   const structure=getRecordStructure(record);
+   const body=buildUnifiedBlockDocument(record,structure);
+   if(record.source_type==='transmission'){
+    const postMedia=(Array.isArray(record.media_items)?record.media_items:[]).map(item=>{
+     const mime=String(item.mime_type||'').toLowerCase();
+     const type=mime.startsWith('image/')?'image':mime.startsWith('video/')?'video':'audio';
+     return {url:String(item.source_url||item.url||''),path:String(item.storage_path||item.path||''),type,name:String(item.title||item.name||record.title)};
+    }).filter(item=>item.url);
+    const width=Math.max(20,Math.min(100,Math.round((Number(record.media_width)||100)/5)*5));
+    const {data,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
+     p_post_id:record.post_id,p_title:record.title,p_slug:record.slug,
+     p_category:String(record.categories?.[0]||'HUMAN ARCHIVE').toUpperCase(),p_excerpt:record.excerpt||'',
+     p_status:record.status||'draft',p_transmission_body:body,p_prompt_style:'',p_lyrics_style:'',
+     p_output_text:'',p_output_media:{},p_media_items:postMedia,p_media_width:width,
+     p_expected_updated_at:record.updated_at
+    });
+    if(error)throw error;
+    const saved=Array.isArray(data)?data[0]:data;
+    record.content_html=body;record.updated_at=saved?.updated_at||new Date().toISOString();
+   }else{
+    const old=recordStructureOverrides.get(String(record.id));
+    const {data,error}=await archiveSupabase.rpc('save_human_archive_record_structure_v1',{
+     p_record_id:Number(record.id),p_expected_updated_at:old?.updated_at||null,
+     p_transmission_body:body,p_prompt_style:'',p_lyrics_style:'',p_output_text:'',p_output_media:{}
+    });
+    if(error)throw error;
+    const saved=Array.isArray(data)?data[0]:data;
+    recordStructureOverrides.set(String(record.id),{
+     record_id:Number(record.id),transmission_body:body,prompt_style:'',lyrics_style:'',
+     output_text:'',output_media:{},updated_at:saved?.updated_at||new Date().toISOString(),updated_by:archiveUserId
+    });
+   }
+   if(record.source_type==='transmission'){
+    const old=recordStructureOverrides.get(String(record.id))||{};
+    recordStructureOverrides.set(String(record.id),{
+     ...old,record_id:Number(record.id),transmission_body:body,prompt_style:'',lyrics_style:'',
+     output_text:'',output_media:{},updated_at:record.updated_at,updated_by:archiveUserId
+    });
+   }
+  }));
+  results.forEach((result,index)=>{if(result.status==='rejected')failed.push({id:batch[index].id,error:String(result.reason?.message||result.reason||'Migration failed')});});
+  completed+=batch.length;
+  setMediaStatus('CONVERTING LEGACY RECORDS INTO BLOCKS // '+completed+'/'+pending.length+(failed.length?' // '+failed.length+' NEED ATTENTION':''),false);
+ }
+ if(failed.length){
+  console.error('Some Human Archive records could not be migrated to blocks:',failed);
+  setMediaStatus('BLOCK CONVERSION PARTIAL // '+(pending.length-failed.length)+' SAVED // '+failed.length+' FAILED — RELOAD TO RETRY',false);
+ }else setMediaStatus('BLOCK CONVERSION COMPLETE // '+completed+' RECORDS // LEGACY CONTENT PRESERVED IN THE UNIFIED BLOCK DOCUMENT',true);
 }
+
 async function ensureStandaloneTransmissionRecords(){
  if(hasArchiveIndex)return;
  if(!standaloneTransmissionRecordsPromise){
@@ -1679,6 +1742,7 @@ async function initArchiveFeatures(){
  await refreshArchiveAdmin();
  if(newTransmissionButton){newTransmissionButton.hidden=!archiveAdmin;newTransmissionButton.disabled=!archiveAdmin;newTransmissionButton.addEventListener('click',createHumanArchiveTransmission);}
  if(hasArchiveIndex)await Promise.all([loadArchiveFavorites(),loadRecordStructureOverrides(),loadTransmissionRecords()]);
+  if(hasArchiveIndex&&archiveAdmin)await migrateArchiveRecordsToBlockDocuments();
  if(!archiveAuthBound){
   archiveAuthBound=true;
   archiveSupabase.auth.onAuthStateChange((_event,session)=>{
