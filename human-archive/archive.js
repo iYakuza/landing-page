@@ -23,7 +23,7 @@ let recordChamber=null,recordChamberReturnFocus=null;
 
 const clean=value=>String(value??'').normalize('NFKC').toLocaleLowerCase().trim();
 function searchableBody(record){
- const source=String(record.content_html||'');
+ const source=getUnifiedRecordHTML(record,getRecordStructure(record));
  if(record._searchBodySource!==source){
   const parsed=new DOMParser().parseFromString(source,'text/html');
   record._searchBodySource=source;
@@ -63,7 +63,7 @@ function urlKey(raw){
  }catch{return '';}
 }
 function localMediaUrl(item){
- if(item?.storage==='vha-post-media')return safeExternalUrl(item.url,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']))||'';
+ if(item?.storage==='vha-post-media')return safeExternalUrl(item.url,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']))||'';
  const path=String(item.storage_path||'').split('/').map(part=>encodeURIComponent(part)).join('/');
  return publicBase+path;
 }
@@ -193,9 +193,9 @@ function appendSafeContent(container,source,record,used){
    const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){appendLocalImage(parent,item,record,used);}
    else{
-    const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
+    const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
     let valid=Boolean(src);
-    if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else valid=url.pathname.includes('/wp-content/uploads/');}
+    if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else if(url.hostname==='ioguymqdeuuursizifnn.supabase.co')valid=/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname);else valid=url.pathname.includes('/wp-content/uploads/');}
     if(valid){const image=document.createElement('img');image.src=src;image.alt=node.getAttribute('alt')||record.title;image.loading='lazy';image.style.maxWidth='100%';image.style.height='auto';parent.append(image);}
     else appendMissing(parent,'Image not yet available in the recovered media collection.');
    }
@@ -205,8 +205,8 @@ function appendSafeContent(container,source,record,used){
    const raw=node.getAttribute('src')||'';
    const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){if(tag==='AUDIO')appendLocalAudio(parent,item,record,used);else appendLocalVideo(parent,item,record,used);return;}
-   const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
-   const valid=Boolean(src)&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname);
+   const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
+   const valid=Boolean(src)&&/^\/storage\/v1\/object\/public\/(vha-post-media|human-archive-media)\//.test(new URL(src).pathname);
    const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='metadata';
    if(valid)mediaNode.src=src;
    if(tag==='VIDEO')mediaNode.playsInline=true;
@@ -220,7 +220,7 @@ function appendSafeContent(container,source,record,used){
    if(item&&(mediaReady||item.storage==='vha-post-media')&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
     const source=document.createElement('source');source.src=localMediaUrl(item);source.type=item.mime_type;parent.append(source);markUsed(item,used);
    }else{
-    const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
+    const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
     if(src&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname)&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
      const source=document.createElement('source');source.src=src;source.type=node.getAttribute('type')||'';parent.append(source);
     }
@@ -579,25 +579,25 @@ function sanitizeTransmissionBody(source){
   if(!allowed.has(node.tagName)){node.childNodes.forEach(child=>copy(child,parent));return;}
   const element=document.createElement(node.tagName.toLowerCase());
   if(node.tagName==='IMG'){
-   const src=safeExternalUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
+   const src=safeExternalUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
    let valid=Boolean(src);
-   if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else valid=url.pathname.includes('/wp-content/uploads/');}
+   if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else if(url.hostname==='ioguymqdeuuursizifnn.supabase.co')valid=/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname);else valid=url.pathname.includes('/wp-content/uploads/');}
    if(!valid)return;
    element.src=src;element.alt=String(node.getAttribute('alt')||'');element.loading='lazy';element.style.maxWidth='100%';element.style.height='auto';
   }
   if(node.tagName==='AUDIO'||node.tagName==='VIDEO'){
    const rawSrc=node.getAttribute('src')||'';
    if(rawSrc){
-    const src=safeExternalUrl(rawSrc,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
-    if(!src||!/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname))return;
+    const src=safeExternalUrl(rawSrc,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
+    if(!src||!/^\/storage\/v1\/object\/public\/(vha-post-media|human-archive-media)\//.test(new URL(src).pathname))return;
     element.src=src;
    }else if(!node.querySelector('source'))return;
    element.controls=true;element.preload='metadata';
    if(node.tagName==='VIDEO')element.playsInline=true;
   }
   if(node.tagName==='SOURCE'){
-   const src=safeExternalUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
-   if(!src||!/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname))return;
+   const src=safeExternalUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
+   if(!src||!/^\/storage\/v1\/object\/public\/(vha-post-media|human-archive-media)\//.test(new URL(src).pathname))return;
    element.src=src;element.type=String(node.getAttribute('type')||'');
   }
   if(node.tagName==='IFRAME'){
@@ -1321,7 +1321,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     const {data:createResult,error:createError}=await archiveSupabase.rpc('create_human_archive_transmission_v3',{
      p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,
      p_status:'draft',p_transmission_body:initialBody,p_prompt_style:sanitizeTransmissionBody(promptArea.innerHTML),p_lyrics_style:sanitizeTransmissionBody(lyricsArea.innerHTML),p_output_text:sanitizeTransmissionBody(textArea.innerHTML),
-     p_output_media:{},p_media_items:[],p_media_width:metadata.mediaWidth
+     p_output_media:{image:[],audio:[],video:[]},p_media_items:[],p_media_width:metadata.mediaWidth
     });
     if(createError)throw createError;
     const created=Array.isArray(createResult)?createResult[0]:createResult;
@@ -1512,7 +1512,7 @@ function buildRecordChamber(record){
  const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.setAttribute('aria-label','Close record chamber');
  actions.append(edit,close);shareRow.append(share,shareStatus,actions);main.append(shareRow);
  main.append(titleRow);
- const grid=makeChamberNode('div','ha-chamber-grid');main.append(grid);
+ const grid=makeChamberNode('div','ha-chamber-grid ha-chamber-unified');main.append(grid);
  renderRecordStructureView(record,grid,shareStatus,edit,expand);
  expand.addEventListener('click',()=>{
   const disclosures=[...grid.querySelectorAll('details[data-ha-disclosure]')];
@@ -1651,7 +1651,7 @@ function makeEntry(record,index){
  const favorite=makeChamberNode('button','ha-favorite-toggle','☆');favorite.type='button';favorite.dataset.haFavoriteId=String(record.id);favorite.hidden=!archiveAdmin;favorite.setAttribute('aria-pressed',String(favoriteRecordIds.has(String(record.id))));favorite.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();toggleArchiveFavorite(record.id,favorite);});
  quickActions.append(chamber,favorite);
  link.addEventListener('click',()=>{const open=content.hidden;content.hidden=!open;link.setAttribute('aria-expanded',String(open));action.textContent=open?'EXIT NICHE ↑':'ACCESS NICHE ↓';quickActions.hidden=!open;});
- const body=document.createElement('div');body.className='ha-entry-body';const used=new Set();appendSafeContent(body,record.content_html||'',record,used);
+ const body=document.createElement('div');body.className='ha-entry-body';const used=new Set();appendSafeContent(body,getUnifiedRecordHTML(record,getRecordStructure(record)),record,used);
  if(!body.childNodes.length){const message=document.createElement('p');message.textContent='No local text was captured for this entry.';body.append(message);}
  content.append(body);const gallery=makeAttachmentGallery(record,used);if(gallery)content.append(gallery);
  link.append(makeFavoriteMark(record));wrapper.append(link,quickActions,content);
