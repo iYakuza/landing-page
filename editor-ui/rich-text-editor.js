@@ -15,7 +15,7 @@
     if (!targets.length || !(toolbar instanceof HTMLElement) || !(focusButton instanceof HTMLElement)) {
       throw new TypeError('The rich-text editor requires at least one editor, a toolbar, and a focus button.');
     }
-    let activeEditor = targets[0];
+    let activeEditor = targets[0].querySelector('[data-ha-block-content][contenteditable="true"]') || targets[0];
     const listeners = new AbortController();
     const signal = listeners.signal;
     targets.forEach(target => {
