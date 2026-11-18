@@ -1,8 +1,41 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T06:19:50.569640Z",
-  "last_processed_sha": "1fd11bdf34db87bb88241ac2feee681a547a0d61",
+  "updated_at": "2026-11-18T06:33:00.275706Z",
+  "last_processed_sha": "9e6403960867ecec3be63d7d108489d97b0c5e82",
   "entries": [
+    {
+      "id": "9e6403960867ecec3be63d7d108489d97b0c5e82",
+      "timestamp": "2026-11-18T07:32:44+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Match Posts archive width to Human Archive. It updates index.html, posts.css and related project files.",
+      "commit_count": 1,
+      "files": [
+        "posts/index.html",
+        "posts/posts.css",
+        "posts/the-awakening/index.html",
+        "posts/the-descent/index.html",
+        "posts/the-reconnection/index.html",
+        "posts/the-return/index.html",
+        "posts/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Match Posts archive width to Human Archive",
+          "url": "https://github.com/iYakuza/landing-page/commit/9e6403960867ecec3be63d7d108489d97b0c5e82",
+          "files": [
+            "posts/index.html",
+            "posts/posts.css",
+            "posts/the-awakening/index.html",
+            "posts/the-descent/index.html",
+            "posts/the-reconnection/index.html",
+            "posts/the-return/index.html",
+            "posts/the-transformation/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "1fd11bdf34db87bb88241ac2feee681a547a0d61",
       "timestamp": "2026-11-18T07:19:41+01:00",
@@ -1138,33 +1171,6 @@
             "cms/cms.js",
             "cms/index.html",
             "editor-ui/rich-text-editor.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "9508ea568c8cb1ed4ac863660519b05b7bda38a2",
-      "timestamp": "2026-11-16T20:50:20+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Human Archive: shared slug URLs and card identities (#69). It updates 404.html, archive.css, archive.js, index.html.",
-      "commit_count": 1,
-      "files": [
-        "404.html",
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Human Archive: shared slug URLs and card identities (#69)",
-          "url": "https://github.com/iYakuza/landing-page/commit/9508ea568c8cb1ed4ac863660519b05b7bda38a2",
-          "files": [
-            "404.html",
-            "human-archive/archive.css",
-            "human-archive/archive.js",
-            "human-archive/index.html"
           ]
         }
       ]
