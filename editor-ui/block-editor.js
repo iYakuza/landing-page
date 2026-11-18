@@ -9,6 +9,7 @@
     ['image','Image','Media'],['gallery','Gallery','Media'],['slideshow','Slideshow','Media'],['tiled-gallery','Tiled gallery','Media'],['cover','Cover','Media'],['media-text','Media & text','Media'],['image-compare','Image compare','Media'],['audio','Audio','Media'],['video','Video','Media'],['file','File download','Media'],['playlist','Audio playlist','Media'],['podcast','Podcast player','Media'],['embed','Embed','Media'],['youtube','YouTube','Media'],['spotify','Spotify','Media'],['soundcloud','SoundCloud','Media'],
     ['buttons','Buttons','Design'],['button','Button','Design'],['columns','Columns','Design'],['group','Group','Design'],['row','Row','Design'],['stack','Stack','Design'],['grid','Grid','Design'],['spacer','Spacer','Design'],['social-icons','Social icons','Design'],['icon','Icon','Design'],['timeline','Timeline','Design'],['tabs','Tabs','Design'],['callout','Callout','Design'],['card','Card','Design']
   ];
+  let inserterMenuSequence = 0;
 
   function safeURL(value, hosts) {
     try {
@@ -116,6 +117,7 @@
     if (!(editor instanceof HTMLElement)) throw new TypeError('A block editor canvas is required.');
     if (editor.dataset.haBlockEditorMounted === 'true') return editor.__haBlockEditor || null;
     editor.dataset.haBlockEditorMounted = 'true';
+    ['height','min-height','max-height','width','overflow','resize'].forEach(property=>editor.style.removeProperty(property));
     editor.classList.add('ha-block-editor-canvas');
     editor.setAttribute('role','region');
     editor.setAttribute('aria-label',editor.getAttribute('aria-label') || 'Block editor canvas');
@@ -275,14 +277,41 @@
       menu = document.createElement('div'); menu.className = 'ha-block-inserter-menu'; menu.setAttribute('role','dialog'); menu.setAttribute('aria-label','Choose a block');
       const search = document.createElement('input'); search.type='search'; search.className='ha-block-search'; search.placeholder='Search all blocks…'; search.setAttribute('aria-label','Search blocks'); menu.append(search);
       const results = document.createElement('div'); results.className='ha-block-results'; menu.append(results);
+      const menuInstance=++inserterMenuSequence;
       function render(filter='') {
-        results.replaceChildren(); const q=filter.trim().toLowerCase(); let lastCategory=''; let count=0;
-        TYPES.filter(([type,label,category])=>!q||`${type} ${label} ${category}`.toLowerCase().includes(q)).forEach(([type,label,category])=>{
-          if(category!==lastCategory){const heading=document.createElement('div');heading.className='ha-block-category';heading.textContent=category;results.append(heading);lastCategory=category;}
-          const button=document.createElement('button');button.type='button';button.className='ha-block-option';button.textContent=label;button.setAttribute('role','menuitem');
-          button.addEventListener('click',()=>{closeMenu();if(['image','gallery','slideshow','tiled-gallery','cover','audio','video','file','embed','youtube','spotify','soundcloud','podcast','playlist','media-text','image-compare'].includes(type))return insertMedia(type,block);const next=makeBlock(type,defaultHTML(type));if(block)block.after(next);else editor.append(next);wireBlock(next);setSelected(next);focusBlock(next);sync();});
-          results.append(button);count++;
+        results.replaceChildren();
+        const q=filter.trim().toLowerCase();
+        const grouped=new Map();
+        TYPES.filter(([type,label,category])=>!q||(type+' '+label+' '+category).toLowerCase().includes(q)).forEach(item=>{
+          const category=item[2];
+          if(!grouped.has(category))grouped.set(category,[]);
+          grouped.get(category).push(item);
         });
+        let count=0;
+        for(const [category,items] of grouped){
+          const group=document.createElement('section');
+          group.className='ha-block-category-group';
+          const heading=document.createElement('button');
+          heading.type='button';heading.className='ha-block-category';
+          heading.textContent=category;
+          heading.setAttribute('aria-expanded','true');
+          const categoryItems=document.createElement('div');
+          categoryItems.className='ha-block-category-items';
+          categoryItems.id='ha-block-category-'+menuInstance+'-'+category.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+          heading.setAttribute('aria-controls',categoryItems.id);
+          heading.addEventListener('click',()=>{
+            const expanded=heading.getAttribute('aria-expanded')==='true';
+            heading.setAttribute('aria-expanded',String(!expanded));
+            categoryItems.hidden=expanded;
+          });
+          group.append(heading,categoryItems);
+          for(const [type,label] of items){
+            const button=document.createElement('button');button.type='button';button.className='ha-block-option';button.textContent=label;button.setAttribute('role','menuitem');
+            button.addEventListener('click',()=>{closeMenu();if(['image','gallery','slideshow','tiled-gallery','cover','audio','video','file','embed','youtube','spotify','soundcloud','podcast','playlist','media-text','image-compare'].includes(type))return insertMedia(type,block);const next=makeBlock(type,defaultHTML(type));if(block)block.after(next);else editor.append(next);wireBlock(next);setSelected(next);focusBlock(next);sync();});
+            categoryItems.append(button);count++;
+          }
+          results.append(group);
+        }
         if(!count){const empty=document.createElement('p');empty.className='ha-block-empty';empty.textContent='No matching blocks';results.append(empty);}
       }
       search.addEventListener('input',()=>render(search.value)); render();
