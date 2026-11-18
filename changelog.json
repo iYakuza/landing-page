@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T17:23:43.524701Z",
-  "last_processed_sha": "cc6fd443f02ff4a8f42e17834c10447fe6d194f5",
+  "updated_at": "2026-11-18T17:30:54.823466Z",
+  "last_processed_sha": "97be1cc6606b544bd0bfb423dbf003a79686bbb7",
   "entries": [
+    {
+      "id": "97be1cc6606b544bd0bfb423dbf003a79686bbb7",
+      "timestamp": "2026-11-18T18:30:39+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Keep signed-in Transmission controls visible when admin access needs attention. It updates creator-posting.js.",
+      "commit_count": 1,
+      "files": [
+        "creator-posting.js"
+      ],
+      "commits": [
+        {
+          "message": "Keep signed-in Transmission controls visible when admin access needs attention",
+          "url": "https://github.com/iYakuza/landing-page/commit/97be1cc6606b544bd0bfb423dbf003a79686bbb7",
+          "files": [
+            "creator-posting.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "b8f71d751ac15832c1f7f7883efcc47fb07f012d",
       "timestamp": "2026-11-18T18:23:34+01:00",
@@ -1175,39 +1196,6 @@
             "posts/index.html",
             "posts/posts-human-archive.css",
             "posts/posts.js",
-            "posts/the-awakening/index.html",
-            "posts/the-descent/index.html",
-            "posts/the-reconnection/index.html",
-            "posts/the-return/index.html",
-            "posts/the-transformation/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "9e6403960867ecec3be63d7d108489d97b0c5e82",
-      "timestamp": "2026-11-18T07:32:44+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Match Posts archive width to Human Archive. It updates index.html, posts.css and related project files.",
-      "commit_count": 1,
-      "files": [
-        "posts/index.html",
-        "posts/posts.css",
-        "posts/the-awakening/index.html",
-        "posts/the-descent/index.html",
-        "posts/the-reconnection/index.html",
-        "posts/the-return/index.html",
-        "posts/the-transformation/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Match Posts archive width to Human Archive",
-          "url": "https://github.com/iYakuza/landing-page/commit/9e6403960867ecec3be63d7d108489d97b0c5e82",
-          "files": [
-            "posts/index.html",
-            "posts/posts.css",
             "posts/the-awakening/index.html",
             "posts/the-descent/index.html",
             "posts/the-reconnection/index.html",
