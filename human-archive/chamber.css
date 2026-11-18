@@ -552,3 +552,9 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
  .ha-record-chamber.has-floating-formatting-toolbar .ha-chamber-main{padding-right:126px!important}
  .ha-record-chamber[open] .ha-rich-toolbar{right:8px;width:108px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);padding:6px;gap:4px}
 }
+
+/* Edit mode uses the full chamber width instead of the legacy three-column view grid. */
+.ha-chamber-grid.ha-chamber-grid-editor{
+ display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;
+ gap:16px;width:min(1200px,100%);margin:22px auto 0
+}
