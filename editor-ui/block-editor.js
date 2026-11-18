@@ -27,17 +27,27 @@
 
   function blockType(node) {
     if (!node || node.nodeType !== Node.ELEMENT_NODE) return 'paragraph';
-    const tag=node.tagName;
+    const tag=node.tagName,classes=node.classList;
     if (/^H[1-4]$/.test(tag)) return 'heading';
-    if (tag==='DIV'||tag==='SECTION'||tag==='ASIDE') return 'classic';
+    if(classes.contains('wp-block-gallery'))return 'gallery';
+    if(classes.contains('wp-block-cover'))return 'cover';
+    if(classes.contains('wp-block-pullquote'))return 'pullquote';
+    if(classes.contains('wp-block-columns'))return 'columns';
+    if(classes.contains('wp-block-group'))return 'group';
+    if(classes.contains('wp-block-file'))return 'file';
+    if(classes.contains('wp-block-spacer'))return 'spacer';
+    if(classes.contains('wp-block-embed'))return 'embed';
+    if(classes.contains('wp-block-audio')||tag==='AUDIO'||node.querySelector?.('audio'))return 'audio';
+    if(classes.contains('wp-block-video')||tag==='VIDEO'||node.querySelector?.('video'))return 'video';
+    if(tag==='DIV'||tag==='SECTION'||tag==='ASIDE')return 'classic';
     if(tag==='UL')return 'unordered-list'; if(tag==='OL')return 'ordered-list';
-    if(tag==='PRE'&&node.querySelector('code'))return 'code'; if(tag==='PRE')return 'preformatted';
+    if(tag==='PRE'&&node.querySelector('code'))return 'code';
+    if(tag==='PRE'&&classes.contains('wp-block-verse'))return 'verse';
+    if(tag==='PRE')return 'preformatted';
     if(tag==='BLOCKQUOTE')return 'quote'; if(tag==='HR')return 'separator';
     if(tag==='FIGURE'&&node.querySelector('iframe'))return 'embed';
     if(tag==='FIGURE'&&node.querySelector('img'))return 'image';
     if(tag==='IMG'||node.querySelector?.('img'))return 'image';
-    if(tag==='AUDIO'||node.querySelector?.('audio'))return 'audio';
-    if(tag==='VIDEO'||node.querySelector?.('video'))return 'video';
     if(tag==='IFRAME'||node.querySelector?.('iframe'))return 'embed';
     if(tag==='TABLE')return 'table'; if(tag==='DETAILS')return 'details';
     if(tag==='BUTTON'||node.querySelector?.('a.ha-editor-button'))return 'buttons';
