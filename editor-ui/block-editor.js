@@ -610,6 +610,7 @@
         const content=contentFor(block);
         if(content)content.contentEditable='false';
       });
+      editor.querySelectorAll('.ha-editor-add-column').forEach(button=>button.remove());
     } else {
       editor.addEventListener('input',sync);
     }
