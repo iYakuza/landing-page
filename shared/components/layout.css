@@ -1,0 +1,47 @@
+/* Shared V/A layout system.
+   Page content supplies a component kind; this file owns the common box model. */
+:root{
+  --vha-layout-max-width:1200px;
+  --vha-layout-viewport-width:90vw;
+  --vha-layout-hero-padding-top:clamp(42px,6vw,76px);
+  --vha-layout-hero-padding-bottom:clamp(34px,5vw,58px);
+  --vha-layout-intro-padding-top:12px;
+  --vha-layout-intro-padding-bottom:44px;
+}
+
+.vha-layout-main{
+  width:min(var(--vha-layout-max-width),var(--vha-layout-viewport-width))!important;
+  max-width:var(--vha-layout-max-width)!important;
+  margin:0 auto!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  box-sizing:border-box!important;
+}
+
+.vha-layout-section{
+  display:block;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0;
+  margin:0!important;
+  padding-left:0!important;
+  padding-right:0!important;
+  border:0!important;
+  box-sizing:border-box!important;
+}
+
+.vha-layout-section--hero{
+  padding-top:var(--vha-layout-hero-padding-top)!important;
+  padding-bottom:var(--vha-layout-hero-padding-bottom)!important;
+}
+
+.vha-layout-section--intro{
+  padding-top:var(--vha-layout-intro-padding-top)!important;
+  padding-bottom:var(--vha-layout-intro-padding-bottom)!important;
+}
+
+.vha-layout-section--records{
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+}
