@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T17:19:50.646037Z",
-  "last_processed_sha": "0499e842dcb8723b1e6515d9cff4246f6cfc9792",
+  "updated_at": "2026-11-18T17:20:23.121514Z",
+  "last_processed_sha": "8bb8f7665f5a6b8b505fb65a1021fd840eed2ceb",
   "entries": [
+    {
+      "id": "8bb8f7665f5a6b8b505fb65a1021fd840eed2ceb",
+      "timestamp": "2026-11-18T18:20:20+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Place editor actions in the chamber header; Style simple block categories and editable columns; Move SAVE and DISCARD controls to the chamber header. It updates block-editor.css, archive.css, archive.js.",
+      "commit_count": 3,
+      "files": [
+        "editor-ui/block-editor.css",
+        "human-archive/archive.css",
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Place editor actions in the chamber header",
+          "url": "https://github.com/iYakuza/landing-page/commit/88c4e92ebe2d5b38192bacd10f5e0f5ef63176aa",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Style simple block categories and editable columns",
+          "url": "https://github.com/iYakuza/landing-page/commit/515b7ebd309d297dda5c6da7719088a72752457b",
+          "files": [
+            "editor-ui/block-editor.css"
+          ]
+        },
+        {
+          "message": "Move SAVE and DISCARD controls to the chamber header",
+          "url": "https://github.com/iYakuza/landing-page/commit/8bb8f7665f5a6b8b505fb65a1021fd840eed2ceb",
+          "files": [
+            "human-archive/archive.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "0499e842dcb8723b1e6515d9cff4246f6cfc9792",
       "timestamp": "2026-11-18T18:19:42+01:00",
@@ -1234,27 +1271,6 @@
         {
           "message": "Use full shared editor for legacy archive posts",
           "url": "https://github.com/iYakuza/landing-page/commit/7a9385842bd18dca4130c7900c1a16832a5a77bd",
-          "files": [
-            "human-archive/archive.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "dc8e8501638d11e383054b06633561bb95ca558b",
-      "timestamp": "2026-11-17T21:15:08+01:00",
-      "category": "FIX",
-      "component": "Website",
-      "title": "More reliable Website",
-      "description": "This update brings together Fix public Human Archive chamber read-only rendering. It updates archive.js.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.js"
-      ],
-      "commits": [
-        {
-          "message": "Fix public Human Archive chamber read-only rendering",
-          "url": "https://github.com/iYakuza/landing-page/commit/dc8e8501638d11e383054b06633561bb95ca558b",
           "files": [
             "human-archive/archive.js"
           ]
