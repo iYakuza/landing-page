@@ -2,7 +2,8 @@
   const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
   // Publishable key is intended for public clients; RLS protects the database.
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-  const client = window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+  const client = window.__vhaSupabaseClient || window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) || null;
+  if (client) window.__vhaSupabaseClient = client;
   const list = document.getElementById('posts-list');
   const search = document.getElementById('post-search');
   const categoryFilter = document.getElementById('category-filter');
@@ -14,6 +15,7 @@
   let postsOffset=0,postsHasMore=false;
   const isCommunityArchive=document.body.dataset.archive==='community';
   let posts = [];
+  let canRedesignPosts = false;
   const safe = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const slugify = value => String(value||'').normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,180);
   const prettyDate = value => {
@@ -226,7 +228,7 @@
       const shapeClass=['shape-i','shape-l','shape-square','shape-t','shape-z','shape-j','shape-s'][index%7];
       if(permalink){
         const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
-        const chamberButton=!post.community?'<button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button>':'';
+        const chamberButton=!post.community?'<div class="post-chamber-actions"><button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button><button type="button" class="post-chamber-button post-redesign-button" data-vha-edit-transmission="'+safe(post.slug)+'" aria-label="Redesign '+safe(post.title)+'"'+(canRedesignPosts?'':' hidden')+'>REDESIGN CHAMBER ↗</button></div>':'';
         if(/class=["']suno-post-layout["']/.test(post.content_html||'')){
           const titleHtml='';
           const excerptHtml=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
@@ -241,7 +243,7 @@
       }
       // Archive cards begin retracted; the date control expands the transmission.
       const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
-      const chamberButton=!post.community?'<button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button>':'';
+      const chamberButton=!post.community?'<div class="post-chamber-actions"><button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button><button type="button" class="post-chamber-button post-redesign-button" data-vha-edit-transmission="'+safe(post.slug)+'" aria-label="Redesign '+safe(post.title)+'"'+(canRedesignPosts?'':' hidden')+'>REDESIGN CHAMBER ↗</button></div>':'';
       const movementSlugs={'THE AWAKENING':'the-awakening','THE DESCENT':'the-descent','THE RECONNECTION':'the-reconnection','THE TRANSFORMATION':'the-transformation','THE RETURN':'the-return'};
       const movementHref='/landing-page/posts/'+(movementSlugs[displayCategory(post.category)]||'')+'/';
       const categoryLink='<a class="post-category" href="'+movementHref+'" aria-label="Browse '+safe(displayCategory(post.category))+'">'+safe(displayCategory(post.category))+'</a>';
@@ -282,6 +284,32 @@
       render();loadMoreButton.hidden=!postsHasMore;
     }catch(error){loadMoreButton.textContent='RETRY LOADING OLDER POSTS ↓';}
     finally{loadMoreButton.disabled=false;if(postsHasMore)loadMoreButton.textContent='LOAD OLDER TRANSMISSIONS ↓';}
+  }
+  async function refreshPostEditorAccess(sessionOverride){
+    if(!client){canRedesignPosts=false;return false;}
+    try{
+      let session=sessionOverride;
+      if(sessionOverride===undefined){
+        const result=await client.auth.getSession();
+        if(result.error)throw result.error;
+        session=result.data?.session;
+      }
+      if(!session?.user){canRedesignPosts=false;render();return false;}
+      const {data,error}=await client.from('vha_cms_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
+      if(error)throw error;
+      canRedesignPosts=Boolean(data);
+      render();
+      return canRedesignPosts;
+    }catch(error){
+      canRedesignPosts=false;
+      console.warn('Posts redesign controls could not verify CMS admin access:',error);
+      render();
+      return false;
+    }
+  }
+  if(client){
+    client.auth.onAuthStateChange((_event,session)=>window.setTimeout(()=>refreshPostEditorAccess(session),0));
+    refreshPostEditorAccess();
   }
   async function load(){
     if(!client){list.innerHTML='<p class="posts-empty">THE ARCHIVE COULD NOT CONNECT. PLEASE REFRESH AND TRY AGAIN.</p>';count.textContent='SIGNAL UNAVAILABLE';return;}
@@ -326,6 +354,12 @@
     }
   },true);
   list.addEventListener('click',async event=>{
+    const redesignButton=event.target.closest('[data-vha-edit-transmission]');
+    if(redesignButton){
+      event.preventDefault();
+      window.dispatchEvent(new CustomEvent('VHA_REQUEST_OPEN_TRANSMISSION',{detail:{slug:redesignButton.dataset.vhaEditTransmission,trigger:redesignButton,edit:true}}));
+      return;
+    }
     const chamberButton=event.target.closest('[data-vha-open-transmission]');
     if(chamberButton){
       event.preventDefault();

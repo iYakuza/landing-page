@@ -1411,8 +1411,8 @@ function openArchiveRecordChamber(record,trigger,openInEditor=false){
  dialog.replaceChildren(buildRecordChamber(record));chamberRecordId=String(record.id);recordChamberReturnFocus=trigger||null;
  if(hasArchiveIndex&&!record.isNew){const url=new URL(archiveHomeUrl.href);url.searchParams.set('record',String(record.id));history.replaceState(history.state,'',url.pathname+url.search+url.hash);}document.body.classList.add('ha-chamber-open');
  try{
-  if(archiveAdmin&&openInEditor)dialog.querySelector('.ha-chamber-edit')?.click();
   dialog.showModal();
+  if(archiveAdmin&&openInEditor)dialog.querySelector('.ha-chamber-edit')?.click();
  }catch(error){document.body.classList.remove('ha-chamber-open');console.error('Could not open the Human Archive chamber:',error);}
 }
 function openRequestedRecordFromUrl(){
@@ -1586,7 +1586,8 @@ window.addEventListener('VHA_OPEN_EXISTING_TRANSMISSION',async event=>{
   await ensureStandaloneTransmissionRecords();
   const record=records.find(item=>item.source_type==='transmission'&&item.slug===slug);
   if(!record)throw new Error('This Transmission is unavailable. It may have been unpublished or removed.');
-  openArchiveRecordChamber(record,trigger);
+  if(event.detail?.edit&&!archiveAdmin)throw new Error('CMS ADMIN ACCESS COULD NOT BE CONFIRMED. PLEASE SIGN IN AGAIN.');
+  openArchiveRecordChamber(record,trigger,Boolean(event.detail?.edit));
  }catch(error){
   console.error('The shared Transmission chamber could not be opened:',error);
   window.dispatchEvent(new CustomEvent('VHA_TRANSMISSION_CHAMBER_ERROR',{detail:{message:String(error?.message||'The chamber could not be opened.'),trigger}}));
