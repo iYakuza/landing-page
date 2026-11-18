@@ -331,6 +331,7 @@
         return holder.innerHTML;
       },
       getText() { return blocks().map(block=>block.querySelector('[data-ha-block-content]')?.innerText||'').join('\n\n'); },
+      replaceHTML(html) { this.destroy(); editor.innerHTML=String(html||'<p><br></p>'); return mountBlockEditor({editor,onChange,readOnly}); },
       focus() { focusBlock(selected||blocks()[0]); },
       destroy() {
         const html=this.getHTML();
