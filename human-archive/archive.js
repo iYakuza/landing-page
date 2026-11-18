@@ -1402,7 +1402,7 @@ function buildRecordChamber(record){
  const edit=makeChamberNode('button','ha-chamber-edit','REDESIGN CHAMBER');
  edit.type='button';edit.hidden=!archiveAdmin;edit.setAttribute('aria-label','Redesign this archive chamber');
  const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');close.type='button';close.setAttribute('aria-label','Close record chamber');
- actions.append(edit,close);shareRow.append(share,shareStatus,actions);main.append(shareRow);
+ actions.append(edit,close);topbar.append(actions);shareRow.append(share,shareStatus);main.append(shareRow);
  main.append(titleRow);
  const grid=makeChamberNode('div','ha-chamber-grid');main.append(grid);
  renderRecordStructureView(record,grid,shareStatus,edit,expand,close);
