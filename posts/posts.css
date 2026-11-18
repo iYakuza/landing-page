@@ -1613,10 +1613,9 @@ body.image-viewer-open{overflow:hidden!important}
 
 /* MATCH HUMAN ARCHIVE // same outer width and content alignment as .ha-main. */
 .posts-main{
- width:min(1160px,90vw)!important;
- max-width:1160px!important;
- margin-left:auto!important;
- margin-right:auto!important;
+ width:min(1200px,90vw)!important;
+ max-width:1200px!important;
+ margin:0 auto!important;
 }
 .posts-main>.posts-hero,
 .posts-main>.posts-content,
