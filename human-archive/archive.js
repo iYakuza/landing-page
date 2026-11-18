@@ -402,17 +402,10 @@ function appendChamberShareActions(parent,record,status){
  links.forEach(([label,href])=>{const link=makeChamberNode('a','ha-chamber-share-action',label);link.href=href;link.target='_blank';link.rel='noopener noreferrer';parent.append(link);});
 }
 function defaultRecordOutputText(record){
- const parsed=new DOMParser().parseFromString(String(record.content_html||''),'text/html');
- parsed.body.querySelectorAll('figure,iframe,img,audio,video,source,object,embed,script,style').forEach(node=>node.remove());
- const read=node=>{
-  if(node.nodeType===Node.TEXT_NODE)return node.nodeValue||'';
-  if(node.nodeType!==Node.ELEMENT_NODE)return '';
-  if(node.tagName==='BR')return '\n';
-  const value=[...node.childNodes].map(read).join('');
-  return ['P','DIV','LI','H2','H3','H4','BLOCKQUOTE'].includes(node.tagName)?value+'\n\n':value;
- };
- return read(parsed.body).replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
-}
+  const parsed=new DOMParser().parseFromString(String(record.content_html||''),'text/html');
+  parsed.body.querySelectorAll('figure,iframe,img,audio,video,source,object,embed,script,style').forEach(node=>node.remove());
+  return sanitizeTransmissionBody(parsed.body.innerHTML);
+ }
 function getRecordStructure(record){
  const saved=recordStructureOverrides.get(String(record.id));
  return {
