@@ -1477,7 +1477,18 @@ function openArchiveRecordChamber(record,trigger,openInEditor=false){
  if(hasArchiveIndex&&!record.isNew){const url=new URL(archiveHomeUrl.href);url.searchParams.set('record',String(record.id));history.replaceState(history.state,'',url.pathname+url.search+url.hash);}document.body.classList.add('ha-chamber-open');
  try{
   dialog.showModal();
-  if(archiveAdmin&&openInEditor)dialog.querySelector('.ha-chamber-edit')?.click();
+  if(openInEditor){
+   if(!archiveAdmin||!archiveSupabase||!archiveUserId)throw new Error('ADMIN SESSION REQUIRED');
+   const grid=dialog.querySelector('.ha-chamber-grid');
+   const status=dialog.querySelector('.ha-chamber-share-status');
+   const editButton=dialog.querySelector('.ha-chamber-edit');
+   const expandButton=dialog.querySelector('.ha-chamber-expand-all');
+   const saveButton=dialog.querySelector('.ha-chamber-close');
+   if(!grid||!status||!editButton||!saveButton)throw new Error('The new Transmission editor controls could not be initialized.');
+   renderRecordStructureEditor(record,grid,status,editButton,expandButton,saveButton);
+   editButton.textContent='DISCARD';
+   saveButton.textContent='SAVE CHAMBER';
+  }
  }catch(error){document.body.classList.remove('ha-chamber-open');console.error('Could not open the Human Archive chamber:',error);}
 }
 function openRequestedRecordFromUrl(){
