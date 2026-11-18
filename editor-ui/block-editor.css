@@ -249,3 +249,31 @@
  display:grid!important;opacity:.94!important;pointer-events:auto!important
 }
 .ha-editor-column>.ha-editor-add-column[hidden]{display:none!important}
+
+
+/* Equal-width responsive columns: divide the full chamber content width evenly. */
+.ha-editor-block-content .ha-columns.ha-editor-columns-layout{
+  display:grid!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  grid-template-columns:repeat(var(--ha-column-count,2),minmax(0,1fr))!important;
+  gap:clamp(10px,1.5vw,20px)!important;
+  overflow:visible!important;
+  padding:0!important;
+}
+.ha-editor-block-content .ha-columns.ha-editor-columns-layout>.ha-editor-column{
+  width:auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:650px){
+  .ha-editor-block-content .ha-columns.ha-editor-columns-layout{
+    grid-template-columns:repeat(var(--ha-column-count,2),minmax(0,1fr))!important;
+    max-width:100%!important;
+    overflow:visible!important;
+    padding:0!important;
+  }
+}
