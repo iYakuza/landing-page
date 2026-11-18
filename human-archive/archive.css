@@ -1068,3 +1068,8 @@ main[data-vha-layout-root]{
 .ha-chamber-grid>.ha-rich-editor-top{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#aab7a7;font:9px/1.5 'DM Mono',monospace;letter-spacing:.12em}
 .ha-chamber-grid>.ha-rich-toolbar,.ha-chamber-grid>.ha-block-editor-shell,.ha-chamber-grid>.ha-rich-content{width:100%;min-width:0}
 .ha-legacy-hidden-field{display:none!important}
+
+.ha-chamber-blocks-view .ha-verse{margin:0 0 1.15em;line-height:1.85;white-space:normal}
+.ha-chamber-blocks-view .ha-verse>div{margin:0;min-height:1.85em}
+.ha-chamber-blocks-view .ha-verse>div:empty{min-height:1.85em}
+.ha-block-editor-shell .ha-verse>div{margin:0;min-height:1.8em}
