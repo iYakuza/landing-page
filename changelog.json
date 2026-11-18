@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T19:28:59.743194Z",
-  "last_processed_sha": "b8d4559284e8e2de9b55dc1c7ce3563f1683c0ed",
+  "updated_at": "2026-11-18T19:42:58.732763Z",
+  "last_processed_sha": "a6238dae4ee49e05f21ddcee7d6c9f3e6e59d459",
   "entries": [
+    {
+      "id": "a6238dae4ee49e05f21ddcee7d6c9f3e6e59d459",
+      "timestamp": "2026-11-18T20:42:49+01:00",
+      "category": "FIX",
+      "component": "Website",
+      "title": "More reliable Website",
+      "description": "This update brings together Fix Transmission editor autosave initialization order. It updates archive.js.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Fix Transmission editor autosave initialization order",
+          "url": "https://github.com/iYakuza/landing-page/commit/a6238dae4ee49e05f21ddcee7d6c9f3e6e59d459",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "c7e50a33e56f294eb9dfa82a3a6195ae9a0130d8",
       "timestamp": "2026-11-18T20:28:56+01:00",
@@ -1254,35 +1275,6 @@
           "files": [
             "editor-ui/rich-text-editor.js",
             "human-archive/archive.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "26ffb6df171bd647de4482f4a9583d09b25ec6a1",
-      "timestamp": "2026-11-18T11:09:35+01:00",
-      "category": "FEATURE",
-      "component": "Website Updates",
-      "title": "New capabilities for Website Updates",
-      "description": "This update brings together Add shared draggable formatting panel to Human Archive editor. It updates rich-text-editor.js, archive.css, archive.js, index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "editor-ui/rich-text-editor.js",
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html",
-        "human-archive/page-label.js"
-      ],
-      "commits": [
-        {
-          "message": "Add shared draggable formatting panel to Human Archive editor",
-          "url": "https://github.com/iYakuza/landing-page/commit/26ffb6df171bd647de4482f4a9583d09b25ec6a1",
-          "files": [
-            "editor-ui/rich-text-editor.js",
-            "human-archive/archive.css",
-            "human-archive/archive.js",
-            "human-archive/index.html",
-            "human-archive/page-label.js"
           ]
         }
       ]
