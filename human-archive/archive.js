@@ -997,7 +997,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  });
  [layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain].forEach(area=>area.addEventListener('input',()=>{status.textContent='POST LAYOUT EDITED — SAVE THE CHAMBER TO APPLY';}));
  layoutPanel.body.append(layoutSelectWrap,layoutFields);grid.append(layoutPanel.details);
- postLayoutControls={select:layoutSelect,fields:{main:layoutMain,lyrics:layoutLyrics,prompt:layoutPrompt,learned:layoutLearned,chatgpt:layoutChatgpt,plain:layoutPlain},transmissionDetails:null,sync:syncLayoutControls};
+ postLayoutControls=null;layoutPanel.details.remove();prompt.details.remove();lyrics.details.remove();output.details.remove();
  syncLayoutControls();
  if(record.source_type==='transmission'){
  attachedPostMedia=(Array.isArray(record.media_items)?record.media_items:[]).map((item,index)=>{
@@ -1096,8 +1096,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  formattingTools.forEach(([label,command,value])=>{const button=makeChamberNode('button','',label);button.type='button';button.dataset.command=command;if(value)button.dataset.value=value;button.title=label;toolbar.append(button);});
  const insertLinkButton=makeChamberNode('button','ha-rich-link','LINK');insertLinkButton.type='button';toolbar.append(insertLinkButton);
  const unlinkButton=makeChamberNode('button','','UNLINK');unlinkButton.type='button';unlinkButton.dataset.command='unlink';toolbar.append(unlinkButton);
- const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable=readOnly?'false':'true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Transmission body');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Write the transmission body…';transmissionEditor.innerHTML=sanitizeTransmissionBody(record.source_type==='transmission'?(record.content_html||structure.transmission_body):(structure.transmission_body||record.content_html||''));
- transmission.body.append(transmissionTop,transmissionEditor);grid.append(transmission.details,toolbar);
+ const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable=readOnly?'false':'true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Transmission body');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Write the transmission body…';transmissionEditor.innerHTML=sanitizeTransmissionBody(buildUnifiedBlockDocument(record,structure));
+ transmission.body.append(transmissionTop,transmissionEditor);grid.append(transmissionTop,toolbar,transmissionEditor);transmission.details.remove();
  if(postLayoutControls){postLayoutControls.transmissionDetails=transmission.details;postLayoutControls.transmissionEditor=transmissionEditor;postLayoutControls.sync();}
  const prompt=makeChamberDisclosure('02 // PROMPT STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
  const promptArea=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');promptArea.contentEditable=readOnly?'false':'true';promptArea.name='prompt_style';promptArea.setAttribute('role','textbox');promptArea.setAttribute('aria-multiline','true');promptArea.setAttribute('aria-label','Prompt style');promptArea.dataset.placeholder='Paste or write the AI / Suno style prompt…';promptArea.innerHTML=sanitizeTransmissionBody(structure.prompt_style);prompt.body.append(promptArea);grid.append(prompt.details);
@@ -1165,8 +1165,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   const remove=paths.filter(path=>!keep.includes(path));
   if(remove.length&&archiveSupabase){const {error}=await archiveSupabase.storage.from('vha-post-media').remove(remove);if(error)console.warn('Unreferenced block media could not be cleaned up:',error);}
  };
- const blockEditorControllers=readOnly?[]:[transmissionEditor,promptArea,lyricsArea,textArea,layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
- const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,editors:[promptArea,lyricsArea,textArea,layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain],toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
+ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
+ const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
  ['image','audio','video'].forEach(type=>{
   const media=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
   const items=editorMedia[type];
@@ -1239,7 +1239,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   }).filter(item=>item.url);
   const row={
    record_id:Number(record.id),transmission_body:transmissionBody,
-   prompt_style:sanitizeTransmissionBody(promptArea.innerHTML),lyrics_style:sanitizeTransmissionBody(lyricsArea.innerHTML),output_text:sanitizeTransmissionBody(textArea.innerHTML),
+   prompt_style:'',lyrics_style:'',output_text:'',
    output_media:outputMedia,updated_at:new Date().toISOString(),updated_by:archiveUserId
   };
   return {metadata,row,mediaItems};
