@@ -813,7 +813,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  layoutSelectWrap.append(makeChamberNode('span','ha-chamber-metadata-label','PUBLIC POST LAYOUT'),layoutSelect);
  const layoutFields=makeChamberNode('div','ha-chamber-layout-fields');
  const addLayoutField=(label,name,value,group,rows=5)=>{
-  const wrap=makeChamberNode('label','ha-chamber-metadata-field ha-chamber-layout-field');
+  const wrap=makeChamberNode('div','ha-chamber-metadata-field ha-chamber-layout-field');
   wrap.dataset.layoutGroup=group;
   wrap.append(makeChamberNode('span','ha-chamber-metadata-label',label));
   const area=makeChamberNode('div','ha-chamber-editor-field ha-rich-content ha-layout-block-field');
