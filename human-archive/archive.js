@@ -601,6 +601,7 @@ function clearChamberFormattingToolbar(){
 }
 function renderRecordStructureView(record,grid,status,editButton,expandButton,closeButton){
  clearChamberFormattingToolbar();
+ grid.classList.remove('ha-chamber-grid-editor');
  const titleNode=recordChamber?.querySelector('.ha-chamber-title');
  if(titleNode)titleNode.textContent=record.title||'';
  const structure=getRecordStructure(record);
@@ -633,6 +634,7 @@ function chamberUploadToken(){
  return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
 }
 function renderRecordStructureEditor(record,grid,status,editButton,expandButton,closeButton,readOnly=false){
+ grid.classList.add('ha-chamber-grid-editor');
  const structure=getRecordStructure(record);
  const initialRecordSnapshot=JSON.parse(JSON.stringify(record));
  const initialStructureSnapshot=JSON.parse(JSON.stringify(structure));
