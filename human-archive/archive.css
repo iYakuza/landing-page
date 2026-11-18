@@ -1051,6 +1051,11 @@ main[data-vha-layout-root]{
  background:rgba(5,13,8,.97);backdrop-filter:blur(14px);cursor:default
 }
 .ha-record-chamber[open] .ha-rich-toolbar button{width:100%;min-width:0;min-height:30px;padding:5px 3px;text-align:center;white-space:normal;font-size:8px}
+.ha-record-chamber[open] .ha-rich-toolbar .ha-rich-toolbar-category{
+ grid-column:1/-1;padding:7px 2px 2px;border-bottom:1px solid rgba(185,215,122,.2);
+ color:#a8bf98;font:7px/1.2 'DM Mono',monospace;letter-spacing:.14em;text-align:left
+}
+.ha-record-chamber[open] .ha-rich-toolbar .ha-rich-toolbar-category:not(:first-child){margin-top:3px}
 .ha-record-chamber[open] .ha-rich-toolbar .ha-chamber-focus-toggle{
  grid-column:1/-1;min-height:35px;border-color:rgba(255,230,107,.72);background:rgba(255,230,107,.09);
  color:#ffe66b;text-shadow:0 0 4px rgba(255,230,107,.8),0 0 12px rgba(255,210,76,.7)
