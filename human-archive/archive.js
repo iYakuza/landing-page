@@ -847,13 +847,20 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const draftAutosaveEnabled=record.source_type==='transmission'&&record.status==='draft'&&!record.isNew;
  const deleteDraft=draftAutosaveEnabled?makeChamberNode('button','ha-chamber-delete-draft','DELETE DRAFT'):null;
  if(deleteDraft)deleteDraft.type='button';
- const existingPostMedia=()=> (Array.isArray(record.media_items)?record.media_items:[]).map(item=>({url:String(item.url||item.source_url||''),path:String(item.path||item.storage_path||''),type:String(item.type||'audio'),name:String(item.name||item.title||record.title)})).filter(item=>item.url);
+ const existingPostMedia=(body=getBody())=> (Array.isArray(record.media_items)?record.media_items:[]).map(item=>({
+  url:String(item.url||item.source_url||''),path:String(item.path||item.storage_path||''),
+  type:String(item.type||'audio'),name:String(item.name||item.title||record.title)
+ })).filter(item=>{
+  const source=(Array.isArray(record.media_items)?record.media_items:[]).find(candidate=>String(candidate.url||candidate.source_url||'')===item.url);
+  const candidates=[item.url,item.path,source?.source_url,source?.storage_path,source?localMediaUrl(source):''].filter(Boolean);
+  return candidates.some(value=>String(body||'').includes(value));
+ });
  const buildDraftAutosaveState=()=>{
   const metadata=getMetadata();metadata.status='draft';
   const body=getBody();
   if(!getText().trim()&&!archiveHasContent(body))throw new Error('Add content before saving this draft.');
   const row={record_id:Number(record.id),transmission_body:body,prompt_style:'',lyrics_style:'',output_text:'',output_media:{image:[],audio:[],video:[]},updated_at:new Date().toISOString(),updated_by:archiveUserId};
-  return {metadata,row,mediaItems:existingPostMedia()};
+  return {metadata,row,mediaItems:existingPostMedia(body)};
  };
  const runDraftAutosave=async()=>{
   if(draftAutosaveConflict)return false;
@@ -872,7 +879,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    });
    if(error)throw error;
    const saved=Array.isArray(data)?data[0]:data;
-   record.media_width=state.metadata.mediaWidth;record.title=state.metadata.title;record.slug=state.metadata.slug;record.categories=[state.metadata.category];record.excerpt=state.metadata.excerpt;
+   record.media_width=state.metadata.mediaWidth;record.title=state.metadata.title;record.slug=state.metadata.slug;record.categories=[state.metadata.category];record.excerpt=state.metadata.excerpt;record.media_items=state.mediaItems;
    const removedBlockPaths=getOwnedBlockMediaPaths(record.content_html,record.id).filter(path=>!state.row.transmission_body.includes(path));
    if(removedBlockPaths.length){const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedBlockPaths);if(removeError)console.warn('Removed draft block media could not be cleaned up:',removeError);}
    record.blockMediaPaths=(record.blockMediaPaths||[]).filter(path=>state.row.transmission_body.includes(path));
@@ -973,18 +980,19 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     record.archiveIdentifier='HA-'+record.year+'-'+String(record.id).padStart(4,'0');record.isNew=false;chamberRecordId=String(record.id);
    }
    const row={record_id:Number(record.id),transmission_body:body,prompt_style:'',lyrics_style:'',output_text:'',output_media:{image:[],audio:[],video:[]},updated_at:new Date().toISOString(),updated_by:archiveUserId};
+   const mediaItemsToSave=existingPostMedia(body);
    if(record.source_type==='transmission'){
     metadata=getMetadata();
     if(metadata.status==='published'&&!getText().trim()&&!archiveHasContent(body))throw new Error('Add transmission content before publishing.');
     const {data:saveResult,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
      p_post_id:record.post_id,p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,p_status:metadata.status,
      p_transmission_body:row.transmission_body,p_prompt_style:'',p_lyrics_style:'',p_output_text:'',p_output_media:row.output_media,
-     p_media_items:existingPostMedia(),p_media_width:metadata.mediaWidth,p_expected_updated_at:record.updated_at
+     p_media_items:mediaItemsToSave,p_media_width:metadata.mediaWidth,p_expected_updated_at:record.updated_at
     });
     if(error)throw error;
     const saved=Array.isArray(saveResult)?saveResult[0]:saveResult;
     record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.status=metadata.status;
-    record.media_width=metadata.mediaWidth;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||row.updated_at;row.updated_at=record.updated_at;
+    record.media_width=metadata.mediaWidth;record.media_items=mediaItemsToSave;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||row.updated_at;row.updated_at=record.updated_at;
     const stamp=record.published_at||record.created_at||record.updated_at;record.date=String(stamp).slice(0,10);record.year=record.date.slice(0,4);
    }else{
     const {data:structureResult,error}=await archiveSupabase.rpc('save_human_archive_record_structure_v1',{
