@@ -886,6 +886,10 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    });
    if(error)throw error;
    const saved=Array.isArray(data)?data[0]:data;
+   const previousBlocks=recordStructureOverrides.get(String(record.id))?.blocks||[];
+   record.updated_at=saved?.updated_at||record.updated_at;
+   state.row.updated_at=record.updated_at;
+   recordStructureOverrides.set(String(record.id),{...state.row,blocks:previousBlocks});
    const {data:blockSaveData,error:blockSaveError}=await archiveSupabase.rpc('save_human_archive_record_blocks_v1',{p_record_id:Number(record.id),p_blocks:state.blocks,p_expected_updated_at:saved?.updated_at||record.updated_at});
    if(blockSaveError)throw blockSaveError;
    state.row.blocks=state.blocks;
@@ -900,7 +904,6 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     storage_path:item.path||'',source_url:item.url,url:item.url,
     storage:'vha-post-media',post_ids:[Number(record.id)]
    }));
-   record.updated_at=saved?.updated_at||record.updated_at;
    recordStructureOverrides.set(String(record.id),state.row);
    await cleanupBlockMediaUploads(state.row.transmission_body);
    [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{
@@ -1164,6 +1167,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     row.updated_at=savedStructure?.updated_at||new Date().toISOString();
     blocksExpectedUpdatedAt=row.updated_at;
    }
+   row.updated_at=blocksExpectedUpdatedAt||row.updated_at;
+   recordStructureOverrides.set(String(record.id),{...row,blocks:oldStructure.blocks||[]});
    const {data:blockSaveData,error:blockSaveError}=await archiveSupabase.rpc('save_human_archive_record_blocks_v1',{p_record_id:Number(record.id),p_blocks:blocks,p_expected_updated_at:blocksExpectedUpdatedAt});
    if(blockSaveError)throw blockSaveError;
    row.blocks=blocks;
