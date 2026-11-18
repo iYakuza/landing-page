@@ -3,6 +3,7 @@
 
   function mountRichTextEditor({
     editor,
+    editors = [],
     toolbar,
     focusButton,
     insertLinkButton,
@@ -10,16 +11,21 @@
     onInvalidLink = () => {},
     focusClass = 'cms-writing-focus'
   } = {}) {
-    if (!(editor instanceof HTMLElement) || !(toolbar instanceof HTMLElement) || !(focusButton instanceof HTMLElement)) {
-      throw new TypeError('The rich-text editor requires an editor, toolbar, and focus button.');
+    const targets = [...new Set([editor, ...editors].filter(item => item instanceof HTMLElement))];
+    if (!targets.length || !(toolbar instanceof HTMLElement) || !(focusButton instanceof HTMLElement)) {
+      throw new TypeError('The rich-text editor requires at least one editor, a toolbar, and a focus button.');
     }
-
+    let activeEditor = targets[0];
     const listeners = new AbortController();
     const signal = listeners.signal;
+    targets.forEach(target => {
+      target.addEventListener('focusin', () => { activeEditor = target; }, { signal });
+      target.addEventListener('input', onChange, { signal });
+    });
 
     toolbar.querySelectorAll('[data-command]').forEach(button => {
       button.addEventListener('click', () => {
-        editor.focus();
+        activeEditor.focus();
         const command = button.dataset.command;
         if (command === 'formatBlock') {
           document.execCommand(command, false, '<' + button.dataset.value + '>');
@@ -31,7 +37,7 @@
     });
 
     insertLinkButton?.addEventListener('click', () => {
-      editor.focus();
+      activeEditor.focus();
       const url = window.prompt('Enter an https:// or mailto: link');
       if (url && /^(https?:\/\/|mailto:)/i.test(url.trim())) {
         document.execCommand('createLink', false, url.trim());
@@ -40,8 +46,6 @@
         onInvalidLink('Only https:// and mailto: links are allowed.');
       }
     }, { signal });
-
-    editor.addEventListener('input', onChange, { signal });
 
     let toolbarDrag = null;
     let toolbarWasDragged = false;
@@ -52,7 +56,7 @@
       focusButton.setAttribute('aria-label', active ? 'Exit focused writing mode' : 'Open focused writing mode');
       focusButton.title = active ? 'Return to the full post editor' : 'Focused writing mode';
       focusButton.textContent = active ? 'EXIT FOCUS' : 'T';
-      if (active) window.requestAnimationFrame(() => editor.focus());
+      if (active) window.requestAnimationFrame(() => activeEditor.focus());
     }
 
     focusButton.addEventListener('click', () => {
@@ -77,7 +81,6 @@
     toolbar.prepend(chain);
 
     chain.addEventListener('keydown', event => {
-      if (!document.body.classList.contains(focusClass)) return;
       const step = event.shiftKey ? 24 : 8;
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
       event.preventDefault();
@@ -88,7 +91,6 @@
     }, { signal });
 
     toolbar.addEventListener('pointerdown', event => {
-      if (!document.body.classList.contains(focusClass)) return;
       const onChain = event.target.closest('[data-toolbar-drag]');
       const onButton = event.target.closest('button');
       if (!onChain && !onButton) return;
@@ -150,6 +152,7 @@
         toolbar.style.removeProperty('left');
         toolbar.style.removeProperty('top');
         toolbar.style.removeProperty('transform');
+        toolbar.style.removeProperty('position');
       }
     };
   }
