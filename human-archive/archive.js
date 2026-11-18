@@ -464,7 +464,7 @@ function flattenArchivePostLayout(html){
   append('SUNO STYLE PROMPT',extract('.suno-style-prompt'));
   append('WHAT I LEARNED',extract('.suno-learned'));
   append('WHAT CHATGPT LEARNED',extract('.suno-chatgpt-learned'));
-  if(!parsed.querySelector('.suno-style-prompt')){
+  if(!archiveHasContent(extract('.suno-style-prompt'))){
    const notes=parsed.querySelector('.suno-notes');
    if(notes){const clone=notes.cloneNode(true);clone.querySelectorAll('.suno-label,.suno-collapse-hint,.suno-learned,.suno-chatgpt-learned').forEach(item=>item.remove());append('SUNO STYLE PROMPT',clone.innerHTML);}
   }
