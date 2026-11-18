@@ -196,6 +196,13 @@ function appendSafeContent(container,source,record,used){
   if(node.nodeType!==Node.ELEMENT_NODE)return;
   const tag=node.tagName;
   if(blocked.has(tag))return;
+  const blockName=String(node.getAttribute('data-ha-block-name')||'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,80);
+  if(blockName&&!node.classList?.contains('ha-columns')){
+   const wrapper=makeChamberNode('div','ha-chamber-saved-block');
+   wrapper.append(makeChamberNode('div','ha-chamber-saved-block-name',blockName));
+   const content=node.cloneNode(true);content.removeAttribute('data-ha-block-name');
+   copy(content,wrapper);parent.append(wrapper);return;
+  }
   if(tag==='IMG'){
    const raw=node.getAttribute('src')||node.getAttribute('data-src')||'';
    const item=getMedia(raw);
@@ -610,7 +617,14 @@ function renderRecordStructureView(record,grid,status,editButton,expandButton,cl
  grid.replaceChildren();
  const body=makeChamberNode('div','ha-chamber-blocks-view');
  const savedBlocks=Array.isArray(structure.blocks)?structure.blocks:[];
- const html=savedBlocks.length?savedBlocks.map(block=>String(block?.html||'')).join(''):
+ const html=savedBlocks.length?savedBlocks.map(block=>{
+  const source=String(block?.html||'');
+  const name=String(block?.name||'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,80);
+  if(!name||String(block?.type||'').toLowerCase()==='columns')return source;
+  const parsed=new DOMParser().parseFromString(source,'text/html');
+  if(parsed.body.firstElementChild&&!parsed.body.firstElementChild.hasAttribute('data-ha-block-name'))parsed.body.firstElementChild.setAttribute('data-ha-block-name',name);
+  return parsed.body.innerHTML;
+ }).join(''):
   [structure.transmission_body,structure.prompt_style,structure.lyrics_style,structure.output_text,record.content_html].filter(value=>String(value||'').trim()).join('');
  if(html)appendSafeContent(body,html,record,new Set());
  else body.append(makeChamberNode('p','ha-chamber-note','NO CONTENT BLOCKS HAVE BEEN ADDED TO THIS RECORD.'));
