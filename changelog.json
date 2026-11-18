@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T09:50:26.066207Z",
-  "last_processed_sha": "72e068c380103c49878f2c348c6b4abaf00fbc68",
+  "updated_at": "2026-11-18T10:09:53.204734Z",
+  "last_processed_sha": "26ffb6df171bd647de4482f4a9583d09b25ec6a1",
   "entries": [
+    {
+      "id": "26ffb6df171bd647de4482f4a9583d09b25ec6a1",
+      "timestamp": "2026-11-18T11:09:35+01:00",
+      "category": "FEATURE",
+      "component": "Website Updates",
+      "title": "New capabilities for Website Updates",
+      "description": "This update brings together Add shared draggable formatting panel to Human Archive editor. It updates rich-text-editor.js, archive.css, archive.js, index.html and related project files.",
+      "commit_count": 1,
+      "files": [
+        "editor-ui/rich-text-editor.js",
+        "human-archive/archive.css",
+        "human-archive/archive.js",
+        "human-archive/index.html",
+        "human-archive/page-label.js"
+      ],
+      "commits": [
+        {
+          "message": "Add shared draggable formatting panel to Human Archive editor",
+          "url": "https://github.com/iYakuza/landing-page/commit/26ffb6df171bd647de4482f4a9583d09b25ec6a1",
+          "files": [
+            "editor-ui/rich-text-editor.js",
+            "human-archive/archive.css",
+            "human-archive/archive.js",
+            "human-archive/index.html",
+            "human-archive/page-label.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "72e068c380103c49878f2c348c6b4abaf00fbc68",
       "timestamp": "2026-11-18T10:50:19+01:00",
@@ -1193,29 +1222,6 @@
         {
           "message": "Restore Human Archive drafts automatically when reopening a chamber (#88)",
           "url": "https://github.com/iYakuza/landing-page/commit/00cf0d14d9c261a888c2360c3c5d45d701a9eac6",
-          "files": [
-            "human-archive/archive.js",
-            "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "2bd6b6068aa67b5e501086382ddfe8485eb692ff",
-      "timestamp": "2026-11-17T02:55:25+01:00",
-      "category": "FIX",
-      "component": "Website Updates",
-      "title": "More reliable Website Updates",
-      "description": "This update brings together Fix Human Archive local recovery lifecycle (#87). It updates archive.js, index.html.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.js",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Fix Human Archive local recovery lifecycle (#87)",
-          "url": "https://github.com/iYakuza/landing-page/commit/2bd6b6068aa67b5e501086382ddfe8485eb692ff",
           "files": [
             "human-archive/archive.js",
             "human-archive/index.html"
