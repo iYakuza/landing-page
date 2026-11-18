@@ -715,11 +715,24 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  }
  const focusButton=makeChamberNode('button','ha-chamber-focus-toggle','T');focusButton.type='button';focusButton.setAttribute('aria-pressed','false');
  const toolbar=makeChamberNode('div','ha-rich-toolbar');toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','Block formatting tools');
- const formattingTools=[['B','bold'],['I','italic'],['U','underline'],['S','strikeThrough'],['P','formatBlock','p'],['H1','formatBlock','h1'],['H2','formatBlock','h2'],['H3','formatBlock','h3'],['H4','formatBlock','h4'],['QUOTE','formatBlock','blockquote'],['• LIST','insertUnorderedList'],['1. LIST','insertOrderedList'],['LEFT','justifyLeft'],['CENTER','justifyCenter'],['RIGHT','justifyRight'],['JUSTIFY','justifyFull'],['UNDO','undo'],['REDO','redo'],['CLEAR','removeFormat']];
- formattingTools.forEach(([label,command,value])=>{const button=makeChamberNode('button','',label);button.type='button';button.dataset.command=command;if(value)button.dataset.value=value;button.title=label;toolbar.append(button);});
- const insertLinkButton=makeChamberNode('button','ha-rich-link','LINK');insertLinkButton.type='button';toolbar.append(insertLinkButton);
- const unlinkButton=makeChamberNode('button','','UNLINK');unlinkButton.type='button';unlinkButton.dataset.command='unlink';toolbar.append(unlinkButton);
- toolbar.append(focusButton);
+ const addToolbarCategory=(name,tools)=>{
+  const heading=makeChamberNode('span','ha-rich-toolbar-category',name);heading.setAttribute('role','presentation');toolbar.append(heading);
+  tools.forEach(([label,command,value])=>{
+   const button=makeChamberNode('button','',label);button.type='button';button.draggable=false;
+   button.dataset.command=command;if(value)button.dataset.value=value;button.title=label;toolbar.append(button);
+  });
+ };
+ addToolbarCategory('TEXT',[['B','bold'],['I','italic'],['U','underline'],['S','strikeThrough']]);
+ addToolbarCategory('BLOCKS',[['P','formatBlock','p'],['H1','formatBlock','h1'],['H2','formatBlock','h2'],['H3','formatBlock','h3'],['H4','formatBlock','h4'],['QUOTE','formatBlock','blockquote']]);
+ addToolbarCategory('LISTS',[['• LIST','insertUnorderedList'],['1. LIST','insertOrderedList']]);
+ addToolbarCategory('ALIGNMENT',[['LEFT','justifyLeft'],['CENTER','justifyCenter'],['RIGHT','justifyRight'],['JUSTIFY','justifyFull']]);
+ addToolbarCategory('HISTORY',[['UNDO','undo'],['REDO','redo'],['CLEAR','removeFormat']]);
+ addToolbarCategory('LINKS',[]);
+ const insertLinkButton=makeChamberNode('button','ha-rich-link','LINK');insertLinkButton.type='button';insertLinkButton.draggable=false;toolbar.append(insertLinkButton);
+ const unlinkButton=makeChamberNode('button','','UNLINK');unlinkButton.type='button';unlinkButton.draggable=false;unlinkButton.dataset.command='unlink';toolbar.append(unlinkButton);
+ addToolbarCategory('MODE',[]);
+ focusButton.draggable=false;toolbar.append(focusButton);
+ toolbar.addEventListener('dragstart',event=>event.preventDefault());
  const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable=readOnly?'false':'true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Archive blocks');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Start writing or add a block…';
  const savedBlocks=Array.isArray(structure.blocks)?structure.blocks:[];
  const legacyHTML=[structure.transmission_body,structure.prompt_style,structure.lyrics_style,structure.output_text].filter(value=>String(value||'').trim()).join('');
@@ -731,6 +744,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const toolbarHost=recordChamber||grid.closest('.ha-record-chamber');
  toolbarHost?.append(toolbar);
  toolbarHost?.classList.add('has-floating-formatting-toolbar');
+ toolbar.querySelectorAll('button').forEach(button=>{button.draggable=false;});
+ toolbar.addEventListener('pointerdown',event=>{if(event.target.closest('button'))event.stopPropagation();});
  const promptArea=makeChamberNode('div','ha-legacy-hidden-field');promptArea.innerHTML='';
  const lyricsArea=makeChamberNode('div','ha-legacy-hidden-field');lyricsArea.innerHTML='';
  const textArea=makeChamberNode('div','ha-legacy-hidden-field');textArea.innerHTML='';
@@ -1424,7 +1439,20 @@ function ensureRecordChamber(){
  recordChamber=makeChamberNode('dialog','ha-record-chamber');
  recordChamber.setAttribute('aria-label','Human Archive record chamber');
  recordChamber.addEventListener('cancel',event=>{event.preventDefault();closeRecordChamberSafely();});
- recordChamber.addEventListener('click',event=>{if(event.target===recordChamber)closeRecordChamberSafely();});
+ let backdropPointerStart=null;
+ recordChamber.addEventListener('pointerdown',event=>{
+  backdropPointerStart=event.isPrimary&&event.target===recordChamber
+   ?{id:event.pointerId,x:event.clientX,y:event.clientY}:null;
+ });
+ recordChamber.addEventListener('pointerup',event=>{
+  const start=backdropPointerStart;backdropPointerStart=null;
+  if(!start||start.id!==event.pointerId||event.target!==recordChamber)return;
+  if(Math.hypot(event.clientX-start.x,event.clientY-start.y)>8)return;
+  closeRecordChamberSafely();
+ });
+ recordChamber.addEventListener('pointercancel',event=>{
+  if(backdropPointerStart?.id===event.pointerId)backdropPointerStart=null;
+ });
  recordChamber.addEventListener('close',()=>{
   document.body.classList.remove('ha-chamber-open');
   if(chamberCloseRequestedByUser&&window.parent!==window)window.parent.postMessage({type:'VHA_TRANSMISSION_EDITOR_CLOSED'},window.location.origin);
