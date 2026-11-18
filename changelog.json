@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T08:52:26.522010Z",
-  "last_processed_sha": "cc147f93dae0120131b5397cf77ab7505d9c939f",
+  "updated_at": "2026-11-18T09:04:06.494651Z",
+  "last_processed_sha": "39a323d2d7835feafff381736207b9e84858ec2b",
   "entries": [
+    {
+      "id": "39a323d2d7835feafff381736207b9e84858ec2b",
+      "timestamp": "2026-11-18T10:04:02+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Rename archive niche access actions; Adjust archive niche header spacing and justification; Refresh Human Archive niche asset versions. It updates archive.css, archive.js, index.html.",
+      "commit_count": 3,
+      "files": [
+        "human-archive/archive.css",
+        "human-archive/archive.js",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Rename archive niche access actions",
+          "url": "https://github.com/iYakuza/landing-page/commit/a06998bc741802eee6a906fd1eecf333ac28e33c",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Adjust archive niche header spacing and justification",
+          "url": "https://github.com/iYakuza/landing-page/commit/339c91aeb7913ed349c194f2031380d4781ba8b6",
+          "files": [
+            "human-archive/archive.css"
+          ]
+        },
+        {
+          "message": "Refresh Human Archive niche asset versions",
+          "url": "https://github.com/iYakuza/landing-page/commit/39a323d2d7835feafff381736207b9e84858ec2b",
+          "files": [
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "c91ee875e58c058aabacfdc0b61eb8a0ac1d363d",
       "timestamp": "2026-11-18T09:52:19+01:00",
@@ -1170,27 +1207,6 @@
             "human-archive/archive.js",
             "human-archive/index.html",
             "supabase/migrations/20261117110000_create_human_archive_transmission.sql"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "d3ab70eb4a21fd91dd42cb62ebe4022e5cdcfb54",
-      "timestamp": "2026-11-17T01:16:06+01:00",
-      "category": "FIX",
-      "component": "Creator Workshop",
-      "title": "More reliable Creator Workshop",
-      "description": "This update brings together Bust CMS script cache for Quick Post slug fix (#82). It updates index.html.",
-      "commit_count": 1,
-      "files": [
-        "cms/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Bust CMS script cache for Quick Post slug fix (#82)",
-          "url": "https://github.com/iYakuza/landing-page/commit/d3ab70eb4a21fd91dd42cb62ebe4022e5cdcfb54",
-          "files": [
-            "cms/index.html"
           ]
         }
       ]
