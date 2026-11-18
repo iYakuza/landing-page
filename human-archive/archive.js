@@ -189,17 +189,25 @@ function appendSafeContent(container,source,record,used){
   const tag=node.tagName;
   if(blocked.has(tag))return;
   if(tag==='IMG'){
-   const item=getMedia(node.getAttribute('src')||node.getAttribute('data-src')||'');
+   const raw=node.getAttribute('src')||node.getAttribute('data-src')||'';
+   const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){appendLocalImage(parent,item,record,used);}
-   else appendMissing(parent,'Image not yet available in the recovered media collection.');
+   else{
+    const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
+    let valid=Boolean(src);
+    if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else valid=url.pathname.includes('/wp-content/uploads/');}
+    if(valid){const image=document.createElement('img');image.src=src;image.alt=node.getAttribute('alt')||record.title;image.loading='lazy';image.style.maxWidth='100%';image.style.height='auto';parent.append(image);}
+    else appendMissing(parent,'Image not yet available in the recovered media collection.');
+   }
    return;
   }
   if(tag==='AUDIO'||tag==='VIDEO'){
-   const item=getMedia(node.getAttribute('src')||'');
+   const raw=node.getAttribute('src')||'';
+   const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){if(tag==='AUDIO')appendLocalAudio(parent,item,record,used);else appendLocalVideo(parent,item,record,used);return;}
-   const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='metadata';
-   node.childNodes.forEach(child=>copy(child,mediaNode));
-   if(mediaNode.childNodes.length){parent.append(mediaNode);return;}
+   const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
+   const valid=Boolean(src)&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname);
+   if(valid){const mediaNode=document.createElement(tag.toLowerCase());mediaNode.src=src;mediaNode.controls=true;mediaNode.preload='metadata';if(tag==='VIDEO')mediaNode.playsInline=true;parent.append(mediaNode);return;}
    appendMissing(parent,'Audio/video file not yet available in the recovered media collection.');return;
   }
   if(tag==='SOURCE'){
