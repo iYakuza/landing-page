@@ -1,8 +1,53 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T16:11:37.325909Z",
-  "last_processed_sha": "052b5c1812664a90c2372735755663a62354af93",
+  "updated_at": "2026-11-18T16:28:39.508396Z",
+  "last_processed_sha": "6c4f27f51114ecdfbfba8e3be8bb9b8983699990",
   "entries": [
+    {
+      "id": "6c4f27f51114ecdfbfba8e3be8bb9b8983699990",
+      "timestamp": "2026-11-18T17:28:38+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Polish Human Archive block editor and creator controls. It updates block-editor.css, block-editor.js, archive.css, archive.js.",
+      "commit_count": 4,
+      "files": [
+        "editor-ui/block-editor.css",
+        "editor-ui/block-editor.js",
+        "human-archive/archive.css",
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Polish Human Archive block editor and creator controls",
+          "url": "https://github.com/iYakuza/landing-page/commit/145d8052cbddd39760e7b830f410755bcc9dfe11",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Polish Human Archive block editor and creator controls",
+          "url": "https://github.com/iYakuza/landing-page/commit/b3fd314a051a833fed7fcdc4fa0cd7f6d2e62d3c",
+          "files": [
+            "editor-ui/block-editor.js"
+          ]
+        },
+        {
+          "message": "Polish Human Archive block editor and creator controls",
+          "url": "https://github.com/iYakuza/landing-page/commit/72b465048e8c11f05ebc30fb356700a0e5e50c0a",
+          "files": [
+            "editor-ui/block-editor.css"
+          ]
+        },
+        {
+          "message": "Polish Human Archive block editor and creator controls",
+          "url": "https://github.com/iYakuza/landing-page/commit/6c4f27f51114ecdfbfba8e3be8bb9b8983699990",
+          "files": [
+            "human-archive/archive.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "a63a67586d5be25b231110ec6d686deeb1b9fbd8",
       "timestamp": "2026-11-18T17:11:34+01:00",
@@ -1138,67 +1183,6 @@
           "files": [
             "cms/cms.js",
             "creator-posting.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "ab1073f27efd30323ba0002144261c32832dfe56",
-      "timestamp": "2026-11-17T16:08:09+01:00",
-      "category": "CONTENT",
-      "component": "Website Experience",
-      "title": "Fresh additions to Website Experience",
-      "description": "This update brings together Unify post creation around the Human Archive chamber (#100). It updates _headers, cms.js, index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "_headers",
-        "cms/cms.js",
-        "cms/index.html",
-        "community/index.html",
-        "creator-posting.js",
-        "cv/index.html",
-        "green-dream/guest-notes/architecture-of-harm/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
-        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html",
-        "green-dream/guest-notes/ethical-framework/index.html",
-        "green-dream/guest-notes/ethical-framework/ro/index.html",
-        "green-dream/guest-notes/index.html",
-        "green-dream/guest-notes/integration-without-assimilation/index.html",
-        "green-dream/guest-notes/revision-history/index.html",
-        "green-dream/index.html",
-        "human-archive/archive.js",
-        "human-archive/index.html",
-        "index.html",
-        "music/index.html",
-        "posts/community/index.html",
-        "posts/index.html",
-        "posts/the-awakening/index.html",
-        "posts/the-descent/index.html",
-        "posts/the-reconnection/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Unify post creation around the Human Archive chamber (#100)",
-          "url": "https://github.com/iYakuza/landing-page/commit/ab1073f27efd30323ba0002144261c32832dfe56",
-          "files": [
-            "_headers",
-            "cms/cms.js",
-            "cms/index.html",
-            "community/index.html",
-            "creator-posting.js",
-            "cv/index.html",
-            "green-dream/guest-notes/architecture-of-harm/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
-            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html"
           ]
         }
       ]
