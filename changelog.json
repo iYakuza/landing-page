@@ -1,8 +1,53 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T16:28:39.508396Z",
-  "last_processed_sha": "a801dfbd2a9df173cc9a18f1f10a00411122e863",
+  "updated_at": "2026-11-18T16:29:29.724740Z",
+  "last_processed_sha": "c0c0d5c7f675dbd7f7fa502b602155ee428bba58",
   "entries": [
+    {
+      "id": "c0c0d5c7f675dbd7f7fa502b602155ee428bba58",
+      "timestamp": "2026-11-18T17:29:25+01:00",
+      "category": "FEATURE",
+      "component": "Website Updates",
+      "title": "New capabilities for Website Updates",
+      "description": "This update brings together Move global New Transmission action to left; Refresh shared Transmission editor asset versions. It updates creator-posting.js, index.html and related project files.",
+      "commit_count": 4,
+      "files": [
+        "creator-posting.js",
+        "human-archive/index.html",
+        "index.html",
+        "posts/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Move global New Transmission action to left",
+          "url": "https://github.com/iYakuza/landing-page/commit/e95207a7230f9c87683c0289919a837d4ff17590",
+          "files": [
+            "creator-posting.js"
+          ]
+        },
+        {
+          "message": "Refresh shared Transmission editor asset versions",
+          "url": "https://github.com/iYakuza/landing-page/commit/7cbc8f17e769baa53d371527c408864f3268cb73",
+          "files": [
+            "index.html"
+          ]
+        },
+        {
+          "message": "Refresh shared Transmission editor asset versions",
+          "url": "https://github.com/iYakuza/landing-page/commit/982a1397c0689dd80048320fd10bdf08c2f0e12e",
+          "files": [
+            "posts/index.html"
+          ]
+        },
+        {
+          "message": "Refresh shared Transmission editor asset versions",
+          "url": "https://github.com/iYakuza/landing-page/commit/c0c0d5c7f675dbd7f7fa502b602155ee428bba58",
+          "files": [
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "6c4f27f51114ecdfbfba8e3be8bb9b8983699990",
       "timestamp": "2026-11-18T17:28:38+01:00",
@@ -1160,29 +1205,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/4449ed8ee2e364607c2de4a30046f6bf73800ccb",
           "files": [
             "cms/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "a58f80095502a3a42de53d02fd8705e5cb891db8",
-      "timestamp": "2026-11-17T17:38:56+01:00",
-      "category": "FIX",
-      "component": "Website Updates",
-      "title": "More reliable Website Updates",
-      "description": "This update brings together Fix Supabase publishable key in CMS and global launcher (#101). It updates cms.js, creator-posting.js.",
-      "commit_count": 1,
-      "files": [
-        "cms/cms.js",
-        "creator-posting.js"
-      ],
-      "commits": [
-        {
-          "message": "Fix Supabase publishable key in CMS and global launcher (#101)",
-          "url": "https://github.com/iYakuza/landing-page/commit/a58f80095502a3a42de53d02fd8705e5cb891db8",
-          "files": [
-            "cms/cms.js",
-            "creator-posting.js"
           ]
         }
       ]
