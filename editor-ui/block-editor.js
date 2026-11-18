@@ -163,7 +163,7 @@
         const dialog=document.createElement('div');dialog.className='ha-media-picker';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-label','Add '+labelFor(type));
         const panel=document.createElement('div');panel.className='ha-media-picker-panel';
         const heading=document.createElement('h3');heading.textContent='ADD '+labelFor(type).toUpperCase();panel.append(heading);
-        const help=document.createElement('p');help.textContent='Upload files from your device or reuse media already attached to this record.';panel.append(help);
+        const help=document.createElement('p');help.textContent='Upload files from your device or reuse media already stored in the Human Archive.';panel.append(help);
         const input=document.createElement('input');input.type='file';input.accept=type==='image'||type==='gallery'||type==='slideshow'||type==='tiled-gallery'||type==='cover'||type==='media-text'||type==='image-compare'?'image/jpeg,image/png,image/webp,image/gif,image/avif':type==='audio'||type==='playlist'||type==='podcast'?'audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm':type==='video'?'video/mp4,video/webm':'image/jpeg,image/png,image/webp,image/gif,image/avif,audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm';
         input.multiple=['gallery','slideshow','tiled-gallery','image-compare','playlist'].includes(type);input.className='ha-media-picker-input';input.setAttribute('aria-label','Choose media files');panel.append(input);
         const options=document.createElement('div');options.className='ha-media-picker-options';
@@ -365,7 +365,7 @@
                 try{const url=new URL(value);if(!((url.protocol==='https:'&&url.hostname&&!url.username&&!url.password)||(url.protocol==='mailto:'&&url.pathname)))node.removeAttribute(attribute.name);}catch{node.removeAttribute(attribute.name);}
               }else if(name==='src'){
                 const hosts=node.tagName==='IMG'?IMAGE_HOSTS:['AUDIO','VIDEO','SOURCE'].includes(node.tagName)?MEDIA_HOSTS:node.tagName==='IFRAME'?EMBED_HOSTS:null;
-                if(hosts){const safe=safeURL(value,hosts);const valid=safe&&(!['AUDIO','VIDEO','SOURCE'].includes(node.tagName)||new URL(safe).pathname.startsWith('/storage/v1/object/public/vha-post-media/'));if(valid)node.setAttribute('src',safe);else node.removeAttribute(attribute.name);}
+                if(hosts){const safe=safeURL(value,hosts);const valid=safe&&(!['AUDIO','VIDEO','SOURCE'].includes(node.tagName)|| /^\/storage\/v1\/object\/public\/(vha-post-media|human-archive-media)\//.test(new URL(safe).pathname));if(valid)node.setAttribute('src',safe);else node.removeAttribute(attribute.name);}
                 else node.removeAttribute(attribute.name);
               }
             });
