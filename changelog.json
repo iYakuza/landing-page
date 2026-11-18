@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T17:20:23.121514Z",
-  "last_processed_sha": "8bb8f7665f5a6b8b505fb65a1021fd840eed2ceb",
+  "updated_at": "2026-11-18T17:20:32.821178Z",
+  "last_processed_sha": "ed79359587df1dd64b8b2c08d73524ffc338d7f0",
   "entries": [
+    {
+      "id": "ed79359587df1dd64b8b2c08d73524ffc338d7f0",
+      "timestamp": "2026-11-18T18:20:28+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Bump shared editor asset version. It updates creator-posting.js.",
+      "commit_count": 1,
+      "files": [
+        "creator-posting.js"
+      ],
+      "commits": [
+        {
+          "message": "Bump shared editor asset version",
+          "url": "https://github.com/iYakuza/landing-page/commit/39adee68833646b166468df64ecdddc760126d3e",
+          "files": [
+            "creator-posting.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "8bb8f7665f5a6b8b505fb65a1021fd840eed2ceb",
       "timestamp": "2026-11-18T18:20:20+01:00",
@@ -1252,27 +1273,6 @@
             "human-archive/index.html",
             "index.html",
             "posts/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "7a9385842bd18dca4130c7900c1a16832a5a77bd",
-      "timestamp": "2026-11-18T05:31:13+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Use full shared editor for legacy archive posts. It updates archive.js.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.js"
-      ],
-      "commits": [
-        {
-          "message": "Use full shared editor for legacy archive posts",
-          "url": "https://github.com/iYakuza/landing-page/commit/7a9385842bd18dca4130c7900c1a16832a5a77bd",
-          "files": [
-            "human-archive/archive.js"
           ]
         }
       ]
