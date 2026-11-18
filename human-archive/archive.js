@@ -474,6 +474,49 @@ function flattenArchivePostLayout(html){
  }
  return output.innerHTML;
 }
+function flattenArchiveWrappers(html){
+ const parsed=new DOMParser().parseFromString(String(html||''),'text/html');
+ const output=document.createElement('div');
+ const blockTags=new Set(['P','H1','H2','H3','H4','UL','OL','BLOCKQUOTE','PRE','HR','FIGURE','TABLE','DETAILS','IFRAME','AUDIO','VIDEO','IMG','CODE','DL','DT','DD']);
+ const wrapperTags=new Set(['DIV','SECTION','ASIDE','ARTICLE','NAV','MAIN','HEADER','FOOTER']);
+ const archiveBlocks=new Set(['ha-pullquote','ha-verse','ha-button-block','ha-more-block','ha-html-source','ha-markdown-source','ha-icon-block','ha-file-block','ha-embed','ha-embed-card','ha-embed-youtube','ha-embed-spotify','ha-embed-soundcloud','ha-podcast','ha-playlist','ha-audio-block','ha-columns','ha-group','ha-row','ha-stack','ha-grid','ha-cover','ha-gallery','ha-slideshow','ha-tiled-gallery','ha-media-text','ha-buttons','ha-callout','ha-card','ha-tabs','ha-timeline','ha-page-break','ha-social-icons','ha-spacer','ha-image-compare']);
+ const flatten=(nodes,parent,inheritedAlignment='')=>{
+  let inline=[];
+  const flush=()=>{
+   if(!inline.length)return;
+   const paragraph=document.createElement('p');
+   if(inheritedAlignment)paragraph.style.textAlign=inheritedAlignment;
+   inline.forEach(node=>paragraph.append(node));
+   parent.append(paragraph);inline=[];
+  };
+  [...nodes].forEach(node=>{
+   if(node.nodeType===Node.TEXT_NODE){
+    const value=node.nodeValue||'';
+    if(!value.trim()&&!inline.length)return;
+    inline.push(document.createTextNode(value));return;
+   }
+   if(node.nodeType!==Node.ELEMENT_NODE)return;
+   const tag=node.tagName;
+   const alignment=(node.style?.textAlign||inheritedAlignment||'').toLowerCase();
+   if([...archiveBlocks].some(name=>node.classList?.contains(name))){
+    flush();parent.append(node.cloneNode(true));return;
+   }
+   if(blockTags.has(tag)){
+    flush();
+    const clone=node.cloneNode(true);
+    if(alignment&&['P','H1','H2','H3','H4'].includes(tag)&&!clone.style.textAlign)clone.style.textAlign=alignment;
+    parent.append(clone);return;
+   }
+   if(wrapperTags.has(tag)){
+    flush();flatten(node.childNodes,parent,alignment);return;
+   }
+   inline.push(node.cloneNode(true));
+  });
+  flush();
+ };
+ flatten(parsed.body.childNodes,output,'');
+ return output.innerHTML;
+}
 function archiveMediaBlockHTML(item,type,record){
  const src=resolveChamberMediaUrl(item,type);
  if(!src)return '';
@@ -511,7 +554,7 @@ function getOwnedBlockMediaPaths(html,recordId){
 function getUnifiedRecordHTML(record,structure=getRecordStructure(record)){
  const savedBody=String(structure.transmission_body||'');
  const base=archiveHasContent(savedBody)?savedBody:String(record.content_html||'');
- const parts=[flattenArchivePostLayout(sanitizeTransmissionBody(base))];
+ const parts=[flattenArchiveWrappers(flattenArchivePostLayout(sanitizeTransmissionBody(base)))];
  parts.push(archiveSectionHTML('PROMPT STYLE',structure.prompt_style));
  parts.push(archiveSectionHTML('LYRICS STYLE',structure.lyrics_style));
  parts.push(archiveSectionHTML('OUTPUT',structure.output_text));
