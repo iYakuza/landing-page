@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T08:40:11.518906Z",
-  "last_processed_sha": "b54e4d6b5a1c24393febce91ec206a24f6d0eb2c",
+  "updated_at": "2026-11-18T08:52:26.522010Z",
+  "last_processed_sha": "c91ee875e58c058aabacfdc0b61eb8a0ac1d363d",
   "entries": [
+    {
+      "id": "c91ee875e58c058aabacfdc0b61eb8a0ac1d363d",
+      "timestamp": "2026-11-18T09:52:19+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Simplify archive niche card inscriptions; Align archive niche identifiers and footer. It updates archive.css, archive.js.",
+      "commit_count": 2,
+      "files": [
+        "human-archive/archive.css",
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Simplify archive niche card inscriptions",
+          "url": "https://github.com/iYakuza/landing-page/commit/55b782ac7146214c6a636462bef39b1c119840f2",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Align archive niche identifiers and footer",
+          "url": "https://github.com/iYakuza/landing-page/commit/d01908afe9aeb8033b64b14aea3d477593fcd7a9",
+          "files": [
+            "human-archive/archive.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "8e15cda68e333344f21665044e9b131ffa32e467",
       "timestamp": "2026-11-18T09:40:02+01:00",
@@ -1162,27 +1191,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/d3ab70eb4a21fd91dd42cb62ebe4022e5cdcfb54",
           "files": [
             "cms/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "2f604fd78a3559dbc487651f38f8cd367a6f61d5",
-      "timestamp": "2026-11-17T01:07:51+01:00",
-      "category": "FIX",
-      "component": "Creator Workshop",
-      "title": "More reliable Creator Workshop",
-      "description": "This update brings together Fix Quick Post duplicate slug collisions (#80). It updates cms.js.",
-      "commit_count": 1,
-      "files": [
-        "cms/cms.js"
-      ],
-      "commits": [
-        {
-          "message": "Fix Quick Post duplicate slug collisions (#80)",
-          "url": "https://github.com/iYakuza/landing-page/commit/2f604fd78a3559dbc487651f38f8cd367a6f61d5",
-          "files": [
-            "cms/cms.js"
           ]
         }
       ]
