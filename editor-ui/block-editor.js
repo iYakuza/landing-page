@@ -202,9 +202,15 @@
         } else if (host === 'w.soundcloud.com' && !url.pathname.startsWith('/player/')) {
           return window.alert('Use a SoundCloud player embed URL.');
         } else if (host==='vimeo.com') { const id=url.pathname.split('/').filter(Boolean)[0]; if(!/^\\d+$/.test(id||''))return window.alert('That Vimeo URL is not valid.');url=new URL('https://player.vimeo.com/video/'+id); } else if(host==='www.dailymotion.com'&&url.pathname.startsWith('/video/')) { const id=url.pathname.split('/')[2];url=new URL('https://www.dailymotion.com/embed/video/'+id); }
-        const src = safeURL(url.href,EMBED_HOSTS);
-        if (!src) return window.alert('That embed URL is not supported.');
-        html = '<figure class="ha-embed"><iframe src="'+src+'" title="Embedded media" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><figcaption contenteditable="true">Embedded media</figcaption></figure>';
+        if(host==='vimeo.com'){const id=url.pathname.split('/').filter(Boolean)[0];if(!/^\\d+$/.test(id||''))return window.alert('That Vimeo URL is not valid.');url=new URL('https://player.vimeo.com/video/'+id);}
+        if(host==='www.dailymotion.com'&&url.pathname.startsWith('/video/')){const id=url.pathname.split('/')[2];url=new URL('https://www.dailymotion.com/embed/video/'+id);}
+        if(host==='www.loom.com'&&url.pathname.startsWith('/share/')){url=new URL('https://www.loom.com/embed/'+url.pathname.split('/')[2]);}
+        if(host==='www.youtube.com'&&url.pathname==='/watch'){const id=url.searchParams.get('v');if(!id||!/[\\w-]{6,20}/.test(id))return window.alert('That YouTube URL is not valid.');url=new URL('https://www.youtube-nocookie.com/embed/'+id);}
+        const src=safeURL(url.href,EMBED_HOSTS);
+        if(!src)return window.alert('That embed URL is not supported.');
+        const iframeHosts=['www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com','player.vimeo.com','www.dailymotion.com','www.loom.com'];
+        if(!iframeHosts.includes(new URL(src).hostname)){const link=document.createElement('a');link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';link.className='ha-embed-link';link.textContent='OPEN EMBED — '+url.hostname;html='<div class="ha-embed-card">'+link.outerHTML+'</div>';}
+        else html='<figure class="ha-embed"><iframe src="'+src+'" title="Embedded media" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><figcaption contenteditable="true">Embedded media</figcaption></figure>';
       }
       const next = makeBlock(type,html);
       if(block)block.after(next);else editor.append(next);
