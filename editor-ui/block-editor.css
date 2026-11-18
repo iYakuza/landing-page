@@ -136,3 +136,50 @@
 }
 .ha-block-inserter-menu .ha-block-category:after{content:'−';font-size:12px;line-height:1}
 .ha-block-inserter-menu .ha-block-category[aria-expanded="false"]:after{content:'+'}
+
+
+/* Minimal category headings, matching the formatting toolbar. */
+.ha-block-inserter-menu .ha-block-category{
+ display:block;width:100%;margin:3px 0 0;padding:7px 2px 2px;
+ border:0;border-bottom:1px solid rgba(185,215,122,.2);border-radius:0;
+ background:transparent!important;box-shadow:none;color:#a8bf98;
+ font:7px/1.2 'DM Mono',monospace;letter-spacing:.14em;
+ text-align:left;text-transform:uppercase;cursor:pointer
+}
+.ha-block-inserter-menu .ha-block-category:hover,
+.ha-block-inserter-menu .ha-block-category:focus-visible{
+ border-color:rgba(185,215,122,.42);background:transparent!important;color:#d8ff3e;outline:none
+}
+.ha-block-inserter-menu .ha-block-category::after{content:none!important;display:none!important}
+
+/* Nested block streams inside an editable Columns block. */
+.ha-editor-block-content .ha-columns.ha-editor-columns-layout{
+ display:grid;grid-template-columns:repeat(var(--ha-column-count,2),minmax(0,1fr));
+ align-items:stretch;gap:28px;overflow:visible;margin:0;padding:0
+}
+.ha-editor-block-content .ha-columns.ha-editor-columns-layout>.ha-editor-column{
+ position:relative;min-width:0;min-height:90px;padding:7px!important;
+ border:1px dashed rgba(168,199,194,.32)!important;background:rgba(168,199,194,.025)!important
+}
+.ha-editor-column-blocks{display:grid;grid-template-columns:minmax(0,1fr);align-content:start;gap:7px;min-width:0;min-height:76px}
+.ha-editor-column-blocks>.ha-editor-block{min-width:0}
+.ha-editor-column .ha-editor-add-column{
+ position:absolute;top:50%;right:-25px;z-index:3;display:grid;place-items:center;
+ width:22px;height:22px;min-width:22px;padding:0;border:1px solid rgba(168,199,194,.58);
+ border-radius:50%;background:#0b1216;color:#c9d8d4;font:16px/1 sans-serif;cursor:pointer;
+ transform:translateY(-50%);opacity:.5;transition:opacity .15s,background .15s,border-color .15s
+}
+.ha-editor-column:hover>.ha-editor-add-column,
+.ha-editor-column:focus-within>.ha-editor-add-column,
+.ha-editor-column>.ha-editor-add-column:focus-visible{opacity:1}
+.ha-editor-column .ha-editor-add-column:hover,
+.ha-editor-column .ha-editor-add-column:focus-visible{
+ border-color:#a8c7c2;background:#a8c7c2;color:#071013;outline:2px solid #a8c7c2;outline-offset:2px
+}
+@media(max-width:650px){
+ .ha-editor-block-content .ha-columns.ha-editor-columns-layout{
+  grid-template-columns:repeat(var(--ha-column-count,2),minmax(220px,1fr));
+  max-width:100%;overflow-x:auto;padding:2px 15px 8px 2px
+ }
+ .ha-editor-column .ha-editor-add-column{right:-23px;opacity:1}
+}
