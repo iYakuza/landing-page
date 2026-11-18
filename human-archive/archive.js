@@ -435,7 +435,7 @@ function archiveHasContent(html){
 }
 function archiveSectionHTML(label,html){
  if(!archiveHasContent(html))return '';
- return '<h2>'+String(label).replace(/[&<>"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]))+'</h2>'+html;
+ return '<h2>'+String(label).replace(/[&<>"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char ]))+'</h2>'+sanitizeTransmissionBody(html);
 }
 function flattenArchivePostLayout(html){
  const parsed=new DOMParser().parseFromString(String(html||''),'text/html');
@@ -483,6 +483,23 @@ function archiveMediaBlockHTML(item,type,record){
   return '<figure><video controls preload="metadata" playsinline src="'+esc(src)+'"></video>'+caption+'</figure>';
  }
  return '<p><a href="'+esc(src)+'" target="_blank" rel="noopener noreferrer">'+esc(name)+'</a></p>';
+}
+function getOwnedBlockMediaPaths(html,recordId){
+ const parsed=new DOMParser().parseFromString(String(html||''),'text/html');
+ const prefix='human-archive/'+String(recordId)+'/blocks/';
+ const paths=new Set();
+ parsed.querySelectorAll('[src],a[href]').forEach(node=>{
+  const raw=node.getAttribute('src')||node.getAttribute('href')||'';
+  try{
+   const url=new URL(raw);
+   if(url.protocol!=='https:'||url.hostname!=='oeyxsqocldlovhsmzcjw.supabase.co')return;
+   const marker='/storage/v1/object/public/vha-post-media/';
+   if(!url.pathname.startsWith(marker))return;
+   const path=decodeURIComponent(url.pathname.slice(marker.length));
+   if(path.startsWith(prefix))paths.add(path);
+  }catch{}
+ });
+ return [...paths];
 }
 function getUnifiedRecordHTML(record,structure=getRecordStructure(record)){
  const savedBody=String(structure.transmission_body||'');
@@ -732,7 +749,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const uploadBlockMedia=async(files,type)=>{
   if(!archiveAdmin||!archiveSupabase||!archiveUserId)throw new Error('An active CMS admin session is required to upload media.');
   const acceptedType=['image','gallery','slideshow','tiled-gallery','cover','media-text','image-compare'].includes(type)?'image':['audio','playlist','podcast'].includes(type)?'audio':type==='video'?'video':'file';
-  const assets=[];
+  const assets=[],operationPaths=[];
   try{
    for(const file of files){
     const mime=blockMediaMime(file,acceptedType);
@@ -744,15 +761,16 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     const path='human-archive/'+String(record.id)+'/blocks/'+folder+'/'+token+'-'+safeName;
     const {error}=await archiveSupabase.storage.from('vha-post-media').upload(path,file,{cacheControl:'3600',contentType:mime,upsert:false});
     if(error)throw error;
-    uploadedPaths.push(path);
+    uploadedPaths.push(path);operationPaths.push(path);
     const {data}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
     if(!data?.publicUrl)throw new Error('The uploaded media URL could not be created.');
     const asset={url:data.publicUrl,path,name:file.name,mime_type:mime,type:folder,storage:'vha-post-media'};
     assets.push(asset);uploadedAssets.push(asset);
    }
   }catch(error){
-   if(uploadedPaths.length){const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);if(cleanupError)console.warn('Partial block upload cleanup failed:',cleanupError);}
-   uploadedPaths.splice(0);uploadedAssets.splice(0);throw error;
+   if(operationPaths.length){const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(operationPaths);if(cleanupError)console.warn('Partial block upload cleanup failed:',cleanupError);}
+   operationPaths.forEach(path=>{const index=uploadedPaths.indexOf(path);if(index>=0)uploadedPaths.splice(index,1);});
+   assets.forEach(asset=>{const index=uploadedAssets.indexOf(asset);if(index>=0)uploadedAssets.splice(index,1);});throw error;
   }
   status.textContent=assets.length+' MEDIA FILE'+(assets.length===1?'':'S')+' UPLOADED — SAVE TO KEEP CHANGES.';
   return assets;
@@ -774,6 +792,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   if(!uploadedPaths.length)return;
   const keep=uploadedPaths.filter(path=>String(keepContent||'').includes(path));
   const remove=uploadedPaths.filter(path=>!keep.includes(path));
+  record.blockMediaPaths=[...new Set([...(record.blockMediaPaths||[]),...keep])];
   if(remove.length&&archiveSupabase){const {error}=await archiveSupabase.storage.from('vha-post-media').remove(remove);if(error)console.warn('Unreferenced block media could not be cleaned up:',error);}
   uploadedPaths.splice(0);uploadedAssets.splice(0);
  };
@@ -837,6 +856,9 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    if(error)throw error;
    const saved=Array.isArray(data)?data[0]:data;
    record.media_width=state.metadata.mediaWidth;record.title=state.metadata.title;record.slug=state.metadata.slug;record.categories=[state.metadata.category];record.excerpt=state.metadata.excerpt;
+   const removedBlockPaths=getOwnedBlockMediaPaths(record.content_html,record.id).filter(path=>!state.row.transmission_body.includes(path));
+   if(removedBlockPaths.length){const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedBlockPaths);if(removeError)console.warn('Removed draft block media could not be cleaned up:',removeError);}
+   record.blockMediaPaths=(record.blockMediaPaths||[]).filter(path=>state.row.transmission_body.includes(path));
    record.content_html=state.row.transmission_body;record.status='draft';record.updated_at=saved?.updated_at||state.row.updated_at;state.row.updated_at=record.updated_at;
    recordStructureOverrides.set(String(record.id),state.row);
    await cleanupBlockMediaUploads(state.row.transmission_body);
@@ -881,7 +903,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    if(error)throw error;
    const deleted=Array.isArray(data)?data[0]:data;
    if(!deleted||Number(deleted.archive_record_id)!==Number(record.id))throw new Error('The database did not confirm deletion of this exact Archive record.');
-   const paths=Array.isArray(deleted.storage_paths)?deleted.storage_paths.filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')):[];
+   const paths=[...new Set([...(Array.isArray(deleted.storage_paths)?deleted.storage_paths.filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')):[]),...getOwnedBlockMediaPaths(record.content_html,record.id),...(record.blockMediaPaths||[])])];
    if(paths.length){const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(paths);if(cleanupError)console.warn('Some draft files could not be cleaned up:',cleanupError);}
    await cleanupBlockMediaUploads('');
    records=records.filter(item=>String(item.id)!==String(record.id));recordStructureOverrides.delete(String(record.id));favoriteRecordIds.delete(String(record.id));
@@ -953,6 +975,10 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     if(error)throw error;
     const saved=Array.isArray(structureResult)?structureResult[0]:structureResult;row.updated_at=saved?.updated_at||row.updated_at;
    }
+   const previousBody=String(record.content_html||'');
+   const removedBlockPaths=getOwnedBlockMediaPaths(previousBody,record.id).filter(path=>!row.transmission_body.includes(path));
+   if(removedBlockPaths.length){const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedBlockPaths);if(removeError)console.warn('Removed block media could not be cleaned from storage:',removeError);}
+   record.blockMediaPaths=(record.blockMediaPaths||[]).filter(path=>row.transmission_body.includes(path));
    record.content_html=row.transmission_body;recordStructureOverrides.set(String(record.id),row);
    await cleanupBlockMediaUploads(row.transmission_body);
    const oldMediaPaths=['image','audio','video'].flatMap(type=>Array.isArray(oldStructure.output_media?.[type])?oldStructure.output_media[type]:[])
