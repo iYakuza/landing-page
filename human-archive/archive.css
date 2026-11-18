@@ -1065,3 +1065,16 @@ main[data-vha-layout-root]{
 .ha-chamber-unified-editor .ha-block-editor-shell{margin-top:10px}
 .ha-chamber-unified-editor .ha-editor-block-content{min-width:0}
 @media(max-width:700px){.ha-chamber-document-settings .ha-chamber-metadata-grid{grid-template-columns:1fr}.ha-chamber-unified-editor .ha-chamber-unified-canvas{padding:14px}}
+
+.ha-chamber-unified-editor .ha-editor-block[data-ha-block="image"] .ha-editor-block-content,
+.ha-chamber-unified-editor .ha-editor-block[data-ha-block="gallery"] .ha-editor-block-content,
+.ha-chamber-unified-editor .ha-editor-block[data-ha-block="slideshow"] .ha-editor-block-content,
+.ha-chamber-unified-editor .ha-editor-block[data-ha-block="tiled-gallery"] .ha-editor-block-content,
+.ha-chamber-unified-editor .ha-editor-block[data-ha-block="cover"] .ha-editor-block-content,
+.ha-chamber-unified-editor .ha-editor-block[data-ha-block="media-text"] .ha-editor-block-content,
+.ha-chamber-unified-editor .ha-editor-block[data-ha-block="image-compare"] .ha-editor-block-content,
+.ha-chamber-unified-editor .ha-editor-block[data-ha-block="audio"] .ha-editor-block-content,
+.ha-chamber-unified-editor .ha-editor-block[data-ha-block="video"] .ha-editor-block-content,
+.ha-chamber-unified-editor .ha-editor-block[data-ha-block="playlist"] .ha-editor-block-content,
+.ha-chamber-unified-editor .ha-editor-block[data-ha-block="podcast"] .ha-editor-block-content,
+.ha-chamber-unified-editor .ha-editor-block[data-ha-block="embed"] .ha-editor-block-content{width:var(--ha-media-width,100%);max-width:100%;margin-inline:auto}
