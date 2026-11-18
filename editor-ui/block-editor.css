@@ -50,3 +50,12 @@
  .ha-block-inserter-menu{grid-template-columns:1fr;min-width:220px;}
  .ha-block-editor-hint{display:none;}
 }
+.ha-layout-block-field{display:block;min-height:110px;padding:0!important;border:1px solid rgba(168,199,194,.18)!important;background:#080e12!important;}
+.ha-layout-block-field .ha-block-editor-shell{margin:0;border:0;background:transparent;}
+.ha-layout-block-field .ha-block-editor-topbar{padding:7px 9px;}
+.ha-layout-block-field .ha-block-editor-canvas{min-height:95px;padding:10px;}
+.ha-layout-block-field .ha-editor-block-controls{opacity:.18;}
+.ha-layout-block-field .ha-editor-block:hover>.ha-editor-block-controls,.ha-layout-block-field .ha-editor-block.is-selected>.ha-editor-block-controls,.ha-layout-block-field .ha-editor-block:focus-within>.ha-editor-block-controls{opacity:1;}
+.ha-layout-block-field .ha-editor-block-content{font-size:13px;}
+.ha-chamber-layout-field{display:flex;flex-direction:column;align-items:stretch;}
+.ha-chamber-layout-field>.ha-layout-block-field{width:100%;}
