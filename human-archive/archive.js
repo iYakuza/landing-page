@@ -22,6 +22,15 @@ let mediaHashByPath=new Map();
 let recordChamber=null,recordChamberReturnFocus=null;
 
 const clean=value=>String(value??'').normalize('NFKC').toLocaleLowerCase().trim();
+function searchableBody(record){
+ const source=String(record.content_html||'');
+ if(record._searchBodySource!==source){
+  const parsed=new DOMParser().parseFromString(source,'text/html');
+  record._searchBodySource=source;
+  record._searchBodyText=parsed.body.textContent||'';
+ }
+ return record._searchBodyText||'';
+}
 function slugifyArchiveTitle(value){
  const transliteration={'ß':'ss','ẞ':'ss','æ':'ae','Æ':'ae','œ':'oe','Œ':'oe','ø':'o','Ø':'o','ł':'l','Ł':'l','đ':'d','Đ':'d','ð':'d','Ð':'d','þ':'th','Þ':'th'};
  return String(value||'').replace(/[ßẞæÆœŒøØłŁđĐðÐþÞ]/g,char=>transliteration[char]||char)
@@ -1498,7 +1507,7 @@ function makeEntry(record,index){
 function render(){
  if(!hasArchiveIndex)return;
  const query=clean(search.value),selectedYear=year.value,selectedCategory=category.value;
- const filtered=records.filter(r=>(!selectedYear||r.year===selectedYear)&&(!query||[r.title,r.year,r.date,r.id,...(r.categories||[])].some(v=>clean(v).includes(query))));
+ const filtered=records.filter(r=>(!selectedYear||r.year===selectedYear)&&(!query||[r.title,r.excerpt,r.year,r.date,r.id,...(r.categories||[]),searchableBody(r)].some(v=>clean(v).includes(query))));
  const visible=filtered.filter(r=>!selectedCategory||(r.categories||[]).includes(selectedCategory));
  const groups=selectedCategory?[selectedCategory]:categoryOrder.filter(name=>visible.some(r=>(r.categories||[]).includes(name)));
  count.textContent=visible.length+' / '+records.length+' RECORDS';list.replaceChildren();
