@@ -15,13 +15,14 @@
     if (!targets.length || !(toolbar instanceof HTMLElement) || !(focusButton instanceof HTMLElement)) {
       throw new TypeError('The rich-text editor requires at least one editor, a toolbar, and a focus button.');
     }
-    let activeEditor = targets[0];
+    let activeEditor = targets[0].querySelector('[data-ha-block-content][contenteditable="true"]') || targets[0];
     const listeners = new AbortController();
     const signal = listeners.signal;
     targets.forEach(target => {
-      target.addEventListener('focusin', () => { activeEditor = target; }, { signal });
+      target.addEventListener('focusin', event => { activeEditor = event.target.closest('[data-ha-block-content]') || target; }, { signal });
       target.addEventListener('input', onChange, { signal });
       target.addEventListener('keydown', event => {
+        if (event.target.closest('[data-ha-block-content]')) return;
         if (event.key !== 'Enter' || event.isComposing || event.defaultPrevented) return;
         event.preventDefault();
         document.execCommand(event.shiftKey ? 'insertLineBreak' : 'insertParagraph', false, null);

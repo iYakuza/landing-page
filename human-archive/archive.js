@@ -189,23 +189,41 @@ function appendSafeContent(container,source,record,used){
   const tag=node.tagName;
   if(blocked.has(tag))return;
   if(tag==='IMG'){
-   const item=getMedia(node.getAttribute('src')||node.getAttribute('data-src')||'');
+   const raw=node.getAttribute('src')||node.getAttribute('data-src')||'';
+   const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){appendLocalImage(parent,item,record,used);}
-   else appendMissing(parent,'Image not yet available in the recovered media collection.');
+   else{
+    const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
+    let valid=Boolean(src);
+    if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else valid=url.pathname.includes('/wp-content/uploads/');}
+    if(valid){const image=document.createElement('img');image.src=src;image.alt=node.getAttribute('alt')||record.title;image.loading='lazy';image.style.maxWidth='100%';image.style.height='auto';parent.append(image);}
+    else appendMissing(parent,'Image not yet available in the recovered media collection.');
+   }
    return;
   }
   if(tag==='AUDIO'||tag==='VIDEO'){
-   const item=getMedia(node.getAttribute('src')||'');
+   const raw=node.getAttribute('src')||'';
+   const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){if(tag==='AUDIO')appendLocalAudio(parent,item,record,used);else appendLocalVideo(parent,item,record,used);return;}
+   const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
+   const valid=Boolean(src)&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname);
    const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='metadata';
+   if(valid)mediaNode.src=src;
+   if(tag==='VIDEO')mediaNode.playsInline=true;
    node.childNodes.forEach(child=>copy(child,mediaNode));
-   if(mediaNode.childNodes.length){parent.append(mediaNode);return;}
+   if(valid||mediaNode.childNodes.length){parent.append(mediaNode);return;}
    appendMissing(parent,'Audio/video file not yet available in the recovered media collection.');return;
   }
   if(tag==='SOURCE'){
-   const item=getMedia(node.getAttribute('src')||'');
+   const raw=node.getAttribute('src')||'';
+   const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
     const source=document.createElement('source');source.src=localMediaUrl(item);source.type=item.mime_type;parent.append(source);markUsed(item,used);
+   }else{
+    const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
+    if(src&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname)&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
+     const source=document.createElement('source');source.src=src;source.type=node.getAttribute('type')||'';parent.append(source);
+    }
    }
    return;
   }
@@ -547,13 +565,48 @@ function sanitizeTransmissionBody(source){
   });
   const holder=document.createElement('div');holder.append(fragment);return holder.innerHTML;
  }
- const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','BLOCKQUOTE','UL','OL','LI','A','HR','CODE','PRE','DIV','SECTION','ASIDE','DETAILS','SUMMARY']);
+ const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','H4','BLOCKQUOTE','UL','OL','LI','A','HR','CODE','PRE','DIV','SECTION','ASIDE','DETAILS','SUMMARY','FIGURE','FIGCAPTION','IMG','AUDIO','VIDEO','SOURCE','IFRAME']);
  const allowedClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response']);
  function copy(node,parent){
   if(node.nodeType===Node.TEXT_NODE){parent.append(document.createTextNode(node.nodeValue||''));return;}
   if(node.nodeType!==Node.ELEMENT_NODE)return;
+  if(node.hasAttribute('data-ha-editor-block')){
+   const content=node.querySelector('[data-ha-block-content]');
+   if(content)content.childNodes.forEach(child=>copy(child,parent));
+   return;
+  }
+  if(node.hasAttribute('data-ha-block-content')){node.childNodes.forEach(child=>copy(child,parent));return;}
   if(!allowed.has(node.tagName)){node.childNodes.forEach(child=>copy(child,parent));return;}
   const element=document.createElement(node.tagName.toLowerCase());
+  if(node.tagName==='IMG'){
+   const src=safeExternalUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
+   let valid=Boolean(src);
+   if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else valid=url.pathname.includes('/wp-content/uploads/');}
+   if(!valid)return;
+   element.src=src;element.alt=String(node.getAttribute('alt')||'');element.loading='lazy';element.style.maxWidth='100%';element.style.height='auto';
+  }
+  if(node.tagName==='AUDIO'||node.tagName==='VIDEO'){
+   const rawSrc=node.getAttribute('src')||'';
+   if(rawSrc){
+    const src=safeExternalUrl(rawSrc,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
+    if(!src||!/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname))return;
+    element.src=src;
+   }else if(!node.querySelector('source'))return;
+   element.controls=true;element.preload='metadata';
+   if(node.tagName==='VIDEO')element.playsInline=true;
+  }
+  if(node.tagName==='SOURCE'){
+   const src=safeExternalUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
+   if(!src||!/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname))return;
+   element.src=src;element.type=String(node.getAttribute('type')||'');
+  }
+  if(node.tagName==='IFRAME'){
+   const src=safeExternalUrl(node.getAttribute('src'),new Set(['www.youtube.com','www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com']));
+   if(!src)return;
+   const url=new URL(src),host=url.hostname.toLowerCase();
+   if((host.includes('youtube')&&!url.pathname.startsWith('/embed/'))||(host==='open.spotify.com'&&!url.pathname.startsWith('/embed/'))||(host==='w.soundcloud.com'&&!url.pathname.startsWith('/player/')))return;
+   element.src=src;element.title=String(node.getAttribute('title')||'Embedded media');element.loading='lazy';element.referrerPolicy='strict-origin-when-cross-origin';element.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';element.allowFullscreen=true;
+  }
   if(node.tagName==='A'){
    const raw=(node.getAttribute('href')||'').trim();
    try{const url=new URL(raw);if((url.protocol==='https:'&&url.hostname&&!url.username&&!url.password)||(url.protocol==='mailto:'&&url.pathname)){element.href=url.href;element.target='_blank';element.rel='noopener noreferrer';}}catch{}
@@ -689,7 +742,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  let postLayoutControls=null;
  const outputMediaRepaint={};
  const escapeLayoutText=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
- const layoutParagraphs=value=>String(value||'').split(/\n{2,}/).map(part=>'<p>'+escapeLayoutText(part).replace(/\n/g,'<br>')+'</p>').join('');
+ const layoutParagraphs=value=>{const raw=String(value||'');return /<\/?[a-z][^>]*>/i.test(raw)?sanitizeTransmissionBody(raw):raw.split(/\n{2,}/).map(part=>'<p>'+escapeLayoutText(part).replace(/\n/g,'<br>')+'</p>').join('');};
 
  grid.replaceChildren();
  const metadataDetails=makeChamberDisclosure('00 // RECORD DETAILS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-metadata-panel','ha-chamber-panel-heading');
@@ -761,6 +814,11 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   };
   return read(clone).replace(/\r/g,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
  };
+ const readLayoutHtml=selector=>{
+  const node=savedLayoutDoc.querySelector(selector);if(!node)return '';
+  const clone=node.cloneNode(true);clone.querySelectorAll('.suno-label,.suno-collapse-hint').forEach(label=>label.remove());
+  return clone.innerHTML;
+ };
  const layoutPanel=makeChamberDisclosure('00.25 // POST PRESENTATION','ha-chamber-panel ha-chamber-edit-panel ha-chamber-layout-panel','ha-chamber-panel-heading');
  const layoutSelect=document.createElement('select');layoutSelect.className='ha-chamber-editor-field ha-chamber-meta-input';
  [['standard','STANDARD ARTICLE'],['plain','PLAIN TEXT + OH, SUN.'],['suno','SUNO LYRICS + STYLE BREAKDOWN']].forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;layoutSelect.append(option);});
@@ -769,18 +827,26 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  layoutSelectWrap.append(makeChamberNode('span','ha-chamber-metadata-label','PUBLIC POST LAYOUT'),layoutSelect);
  const layoutFields=makeChamberNode('div','ha-chamber-layout-fields');
  const addLayoutField=(label,name,value,group,rows=5)=>{
-  const wrap=makeChamberNode('label','ha-chamber-metadata-field ha-chamber-layout-field');
+  const wrap=makeChamberNode('div','ha-chamber-metadata-field ha-chamber-layout-field');
   wrap.dataset.layoutGroup=group;
   wrap.append(makeChamberNode('span','ha-chamber-metadata-label',label));
-  const area=document.createElement('textarea');area.className='ha-chamber-editor-field';area.name=name;area.rows=rows;area.value=value||'';
+  const area=makeChamberNode('div','ha-chamber-editor-field ha-rich-content ha-layout-block-field');
+  area.name=name;area.contentEditable=readOnly?'false':'true';area.setAttribute('role','textbox');area.setAttribute('aria-multiline','true');area.setAttribute('aria-label',label);
+  area.innerHTML=layoutParagraphs(value)||'<p><br></p>';
+  Object.defineProperty(area,'value',{configurable:true,get(){
+   const html=area.__haBlockEditor?.getHTML()||area.innerHTML;
+   if(name==='layout_lyrics'){const parsed=new DOMParser().parseFromString(html,'text/html');return parsed.body.textContent||'';}
+   return html;
+  },set(next){area.innerHTML=String(next??'');}});
   wrap.append(area);layoutFields.append(wrap);return area;
  };
- const layoutMain=addLayoutField('COLUMN 1 // THE TEXT','layout_main',savedSuno?readLayoutText('.suno-text-column'):savedPlain?readLayoutText('.plain-copy'):readLayoutText('body'),'suno',8);
- const layoutLyrics=addLayoutField('COLUMN 2 // SUNO LYRICS','layout_lyrics',readLayoutText('.suno-lyrics pre'),'suno',12);
- const layoutPrompt=addLayoutField('SUNO STYLE PROMPT','layout_prompt',readLayoutText('.suno-style-prompt')||readLayoutText('.suno-notes'),'suno',6);
- const layoutLearned=addLayoutField('WHAT I LEARNED','layout_learned',readLayoutText('.suno-learned'),'suno',4);
- const layoutChatgpt=addLayoutField('WHAT CHATGPT LEARNED','layout_chatgpt',readLayoutText('.suno-chatgpt-learned'),'suno',4);
- const layoutPlain=addLayoutField('PLAIN TEXT','layout_plain',savedPlain?readLayoutText('.plain-copy'):savedSuno?readLayoutText('.suno-text-column'):readLayoutText('body'),'plain',12);
+ const layoutMain=addLayoutField('COLUMN 1 // THE TEXT','layout_main',savedSuno?readLayoutHtml('.suno-text-column'):savedPlain?readLayoutHtml('.plain-copy'):readLayoutHtml('body'),'suno',8);
+ const lyricsSource=readLayoutText('.suno-lyrics pre');
+ const layoutLyrics=addLayoutField('COLUMN 2 // SUNO LYRICS','layout_lyrics',lyricsSource?'<pre>'+escapeLayoutText(lyricsSource)+'</pre>':'<pre><br></pre>','suno',12);
+ const layoutPrompt=addLayoutField('SUNO STYLE PROMPT','layout_prompt',readLayoutHtml('.suno-style-prompt')||readLayoutHtml('.suno-notes'),'suno',6);
+ const layoutLearned=addLayoutField('WHAT I LEARNED','layout_learned',readLayoutHtml('.suno-learned'),'suno',4);
+ const layoutChatgpt=addLayoutField('WHAT CHATGPT LEARNED','layout_chatgpt',readLayoutHtml('.suno-chatgpt-learned'),'suno',4);
+ const layoutPlain=addLayoutField('PLAIN TEXT','layout_plain',savedPlain?readLayoutHtml('.plain-copy'):savedSuno?readLayoutHtml('.suno-text-column'):readLayoutHtml('body'),'plain',12);
  const syncLayoutControls=()=>{
   layoutFields.querySelectorAll('[data-layout-group]').forEach(field=>{field.hidden=field.dataset.layoutGroup!==layoutSelect.value;});
   if(postLayoutControls?.transmissionDetails)postLayoutControls.transmissionDetails.hidden=layoutSelect.value!=='standard';
@@ -790,7 +856,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   const previous=layoutSelect.dataset.previousValue||'standard';
   if(layoutSelect.value==='standard'&&previous!=='standard'&&postLayoutControls?.transmissionEditor){
    const source=previous==='plain'?layoutPlain.value:layoutMain.value;
-   postLayoutControls.transmissionEditor.innerHTML=layoutParagraphs(source);
+   if(blockEditorControllers[0]){blockEditorControllers[0]=blockEditorControllers[0].replaceHTML(layoutParagraphs(source));blockEditorControllers[0].focus();}else postLayoutControls.transmissionEditor.innerHTML=layoutParagraphs(source);
   }
   layoutSelect.dataset.previousValue=layoutSelect.value;
   syncLayoutControls();status.textContent='POST LAYOUT CHANGED — SAVE THE CHAMBER TO APPLY';
@@ -892,7 +958,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const focusButton=makeChamberNode('button','ha-chamber-focus-toggle','T');focusButton.type='button';focusButton.setAttribute('aria-pressed','false');
  transmissionTop.append(transmissionHint,focusButton);
  const toolbar=makeChamberNode('div','ha-rich-toolbar');toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','Shared text formatting tools');
- const formattingTools=[['B','bold'],['I','italic'],['U','underline'],['S','strikeThrough'],['P','formatBlock','p'],['H1','formatBlock','h1'],['H2','formatBlock','h2'],['H3','formatBlock','h3'],['QUOTE','formatBlock','blockquote'],['• LIST','insertUnorderedList'],['1. LIST','insertOrderedList'],['LEFT','justifyLeft'],['CENTER','justifyCenter'],['RIGHT','justifyRight'],['HR','insertHorizontalRule'],['UNDO','undo'],['REDO','redo'],['CLEAR','removeFormat']];
+ const formattingTools=[['B','bold'],['I','italic'],['U','underline'],['S','strikeThrough'],['P','formatBlock','p'],['H1','formatBlock','h1'],['H2','formatBlock','h2'],['H3','formatBlock','h3'],['H4','formatBlock','h4'],['QUOTE','formatBlock','blockquote'],['• LIST','insertUnorderedList'],['1. LIST','insertOrderedList'],['LEFT','justifyLeft'],['CENTER','justifyCenter'],['RIGHT','justifyRight'],['JUSTIFY','justifyFull'],['HR','insertHorizontalRule'],['UNDO','undo'],['REDO','redo'],['CLEAR','removeFormat']];
  formattingTools.forEach(([label,command,value])=>{const button=makeChamberNode('button','',label);button.type='button';button.dataset.command=command;if(value)button.dataset.value=value;button.title=label;toolbar.append(button);});
  const insertLinkButton=makeChamberNode('button','ha-rich-link','LINK');insertLinkButton.type='button';toolbar.append(insertLinkButton);
  const unlinkButton=makeChamberNode('button','','UNLINK');unlinkButton.type='button';unlinkButton.dataset.command='unlink';toolbar.append(unlinkButton);
@@ -906,7 +972,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const output=makeChamberDisclosure('04 // OUTPUT','ha-chamber-panel ha-chamber-output ha-chamber-edit-panel','ha-chamber-panel-heading');
  const text=makeChamberDisclosure('TEXT','ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
  const textArea=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');textArea.contentEditable=readOnly?'false':'true';textArea.name='output_text';textArea.setAttribute('role','textbox');textArea.setAttribute('aria-multiline','true');textArea.setAttribute('aria-label','Output text');textArea.dataset.placeholder='Edit the original text output…';textArea.innerHTML=sanitizeTransmissionBody(structure.output_text);text.body.append(textArea);output.body.append(text.details);
- const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,editors:[promptArea,lyricsArea,textArea],toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
+ const blockEditorControllers=readOnly?[]:[transmissionEditor,promptArea,lyricsArea,textArea,layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
+ const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,editors:[promptArea,lyricsArea,textArea,layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain],toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
  ['image','audio','video'].forEach(type=>{
   const media=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
   const items=editorMedia[type];
@@ -933,6 +1000,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const save=makeChamberNode('button','ha-chamber-save','SAVE CHAMBER');save.type='button';
  const cancel=makeChamberNode('button','ha-chamber-cancel','CANCEL');cancel.type='button';
 
+ const getCurrentTransmissionText=()=>postLayoutControls?.select.value==='plain'?(postLayoutControls.fields.plain.__haBlockEditor?.getText()||''):postLayoutControls?.select.value==='suno'?(postLayoutControls.fields.main.__haBlockEditor?.getText()||''):(transmissionEditor.__haBlockEditor?.getText()||'');
  const updateSaveLabel=()=>{if(record.source_type!=='transmission')return;const next=recordMetadataInputs.status.value;save.textContent=next==='published'?(record.status==='published'?'SAVE PUBLISHED TRANSMISSION':'PUBLISH TRANSMISSION'):(record.status==='published'?'UNPUBLISH & SAVE DRAFT':'SAVE DRAFT');};
  recordMetadataInputs?.status?.addEventListener('change',updateSaveLabel);updateSaveLabel();
  // Draft Transmissions are database-backed as the user types. Publication remains an explicit action.
@@ -1137,6 +1205,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    if(!discard)return;
    chamberSaveConflict=false;flushActiveChamberAutosave=async()=>true;
   }
+  blockEditorControllers.forEach(controller=>controller.destroy());
   richEditorController?.destroy();
   status.textContent='';
   renderRecordStructureView(record,grid,status,editButton,expandButton);
@@ -1182,8 +1251,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
       ?'<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.plain.value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>'
       :'<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.main.value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeLayoutText(postLayoutControls.fields.lyrics.value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+layoutParagraphs(postLayoutControls.fields.prompt.value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.learned.value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.chatgpt.value)+'</section></aside></div>')
      :sanitizeTransmissionBody(transmissionEditor.innerHTML);
-    const publishText=postLayoutControls?.select.value==='plain'?postLayoutControls.fields.plain.value:
-     postLayoutControls?.select.value==='suno'?postLayoutControls.fields.main.value:transmissionEditor.innerText;
+    const publishText=getCurrentTransmissionText();
     if(metadata.status==='published'&&!String(publishText||'').trim())throw new Error('Add transmission content before publishing.');
     status.textContent='CREATING TRANSMISSION…';
     const {data:createResult,error:createError}=await archiveSupabase.rpc('create_human_archive_transmission_v3',{
@@ -1280,7 +1348,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
     if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
     if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
-    if(metadata.status==='published'&&!row.transmission_body.trim())throw new Error('Add transmission content before publishing.');
+    if(metadata.status==='published'&&!getCurrentTransmissionText().trim())throw new Error('Add transmission content before publishing.');
     if(metadata.status==='published'&&metadata.category==='UNASSIGNED')throw new Error('Choose a movement category before publishing.');
     const {data:saveResult,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
      p_post_id:record.post_id,p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,p_status:metadata.status,
@@ -1326,6 +1394,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     if(removeError){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from storage:',removeError);}
    }
    status.textContent=cleanupWarning?'CHAMBER SAVED — FILE CLEANUP NEEDS ATTENTION':'CHAMBER REDESIGNED // CHANGES SAVED';
+   blockEditorControllers.forEach(controller=>controller.destroy());
    richEditorController?.destroy();
    if(record.source_type==='transmission'){
     const titleNode=recordChamber?.querySelector('.ha-chamber-title');if(titleNode)titleNode.textContent=record.title;
