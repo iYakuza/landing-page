@@ -308,7 +308,7 @@ async function loadArchiveFavorites(){
 }
 async function loadRecordStructureOverrides(){
  if(!archiveSupabase)return;
- const {data,error}=await archiveSupabase.from('human_archive_record_structures').select('record_id,transmission_body,prompt_style,lyrics_style,output_text,output_media,updated_at');
+ const {data,error}=await archiveSupabase.from('human_archive_record_structures').select('record_id,transmission_body,prompt_style,lyrics_style,output_text,output_media,blocks,updated_at');
  if(error){console.warn('Human Archive structures could not be loaded:',error);return;}
  recordStructureOverrides=new Map((data||[]).map(item=>[String(item.record_id),item]));
 }
@@ -438,7 +438,8 @@ function getRecordStructure(record){
   prompt_style:String(saved?.prompt_style||''),
   lyrics_style:String(saved?.lyrics_style||''),
   output_text:typeof saved?.output_text==='string'?saved.output_text:defaultRecordOutputText(record),
-  output_media:saved?.output_media&&typeof saved.output_media==='object'&&!Array.isArray(saved.output_media)?saved.output_media:null
+  output_media:saved?.output_media&&typeof saved.output_media==='object'&&!Array.isArray(saved.output_media)?saved.output_media:null,
+  blocks:Array.isArray(saved?.blocks)?saved.blocks:[]
  };
 }
 function uniqueRecordMedia(record,mimePrefix){
@@ -652,12 +653,17 @@ function appendChamberOutputView(record,grid,structure){
 function renderRecordStructureView(record,grid,status,editButton,expandButton){
  const structure=getRecordStructure(record);
  grid.replaceChildren();
- makeChamberTransmissionBody(record,grid,structure);
- makeChamberTextPanel(record,grid,structure);
- appendChamberOutputView(record,grid,structure);
+ const body=makeChamberNode('div','ha-chamber-blocks-view');
+ const savedBlocks=Array.isArray(structure.blocks)?structure.blocks:[];
+ const html=savedBlocks.length?savedBlocks.map(block=>String(block?.html||'')).join(''):
+  [structure.transmission_body,structure.prompt_style,structure.lyrics_style,structure.output_text,record.content_html].filter(value=>String(value||'').trim()).join('');
+ if(html)appendSafeContent(body,html,record,new Set());
+ else body.append(makeChamberNode('p','ha-chamber-note','NO CONTENT BLOCKS HAVE BEEN ADDED TO THIS RECORD.'));
+ grid.append(body);
  if(editButton)editButton.hidden=!archiveAdmin;
- bindChamberDisclosureControls(grid,expandButton);
+ if(expandButton)expandButton.hidden=true;
 }
+
 function chamberFileMime(file,type){
  const supplied=String(file.type||'').toLowerCase();
  const allowed={
@@ -821,139 +827,6 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   const clone=node.cloneNode(true);clone.querySelectorAll('.suno-label,.suno-collapse-hint').forEach(label=>label.remove());
   return clone.innerHTML;
  };
- const layoutPanel=makeChamberDisclosure('00.25 // POST PRESENTATION','ha-chamber-panel ha-chamber-edit-panel ha-chamber-layout-panel','ha-chamber-panel-heading');
- const layoutSelect=document.createElement('select');layoutSelect.className='ha-chamber-editor-field ha-chamber-meta-input';
- [['standard','STANDARD ARTICLE'],['plain','PLAIN TEXT + OH, SUN.'],['suno','SUNO LYRICS + STYLE BREAKDOWN']].forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;layoutSelect.append(option);});
- layoutSelect.value=savedSuno?'suno':savedPlain?'plain':'standard';
- const layoutSelectWrap=makeChamberNode('label','ha-chamber-metadata-field');
- layoutSelectWrap.append(makeChamberNode('span','ha-chamber-metadata-label','PUBLIC POST LAYOUT'),layoutSelect);
- const layoutFields=makeChamberNode('div','ha-chamber-layout-fields');
- const addLayoutField=(label,name,value,group,rows=5)=>{
-  const wrap=makeChamberNode('div','ha-chamber-metadata-field ha-chamber-layout-field');
-  wrap.dataset.layoutGroup=group;
-  wrap.append(makeChamberNode('span','ha-chamber-metadata-label',label));
-  const area=makeChamberNode('div','ha-chamber-editor-field ha-rich-content ha-layout-block-field');
-  area.name=name;area.contentEditable=readOnly?'false':'true';area.setAttribute('role','textbox');area.setAttribute('aria-multiline','true');area.setAttribute('aria-label',label);
-  area.innerHTML=layoutParagraphs(value)||'<p><br></p>';
-  Object.defineProperty(area,'value',{configurable:true,get(){
-   const html=area.__haBlockEditor?.getHTML()||area.innerHTML;
-   if(name==='layout_lyrics'){const parsed=new DOMParser().parseFromString(html,'text/html');return parsed.body.textContent||'';}
-   return html;
-  },set(next){area.innerHTML=String(next??'');}});
-  wrap.append(area);layoutFields.append(wrap);return area;
- };
- const layoutMain=addLayoutField('COLUMN 1 // THE TEXT','layout_main',savedSuno?readLayoutHtml('.suno-text-column'):savedPlain?readLayoutHtml('.plain-copy'):readLayoutHtml('body'),'suno',8);
- const lyricsSource=readLayoutText('.suno-lyrics pre');
- const layoutLyrics=addLayoutField('COLUMN 2 // SUNO LYRICS','layout_lyrics',lyricsSource?'<pre>'+escapeLayoutText(lyricsSource)+'</pre>':'<pre><br></pre>','suno',12);
- const layoutPrompt=addLayoutField('SUNO STYLE PROMPT','layout_prompt',readLayoutHtml('.suno-style-prompt')||readLayoutHtml('.suno-notes'),'suno',6);
- const layoutLearned=addLayoutField('WHAT I LEARNED','layout_learned',readLayoutHtml('.suno-learned'),'suno',4);
- const layoutChatgpt=addLayoutField('WHAT CHATGPT LEARNED','layout_chatgpt',readLayoutHtml('.suno-chatgpt-learned'),'suno',4);
- const layoutPlain=addLayoutField('PLAIN TEXT','layout_plain',savedPlain?readLayoutHtml('.plain-copy'):savedSuno?readLayoutHtml('.suno-text-column'):readLayoutHtml('body'),'plain',12);
- const syncLayoutControls=()=>{
-  layoutFields.querySelectorAll('[data-layout-group]').forEach(field=>{field.hidden=field.dataset.layoutGroup!==layoutSelect.value;});
-  if(postLayoutControls?.transmissionDetails)postLayoutControls.transmissionDetails.hidden=layoutSelect.value!=='standard';
- };
- layoutSelect.dataset.previousValue=layoutSelect.value;
- layoutSelect.addEventListener('change',()=>{
-  const previous=layoutSelect.dataset.previousValue||'standard';
-  if(layoutSelect.value==='standard'&&previous!=='standard'&&postLayoutControls?.transmissionEditor){
-   const source=previous==='plain'?layoutPlain.value:layoutMain.value;
-   if(blockEditorControllers[0]){blockEditorControllers[0]=blockEditorControllers[0].replaceHTML(layoutParagraphs(source));blockEditorControllers[0].focus();}else postLayoutControls.transmissionEditor.innerHTML=layoutParagraphs(source);
-  }
-  layoutSelect.dataset.previousValue=layoutSelect.value;
-  syncLayoutControls();status.textContent='POST LAYOUT CHANGED — SAVE THE CHAMBER TO APPLY';
- });
- [layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain].forEach(area=>area.addEventListener('input',()=>{status.textContent='POST LAYOUT EDITED — SAVE THE CHAMBER TO APPLY';}));
- layoutPanel.body.append(layoutSelectWrap,layoutFields);grid.append(layoutPanel.details);
- postLayoutControls={select:layoutSelect,fields:{main:layoutMain,lyrics:layoutLyrics,prompt:layoutPrompt,learned:layoutLearned,chatgpt:layoutChatgpt,plain:layoutPlain},transmissionDetails:null,sync:syncLayoutControls};
- syncLayoutControls();
- if(record.source_type==='transmission'){
- attachedPostMedia=(Array.isArray(record.media_items)?record.media_items:[]).map((item,index)=>{
-  const mime=String(item.mime_type||'').toLowerCase();
-  const type=['image','audio','video'].includes(item.type)?item.type:(mime.startsWith('image/')?'image':mime.startsWith('video/')?'video':'audio');
-  return {id:String(item.id||'attached-'+index),name:String(item.title||item.name||record.title),url:String(item.source_url||item.url||''),path:String(item.storage_path||item.path||''),type,mime_type:mime,storage:String(item.storage||'vha-post-media')};
- }).filter(item=>item.url);
- const attachedPanel=makeChamberDisclosure('00.5 // POST ATTACHMENTS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-attached-panel','ha-chamber-panel-heading');
- const attachedList=makeChamberNode('div','ha-chamber-media-editor-list');
- const repaintAttached=()=>{
-  attachedList.replaceChildren();
-  if(!attachedPostMedia.length)attachedList.append(makeChamberNode('p','ha-chamber-note','NO POST ATTACHMENTS SELECTED.'));
-  attachedPostMedia.forEach((item,index)=>{
-   const row=makeChamberNode('div','ha-chamber-media-editor-item');
-   row.append(makeChamberNode('span','ha-chamber-media-editor-name',item.name||record.title));
-   row.append(makeChamberNode('small','ha-chamber-media-editor-state',item.file?'READY TO UPLOAD':item.type.toUpperCase()+' // EXISTING ATTACHMENT'));
-   const remove=makeChamberNode('button','ha-chamber-media-remove','REMOVE ✕');remove.type='button';
-   remove.setAttribute('aria-label','Remove '+(item.name||'attachment'));
-   remove.addEventListener('click',()=>{attachedPostMedia.splice(index,1);repaintAttached();status.textContent='ATTACHMENTS UPDATED — AUTOSAVE PENDING';scheduleDraftAutosave();});
-   row.append(remove);attachedList.append(row);
-  });
- };
- const attachedInput=document.createElement('input');attachedInput.type='file';attachedInput.multiple=true;attachedInput.className='ha-chamber-file-input';
- attachedInput.accept='image/jpeg,image/png,image/webp,image/gif,image/avif,audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm';
- attachedInput.setAttribute('aria-label','Choose post attachments');
- const attachedLabel=makeChamberNode('label','ha-chamber-upload-label');
- attachedLabel.append(makeChamberNode('span','','ADD POST ATTACHMENTS +'),attachedInput);
- attachedInput.addEventListener('change',()=>{
-  const files=[...attachedInput.files||[]],rejected=[];
-  files.slice(0,10).forEach(file=>{
-   const type=file.type.startsWith('image/')?'image':file.type.startsWith('audio/')?'audio':file.type.startsWith('video/')?'video':'';
-   const mime=type?chamberFileMime(file,type):null;
-   if(!mime){rejected.push(file.name+' (unsupported format)');return;}
-   if(file.size>30*1024*1024){rejected.push(file.name+' (over 30 MB)');return;}
-   attachedPostMedia.push({id:'pending-'+chamberUploadToken(),name:file.name,type,mime_type:mime,file,storage:'vha-post-media'});
-  });
-  if(files.length>10)rejected.push('Only the first 10 files were checked.');
-  repaintAttached();attachedInput.value='';
-  status.textContent=rejected.length?'Some files were not added: '+rejected.join('; '):'ATTACHMENTS ADDED — SAVE THE CHAMBER TO UPLOAD';
- });
- attachedPanel.body.append(attachedList,attachedLabel);grid.append(attachedPanel.details);repaintAttached();repaintAttachedPostMedia=repaintAttached;
- }else{
-  const attachedPanel=makeChamberDisclosure('00.5 // POST ATTACHMENTS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-attached-panel','ha-chamber-panel-heading');
-  const attachedList=makeChamberNode('div','ha-chamber-media-editor-list');
-  const repaintLegacyAttachments=()=>{
-   attachedList.replaceChildren();
-   let total=0;
-   ['image','audio','video'].forEach(type=>{
-    editorMedia[type].forEach((item,index)=>{
-     total++;
-     const row=makeChamberNode('div','ha-chamber-media-editor-item');
-     row.append(makeChamberNode('span','ha-chamber-media-editor-name',item.name||record.title));
-     row.append(makeChamberNode('small','ha-chamber-media-editor-state',item.file?'READY TO UPLOAD':(item.storage==='external'?'EMBEDDED MEDIA':'ARCHIVE / SAVED '+type.toUpperCase())));
-     const remove=makeChamberNode('button','ha-chamber-media-remove','REMOVE ✕');remove.type='button';
-     remove.setAttribute('aria-label','Remove '+(item.name||type+' attachment'));
-     remove.addEventListener('click',()=>{
-      editorMedia[type].splice(index,1);mediaTouched[type]=true;
-      outputMediaRepaint[type]?.();repaintLegacyAttachments();
-      status.textContent='ATTACHMENTS UPDATED — SAVE THE CHAMBER TO APPLY';
-     });
-     row.append(remove);attachedList.append(row);
-    });
-   });
-   if(!total)attachedList.append(makeChamberNode('p','ha-chamber-note','NO POST ATTACHMENTS SELECTED.'));
-  };
-  const attachedInput=document.createElement('input');attachedInput.type='file';attachedInput.multiple=true;attachedInput.className='ha-chamber-file-input';
-  attachedInput.accept='image/jpeg,image/png,image/webp,image/gif,image/avif,audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm';
-  attachedInput.setAttribute('aria-label','Choose legacy archive post attachments');
-  const attachedLabel=makeChamberNode('label','ha-chamber-upload-label');
-  attachedLabel.append(makeChamberNode('span','','ADD POST ATTACHMENTS +'),attachedInput);
-  attachedInput.addEventListener('change',()=>{
-   const files=[...attachedInput.files||[]],rejected=[],changed=new Set();
-   files.slice(0,10).forEach(file=>{
-    const type=file.type.startsWith('image/')?'image':file.type.startsWith('audio/')?'audio':file.type.startsWith('video/')?'video':'';
-    const mime=type?chamberFileMime(file,type):null;
-    if(!mime){rejected.push(file.name+' (unsupported format)');return;}
-    if(file.size>30*1024*1024){rejected.push(file.name+' (over 30 MB)');return;}
-    editorMedia[type].push({id:'pending-'+chamberUploadToken(),name:file.name,mime_type:mime,storage:'pending',file});
-    mediaTouched[type]=true;changed.add(type);
-   });
-   if(files.length>10)rejected.push('Only the first 10 files were checked.');
-   changed.forEach(type=>outputMediaRepaint[type]?.());
-   repaintLegacyAttachments();attachedInput.value='';
-   status.textContent=rejected.length?'Some files were not added: '+rejected.join('; '):'ATTACHMENTS ADDED — SAVE THE CHAMBER TO UPLOAD';
-  });
-  attachedPanel.body.append(attachedList,attachedLabel);grid.append(attachedPanel.details);
-  repaintLegacyAttachments();repaintAttachedPostMedia=repaintLegacyAttachments;
- }
  const transmission=makeChamberDisclosure('01 // TRANSMISSION BODY','ha-chamber-panel ha-chamber-edit-panel ha-chamber-transmission-panel','ha-chamber-panel-heading');
  const transmissionTop=makeChamberNode('div','ha-rich-editor-top');
  const transmissionHint=makeChamberNode('span','ha-rich-editor-hint','WRITE, FORMAT AND SHAPE THE ORIGINAL TRANSMISSION');
@@ -974,6 +847,97 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const output=makeChamberDisclosure('04 // OUTPUT','ha-chamber-panel ha-chamber-output ha-chamber-edit-panel','ha-chamber-panel-heading');
  const text=makeChamberDisclosure('TEXT','ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
  const textArea=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');textArea.contentEditable=readOnly?'false':'true';textArea.name='output_text';textArea.setAttribute('role','textbox');textArea.setAttribute('aria-multiline','true');textArea.setAttribute('aria-label','Output text');textArea.dataset.placeholder='Edit the original text output…';textArea.innerHTML=sanitizeTransmissionBody(structure.output_text);text.body.append(textArea);output.body.append(text.details);
+ const blockMediaMime=(file,type)=>{
+  const mime=String(file.type||'').toLowerCase();
+  const accepted={
+   image:['image/jpeg','image/png','image/webp','image/gif','image/avif'],
+   audio:['audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm'],
+   video:['video/mp4','video/webm'],
+   file:['image/jpeg','image/png','image/webp','image/gif','image/avif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm','video/mp4','video/webm']
+  };
+  if(accepted[type]?.includes(mime))return mime;
+  if(mime)return null;
+  const ext=String(file.name||'').split('.').pop().toLowerCase();
+  const byExt={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',mp3:'audio/mpeg',m4a:'audio/mp4',wav:'audio/wav',ogg:'audio/ogg',weba:'audio/webm',mp4:'video/mp4',webm:'video/webm',};
+  const inferred=byExt[ext]||'';return accepted[type]?.includes(inferred)?inferred:null;
+ };
+ const uploadBlockMedia=async(files,type)=>{
+  if(!archiveAdmin||!archiveSupabase||!archiveUserId)throw new Error('An active CMS admin session is required to upload media.');
+  const acceptedType=type==='image'||type==='gallery'||type==='slideshow'||type==='tiled-gallery'||type==='cover'||type==='media-text'||type==='image-compare'?'image':type==='audio'||type==='playlist'||type==='podcast'?'audio':type==='video'?'video':'file';
+  const assets=[];
+  for(const file of files){
+   const mime=blockMediaMime(file,acceptedType);
+   if(!mime)throw new Error(file.name+' has an unsupported file format.');
+   if(file.size>30*1024*1024)throw new Error(file.name+' exceeds the 30 MB upload limit.');
+   const token=chamberUploadToken();
+   const safeName=String(file.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
+   const folder=mime.startsWith('image/')?'image':mime.startsWith('audio/')?'audio':mime.startsWith('video/')?'video':'files';
+   const path='human-archive/'+String(record.id)+'/blocks/'+folder+'/'+token+'-'+safeName;
+   const {error}=await archiveSupabase.storage.from('vha-post-media').upload(path,file,{cacheControl:'3600',contentType:mime,upsert:false});
+   if(error)throw error;
+   blockMediaUploadedPaths.push(path);
+   const {data}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
+   if(!data?.publicUrl)throw new Error('The uploaded media URL could not be created.');
+   const asset={url:data.publicUrl,path,name:file.name,mime_type:mime,type:folder,storage:'vha-post-media'};assets.push(asset);blockMediaUploadedAssets.push(asset);
+  }
+  status.textContent=assets.length+' MEDIA FILE'+(assets.length===1?'':'S')+' UPLOADED — SAVE TO KEEP CHANGES.';
+  return assets;
+ };
+ const getBlockMediaLibrary=type=>{
+  const desired=type==='image'||type==='gallery'||type==='slideshow'||type==='tiled-gallery'||type==='cover'||type==='media-text'||type==='image-compare'?'image':type==='audio'||type==='playlist'||type==='podcast'?'audio':type==='video'?'video':'';
+  const archiveAssets=records.flatMap(archiveRecord=>{
+   const archiveStructure=getRecordStructure(archiveRecord);
+   return [...['image','audio','video'].flatMap(kind=>getRecordOutputMedia(archiveRecord,archiveStructure,kind).map(item=>({...item,type:kind}))),...(Array.isArray(archiveRecord.media_items)?archiveRecord.media_items:[])];
+  });
+  const source=[...archiveAssets,...['image','audio','video'].flatMap(kind=>editorMedia[kind].map(item=>({...item,type:kind}))),...attachedPostMedia,...blockMediaUploadedAssets];
+  const seen=new Set();
+  return source.filter(item=>{
+   const itemType=String(item.type||item.mime_type||'').toLowerCase();
+   const matches=!desired||itemType===desired||itemType.startsWith(desired+'/')||(desired==='image'&&itemType.startsWith('image/'))||(desired==='audio'&&itemType.startsWith('audio/'))||(desired==='video'&&itemType.startsWith('video/'));
+   const url=item.uploadedDraft?.url||item.url||item.source_url;
+   if(!matches||!url||seen.has(url))return false;seen.add(url);return true;
+  }).map(item=>({url:item.uploadedDraft?.url||item.url||item.source_url,path:item.uploadedDraft?.path||item.path||item.storage_path,name:item.name||item.title||record.title,mime_type:item.mime_type||item.type||''}));
+ };
+ const cleanupBlockMediaUploads=async(keepContent='')=>{
+  if(!blockMediaUploadedPaths.length)return;
+  const paths=blockMediaUploadedPaths.splice(0);
+  blockMediaUploadedAssets.splice(0);
+  const keep=paths.filter(path=>String(keepContent||'').includes(path));
+  const remove=paths.filter(path=>!keep.includes(path));
+  if(remove.length&&archiveSupabase){const {error}=await archiveSupabase.storage.from('vha-post-media').remove(remove);if(error)console.warn('Unreferenced block media could not be cleaned up:',error);}
+ };
+ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
+ const getEditorHTML=()=>transmissionEditor.__haBlockEditor?.getHTML()||transmissionEditor.innerHTML;
+ const getEditorBlocks=()=>transmissionEditor.__haBlockEditor?.getBlocks()||[];
+ const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,editors:[transmissionEditor],toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
+ ['image','audio','video'].forEach(type=>{
+  const media=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
+  const items=editorMedia[type];
+  const sectionBody=media.body;
+  outputMediaRepaint[type]=renderChamberMediaEditor(sectionBody,record,type,items,status,()=>{mediaTouched[type]=true;if(record.source_type!=='transmission')repaintAttachedPostMedia();scheduleDraftAutosave();});
+  output.body.append(media.details);
+ });
+ grid.append(output.details);
+ if(!readOnly&&record.source_type==='transmission'){
+  grid.addEventListener('input',scheduleDraftAutosave);
+  grid.addEventListener('change',()=>{updateSaveLabel( const focusButton=makeChamberNode('button','ha-chamber-focus-toggle','T');focusButton.type='button';focusButton.setAttribute('aria-pressed','false');
+ const toolbar=makeChamberNode('div','ha-rich-toolbar');toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','Block formatting tools');
+ const formattingTools=[['B','bold'],['I','italic'],['U','underline'],['S','strikeThrough'],['P','formatBlock','p'],['H1','formatBlock','h1'],['H2','formatBlock','h2'],['H3','formatBlock','h3'],['H4','formatBlock','h4'],['QUOTE','formatBlock','blockquote'],['• LIST','insertUnorderedList'],['1. LIST','insertOrderedList'],['LEFT','justifyLeft'],['CENTER','justifyCenter'],['RIGHT','justifyRight'],['JUSTIFY','justifyFull'],['UNDO','undo'],['REDO','redo'],['CLEAR','removeFormat']];
+ formattingTools.forEach(([label,command,value])=>{const button=makeChamberNode('button','',label);button.type='button';button.dataset.command=command;if(value)button.dataset.value=value;button.title=label;toolbar.append(button);});
+ const insertLinkButton=makeChamberNode('button','ha-rich-link','LINK');insertLinkButton.type='button';toolbar.append(insertLinkButton);
+ const unlinkButton=makeChamberNode('button','','UNLINK');unlinkButton.type='button';unlinkButton.dataset.command='unlink';toolbar.append(unlinkButton);
+ const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable=readOnly?'false':'true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Archive blocks');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Start writing or add a block…';
+ const savedBlocks=Array.isArray(structure.blocks)?structure.blocks:[];
+ const legacyHTML=[structure.transmission_body,structure.prompt_style,structure.lyrics_style,structure.output_text].filter(value=>String(value||'').trim()).join('');
+ const initialBlockHTML=savedBlocks.length?savedBlocks.map(block=>String(block?.html||'')).join(''):(legacyHTML||record.content_html||'');
+ transmissionEditor.innerHTML=sanitizeTransmissionBody(initialBlockHTML);
+ const editorTop=makeChamberNode('div','ha-rich-editor-top');
+ editorTop.append(makeChamberNode('span','ha-rich-editor-hint','ONE CANVAS // EVERY PIECE OF CONTENT IS A BLOCK'),focusButton);
+ grid.append(editorTop,toolbar,transmissionEditor);
+ const promptArea=makeChamberNode('div','ha-legacy-hidden-field');promptArea.innerHTML='';
+ const lyricsArea=makeChamberNode('div','ha-legacy-hidden-field');lyricsArea.innerHTML='';
+ const textArea=makeChamberNode('div','ha-legacy-hidden-field');textArea.innerHTML='';
+ postLayoutControls=null;
  const blockMediaMime=(file,type)=>{
   const mime=String(file.type||'').toLowerCase();
   const accepted={
