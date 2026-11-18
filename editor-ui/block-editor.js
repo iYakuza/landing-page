@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const EMBED_HOSTS = new Set(['www.youtube.com','www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com']);
+  const EMBED_HOSTS = new Set(['www.youtube.com','www.youtube-nocookie.com','youtu.be','open.spotify.com','w.soundcloud.com']);
   const IMAGE_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']);
   const MEDIA_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co']);
   const TYPES = [
@@ -154,7 +154,11 @@
         try { url = new URL(raw.trim()); } catch { return window.alert('Enter a valid embed URL.'); }
         const host = url.hostname.toLowerCase();
         if (!EMBED_HOSTS.has(host)) return window.alert('Supported embeds: YouTube, Spotify and SoundCloud.');
-        if (host === 'www.youtube.com' && url.pathname === '/watch') {
+        if (host === 'youtu.be') {
+          const id=url.pathname.slice(1).split('/')[0];
+          if(!/^[\\w-]{6,20}$/.test(id))return window.alert('That YouTube URL is not valid.');
+          url=new URL('https://www.youtube-nocookie.com/embed/'+id);
+        } else if (host === 'www.youtube.com' && url.pathname === '/watch') {
           const id = url.searchParams.get('v');
           if (!id || !/^[\w-]{6,20}$/.test(id)) return window.alert('That YouTube URL is not valid.');
           url = new URL('https://www.youtube-nocookie.com/embed/'+id);
