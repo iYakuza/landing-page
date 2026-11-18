@@ -1623,10 +1623,12 @@ body.image-viewer-open{overflow:hidden!important}
  padding-left:0!important;
  padding-right:0!important;
 }
-.posts-main>.posts-content{
+body.vha-game-interface .posts-main>.posts-content{
  width:100%!important;
  max-width:none!important;
  margin-left:0!important;
  margin-right:0!important;
+ padding-left:0!important;
+ padding-right:0!important;
  box-sizing:border-box!important;
 }
