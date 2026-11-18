@@ -1025,6 +1025,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     if(shareNode&&shareStatus){shareNode.replaceChildren();appendChamberShareActions(shareNode,record,shareStatus);}
     if(hasArchiveIndex){const url=new URL(archiveHomeUrl.href);url.searchParams.set('record',String(record.id));history.replaceState(history.state,'',url.pathname+url.search+url.hash);render();}
    }
+   if(hasArchiveIndex&&record.source_type!=='transmission')render();
    renderRecordStructureView(record,grid,status,editButton,expandButton);
   }catch(error){
    console.error('Human Archive block document could not be saved:',error);
