@@ -276,7 +276,7 @@ function appendSafeContent(container,source,record,used){
   const alignment=(node.style?.textAlign||'').toLowerCase();
   if(['left','center','right','justify'].includes(alignment))el.style.textAlign=alignment;
   const mediaWidth=(node.style?.width||'').trim();
-  if(['FIGURE','IMG','AUDIO','VIDEO','IFRAME'].includes(tag)&&/^(?:[2-9]\\d|100)%$/.test(mediaWidth)){el.style.width=mediaWidth;el.style.maxWidth='100%';}
+  if(['FIGURE','IMG','AUDIO','VIDEO','IFRAME'].includes(tag)&&/^(?:[2-9]\d|100)%$/.test(mediaWidth)){el.style.width=mediaWidth;el.style.maxWidth='100%';}
   node.childNodes.forEach(child=>copy(child,el));parent.append(el);
  }
  doc.body.childNodes.forEach(node=>copy(node,container));
