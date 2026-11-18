@@ -151,7 +151,7 @@
     function insertMedia(type, block) {
       const ask=label=>window.prompt(label);
       const imageHosts=new Set([...IMAGE_HOSTS,'*.files.wordpress.com','*.wp.com']);
-      const mediaHosts=new Set([...MEDIA_HOSTS,'*.files.wordpress.com']);
+      const mediaHosts=new Set([...MEDIA_HOSTS]);
       const raw=ask(type==='gallery'?'Image URLs (one per line or comma-separated)':type==='cover'?'Cover image URL':type==='image'?'Image URL':type==='audio'?'Audio file URL':type==='video'?'Video file URL':type==='file'?'File download URL':'Paste a YouTube, Spotify, SoundCloud, Vimeo, TikTok, Instagram, Facebook or Dailymotion URL');
       if(!raw)return;
       let html='';
@@ -245,7 +245,7 @@
         }else{const option = document.createElement('option'); option.value=key; option.textContent=label; transform.append(option);}
       });
       const currentContent=block.querySelector('[data-ha-block-content]')?.firstElementChild;
-      transform.value = /^H[1-4]$/.test(currentContent?.tagName||'') ? currentContent.tagName.toLowerCase() : (['image','audio','video','embed','separator','classic'].includes(type) ? 'paragraph' : type==='heading'?'h2':type);
+      transform.value = /^H[1-4]$/.test(currentContent?.tagName||'') ? currentContent.tagName.toLowerCase() : (['image','gallery','cover','audio','video','file','embed','separator','spacer','classic'].includes(type) ? 'paragraph' : type==='heading'?'h2':type);
       transform.addEventListener('change',() => transformBlock(block,transform.value));
       if(['classic','image','gallery','cover','audio','video','file','embed','separator','spacer'].includes(type))transform.disabled=true;
       actions.append(transform);
