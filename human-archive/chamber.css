@@ -526,3 +526,29 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
 
 /* Keep the editor overlay independent of the host page's box model. */
 .ha-record-chamber,.ha-record-chamber *,.ha-image-viewer,.ha-image-viewer *{box-sizing:border-box}
+
+
+/* Shared editor toolbar rail — same two-column categories on every host page. */
+.ha-record-chamber.has-floating-formatting-toolbar .ha-chamber-main{padding-right:clamp(132px,13vw,180px)!important}
+.ha-record-chamber[open] .ha-rich-toolbar{
+ position:fixed;top:50%;right:clamp(10px,2vw,24px);left:auto;transform:translateY(-50%);z-index:1000;
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:5px;
+ width:116px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 24px);overflow:auto;
+ padding:8px;box-shadow:0 12px 36px rgba(0,0,0,.62);border:1px solid rgba(185,215,122,.42);
+ background:rgba(5,13,8,.97);backdrop-filter:blur(14px);cursor:default
+}
+.ha-record-chamber[open] .ha-rich-toolbar button{width:100%;min-width:0;min-height:30px;padding:5px 3px;text-align:center;white-space:normal;font-size:8px}
+.ha-record-chamber[open] .ha-rich-toolbar .ha-rich-toolbar-category{
+ grid-column:1/-1;padding:7px 2px 2px;border-bottom:1px solid rgba(185,215,122,.2);
+ color:#a8bf98;font:7px/1.2 'DM Mono',monospace;letter-spacing:.14em;text-align:left
+}
+.ha-record-chamber[open] .ha-rich-toolbar .ha-rich-toolbar-category:not(:first-child){margin-top:3px}
+.ha-record-chamber[open] .ha-rich-toolbar .ha-chamber-focus-toggle{
+ grid-column:1/-1;min-height:35px;border-color:rgba(255,230,107,.72);background:rgba(255,230,107,.09);
+ color:#ffe66b;text-shadow:0 0 4px rgba(255,230,107,.8),0 0 12px rgba(255,210,76,.7)
+}
+.ha-record-chamber[open] .ha-rich-toolbar .ha-chamber-focus-toggle[aria-pressed="true"]{background:#ffe66b;color:#071009;text-shadow:none}
+@media(max-width:700px){
+ .ha-record-chamber.has-floating-formatting-toolbar .ha-chamber-main{padding-right:126px!important}
+ .ha-record-chamber[open] .ha-rich-toolbar{right:8px;width:108px;max-width:calc(100vw - 16px);max-height:calc(100dvh - 16px);padding:6px;gap:4px}
+}
