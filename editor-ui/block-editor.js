@@ -1,19 +1,24 @@
 (() => {
   'use strict';
 
-  const EMBED_HOSTS = new Set(['www.youtube.com','www.youtube-nocookie.com','youtu.be','open.spotify.com','w.soundcloud.com']);
+  const EMBED_HOSTS = new Set(['www.youtube.com','www.youtube-nocookie.com','youtu.be','open.spotify.com','w.soundcloud.com','player.vimeo.com','vimeo.com','www.tiktok.com','www.instagram.com','www.facebook.com','www.dailymotion.com','www.x.com','platform.twitter.com','www.google.com']);
   const IMAGE_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']);
   const MEDIA_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co']);
   const TYPES = [
-    ['paragraph','Paragraph'],['heading','Heading'],['unordered-list','Unordered list'],['ordered-list','Ordered list'],['quote','Quote'],
-    ['preformatted','Preformatted'],['code','Code'],['separator','Separator'],
-    ['image','Image'],['audio','Audio'],['video','Video'],['embed','Embed']
+    ['paragraph','Paragraph'],['heading','Heading'],['unordered-list','List'],['ordered-list','Numbered list'],
+    ['quote','Quote'],['pullquote','Pullquote'],['verse','Verse'],['preformatted','Preformatted'],['code','Code'],
+    ['details','Details / Accordion'],['table','Table'],['buttons','Buttons'],['columns','Columns'],['group','Group'],
+    ['row','Row'],['stack','Stack'],['spacer','Spacer'],['separator','Separator'],
+    ['image','Image'],['gallery','Gallery'],['cover','Cover'],['audio','Audio'],['video','Video'],
+    ['file','File download'],['embed','Embed'],['html','Custom HTML']
   ];
 
   function safeURL(value, hosts) {
     try {
       const url = new URL(String(value || '').trim());
-      if (url.protocol !== 'https:' || !url.hostname || url.username || url.password || !hosts.has(url.hostname.toLowerCase())) return '';
+      const host=url.hostname.toLowerCase();
+      const allowed=hosts.has(host)||[...hosts].some(entry=>entry.startsWith('*.')&&host.endsWith(entry.slice(1)));
+      if (url.protocol !== 'https:' || !host || url.username || url.password || !allowed) return '';
       if (url.hostname.toLowerCase() === 'oeyxsqocldlovhsmzcjw.supabase.co' &&
           !/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname)) return '';
       return url.href;
@@ -22,20 +27,30 @@
 
   function blockType(node) {
     if (!node || node.nodeType !== Node.ELEMENT_NODE) return 'paragraph';
-    const tag = node.tagName;
+    const tag=node.tagName,classes=node.classList;
     if (/^H[1-4]$/.test(tag)) return 'heading';
-    if (tag === 'DIV' || tag === 'SECTION' || tag === 'ASIDE') return 'classic';
-    if (tag === 'UL') return 'unordered-list';
-    if (tag === 'OL') return 'ordered-list';
-    if (tag === 'PRE' && node.querySelector('code')) return 'code';
-    if (tag === 'BLOCKQUOTE') return 'quote';
-    if (tag === 'PRE') return 'preformatted';
-    if (tag === 'CODE') return 'code';
-    if (tag === 'HR') return 'separator';
-    if (tag === 'IMG' || node.querySelector?.('img')) return 'image';
-    if (tag === 'AUDIO' || node.querySelector?.('audio')) return 'audio';
-    if (tag === 'VIDEO' || node.querySelector?.('video')) return 'video';
-    if (tag === 'IFRAME' || node.querySelector?.('iframe')) return 'embed';
+    if(classes.contains('wp-block-gallery'))return 'gallery';
+    if(classes.contains('wp-block-cover'))return 'cover';
+    if(classes.contains('wp-block-pullquote'))return 'pullquote';
+    if(classes.contains('wp-block-columns'))return 'columns';
+    if(classes.contains('wp-block-group'))return 'group';
+    if(classes.contains('wp-block-file'))return 'file';
+    if(classes.contains('wp-block-spacer'))return 'spacer';
+    if(classes.contains('wp-block-embed'))return 'embed';
+    if(classes.contains('wp-block-audio')||tag==='AUDIO'||node.querySelector?.('audio'))return 'audio';
+    if(classes.contains('wp-block-video')||tag==='VIDEO'||node.querySelector?.('video'))return 'video';
+    if(tag==='DIV'||tag==='SECTION'||tag==='ASIDE')return 'classic';
+    if(tag==='UL')return 'unordered-list'; if(tag==='OL')return 'ordered-list';
+    if(tag==='PRE'&&node.querySelector('code'))return 'code';
+    if(tag==='PRE'&&classes.contains('wp-block-verse'))return 'verse';
+    if(tag==='PRE')return 'preformatted';
+    if(tag==='BLOCKQUOTE')return 'quote'; if(tag==='HR')return 'separator';
+    if(tag==='FIGURE'&&node.querySelector('iframe'))return 'embed';
+    if(tag==='FIGURE'&&node.querySelector('img'))return 'image';
+    if(tag==='IMG'||node.querySelector?.('img'))return 'image';
+    if(tag==='IFRAME'||node.querySelector?.('iframe'))return 'embed';
+    if(tag==='TABLE')return 'table'; if(tag==='DETAILS')return 'details';
+    if(tag==='BUTTON'||node.querySelector?.('a.ha-editor-button'))return 'buttons';
     return 'paragraph';
   }
 
@@ -53,7 +68,7 @@
     content.className = 'ha-editor-block-content';
     content.dataset.haBlockContent = '';
     content.innerHTML = html;
-    if (['separator','image','audio','video','embed'].includes(type)) content.contentEditable = 'false';
+    if (['separator','image','gallery','cover','audio','video','file','embed','spacer'].includes(type)) content.contentEditable = 'false';
     else content.contentEditable = 'true';
 
     const footer = document.createElement('div');
@@ -76,9 +91,20 @@
       case 'unordered-list': return '<ul><li>List item</li></ul>';
       case 'ordered-list': return '<ol><li>List item</li></ol>';
       case 'quote': return '<blockquote><p>Write a quote…</p></blockquote>';
+      case 'pullquote': return '<figure class="wp-block-pullquote"><blockquote><p>Write a featured quotation…</p></blockquote><figcaption>Source</figcaption></figure>';
+      case 'verse': return '<pre class="wp-block-verse">Write verse…</pre>';
       case 'preformatted': return '<pre>Write preformatted text…</pre>';
       case 'code': return '<pre><code>Write code…</code></pre>';
+      case 'details': return '<details><summary>Details heading</summary><p>Additional content…</p></details>';
+      case 'table': return '<table><thead><tr><th>Heading</th><th>Heading</th></tr></thead><tbody><tr><td>Cell</td><td>Cell</td></tr></tbody></table>';
+      case 'buttons': return '<p><a class="ha-editor-button" href="https://example.com">Button text</a></p>';
+      case 'columns': return '<div class="wp-block-columns"><div class="wp-block-column"><p>Column one…</p></div><div class="wp-block-column"><p>Column two…</p></div></div>';
+      case 'group': return '<div class="wp-block-group"><p>Group content…</p></div>';
+      case 'row': return '<div class="wp-block-group is-layout-flex"><p>First item</p><p>Second item</p></div>';
+      case 'stack': return '<div class="wp-block-group is-layout-flow"><p>First item</p><p>Second item</p></div>';
+      case 'spacer': return '<div class="wp-block-spacer" style="height:48px" aria-hidden="true"></div>';
       case 'separator': return '<hr>';
+      case 'html': return '<pre><code>Paste safe HTML in the code editor…</code></pre>';
       default: return '<p><br></p>';
     }
   }
@@ -133,54 +159,65 @@
     }
 
     function insertMedia(type, block) {
-      const promptText = type === 'image' ? 'Image URL (archive media URL)' :
-        type === 'audio' ? 'Audio URL (Human Archive media storage)' :
-        type === 'video' ? 'Video URL (Human Archive media storage)' : 'YouTube, Spotify or SoundCloud embed URL';
-      const raw = window.prompt(promptText);
-      if (!raw) return;
-      let html = '';
-      if (type === 'image') {
-        const src = safeURL(raw,IMAGE_HOSTS);
-        if (!src) return window.alert('Use a secure image URL from the archive media library or WordPress media.');
-        const alt=window.prompt('Alternative text for this image (optional)','')||'';
-        const figure=document.createElement('figure'),image=document.createElement('img'),caption=document.createElement('figcaption');
-        image.src=src;image.alt=alt;image.loading='lazy';caption.contentEditable='true';caption.textContent='Image caption';figure.append(image,caption);html=figure.outerHTML;
-      } else if (type === 'audio' || type === 'video') {
-        const src = safeURL(raw,MEDIA_HOSTS);
-        if (!src || !new URL(src).pathname.startsWith('/storage/v1/object/public/vha-post-media/')) return window.alert('Use a secure URL from the Human Archive media library.');
-        html = type === 'audio' ? '<audio controls preload="metadata" src="'+src+'"></audio>' : '<video controls playsinline preload="metadata" src="'+src+'"></video>';
+      const ask=label=>window.prompt(label);
+      const imageHosts=new Set([...IMAGE_HOSTS,'*.files.wordpress.com','*.wp.com']);
+      const mediaHosts=new Set([...MEDIA_HOSTS,'*.files.wordpress.com']);
+      const raw=ask(type==='html'?'Paste HTML to insert (unsafe elements and attributes are removed)':type==='gallery'?'Image URLs (one per line or comma-separated)':type==='cover'?'Cover image URL':type==='image'?'Image URL':type==='audio'?'Audio file URL':type==='video'?'Video file URL':type==='file'?'File download URL':'Paste a YouTube, Spotify, SoundCloud, Vimeo, TikTok, Instagram, Facebook or Dailymotion URL');
+      if(!raw)return;
+      let html='';
+      if(type==='html'){
+        const parsed=new DOMParser().parseFromString(raw,'text/html');
+        parsed.querySelectorAll('script,style,object,embed,form,input,button,textarea,select,option,svg,math,link,meta').forEach(node=>node.remove());
+        const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','DEL','H1','H2','H3','H4','UL','OL','LI','BLOCKQUOTE','HR','PRE','CODE','A','FIGURE','FIGCAPTION','IMG','AUDIO','VIDEO','SOURCE','IFRAME','TABLE','THEAD','TBODY','TR','TH','TD','DETAILS','SUMMARY','DIV','SPAN']);
+        parsed.body.querySelectorAll('*').forEach(node=>{
+          if(!allowed.has(node.tagName)){node.replaceWith(...node.childNodes);return;}
+          [...node.attributes].forEach(attr=>{
+            const name=attr.name.toLowerCase();
+            if(name.startsWith('on')||['srcdoc','srcset','contenteditable'].includes(name))node.removeAttribute(attr.name);
+            else if(name==='href'){try{const u=new URL(attr.value);if(!((u.protocol==='https:'&&u.hostname&&!u.username&&!u.password)||(u.protocol==='mailto:'&&u.pathname)))node.removeAttribute(attr.name);}catch{node.removeAttribute(attr.name);}}
+            else if(name==='src'){const hosts=node.tagName==='IMG'?new Set([...IMAGE_HOSTS,'*.files.wordpress.com','*.wp.com']):['AUDIO','VIDEO','SOURCE'].includes(node.tagName)?mediaHosts:node.tagName==='IFRAME'?EMBED_HOSTS:null;const safe=hosts&&safeURL(attr.value,hosts);if(safe)node.setAttribute('src',safe);else node.removeAttribute(attr.name);}
+            else if(!['alt','title','class','width','height','controls','preload','target','rel','allow','allowfullscreen','loading','style'].includes(name))node.removeAttribute(attr.name);
+          });
+        });
+        html=parsed.body.innerHTML;
+        if(!html.trim())return window.alert('No supported HTML elements were found.');
+      } else if(['image','gallery','cover'].includes(type)){
+        const urls=(type==='gallery'?raw.split(/[\n,]+/):[raw]).map(value=>safeURL(value,imageHosts)).filter(Boolean);
+        if(!urls.length)return window.alert('Use a secure image URL from the archive media library or a supported WordPress media host.');
+        const figures=urls.map((src,index)=>{
+          const alt=window.prompt('Alternative text for image '+(index+1)+' (optional)','')||'';
+          const figure=document.createElement('figure'),img=document.createElement('img');
+          img.src=src;img.alt=alt;img.loading='lazy';figure.append(img);
+          if(type!=='cover'){const caption=document.createElement('figcaption');caption.textContent=window.prompt('Caption for image '+(index+1)+' (optional)','')||'';if(caption.textContent)figure.append(caption);}
+          return figure.outerHTML;
+        });
+        html=type==='gallery'?'<div class="wp-block-gallery">'+figures.join('')+'</div>':type==='cover'?'<div class="wp-block-cover" style="background-image:url(&quot;'+urls[0]+'&quot;)"><img src="'+urls[0]+'" alt=""><p class="wp-block-cover-text">Write title…</p></div>':figures[0];
+      } else if(['audio','video','file'].includes(type)){
+        const src=safeURL(raw,mediaHosts);
+        if(!src)return window.alert('Use a secure URL from the Human Archive media library or a supported WordPress media host.');
+        if(new URL(src).hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&type!=='file'&&!new URL(src).pathname.startsWith('/storage/v1/object/public/vha-post-media/'))return window.alert('That file is outside the Human Archive media bucket.');
+        if(type==='audio')html='<figure class="wp-block-audio"><audio controls preload="metadata" src="'+src+'"></audio></figure>';
+        else if(type==='video')html='<figure class="wp-block-video"><video controls playsinline preload="metadata" src="'+src+'"></video></figure>';
+        else html='<div class="wp-block-file"><a href="'+src+'" target="_blank" rel="noopener noreferrer">Download file</a></div>';
       } else {
-        let url;
-        try { url = new URL(raw.trim()); } catch { return window.alert('Enter a valid embed URL.'); }
-        const host = url.hostname.toLowerCase();
-        if (!EMBED_HOSTS.has(host)) return window.alert('Supported embeds: YouTube, Spotify and SoundCloud.');
-        if (host === 'youtu.be') {
-          const id=url.pathname.slice(1).split('/')[0];
-          if(!/^[\w-]{6,20}$/.test(id))return window.alert('That YouTube URL is not valid.');
-          url=new URL('https://www.youtube-nocookie.com/embed/'+id);
-        } else if (host === 'www.youtube.com' && url.pathname === '/watch') {
-          const id = url.searchParams.get('v');
-          if (!id || !/^[\w-]{6,20}$/.test(id)) return window.alert('That YouTube URL is not valid.');
-          url = new URL('https://www.youtube-nocookie.com/embed/'+id);
-        } else if (host === 'www.youtube.com' && url.pathname.startsWith('/shorts/')) {
-          const id = url.pathname.split('/')[2];
-          if (!/^[\w-]{6,20}$/.test(id)) return window.alert('That YouTube URL is not valid.');
-          url = new URL('https://www.youtube-nocookie.com/embed/'+id);
-        } else if (host === 'open.spotify.com' && !url.pathname.includes('/embed/')) {
-          url.pathname = '/embed'+url.pathname;
-        } else if (host === 'w.soundcloud.com' && !url.pathname.startsWith('/player/')) {
-          return window.alert('Use a SoundCloud player embed URL.');
-        }
-        const src = safeURL(url.href,EMBED_HOSTS);
-        if (!src) return window.alert('That embed URL is not supported.');
-        html = '<iframe src="'+src+'" title="Embedded media" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+        let url;try{url=new URL(raw.trim());}catch{return window.alert('Enter a valid embed URL.');}
+        const host=url.hostname.toLowerCase();
+        if(host==='youtu.be'){const id=url.pathname.slice(1).split('/')[0];if(!/^[\w-]{6,20}$/.test(id))return window.alert('Invalid YouTube URL.');url=new URL('https://www.youtube-nocookie.com/embed/'+id);}
+        else if(host==='www.youtube.com'&&url.pathname==='/watch'){const id=url.searchParams.get('v');if(!id||!/^[\w-]{6,20}$/.test(id))return window.alert('Invalid YouTube URL.');url=new URL('https://www.youtube-nocookie.com/embed/'+id);}
+        else if(host==='www.youtube.com'&&url.pathname.startsWith('/shorts/')){const id=url.pathname.split('/')[2];if(!/^[\w-]{6,20}$/.test(id))return window.alert('Invalid YouTube URL.');url=new URL('https://www.youtube-nocookie.com/embed/'+id);}
+        else if(host==='open.spotify.com'&&!url.pathname.startsWith('/embed/'))url.pathname='/embed'+url.pathname;
+        else if(host==='soundcloud.com'||host==='www.soundcloud.com'){url=new URL('https://w.soundcloud.com/player/?url='+encodeURIComponent(url.href));}
+        else if(host==='vimeo.com'){const id=url.pathname.split('/').filter(Boolean)[0];if(!/^\d+$/.test(id||''))return window.alert('Invalid Vimeo URL.');url=new URL('https://player.vimeo.com/video/'+id);}
+        else if(host==='www.dailymotion.com'){const id=url.pathname.match(/video\/([a-zA-Z0-9]+)/)?.[1];if(!id)return window.alert('Invalid Dailymotion URL.');url=new URL('https://www.dailymotion.com/embed/video/'+id);}
+        else if(host==='www.tiktok.com'&&!url.pathname.startsWith('/embed/'))return window.alert('Use the TikTok embed URL copied from Share → Embed.');
+        else if(host==='www.instagram.com'&&!url.pathname.endsWith('/embed/'))url.pathname=url.pathname.replace(/\/$/,'')+'/embed/';
+        else if(host==='www.x.com'||host==='twitter.com'){const match=url.pathname.split('/');const status=match.indexOf('status');const id=status>=0?match[status+1]:'';if(!/^\\d+$/.test(id||''))return window.alert('Open a specific X post URL to embed it.');url=new URL('https://platform.twitter.com/embed/Tweet.html?id='+id);}
+        const src=safeURL(url.href,EMBED_HOSTS);
+        if(!src)return window.alert('That embed URL is not supported.');
+        html='<figure class="wp-block-embed"><iframe src="'+src+'" title="Embedded media" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></figure>';
       }
-      const next = makeBlock(type,html);
-      if(block)block.after(next);else editor.append(next);
-      wireBlock(next);
-      setSelected(next);
-      focusBlock(next);
-      sync();
+      const next=makeBlock(type,html);if(block)block.after(next);else editor.append(next);
+      wireBlock(next);setSelected(next);focusBlock(next);sync();
     }
 
     function focusBlock(block) {
@@ -206,7 +243,7 @@
         button.type = 'button'; button.textContent = label; button.setAttribute('role','menuitem');
         button.addEventListener('click',() => {
           closeMenu();
-          if (['image','audio','video','embed'].includes(type)) return insertMedia(type,block);
+          if (['image','gallery','cover','audio','video','file','embed','html'].includes(type)) return insertMedia(type,block);
           const next = makeBlock(type,defaultHTML(type));
           if (block) block.after(next); else editor.append(next);
           wireBlock(next);setSelected(next); focusBlock(next); sync();
@@ -229,15 +266,15 @@
       const transform = document.createElement('select');
       transform.className = 'ha-editor-block-transform';
       transform.setAttribute('aria-label','Transform block');
-      TYPES.filter(([key]) => !['image','audio','video','embed','separator'].includes(key)).forEach(([key,label]) => {
+      TYPES.filter(([key]) => !['image','gallery','cover','audio','video','file','embed','separator','spacer'].includes(key)).forEach(([key,label]) => {
         if(key==='heading'){
           [['h1','Heading 1'],['h2','Heading 2'],['h3','Heading 3'],['h4','Heading 4']].forEach(([value,text])=>{const option=document.createElement('option');option.value=value;option.textContent=text;transform.append(option);});
         }else{const option = document.createElement('option'); option.value=key; option.textContent=label; transform.append(option);}
       });
       const currentContent=block.querySelector('[data-ha-block-content]')?.firstElementChild;
-      transform.value = /^H[1-4]$/.test(currentContent?.tagName||'') ? currentContent.tagName.toLowerCase() : (['image','audio','video','embed','separator','classic'].includes(type) ? 'paragraph' : type==='heading'?'h2':type);
+      transform.value = /^H[1-4]$/.test(currentContent?.tagName||'') ? currentContent.tagName.toLowerCase() : (['image','gallery','cover','audio','video','file','embed','separator','spacer','classic'].includes(type) ? 'paragraph' : type==='heading'?'h2':type);
       transform.addEventListener('change',() => transformBlock(block,transform.value));
-      if(['classic','image','audio','video','embed','separator'].includes(type))transform.disabled=true;
+      if(['classic','image','gallery','cover','audio','video','file','embed','separator','spacer'].includes(type))transform.disabled=true;
       actions.append(transform);
 
       const up = document.createElement('button'); up.type='button'; up.textContent='↑'; up.title='Move block up'; up.setAttribute('aria-label','Move block up');

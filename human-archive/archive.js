@@ -179,9 +179,9 @@ function appendMediaLink(parent,item,record,used){
 }
 function appendSafeContent(container,source,record,used){
  const doc=new DOMParser().parseFromString(String(source||''),'text/html');
- const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','H4','UL','OL','LI','BLOCKQUOTE','HR','PRE','CODE','A','FIGURE','FIGCAPTION','DIV','SPAN','SMALL','SUP','SUB','TABLE','THEAD','TBODY','TR','TH','TD']);
+ const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','H4','UL','OL','LI','BLOCKQUOTE','HR','PRE','CODE','A','FIGURE','FIGCAPTION','DIV','SPAN','SMALL','SUP','SUB','TABLE','THEAD','TBODY','TR','TH','TD','DETAILS','SUMMARY']);
  const blocked=new Set(['SCRIPT','STYLE','OBJECT','EMBED','SVG','MATH','FORM','INPUT','BUTTON','TEXTAREA','SELECT','OPTION','LINK','META']);
- const iframeHosts=new Set(['www.youtube.com','www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com']);
+ const iframeHosts=new Set(['www.youtube.com','www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com','player.vimeo.com','www.dailymotion.com','www.instagram.com','www.tiktok.com','www.facebook.com','platform.twitter.com']);
  const layoutClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response']);
  function copy(node,parent){
   if(node.nodeType===Node.TEXT_NODE){parent.append(document.createTextNode(node.nodeValue||''));return;}
@@ -194,9 +194,9 @@ function appendSafeContent(container,source,record,used){
    if(item&&(mediaReady||item.storage==='vha-post-media')){appendLocalImage(parent,item,record,used);}
    else{
     const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
-    let valid=Boolean(src);
+    let valid=Boolean(src)||(()=>{try{const u=new URL(raw);return u.protocol==='https:'&&u.hostname.endsWith('.files.wordpress.com')&&u.pathname.length>1;}catch{return false;}})();
     if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else valid=url.pathname.includes('/wp-content/uploads/');}
-    if(valid){const image=document.createElement('img');image.src=src;image.alt=node.getAttribute('alt')||record.title;image.loading='lazy';image.style.maxWidth='100%';image.style.height='auto';parent.append(image);}
+    if(valid){const image=document.createElement('img');image.src=src||raw;image.alt=node.getAttribute('alt')||record.title;image.loading='lazy';image.style.maxWidth='100%';image.style.height='auto';parent.append(image);}
     else appendMissing(parent,'Image not yet available in the recovered media collection.');
    }
    return;
@@ -206,7 +206,8 @@ function appendSafeContent(container,source,record,used){
    const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){if(tag==='AUDIO')appendLocalAudio(parent,item,record,used);else appendLocalVideo(parent,item,record,used);return;}
    const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
-   const valid=Boolean(src)&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname);
+   const wpMedia=(()=>{try{const u=new URL(raw);return u.protocol==='https:'&&u.hostname.endsWith('.files.wordpress.com')&&u.pathname.length>1;}catch{return false;}})();
+   const valid=(Boolean(src)&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname))||wpMedia;
    const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='metadata';
    if(valid)mediaNode.src=src;
    if(tag==='VIDEO')mediaNode.playsInline=true;
@@ -221,8 +222,9 @@ function appendSafeContent(container,source,record,used){
     const source=document.createElement('source');source.src=localMediaUrl(item);source.type=item.mime_type;parent.append(source);markUsed(item,used);
    }else{
     const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
-    if(src&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname)&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
-     const source=document.createElement('source');source.src=src;source.type=node.getAttribute('type')||'';parent.append(source);
+    const wpMedia=(()=>{try{const u=new URL(raw);return u.protocol==='https:'&&u.hostname.endsWith('.files.wordpress.com')&&u.pathname.length>1;}catch{return false;}})();
+    if(((src&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname))||wpMedia)&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
+     const source=document.createElement('source');source.src=src||raw;source.type=node.getAttribute('type')||'';parent.append(source);
     }
    }
    return;
