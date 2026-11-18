@@ -24,6 +24,7 @@
     if (!node || node.nodeType !== Node.ELEMENT_NODE) return 'paragraph';
     const tag = node.tagName;
     if (/^H[1-4]$/.test(tag)) return 'heading';
+    if (tag === 'DIV' || tag === 'SECTION' || tag === 'ASIDE') return 'classic';
     if (tag === 'UL' || tag === 'OL') return 'list';
     if (tag === 'BLOCKQUOTE') return 'quote';
     if (tag === 'PRE') return 'preformatted';
@@ -165,7 +166,8 @@
         html = '<iframe src="'+src+'" title="Embedded media" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>';
       }
       const next = makeBlock(type,html);
-      block.after(next);
+      if(block)block.after(next);else editor.append(next);
+      wireBlock(next);
       setSelected(next);
       focusBlock(next);
       sync();
@@ -195,7 +197,7 @@
           if (['image','audio','video','embed'].includes(type)) return insertMedia(type,block);
           const next = makeBlock(type,defaultHTML(type));
           if (block) block.after(next); else editor.append(next);
-          setSelected(next); focusBlock(next); sync();
+          wireBlock(next);setSelected(next); focusBlock(next); sync();
         });
         menu.append(button);
       });
@@ -213,9 +215,12 @@
       transform.className = 'ha-editor-block-transform';
       transform.setAttribute('aria-label','Transform block');
       TYPES.filter(([key]) => !['image','audio','video','embed','separator'].includes(key)).forEach(([key,label]) => {
-        const option = document.createElement('option'); option.value=key; option.textContent=label; transform.append(option);
+        if(key==='heading'){
+          [['h1','Heading 1'],['h2','Heading 2'],['h3','Heading 3'],['h4','Heading 4']].forEach(([value,text])=>{const option=document.createElement('option');option.value=value;option.textContent=text;transform.append(option);});
+        }else{const option = document.createElement('option'); option.value=key; option.textContent=label; transform.append(option);}
       });
-      transform.value = ['image','audio','video','embed','separator'].includes(type) ? 'paragraph' : type;
+      const currentContent=block.querySelector('[data-ha-block-content]')?.firstElementChild;
+      transform.value = /^H[1-4]$/.test(currentContent?.tagName||'') ? currentContent.tagName.toLowerCase() : (['image','audio','video','embed','separator','classic'].includes(type) ? 'paragraph' : type==='heading'?'h2':type);
       transform.addEventListener('change',() => transformBlock(block,transform.value));
       actions.append(transform);
 
@@ -229,8 +234,8 @@
       remove.addEventListener('click',() => {
         const next=block.nextElementSibling||block.previousElementSibling;
         block.remove();
-        if (!blocks().length) editor.append(makeBlock('paragraph','<p><br></p>'));
-        setSelected(next); sync();
+        if (!blocks().length){const empty=makeBlock('paragraph','<p><br></p>');editor.append(empty);wireBlock(empty);setSelected(empty);}
+        else setSelected(next); sync();
       });
       [up,down,duplicate,remove].forEach(button=>actions.append(button));
       block.querySelector('.ha-editor-add-after').addEventListener('click',event=>createMenu(event.currentTarget,block));
