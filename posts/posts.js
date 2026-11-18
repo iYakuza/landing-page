@@ -7,11 +7,12 @@
   const list = document.getElementById('posts-list');
   const search = document.getElementById('post-search');
   const categoryFilter = document.getElementById('category-filter');
+  const yearFilter = document.getElementById('post-year');
+  const controls = document.getElementById('posts-controls');
   const count = document.getElementById('post-count');
-  const emptySearch = document.getElementById('posts-empty-search');
   const requestedSlug = new URLSearchParams(window.location.search).get('post');
   const requestedMovement = String(document.body.dataset.movement || '').trim().toUpperCase();
-  const PAGE_SIZE=20, loadMoreButton=document.getElementById('posts-load-more');
+  const PAGE_SIZE=100, loadMoreButton=document.getElementById('posts-load-more');
   let postsOffset=0,postsHasMore=false;
   const isCommunityArchive=document.body.dataset.archive==='community';
   let posts = [];
@@ -70,14 +71,84 @@
     }catch{return '';}
   }
   const MOVEMENTS=['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'];
+  const CATEGORY_ORDER=[...MOVEMENTS,'UNASSIGNED','COMMUNITY SIGNAL'];
+  const expandedCategories=new Set(CATEGORY_ORDER);
+  let favoriteRecordIds=new Set();
+  let favoriteSaveError=false;
   function displayCategory(value){
     const category=String(value||'').trim().toUpperCase();
     return MOVEMENTS.includes(category)?category:(category==='HUMAN ARCHIVE'?'HUMAN ARCHIVE':(category.startsWith('COMMUNITY')?'COMMUNITY SIGNAL':'UNASSIGNED'));
   }
   function renderCategories(){
+    if(!categoryFilter)return;
     const selected=categoryFilter.value;
-    categoryFilter.innerHTML='<option value="">ALL MOVEMENTS</option>'+MOVEMENTS.map(c=>'<option value="'+safe(c)+'">'+safe(c)+'</option>').join('');
-    categoryFilter.value=MOVEMENTS.includes(selected)?selected:'';
+    const categories=isCommunityArchive?['COMMUNITY SIGNAL']:[...MOVEMENTS,'UNASSIGNED'];
+    categoryFilter.innerHTML='<option value="">ALL CATEGORIES</option>'+categories.map(c=>'<option value="'+safe(c)+'">'+safe(c)+'</option>').join('');
+    categoryFilter.value=categories.includes(selected)?selected:'';
+    const label=categoryFilter.closest('label');if(label)label.hidden=Boolean(requestedMovement)||isCommunityArchive;
+  }
+  function postDate(post){const stamp=String(post.published_at||post.created_at||'');return /^\d{4}-\d{2}-\d{2}/.test(stamp)?stamp.slice(0,10):'UNDATED';}
+  function postYear(post){const date=postDate(post);return date==='UNDATED'?'UNDATED':date.slice(0,4);}
+  function renderYears(){
+    if(!yearFilter)return;
+    const selected=yearFilter.value;
+    const years=[...new Set(posts.map(postYear).filter(value=>value!=='UNDATED'))].sort((a,b)=>Number(b)-Number(a));
+    yearFilter.innerHTML='<option value="">ALL YEARS</option>'+years.map(value=>'<option value="'+safe(value)+'">'+safe(value)+'</option>').join('');
+    yearFilter.value=years.includes(selected)?selected:'';
+  }
+  function renderPostMedia(post){
+    const items=Array.isArray(post.media_items)&&post.media_items.length?post.media_items.filter(item=>item&&typeof item.url==='string'):(post.media_url?[{url:post.media_url,type:post.media_type||'audio'}]:[]);
+    if(!items.length)return '';
+    const width=Math.max(20,Math.min(100,Number(post.media_width)||100));
+    return '<div class="post-media post-media-gallery" style="--post-media-width:'+width+'%">'+items.map((item,i)=>{
+      const url=validMediaUrl(item.url);if(!url)return '';
+      const type=item.type||item.media_type||'audio';
+      const fallback=url.includes('emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg')?'https://i0.wp.com/emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg?w=1024':'';
+      const label='Media '+(i+1)+' of '+items.length;
+      const content=type==='image'?'<a class="post-image-open" href="'+safe(url)+'" target="_blank" rel="noopener noreferrer" aria-label="Open full-size image: '+safe(post.title)+'"><img src="'+safe(url)+'"'+(fallback?' data-fallback-src="'+safe(fallback)+'"':'')+' alt="'+safe(post.title)+' — '+label+'" loading="lazy"></a>':type==='video'?'<video src="'+safe(url)+'" controls preload="metadata"></video>':'<audio src="'+safe(url)+'" controls preload="metadata"></audio>';
+      return '<div class="post-media-item">'+content+'</div>';
+    }).join('')+'</div>';
+  }
+  function renderPostRecordCard(post){
+    const category=displayCategory(post.category);
+    const movementSlugs={'THE AWAKENING':'the-awakening','THE DESCENT':'the-descent','THE RECONNECTION':'the-reconnection','THE TRANSFORMATION':'the-transformation','THE RETURN':'the-return'};
+    const href='/landing-page/posts/'+(movementSlugs[category]||'')+'/';
+    const categoryLink=movementSlugs[category]?'<a class="post-category" href="'+href+'" aria-label="Browse '+safe(category)+'">'+safe(category)+'</a>':'<span class="post-category">'+safe(category)+'</span>';
+    const media=renderPostMedia(post),body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
+    const isSuno=/class=["']suno-post-layout["']/.test(post.content_html||'');
+    const sections=(isSuno||/<details\b/i.test(post.content_html||''))?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
+    const date=postDate(post),year=postYear(post),archiveId=Number(post.archive_record_id),hasId=Number.isSafeInteger(archiveId)&&archiveId>0;
+    const recordId=hasId?String(archiveId):String(post.id||'UNKNOWN');
+    const code=hasId?'HA-'+year+'-'+String(archiveId).padStart(4,'0'):'HA-'+year+'-'+String(post.slug||'record').trim();
+    const favoriteId=hasId?String(archiveId):'',isFavorite=favoriteId&&favoriteRecordIds.has(favoriteId);
+    const mark=hasId?'<span class="ha-favorite-mark" data-ha-favorite-mark="'+favoriteId+'"'+(isFavorite?'':' hidden')+' aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><path d="M20 1 24.8 14.2 39 15.2 28 24.1 31.5 38 20 30.4 8.5 38 12 24.1 1 15.2 15.2 14.2Z"></path></svg></span>':'';
+    const kind=post.community?'COMMUNITY SIGNAL':'TRANSMISSION'+(post.status==='draft'?' // DRAFT':'');
+    const entry='<button type="button" class="ha-entry post-record-entry" data-post-toggle="'+safe(post.slug)+'" aria-expanded="false" aria-controls="post-content-'+safe(post.slug)+'" aria-label="Read local archive record: '+safe(post.title)+', '+safe(date)+'"><span class="ha-entry-top"><small class="ha-entry-code">'+safe(code)+'</small><small class="ha-entry-id">ID // '+safe(recordId)+'</small></span><strong>'+safe(post.title)+'</strong><span class="ha-entry-bottom"><small>'+safe(date)+' // '+safe(kind)+'</small><span data-post-read-label>READ LOCAL TEXT ↓</span></span>'+mark+'</button>';
+    const chamber=!post.community?'<div class="post-chamber-actions"><button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button><button type="button" class="post-chamber-button post-redesign-button" data-vha-edit-transmission="'+safe(post.slug)+'" aria-label="Redesign '+safe(post.title)+'"'+(canRedesignPosts?'':' hidden')+'>REDESIGN CHAMBER ↗</button></div>':'';
+    const favorite=hasId?'<button type="button" class="ha-favorite-toggle post-record-favorite" data-ha-favorite-id="'+favoriteId+'" aria-pressed="'+String(Boolean(isFavorite))+'" aria-label="'+(isFavorite?'Remove author favourite':'Mark as favourite')+'" title="'+(favoriteSaveError?'SAVE FAILED — ACTIVATE TO RETRY':(isFavorite?'REMOVE AUTHOR FAVOURITE':'MARK AS FAVOURITE'))+'"'+(canRedesignPosts?'':' hidden')+'>'+(isFavorite?'★':'☆')+'</button>':'';
+    const actions='<div class="ha-entry-quick-actions post-record-quick-actions" hidden>'+chamber+favorite+shareActions(post)+'</div>';
+    const excerpt=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
+    const expanded=isSuno?renderSunoGrid(post,media,'',''):media+body;
+    const empty=!post.content_html&&!media?'<p class="ha-empty-record">No local text was captured for this entry.</p>':'';
+    const content='<div class="ha-entry-content post-collapsible post-record-content'+(isSuno?' suno-three-column':'')+'" id="post-content-'+safe(post.slug)+'" hidden><div class="post-record-content-meta">'+categoryLink+sections+'</div>'+excerpt+expanded+empty+'</div>';
+    return '<article class="ha-record-card post-record-card" id="post-'+safe(post.slug)+'" data-record="'+safe(code)+'">'+entry+actions+content+'</article>';
+  }
+  function renderPostPermalink(post){
+    const back='<p class="post-back"><a href="./">← BACK TO THE ARCHIVE</a></p>';
+    const media=renderPostMedia(post);
+    const mediaItems=Array.isArray(post.media_items)&&post.media_items.length?post.media_items.filter(item=>item&&typeof item.url==='string'):(post.media_url?[{url:post.media_url,type:post.media_type||'audio'}]:[]);
+    const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
+    const chamber=!post.community?'<div class="post-chamber-actions"><button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button><button type="button" class="post-chamber-button post-redesign-button" data-vha-edit-transmission="'+safe(post.slug)+'" aria-label="Redesign '+safe(post.title)+'"'+(canRedesignPosts?'':' hidden')+'>REDESIGN CHAMBER ↗</button></div>':'';
+    if(/class=["']suno-post-layout["']/.test(post.content_html||'')){
+      const excerpt=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
+      const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+chamber+'</div>';
+      const titleRow='<div class="suno-post-title-row"><h3>'+safe(post.title)+'</h3><button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button></div>';
+      return renderSunoColumns(post,media,'',excerpt,lead,titleRow,back,'shape-square');
+    }
+    const detail='<div class="post-detail-copy">'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'</div>';
+    const detailMedia=media?'<aside class="post-detail-media" aria-label="Transmission media">'+media+'<p class="post-media-caption">TRANSMISSION MEDIA // '+mediaItems.length+' FILE(S)</p></aside>':'';
+    const sections=/<details\b/i.test(post.content_html||'')?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
+    return '<article class="post-card shape-square" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+sections+chamber+'</div><h3>'+safe(post.title)+'</h3><div class="post-detail-grid">'+detail+detailMedia+'</div>'+shareActions(post)+back+'</article>';
   }
   function shareActions(post){
     const postUrl=new URL(window.location.pathname,window.location.origin);
@@ -193,81 +264,46 @@
   }
   function render(){
     const permalink=Boolean(requestedSlug);
-    const term=search.value.trim().toLowerCase(),category=categoryFilter.value;
-    const filtered=(permalink
-      ? posts.filter(post=>post.slug===requestedSlug)
-      : posts.filter(post=>displayCategory(post.category)!=='HUMAN ARCHIVE'&&(!requestedMovement||displayCategory(post.category)===requestedMovement)&&(!category||displayCategory(post.category)===category)&&[post.title,post.category,post.excerpt,post.content_html].join(' ').replace(/<[^>]*>/g,' ').toLowerCase().includes(term)))
-      .sort((a,b)=>new Date(b.published_at||b.created_at)-new Date(a.published_at||a.created_at));
+    if(controls)controls.hidden=permalink;
+    const searchLabel=search?.closest('label'),categoryLabel=categoryFilter?.closest('label'),yearLabel=yearFilter?.closest('label');
     if(permalink){
-      search.closest('label')?.setAttribute('hidden','');
-      categoryFilter.closest('label')?.setAttribute('hidden','');
-      count.textContent=filtered.length?'SINGLE TRANSMISSION':'TRANSMISSION NOT FOUND';
-    }else{
-      count.textContent=String(filtered.length).padStart(2,'0')+' TRANSMISSION'+(filtered.length===1?'':'S');
-      if(requestedMovement)count.textContent=String(filtered.length).padStart(2,'0')+' / '+requestedMovement;
-    }
-    emptySearch.hidden=filtered.length>0;
-    if(!filtered.length){
-      list.innerHTML=permalink
-        ? '<p class="posts-empty">THIS TRANSMISSION COULD NOT BE FOUND. IT MAY HAVE BEEN MOVED OR UNPUBLISHED. <a href="./">RETURN TO THE ARCHIVE ↗</a></p>'
-        : '';
+      searchLabel?.setAttribute('hidden','');categoryLabel?.setAttribute('hidden','');yearLabel?.setAttribute('hidden','');
+      const found=posts.find(post=>post.slug===requestedSlug);
+      count.textContent=found?'SINGLE TRANSMISSION':'TRANSMISSION NOT FOUND';
+      if(!found){list.innerHTML='<p class="ha-empty">THIS TRANSMISSION COULD NOT BE FOUND. IT MAY HAVE BEEN MOVED OR UNPUBLISHED. <a href="./">RETURN TO THE ARCHIVE ↗</a></p>';return;}
+      list.innerHTML=renderPostPermalink(found);
+      document.title=found.title+' // VERSE AFTER HOURS';
+      requestAnimationFrame(()=>list.querySelector('.post-card')?.scrollIntoView({behavior:'smooth',block:'start'}));
       return;
     }
-    list.innerHTML=filtered.map((post,index)=>{
-      const permalinkBack=permalink?'<p class="post-back"><a href="./">← BACK TO THE ARCHIVE</a></p>':'';
-      const mediaItems=Array.isArray(post.media_items)&&post.media_items.length?post.media_items.filter(item=>item&&typeof item.url==='string'):(post.media_url?[{url:post.media_url,type:post.media_type||'audio'}]:[]);
-      const mediaWidth=Math.max(20,Math.min(100,Number(post.media_width)||100));
-      const media=mediaItems.length?'<div class="post-media post-media-gallery" style="--post-media-width:'+mediaWidth+'%">'+mediaItems.map((item,itemIndex)=>{
-        const url=validMediaUrl(item.url);if(!url)return '';
-        const type=item.type||item.media_type||'audio';
-        const fallback=url.includes('emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg')?'https://i0.wp.com/emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg?w=1024':'';
-        const label='Media '+(itemIndex+1)+' of '+mediaItems.length;
-        const content=type==='image'?'<a class="post-image-open" href="'+safe(url)+'" target="_blank" rel="noopener noreferrer" aria-label="Open full-size image: '+safe(post.title)+'"><img src="'+safe(url)+'"'+(fallback?' data-fallback-src="'+safe(fallback)+'"':'')+' alt="'+safe(post.title)+' — '+label+'" loading="lazy"></a>':type==='video'?'<video src="'+safe(url)+'" controls preload="metadata"></video>':'<audio src="'+safe(url)+'" controls preload="metadata"></audio>';
-        return '<div class="post-media-item">'+content+'</div>';
-      }).join('')+'</div>':'';
-      const shapeClass=['shape-i','shape-l','shape-square','shape-t','shape-z','shape-j','shape-s'][index%7];
-      if(permalink){
-        const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
-        const chamberButton=!post.community?'<div class="post-chamber-actions"><button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button><button type="button" class="post-chamber-button post-redesign-button" data-vha-edit-transmission="'+safe(post.slug)+'" aria-label="Redesign '+safe(post.title)+'"'+(canRedesignPosts?'':' hidden')+'>REDESIGN CHAMBER ↗</button></div>':'';
-        if(/class=["']suno-post-layout["']/.test(post.content_html||'')){
-          const titleHtml='';
-          const excerptHtml=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
-          const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+chamberButton+'</div>';
-          const titleRow='<div class="suno-post-title-row"><h3>'+safe(post.title)+'</h3><button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button></div>';
-          return renderSunoColumns(post,media,titleHtml,excerptHtml,lead,titleRow,permalinkBack,shapeClass);
-        }
-        const detailCopy='<div class="post-detail-copy">'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'</div>';
-        const detailMedia=media?'<aside class="post-detail-media" aria-label="Transmission media">'+media+'<p class="post-media-caption">TRANSMISSION MEDIA // '+mediaItems.length+' FILE(S)</p></aside>':'';
-        const sectionsControl=/<details\\b/i.test(post.content_html||'')?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
-        return '<article class="post-card '+shapeClass+'" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+sectionsControl+chamberButton+'</div><h3>'+safe(post.title)+'</h3><div class="post-detail-grid">'+detailCopy+detailMedia+'</div>'+shareActions(post)+permalinkBack+'</article>';
-      }
-      // Render creator posts using the Human Archive record-plate layout.
-      const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
-      const chamberButton=!post.community?'<div class="post-chamber-actions"><button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button><button type="button" class="post-chamber-button post-redesign-button" data-vha-edit-transmission="'+safe(post.slug)+'" aria-label="Redesign '+safe(post.title)+'"'+(canRedesignPosts?'':' hidden')+'>REDESIGN CHAMBER ↗</button></div>':'';
-      const movementSlugs={'THE AWAKENING':'the-awakening','THE DESCENT':'the-descent','THE RECONNECTION':'the-reconnection','THE TRANSFORMATION':'the-transformation','THE RETURN':'the-return'};
-      const movementHref='/landing-page/posts/'+(movementSlugs[displayCategory(post.category)]||'')+'/';
-      const categoryLink='<a class="post-category" href="'+movementHref+'" aria-label="Browse '+safe(displayCategory(post.category))+'">'+safe(displayCategory(post.category))+'</a>';
-      const isSuno=/class=["']suno-post-layout["']/.test(post.content_html||'');
-      const sectionsControl=(isSuno||/<details\b/i.test(post.content_html||''))?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
-      const stamp=String(post.published_at||post.created_at||'');
-      const recordDate=/^\d{4}-\d{2}-\d{2}/.test(stamp)?stamp.slice(0,10):'UNDATED';
-      const recordYear=recordDate==='UNDATED'?'UNDATED':recordDate.slice(0,4);
-      const archiveId=Number(post.archive_record_id);
-      const hasArchiveId=Number.isSafeInteger(archiveId)&&archiveId>0;
-      const recordId=hasArchiveId?String(archiveId):String(post.id||'UNKNOWN');
-      const recordCode=hasArchiveId?'HA-'+recordYear+'-'+String(archiveId).padStart(4,'0'):'HA-'+recordYear+'-'+String(post.slug||'record').trim();
-      const sourceLabel=post.community?'COMMUNITY SIGNAL':'TRANSMISSION'+(post.status==='draft'?' // DRAFT':'');
-      const entry='<button type="button" class="ha-entry post-record-entry" data-post-toggle="'+safe(post.slug)+'" aria-expanded="false" aria-controls="post-content-'+safe(post.slug)+'" aria-label="Read local archive record: '+safe(post.title)+', '+safe(recordDate)+'"><span class="ha-entry-top"><small class="ha-entry-code">'+safe(recordCode)+'</small><small class="ha-entry-id">ID // '+safe(recordId)+'</small></span><strong>'+safe(post.title)+'</strong><span class="ha-entry-bottom"><small>'+safe(recordDate)+' // '+safe(sourceLabel)+'</small><span data-post-read-label>READ LOCAL TEXT ↓</span></span></button>';
-      const excerptHtml=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
-      const expandedBody=isSuno?renderSunoGrid(post,media,'',''):media+body;
-      const expandedContent='<div class="ha-entry-content post-collapsible post-record-content'+(isSuno?' suno-three-column':'')+'" id="post-content-'+safe(post.slug)+'" hidden><div class="post-record-content-meta">'+categoryLink+sectionsControl+'</div>'+excerptHtml+expandedBody+'</div>';
-      const quickActions='<div class="post-record-quick-actions" hidden>'+chamberButton+shareActions(post)+'</div>';
-      return '<article class="post-card ha-record-card post-record-card" id="post-'+safe(post.slug)+'" data-record="'+safe(recordCode)+'">'+entry+quickActions+expandedContent+'</article>';
+    searchLabel?.removeAttribute('hidden');yearLabel?.removeAttribute('hidden');
+    if(categoryLabel)categoryLabel.hidden=Boolean(requestedMovement)||isCommunityArchive;
+    const query=search.value.trim().toLowerCase(),selectedCategory=categoryFilter?.value||'',selectedYear=yearFilter?.value||'';
+    const scoped=posts.filter(post=>displayCategory(post.category)!=='HUMAN ARCHIVE'&&(!requestedMovement||displayCategory(post.category)===requestedMovement));
+    const visible=scoped.filter(post=>{
+      const searchable=[post.title,post.category,post.excerpt,post.content_html,post.slug,post.archive_record_id,postDate(post)].join(' ').replace(/<[^>]*>/g,' ').toLowerCase();
+      return (!selectedCategory||displayCategory(post.category)===selectedCategory)&&(!selectedYear||postYear(post)===selectedYear)&&(!query||searchable.includes(query));
+    });
+    visible.sort((a,b)=>postDate(b).localeCompare(postDate(a))||Number(b.archive_record_id||b.id)-Number(a.archive_record_id||a.id));
+    count.textContent=visible.length+' / '+scoped.length+' RECORDS';
+    list.classList.add('ha-list');
+    if(!visible.length){list.innerHTML='<p class="ha-empty">NO RECORDS MATCH THIS SEARCH. TRY ANOTHER CATEGORY, WORD OR YEAR.</p>';return;}
+    const groups=selectedCategory?[selectedCategory]:CATEGORY_ORDER.filter(name=>visible.some(post=>displayCategory(post.category)===name));
+    list.innerHTML=groups.map(name=>{
+      const items=visible.filter(post=>displayCategory(post.category)===name);
+      if(!items.length)return '';
+      const open=expandedCategories.has(name),categoryId='post-category-'+slugify(name);
+      const entries=items.map(post=>renderPostRecordCard(post)).join('');
+      return '<section class="ha-category-group" data-category="'+safe(name)+'"><div class="ha-category-heading"><button type="button" class="ha-category-toggle" data-ha-category-toggle="'+safe(name)+'" aria-expanded="'+String(open)+'" aria-controls="'+categoryId+'"><span class="ha-category-title">'+safe(name)+'</span><span class="ha-category-marker" aria-hidden="true">'+(open?'−':'+')+'</span></button><span class="ha-category-total">'+String(items.length).padStart(2,'0')+' RECORDS</span></div><div class="ha-category-entries" id="'+categoryId+'"'+(open?'':' hidden')+'>'+entries+'</div></section>';
     }).join('');
-    if(permalink){
-      document.title=filtered[0].title+' // VERSE AFTER HOURS';
-      requestAnimationFrame(()=>list.querySelector('.post-card')?.scrollIntoView({behavior:'smooth',block:'start'}));
-    }
+    list.querySelectorAll('[data-ha-category-toggle]').forEach(toggle=>{
+      toggle.addEventListener('click',()=>{
+        const name=toggle.dataset.haCategoryToggle,open=toggle.getAttribute('aria-expanded')!=='true';
+        const group=toggle.closest('.ha-category-group'),entries=group?.querySelector('.ha-category-entries'),marker=toggle.querySelector('.ha-category-marker');
+        toggle.setAttribute('aria-expanded',String(open));if(entries)entries.hidden=!open;if(marker)marker.textContent=open?'−':'+';
+        if(open)expandedCategories.add(name);else expandedCategories.delete(name);
+      });
+    });
   }
   async function loadMorePosts(){
     if(!client||!postsHasMore||!loadMoreButton)return;
@@ -281,30 +317,45 @@
       postsOffset+=rows.length;postsHasMore=rows.length===PAGE_SIZE;
       const additions=isCommunityArchive?rows.map(item=>({id:item.id,title:item.title,slug:item.slug,category:'COMMUNITY SIGNAL',excerpt:item.byline?'TRANSMITTED BY '+item.byline:'COMMUNITY SUBMISSION',content_html:item.body?'<p>'+safe(item.body).replace(/\\n/g,'<br>')+'</p>':'',media_url:item.media_url,media_type:item.medium==='photograph'?'image':item.medium==='video'?'video':'audio',created_at:item.created_at,published_at:item.published_at||item.created_at,community:true})):rows.map(p=>({...p,community:false}));
       posts=[...posts,...additions].sort((a,b)=>new Date(b.published_at||b.created_at)-new Date(a.published_at||a.created_at));
-      render();loadMoreButton.hidden=!postsHasMore;
+      renderYears();render();loadMoreButton.hidden=!postsHasMore;
     }catch(error){loadMoreButton.textContent='RETRY LOADING OLDER POSTS ↓';}
     finally{loadMoreButton.disabled=false;if(postsHasMore)loadMoreButton.textContent='LOAD OLDER TRANSMISSIONS ↓';}
   }
+  async function loadPostFavorites(){
+    if(!client||!canRedesignPosts){favoriteRecordIds.clear();return;}
+    try{const {data,error}=await client.from('human_archive_favorites').select('record_id');if(error)throw error;favoriteRecordIds=new Set((data||[]).map(item=>String(item.record_id)));favoriteSaveError=false;}
+    catch(error){console.warn('Human Archive favourites could not be loaded on Posts:',error);favoriteRecordIds.clear();}
+  }
   async function refreshPostEditorAccess(sessionOverride){
-    if(!client){canRedesignPosts=false;return false;}
+    if(!client){canRedesignPosts=false;favoriteRecordIds.clear();return false;}
     try{
       let session=sessionOverride;
-      if(sessionOverride===undefined){
-        const result=await client.auth.getSession();
-        if(result.error)throw result.error;
-        session=result.data?.session;
-      }
-      if(!session?.user){canRedesignPosts=false;render();return false;}
+      if(sessionOverride===undefined){const result=await client.auth.getSession();if(result.error)throw result.error;session=result.data?.session;}
+      if(!session?.user){canRedesignPosts=false;favoriteRecordIds.clear();render();return false;}
       const {data,error}=await client.from('vha_cms_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
       if(error)throw error;
-      canRedesignPosts=Boolean(data);
-      render();
-      return canRedesignPosts;
-    }catch(error){
-      canRedesignPosts=false;
-      console.warn('Posts redesign controls could not verify CMS admin access:',error);
-      render();
-      return false;
+      canRedesignPosts=Boolean(data);await loadPostFavorites();render();return canRedesignPosts;
+    }catch(error){canRedesignPosts=false;favoriteRecordIds.clear();console.warn('Posts redesign controls could not verify CMS admin access:',error);render();return false;}
+  }
+  async function togglePostFavorite(recordId,button){
+    const id=String(recordId||'');
+    if(!canRedesignPosts||!client||!/^[0-9]+$/.test(id)||button.disabled)return;
+    const wasFavorite=favoriteRecordIds.has(id);
+    document.querySelectorAll('[data-ha-favorite-id="'+id+'"]').forEach(control=>{control.disabled=true;});
+    favoriteSaveError=false;
+    try{
+      const result=wasFavorite?await client.from('human_archive_favorites').delete().eq('record_id',Number(id)):await client.from('human_archive_favorites').insert({record_id:Number(id)});
+      if(result.error&&!(result.error.code==='23505'&&!wasFavorite))throw result.error;
+      if(wasFavorite)favoriteRecordIds.delete(id);else favoriteRecordIds.add(id);
+    }catch(error){favoriteSaveError=true;console.error('Posts archive favourite could not be saved:',error);}
+    finally{
+      document.querySelectorAll('[data-ha-favorite-id="'+id+'"]').forEach(control=>{
+        control.disabled=false;const saved=favoriteRecordIds.has(id);
+        control.setAttribute('aria-pressed',String(saved));control.textContent=saved?'★':'☆';
+        control.title=favoriteSaveError?'SAVE FAILED — ACTIVATE TO RETRY':(saved?'REMOVE AUTHOR FAVOURITE':'MARK AS FAVOURITE');
+        control.setAttribute('aria-label',saved?'Remove author favourite':'Mark as favourite');
+      });
+      document.querySelectorAll('[data-ha-favorite-mark="'+id+'"]').forEach(mark=>{mark.hidden=!favoriteRecordIds.has(id);});
     }
   }
   if(client){
@@ -316,7 +367,7 @@
     postsOffset=0;
     try{
       const queries=Promise.all([
-        isCommunityArchive ? Promise.resolve({data:[],error:null}) : client.from('vha_posts').select('id,archive_record_id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,media_items,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(0,PAGE_SIZE-1),
+        isCommunityArchive ? Promise.resolve({data:[],error:null}) : client.from('vha_posts').select('id,archive_record_id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,media_items,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(0,PAGE_SIZE-1),
         isCommunityArchive ? client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(0,PAGE_SIZE-1) : Promise.resolve({data:[],error:null})
       ]);
       let timeoutId;
@@ -337,6 +388,7 @@
       }));
       posts=[...ownerPosts.map(p=>({...p,community:false})),...communityPosts].sort((a,b)=>new Date(b.published_at||b.created_at)-new Date(a.published_at||a.created_at));
       renderCategories();
+      renderYears();
       render();
     }catch(error){
       console.error('Archive loading failed:',error);
@@ -373,9 +425,11 @@
       openImageViewer(image?.currentSrc||image?.src||imageLink.href,image?.alt||imageLink.getAttribute('aria-label')||'',imageLink);
       return;
     }
+    const favoriteButton=event.target.closest('[data-ha-favorite-id]');
+    if(favoriteButton){event.preventDefault();event.stopPropagation();await togglePostFavorite(favoriteButton.dataset.haFavoriteId,favoriteButton);return;}
     const sectionsButton=event.target.closest('[data-post-sections-toggle]');
     if(sectionsButton){
-      const article=sectionsButton.closest('.post-card');
+      const article=sectionsButton.closest('.post-card, .post-record-card');
       if(article){
         const details=[...article.querySelectorAll('details')];
         const opening=details.some(section=>!section.open);
@@ -613,26 +667,5 @@
       finally{submissionButton.disabled=false;}
     });
   }
-  const movementIndex=document.querySelector('.movement-index');
-  movementIndex?.addEventListener('click',event=>{
-    const button=event.target.closest('[data-movement-filter]');
-    if(!button)return;
-    event.preventDefault();
-    const value=button.dataset.movementFilter||'';
-    if(categoryFilter)categoryFilter.value=value;
-    movementIndex.querySelectorAll('[data-movement-filter]').forEach(item=>{
-      const active=item===button;
-      item.classList.toggle('movement-current',active);
-      item.setAttribute('aria-pressed',String(active));
-    });
-    render();
-  });
-  categoryFilter?.addEventListener('change',()=>{
-    movementIndex?.querySelectorAll('[data-movement-filter]').forEach(item=>{
-      const active=item.dataset.movementFilter===categoryFilter.value;
-      item.classList.toggle('movement-current',active);
-      item.setAttribute('aria-pressed',String(active));
-    });
-  });
-  search.addEventListener('input',render);categoryFilter.addEventListener('change',render);loadMoreButton?.addEventListener('click',loadMorePosts);load();
+  search.addEventListener('input',render);categoryFilter?.addEventListener('change',render);yearFilter?.addEventListener('change',render);loadMoreButton?.addEventListener('click',loadMorePosts);load();
 })();

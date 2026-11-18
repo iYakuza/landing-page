@@ -9,7 +9,7 @@
   <meta name="description" content="The alchemy of change. Old forms loosen, new meanings take shape, and the self becomes something in motion.">
   <title>THE TRANSFORMATION — Verse After Hours</title>
   <link rel="stylesheet" href="../../green-dream/style.css?v=20261102-palette-3">
-  <link rel="stylesheet" href="../posts.css?v=20261118-human-archive-entry-layout-1">
+  <link rel="stylesheet" href="../posts.css?v=20261118-human-archive-parity-2">
   <link rel="stylesheet" href="/landing-page/tools.css?v=20261105-mood-contrast-regression-2">
   <link rel="stylesheet" href="/landing-page/game-ui.css?v=20261114-crystal-only-nav-1">
   <link rel="stylesheet" href="/landing-page/typography.css?v=20261106-type-1">
@@ -41,16 +41,20 @@
       <p class="gd-kicker">VERSE AFTER HOURS // FIVE MOVEMENTS</p>
       <h1>IV. <em>TRANSFORMATION.</em></h1>
       <p class="posts-intro">The alchemy of change. Old forms loosen, new meanings take shape, and the self becomes something in motion.</p>
-      <div class="posts-meta"><span>THE FIVE MOVEMENTS / CATEGORY ARCHIVE</span><span id="post-count">CONNECTING…</span></div>
+      <div class="posts-meta"><span>THE FIVE MOVEMENTS / CATEGORY ARCHIVE</span><span>HUMAN ARCHIVE // TRANSMISSIONS</span></div>
     </section>
-    <section class="posts-content" aria-labelledby="archive-title">
-      <div class="posts-heading"><div><p class="gd-kicker">IV. THE TRANSFORMATION</p><h2 id="archive-title">TRANSMISSIONS <em>IN THIS MOVEMENT</em></h2></div>
-        <label class="posts-search"><span class="sr-only">Search posts in this movement</span><input id="post-search" type="search" placeholder="SEARCH THIS MOVEMENT…" autocomplete="off"></label>
-      </div>
-      <nav class="movement-index" aria-label="Browse the five movements"><a href="../the-awakening/">THE AWAKENING</a><a href="../the-descent/">THE DESCENT</a><a href="../the-reconnection/">THE RECONNECTION</a><a class="movement-current" aria-current="page" href="../the-transformation/">THE TRANSFORMATION</a><a href="../the-return/">THE RETURN</a></nav>
-      <select id="category-filter" hidden aria-hidden="true"><option value=""></option></select>
-      <div id="posts-list" class="posts-list" aria-live="polite"><p class="posts-empty">CONNECTING TO THE ARCHIVE…</p></div>
-      <p id="posts-empty-search" class="posts-empty" hidden>NO MATCHING TRANSMISSIONS IN THIS MOVEMENT. TRY ANOTHER SEARCH.</p>
+    <section class="posts-content" aria-label="Transmissions archive">
+      <div class="ha-controls" id="posts-controls" role="search" aria-label="Filter transmissions">
+        <label for="post-search">SEARCH TRANSMISSIONS</label>
+        <input id="post-search" type="search" placeholder="A title, a word, a year…" autocomplete="off">
+        <label for="category-filter">CATEGORY</label>
+        <select id="category-filter"><option value="">ALL CATEGORIES</option></select>
+        <label for="post-year">YEAR</label>
+        <select id="post-year"><option value="">ALL YEARS</option></select>
+        <span class="ha-count" id="post-count" aria-live="polite">LOADING INDEX…</span>
+      </div><div id="posts-list" class="posts-list ha-list" aria-live="polite"><p class="posts-empty">CONNECTING TO THE ARCHIVE…</p></div>
+      <button type="button" id="posts-load-more" class="cms-text-button" hidden>LOAD OLDER TRANSMISSIONS ↓</button>
+      
       <button type="button" class="movement-back movement-create" data-vha-new-transmission hidden>＋ NEW TRANSMISSION</button>
       <a class="movement-back" href="../">← VIEW ALL TRANSMISSIONS</a>
     </section>
@@ -58,7 +62,7 @@
   <footer class="gd-footer"><span>THE CITY IS LOUD. LEAVE A TRACE.</span></footer>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
-<script src="../posts.js?v=20261118-human-archive-entry-layout-1"></script>
+<script src="../posts.js?v=20261118-human-archive-parity-2"></script>
   <script src="/landing-page/tools.js?v=20261105-crystal-shared-9"></script>
 <script src="/landing-page/creator-posting.js?v=20261118-posts-edit-access-2" defer></script>
 <script src="/landing-page/analytics.js?v=20261028-free-1" defer></script>
