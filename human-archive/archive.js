@@ -632,6 +632,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
 
  grid.replaceChildren();
  const metadataDetails=makeChamberDisclosure('00 // RECORD DETAILS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-metadata-panel','ha-chamber-panel-heading');
+ metadataDetails.details.open=false;
+ if(expandButton)expandButton.hidden=true;
  const metadataFields=makeChamberNode('div','ha-chamber-metadata-grid');
  const addMetadataField=(labelText,name,value,options={})=>{
   const wrap=makeChamberNode('label','ha-chamber-metadata-field');
