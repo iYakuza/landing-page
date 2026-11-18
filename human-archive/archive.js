@@ -179,7 +179,7 @@ function appendMediaLink(parent,item,record,used){
 }
 function appendSafeContent(container,source,record,used){
  const doc=new DOMParser().parseFromString(String(source||''),'text/html');
- const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','H4','UL','OL','LI','BLOCKQUOTE','HR','PRE','CODE','A','FIGURE','FIGCAPTION','DIV','SPAN','SMALL','SUP','SUB','TABLE','THEAD','TBODY','TR','TH','TD']);
+ const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','H4','UL','OL','LI','BLOCKQUOTE','HR','PRE','CODE','A','FIGURE','FIGCAPTION','DIV','SPAN','SMALL','SUP','SUB','TABLE','THEAD','TBODY','TR','TH','TD']);
  const blocked=new Set(['SCRIPT','STYLE','OBJECT','EMBED','SVG','MATH','FORM','INPUT','BUTTON','TEXTAREA','SELECT','OPTION','LINK','META']);
  const iframeHosts=new Set(['www.youtube.com','www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com']);
  const layoutClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response']);
@@ -251,6 +251,8 @@ function appendSafeContent(container,source,record,used){
   }
   if(tag==='TD'||tag==='TH'){const span=node.getAttribute('colspan');if(span&&/^\d{1,2}$/.test(span))el.colSpan=Number(span);}
   if(node.hasAttribute('class')){const classes=(node.getAttribute('class')||'').split(/\s+/).filter(name=>layoutClasses.has(name));if(classes.length)el.className=classes.join(' ');}
+  const alignment=(node.style?.textAlign||'').toLowerCase();
+  if(['left','center','right','justify'].includes(alignment))el.style.textAlign=alignment;
   node.childNodes.forEach(child=>copy(child,el));parent.append(el);
  }
  doc.body.childNodes.forEach(node=>copy(node,container));
@@ -530,7 +532,7 @@ function bindChamberDisclosureControls(grid,button){
 }
 function sanitizeTransmissionBody(source){
  const parsed=new DOMParser().parseFromString(String(source||''),'text/html');
- const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','BLOCKQUOTE','UL','OL','LI','A','HR','CODE','PRE','DIV','SECTION','ASIDE','DETAILS','SUMMARY']);
+ const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','BLOCKQUOTE','UL','OL','LI','A','HR','CODE','PRE','DIV','SECTION','ASIDE','DETAILS','SUMMARY']);
  const allowedClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response']);
  function copy(node,parent){
   if(node.nodeType===Node.TEXT_NODE){parent.append(document.createTextNode(node.nodeValue||''));return;}
@@ -545,6 +547,8 @@ function sanitizeTransmissionBody(source){
    const classes=(node.getAttribute('class')||'').split(/\s+/).filter(name=>allowedClasses.has(name));
    if(classes.length)element.className=classes.join(' ');
   }
+  const alignment=(node.style?.textAlign||'').toLowerCase();
+  if(['left','center','right','justify'].includes(alignment))element.style.textAlign=alignment;
   node.childNodes.forEach(child=>copy(child,element));parent.append(element);
  }
  const fragment=document.createDocumentFragment();
@@ -561,16 +565,14 @@ function makeChamberTransmissionBody(record,grid,structure){
 }
 function makeChamberTextPanel(record,grid,structure){
  const panel=makeChamberDisclosure('02 // PROMPT STYLE','ha-chamber-panel','ha-chamber-panel-heading');
- panel.body.append(makeChamberNode('div','ha-chamber-structure-text',structure.prompt_style||'No prompt style has been saved for this record yet.'));
- grid.append(panel.details);
+ const promptText=makeChamberNode('div','ha-chamber-structure-text');promptText.innerHTML=sanitizeTransmissionBody(structure.prompt_style)||'No prompt style has been saved for this record yet.';panel.body.append(promptText);grid.append(panel.details);
  const lyrics=makeChamberDisclosure('03 // LYRICS STYLE','ha-chamber-panel','ha-chamber-panel-heading');
- lyrics.body.append(makeChamberNode('div','ha-chamber-structure-text',structure.lyrics_style||'No lyrics-style notes have been saved for this record yet.'));
- grid.append(lyrics.details);
+ const lyricsText=makeChamberNode('div','ha-chamber-structure-text');lyricsText.innerHTML=sanitizeTransmissionBody(structure.lyrics_style)||'No lyrics-style notes have been saved for this record yet.';lyrics.body.append(lyricsText);grid.append(lyrics.details);
 }
 function appendChamberOutputView(record,grid,structure){
  const output=makeChamberDisclosure('04 // OUTPUT','ha-chamber-panel ha-chamber-output','ha-chamber-panel-heading');
  const text=makeChamberDisclosure('TEXT','ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
- text.body.append(makeChamberNode('div','ha-chamber-text',structure.output_text||'No output text has been saved for this record yet.'));
+ const outputText=makeChamberNode('div','ha-chamber-text');outputText.innerHTML=sanitizeTransmissionBody(structure.output_text)||'No output text has been saved for this record yet.';text.body.append(outputText);
  output.body.append(text.details);
  ['image','audio','video'].forEach(type=>{
   const child=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
@@ -867,25 +869,22 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const transmissionHint=makeChamberNode('span','ha-rich-editor-hint','WRITE, FORMAT AND SHAPE THE ORIGINAL TRANSMISSION');
  const focusButton=makeChamberNode('button','ha-chamber-focus-toggle','T');focusButton.type='button';focusButton.setAttribute('aria-pressed','false');
  transmissionTop.append(transmissionHint,focusButton);
- const toolbar=makeChamberNode('div','ha-rich-toolbar');toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','Transmission formatting');
- [['B','bold'],['I','italic'],['U','underline'],['H2','formatBlock','h2'],['H3','formatBlock','h3'],['QUOTE','formatBlock','blockquote'],['• LIST','insertUnorderedList'],['1. LIST','insertOrderedList']].forEach(([label,command,value])=>{
-  const button=makeChamberNode('button','',label);button.type='button';button.dataset.command=command;if(value)button.dataset.value=value;toolbar.append(button);
- });
+ const toolbar=makeChamberNode('div','ha-rich-toolbar');toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','Shared text formatting tools');
+ const formattingTools=[['B','bold'],['I','italic'],['U','underline'],['S','strikeThrough'],['P','formatBlock','p'],['H1','formatBlock','h1'],['H2','formatBlock','h2'],['H3','formatBlock','h3'],['QUOTE','formatBlock','blockquote'],['• LIST','insertUnorderedList'],['1. LIST','insertOrderedList'],['LEFT','justifyLeft'],['CENTER','justifyCenter'],['RIGHT','justifyRight'],['HR','insertHorizontalRule'],['UNDO','undo'],['REDO','redo'],['CLEAR','removeFormat']];
+ formattingTools.forEach(([label,command,value])=>{const button=makeChamberNode('button','',label);button.type='button';button.dataset.command=command;if(value)button.dataset.value=value;button.title=label;toolbar.append(button);});
  const insertLinkButton=makeChamberNode('button','ha-rich-link','LINK');insertLinkButton.type='button';toolbar.append(insertLinkButton);
+ const unlinkButton=makeChamberNode('button','','UNLINK');unlinkButton.type='button';unlinkButton.dataset.command='unlink';toolbar.append(unlinkButton);
  const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable=readOnly?'false':'true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Transmission body');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Write the transmission body…';transmissionEditor.innerHTML=sanitizeTransmissionBody(record.source_type==='transmission'?(record.content_html||structure.transmission_body):(structure.transmission_body||record.content_html||''));
- transmission.body.append(transmissionTop,toolbar,transmissionEditor);grid.append(transmission.details);
+ transmission.body.append(transmissionTop,transmissionEditor);grid.append(transmission.details,toolbar);
  if(postLayoutControls){postLayoutControls.transmissionDetails=transmission.details;postLayoutControls.transmissionEditor=transmissionEditor;postLayoutControls.sync();}
- const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
  const prompt=makeChamberDisclosure('02 // PROMPT STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
- const promptArea=document.createElement('textarea');promptArea.className='ha-chamber-editor-field';promptArea.name='prompt_style';promptArea.rows=9;
- promptArea.value=structure.prompt_style;promptArea.placeholder='Paste or write the AI / Suno style prompt…';prompt.body.append(promptArea);grid.append(prompt.details);
+ const promptArea=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');promptArea.contentEditable=readOnly?'false':'true';promptArea.name='prompt_style';promptArea.setAttribute('role','textbox');promptArea.setAttribute('aria-multiline','true');promptArea.setAttribute('aria-label','Prompt style');promptArea.dataset.placeholder='Paste or write the AI / Suno style prompt…';promptArea.innerHTML=sanitizeTransmissionBody(structure.prompt_style);prompt.body.append(promptArea);grid.append(prompt.details);
  const lyrics=makeChamberDisclosure('03 // LYRICS STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
- const lyricsArea=document.createElement('textarea');lyricsArea.className='ha-chamber-editor-field';lyricsArea.name='lyrics_style';lyricsArea.rows=9;
- lyricsArea.value=structure.lyrics_style;lyricsArea.placeholder='Add lyric instructions, structure, vocal direction or generation notes…';lyrics.body.append(lyricsArea);grid.append(lyrics.details);
+ const lyricsArea=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');lyricsArea.contentEditable=readOnly?'false':'true';lyricsArea.name='lyrics_style';lyricsArea.setAttribute('role','textbox');lyricsArea.setAttribute('aria-multiline','true');lyricsArea.setAttribute('aria-label','Lyrics style');lyricsArea.dataset.placeholder='Add lyric instructions, structure, vocal direction or generation notes…';lyricsArea.innerHTML=sanitizeTransmissionBody(structure.lyrics_style);lyrics.body.append(lyricsArea);grid.append(lyrics.details);
  const output=makeChamberDisclosure('04 // OUTPUT','ha-chamber-panel ha-chamber-output ha-chamber-edit-panel','ha-chamber-panel-heading');
  const text=makeChamberDisclosure('TEXT','ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
- const textArea=document.createElement('textarea');textArea.className='ha-chamber-editor-field';textArea.name='output_text';textArea.rows=14;
- textArea.value=structure.output_text;textArea.placeholder='Edit the original text output…';text.body.append(textArea);output.body.append(text.details);
+ const textArea=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');textArea.contentEditable=readOnly?'false':'true';textArea.name='output_text';textArea.setAttribute('role','textbox');textArea.setAttribute('aria-multiline','true');textArea.setAttribute('aria-label','Output text');textArea.dataset.placeholder='Edit the original text output…';textArea.innerHTML=sanitizeTransmissionBody(structure.output_text);text.body.append(textArea);output.body.append(text.details);
+ const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,editors:[promptArea,lyricsArea,textArea],toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
  ['image','audio','video'].forEach(type=>{
   const media=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
   const items=editorMedia[type];
@@ -957,7 +956,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   }).filter(item=>item.url);
   const row={
    record_id:Number(record.id),transmission_body:transmissionBody,
-   prompt_style:promptArea.value,lyrics_style:lyricsArea.value,output_text:textArea.value,
+   prompt_style:sanitizeTransmissionBody(promptArea.innerHTML),lyrics_style:sanitizeTransmissionBody(lyricsArea.innerHTML),output_text:sanitizeTransmissionBody(textArea.innerHTML),
    output_media:outputMedia,updated_at:new Date().toISOString(),updated_by:archiveUserId
   };
   return {metadata,row,mediaItems};
@@ -1167,7 +1166,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     status.textContent='CREATING TRANSMISSION…';
     const {data:createResult,error:createError}=await archiveSupabase.rpc('create_human_archive_transmission_v3',{
      p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,
-     p_status:'draft',p_transmission_body:initialBody,p_prompt_style:promptArea.value,p_lyrics_style:lyricsArea.value,p_output_text:textArea.value,
+     p_status:'draft',p_transmission_body:initialBody,p_prompt_style:sanitizeTransmissionBody(promptArea.innerHTML),p_lyrics_style:sanitizeTransmissionBody(lyricsArea.innerHTML),p_output_text:sanitizeTransmissionBody(textArea.innerHTML),
      p_output_media:{},p_media_items:[],p_media_width:metadata.mediaWidth
     });
     if(createError)throw createError;
@@ -1237,9 +1236,9 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
       ?'<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.plain.value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>'
       :'<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.main.value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeLayoutText(postLayoutControls.fields.lyrics.value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+layoutParagraphs(postLayoutControls.fields.prompt.value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.learned.value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.chatgpt.value)+'</section></aside></div>')
      :sanitizeTransmissionBody(transmissionEditor.innerHTML),
-    prompt_style:promptArea.value,
-    lyrics_style:lyricsArea.value,
-    output_text:textArea.value,
+    prompt_style:sanitizeTransmissionBody(promptArea.innerHTML),
+    lyrics_style:sanitizeTransmissionBody(lyricsArea.innerHTML),
+    output_text:sanitizeTransmissionBody(textArea.innerHTML),
     output_media:outputMedia,
     updated_at:new Date().toISOString(),
     updated_by:archiveUserId
