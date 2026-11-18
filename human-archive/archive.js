@@ -1148,9 +1148,7 @@ function buildRecordChamber(record){
  heading.append(meta);header.append(heading);
  const titleRow=makeChamberNode('div','ha-chamber-title-row');
  const title=makeChamberNode('h2','ha-chamber-title',record.title);
- const expand=makeChamberNode('button','ha-chamber-expand-all','SEAL ALL ↑');expand.type='button';
- expand.setAttribute('aria-expanded','true');expand.setAttribute('aria-label','Retract all chamber sections');
- titleRow.append(title,expand);
+ titleRow.append(title);
  const main=makeChamberNode('main','ha-chamber-main');
  const shareRow=makeChamberNode('div','ha-chamber-share-row');
  const share=makeChamberNode('div','ha-chamber-share','');
@@ -1164,13 +1162,7 @@ function buildRecordChamber(record){
  actions.append(edit,close);shareRow.append(share,shareStatus,actions);main.append(shareRow);
  main.append(titleRow);
  const grid=makeChamberNode('div','ha-chamber-grid ha-chamber-unified');main.append(grid);
- renderRecordStructureView(record,grid,shareStatus,edit,expand);
- expand.addEventListener('click',()=>{
-  const disclosures=[...grid.querySelectorAll('details[data-ha-disclosure]')];
-  const shouldOpen=!disclosures.every(item=>item.open);
-  disclosures.forEach(item=>{item.open=shouldOpen;});
-  syncChamberExpandButton(grid,expand);
- });
+ renderRecordStructureView(record,grid,shareStatus,edit,null);
  edit.addEventListener('click',()=>{
   if(!archiveAdmin){shareStatus.textContent='ADMIN ACCESS REQUIRED';return;}
   renderRecordStructureEditor(record,grid,shareStatus,edit,expand);
