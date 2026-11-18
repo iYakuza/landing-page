@@ -1,8 +1,43 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T06:33:00.275706Z",
-  "last_processed_sha": "9e6403960867ecec3be63d7d108489d97b0c5e82",
+  "updated_at": "2026-11-18T06:45:28.408673Z",
+  "last_processed_sha": "37ea71f1dae9728d15aaa469e69ecbd225de2f4c",
   "entries": [
+    {
+      "id": "37ea71f1dae9728d15aaa469e69ecbd225de2f4c",
+      "timestamp": "2026-11-18T07:45:20+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Unify Posts archive with Human Archive visual system. It updates index.html, posts-human-archive.css, posts.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        "posts/index.html",
+        "posts/posts-human-archive.css",
+        "posts/posts.js",
+        "posts/the-awakening/index.html",
+        "posts/the-descent/index.html",
+        "posts/the-reconnection/index.html",
+        "posts/the-return/index.html",
+        "posts/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Unify Posts archive with Human Archive visual system",
+          "url": "https://github.com/iYakuza/landing-page/commit/37ea71f1dae9728d15aaa469e69ecbd225de2f4c",
+          "files": [
+            "posts/index.html",
+            "posts/posts-human-archive.css",
+            "posts/posts.js",
+            "posts/the-awakening/index.html",
+            "posts/the-descent/index.html",
+            "posts/the-reconnection/index.html",
+            "posts/the-return/index.html",
+            "posts/the-transformation/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "9e6403960867ecec3be63d7d108489d97b0c5e82",
       "timestamp": "2026-11-18T07:32:44+01:00",
@@ -1146,31 +1181,6 @@
             "human-archive/archive.js",
             "human-archive/index.html",
             "supabase/migrations/20261116203618_human_archive_transmission_body.sql"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "1fbd9da765f967fc953aec16cf9d2226646f3329",
-      "timestamp": "2026-11-16T21:58:47+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Extract reusable transmission rich-text editor (#70). It updates cms.js, index.html, rich-text-editor.js.",
-      "commit_count": 1,
-      "files": [
-        "cms/cms.js",
-        "cms/index.html",
-        "editor-ui/rich-text-editor.js"
-      ],
-      "commits": [
-        {
-          "message": "Extract reusable transmission rich-text editor (#70)",
-          "url": "https://github.com/iYakuza/landing-page/commit/1fbd9da765f967fc953aec16cf9d2226646f3329",
-          "files": [
-            "cms/cms.js",
-            "cms/index.html",
-            "editor-ui/rich-text-editor.js"
           ]
         }
       ]
