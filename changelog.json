@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T07:04:55.597707Z",
-  "last_processed_sha": "391593c00867ac60759303a73852373cec69edb8",
+  "updated_at": "2026-11-18T07:15:51.098244Z",
+  "last_processed_sha": "23d8be57c065b0192ad68060db5f25bc39358b25",
   "entries": [
+    {
+      "id": "23d8be57c065b0192ad68060db5f25bc39358b25",
+      "timestamp": "2026-11-18T08:15:35+01:00",
+      "category": "CONTENT",
+      "component": "Creative Archive",
+      "title": "Fresh additions to Creative Archive",
+      "description": "This update brings together Match Posts inner content width to Human Archive. It updates posts.css.",
+      "commit_count": 1,
+      "files": [
+        "posts/posts.css"
+      ],
+      "commits": [
+        {
+          "message": "Match Posts inner content width to Human Archive",
+          "url": "https://github.com/iYakuza/landing-page/commit/23d8be57c065b0192ad68060db5f25bc39358b25",
+          "files": [
+            "posts/posts.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "391593c00867ac60759303a73852373cec69edb8",
       "timestamp": "2026-11-18T08:04:47+01:00",
@@ -1157,33 +1178,6 @@
           "files": [
             "docs/architecture/unified-posting-record-model.md",
             "supabase/migrations/20261116212229_enforce_immutable_archive_record_identity.sql",
-            "supabase/migrations/20261116213000_enforce_immutable_archive_record_identity.sql"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "adf2ef7c206c9ff245293153422be33dbb6c3dd8",
-      "timestamp": "2026-11-16T22:22:20+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Enforce immutable Human Archive record identities (#73). It updates unified-posting-record-model.md, 20261116211529_unified_posting_record_identity.sql, 20261116211929_unified_posting_record_identity.sql, 20261116213000_enforce_immutable_archive_record_identity.sql.",
-      "commit_count": 1,
-      "files": [
-        "docs/architecture/unified-posting-record-model.md",
-        "supabase/migrations/20261116211529_unified_posting_record_identity.sql",
-        "supabase/migrations/20261116211929_unified_posting_record_identity.sql",
-        "supabase/migrations/20261116213000_enforce_immutable_archive_record_identity.sql"
-      ],
-      "commits": [
-        {
-          "message": "Enforce immutable Human Archive record identities (#73)",
-          "url": "https://github.com/iYakuza/landing-page/commit/adf2ef7c206c9ff245293153422be33dbb6c3dd8",
-          "files": [
-            "docs/architecture/unified-posting-record-model.md",
-            "supabase/migrations/20261116211529_unified_posting_record_identity.sql",
-            "supabase/migrations/20261116211929_unified_posting_record_identity.sql",
             "supabase/migrations/20261116213000_enforce_immutable_archive_record_identity.sql"
           ]
         }
