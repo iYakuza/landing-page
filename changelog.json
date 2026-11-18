@@ -1,8 +1,61 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T15:14:16.986490Z",
-  "last_processed_sha": "aa9ded8d1fbd7dadbdb5e0251dfd8d58f3ac416e",
+  "updated_at": "2026-11-18T16:11:37.325909Z",
+  "last_processed_sha": "a63a67586d5be25b231110ec6d686deeb1b9fbd8",
   "entries": [
+    {
+      "id": "a63a67586d5be25b231110ec6d686deeb1b9fbd8",
+      "timestamp": "2026-11-18T17:11:34+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Refine Human Archive chamber editor controls and layout. It updates block-editor.css, block-editor.js, rich-text-editor.js, archive.css and related project files.",
+      "commit_count": 5,
+      "files": [
+        "editor-ui/block-editor.css",
+        "editor-ui/block-editor.js",
+        "editor-ui/rich-text-editor.js",
+        "human-archive/archive.css",
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Refine Human Archive chamber editor controls and layout",
+          "url": "https://github.com/iYakuza/landing-page/commit/f6565ad4701bf737eade7889fa20365c5c91473a",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Refine Human Archive chamber editor controls and layout",
+          "url": "https://github.com/iYakuza/landing-page/commit/ced758dc5766a1ff8f781f246269973049ade8ce",
+          "files": [
+            "editor-ui/block-editor.js"
+          ]
+        },
+        {
+          "message": "Refine Human Archive chamber editor controls and layout",
+          "url": "https://github.com/iYakuza/landing-page/commit/cb4f5a9e90027791a962f8396f27c8dcc9130014",
+          "files": [
+            "editor-ui/rich-text-editor.js"
+          ]
+        },
+        {
+          "message": "Refine Human Archive chamber editor controls and layout",
+          "url": "https://github.com/iYakuza/landing-page/commit/80be809676f8ead064dd9d7e8537abdd21327a1c",
+          "files": [
+            "human-archive/archive.css"
+          ]
+        },
+        {
+          "message": "Refine Human Archive chamber editor controls and layout",
+          "url": "https://github.com/iYakuza/landing-page/commit/a63a67586d5be25b231110ec6d686deeb1b9fbd8",
+          "files": [
+            "editor-ui/block-editor.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "aa9ded8d1fbd7dadbdb5e0251dfd8d58f3ac416e",
       "timestamp": "2026-11-18T16:14:01+01:00",
@@ -1146,45 +1199,6 @@
             "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html",
             "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
             "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "ddfe624171257b18e801e7290d117a116aa1da7a",
-      "timestamp": "2026-11-17T15:38:28+01:00",
-      "category": "FEATURE",
-      "component": "Website Experience",
-      "title": "New capabilities for Website Experience",
-      "description": "This update brings together Open New Transmission in an in-page CMS editor window (#99). It updates cms.js, index.html, creator-posting.js and related project files.",
-      "commit_count": 1,
-      "files": [
-        "cms/cms.js",
-        "cms/index.html",
-        "creator-posting.js",
-        "human-archive/index.html",
-        "posts/index.html",
-        "posts/the-awakening/index.html",
-        "posts/the-descent/index.html",
-        "posts/the-reconnection/index.html",
-        "posts/the-return/index.html",
-        "posts/the-transformation/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Open New Transmission in an in-page CMS editor window (#99)",
-          "url": "https://github.com/iYakuza/landing-page/commit/ddfe624171257b18e801e7290d117a116aa1da7a",
-          "files": [
-            "cms/cms.js",
-            "cms/index.html",
-            "creator-posting.js",
-            "human-archive/index.html",
-            "posts/index.html",
-            "posts/the-awakening/index.html",
-            "posts/the-descent/index.html",
-            "posts/the-reconnection/index.html",
-            "posts/the-return/index.html",
-            "posts/the-transformation/index.html"
           ]
         }
       ]
