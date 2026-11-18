@@ -5,7 +5,7 @@
 
   const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-  const EDITOR_VERSION = '20261118-posts-edit-access-2';
+  const EDITOR_VERSION = '20261118-ha-editor-refinements-2';
   let client = null;
   let isCreator = false;
   let refreshing = false;
@@ -23,9 +23,9 @@
 
   const style = document.createElement('style');
   style.textContent = [
-    '.vha-new-transmission-global{position:fixed!important;right:18px!important;bottom:18px!important;left:auto!important;z-index:2147483007!important;padding:12px 16px!important;box-shadow:0 5px 20px #0008!important;white-space:nowrap}',
+    '.vha-new-transmission-global{position:fixed!important;left:18px!important;right:auto!important;bottom:18px!important;z-index:2147483007!important;padding:12px 16px!important;box-shadow:0 5px 20px #0008!important;white-space:nowrap}',
     '.vha-new-transmission-global[hidden]{display:none!important}',
-    '@media(max-width:560px){.vha-new-transmission-global{right:10px!important;bottom:10px!important;padding:11px 13px!important;font-size:10px!important}}'
+    '@media(max-width:560px){.vha-new-transmission-global{left:10px!important;right:auto!important;bottom:10px!important;padding:11px 13px!important;font-size:10px!important}}'
   ].join('');
   document.head.appendChild(style);
 
