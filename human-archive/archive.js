@@ -491,6 +491,103 @@ function getRecordOutputMedia(record,structure,type){
  if(saved&&Object.prototype.hasOwnProperty.call(saved,type)&&Array.isArray(saved[type]))return saved[type];
  return defaultChamberOutputMedia(record,type);
 }
+function makeChamberDisclosure(label,className,summaryClass){
+ const details=makeChamberNode('details','ha-chamber-disclosure '+(className||''));details.open=true;details.dataset.haDisclosure='true';
+ const summary=makeChamberNode('summary',summaryClass||'ha-chamber-panel-heading',label);
+ summary.setAttribute('aria-label',label+' — expand or retract');
+ const body=makeChamberNode('div','ha-chamber-disclosure-body');
+ details.append(summary,body);
+ return {details,body};
+}
+function syncChamberExpandButton(grid,button){
+ if(!button)return;
+ const disclosures=[...grid.querySelectorAll('details[data-ha-disclosure]')];
+ const allOpen=disclosures.length>0&&disclosures.every(item=>item.open);
+ button.textContent=allOpen?'SEAL ALL ↑':'UNSEAL ALL ↓';
+ button.setAttribute('aria-expanded',String(allOpen));
+ button.setAttribute('aria-label',allOpen?'Retract all chamber sections':'Expand all chamber sections');
+}
+function bindChamberDisclosureControls(grid,button){
+ grid.querySelectorAll('details[data-ha-disclosure]').forEach(details=>{
+  details.addEventListener('toggle',()=>syncChamberExpandButton(grid,button));
+ });
+ syncChamberExpandButton(grid,button);
+}
+function sanitizeTransmissionBody(source){
+ const raw=String(source??'');
+ const parsed=new DOMParser().parseFromString(raw,'text/html');
+ // Legacy archive fields may contain plain text rather than HTML. Convert their
+ // actual newline structure into paragraphs and line breaks before sanitizing.
+ if(!parsed.body.children.length&&/[\r\n]/.test(raw)){
+  const fragment=document.createDocumentFragment();
+  raw.replace(/\r\n?/g,'\n').split(/\n{2,}/).forEach(paragraph=>{
+   const block=document.createElement('p');
+   paragraph.split('\n').forEach((line,index)=>{
+    if(index)block.append(document.createElement('br'));
+    block.append(document.createTextNode(line));
+   });
+   fragment.append(block);
+  });
+  const holder=document.createElement('div');holder.append(fragment);return holder.innerHTML;
+ }
+ const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','H4','BLOCKQUOTE','UL','OL','LI','A','HR','CODE','PRE','DIV','SECTION','ASIDE','DETAILS','SUMMARY','FIGURE','FIGCAPTION','IMG','AUDIO','VIDEO','SOURCE','IFRAME','TABLE','THEAD','TBODY','TR','TH','TD','NAV','ARTICLE','MARK','SMALL','SPAN']);
+ const allowedClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response','ha-pullquote','ha-verse','ha-button-block','ha-more-block','ha-markdown-source','ha-html-source','ha-buttons','ha-button','ha-columns','ha-group','ha-row','ha-stack','ha-grid','ha-spacer','ha-social-icons','ha-icon-block','ha-timeline','ha-tabs','ha-callout','ha-card','ha-media-text','ha-image-compare','ha-gallery','ha-slideshow','ha-tiled-gallery','ha-cover','ha-embed','ha-embed-youtube','ha-embed-spotify','ha-embed-soundcloud','ha-embed-card','ha-embed-link','ha-file-block','ha-audio-block','ha-podcast','ha-playlist','ha-page-break','wp-block-pullquote','wp-block-verse']);
+ function copy(node,parent){
+  if(node.nodeType===Node.TEXT_NODE){parent.append(document.createTextNode(node.nodeValue||''));return;}
+  if(node.nodeType!==Node.ELEMENT_NODE)return;
+  if(node.hasAttribute('data-ha-editor-block')){
+   const content=node.querySelector('[data-ha-block-content]');
+   if(content)content.childNodes.forEach(child=>copy(child,parent));
+   return;
+  }
+  if(node.hasAttribute('data-ha-block-content')){node.childNodes.forEach(child=>copy(child,parent));return;}
+  if(!allowed.has(node.tagName)){node.childNodes.forEach(child=>copy(child,parent));return;}
+  const element=document.createElement(node.tagName.toLowerCase());
+  if(node.tagName==='IMG'){
+   const src=safeArchiveMediaUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
+   let valid=Boolean(src);
+   if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else if(url.hostname==='ioguymqdeuuursizifnn.supabase.co')valid=/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname);else if(url.origin===window.location.origin)valid=url.pathname.startsWith('/landing-page/');else valid=url.pathname.includes('/wp-content/uploads/');}
+   if(!valid)return;
+   element.src=src;element.alt=String(node.getAttribute('alt')||'');element.loading='lazy';element.style.maxWidth='100%';element.style.height='auto';
+  }
+  if(node.tagName==='AUDIO'||node.tagName==='VIDEO'){
+   const rawSrc=node.getAttribute('src')||'';
+   if(rawSrc){
+    const src=safeArchiveMediaUrl(rawSrc,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
+    if(!src||!(()=>{const url=new URL(src);return url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'?/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname):url.hostname==='ioguymqdeuuursizifnn.supabase.co'?/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname):url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/');})())return;
+    element.src=src;
+   }else if(!node.querySelector('source'))return;
+   element.controls=true;element.preload='metadata';
+   if(node.tagName==='VIDEO')element.playsInline=true;
+  }
+  if(node.tagName==='SOURCE'){
+   const src=safeArchiveMediaUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
+   if(!src||!(()=>{const url=new URL(src);return url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'?/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname):url.hostname==='ioguymqdeuuursizifnn.supabase.co'?/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname):url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/');})())return;
+   element.src=src;element.type=String(node.getAttribute('type')||'');
+  }
+  if(node.tagName==='IFRAME'){
+   const src=safeExternalUrl(node.getAttribute('src'),new Set(['www.youtube.com','www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com','player.vimeo.com','www.dailymotion.com','www.loom.com']));
+   if(!src)return;
+   const url=new URL(src),host=url.hostname.toLowerCase();
+   if((host.includes('youtube')&&!url.pathname.startsWith('/embed/'))||(host==='open.spotify.com'&&!url.pathname.startsWith('/embed/'))||(host==='w.soundcloud.com'&&!url.pathname.startsWith('/player/'))||(host==='player.vimeo.com'&&!url.pathname.startsWith('/video/'))||(host==='www.dailymotion.com'&&!url.pathname.startsWith('/embed/video/'))||(host==='www.loom.com'&&!url.pathname.startsWith('/embed/')))return;
+   element.src=src;element.title=String(node.getAttribute('title')||'Embedded media');element.loading='lazy';element.referrerPolicy='strict-origin-when-cross-origin';element.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';element.allowFullscreen=true;
+  }
+  if(node.tagName==='A'){
+   const raw=(node.getAttribute('href')||'').trim();
+   try{const url=new URL(raw);if((url.protocol==='https:'&&url.hostname&&!url.username&&!url.password)||(url.protocol==='mailto:'&&url.pathname)){element.href=url.href;element.target='_blank';element.rel='noopener noreferrer';}}catch{}
+  }
+  if(node.hasAttribute('class')){
+   const classes=(node.getAttribute('class')||'').split(/\s+/).filter(name=>allowedClasses.has(name));
+   if(classes.length)element.className=classes.join(' ');
+  }
+  const alignment=(node.style?.textAlign||'').toLowerCase();
+  if(['left','center','right','justify'].includes(alignment))element.style.textAlign=alignment;
+  node.childNodes.forEach(child=>copy(child,element));parent.append(element);
+ }
+ const fragment=document.createDocumentFragment();
+ parsed.body.childNodes.forEach(node=>copy(node,fragment));
+ const holder=document.createElement('div');holder.append(fragment);return holder.innerHTML;
+}
 function renderRecordStructureView(record,grid,status,editButton,expandButton){
  const structure=getRecordStructure(record);
  grid.replaceChildren();
