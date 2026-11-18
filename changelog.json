@@ -1,8 +1,35 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T04:31:22.246257Z",
-  "last_processed_sha": "7a9385842bd18dca4130c7900c1a16832a5a77bd",
+  "updated_at": "2026-11-18T04:41:29.112321Z",
+  "last_processed_sha": "90ace2d1325fbc7d1b5098a552621fd9eafe3279",
   "entries": [
+    {
+      "id": "90ace2d1325fbc7d1b5098a552621fd9eafe3279",
+      "timestamp": "2026-11-18T05:41:19+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Bust cache for the shared editor update. It updates creator-posting.js, index.html and related project files.",
+      "commit_count": 1,
+      "files": [
+        "creator-posting.js",
+        "human-archive/index.html",
+        "index.html",
+        "posts/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Bust cache for the shared editor update",
+          "url": "https://github.com/iYakuza/landing-page/commit/90ace2d1325fbc7d1b5098a552621fd9eafe3279",
+          "files": [
+            "creator-posting.js",
+            "human-archive/index.html",
+            "index.html",
+            "posts/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "7a9385842bd18dca4130c7900c1a16832a5a77bd",
       "timestamp": "2026-11-18T05:31:13+01:00",
@@ -1156,37 +1183,6 @@
             "posts/posts.css",
             "posts/posts.js",
             "supabase/migrations/20261116180920_add_media_items_to_vha_posts.sql"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "9b1abb19ab26050a20b5ced46571a5d699c6e571",
-      "timestamp": "2026-11-16T18:47:36+01:00",
-      "category": "FIX",
-      "component": "Creative Archive",
-      "title": "More reliable Creative Archive",
-      "description": "This update brings together Fix Quick Post iframe CSP on transmission pages (#64). It updates index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "posts/index.html",
-        "posts/the-awakening/index.html",
-        "posts/the-descent/index.html",
-        "posts/the-reconnection/index.html",
-        "posts/the-return/index.html",
-        "posts/the-transformation/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Fix Quick Post iframe CSP on transmission pages (#64)",
-          "url": "https://github.com/iYakuza/landing-page/commit/9b1abb19ab26050a20b5ced46571a5d699c6e571",
-          "files": [
-            "posts/index.html",
-            "posts/the-awakening/index.html",
-            "posts/the-descent/index.html",
-            "posts/the-reconnection/index.html",
-            "posts/the-return/index.html",
-            "posts/the-transformation/index.html"
           ]
         }
       ]
