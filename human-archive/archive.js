@@ -637,6 +637,7 @@ function renderChamberMediaEditor(sectionBody,record,type,items,status,onChange)
  });
  sectionBody.append(list,uploadLabel);
  repaint();
+ return repaint;
 }
 function renderRecordStructureEditor(record,grid,status,editButton,expandButton,readOnly=false){
  const structure=getRecordStructure(record);
@@ -651,11 +652,11 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  let attachedPostMedia=[];
  let repaintAttachedPostMedia=()=>{};
  let postLayoutControls=null;
+ const outputMediaRepaint={};
  const escapeLayoutText=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
  const layoutParagraphs=value=>String(value||'').split(/\n{2,}/).map(part=>'<p>'+escapeLayoutText(part).replace(/\n/g,'<br>')+'</p>').join('');
 
  grid.replaceChildren();
- if(record.source_type==='transmission'){
  const metadataDetails=makeChamberDisclosure('00 // RECORD DETAILS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-metadata-panel','ha-chamber-panel-heading');
  const metadataFields=makeChamberNode('div','ha-chamber-metadata-grid');
  const addMetadataField=(labelText,name,value,options={})=>{
@@ -678,8 +679,9 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const titleInput=addMetadataField('TITLE','title',record.title,{placeholder:'Transmission title',maxLength:180});
  const slugInput=addMetadataField('PUBLIC URL SLUG','slug',record.slug,{placeholder:'lowercase-words-separated-by-hyphens',maxLength:180});
  const currentCategory=(record.categories||[])[0]||'';
- const categoryInput=addMetadataSelect('ARCHIVE / MOVEMENT','category',transmissionCategories.includes(currentCategory)?currentCategory:'',[
-  ['','CHOOSE DESTINATION'],...transmissionCategories.map(name=>[name,name])
+ const metadataCategories=[...new Set([...transmissionCategories,...categoryOrder,...(record.categories||[])])];
+ const categoryInput=addMetadataSelect('ARCHIVE / MOVEMENT','category',metadataCategories.includes(currentCategory)?currentCategory:'',[
+  ['','CHOOSE DESTINATION'],...metadataCategories.map(name=>[name,name])
  ]);
  const excerptInput=addMetadataField('EXCERPT','excerpt',record.excerpt||'',{multiline:true,placeholder:'Short description shown in previews (up to 400 characters)',maxLength:400});
  const mediaWidthWrap=makeChamberNode('label','ha-chamber-metadata-field');
@@ -692,20 +694,24 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const statusLabel=makeChamberNode('span','ha-chamber-metadata-label','PUBLICATION STATUS');
  const statusSelect=document.createElement('select');statusSelect.className='ha-chamber-editor-field ha-chamber-meta-input';statusSelect.name='status';
  [['draft','DRAFT — PRIVATE'],['published','PUBLISHED — PUBLIC']].forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;statusSelect.append(option);});
- statusSelect.value=record.status==='published'?'published':'draft';
+ statusSelect.value=record.source_type==='transmission'?(record.status==='published'?'published':'draft'):'published';
  statusWrap.append(statusLabel,statusSelect);metadataFields.append(statusWrap);
- const statusNote=makeChamberNode('p','ha-chamber-metadata-note','Drafts are private. Published Transmissions appear on the public site. Saving as draft removes a published Transmission from public listings.');
+ const statusNote=makeChamberNode('p','ha-chamber-metadata-note',record.source_type==='transmission'?'Drafts are private. Published Transmissions appear on the public site. Saving as draft removes a published Transmission from public listings.':'Legacy archive metadata is anchored to the original archive source. Shared content, presentation and media sections below remain editable.');
+ if(record.source_type!=='transmission'){
+  [titleInput,slugInput,categoryInput,excerptInput,mediaWidthInput,statusSelect].forEach(control=>{control.disabled=true;});
+ }
  metadataDetails.body.append(metadataFields,statusNote);
  grid.append(metadataDetails.details);
  recordMetadataInputs={title:titleInput,slug:slugInput,category:categoryInput,excerpt:excerptInput,mediaWidth:mediaWidthInput,status:statusSelect};
- if(record.isNew){
+ if(record.source_type==='transmission'&&record.isNew){
   slugInput.addEventListener('input',()=>{slugManuallyEdited=true;});
   titleInput.addEventListener('input',()=>{
    if(slugManuallyEdited)return;
    slugInput.value=String(titleInput.value||'').normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,180);
   });
  }
- const savedLayoutDoc=new DOMParser().parseFromString(String(record.content_html||''),'text/html');
+ const savedLayoutSource=record.source_type==='transmission'?(record.content_html||structure.transmission_body):(structure.transmission_body||record.content_html||'');
+ const savedLayoutDoc=new DOMParser().parseFromString(String(savedLayoutSource),'text/html');
  const savedSuno=savedLayoutDoc.querySelector('.suno-post-layout');
  const savedPlain=savedLayoutDoc.querySelector('.plain-post-layout');
  const readLayoutText=selector=>{
@@ -751,7 +757,6 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  layoutPanel.body.append(layoutSelectWrap,layoutFields);grid.append(layoutPanel.details);
  postLayoutControls={select:layoutSelect,fields:{main:layoutMain,lyrics:layoutLyrics,prompt:layoutPrompt,learned:layoutLearned,chatgpt:layoutChatgpt,plain:layoutPlain},transmissionDetails:null,sync:syncLayoutControls};
  syncLayoutControls();
- }
  if(record.source_type==='transmission'){
  attachedPostMedia=(Array.isArray(record.media_items)?record.media_items:[]).map((item,index)=>{
   const mime=String(item.mime_type||'').toLowerCase();
@@ -792,6 +797,52 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   status.textContent=rejected.length?'Some files were not added: '+rejected.join('; '):'ATTACHMENTS ADDED — SAVE THE CHAMBER TO UPLOAD';
  });
  attachedPanel.body.append(attachedList,attachedLabel);grid.append(attachedPanel.details);repaintAttached();repaintAttachedPostMedia=repaintAttached;
+ }else{
+  const attachedPanel=makeChamberDisclosure('00.5 // POST ATTACHMENTS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-attached-panel','ha-chamber-panel-heading');
+  const attachedList=makeChamberNode('div','ha-chamber-media-editor-list');
+  const repaintLegacyAttachments=()=>{
+   attachedList.replaceChildren();
+   let total=0;
+   ['image','audio','video'].forEach(type=>{
+    editorMedia[type].forEach((item,index)=>{
+     total++;
+     const row=makeChamberNode('div','ha-chamber-media-editor-item');
+     row.append(makeChamberNode('span','ha-chamber-media-editor-name',item.name||record.title));
+     row.append(makeChamberNode('small','ha-chamber-media-editor-state',item.file?'READY TO UPLOAD':(item.storage==='external'?'EMBEDDED MEDIA':'ARCHIVE / SAVED '+type.toUpperCase())));
+     const remove=makeChamberNode('button','ha-chamber-media-remove','REMOVE ✕');remove.type='button';
+     remove.setAttribute('aria-label','Remove '+(item.name||type+' attachment'));
+     remove.addEventListener('click',()=>{
+      editorMedia[type].splice(index,1);mediaTouched[type]=true;
+      outputMediaRepaint[type]?.();repaintLegacyAttachments();
+      status.textContent='ATTACHMENTS UPDATED — SAVE THE CHAMBER TO APPLY';
+     });
+     row.append(remove);attachedList.append(row);
+    });
+   });
+   if(!total)attachedList.append(makeChamberNode('p','ha-chamber-note','NO POST ATTACHMENTS SELECTED.'));
+  };
+  const attachedInput=document.createElement('input');attachedInput.type='file';attachedInput.multiple=true;attachedInput.className='ha-chamber-file-input';
+  attachedInput.accept='image/jpeg,image/png,image/webp,image/gif,image/avif,audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm';
+  attachedInput.setAttribute('aria-label','Choose legacy archive post attachments');
+  const attachedLabel=makeChamberNode('label','ha-chamber-upload-label');
+  attachedLabel.append(makeChamberNode('span','','ADD POST ATTACHMENTS +'),attachedInput);
+  attachedInput.addEventListener('change',()=>{
+   const files=[...attachedInput.files||[]],rejected=[],changed=new Set();
+   files.slice(0,10).forEach(file=>{
+    const type=file.type.startsWith('image/')?'image':file.type.startsWith('audio/')?'audio':file.type.startsWith('video/')?'video':'';
+    const mime=type?chamberFileMime(file,type):null;
+    if(!mime){rejected.push(file.name+' (unsupported format)');return;}
+    if(file.size>30*1024*1024){rejected.push(file.name+' (over 30 MB)');return;}
+    editorMedia[type].push({id:'pending-'+chamberUploadToken(),name:file.name,mime_type:mime,storage:'pending',file});
+    mediaTouched[type]=true;changed.add(type);
+   });
+   if(files.length>10)rejected.push('Only the first 10 files were checked.');
+   changed.forEach(type=>outputMediaRepaint[type]?.());
+   repaintLegacyAttachments();attachedInput.value='';
+   status.textContent=rejected.length?'Some files were not added: '+rejected.join('; '):'ATTACHMENTS ADDED — SAVE THE CHAMBER TO UPLOAD';
+  });
+  attachedPanel.body.append(attachedList,attachedLabel);grid.append(attachedPanel.details);
+  repaintLegacyAttachments();repaintAttachedPostMedia=repaintLegacyAttachments;
  }
  const transmission=makeChamberDisclosure('01 // TRANSMISSION BODY','ha-chamber-panel ha-chamber-edit-panel ha-chamber-transmission-panel','ha-chamber-panel-heading');
  const transmissionTop=makeChamberNode('div','ha-rich-editor-top');
@@ -803,7 +854,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   const button=makeChamberNode('button','',label);button.type='button';button.dataset.command=command;if(value)button.dataset.value=value;toolbar.append(button);
  });
  const insertLinkButton=makeChamberNode('button','ha-rich-link','LINK');insertLinkButton.type='button';toolbar.append(insertLinkButton);
- const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable=readOnly?'false':'true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Transmission body');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Write the transmission body…';transmissionEditor.innerHTML=sanitizeTransmissionBody(record.source_type==='transmission'?(record.content_html||structure.transmission_body):structure.transmission_body);
+ const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable=readOnly?'false':'true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Transmission body');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Write the transmission body…';transmissionEditor.innerHTML=sanitizeTransmissionBody(record.source_type==='transmission'?(record.content_html||structure.transmission_body):(structure.transmission_body||record.content_html||''));
  transmission.body.append(transmissionTop,toolbar,transmissionEditor);grid.append(transmission.details);
  if(postLayoutControls){postLayoutControls.transmissionDetails=transmission.details;postLayoutControls.transmissionEditor=transmissionEditor;postLayoutControls.sync();}
  const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
@@ -821,7 +872,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   const media=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
   const items=editorMedia[type];
   const sectionBody=media.body;
-  renderChamberMediaEditor(sectionBody,record,type,items,status,()=>{mediaTouched[type]=true;scheduleDraftAutosave();});
+  outputMediaRepaint[type]=renderChamberMediaEditor(sectionBody,record,type,items,status,()=>{mediaTouched[type]=true;if(record.source_type!=='transmission')repaintAttachedPostMedia();scheduleDraftAutosave();});
   output.body.append(media.details);
  });
  grid.append(output.details);
