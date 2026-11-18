@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T17:32:20.038807Z",
-  "last_processed_sha": "8e4aadb3387c84644deb79d00f30849c696bc2e3",
+  "updated_at": "2026-11-18T17:32:41.114143Z",
+  "last_processed_sha": "104ffe162cc40edaeaeb15fc602601859531d50a",
   "entries": [
+    {
+      "id": "104ffe162cc40edaeaeb15fc602601859531d50a",
+      "timestamp": "2026-11-18T18:32:39+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Refresh shared action visibility assets. It updates creator-posting.js, index.html and related project files.",
+      "commit_count": 3,
+      "files": [
+        "creator-posting.js",
+        "index.html",
+        "posts/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Refresh shared action visibility assets",
+          "url": "https://github.com/iYakuza/landing-page/commit/be52715f22be55be2bb62d8aa35c67f81bc2447c",
+          "files": [
+            "creator-posting.js"
+          ]
+        },
+        {
+          "message": "Refresh shared action visibility assets",
+          "url": "https://github.com/iYakuza/landing-page/commit/08149bd92380e15cae9e4241bb4e83cef391151d",
+          "files": [
+            "index.html"
+          ]
+        },
+        {
+          "message": "Refresh shared action visibility assets",
+          "url": "https://github.com/iYakuza/landing-page/commit/104ffe162cc40edaeaeb15fc602601859531d50a",
+          "files": [
+            "posts/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "051e3e060f242f1fc5136e0a276b60ab32d5576e",
       "timestamp": "2026-11-18T18:32:15+01:00",
@@ -1148,39 +1185,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/41c20c26feff54fe1cf2ece319176ab35c032a1f",
           "files": [
             "shared/components/layout.css"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "4c68a581691f81ec9d98b92976954d72773251f0",
-      "timestamp": "2026-11-18T08:53:23+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Experience",
-      "title": "A refined Website Experience",
-      "description": "This update brings together Introduce shared layout components for Human Archive and Posts. It updates archive.css, index.html, posts.css and related project files.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.css",
-        "human-archive/index.html",
-        "posts/index.html",
-        "posts/posts.css",
-        "shared/components/README.md",
-        "shared/components/layout.css",
-        "shared/components/layout.js"
-      ],
-      "commits": [
-        {
-          "message": "Introduce shared layout components for Human Archive and Posts",
-          "url": "https://github.com/iYakuza/landing-page/commit/4c68a581691f81ec9d98b92976954d72773251f0",
-          "files": [
-            "human-archive/archive.css",
-            "human-archive/index.html",
-            "posts/index.html",
-            "posts/posts.css",
-            "shared/components/README.md",
-            "shared/components/layout.css",
-            "shared/components/layout.js"
           ]
         }
       ]
