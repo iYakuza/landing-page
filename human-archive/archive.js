@@ -221,7 +221,7 @@ function appendSafeContent(container,source,record,used){
     const source=document.createElement('source');source.src=localMediaUrl(item);source.type=item.mime_type;parent.append(source);markUsed(item,used);
    }else{
     const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
-    if(src&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname)&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
+    if(src&&/^\/storage\/v1\/object\/public\/(vha-post-media|human-archive-media)\//.test(new URL(src).pathname)&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
      const source=document.createElement('source');source.src=src;source.type=node.getAttribute('type')||'';parent.append(source);
     }
    }
@@ -1165,7 +1165,7 @@ function buildRecordChamber(record){
  renderRecordStructureView(record,grid,shareStatus,edit,null);
  edit.addEventListener('click',()=>{
   if(!archiveAdmin){shareStatus.textContent='ADMIN ACCESS REQUIRED';return;}
-  renderRecordStructureEditor(record,grid,shareStatus,edit,expand);
+  renderRecordStructureEditor(record,grid,shareStatus,edit,null);
  });
  close.addEventListener('click',()=>{closeRecordChamberSafely();});
  const footer=makeChamberNode('footer','ha-chamber-footer');
