@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const EMBED_HOSTS = new Set(['www.youtube.com','www.youtube-nocookie.com','youtu.be','open.spotify.com','w.soundcloud.com','player.vimeo.com','vimeo.com','www.tiktok.com','www.instagram.com','www.facebook.com','www.dailymotion.com','www.loom.com','www.ted.com','codepen.io','www.redditmedia.com','www.slideshare.net','www.mixcloud.com','audiomack.com','www.pinterest.com']);
+  const EMBED_HOSTS = new Set(['www.youtube.com','www.youtube-nocookie.com','youtu.be','youtube.com','open.spotify.com','w.soundcloud.com','soundcloud.com','player.vimeo.com','vimeo.com','www.tiktok.com','www.instagram.com','www.facebook.com','www.dailymotion.com','www.loom.com','www.ted.com','codepen.io','www.redditmedia.com','www.slideshare.net','www.mixcloud.com','audiomack.com','www.pinterest.com']);
   const IMAGE_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']);
   const MEDIA_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co']);
   const TYPES = [
@@ -184,16 +184,16 @@
         try { url = new URL(raw.trim()); } catch { return window.alert('Enter a valid embed URL.'); }
         const host = url.hostname.toLowerCase();
         if (!EMBED_HOSTS.has(host)) return window.alert('That provider is not in the secure embed allowlist. Use the Custom HTML block only for trusted code, or add a link.');
-        if (['youtube','spotify','soundcloud'].includes(type) && !((type==='youtube'&&['www.youtube.com','www.youtube-nocookie.com','youtu.be'].includes(host))||(type==='spotify'&&host==='open.spotify.com')||(type==='soundcloud'&&host==='w.soundcloud.com'))) return window.alert('The URL does not match the selected embed block.');
+        if (['youtube','spotify','soundcloud'].includes(type) && !((type==='youtube'&&['www.youtube.com','youtube.com','www.youtube-nocookie.com','youtu.be'].includes(host))||(type==='spotify'&&host==='open.spotify.com')||(type==='soundcloud'&&['w.soundcloud.com','soundcloud.com'].includes(host)))) return window.alert('The URL does not match the selected embed block.');
         if (host === 'youtu.be') {
           const id=url.pathname.slice(1).split('/')[0];
           if(!/^[\w-]{6,20}$/.test(id))return window.alert('That YouTube URL is not valid.');
           url=new URL('https://www.youtube-nocookie.com/embed/'+id);
-        } else if (host === 'www.youtube.com' && url.pathname === '/watch') {
+        } else if (['www.youtube.com','youtube.com'].includes(host) && url.pathname === '/watch') {
           const id = url.searchParams.get('v');
           if (!id || !/^[\w-]{6,20}$/.test(id)) return window.alert('That YouTube URL is not valid.');
           url = new URL('https://www.youtube-nocookie.com/embed/'+id);
-        } else if (host === 'www.youtube.com' && url.pathname.startsWith('/shorts/')) {
+        } else if (['www.youtube.com','youtube.com'].includes(host) && url.pathname.startsWith('/shorts/')) {
           const id = url.pathname.split('/')[2];
           if (!/^[\w-]{6,20}$/.test(id)) return window.alert('That YouTube URL is not valid.');
           url = new URL('https://www.youtube-nocookie.com/embed/'+id);
@@ -205,7 +205,7 @@
         if(host==='vimeo.com'){const id=url.pathname.split('/').filter(Boolean)[0];if(!/^\\d+$/.test(id||''))return window.alert('That Vimeo URL is not valid.');url=new URL('https://player.vimeo.com/video/'+id);}
         if(host==='www.dailymotion.com'&&url.pathname.startsWith('/video/')){const id=url.pathname.split('/')[2];url=new URL('https://www.dailymotion.com/embed/video/'+id);}
         if(host==='www.loom.com'&&url.pathname.startsWith('/share/')){url=new URL('https://www.loom.com/embed/'+url.pathname.split('/')[2]);}
-        if(host==='www.youtube.com'&&url.pathname==='/watch'){const id=url.searchParams.get('v');if(!id||!/[\\w-]{6,20}/.test(id))return window.alert('That YouTube URL is not valid.');url=new URL('https://www.youtube-nocookie.com/embed/'+id);}
+        if(['www.youtube.com','youtube.com'].includes(host)&&url.pathname==='/watch'){const id=url.searchParams.get('v');if(!id||!/[\\w-]{6,20}/.test(id))return window.alert('That YouTube URL is not valid.');url=new URL('https://www.youtube-nocookie.com/embed/'+id);}
         const src=safeURL(url.href,EMBED_HOSTS);
         if(!src)return window.alert('That embed URL is not supported.');
         const iframeHosts=['www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com','player.vimeo.com','www.dailymotion.com','www.loom.com'];
