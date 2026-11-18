@@ -566,7 +566,7 @@ function sanitizeTransmissionBody(source){
   const holder=document.createElement('div');holder.append(fragment);return holder.innerHTML;
  }
  const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','H4','BLOCKQUOTE','UL','OL','LI','A','HR','CODE','PRE','DIV','SECTION','ASIDE','DETAILS','SUMMARY','FIGURE','FIGCAPTION','IMG','AUDIO','VIDEO','SOURCE','IFRAME','TABLE','THEAD','TBODY','TR','TH','TD','NAV','ARTICLE','MARK','SMALL','SPAN']);
- const allowedClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response']);
+ const allowedClasses=new Set(['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response','ha-pullquote','ha-verse','ha-button-block','ha-more-block','ha-markdown-source','ha-html-source','ha-buttons','ha-button','ha-columns','ha-group','ha-row','ha-stack','ha-grid','ha-spacer','ha-social-icons','ha-icon-block','ha-timeline','ha-tabs','ha-callout','ha-card','ha-media-text','ha-image-compare','ha-gallery','ha-slideshow','ha-tiled-gallery','ha-cover','ha-embed','ha-embed-youtube','ha-embed-spotify','ha-embed-soundcloud','ha-embed-card','ha-embed-link','ha-file-block','ha-audio-block','ha-podcast','ha-playlist','ha-page-break','wp-block-pullquote','wp-block-verse']);
  function copy(node,parent){
   if(node.nodeType===Node.TEXT_NODE){parent.append(document.createTextNode(node.nodeValue||''));return;}
   if(node.nodeType!==Node.ELEMENT_NODE)return;
