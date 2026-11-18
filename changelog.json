@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T09:04:06.494651Z",
-  "last_processed_sha": "a97f551806b5abff42bc52034745e23ac7e6b3c2",
+  "updated_at": "2026-11-18T09:14:38.475057Z",
+  "last_processed_sha": "bf7e732c4002fdbd73f4f205fa614ed61504ec54",
   "entries": [
+    {
+      "id": "bf7e732c4002fdbd73f4f205fa614ed61504ec54",
+      "timestamp": "2026-11-18T10:14:32+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Restore memorial divider and refine archive layout; Fix memorial heading line structure. It updates archive.css, index.html.",
+      "commit_count": 2,
+      "files": [
+        "human-archive/archive.css",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Restore memorial divider and refine archive layout",
+          "url": "https://github.com/iYakuza/landing-page/commit/71c274559b1c086ec3d459f2ed47e622bce932b5",
+          "files": [
+            "human-archive/archive.css"
+          ]
+        },
+        {
+          "message": "Fix memorial heading line structure",
+          "url": "https://github.com/iYakuza/landing-page/commit/bf7e732c4002fdbd73f4f205fa614ed61504ec54",
+          "files": [
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "39a323d2d7835feafff381736207b9e84858ec2b",
       "timestamp": "2026-11-18T10:04:02+01:00",
@@ -1180,33 +1209,6 @@
             "human-archive/archive.js",
             "human-archive/index.html",
             "supabase/migrations/20261117130000_save_human_archive_transmission_post_media.sql"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "1b0bfa64ae4660b525990e2e7aac2421d805b830",
-      "timestamp": "2026-11-17T01:32:49+01:00",
-      "category": "FEATURE",
-      "component": "Website Updates",
-      "title": "New capabilities for Website Updates",
-      "description": "This update brings together Create new Transmissions directly in Human Archive (#83). It updates archive.css, archive.js, index.html, 20261117110000_create_human_archive_transmission.sql.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html",
-        "supabase/migrations/20261117110000_create_human_archive_transmission.sql"
-      ],
-      "commits": [
-        {
-          "message": "Create new Transmissions directly in Human Archive (#83)",
-          "url": "https://github.com/iYakuza/landing-page/commit/1b0bfa64ae4660b525990e2e7aac2421d805b830",
-          "files": [
-            "human-archive/archive.css",
-            "human-archive/archive.js",
-            "human-archive/index.html",
-            "supabase/migrations/20261117110000_create_human_archive_transmission.sql"
           ]
         }
       ]
