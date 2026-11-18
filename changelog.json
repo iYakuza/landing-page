@@ -1,8 +1,43 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T06:45:28.408673Z",
-  "last_processed_sha": "37ea71f1dae9728d15aaa469e69ecbd225de2f4c",
+  "updated_at": "2026-11-18T06:51:56.426923Z",
+  "last_processed_sha": "cb8d4ae09cd719f06ce1eb8922a119d5643f4cc4",
   "entries": [
+    {
+      "id": "cb8d4ae09cd719f06ce1eb8922a119d5643f4cc4",
+      "timestamp": "2026-11-18T07:51:48+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Rollback Posts visual overhaul. It updates index.html, posts-human-archive.css, posts.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        "posts/index.html",
+        "posts/posts-human-archive.css",
+        "posts/posts.js",
+        "posts/the-awakening/index.html",
+        "posts/the-descent/index.html",
+        "posts/the-reconnection/index.html",
+        "posts/the-return/index.html",
+        "posts/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Rollback Posts visual overhaul",
+          "url": "https://github.com/iYakuza/landing-page/commit/cb8d4ae09cd719f06ce1eb8922a119d5643f4cc4",
+          "files": [
+            "posts/index.html",
+            "posts/posts-human-archive.css",
+            "posts/posts.js",
+            "posts/the-awakening/index.html",
+            "posts/the-descent/index.html",
+            "posts/the-reconnection/index.html",
+            "posts/the-return/index.html",
+            "posts/the-transformation/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "37ea71f1dae9728d15aaa469e69ecbd225de2f4c",
       "timestamp": "2026-11-18T07:45:20+01:00",
@@ -1152,35 +1187,6 @@
           "files": [
             "docs/architecture/unified-posting-record-model.md",
             "supabase/migrations/20261116211529_unified_posting_record_identity.sql"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "7fd4d80d130b90c105e22b55dc4e3ae4943238d1",
-      "timestamp": "2026-11-16T22:07:43+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Integrate Human Archive shared editor on latest main (#71). It updates rich-text-editor.js, archive.css, archive.js, index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "editor-ui/rich-text-editor.js",
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html",
-        "supabase/migrations/20261116203618_human_archive_transmission_body.sql"
-      ],
-      "commits": [
-        {
-          "message": "Integrate Human Archive shared editor on latest main (#71)",
-          "url": "https://github.com/iYakuza/landing-page/commit/7fd4d80d130b90c105e22b55dc4e3ae4943238d1",
-          "files": [
-            "editor-ui/rich-text-editor.js",
-            "human-archive/archive.css",
-            "human-archive/archive.js",
-            "human-archive/index.html",
-            "supabase/migrations/20261116203618_human_archive_transmission_body.sql"
           ]
         }
       ]
