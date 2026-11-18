@@ -983,6 +983,13 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    if(removedBlockPaths.length){const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedBlockPaths);if(removeError)console.warn('Removed block media could not be cleaned from storage:',removeError);}
    record.blockMediaPaths=(record.blockMediaPaths||[]).filter(path=>row.transmission_body.includes(path));
    record.content_html=row.transmission_body;recordStructureOverrides.set(String(record.id),row);
+   if(draftAutosaveEnabled){
+    if(record.status==='published'){draftAutosaveStopped=true;flushActiveChamberAutosave=async()=>true;}
+    else{
+     const autosaveState=buildDraftAutosaveState();
+     draftAutosaveLastSignature=JSON.stringify({metadata:autosaveState.metadata,row:{...autosaveState.row,updated_at:null,updated_by:null},mediaItems:autosaveState.mediaItems});
+    }
+   }
    await cleanupBlockMediaUploads(row.transmission_body);
    const oldMediaPaths=['image','audio','video'].flatMap(type=>Array.isArray(oldStructure.output_media?.[type])?oldStructure.output_media[type]:[])
     .filter(item=>item&&item.storage==='vha-post-media'&&typeof item.path==='string'&&item.path.startsWith('human-archive/'+String(record.id)+'/'))
