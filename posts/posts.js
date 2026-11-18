@@ -85,7 +85,10 @@
     const categories=isCommunityArchive?['COMMUNITY SIGNAL']:[...MOVEMENTS,'UNASSIGNED'];
     categoryFilter.innerHTML='<option value="">ALL CATEGORIES</option>'+categories.map(c=>'<option value="'+safe(c)+'">'+safe(c)+'</option>').join('');
     categoryFilter.value=categories.includes(selected)?selected:'';
-    const label=categoryFilter.closest('label');if(label)label.hidden=Boolean(requestedMovement)||isCommunityArchive;
+    const hideCategoryFilter=Boolean(requestedMovement)||isCommunityArchive;
+    const label=controls?.querySelector('label[for="'+categoryFilter.id+'"]');
+    if(label)label.hidden=hideCategoryFilter;
+    categoryFilter.hidden=hideCategoryFilter;
   }
   function postDate(post){const stamp=String(post.published_at||post.created_at||'');return /^\d{4}-\d{2}-\d{2}/.test(stamp)?stamp.slice(0,10):'UNDATED';}
   function postYear(post){const date=postDate(post);return date==='UNDATED'?'UNDATED':date.slice(0,4);}
