@@ -112,7 +112,7 @@
     return templates[type] || '<p><br></p>';
   }
 
-  function mountBlockEditor({ editor, onChange = () => {}, onUpload = null, getMediaLibrary = () => [], readOnly = false } = {}) {
+  function mountBlockEditor({ editor, onChange = () => {}, onUpload = null, getMediaLibrary = () => [], readOnly = false, showTopbar = true } = {}) {
     if (!(editor instanceof HTMLElement)) throw new TypeError('A block editor canvas is required.');
     if (editor.dataset.haBlockEditorMounted === 'true') return editor.__haBlockEditor || null;
     editor.dataset.haBlockEditorMounted = 'true';
@@ -123,17 +123,21 @@
 
     const shell = document.createElement('div');
     shell.className = 'ha-block-editor-shell';
-    const topbar = document.createElement('div');
-    topbar.className = 'ha-block-editor-topbar';
-    const addTop = document.createElement('button');
-    addTop.type = 'button'; addTop.className = 'ha-editor-inserter';
-    addTop.innerHTML = '<span aria-hidden="true">＋</span> Add block';
-    const hint = document.createElement('span');
-    hint.className = 'ha-block-editor-hint';
-    hint.textContent = 'Type / to insert a block';
-    topbar.append(addTop,hint);
+    let topbar = null;
+    let addTop = null;
+    if(showTopbar){
+      topbar = document.createElement('div');
+      topbar.className = 'ha-block-editor-topbar';
+      addTop = document.createElement('button');
+      addTop.type = 'button'; addTop.className = 'ha-editor-inserter';
+      addTop.innerHTML = '<span aria-hidden="true">＋</span> Add block';
+      const hint = document.createElement('span');
+      hint.className = 'ha-block-editor-hint';
+      hint.textContent = 'Type / to insert a block';
+      topbar.append(addTop,hint);
+    }
     editor.parentNode.insertBefore(shell,editor);
-    shell.append(topbar,editor);
+    if(topbar)shell.append(topbar,editor);else shell.append(editor);
 
     let selected = null;
     let menu = null;
@@ -266,7 +270,7 @@
       selection.removeAllRanges(); selection.addRange(range);
     }
 
-    function createMenu(anchor, block) {
+    function createMenu(anchor, block, pointer = null) {
       closeMenu();
       menu = document.createElement('div'); menu.className = 'ha-block-inserter-menu'; menu.setAttribute('role','dialog'); menu.setAttribute('aria-label','Choose a block');
       const search = document.createElement('input'); search.type='search'; search.className='ha-block-search'; search.placeholder='Search all blocks…'; search.setAttribute('aria-label','Search blocks'); menu.append(search);
@@ -282,7 +286,13 @@
         if(!count){const empty=document.createElement('p');empty.className='ha-block-empty';empty.textContent='No matching blocks';results.append(empty);}
       }
       search.addEventListener('input',()=>render(search.value)); render();
-      const anchorRect=anchor.getBoundingClientRect(),shellRect=shell.getBoundingClientRect();menu.style.left=Math.max(8,anchorRect.left-shellRect.left)+'px';menu.style.top=(anchorRect.bottom-shellRect.top+5)+'px';anchor.after(menu);search.focus();
+      const anchorRect=anchor.getBoundingClientRect(),shellRect=shell.getBoundingClientRect();
+      const usePointer=pointer?.valid!==false&&Number.isFinite(pointer?.x)&&Number.isFinite(pointer?.y);
+      const x=usePointer?pointer.x:anchorRect.left;
+      const y=usePointer?pointer.y:anchorRect.bottom;
+      menu.style.left=(x-shellRect.left+shell.scrollLeft)+'px';
+      menu.style.top=(y-shellRect.top+shell.scrollTop)+'px';
+      shell.append(menu);search.focus();
     }
 
     function addBlockControls(block) {
@@ -320,7 +330,7 @@
         else setSelected(next); sync();
       });
       [up,down,duplicate,remove].forEach(button=>actions.append(button));
-      block.querySelector('.ha-editor-add-after').addEventListener('click',event=>createMenu(event.currentTarget,block));
+      block.querySelector('.ha-editor-add-after').addEventListener('click',event=>createMenu(event.currentTarget,block,{x:event.clientX,y:event.clientY,valid:event.detail!==0}));
     }
 
     function transformBlock(block,type) {
@@ -431,8 +441,8 @@
       editor.append(block); wireBlock(block);
     });
 
-    addTop.addEventListener('click',()=>createMenu(addTop,null));
-    shell.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu){event.preventDefault();closeMenu();addTop.focus();}});
+    addTop?.addEventListener('click',event=>createMenu(addTop,null,{x:event.clientX,y:event.clientY,valid:event.detail!==0}));
+    shell.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu){event.preventDefault();closeMenu();(addTop||editor).focus();}});
     document.addEventListener('pointerdown',event=>{if(menu&&!shell.contains(event.target))closeMenu();},{signal:listeners.signal});
     editor.addEventListener('focusin',event=>{
       const block=event.target.closest('[data-ha-editor-block]');
@@ -444,7 +454,7 @@
 
     if (readOnly) {
       shell.classList.add('is-read-only');
-      topbar.hidden=true;
+      if(topbar)topbar.hidden=true;
       blocks().forEach(block=>{
         block.querySelector('.ha-editor-block-controls')?.remove();
         block.querySelector('.ha-editor-block-footer')?.remove();
@@ -475,7 +485,7 @@
         }).filter(Boolean);
       },
       getText() { return blocks().map(block=>{const content=block.querySelector('[data-ha-block-content]');const text=content?.innerText||'';return text.trim()|| (content?.querySelector('img,audio,video,iframe')?'media':'');}).filter(Boolean).join('\n\n'); },
-      replaceHTML(html) { this.destroy(); editor.innerHTML=String(html||'<p><br></p>'); return mountBlockEditor({editor,onChange,readOnly}); },
+      replaceHTML(html) { this.destroy(); editor.innerHTML=String(html||'<p><br></p>'); return mountBlockEditor({editor,onChange,onUpload,getMediaLibrary,readOnly,showTopbar}); },
       focus() { focusBlock(selected||blocks()[0]); },
       destroy() {
         listeners.abort();closeMenu();
