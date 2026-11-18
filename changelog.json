@@ -1,8 +1,43 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T05:28:44.466625Z",
-  "last_processed_sha": "4d1537161735e585f3024bded41a164fc641b87c",
+  "updated_at": "2026-11-18T05:50:38.730433Z",
+  "last_processed_sha": "96f6aaf507027835b43685746ca026c7f6747ee4",
   "entries": [
+    {
+      "id": "96f6aaf507027835b43685746ca026c7f6747ee4",
+      "timestamp": "2026-11-18T06:50:30+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Match Posts cards to Human Archive record layout. It updates index.html, posts.css, posts.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        "posts/index.html",
+        "posts/posts.css",
+        "posts/posts.js",
+        "posts/the-awakening/index.html",
+        "posts/the-descent/index.html",
+        "posts/the-reconnection/index.html",
+        "posts/the-return/index.html",
+        "posts/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Match Posts cards to Human Archive record layout",
+          "url": "https://github.com/iYakuza/landing-page/commit/96f6aaf507027835b43685746ca026c7f6747ee4",
+          "files": [
+            "posts/index.html",
+            "posts/posts.css",
+            "posts/posts.js",
+            "posts/the-awakening/index.html",
+            "posts/the-descent/index.html",
+            "posts/the-reconnection/index.html",
+            "posts/the-return/index.html",
+            "posts/the-transformation/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "4d1537161735e585f3024bded41a164fc641b87c",
       "timestamp": "2026-11-18T06:28:31+01:00",
@@ -1132,87 +1167,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/2ee3f0952b8a01aac1384520022669ec64a63cc4",
           "files": [
             "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "57e63da8124b096fafa20329d37aa4be2aad03d1",
-      "timestamp": "2026-11-16T19:42:59+01:00",
-      "category": "FEATURE",
-      "component": "Website Updates",
-      "title": "New capabilities for Website Updates",
-      "description": "This update brings together Redesign shared Human Archive chamber and media editor; Style expandable Human Archive chamber and media editor; Cache-bust shared chamber redesign assets; and 6 more related changes. It updates archive.css, archive.js, index.html, 20261116184039_human_archive_output_media.sql and related project files.",
-      "commit_count": 9,
-      "files": [
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html",
-        "supabase/migrations/20261116184039_human_archive_output_media.sql",
-        "supabase/migrations/20261116193000_human_archive_output_media.sql"
-      ],
-      "commits": [
-        {
-          "message": "Redesign shared Human Archive chamber and media editor",
-          "url": "https://github.com/iYakuza/landing-page/commit/72abbec131ad3b776818574629eef5e281e0a833",
-          "files": [
-            "human-archive/archive.js"
-          ]
-        },
-        {
-          "message": "Style expandable Human Archive chamber and media editor",
-          "url": "https://github.com/iYakuza/landing-page/commit/6a30fd344c57c61c2efe446534be269561481d3c",
-          "files": [
-            "human-archive/archive.css"
-          ]
-        },
-        {
-          "message": "Cache-bust shared chamber redesign assets",
-          "url": "https://github.com/iYakuza/landing-page/commit/5849cd9ab36f41f95cc305cbf8636f5d3b6a4514",
-          "files": [
-            "human-archive/index.html"
-          ]
-        },
-        {
-          "message": "Add per-record Human Archive output media metadata",
-          "url": "https://github.com/iYakuza/landing-page/commit/c64e930acaf0f77cc0217c41925339ba47ed11ed",
-          "files": [
-            "supabase/migrations/20261116193000_human_archive_output_media.sql"
-          ]
-        },
-        {
-          "message": "Tidy shared chamber media editor",
-          "url": "https://github.com/iYakuza/landing-page/commit/b10e5021b9c88388d55f870ab00d06c0a8e27283",
-          "files": [
-            "human-archive/archive.js"
-          ]
-        },
-        {
-          "message": "Align Human Archive output media migration filename with applied version",
-          "url": "https://github.com/iYakuza/landing-page/commit/27de240c305d1eaf4bd9cac39858af5f470005db",
-          "files": [
-            "supabase/migrations/20261116193000_human_archive_output_media.sql"
-          ]
-        },
-        {
-          "message": "Record applied Human Archive output media migration",
-          "url": "https://github.com/iYakuza/landing-page/commit/26f4b7051904bb8119b9593524f15df57f0350f1",
-          "files": [
-            "supabase/migrations/20261116184039_human_archive_output_media.sql"
-          ]
-        },
-        {
-          "message": "Allow production chamber media through page CSP",
-          "url": "https://github.com/iYakuza/landing-page/commit/34a81bdc509c3de0f9a72894c8e29136e4374bb6",
-          "files": [
-            "human-archive/index.html"
-          ]
-        },
-        {
-          "message": "Track chamber media edits directly in their controls",
-          "url": "https://github.com/iYakuza/landing-page/commit/5dd6037ba1a8ea702c048df1d01d183000d55dda",
-          "files": [
-            "human-archive/archive.js"
           ]
         }
       ]
