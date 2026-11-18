@@ -42,7 +42,14 @@
     if (tag === 'IMG' || node.querySelector?.('img')) return 'image';
     if (tag === 'AUDIO' || node.querySelector?.('audio')) return 'audio';
     if (tag === 'VIDEO' || node.querySelector?.('video')) return 'video';
-    if (tag === 'IFRAME' || node.querySelector?.('iframe')) return 'embed';
+    if (tag === 'IFRAME' || node.querySelector?.('iframe')) {
+      const frame = tag === 'IFRAME' ? node : node.querySelector('iframe');
+      const src = frame?.getAttribute('src') || '';
+      if (/spotify\.com/i.test(src)) return 'spotify';
+      if (/soundcloud\.com/i.test(src)) return 'soundcloud';
+      if (/youtube(?:-nocookie)?\.com|youtu\.be/i.test(src)) return 'youtube';
+      return 'embed';
+    }
     if (tag === 'DIV' || tag === 'SECTION' || tag === 'ASIDE' || tag === 'NAV' || tag === 'ARTICLE') return 'classic';
     return 'paragraph';
   }
