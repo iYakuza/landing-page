@@ -819,10 +819,6 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  };
  const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,editors:[transmissionEditor],toolbar,focusButton,insertLinkButton,draggableToolbar:false,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
 
- if(!readOnly&&record.source_type==='transmission'){
-  grid.addEventListener('input',scheduleDraftAutosave);
-  grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});
- }
  if(readOnly){
   grid.classList.add('ha-chamber-read-only');
   grid.querySelectorAll('input,textarea').forEach(control=>{control.readOnly=true;control.disabled=control.type==='file'||control.type==='range';});
@@ -990,6 +986,10 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   if(draftAutosaveTimer)clearTimeout(draftAutosaveTimer);
   draftAutosaveTimer=setTimeout(()=>{draftAutosaveTimer=null;runDraftAutosave();},delay);
  };
+ if(!readOnly&&record.source_type==='transmission'){
+  grid.addEventListener('input',scheduleDraftAutosave);
+  grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});
+ }
  const flushDraftAutosave=async()=>{
   if(draftAutosaveConflict)return false;
   if(!draftAutosaveEnabled)return true;
@@ -1488,6 +1488,10 @@ function openArchiveRecordChamber(record,trigger,openInEditor=false){
    const saveButton=dialog.querySelector('.ha-chamber-close');
    if(!grid||!status||!editButton||!saveButton)throw new Error('The new Transmission editor controls could not be initialized.');
    renderRecordStructureEditor(record,grid,status,editButton,expandButton,saveButton);
+   editButton.className='ha-chamber-edit';editButton.hidden=false;editButton.disabled=false;
+   editButton.textContent='DISCARD';editButton.setAttribute('aria-label','Discard editor changes');
+   saveButton.className='ha-chamber-close ha-chamber-save';saveButton.disabled=false;
+   saveButton.textContent='SAVE CHAMBER';saveButton.setAttribute('aria-label','Save chamber changes');
   }
  }catch(error){document.body.classList.remove('ha-chamber-open');console.error('Could not open the Human Archive chamber:',error);}
 }
