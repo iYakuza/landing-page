@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T21:06:31.094743Z",
-  "last_processed_sha": "7b99c12d8d4e1f40060c94d40d895e466972e88e",
+  "updated_at": "2026-11-18T21:06:40.027522Z",
+  "last_processed_sha": "b8d84b6fecf8dfcb4d893c9dba5f8c5a34ca410f",
   "entries": [
+    {
+      "id": "b8d84b6fecf8dfcb4d893c9dba5f8c5a34ca410f",
+      "timestamp": "2026-11-18T22:06:34+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Experience",
+      "title": "A refined Website Experience",
+      "description": "This update brings together Refresh Human Archive saved-column rendering assets. It updates index.html.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Refresh Human Archive saved-column rendering assets",
+          "url": "https://github.com/iYakuza/landing-page/commit/b8d84b6fecf8dfcb4d893c9dba5f8c5a34ca410f",
+          "files": [
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "7b99c12d8d4e1f40060c94d40d895e466972e88e",
       "timestamp": "2026-11-18T22:06:27+01:00",
@@ -1266,27 +1287,6 @@
         {
           "message": "Preserve line breaks across all Human Archive editor sections",
           "url": "https://github.com/iYakuza/landing-page/commit/e900017041b161778351b82a4d610a49b87ee02f",
-          "files": [
-            "human-archive/archive.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "8e60a6a3f8236c902482b5c6522b55a954a1c8d6",
-      "timestamp": "2026-11-18T11:37:22+01:00",
-      "category": "FIX",
-      "component": "Website",
-      "title": "More reliable Website",
-      "description": "This update brings together Fix Human Archive newline handling. It updates archive.js.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.js"
-      ],
-      "commits": [
-        {
-          "message": "Fix Human Archive newline handling",
-          "url": "https://github.com/iYakuza/landing-page/commit/8e60a6a3f8236c902482b5c6522b55a954a1c8d6",
           "files": [
             "human-archive/archive.js"
           ]
