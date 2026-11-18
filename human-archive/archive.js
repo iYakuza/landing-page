@@ -752,7 +752,14 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const readLayoutText=selector=>{
   const node=savedLayoutDoc.querySelector(selector);if(!node)return '';
   const clone=node.cloneNode(true);clone.querySelectorAll('.suno-label,.suno-collapse-hint').forEach(label=>label.remove());
-  return clone.innerText||clone.textContent||'';
+  const read=node=>{
+   if(node.nodeType===Node.TEXT_NODE)return node.nodeValue||'';
+   if(node.nodeType!==Node.ELEMENT_NODE)return '';
+   if(node.tagName==='BR')return '\\n';
+   const value=[...node.childNodes].map(read).join('');
+   return ['P','DIV','LI','H1','H2','H3','H4','BLOCKQUOTE'].includes(node.tagName)?value+'\\n\\n':value;
+  };
+  return read(clone).replace(/\\r/g,'').replace(/[ \\t]+\\n/g,'\\n').replace(/\\n{3,}/g,'\\n\\n').trim();
  };
  const layoutPanel=makeChamberDisclosure('00.25 // POST PRESENTATION','ha-chamber-panel ha-chamber-edit-panel ha-chamber-layout-panel','ha-chamber-panel-heading');
  const layoutSelect=document.createElement('select');layoutSelect.className='ha-chamber-editor-field ha-chamber-meta-input';
