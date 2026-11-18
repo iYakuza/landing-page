@@ -69,7 +69,7 @@
     content.className = 'ha-editor-block-content';
     content.dataset.haBlockContent = '';
     content.innerHTML = html;
-    if (['separator','image','gallery','slideshow','tiled-gallery','image-compare','audio','video','playlist','podcast','embed','youtube','spotify','soundcloud','spacer'].includes(type)) content.contentEditable = 'false';
+    if (['separator','image','gallery','slideshow','tiled-gallery','image-compare','audio','video','playlist','podcast','embed','youtube','spotify','soundcloud','spacer','columns'].includes(type)) content.contentEditable = 'false';
     else content.contentEditable = 'true';
 
     const footer = document.createElement('div');
@@ -147,7 +147,98 @@
     const listeners = new AbortController();
 
     const labelFor = type => TYPES.find(item => item[0] === type)?.[1] || 'Classic';
-    const blocks = () => [...editor.querySelectorAll(':scope > [data-ha-editor-block]')];
+    const blocks = (container = editor) => [...(container?.children || [])].filter(node => node.matches?.('[data-ha-editor-block]'));
+    const allBlocks = (container = editor) => [...container.querySelectorAll('[data-ha-editor-block]')];
+    const contentFor = block => block?.querySelector(':scope > .ha-editor-block-content');
+
+    function updateColumnCount(columns) {
+      const count=[...columns.children].filter(node=>node.classList.contains('ha-editor-column')).length;
+      columns.style.setProperty('--ha-column-count',String(Math.max(1,count)));
+    }
+
+    function buildEditorColumn(source, columns, ownerBlock) {
+      const column=document.createElement('section');
+      const retainedClasses=source?[...source.classList].filter(name=>name!=='ha-editor-column'):[];
+      column.classList.add('ha-editor-column',...retainedClasses);
+      const stack=document.createElement('div');
+      stack.className='ha-editor-column-blocks';
+      const nodes=source?[...source.childNodes].map(normalizeNode).filter(Boolean):[];
+      if(!nodes.length){const empty=document.createElement('p');empty.innerHTML='<br>';nodes.push(empty);}
+      nodes.forEach(node=>{
+        const nested=makeBlock(blockType(node),node.outerHTML||'<p><br></p>');
+        stack.append(nested);
+        wireBlock(nested);
+      });
+      column.append(stack);
+      wireEditorColumn(column,columns,ownerBlock);
+      return column;
+    }
+
+    function wireEditorColumn(column, columns, ownerBlock) {
+      const stack=column.querySelector(':scope > .ha-editor-column-blocks');
+      if(!stack)return;
+      let add=column.querySelector(':scope > .ha-editor-add-column');
+      if(!add){
+        add=document.createElement('button');
+        add.type='button';
+        add.className='ha-editor-add-column';
+        add.textContent='+';
+        column.append(add);
+      }
+      add.title='Add a column after this column';
+      add.setAttribute('aria-label','Add a column after this column');
+      add.onclick=()=>{
+        const next=buildEditorColumn(null,columns,ownerBlock);
+        column.after(next);
+        updateColumnCount(columns);
+        sync();
+        focusBlock(blocks(next.querySelector('.ha-editor-column-blocks'))[0]);
+      };
+      stack.ondragover=event=>{
+        if(event.dataTransfer?.types.includes('text/plain'))event.preventDefault();
+      };
+      stack.ondrop=event=>{
+        if(event.target.closest('[data-ha-editor-block]')||!event.dataTransfer?.types.includes('text/plain'))return;
+        event.preventDefault();
+        const dragging=allBlocks().find(node=>node.classList.contains('is-dragging'));
+        if(dragging&&!dragging.contains(ownerBlock)&&dragging!==ownerBlock){
+          stack.append(dragging);
+          sync();
+        }
+      };
+      blocks(stack).forEach(wireBlock);
+    }
+
+    function wireColumns(block) {
+      const content=contentFor(block);
+      if(!content)return;
+      let columns=content.querySelector(':scope > .ha-columns');
+      if(!columns){
+        const existing=document.createElement('div');
+        existing.className='ha-columns';
+        const first=document.createElement('section');
+        first.innerHTML=content.innerHTML||'<p><br></p>';
+        const second=document.createElement('section');
+        second.innerHTML='<p><br></p>';
+        existing.append(first,second);
+        content.replaceChildren(existing);
+        columns=existing;
+      }
+      if(!columns.classList.contains('ha-editor-columns-layout')){
+        let sources=[...columns.children].filter(node=>node.tagName==='SECTION');
+        if(!sources.length){
+          const first=document.createElement('section');
+          first.innerHTML=columns.innerHTML||'<p><br></p>';
+          sources=[first];
+        }
+        if(sources.length===1)sources.push(document.createElement('section'));
+        columns.classList.add('ha-editor-columns-layout');
+        columns.replaceChildren(...sources.map(source=>buildEditorColumn(source,columns,block)));
+      }else{
+        [...columns.children].filter(node=>node.classList.contains('ha-editor-column')).forEach(column=>wireEditorColumn(column,columns,block));
+      }
+      updateColumnCount(columns);
+    }
 
     function setSelected(block) {
       if (selected) selected.classList.remove('is-selected');
@@ -260,7 +351,8 @@
     }
 
     function focusBlock(block) {
-      const target = block?.querySelector('[data-ha-block-content][contenteditable="true"]');
+      const ownContent=contentFor(block);
+      const target=ownContent?.contentEditable==='true'?ownContent:ownContent?.querySelector('[data-ha-block-content][contenteditable="true"]');
       if (!target) return;
       target.focus();
       const editableBlocks=target.querySelectorAll('p,h1,h2,h3,h4,li,pre,blockquote');
@@ -326,10 +418,12 @@
 
     function addBlockControls(block) {
       const type = block.dataset.haBlock || 'paragraph';
-      block.querySelector('.ha-editor-block-name').textContent = labelFor(type);
-      const grip = block.querySelector('.ha-editor-block-grip');
+      const blockName = block.querySelector(':scope > .ha-editor-block-controls > .ha-editor-block-name');
+      if(blockName)blockName.textContent = labelFor(type);
+      const grip = block.querySelector(':scope > .ha-editor-block-controls > .ha-editor-block-grip');
       if(grip)grip.draggable=true;
-      const actions = block.querySelector('.ha-editor-block-actions');
+      const actions = block.querySelector(':scope > .ha-editor-block-controls > .ha-editor-block-actions');
+      if(!actions)return;
       actions.replaceChildren();
       const transform = document.createElement('select');
       transform.className = 'ha-editor-block-transform';
@@ -339,31 +433,38 @@
           [['h1','Heading 1'],['h2','Heading 2'],['h3','Heading 3'],['h4','Heading 4']].forEach(([value,text])=>{const option=document.createElement('option');option.value=value;option.textContent=text;transform.append(option);});
         }else{const option = document.createElement('option'); option.value=key; option.textContent=label; transform.append(option);}
       });
-      const currentContent=block.querySelector('[data-ha-block-content]')?.firstElementChild;
+      const currentContent=contentFor(block)?.firstElementChild;
       transform.value = /^H[1-4]$/.test(currentContent?.tagName||'') ? currentContent.tagName.toLowerCase() : (['image','audio','video','embed','separator','classic'].includes(type) ? 'paragraph' : type==='heading'?'h2':type);
       transform.addEventListener('change',() => transformBlock(block,transform.value));
       if(['classic','image','gallery','slideshow','tiled-gallery','cover','media-text','image-compare','audio','video','file','playlist','podcast','embed','youtube','spotify','soundcloud','separator','spacer'].includes(type))transform.disabled=true;
       actions.append(transform);
 
       const up = document.createElement('button'); up.type='button'; up.textContent='↑'; up.title='Move block up'; up.setAttribute('aria-label','Move block up');
-      up.addEventListener('click',() => { if(block.previousElementSibling){block.parentNode.insertBefore(block,block.previousElementSibling);sync();} });
+      up.addEventListener('click',() => { const siblings=blocks(block.parentElement),index=siblings.indexOf(block),previous=siblings[index-1];if(previous){block.parentNode.insertBefore(block,previous);sync();} });
       const down = document.createElement('button'); down.type='button'; down.textContent='↓'; down.title='Move block down'; down.setAttribute('aria-label','Move block down');
-      down.addEventListener('click',() => { if(block.nextElementSibling){block.parentNode.insertBefore(block.nextElementSibling,block);sync();} });
+      down.addEventListener('click',() => { const siblings=blocks(block.parentElement),index=siblings.indexOf(block),next=siblings[index+1];if(next){block.parentNode.insertBefore(next,block);sync();} });
       const duplicate = document.createElement('button'); duplicate.type='button'; duplicate.textContent='＋'; duplicate.title='Duplicate block'; duplicate.setAttribute('aria-label','Duplicate block');
-      duplicate.addEventListener('click',() => { const copy=block.cloneNode(true); block.after(copy); wireBlock(copy); setSelected(copy); sync(); });
+      duplicate.addEventListener('click',() => {
+        const copy=block.cloneNode(true);
+        [copy,...copy.querySelectorAll('[data-ha-editor-block]')].forEach(node=>{delete node.dataset.haEditorWired;});
+        block.after(copy);wireBlock(copy);setSelected(copy);sync();
+      });
       const remove = document.createElement('button'); remove.type='button'; remove.textContent='×'; remove.title='Delete block'; remove.setAttribute('aria-label','Delete block');
       remove.addEventListener('click',() => {
-        const next=block.nextElementSibling||block.previousElementSibling;
+        const parent=block.parentElement;
+        const siblings=blocks(parent);
+        const next=siblings[siblings.indexOf(block)+1]||siblings[siblings.indexOf(block)-1]||null;
         block.remove();
-        if (!blocks().length){const empty=makeBlock('paragraph','<p><br></p>');editor.append(empty);wireBlock(empty);setSelected(empty);}
-        else setSelected(next); sync();
+        if(!blocks(parent).length){const empty=makeBlock('paragraph','<p><br></p>');parent.append(empty);wireBlock(empty);setSelected(empty);}
+        else setSelected(next);
+        sync();
       });
       [up,down,duplicate,remove].forEach(button=>actions.append(button));
-      block.querySelector('.ha-editor-add-after').addEventListener('click',event=>createMenu(event.currentTarget,block,{x:event.clientX,y:event.clientY,valid:event.detail!==0}));
+      block.querySelector(':scope > .ha-editor-block-footer > .ha-editor-add-after').addEventListener('click',event=>createMenu(event.currentTarget,block,{x:event.clientX,y:event.clientY,valid:event.detail!==0}));
     }
 
     function transformBlock(block,type) {
-      const current=block.querySelector('[data-ha-block-content]');
+      const current=contentFor(block);
       const first=current?.firstElementChild;
       const plain=document.createElement('span');plain.textContent=current?.textContent||'';
       const inlineHTML=first&&['P','H1','H2','H3','H4'].includes(first.tagName)?first.innerHTML:plain.innerHTML;
@@ -375,11 +476,15 @@
       else if(type==='preformatted'||type==='code') html=type==='code'?'<pre><code>'+plain.innerHTML+'</code></pre>':'<pre>'+plain.innerHTML+'</pre>';
       else if(type==='unordered-list') html='<ul><li>'+plain.innerHTML+'</li></ul>';
       else if(type==='ordered-list') html='<ol><li>'+plain.innerHTML+'</li></ol>';
+      if(type==='columns')html=defaultHTML('columns');
       const next=makeBlock(/^h[1-4]$/.test(type)?'heading':type,html);
       block.replaceWith(next); wireBlock(next); setSelected(next); focusBlock(next); sync();
     }
 
     function wireBlock(block) {
+      if(!block||block.dataset.haEditorWired==='true')return;
+      block.dataset.haEditorWired='true';
+      if(block.dataset.haBlock==='columns')wireColumns(block);
       addBlockControls(block);
       block.addEventListener('focusin',()=>setSelected(block));
       block.addEventListener('click',event=>{ if(!event.target.closest('button,select'))setSelected(block); });
@@ -389,10 +494,14 @@
       block.addEventListener('drop',event=>{
         if(!event.dataTransfer?.types.includes('text/plain'))return;
         event.preventDefault();
-        const dragging=editor.querySelector('.is-dragging');
-        if(dragging&&dragging!==block){const rect=block.getBoundingClientRect();block.parentNode.insertBefore(dragging,event.clientY<rect.top+rect.height/2?block:block.nextSibling);sync();}
+        const dragging=allBlocks().find(node=>node.classList.contains('is-dragging'));
+        if(dragging&&dragging!==block&&!dragging.contains(block)){
+          const rect=block.getBoundingClientRect();
+          block.parentNode.insertBefore(dragging,event.clientY<rect.top+rect.height/2?block:block.nextSibling);
+          sync();
+        }
       });
-      const content=block.querySelector('[data-ha-block-content]');
+      const content=contentFor(block);
       if(content && content.contentEditable==='true') {
         content.addEventListener('paste',event=>{
           const html=event.clipboardData?.getData('text/html');
@@ -424,7 +533,7 @@
         });
         content.addEventListener('input',()=>{
           const first=content.firstElementChild;
-          if(first){const type=blockType(first);block.dataset.haBlock=type;block.querySelector('.ha-editor-block-name').textContent=labelFor(type);}
+          if(first){const type=blockType(first);block.dataset.haBlock=type;const name=block.querySelector(':scope > .ha-editor-block-controls > .ha-editor-block-name');if(name)name.textContent=labelFor(type);}
           sync();
         });
         content.addEventListener('keydown',event=>{
@@ -484,36 +593,61 @@
     if (readOnly) {
       shell.classList.add('is-read-only');
       if(topbar)topbar.hidden=true;
-      blocks().forEach(block=>{
-        block.querySelector('.ha-editor-block-controls')?.remove();
-        block.querySelector('.ha-editor-block-footer')?.remove();
-        const content=block.querySelector('[data-ha-block-content]');
+      allBlocks().forEach(block=>{
+        block.querySelector(':scope > .ha-editor-block-controls')?.remove();
+        block.querySelector(':scope > .ha-editor-block-footer')?.remove();
+        const content=contentFor(block);
         if(content)content.contentEditable='false';
       });
     } else {
       editor.addEventListener('input',sync);
     }
 
+    function serializeContent(content) {
+      const clone=content.cloneNode(true);
+      [...clone.querySelectorAll('[data-ha-editor-block]')].reverse().forEach(wrapper=>{
+        const nestedContent=wrapper.querySelector(':scope > .ha-editor-block-content');
+        const fragment=document.createDocumentFragment();
+        if(nestedContent)[...nestedContent.childNodes].forEach(node=>fragment.append(node.cloneNode(true)));
+        wrapper.replaceWith(fragment);
+      });
+      clone.querySelectorAll('.ha-editor-add-column,.ha-editor-block-controls,.ha-editor-block-footer').forEach(node=>node.remove());
+      clone.querySelectorAll('.ha-editor-column-blocks').forEach(stack=>stack.replaceWith(...stack.childNodes));
+      clone.querySelectorAll('.ha-editor-column').forEach(column=>column.classList.remove('ha-editor-column'));
+      clone.querySelectorAll('.ha-editor-columns-layout').forEach(columns=>columns.classList.remove('ha-editor-columns-layout'));
+      clone.querySelectorAll('[contenteditable]').forEach(node=>node.removeAttribute('contenteditable'));
+      return clone.innerHTML;
+    }
+
     const api = {
       getHTML() {
         const holder=document.createElement('div');
         blocks().forEach(block=>{
-          const content=block.querySelector('[data-ha-block-content]');
-          if(content){const clone=content.cloneNode(true);holder.append(...clone.childNodes);}
+          const content=contentFor(block);
+          if(content){const wrapper=document.createElement('div');wrapper.innerHTML=serializeContent(content);holder.append(...wrapper.childNodes);}
         });
         return holder.innerHTML;
       },
       getBlocks() {
         return blocks().map((block,index)=>{
-          const content=block.querySelector('[data-ha-block-content]');
+          const content=contentFor(block);
           return content ? {
             id:block.dataset.haBlockId || 'block-'+String(index+1).padStart(3,'0'),
             type:block.dataset.haBlock || 'classic',
-            html:content.innerHTML
+            html:serializeContent(content)
           } : null;
         }).filter(Boolean);
       },
-      getText() { return blocks().map(block=>{const content=block.querySelector('[data-ha-block-content]');const text=content?.innerText||'';return text.trim()|| (content?.querySelector('img,audio,video,iframe')?'media':'');}).filter(Boolean).join('\n\n'); },
+      getText() {
+        return blocks().map(block=>{
+          const content=contentFor(block);
+          if(!content)return '';
+          const parsed=document.createElement('div');
+          parsed.innerHTML=serializeContent(content);
+          const text=parsed.innerText||parsed.textContent||'';
+          return text.trim()||(parsed.querySelector('img,audio,video,iframe')?'media':'');
+        }).filter(Boolean).join('\\n\\n');
+      },
       replaceHTML(html) { this.destroy(); editor.innerHTML=String(html||'<p><br></p>'); return mountBlockEditor({editor,onChange,onUpload,getMediaLibrary,readOnly,showTopbar}); },
       focus() { focusBlock(selected||blocks()[0]); },
       destroy() {
