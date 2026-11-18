@@ -435,7 +435,7 @@
       blockName?.addEventListener('click',()=>{
         const next=window.prompt('Rename block',displayBlockName(block));
         if(next===null)return;
-        const value=String(next).replace(/[\\u0000-\\u001f\\u007f]/g,'').trim().slice(0,80);
+        const value=String(next).replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,80);
         if(value)block.dataset.haBlockName=value;else delete block.dataset.haBlockName;
         refreshBlockName(block);
         sync();
@@ -659,7 +659,7 @@
       const applyBlockName=(target,block)=>{
         const root=target?.firstElementChild;
         if(!root)return;
-        const name=String(block?.dataset.haBlockName||'').replace(/[\\u0000-\\u001f\\u007f]/g,'').trim().slice(0,80);
+        const name=String(block?.dataset.haBlockName||'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,80);
         if(name)root.setAttribute('data-ha-block-name',name);
         else root.removeAttribute('data-ha-block-name');
       };
