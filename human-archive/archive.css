@@ -809,3 +809,112 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
 .ha-new-transmission{min-height:42px;padding:0 14px;font:9px 'DM Mono',monospace;letter-spacing:1px;white-space:nowrap}
 .ha-new-transmission:disabled{opacity:.55;cursor:wait}
 .ha-create-status{color:var(--muted);font:9px 'DM Mono',monospace;letter-spacing:.6px;min-width:0}
+
+
+/* COLUMBARIUM CARD SKIN — exterior only; expanded record content remains untouched. */
+.ha-category-entries{
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  gap:12px!important;
+}
+.ha-record-card{min-width:0}
+.ha-record-card>.ha-entry{
+  width:100%;
+  height:154px!important;
+  min-height:154px!important;
+  max-height:154px!important;
+  padding:15px 15px 12px!important;
+  border:1px solid #343a36!important;
+  border-top-color:#444b45!important;
+  border-bottom-color:#090b0a!important;
+  border-left:1px solid #343a36!important;
+  border-radius:0!important;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.035),transparent 38%),
+    linear-gradient(180deg,#252a27 0%,#191d1b 68%,#141715 100%)!important;
+  box-shadow:
+    inset 0 1px 2px rgba(255,255,255,.045),
+    inset 0 -8px 16px rgba(0,0,0,.25),
+    0 5px 9px rgba(0,0,0,.3)!important;
+  color:#e4e0d5!important;
+  font-family:"Arial Narrow","Helvetica Neue",Arial,sans-serif!important;
+  transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease,background .22s ease!important;
+}
+.ha-record-card>.ha-entry:before{
+  inset:5px!important;
+  width:auto!important;height:auto!important;
+  opacity:1!important;
+  border:1px solid rgba(255,255,255,.035);
+  background:none!important;
+  clip-path:none!important;
+}
+.ha-record-card>.ha-entry:after{
+  right:13px!important;top:13px!important;
+  width:13px!important;height:13px!important;
+  border-color:rgba(182,154,104,.48)!important;
+}
+.ha-record-card>.ha-entry:hover,
+.ha-record-card>.ha-entry:focus-visible{
+  transform:translateY(-3px)!important;
+  border-color:rgba(182,154,104,.75)!important;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.045),transparent 42%),
+    linear-gradient(180deg,#2a302c 0%,#1c211e 70%,#151917 100%)!important;
+  box-shadow:
+    inset 0 1px 2px rgba(255,255,255,.07),
+    0 9px 24px rgba(0,0,0,.45),
+    0 0 20px rgba(182,154,104,.08)!important;
+  outline:none!important;
+}
+.ha-record-card>.ha-entry .ha-entry-code{
+  color:#92988f!important;
+  font:8px/1.5 "Arial Narrow","Helvetica Neue",Arial,sans-serif!important;
+  letter-spacing:.16em!important;
+}
+.ha-record-card>.ha-entry .ha-entry-id{
+  color:#b69a68!important;
+  font:8px/1.5 "Arial Narrow","Helvetica Neue",Arial,sans-serif!important;
+  letter-spacing:.1em!important;
+}
+.ha-record-card>.ha-entry strong{
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  -webkit-line-clamp:3!important;
+  overflow:hidden!important;
+  min-height:0!important;
+  max-width:100%!important;
+  margin:12px 0!important;
+  color:#e4e0d5!important;
+  font:400 clamp(15px,1.25vw,18px)/1.2 Georgia,"Times New Roman",serif!important;
+  letter-spacing:.01em!important;
+  overflow-wrap:anywhere;
+}
+.ha-record-card>.ha-entry .ha-entry-bottom{
+  padding-top:9px!important;
+  border-top:1px solid rgba(222,218,203,.12)!important;
+}
+.ha-record-card>.ha-entry .ha-entry-bottom small{
+  color:#92988f!important;
+  font:8px/1.4 "Arial Narrow","Helvetica Neue",Arial,sans-serif!important;
+  letter-spacing:.1em!important;
+}
+.ha-record-card>.ha-entry .ha-entry-bottom span{
+  color:#b69a68!important;
+  font:8px/1.4 "Arial Narrow","Helvetica Neue",Arial,sans-serif!important;
+  letter-spacing:.12em!important;
+}
+@media(max-width:850px){
+  .ha-category-entries{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:590px){
+  .ha-category-entries{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+  .ha-record-card>.ha-entry{height:154px!important;min-height:154px!important;max-height:154px!important;padding:13px 11px 11px!important}
+  .ha-record-card>.ha-entry strong{font-size:15px!important;margin:11px 0!important}
+  .ha-record-card>.ha-entry .ha-entry-code,
+  .ha-record-card>.ha-entry .ha-entry-id,
+  .ha-record-card>.ha-entry .ha-entry-bottom small,
+  .ha-record-card>.ha-entry .ha-entry-bottom span{font-size:7px!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .ha-record-card>.ha-entry{transition:none!important}
+}
