@@ -297,7 +297,7 @@
             [...node.attributes].forEach(attribute=>{
               const name=attribute.name.toLowerCase(),value=attribute.value||'';
               if(name.startsWith('on')||name==='srcdoc'||name==='srcset'||name==='contenteditable')node.removeAttribute(attribute.name);
-              else if(name==='style'&&!/text-align\\s*:\\s*(left|center|right|justify)/i.test(value))node.removeAttribute(attribute.name);
+              else if(name==='style'&&!/text-align\s*:\s*(left|center|right|justify)/i.test(value))node.removeAttribute(attribute.name);
               else if(name==='href'){
                 try{const url=new URL(value);if(!((url.protocol==='https:'&&url.hostname&&!url.username&&!url.password)||(url.protocol==='mailto:'&&url.pathname)))node.removeAttribute(attribute.name);}catch{node.removeAttribute(attribute.name);}
               }else if(name==='src'){
