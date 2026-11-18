@@ -526,3 +526,21 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
 
 /* Keep the editor overlay independent of the host page's box model. */
 .ha-record-chamber,.ha-record-chamber *,.ha-image-viewer,.ha-image-viewer *{box-sizing:border-box}
+
+
+/* Unified Human Archive block stream */
+.ha-chamber-grid{display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;gap:16px;width:min(1200px,100%);margin:22px auto 0}
+.ha-chamber-blocks-view{width:min(900px,100%);margin:18px auto 0;color:#d1dbd2;font:15px/1.95 Georgia,'Times New Roman',serif;overflow-wrap:anywhere}
+.ha-chamber-blocks-view>*{max-width:100%;margin-top:0;margin-bottom:1.15em}
+.ha-chamber-blocks-view p:last-child{margin-bottom:0}
+.ha-chamber-blocks-view h1,.ha-chamber-blocks-view h2,.ha-chamber-blocks-view h3,.ha-chamber-blocks-view h4{color:#d8ff3e;line-height:1.3}
+.ha-chamber-blocks-view blockquote{margin:18px 0;padding:8px 16px;border-left:2px solid #b9d77a;color:#aab7a7}
+.ha-chamber-blocks-view ul,.ha-chamber-blocks-view ol{padding-left:1.5em}
+.ha-chamber-blocks-view figure{margin:24px 0}
+.ha-chamber-blocks-view img,.ha-chamber-blocks-view video{display:block;max-width:100%;height:auto}
+.ha-chamber-blocks-view audio{display:block;width:min(100%,680px)}
+.ha-chamber-blocks-view iframe{display:block;width:100%;aspect-ratio:16/9;border:0}
+.ha-chamber-blocks-view a{color:#d8ff3e;text-decoration:underline;text-underline-offset:3px}
+.ha-chamber-grid>.ha-rich-editor-top{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#aab7a7;font:9px/1.5 'DM Mono',monospace;letter-spacing:.12em}
+.ha-chamber-grid>.ha-rich-toolbar,.ha-chamber-grid>.ha-block-editor-shell,.ha-chamber-grid>.ha-rich-content{width:100%;min-width:0}
+.ha-legacy-hidden-field{display:none!important}
