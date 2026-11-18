@@ -480,6 +480,12 @@ function flattenArchiveWrappers(html){
  const blockTags=new Set(['P','H1','H2','H3','H4','UL','OL','BLOCKQUOTE','PRE','HR','FIGURE','TABLE','DETAILS','IFRAME','AUDIO','VIDEO','IMG','CODE','DL','DT','DD']);
  const wrapperTags=new Set(['DIV','SECTION','ASIDE','ARTICLE','NAV','MAIN','HEADER','FOOTER']);
  const archiveBlocks=new Set(['ha-pullquote','ha-verse','ha-button-block','ha-more-block','ha-html-source','ha-markdown-source','ha-icon-block','ha-file-block','ha-embed','ha-embed-card','ha-embed-youtube','ha-embed-spotify','ha-embed-soundcloud','ha-podcast','ha-playlist','ha-audio-block','ha-columns','ha-group','ha-row','ha-stack','ha-grid','ha-cover','ha-gallery','ha-slideshow','ha-tiled-gallery','ha-media-text','ha-buttons','ha-callout','ha-card','ha-tabs','ha-timeline','ha-page-break','ha-social-icons','ha-spacer','ha-image-compare']);
+ const markEmbed=clone=>{
+  const frame=clone.tagName==='IFRAME'?clone:clone.querySelector?.('iframe');
+  if(!frame)return clone;
+  try{const host=new URL(frame.getAttribute('src')||'').hostname.toLowerCase();if(host.includes('youtube'))clone.classList.add('ha-embed-youtube');else if(host==='open.spotify.com')clone.classList.add('ha-embed-spotify');else if(host==='w.soundcloud.com')clone.classList.add('ha-embed-soundcloud');}catch{}
+  return clone;
+ };
  const flatten=(nodes,parent,inheritedAlignment='')=>{
   let inline=[];
   const flush=()=>{
@@ -506,7 +512,7 @@ function flattenArchiveWrappers(html){
    }
    if(blockTags.has(tag)){
     flush();
-    const clone=node.cloneNode(true);
+    const clone=markEmbed(node.cloneNode(true));
     if(alignment&&['P','H1','H2','H3','H4'].includes(tag)&&!clone.style.textAlign)clone.style.textAlign=alignment;
     parent.append(clone);return;
    }
