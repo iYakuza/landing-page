@@ -2,8 +2,8 @@
   'use strict';
 
   const EMBED_HOSTS = new Set(['www.youtube.com','www.youtube-nocookie.com','youtu.be','youtube.com','open.spotify.com','w.soundcloud.com','soundcloud.com','player.vimeo.com','vimeo.com','www.tiktok.com','www.instagram.com','www.facebook.com','www.dailymotion.com','www.loom.com','www.ted.com','codepen.io','www.redditmedia.com','www.slideshare.net','www.mixcloud.com','audiomack.com','www.pinterest.com']);
-  const IMAGE_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']);
-  const MEDIA_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co']);
+  const IMAGE_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']);
+  const MEDIA_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']);
   const TYPES = [
     ['paragraph','Paragraph','Text'],['heading','Heading','Text'],['unordered-list','List','Text'],['ordered-list','Numbered list','Text'],['quote','Quote','Text'],['pullquote','Pullquote','Text'],['verse','Verse','Text'],['preformatted','Preformatted','Text'],['code','Code','Text'],['table','Table','Text'],['details','Details / Accordion','Text'],['markdown','Markdown','Text'],['html','Custom HTML','Text'],['classic','Classic content','Text'],['separator','Separator','Text'],['page-break','Page break','Text'],['more','More / Read more','Text'],
     ['image','Image','Media'],['gallery','Gallery','Media'],['slideshow','Slideshow','Media'],['tiled-gallery','Tiled gallery','Media'],['cover','Cover','Media'],['media-text','Media & text','Media'],['image-compare','Image compare','Media'],['audio','Audio','Media'],['video','Video','Media'],['file','File download','Media'],['playlist','Audio playlist','Media'],['podcast','Podcast player','Media'],['embed','Embed','Media'],['youtube','YouTube','Media'],['spotify','Spotify','Media'],['soundcloud','SoundCloud','Media'],
@@ -16,6 +16,8 @@
       if (url.protocol !== 'https:' || !url.hostname || url.username || url.password || !hosts.has(url.hostname.toLowerCase())) return '';
       if (url.hostname.toLowerCase() === 'oeyxsqocldlovhsmzcjw.supabase.co' &&
           !/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname)) return '';
+      if (url.hostname.toLowerCase() === 'ioguymqdeuuursizifnn.supabase.co' &&
+          !/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname)) return '';
       return url.href;
     } catch { return ''; }
   }
@@ -161,7 +163,7 @@
         const dialog=document.createElement('div');dialog.className='ha-media-picker';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-label','Add '+labelFor(type));
         const panel=document.createElement('div');panel.className='ha-media-picker-panel';
         const heading=document.createElement('h3');heading.textContent='ADD '+labelFor(type).toUpperCase();panel.append(heading);
-        const help=document.createElement('p');help.textContent='Upload files from your device or reuse media already attached to this record.';panel.append(help);
+        const help=document.createElement('p');help.textContent='Upload files from your device or reuse media already stored in the Human Archive.';panel.append(help);
         const input=document.createElement('input');input.type='file';input.accept=type==='image'||type==='gallery'||type==='slideshow'||type==='tiled-gallery'||type==='cover'||type==='media-text'||type==='image-compare'?'image/jpeg,image/png,image/webp,image/gif,image/avif':type==='audio'||type==='playlist'||type==='podcast'?'audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm':type==='video'?'video/mp4,video/webm':'image/jpeg,image/png,image/webp,image/gif,image/avif,audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm';
         input.multiple=['gallery','slideshow','tiled-gallery','image-compare','playlist'].includes(type);input.className='ha-media-picker-input';input.setAttribute('aria-label','Choose media files');panel.append(input);
         const options=document.createElement('div');options.className='ha-media-picker-options';
@@ -171,7 +173,7 @@
         const library=Array.isArray(getMediaLibrary(type))?getMediaLibrary(type):[];
         let librarySelect=null;
         if(library.length){
-          const libraryLabel=document.createElement('label');libraryLabel.className='ha-media-picker-library-label';libraryLabel.textContent='THIS RECORD’S MEDIA LIBRARY';
+          const libraryLabel=document.createElement('label');libraryLabel.className='ha-media-picker-library-label';libraryLabel.textContent='HUMAN ARCHIVE MEDIA LIBRARY';
           librarySelect=document.createElement('select');librarySelect.multiple=['gallery','slideshow','tiled-gallery','image-compare','playlist'].includes(type);librarySelect.size=Math.min(5,library.length);
           library.forEach((item,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=(item.name||'Media file')+' · '+(item.mime_type||item.type||'media');librarySelect.append(option);});
           libraryLabel.append(librarySelect);panel.append(libraryLabel);
@@ -363,7 +365,7 @@
                 try{const url=new URL(value);if(!((url.protocol==='https:'&&url.hostname&&!url.username&&!url.password)||(url.protocol==='mailto:'&&url.pathname)))node.removeAttribute(attribute.name);}catch{node.removeAttribute(attribute.name);}
               }else if(name==='src'){
                 const hosts=node.tagName==='IMG'?IMAGE_HOSTS:['AUDIO','VIDEO','SOURCE'].includes(node.tagName)?MEDIA_HOSTS:node.tagName==='IFRAME'?EMBED_HOSTS:null;
-                if(hosts){const safe=safeURL(value,hosts);const valid=safe&&(!['AUDIO','VIDEO','SOURCE'].includes(node.tagName)||new URL(safe).pathname.startsWith('/storage/v1/object/public/vha-post-media/'));if(valid)node.setAttribute('src',safe);else node.removeAttribute(attribute.name);}
+                if(hosts){const safe=safeURL(value,hosts);const valid=safe&&(!['AUDIO','VIDEO','SOURCE'].includes(node.tagName)|| /^\/storage\/v1\/object\/public\/(vha-post-media|human-archive-media)\//.test(new URL(safe).pathname));if(valid)node.setAttribute('src',safe);else node.removeAttribute(attribute.name);}
                 else node.removeAttribute(attribute.name);
               }
             });
