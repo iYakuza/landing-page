@@ -519,7 +519,11 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const mediaTouched={image:false,audio:false,video:false};
  let recordMetadataInputs=null;
  let slugManuallyEdited=false;
- let attachedPostMedia=[];
+ let attachedPostMedia=(Array.isArray(record.media_items)?record.media_items:[]).map((item,index)=>{
+  const mime=String(item.mime_type||'').toLowerCase();
+  const type=['image','audio','video'].includes(item.type)?item.type:(mime.startsWith('image/')?'image':mime.startsWith('video/')?'video':'audio');
+  return {id:String(item.id||'attached-'+index),name:String(item.title||item.name||record.title),url:String(item.source_url||item.url||''),path:String(item.storage_path||item.path||''),type,mime_type:mime,storage:String(item.storage||'vha-post-media')};
+ }).filter(item=>item.url);
  const blockMediaUploadedPaths=[];
  const blockMediaUploadedAssets=[];
  let repaintAttachedPostMedia=()=>{};
