@@ -643,7 +643,10 @@ function sanitizeTransmissionBody(source){
   }
   if(node.tagName==='SOURCE'){
    const src=safeExternalUrl(node.getAttribute('src'),new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
-   if(!src||!/^\/storage\/v1\/object\/public\/(vha-post-media|human-archive-media)\//.test(new URL(src).pathname))return;
+   if(!src)return;
+   const url=new URL(src);
+   const valid=(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(url.pathname))||(url.hostname==='ioguymqdeuuursizifnn.supabase.co'&&/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname));
+   if(!valid)return;
    element.src=src;element.type=String(node.getAttribute('type')||'');
   }
   if(node.tagName==='IFRAME'){
