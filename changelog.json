@@ -1,8 +1,61 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T21:10:56.759085Z",
-  "last_processed_sha": "d2c9f744ec834302483155ea530c07c86b557a0e",
+  "updated_at": "2026-11-18T21:28:18.999278Z",
+  "last_processed_sha": "bc9974fffbcf94b0943015d5e1ae1f30516cf577",
   "entries": [
+    {
+      "id": "bc9974fffbcf94b0943015d5e1ae1f30516cf577",
+      "timestamp": "2026-11-18T22:28:16+01:00",
+      "category": "FEATURE",
+      "component": "Website Updates",
+      "title": "New capabilities for Website Updates",
+      "description": "This update brings together Add persistent block renaming and reliable half-target drag placement; Style editable block names and drag placement indicators; Preserve custom block names when sanitizing saved transmission content; and 2 more related changes. It updates creator-posting.js, block-editor.css, block-editor.js, archive.js and related project files.",
+      "commit_count": 5,
+      "files": [
+        "creator-posting.js",
+        "editor-ui/block-editor.css",
+        "editor-ui/block-editor.js",
+        "human-archive/archive.js",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Add persistent block renaming and reliable half-target drag placement",
+          "url": "https://github.com/iYakuza/landing-page/commit/69108124f33942a99a991a71180b487fd6b6db83",
+          "files": [
+            "editor-ui/block-editor.js"
+          ]
+        },
+        {
+          "message": "Style editable block names and drag placement indicators",
+          "url": "https://github.com/iYakuza/landing-page/commit/a764998c644894baba9b48770a86901b772a7851",
+          "files": [
+            "editor-ui/block-editor.css"
+          ]
+        },
+        {
+          "message": "Preserve custom block names when sanitizing saved transmission content",
+          "url": "https://github.com/iYakuza/landing-page/commit/f50096dc9e5b0cd3ac35c5ad2299d5c02304b44e",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Refresh shared New Transmission editor assets",
+          "url": "https://github.com/iYakuza/landing-page/commit/a09870ff6446dab3e97a7ba36c00fbb43c581807",
+          "files": [
+            "creator-posting.js"
+          ]
+        },
+        {
+          "message": "Refresh Human Archive block editor assets",
+          "url": "https://github.com/iYakuza/landing-page/commit/bc9974fffbcf94b0943015d5e1ae1f30516cf577",
+          "files": [
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "cb6e2dda2ae2dcc302ef2c9e6cf2b2198af49194",
       "timestamp": "2026-11-18T22:10:53+01:00",
@@ -1274,35 +1327,6 @@
           "files": [
             "editor-ui/block-editor.css",
             "editor-ui/block-editor.js",
-            "human-archive/archive.js",
-            "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "82fec6a873249adc3d7597b3c0aefa4c8106d791",
-      "timestamp": "2026-11-18T12:02:56+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Turn Human Archive into a Gutenberg-style block editor. It updates block-editor.css, block-editor.js, rich-text-editor.js, archive.js and related project files.",
-      "commit_count": 1,
-      "files": [
-        "editor-ui/block-editor.css",
-        "editor-ui/block-editor.js",
-        "editor-ui/rich-text-editor.js",
-        "human-archive/archive.js",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Turn Human Archive into a Gutenberg-style block editor",
-          "url": "https://github.com/iYakuza/landing-page/commit/82fec6a873249adc3d7597b3c0aefa4c8106d791",
-          "files": [
-            "editor-ui/block-editor.css",
-            "editor-ui/block-editor.js",
-            "editor-ui/rich-text-editor.js",
             "human-archive/archive.js",
             "human-archive/index.html"
           ]
