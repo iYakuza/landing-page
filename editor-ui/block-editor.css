@@ -11,7 +11,7 @@
 .ha-editor-block-controls{display:flex;align-items:center;gap:8px;min-height:29px;padding:3px 7px;background:rgba(168,199,194,.045);border-bottom:1px solid rgba(168,199,194,.1);opacity:.28;transition:opacity .15s;}
 .ha-editor-block:hover>.ha-editor-block-controls,.ha-editor-block.is-selected>.ha-editor-block-controls,.ha-editor-block:focus-within>.ha-editor-block-controls{opacity:1;}
 .ha-editor-block-grip{color:#a8c7c2;font:15px/1 sans-serif;cursor:grab;user-select:none;}
-.ha-editor-block-name{flex:1;min-width:0;padding:0;border:0;background:transparent;color:#9aacab;font:8px 'DM Mono',monospace;letter-spacing:.13em;text-align:left;text-transform:uppercase;cursor:text;}
+.ha-editor-block-name{flex:1;min-width:0;padding:0;border:0;background:transparent;color:#9aacab;font:8px 'DM Mono',monospace;letter-spacing:.13em;text-align:left;text-transform:uppercase;cursor:pointer;}
 .ha-editor-block-name::after{content:' ✎';color:#a8c7c2;opacity:.55;}
 .ha-editor-block-name:hover,.ha-editor-block-name:focus-visible{color:#d8ff3e;outline:none;}
 .ha-editor-block-name:hover::after,.ha-editor-block-name:focus-visible::after{opacity:1;}
