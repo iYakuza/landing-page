@@ -156,7 +156,7 @@
         if (!EMBED_HOSTS.has(host)) return window.alert('Supported embeds: YouTube, Spotify and SoundCloud.');
         if (host === 'youtu.be') {
           const id=url.pathname.slice(1).split('/')[0];
-          if(!/^[\\w-]{6,20}$/.test(id))return window.alert('That YouTube URL is not valid.');
+          if(!/^[\w-]{6,20}$/.test(id))return window.alert('That YouTube URL is not valid.');
           url=new URL('https://www.youtube-nocookie.com/embed/'+id);
         } else if (host === 'www.youtube.com' && url.pathname === '/watch') {
           const id = url.searchParams.get('v');
