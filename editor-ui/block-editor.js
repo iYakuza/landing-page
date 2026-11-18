@@ -143,6 +143,7 @@
 
     let selected = null;
     let menu = null;
+    let addCanvasColumnButton = null;
     let syncing = false;
     const listeners = new AbortController();
 
@@ -253,6 +254,7 @@
     function sync() {
       if (syncing) return;
       syncing = true;
+      updateCanvasColumnControl();
       editor.dispatchEvent(new CustomEvent('ha-block-change',{bubbles:true}));
       onChange();
       syncing = false;
@@ -638,6 +640,61 @@
       clone.querySelectorAll('[contenteditable]').forEach(node=>node.removeAttribute('contenteditable'));
       return clone.innerHTML;
     }
+
+    function updateCanvasColumnControl() {
+      if (!addCanvasColumnButton) return;
+      const rootBlocks = blocks();
+      const hasRootColumns = rootBlocks.length === 1 && rootBlocks[0].dataset.haBlock === 'columns';
+      addCanvasColumnButton.hidden = readOnly || hasRootColumns;
+    }
+
+    function addCanvasColumn() {
+      const rootBlocks = blocks();
+      if (rootBlocks.length === 1 && rootBlocks[0].dataset.haBlock === 'columns') {
+        const owner = rootBlocks[0];
+        const columns = contentFor(owner)?.querySelector(':scope > .ha-columns');
+        if (!columns) return;
+        const previous = [...columns.children].filter(node => node.classList.contains('ha-editor-column')).at(-1);
+        const next = buildEditorColumn(null, columns, owner);
+        if (previous) previous.after(next);
+        else columns.append(next);
+        updateColumnCount(columns);
+        sync();
+        const first = blocks(next.querySelector(':scope > .ha-editor-column-blocks'))[0];
+        if (first) focusBlock(first);
+        return;
+      }
+
+      const contentHTML = rootBlocks
+        .map(block => serializeContent(contentFor(block)))
+        .filter(Boolean)
+        .join('');
+      const initialColumn = contentHTML || '<p><br></p>';
+      const layoutHTML = '<div class="ha-columns"><section>' + initialColumn + '</section><section><p><br></p></section></div>';
+      const columnsBlock = makeBlock('columns', layoutHTML);
+      editor.replaceChildren(columnsBlock);
+      wireBlock(columnsBlock);
+      setSelected(columnsBlock);
+
+      const columns = contentFor(columnsBlock)?.querySelector(':scope > .ha-columns');
+      updateColumnCount(columns);
+      sync();
+      const secondColumn = [...(columns?.children || [])].find(node => node.classList.contains('ha-editor-column'));
+      const first = blocks(secondColumn?.querySelector(':scope > .ha-editor-column-blocks'))[0];
+      if (first) focusBlock(first);
+    }
+
+    if (!readOnly) {
+      addCanvasColumnButton = document.createElement('button');
+      addCanvasColumnButton.type = 'button';
+      addCanvasColumnButton.className = 'ha-editor-add-canvas-column';
+      addCanvasColumnButton.textContent = '+';
+      addCanvasColumnButton.title = 'Split the block stream into columns';
+      addCanvasColumnButton.setAttribute('aria-label', 'Split the block stream into columns');
+      addCanvasColumnButton.addEventListener('click', addCanvasColumn);
+      shell.append(addCanvasColumnButton);
+    }
+    updateCanvasColumnControl();
 
     const api = {
       getHTML() {
