@@ -24,8 +24,7 @@
     if (!node || node.nodeType !== Node.ELEMENT_NODE) return 'paragraph';
     const tag = node.tagName;
     if (/^H[1-4]$/.test(tag)) return 'heading';
-    if (node.classList?.contains('ha-columns')) return 'columns'; if (node.classList?.contains('ha-group')) return 'group'; if (node.classList?.contains('ha-row')) return 'row'; if (node.classList?.contains('ha-stack')) return 'stack'; if (node.classList?.contains('ha-grid')) return 'grid'; if (node.classList?.contains('ha-cover')) return 'cover'; if (node.classList?.contains('ha-gallery')) return 'gallery'; if (node.classList?.contains('ha-slideshow')) return 'slideshow'; if (node.classList?.contains('ha-tiled-gallery')) return 'tiled-gallery'; if (node.classList?.contains('ha-media-text')) return 'media-text'; if (node.classList?.contains('ha-buttons')) return 'buttons'; if (node.classList?.contains('ha-callout')) return 'callout'; if (node.classList?.contains('ha-card')) return 'card'; if (node.classList?.contains('ha-tabs')) return 'tabs'; if (node.classList?.contains('ha-timeline')) return 'timeline'; if (node.classList?.contains('ha-page-break')) return 'page-break';
-    if (tag === 'DIV' || tag === 'SECTION' || tag === 'ASIDE') return 'classic';
+    if (node.classList?.contains('ha-pullquote')||node.classList?.contains('wp-block-pullquote')) return 'pullquote'; if (node.classList?.contains('ha-verse')) return 'verse'; if (node.classList?.contains('ha-spacer')) return 'spacer'; if (node.classList?.contains('ha-social-icons')) return 'social-icons'; if (node.classList?.contains('ha-image-compare')) return 'image-compare'; if (node.classList?.contains('ha-embed')||node.classList?.contains('ha-embed-card')) return 'embed'; if (node.classList?.contains('ha-file-block')) return 'file'; if (node.classList?.contains('ha-podcast')) return 'podcast'; if (node.classList?.contains('ha-playlist')) return 'playlist'; if (node.classList?.contains('ha-columns')) return 'columns'; if (node.classList?.contains('ha-group')) return 'group'; if (node.classList?.contains('ha-row')) return 'row'; if (node.classList?.contains('ha-stack')) return 'stack'; if (node.classList?.contains('ha-grid')) return 'grid'; if (node.classList?.contains('ha-cover')) return 'cover'; if (node.classList?.contains('ha-gallery')) return 'gallery'; if (node.classList?.contains('ha-slideshow')) return 'slideshow'; if (node.classList?.contains('ha-tiled-gallery')) return 'tiled-gallery'; if (node.classList?.contains('ha-media-text')) return 'media-text'; if (node.classList?.contains('ha-buttons')) return 'buttons'; if (node.classList?.contains('ha-callout')) return 'callout'; if (node.classList?.contains('ha-card')) return 'card'; if (node.classList?.contains('ha-tabs')) return 'tabs'; if (node.classList?.contains('ha-timeline')) return 'timeline'; if (node.classList?.contains('ha-page-break')) return 'page-break';
     if (tag === 'UL') return 'unordered-list';
     if (tag === 'TABLE') return 'table';
     if (tag === 'DETAILS') return 'details';
@@ -44,6 +43,7 @@
     if (tag === 'AUDIO' || node.querySelector?.('audio')) return 'audio';
     if (tag === 'VIDEO' || node.querySelector?.('video')) return 'video';
     if (tag === 'IFRAME' || node.querySelector?.('iframe')) return 'embed';
+    if (tag === 'DIV' || tag === 'SECTION' || tag === 'ASIDE' || tag === 'NAV' || tag === 'ARTICLE') return 'classic';
     return 'paragraph';
   }
 
@@ -157,7 +157,7 @@
     function insertMedia(type, block) {
       const promptText = ['image','cover','media-text'].includes(type) ? 'Image URL (archive or WordPress media URL)' :
         ['audio','playlist','podcast'].includes(type) ? 'Audio URL (Human Archive media storage)' :
-        ['video','slideshow'].includes(type) ? 'Video URL (Human Archive media storage)' :
+        type==='video' ? 'Video URL (Human Archive media storage)' :
         type==='file' ? 'File URL (Human Archive media storage)' : type==='gallery'||type==='tiled-gallery' ? 'Image URLs, separated by commas' : type==='image-compare' ? 'Two image URLs, separated by a comma' : 'Paste a YouTube, Spotify, SoundCloud, Vimeo, TikTok, Instagram, Facebook, Dailymotion, Loom, TED, CodePen, Reddit or Mixcloud URL';
       const raw = window.prompt(promptText);
       if (!raw) return;
