@@ -802,6 +802,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  });
  const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({
   editor:canvas,editors:[canvas],toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',
+  onChange:()=>{status.textContent='CONTENT EDITED — SAVE THE CHAMBER TO APPLY';scheduleDraftAutosave?.();},
   onInvalidLink:message=>{status.textContent=message;}
  });
  const getBody=()=>sanitizeTransmissionBody(blockEditorController?.getHTML()||canvas.innerHTML);
@@ -875,6 +876,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   if(draftAutosaveTimer)clearTimeout(draftAutosaveTimer);
   draftAutosaveTimer=setTimeout(()=>{draftAutosaveTimer=null;runDraftAutosave();},delay);
  };
+ grid.addEventListener('input',()=>scheduleDraftAutosave());
+ grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});
  const flushDraftAutosave=async()=>{
   if(draftAutosaveConflict)return false;if(!draftAutosaveEnabled)return true;
   draftAutosaveFlushing=true;
