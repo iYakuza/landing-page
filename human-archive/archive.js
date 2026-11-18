@@ -734,12 +734,15 @@ function appendChamberOutputView(record,grid,structure){
 }
 function renderRecordStructureView(record,grid,status,editButton,expandButton){
  const structure=getRecordStructure(record);
+ grid.classList.remove('ha-chamber-unified-editor');
+ grid.classList.add('ha-chamber-unified');
  grid.replaceChildren();
- makeChamberTransmissionBody(record,grid,structure);
- makeChamberTextPanel(record,grid,structure);
- appendChamberOutputView(record,grid,structure);
+ const body=makeChamberNode('div','ha-chamber-transmission-body ha-chamber-unified-content');
+ appendSafeContent(body,getUnifiedRecordHTML(record,structure),record,new Set());
+ if(!body.childNodes.length)body.textContent='No content has been saved for this record yet.';
+ grid.append(body);
  if(editButton)editButton.hidden=!archiveAdmin;
- bindChamberDisclosureControls(grid,expandButton);
+ if(expandButton){expandButton.hidden=true;expandButton.setAttribute('aria-expanded','true');}
 }
 function chamberFileMime(file,type){
  const supplied=String(file.type||'').toLowerCase();
@@ -811,758 +814,323 @@ function renderChamberMediaEditor(sectionBody,record,type,items,status,onChange)
  return repaint;
 }
 function renderRecordStructureEditor(record,grid,status,editButton,expandButton,readOnly=false){
+ if(!archiveAdmin&&!readOnly){status.textContent='ADMIN ACCESS REQUIRED';return;}
  const structure=getRecordStructure(record);
- const editorMedia={
-  image:getRecordOutputMedia(record,structure,'image').map(item=>({...item})),
-  audio:getRecordOutputMedia(record,structure,'audio').map(item=>({...item})),
-  video:getRecordOutputMedia(record,structure,'video').map(item=>({...item}))
- };
- const mediaTouched={image:false,audio:false,video:false};
- let recordMetadataInputs=null;
+ const uploadedPaths=[],uploadedAssets=[];
  let slugManuallyEdited=false;
- let attachedPostMedia=[];
- const blockMediaUploadedPaths=[];
- const blockMediaUploadedAssets=[];
- let repaintAttachedPostMedia=()=>{};
- let postLayoutControls=null;
- const outputMediaRepaint={};
- const escapeLayoutText=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
- const layoutParagraphs=value=>{const raw=String(value||'');return /<\/?[a-z][^>]*>/i.test(raw)?sanitizeTransmissionBody(raw):raw.split(/\n{2,}/).map(part=>'<p>'+escapeLayoutText(part).replace(/\n/g,'<br>')+'</p>').join('');};
-
+ grid.classList.add('ha-chamber-unified','ha-chamber-unified-editor');
  grid.replaceChildren();
- const metadataDetails=makeChamberDisclosure('00 // RECORD DETAILS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-metadata-panel','ha-chamber-panel-heading');
+ const metadata=makeChamberNode('div','ha-chamber-document-settings');
  const metadataFields=makeChamberNode('div','ha-chamber-metadata-grid');
- const addMetadataField=(labelText,name,value,options={})=>{
+ const addField=(labelText,name,value,options={})=>{
   const wrap=makeChamberNode('label','ha-chamber-metadata-field');
-  const label=makeChamberNode('span','ha-chamber-metadata-label',labelText);
+  wrap.append(makeChamberNode('span','ha-chamber-metadata-label',labelText));
   const control=document.createElement(options.multiline?'textarea':'input');
   control.className='ha-chamber-editor-field ha-chamber-meta-input';control.name=name;
-  if(options.multiline){control.rows=3;control.maxLength=options.maxLength||400;}
+  if(options.multiline){control.rows=2;control.maxLength=options.maxLength||400;}
   else{control.type='text';control.maxLength=options.maxLength||180;control.autocomplete='off';}
   control.value=String(value??'');if(options.placeholder)control.placeholder=options.placeholder;
-  wrap.append(label,control);metadataFields.append(wrap);return control;
+  wrap.append(control);metadataFields.append(wrap);return control;
  };
- const addMetadataSelect=(labelText,name,value,options)=>{
+ const addSelect=(labelText,name,value,options)=>{
   const wrap=makeChamberNode('label','ha-chamber-metadata-field');
-  const label=makeChamberNode('span','ha-chamber-metadata-label',labelText);
+  wrap.append(makeChamberNode('span','ha-chamber-metadata-label',labelText));
   const control=document.createElement('select');control.className='ha-chamber-editor-field ha-chamber-meta-input';control.name=name;
-  options.forEach(([optionValue,optionLabel])=>{const option=document.createElement('option');option.value=optionValue;option.textContent=optionLabel;control.append(option);});
-  control.value=String(value??'');wrap.append(label,control);metadataFields.append(wrap);return control;
+  options.forEach(([v,label])=>{const option=document.createElement('option');option.value=v;option.textContent=label;control.append(option);});
+  control.value=String(value??'');wrap.append(control);metadataFields.append(wrap);return control;
  };
- const titleInput=addMetadataField('TITLE','title',record.title,{placeholder:'Transmission title',maxLength:180});
- const slugInput=addMetadataField('PUBLIC URL SLUG','slug',record.slug,{placeholder:'lowercase-words-separated-by-hyphens',maxLength:180});
- const currentCategory=(record.categories||[])[0]||'';
- const metadataCategories=[...new Set([...transmissionCategories,...categoryOrder,...(record.categories||[])])];
- const categoryInput=addMetadataSelect('ARCHIVE / MOVEMENT','category',metadataCategories.includes(currentCategory)?currentCategory:'',[
-  ['','CHOOSE DESTINATION'],...metadataCategories.map(name=>[name,name])
+ const titleInput=addField('TITLE','title',record.title,{placeholder:'Transmission title'});
+ const slugInput=addField('PUBLIC URL SLUG','slug',record.slug,{placeholder:'lowercase-words-separated-by-hyphens'});
+ const categories=[...new Set([...transmissionCategories,...categoryOrder,...(record.categories||[])])];
+ const categoryInput=addSelect('ARCHIVE / MOVEMENT','category',(record.categories||[])[0]||'',[
+  ['','CHOOSE DESTINATION'],...categories.map(name=>[name,name])
  ]);
- const excerptInput=addMetadataField('EXCERPT','excerpt',record.excerpt||'',{multiline:true,placeholder:'Short description shown in previews (up to 400 characters)',maxLength:400});
- const mediaWidthWrap=makeChamberNode('label','ha-chamber-metadata-field');
- const mediaWidthLabel=makeChamberNode('span','ha-chamber-metadata-label','MEDIA WIDTH');
- const mediaWidthInput=document.createElement('input');mediaWidthInput.type='range';mediaWidthInput.min='20';mediaWidthInput.max='100';mediaWidthInput.step='5';mediaWidthInput.value=String(Math.max(20,Math.min(100,Number(record.media_width)||100)));mediaWidthInput.className='ha-chamber-editor-field ha-chamber-meta-input';mediaWidthInput.name='media_width';
- const mediaWidthOutput=makeChamberNode('output','ha-chamber-media-width-value',mediaWidthInput.value+'%');
- mediaWidthInput.addEventListener('input',()=>{mediaWidthOutput.textContent=mediaWidthInput.value+'%';});
- mediaWidthWrap.append(mediaWidthLabel,mediaWidthInput,mediaWidthOutput);metadataFields.append(mediaWidthWrap);
- const statusWrap=makeChamberNode('label','ha-chamber-metadata-field');
- const statusLabel=makeChamberNode('span','ha-chamber-metadata-label','PUBLICATION STATUS');
- const statusSelect=document.createElement('select');statusSelect.className='ha-chamber-editor-field ha-chamber-meta-input';statusSelect.name='status';
- [['draft','DRAFT — PRIVATE'],['published','PUBLISHED — PUBLIC']].forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;statusSelect.append(option);});
- statusSelect.value=record.source_type==='transmission'?(record.status==='published'?'published':'draft'):'published';
- statusWrap.append(statusLabel,statusSelect);metadataFields.append(statusWrap);
- const statusNote=makeChamberNode('p','ha-chamber-metadata-note',record.source_type==='transmission'?'Drafts are private. Published Transmissions appear on the public site. Saving as draft removes a published Transmission from public listings.':'Legacy archive metadata is anchored to the original archive source. Shared content, presentation and media sections below remain editable.');
- if(record.source_type!=='transmission'){
-  [titleInput,slugInput,categoryInput,excerptInput,mediaWidthInput,statusSelect].forEach(control=>{control.disabled=true;});
- }
- metadataDetails.body.append(metadataFields,statusNote);
- grid.append(metadataDetails.details);
- recordMetadataInputs={title:titleInput,slug:slugInput,category:categoryInput,excerpt:excerptInput,mediaWidth:mediaWidthInput,status:statusSelect};
+ const excerptInput=addField('EXCERPT','excerpt',record.excerpt||'',{multiline:true,placeholder:'Short description shown in previews',maxLength:400});
+ const widthWrap=makeChamberNode('label','ha-chamber-metadata-field');
+ widthWrap.append(makeChamberNode('span','ha-chamber-metadata-label','MEDIA WIDTH'));
+ const mediaWidthInput=document.createElement('input');mediaWidthInput.type='range';mediaWidthInput.min='20';mediaWidthInput.max='100';mediaWidthInput.step='5';mediaWidthInput.value=String(Math.max(20,Math.min(100,Number(record.media_width)||100)));mediaWidthInput.name='media_width';mediaWidthInput.className='ha-chamber-editor-field ha-chamber-meta-input';
+ const widthOutput=makeChamberNode('output','ha-chamber-media-width-value',mediaWidthInput.value+'%');
+ mediaWidthInput.addEventListener('input',()=>{widthOutput.textContent=mediaWidthInput.value+'%';});
+ widthWrap.append(mediaWidthInput,widthOutput);metadataFields.append(widthWrap);
+ const statusInput=addSelect('PUBLICATION STATUS','status',record.status==='published'?'published':'draft',[
+  ['draft','DRAFT — PRIVATE'],['published','PUBLISHED — PUBLIC']
+ ]);
+ if(record.source_type!=='transmission')[titleInput,slugInput,categoryInput,excerptInput,mediaWidthInput,statusInput].forEach(control=>{control.disabled=true;});
+ metadata.append(metadataFields);grid.append(metadata);
  if(record.source_type==='transmission'&&record.isNew){
   slugInput.addEventListener('input',()=>{slugManuallyEdited=true;});
   titleInput.addEventListener('input',()=>{
    if(slugManuallyEdited)return;
-   slugInput.value=String(titleInput.value||'').normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,180);
+   slugInput.value=String(titleInput.value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,180);
   });
  }
- const savedLayoutSource=record.source_type==='transmission'?(record.content_html||structure.transmission_body):(structure.transmission_body||record.content_html||'');
- const savedLayoutDoc=new DOMParser().parseFromString(String(savedLayoutSource),'text/html');
- const savedSuno=savedLayoutDoc.querySelector('.suno-post-layout');
- const savedPlain=savedLayoutDoc.querySelector('.plain-post-layout');
- const readLayoutText=selector=>{
-  const node=savedLayoutDoc.querySelector(selector);if(!node)return '';
-  const clone=node.cloneNode(true);clone.querySelectorAll('.suno-label,.suno-collapse-hint').forEach(label=>label.remove());
-  const read=node=>{
-   if(node.nodeType===Node.TEXT_NODE)return node.nodeValue||'';
-   if(node.nodeType!==Node.ELEMENT_NODE)return '';
-   if(node.tagName==='BR')return '\n';
-   const value=[...node.childNodes].map(read).join('');
-   return ['P','DIV','LI','H1','H2','H3','H4','BLOCKQUOTE'].includes(node.tagName)?value+'\n\n':value;
-  };
-  return read(clone).replace(/\r/g,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
- };
- const readLayoutHtml=selector=>{
-  const node=savedLayoutDoc.querySelector(selector);if(!node)return '';
-  const clone=node.cloneNode(true);clone.querySelectorAll('.suno-label,.suno-collapse-hint').forEach(label=>label.remove());
-  return clone.innerHTML;
- };
- const layoutPanel=makeChamberDisclosure('00.25 // POST PRESENTATION','ha-chamber-panel ha-chamber-edit-panel ha-chamber-layout-panel','ha-chamber-panel-heading');
- const layoutSelect=document.createElement('select');layoutSelect.className='ha-chamber-editor-field ha-chamber-meta-input';
- [['standard','STANDARD ARTICLE'],['plain','PLAIN TEXT + OH, SUN.'],['suno','SUNO LYRICS + STYLE BREAKDOWN']].forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;layoutSelect.append(option);});
- layoutSelect.value=savedSuno?'suno':savedPlain?'plain':'standard';
- const layoutSelectWrap=makeChamberNode('label','ha-chamber-metadata-field');
- layoutSelectWrap.append(makeChamberNode('span','ha-chamber-metadata-label','PUBLIC POST LAYOUT'),layoutSelect);
- const layoutFields=makeChamberNode('div','ha-chamber-layout-fields');
- const addLayoutField=(label,name,value,group,rows=5)=>{
-  const wrap=makeChamberNode('div','ha-chamber-metadata-field ha-chamber-layout-field');
-  wrap.dataset.layoutGroup=group;
-  wrap.append(makeChamberNode('span','ha-chamber-metadata-label',label));
-  const area=makeChamberNode('div','ha-chamber-editor-field ha-rich-content ha-layout-block-field');
-  area.name=name;area.contentEditable=readOnly?'false':'true';area.setAttribute('role','textbox');area.setAttribute('aria-multiline','true');area.setAttribute('aria-label',label);
-  area.innerHTML=layoutParagraphs(value)||'<p><br></p>';
-  Object.defineProperty(area,'value',{configurable:true,get(){
-   const html=area.__haBlockEditor?.getHTML()||area.innerHTML;
-   if(name==='layout_lyrics'){const parsed=new DOMParser().parseFromString(html,'text/html');return parsed.body.textContent||'';}
-   return html;
-  },set(next){area.innerHTML=String(next??'');}});
-  wrap.append(area);layoutFields.append(wrap);return area;
- };
- const layoutMain=addLayoutField('COLUMN 1 // THE TEXT','layout_main',savedSuno?readLayoutHtml('.suno-text-column'):savedPlain?readLayoutHtml('.plain-copy'):readLayoutHtml('body'),'suno',8);
- const lyricsSource=readLayoutText('.suno-lyrics pre');
- const layoutLyrics=addLayoutField('COLUMN 2 // SUNO LYRICS','layout_lyrics',lyricsSource?'<pre>'+escapeLayoutText(lyricsSource)+'</pre>':'<pre><br></pre>','suno',12);
- const layoutPrompt=addLayoutField('SUNO STYLE PROMPT','layout_prompt',readLayoutHtml('.suno-style-prompt')||readLayoutHtml('.suno-notes'),'suno',6);
- const layoutLearned=addLayoutField('WHAT I LEARNED','layout_learned',readLayoutHtml('.suno-learned'),'suno',4);
- const layoutChatgpt=addLayoutField('WHAT CHATGPT LEARNED','layout_chatgpt',readLayoutHtml('.suno-chatgpt-learned'),'suno',4);
- const layoutPlain=addLayoutField('PLAIN TEXT','layout_plain',savedPlain?readLayoutHtml('.plain-copy'):savedSuno?readLayoutHtml('.suno-text-column'):readLayoutHtml('body'),'plain',12);
- const syncLayoutControls=()=>{
-  layoutFields.querySelectorAll('[data-layout-group]').forEach(field=>{field.hidden=field.dataset.layoutGroup!==layoutSelect.value;});
-  if(postLayoutControls?.transmissionDetails)postLayoutControls.transmissionDetails.hidden=layoutSelect.value!=='standard';
- };
- layoutSelect.dataset.previousValue=layoutSelect.value;
- layoutSelect.addEventListener('change',()=>{
-  const previous=layoutSelect.dataset.previousValue||'standard';
-  if(layoutSelect.value==='standard'&&previous!=='standard'&&postLayoutControls?.transmissionEditor){
-   const source=previous==='plain'?layoutPlain.value:layoutMain.value;
-   if(blockEditorControllers[0]){blockEditorControllers[0]=blockEditorControllers[0].replaceHTML(layoutParagraphs(source));blockEditorControllers[0].focus();}else postLayoutControls.transmissionEditor.innerHTML=layoutParagraphs(source);
-  }
-  layoutSelect.dataset.previousValue=layoutSelect.value;
-  syncLayoutControls();status.textContent='POST LAYOUT CHANGED — SAVE THE CHAMBER TO APPLY';
- });
- [layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain].forEach(area=>area.addEventListener('input',()=>{status.textContent='POST LAYOUT EDITED — SAVE THE CHAMBER TO APPLY';}));
- layoutPanel.body.append(layoutSelectWrap,layoutFields);grid.append(layoutPanel.details);
- postLayoutControls={select:layoutSelect,fields:{main:layoutMain,lyrics:layoutLyrics,prompt:layoutPrompt,learned:layoutLearned,chatgpt:layoutChatgpt,plain:layoutPlain},transmissionDetails:null,sync:syncLayoutControls};
- syncLayoutControls();
- if(record.source_type==='transmission'){
- attachedPostMedia=(Array.isArray(record.media_items)?record.media_items:[]).map((item,index)=>{
-  const mime=String(item.mime_type||'').toLowerCase();
-  const type=['image','audio','video'].includes(item.type)?item.type:(mime.startsWith('image/')?'image':mime.startsWith('video/')?'video':'audio');
-  return {id:String(item.id||'attached-'+index),name:String(item.title||item.name||record.title),url:String(item.source_url||item.url||''),path:String(item.storage_path||item.path||''),type,mime_type:mime,storage:String(item.storage||'vha-post-media')};
- }).filter(item=>item.url);
- const attachedPanel=makeChamberDisclosure('00.5 // POST ATTACHMENTS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-attached-panel','ha-chamber-panel-heading');
- const attachedList=makeChamberNode('div','ha-chamber-media-editor-list');
- const repaintAttached=()=>{
-  attachedList.replaceChildren();
-  if(!attachedPostMedia.length)attachedList.append(makeChamberNode('p','ha-chamber-note','NO POST ATTACHMENTS SELECTED.'));
-  attachedPostMedia.forEach((item,index)=>{
-   const row=makeChamberNode('div','ha-chamber-media-editor-item');
-   row.append(makeChamberNode('span','ha-chamber-media-editor-name',item.name||record.title));
-   row.append(makeChamberNode('small','ha-chamber-media-editor-state',item.file?'READY TO UPLOAD':item.type.toUpperCase()+' // EXISTING ATTACHMENT'));
-   const remove=makeChamberNode('button','ha-chamber-media-remove','REMOVE ✕');remove.type='button';
-   remove.setAttribute('aria-label','Remove '+(item.name||'attachment'));
-   remove.addEventListener('click',()=>{attachedPostMedia.splice(index,1);repaintAttached();status.textContent='ATTACHMENTS UPDATED — AUTOSAVE PENDING';scheduleDraftAutosave();});
-   row.append(remove);attachedList.append(row);
-  });
- };
- const attachedInput=document.createElement('input');attachedInput.type='file';attachedInput.multiple=true;attachedInput.className='ha-chamber-file-input';
- attachedInput.accept='image/jpeg,image/png,image/webp,image/gif,image/avif,audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm';
- attachedInput.setAttribute('aria-label','Choose post attachments');
- const attachedLabel=makeChamberNode('label','ha-chamber-upload-label');
- attachedLabel.append(makeChamberNode('span','','ADD POST ATTACHMENTS +'),attachedInput);
- attachedInput.addEventListener('change',()=>{
-  const files=[...attachedInput.files||[]],rejected=[];
-  files.slice(0,10).forEach(file=>{
-   const type=file.type.startsWith('image/')?'image':file.type.startsWith('audio/')?'audio':file.type.startsWith('video/')?'video':'';
-   const mime=type?chamberFileMime(file,type):null;
-   if(!mime){rejected.push(file.name+' (unsupported format)');return;}
-   if(file.size>30*1024*1024){rejected.push(file.name+' (over 30 MB)');return;}
-   attachedPostMedia.push({id:'pending-'+chamberUploadToken(),name:file.name,type,mime_type:mime,file,storage:'vha-post-media'});
-  });
-  if(files.length>10)rejected.push('Only the first 10 files were checked.');
-  repaintAttached();attachedInput.value='';
-  status.textContent=rejected.length?'Some files were not added: '+rejected.join('; '):'ATTACHMENTS ADDED — SAVE THE CHAMBER TO UPLOAD';
- });
- attachedPanel.body.append(attachedList,attachedLabel);grid.append(attachedPanel.details);repaintAttached();repaintAttachedPostMedia=repaintAttached;
- }else{
-  const attachedPanel=makeChamberDisclosure('00.5 // POST ATTACHMENTS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-attached-panel','ha-chamber-panel-heading');
-  const attachedList=makeChamberNode('div','ha-chamber-media-editor-list');
-  const repaintLegacyAttachments=()=>{
-   attachedList.replaceChildren();
-   let total=0;
-   ['image','audio','video'].forEach(type=>{
-    editorMedia[type].forEach((item,index)=>{
-     total++;
-     const row=makeChamberNode('div','ha-chamber-media-editor-item');
-     row.append(makeChamberNode('span','ha-chamber-media-editor-name',item.name||record.title));
-     row.append(makeChamberNode('small','ha-chamber-media-editor-state',item.file?'READY TO UPLOAD':(item.storage==='external'?'EMBEDDED MEDIA':'ARCHIVE / SAVED '+type.toUpperCase())));
-     const remove=makeChamberNode('button','ha-chamber-media-remove','REMOVE ✕');remove.type='button';
-     remove.setAttribute('aria-label','Remove '+(item.name||type+' attachment'));
-     remove.addEventListener('click',()=>{
-      editorMedia[type].splice(index,1);mediaTouched[type]=true;
-      outputMediaRepaint[type]?.();repaintLegacyAttachments();
-      status.textContent='ATTACHMENTS UPDATED — SAVE THE CHAMBER TO APPLY';
-     });
-     row.append(remove);attachedList.append(row);
-    });
-   });
-   if(!total)attachedList.append(makeChamberNode('p','ha-chamber-note','NO POST ATTACHMENTS SELECTED.'));
-  };
-  const attachedInput=document.createElement('input');attachedInput.type='file';attachedInput.multiple=true;attachedInput.className='ha-chamber-file-input';
-  attachedInput.accept='image/jpeg,image/png,image/webp,image/gif,image/avif,audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,video/mp4,video/webm';
-  attachedInput.setAttribute('aria-label','Choose legacy archive post attachments');
-  const attachedLabel=makeChamberNode('label','ha-chamber-upload-label');
-  attachedLabel.append(makeChamberNode('span','','ADD POST ATTACHMENTS +'),attachedInput);
-  attachedInput.addEventListener('change',()=>{
-   const files=[...attachedInput.files||[]],rejected=[],changed=new Set();
-   files.slice(0,10).forEach(file=>{
-    const type=file.type.startsWith('image/')?'image':file.type.startsWith('audio/')?'audio':file.type.startsWith('video/')?'video':'';
-    const mime=type?chamberFileMime(file,type):null;
-    if(!mime){rejected.push(file.name+' (unsupported format)');return;}
-    if(file.size>30*1024*1024){rejected.push(file.name+' (over 30 MB)');return;}
-    editorMedia[type].push({id:'pending-'+chamberUploadToken(),name:file.name,mime_type:mime,storage:'pending',file});
-    mediaTouched[type]=true;changed.add(type);
-   });
-   if(files.length>10)rejected.push('Only the first 10 files were checked.');
-   changed.forEach(type=>outputMediaRepaint[type]?.());
-   repaintLegacyAttachments();attachedInput.value='';
-   status.textContent=rejected.length?'Some files were not added: '+rejected.join('; '):'ATTACHMENTS ADDED — SAVE THE CHAMBER TO UPLOAD';
-  });
-  attachedPanel.body.append(attachedList,attachedLabel);grid.append(attachedPanel.details);
-  repaintLegacyAttachments();repaintAttachedPostMedia=repaintLegacyAttachments;
- }
- const transmission=makeChamberDisclosure('01 // TRANSMISSION BODY','ha-chamber-panel ha-chamber-edit-panel ha-chamber-transmission-panel','ha-chamber-panel-heading');
- const transmissionTop=makeChamberNode('div','ha-rich-editor-top');
- const transmissionHint=makeChamberNode('span','ha-rich-editor-hint','WRITE, FORMAT AND SHAPE THE ORIGINAL TRANSMISSION');
- const focusButton=makeChamberNode('button','ha-chamber-focus-toggle','T');focusButton.type='button';focusButton.setAttribute('aria-pressed','false');
- transmissionTop.append(transmissionHint,focusButton);
- const toolbar=makeChamberNode('div','ha-rich-toolbar');toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','Shared text formatting tools');
- const formattingTools=[['B','bold'],['I','italic'],['U','underline'],['S','strikeThrough'],['P','formatBlock','p'],['H1','formatBlock','h1'],['H2','formatBlock','h2'],['H3','formatBlock','h3'],['H4','formatBlock','h4'],['QUOTE','formatBlock','blockquote'],['• LIST','insertUnorderedList'],['1. LIST','insertOrderedList'],['LEFT','justifyLeft'],['CENTER','justifyCenter'],['RIGHT','justifyRight'],['JUSTIFY','justifyFull'],['HR','insertHorizontalRule'],['UNDO','undo'],['REDO','redo'],['CLEAR','removeFormat']];
- formattingTools.forEach(([label,command,value])=>{const button=makeChamberNode('button','',label);button.type='button';button.dataset.command=command;if(value)button.dataset.value=value;button.title=label;toolbar.append(button);});
+ const toolbar=makeChamberNode('div','ha-rich-toolbar');toolbar.setAttribute('role','toolbar');toolbar.setAttribute('aria-label','Text formatting');
+ const tools=[['B','bold'],['I','italic'],['U','underline'],['S','strikeThrough'],['P','formatBlock','p'],['H1','formatBlock','h1'],['H2','formatBlock','h2'],['H3','formatBlock','h3'],['H4','formatBlock','h4'],['QUOTE','formatBlock','blockquote'],['• LIST','insertUnorderedList'],['1. LIST','insertOrderedList'],['LEFT','justifyLeft'],['CENTER','justifyCenter'],['RIGHT','justifyRight'],['JUSTIFY','justifyFull'],['UNDO','undo'],['REDO','redo'],['CLEAR','removeFormat']];
+ tools.forEach(([label,command,value])=>{const button=makeChamberNode('button','',label);button.type='button';button.dataset.command=command;if(value)button.dataset.value=value;button.title=label;toolbar.append(button);});
  const insertLinkButton=makeChamberNode('button','ha-rich-link','LINK');insertLinkButton.type='button';toolbar.append(insertLinkButton);
  const unlinkButton=makeChamberNode('button','','UNLINK');unlinkButton.type='button';unlinkButton.dataset.command='unlink';toolbar.append(unlinkButton);
- const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable=readOnly?'false':'true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Transmission body');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Write the transmission body…';transmissionEditor.innerHTML=sanitizeTransmissionBody(record.source_type==='transmission'?(record.content_html||structure.transmission_body):(structure.transmission_body||record.content_html||''));
- transmission.body.append(transmissionTop,transmissionEditor);grid.append(transmission.details,toolbar);
- if(postLayoutControls){postLayoutControls.transmissionDetails=transmission.details;postLayoutControls.transmissionEditor=transmissionEditor;postLayoutControls.sync();}
- const prompt=makeChamberDisclosure('02 // PROMPT STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
- const promptArea=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');promptArea.contentEditable=readOnly?'false':'true';promptArea.name='prompt_style';promptArea.setAttribute('role','textbox');promptArea.setAttribute('aria-multiline','true');promptArea.setAttribute('aria-label','Prompt style');promptArea.dataset.placeholder='Paste or write the AI / Suno style prompt…';promptArea.innerHTML=sanitizeTransmissionBody(structure.prompt_style);prompt.body.append(promptArea);grid.append(prompt.details);
- const lyrics=makeChamberDisclosure('03 // LYRICS STYLE','ha-chamber-panel ha-chamber-edit-panel','ha-chamber-panel-heading');
- const lyricsArea=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');lyricsArea.contentEditable=readOnly?'false':'true';lyricsArea.name='lyrics_style';lyricsArea.setAttribute('role','textbox');lyricsArea.setAttribute('aria-multiline','true');lyricsArea.setAttribute('aria-label','Lyrics style');lyricsArea.dataset.placeholder='Add lyric instructions, structure, vocal direction or generation notes…';lyricsArea.innerHTML=sanitizeTransmissionBody(structure.lyrics_style);lyrics.body.append(lyricsArea);grid.append(lyrics.details);
- const output=makeChamberDisclosure('04 // OUTPUT','ha-chamber-panel ha-chamber-output ha-chamber-edit-panel','ha-chamber-panel-heading');
- const text=makeChamberDisclosure('TEXT','ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
- const textArea=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');textArea.contentEditable=readOnly?'false':'true';textArea.name='output_text';textArea.setAttribute('role','textbox');textArea.setAttribute('aria-multiline','true');textArea.setAttribute('aria-label','Output text');textArea.dataset.placeholder='Edit the original text output…';textArea.innerHTML=sanitizeTransmissionBody(structure.output_text);text.body.append(textArea);output.body.append(text.details);
+ const focusButton=makeChamberNode('button','ha-chamber-focus-toggle','FOCUS');focusButton.type='button';focusButton.setAttribute('aria-pressed','false');
+ const canvas=makeChamberNode('div','ha-chamber-editor-field ha-rich-content ha-chamber-unified-canvas');
+ canvas.contentEditable=readOnly?'false':'true';canvas.setAttribute('role','textbox');canvas.setAttribute('aria-multiline','true');canvas.setAttribute('aria-label','Human Archive content');canvas.spellcheck=true;
+ canvas.dataset.placeholder='Write your archive entry. Use Add block or / to insert any block…';
+ canvas.innerHTML=sanitizeTransmissionBody(getUnifiedRecordHTML(record,structure));
+ grid.append(focusButton,toolbar,canvas);
  const blockMediaMime=(file,type)=>{
   const mime=String(file.type||'').toLowerCase();
-  const accepted={
-   image:['image/jpeg','image/png','image/webp','image/gif','image/avif'],
-   audio:['audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm'],
-   video:['video/mp4','video/webm'],
-   file:['image/jpeg','image/png','image/webp','image/gif','image/avif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm','video/mp4','video/webm']
-  };
+  const accepted={image:['image/jpeg','image/png','image/webp','image/gif','image/avif'],audio:['audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm'],video:['video/mp4','video/webm'],file:['image/jpeg','image/png','image/webp','image/gif','image/avif','audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm','video/mp4','video/webm']};
   if(accepted[type]?.includes(mime))return mime;
   if(mime)return null;
   const ext=String(file.name||'').split('.').pop().toLowerCase();
-  const byExt={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',mp3:'audio/mpeg',m4a:'audio/mp4',wav:'audio/wav',ogg:'audio/ogg',weba:'audio/webm',mp4:'video/mp4',webm:'video/webm',};
+  const byExt={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',mp3:'audio/mpeg',m4a:'audio/mp4',mp4:'video/mp4',wav:'audio/wav',ogg:'audio/ogg',weba:'audio/webm',webm:type==='video'?'video/webm':'audio/webm'};
   const inferred=byExt[ext]||'';return accepted[type]?.includes(inferred)?inferred:null;
  };
  const uploadBlockMedia=async(files,type)=>{
   if(!archiveAdmin||!archiveSupabase||!archiveUserId)throw new Error('An active CMS admin session is required to upload media.');
-  const acceptedType=type==='image'||type==='gallery'||type==='slideshow'||type==='tiled-gallery'||type==='cover'||type==='media-text'||type==='image-compare'?'image':type==='audio'||type==='playlist'||type==='podcast'?'audio':type==='video'?'video':'file';
+  const acceptedType=['image','gallery','slideshow','tiled-gallery','cover','media-text','image-compare'].includes(type)?'image':['audio','playlist','podcast'].includes(type)?'audio':type==='video'?'video':'file';
   const assets=[];
-  for(const file of files){
-   const mime=blockMediaMime(file,acceptedType);
-   if(!mime)throw new Error(file.name+' has an unsupported file format.');
-   if(file.size>30*1024*1024)throw new Error(file.name+' exceeds the 30 MB upload limit.');
-   const token=chamberUploadToken();
-   const safeName=String(file.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
-   const folder=mime.startsWith('image/')?'image':mime.startsWith('audio/')?'audio':mime.startsWith('video/')?'video':'files';
-   const path='human-archive/'+String(record.id)+'/blocks/'+folder+'/'+token+'-'+safeName;
-   const {error}=await archiveSupabase.storage.from('vha-post-media').upload(path,file,{cacheControl:'3600',contentType:mime,upsert:false});
-   if(error)throw error;
-   blockMediaUploadedPaths.push(path);
-   const {data}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
-   if(!data?.publicUrl)throw new Error('The uploaded media URL could not be created.');
-   const asset={url:data.publicUrl,path,name:file.name,mime_type:mime,type:folder,storage:'vha-post-media'};assets.push(asset);blockMediaUploadedAssets.push(asset);
+  try{
+   for(const file of files){
+    const mime=blockMediaMime(file,acceptedType);
+    if(!mime)throw new Error(file.name+' has an unsupported file format.');
+    if(file.size>30*1024*1024)throw new Error(file.name+' exceeds the 30 MB upload limit.');
+    const token=chamberUploadToken();
+    const safeName=String(file.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
+    const folder=mime.startsWith('image/')?'image':mime.startsWith('audio/')?'audio':mime.startsWith('video/')?'video':'files';
+    const path='human-archive/'+String(record.id)+'/blocks/'+folder+'/'+token+'-'+safeName;
+    const {error}=await archiveSupabase.storage.from('vha-post-media').upload(path,file,{cacheControl:'3600',contentType:mime,upsert:false});
+    if(error)throw error;
+    uploadedPaths.push(path);
+    const {data}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
+    if(!data?.publicUrl)throw new Error('The uploaded media URL could not be created.');
+    const asset={url:data.publicUrl,path,name:file.name,mime_type:mime,type:folder,storage:'vha-post-media'};
+    assets.push(asset);uploadedAssets.push(asset);
+   }
+  }catch(error){
+   if(uploadedPaths.length){const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);if(cleanupError)console.warn('Partial block upload cleanup failed:',cleanupError);}
+   uploadedPaths.splice(0);uploadedAssets.splice(0);throw error;
   }
   status.textContent=assets.length+' MEDIA FILE'+(assets.length===1?'':'S')+' UPLOADED — SAVE TO KEEP CHANGES.';
   return assets;
  };
  const getBlockMediaLibrary=type=>{
-  const desired=type==='image'||type==='gallery'||type==='slideshow'||type==='tiled-gallery'||type==='cover'||type==='media-text'||type==='image-compare'?'image':type==='audio'||type==='playlist'||type==='podcast'?'audio':type==='video'?'video':'';
-  const archiveAssets=records.flatMap(archiveRecord=>{
-   const archiveStructure=getRecordStructure(archiveRecord);
-   return [...['image','audio','video'].flatMap(kind=>getRecordOutputMedia(archiveRecord,archiveStructure,kind).map(item=>({...item,type:kind}))),...(Array.isArray(archiveRecord.media_items)?archiveRecord.media_items:[])];
-  });
-  const source=[...archiveAssets,...['image','audio','video'].flatMap(kind=>editorMedia[kind].map(item=>({...item,type:kind}))),...attachedPostMedia,...blockMediaUploadedAssets];
+  const desired=['image','gallery','slideshow','tiled-gallery','cover','media-text','image-compare'].includes(type)?'image':['audio','playlist','podcast'].includes(type)?'audio':type==='video'?'video':'';
+  const source=records.flatMap(item=>{
+   const itemStructure=getRecordStructure(item);
+   return [...['image','audio','video'].flatMap(kind=>getRecordOutputMedia(item,itemStructure,kind).map(media=>({...media,type:kind}))),...(Array.isArray(item.media_items)?item.media_items:[])];
+  }).concat(uploadedAssets);
   const seen=new Set();
   return source.filter(item=>{
-   const itemType=String(item.type||item.mime_type||'').toLowerCase();
-   const matches=!desired||itemType===desired||itemType.startsWith(desired+'/')||(desired==='image'&&itemType.startsWith('image/'))||(desired==='audio'&&itemType.startsWith('audio/'))||(desired==='video'&&itemType.startsWith('video/'));
-   const url=item.uploadedDraft?.url||item.url||item.source_url;
+   const itemType=String(item.type||item.mime_type||'').toLowerCase(),url=item.url||item.source_url;
+   const matches=!desired||itemType===desired||itemType.startsWith(desired+'/');
    if(!matches||!url||seen.has(url))return false;seen.add(url);return true;
-  }).map(item=>({url:item.uploadedDraft?.url||item.url||item.source_url,path:item.uploadedDraft?.path||item.path||item.storage_path,name:item.name||item.title||record.title,mime_type:item.mime_type||item.type||''}));
+  }).map(item=>({url:item.url||item.source_url,path:item.path||item.storage_path||'',name:item.name||item.title||record.title,mime_type:item.mime_type||item.type||''}));
  };
  const cleanupBlockMediaUploads=async(keepContent='')=>{
-  if(!blockMediaUploadedPaths.length)return;
-  const paths=blockMediaUploadedPaths.splice(0);
-  blockMediaUploadedAssets.splice(0);
-  const keep=paths.filter(path=>String(keepContent||'').includes(path));
-  const remove=paths.filter(path=>!keep.includes(path));
+  if(!uploadedPaths.length)return;
+  const keep=uploadedPaths.filter(path=>String(keepContent||'').includes(path));
+  const remove=uploadedPaths.filter(path=>!keep.includes(path));
   if(remove.length&&archiveSupabase){const {error}=await archiveSupabase.storage.from('vha-post-media').remove(remove);if(error)console.warn('Unreferenced block media could not be cleaned up:',error);}
+  uploadedPaths.splice(0);uploadedAssets.splice(0);
  };
- const blockEditorControllers=readOnly?[]:[transmissionEditor,promptArea,lyricsArea,textArea,layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
- const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,editors:[promptArea,lyricsArea,textArea,layoutMain,layoutLyrics,layoutPrompt,layoutLearned,layoutChatgpt,layoutPlain],toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
- ['image','audio','video'].forEach(type=>{
-  const media=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
-  const items=editorMedia[type];
-  const sectionBody=media.body;
-  outputMediaRepaint[type]=renderChamberMediaEditor(sectionBody,record,type,items,status,()=>{mediaTouched[type]=true;if(record.source_type!=='transmission')repaintAttachedPostMedia();scheduleDraftAutosave();});
-  output.body.append(media.details);
+ const blockEditorController=readOnly?null:window.VHABlockEditor?.mountBlockEditor({
+  editor:canvas,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,
+  onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}
  });
- grid.append(output.details);
- if(!readOnly&&record.source_type==='transmission'){
-  grid.addEventListener('input',scheduleDraftAutosave);
-  grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});
- }
- if(readOnly){
-  grid.classList.add('ha-chamber-read-only');
-  grid.querySelectorAll('input,textarea').forEach(control=>{control.readOnly=true;control.disabled=control.type==='file'||control.type==='range';});
-  grid.querySelectorAll('select,button').forEach(control=>{control.disabled=true;});
-  grid.querySelectorAll('[contenteditable="true"]').forEach(control=>{control.contentEditable='false';});
-  grid.querySelectorAll('.ha-chamber-upload-label,.ha-chamber-media-remove').forEach(control=>{control.hidden=true;});
-  if(editButton)editButton.hidden=!archiveAdmin;
-  bindChamberDisclosureControls(grid,expandButton);
-  return;
- }
+ const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({
+  editor:canvas,editors:[canvas],toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',
+  onInvalidLink:message=>{status.textContent=message;}
+ });
+ const getBody=()=>sanitizeTransmissionBody(blockEditorController?.getHTML()||canvas.innerHTML);
+ const getText=()=>blockEditorController?.getText()||canvas.innerText||'';
+ if(readOnly){grid.classList.add('ha-chamber-read-only');canvas.contentEditable='false';return;}
  const actions=makeChamberNode('div','ha-chamber-editor-actions');
  const save=makeChamberNode('button','ha-chamber-save','SAVE CHAMBER');save.type='button';
  const cancel=makeChamberNode('button','ha-chamber-cancel','CANCEL');cancel.type='button';
-
- const getCurrentTransmissionText=()=>postLayoutControls?.select.value==='plain'?(postLayoutControls.fields.plain.__haBlockEditor?.getText()||''):postLayoutControls?.select.value==='suno'?(postLayoutControls.fields.main.__haBlockEditor?.getText()||''):(transmissionEditor.__haBlockEditor?.getText()||'');
- const updateSaveLabel=()=>{if(record.source_type!=='transmission')return;const next=recordMetadataInputs.status.value;save.textContent=next==='published'?(record.status==='published'?'SAVE PUBLISHED TRANSMISSION':'PUBLISH TRANSMISSION'):(record.status==='published'?'UNPUBLISH & SAVE DRAFT':'SAVE DRAFT');};
- recordMetadataInputs?.status?.addEventListener('change',updateSaveLabel);updateSaveLabel();
- // Draft Transmissions are database-backed as the user types. Publication remains an explicit action.
- let draftAutosaveTimer=null,draftAutosaveInFlight=false,draftAutosaveQueued=false,draftAutosaveStopped=false,draftAutosaveFlushing=false,draftAutosaveConflict=false,draftAutosaveLastSignature='';
- const draftAutosaveEnabled=record.source_type==='transmission'&&record.status==='draft';
- const deleteDraft=draftAutosaveEnabled?makeChamberNode('button','ha-chamber-delete-draft','DELETE DRAFT'):null;
- if(deleteDraft)deleteDraft.type='button';
- const buildDraftAutosaveState=()=>{
-  const metadata={
-   title:String(recordMetadataInputs.title.value).trim(),
-   slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
-   category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
-   excerpt:String(recordMetadataInputs.excerpt.value).trim(),
-   mediaWidth:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100)),
-   status:'draft'
-  };
+ actions.append(save,cancel);grid.append(actions);
+ const getMetadata=()=>{
+  const metadata={title:String(titleInput.value).trim(),slug:String(slugInput.value).trim().toLowerCase(),category:String(categoryInput.value).trim().toUpperCase(),excerpt:String(excerptInput.value).trim(),mediaWidth:Math.max(20,Math.min(100,Number(mediaWidthInput.value)||100)),status:String(statusInput.value).trim().toLowerCase()};
   if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
   if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
   if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
   if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
-  let transmissionBody=sanitizeTransmissionBody(transmissionEditor.innerHTML);
-  if(postLayoutControls&&postLayoutControls.select.value!=='standard'){
-   transmissionBody=postLayoutControls.select.value==='plain'
-    ?'<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.plain.value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>'
-    :'<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.main.value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeLayoutText(postLayoutControls.fields.lyrics.value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+layoutParagraphs(postLayoutControls.fields.prompt.value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.learned.value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.chatgpt.value)+'</section></aside></div>';
-  }
-  const existingOutput=structure.output_media&&typeof structure.output_media==='object'?structure.output_media:{};
-  const outputMedia={};
-  for(const type of ['image','audio','video']){
-   const hasUnuploaded=editorMedia[type].some(item=>item.file&&!item.uploadedDraft);
-   outputMedia[type]=hasUnuploaded?(Array.isArray(existingOutput[type])?existingOutput[type]:[]):editorMedia[type].map(item=>{
-    const uploaded=item.uploadedDraft||{};
-    return {
-     id:String(item.id||uploaded.path||item.path||item.url||chamberUploadToken()),name:String(item.name||record.title),
-     url:String(uploaded.url||item.url||''),path:String(uploaded.path||item.path||''),
-     mime_type:String(uploaded.mime_type||item.mime_type||''),storage:String(uploaded.storage||item.storage||'recovered')
-    };
-   });
-  }
-  const mediaItems=attachedPostMedia.map(item=>{
-   const uploaded=item.uploadedDraft||{};
-   return {url:uploaded.url||item.url,path:uploaded.path||item.path||null,type:item.type,name:item.name};
-  }).filter(item=>item.url);
-  const row={
-   record_id:Number(record.id),transmission_body:transmissionBody,
-   prompt_style:sanitizeTransmissionBody(promptArea.innerHTML),lyrics_style:sanitizeTransmissionBody(lyricsArea.innerHTML),output_text:sanitizeTransmissionBody(textArea.innerHTML),
-   output_media:outputMedia,updated_at:new Date().toISOString(),updated_by:archiveUserId
-  };
-  return {metadata,row,mediaItems};
+  if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
+  return metadata;
  };
- const uploadPendingDraftMedia=async()=>{
-  const uploadedPaths=[];
-  const uploadOne=async(item,folder,type)=>{
-   if(!item.file||item.uploadedDraft)return;
-   const token=chamberUploadToken();
-   const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
-   const path='human-archive/'+String(record.id)+'/'+folder+'/'+token+'-'+safeName;
-   const {error}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{cacheControl:'3600',contentType:item.mime_type,upsert:false});
-   if(error)throw error;
-   uploadedPaths.push(path);
-   const {data}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
-   if(!data?.publicUrl)throw new Error('The uploaded media URL could not be created.');
-   item.uploadedDraft={url:data.publicUrl,path,type:type||item.type,name:item.name,mime_type:item.mime_type,storage:'vha-post-media'};
-  };
-  try{
-   for(const item of attachedPostMedia)await uploadOne(item,'attachments',item.type);
-   for(const type of ['image','audio','video'])for(const item of editorMedia[type])await uploadOne(item,type,type);
-   return uploadedPaths;
-  }catch(error){
-   if(uploadedPaths.length)await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
-   await cleanupBlockMediaUploads('');
-   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{delete item.uploadedDraft;});
-   throw error;
-  }
+ const updateSaveLabel=()=>{
+  if(record.source_type!=='transmission')return;
+  const next=statusInput.value;
+  save.textContent=next==='published'?(record.status==='published'?'SAVE PUBLISHED TRANSMISSION':'PUBLISH TRANSMISSION'):(record.status==='published'?'UNPUBLISH & SAVE DRAFT':'SAVE DRAFT');
+ };
+ statusInput.addEventListener('change',updateSaveLabel);updateSaveLabel();
+ let draftAutosaveTimer=null,draftAutosaveInFlight=false,draftAutosaveQueued=false,draftAutosaveStopped=false,draftAutosaveFlushing=false,draftAutosaveConflict=false,draftAutosaveLastSignature='';
+ const draftAutosaveEnabled=record.source_type==='transmission'&&record.status==='draft'&&!record.isNew;
+ const deleteDraft=draftAutosaveEnabled?makeChamberNode('button','ha-chamber-delete-draft','DELETE DRAFT'):null;
+ if(deleteDraft)deleteDraft.type='button';
+ const existingPostMedia=()=> (Array.isArray(record.media_items)?record.media_items:[]).map(item=>({url:String(item.url||item.source_url||''),path:String(item.path||item.storage_path||''),type:String(item.type||'audio'),name:String(item.name||item.title||record.title)})).filter(item=>item.url);
+ const buildDraftAutosaveState=()=>{
+  const metadata=getMetadata();metadata.status='draft';
+  const body=getBody();
+  if(!getText().trim()&&!archiveHasContent(body))throw new Error('Add content before saving this draft.');
+  const row={record_id:Number(record.id),transmission_body:body,prompt_style:'',lyrics_style:'',output_text:'',output_media:{image:[],audio:[],video:[]},updated_at:new Date().toISOString(),updated_by:archiveUserId};
+  return {metadata,row,mediaItems:existingPostMedia()};
  };
  const runDraftAutosave=async()=>{
   if(draftAutosaveConflict)return false;
   if(!draftAutosaveEnabled||draftAutosaveStopped||!archiveAdmin||!archiveSupabase||!archiveUserId)return true;
   if(draftAutosaveInFlight){draftAutosaveQueued=true;return null;}
-  let state,signature,uploadedPaths=[];
-  draftAutosaveInFlight=true;
+  let state,signature;draftAutosaveInFlight=true;
   try{
-   uploadedPaths=await uploadPendingDraftMedia();
    state=buildDraftAutosaveState();
    signature=JSON.stringify({metadata:state.metadata,row:{...state.row,updated_at:null,updated_by:null},mediaItems:state.mediaItems});
-   if(signature===draftAutosaveLastSignature){
-    uploadedPaths.forEach(path=>console.warn('Draft media already represented in the saved record:',path));
-    return true;
-   }
+   if(signature===draftAutosaveLastSignature)return true;
    status.textContent='SAVING DRAFT…';
    const {data,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
-    p_post_id:record.post_id,p_title:state.metadata.title,p_slug:state.metadata.slug,
-    p_category:state.metadata.category,p_excerpt:state.metadata.excerpt,p_status:'draft',
-    p_transmission_body:state.row.transmission_body,p_prompt_style:state.row.prompt_style,
-    p_lyrics_style:state.row.lyrics_style,p_output_text:state.row.output_text,
-    p_output_media:state.row.output_media,p_media_items:state.mediaItems,
-    p_media_width:state.metadata.mediaWidth,p_expected_updated_at:record.updated_at
+    p_post_id:record.post_id,p_title:state.metadata.title,p_slug:state.metadata.slug,p_category:state.metadata.category,p_excerpt:state.metadata.excerpt,p_status:'draft',
+    p_transmission_body:state.row.transmission_body,p_prompt_style:'',p_lyrics_style:'',p_output_text:'',p_output_media:state.row.output_media,
+    p_media_items:state.mediaItems,p_media_width:state.metadata.mediaWidth,p_expected_updated_at:record.updated_at
    });
    if(error)throw error;
    const saved=Array.isArray(data)?data[0]:data;
-   record.media_width=state.metadata.mediaWidth;
-   record.title=state.metadata.title;record.slug=state.metadata.slug;
-   record.categories=[state.metadata.category];record.excerpt=state.metadata.excerpt;
-   record.content_html=state.row.transmission_body;record.status='draft';
-   record.media_items=state.mediaItems.map((item,index)=>({
-    id:'transmission-'+record.post_id+'-'+index,title:item.name||record.title,
-    alt_text:item.name||record.title,mime_type:item.type+'/unknown',
-    storage_path:item.path||'',source_url:item.url,url:item.url,
-    storage:'vha-post-media',post_ids:[Number(record.id)]
-   }));
-   record.updated_at=saved?.updated_at||state.row.updated_at;
-   state.row.updated_at=record.updated_at;
+   record.media_width=state.metadata.mediaWidth;record.title=state.metadata.title;record.slug=state.metadata.slug;record.categories=[state.metadata.category];record.excerpt=state.metadata.excerpt;
+   record.content_html=state.row.transmission_body;record.status='draft';record.updated_at=saved?.updated_at||state.row.updated_at;state.row.updated_at=record.updated_at;
    recordStructureOverrides.set(String(record.id),state.row);
-   await cleanupBlockMediaUploads([state.row.transmission_body,state.row.prompt_style,state.row.lyrics_style,state.row.output_text].join('\n'));
-   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{
-    if(item.uploadedDraft){Object.assign(item,item.uploadedDraft);item.file=null;delete item.uploadedDraft;}
-   });
-   repaintAttachedPostMedia();
-   draftAutosaveLastSignature=signature;
-   status.textContent='DRAFT SAVED AUTOMATICALLY';
-   return true;
+   await cleanupBlockMediaUploads(state.row.transmission_body);
+   draftAutosaveLastSignature=signature;status.textContent='DRAFT SAVED AUTOMATICALLY';return true;
   }catch(error){
-   if(uploadedPaths.length)await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
-   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{delete item.uploadedDraft;});
    console.error('Human Archive draft autosave failed:',error);
-   if(error?.code==='40001'){
-    chamberSaveConflict=true;
-    draftAutosaveConflict=true;
-    status.textContent='EDIT CONFLICT — THIS TRANSMISSION CHANGED IN ANOTHER TAB. RELOAD BEFORE CONTINUING.';
-   }else status.textContent='AUTOSAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
+   if(error?.code==='40001'){chamberSaveConflict=true;draftAutosaveConflict=true;status.textContent='EDIT CONFLICT — THIS TRANSMISSION CHANGED IN ANOTHER TAB. RELOAD BEFORE CONTINUING.';}
+   else status.textContent='AUTOSAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
    return false;
-  }finally{
-   draftAutosaveInFlight=false;
-   if(draftAutosaveQueued&&!draftAutosaveFlushing){draftAutosaveQueued=false;scheduleDraftAutosave(0);}
-  }
+  }finally{draftAutosaveInFlight=false;if(draftAutosaveQueued&&!draftAutosaveFlushing){draftAutosaveQueued=false;scheduleDraftAutosave(0);}}
  };
  const scheduleDraftAutosave=(delay=850)=>{
-  if(!draftAutosaveEnabled||draftAutosaveConflict)return;
+  if(!draftAutosaveEnabled||draftAutosaveConflict||draftAutosaveStopped)return;
   if(draftAutosaveTimer)clearTimeout(draftAutosaveTimer);
   draftAutosaveTimer=setTimeout(()=>{draftAutosaveTimer=null;runDraftAutosave();},delay);
  };
  const flushDraftAutosave=async()=>{
-  if(draftAutosaveConflict)return false;
-  if(!draftAutosaveEnabled)return true;
+  if(draftAutosaveConflict)return false;if(!draftAutosaveEnabled)return true;
   draftAutosaveFlushing=true;
   try{
    for(let attempt=0;attempt<4;attempt++){
     if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
     while(draftAutosaveInFlight)await new Promise(resolve=>setTimeout(resolve,50));
-    draftAutosaveQueued=false;
-    const result=await runDraftAutosave();
+    draftAutosaveQueued=false;const result=await runDraftAutosave();
     while(draftAutosaveInFlight)await new Promise(resolve=>setTimeout(resolve,50));
-    if(result===false)return false;
-    if(!draftAutosaveQueued&&!draftAutosaveTimer)return true;
+    if(result===false)return false;if(!draftAutosaveQueued&&!draftAutosaveTimer)return true;
    }
    return !draftAutosaveInFlight&&!draftAutosaveQueued&&!draftAutosaveTimer;
   }finally{draftAutosaveFlushing=false;}
  };
- if(draftAutosaveEnabled)flushActiveChamberAutosave=async()=>{
-  if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
-  return await flushDraftAutosave();
- };
-
- if(deleteDraft)actions.append(deleteDraft);
- actions.append(save,cancel);grid.append(actions);
+ if(draftAutosaveEnabled)flushActiveChamberAutosave=async()=>{if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}return await flushDraftAutosave();};
+ if(deleteDraft)actions.prepend(deleteDraft);
  deleteDraft?.addEventListener('click',async()=>{
   if(!draftAutosaveEnabled||draftAutosaveStopped||!archiveAdmin||!archiveSupabase||!archiveUserId)return;
-  if(!window.confirm('Permanently delete this draft Transmission? Its Human Archive record and associated Human Archive attachment files will be removed. This cannot be undone.'))return;
-  draftAutosaveStopped=true;
-  if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
+  if(!window.confirm('Permanently delete this draft Transmission? Its Human Archive record and associated attachment files will be removed. This cannot be undone.'))return;
+  draftAutosaveStopped=true;if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
   deleteDraft.disabled=true;save.disabled=true;cancel.disabled=true;status.textContent='WAITING FOR ANY ACTIVE DRAFT SAVE…';
   try{
    while(draftAutosaveInFlight)await new Promise(resolve=>setTimeout(resolve,50));
-   draftAutosaveQueued=false;
    status.textContent='DELETING DRAFT…';
    const {data,error}=await archiveSupabase.rpc('delete_human_archive_transmission_draft_v1',{p_post_id:record.post_id});
    if(error)throw error;
    const deleted=Array.isArray(data)?data[0]:data;
    if(!deleted||Number(deleted.archive_record_id)!==Number(record.id))throw new Error('The database did not confirm deletion of this exact Archive record.');
-   let cleanupWarning=false;
    const paths=Array.isArray(deleted.storage_paths)?deleted.storage_paths.filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')):[];
-   if(paths.length){
-    const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(paths);
-    if(cleanupError){cleanupWarning=true;console.warn('Draft was deleted, but some associated storage files remain:',cleanupError);}
-   }
-   records=records.filter(item=>String(item.id)!==String(record.id));
-   const removedMediaUrls=new Set((record.media_items||[]).map(item=>item.url).filter(Boolean));
-   mediaItems=mediaItems.filter(item=>!(item.post_ids||[]).includes(Number(record.id))&&!removedMediaUrls.has(item.url));
-   removedMediaUrls.forEach(url=>mediaMap.delete(urlKey(url)));
-   recordStructureOverrides.delete(String(record.id));favoriteRecordIds.delete(String(record.id));
-   chamberCloseRequestedByUser=true;recordChamber?.close();render();
-   setMediaStatus(cleanupWarning?'DRAFT DELETED — SOME STORAGE FILES COULD NOT BE CLEANED UP':'DRAFT DELETED',!cleanupWarning);
+   if(paths.length){const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(paths);if(cleanupError)console.warn('Some draft files could not be cleaned up:',cleanupError);}
+   await cleanupBlockMediaUploads('');
+   records=records.filter(item=>String(item.id)!==String(record.id));recordStructureOverrides.delete(String(record.id));favoriteRecordIds.delete(String(record.id));
+   chamberCloseRequestedByUser=true;recordChamber?.close();render();setMediaStatus('DRAFT DELETED',true);
   }catch(error){
    draftAutosaveStopped=false;deleteDraft.disabled=false;save.disabled=false;cancel.disabled=false;
-   console.error('Human Archive draft could not be deleted:',error);
-   status.textContent='DELETE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
-   scheduleDraftAutosave(0);
+   console.error('Human Archive draft could not be deleted:',error);status.textContent='DELETE FAILED — '+String(error.message||'PLEASE TRY AGAIN');scheduleDraftAutosave(0);
   }
  });
- bindChamberDisclosureControls(grid,expandButton);
- cancel.addEventListener('click',()=>{
-  void cleanupBlockMediaUploads('');
+ cancel.addEventListener('click',async()=>{
+  if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
+  if(draftAutosaveEnabled&&draftAutosaveInFlight)await flushDraftAutosave();
+  await cleanupBlockMediaUploads('');
   if(chamberSaveConflict){
    const discard=window.confirm('This tab has unsaved changes that conflict with a newer version. Discard this tab’s changes and return to the read-only chamber?');
-   if(!discard)return;
-   chamberSaveConflict=false;flushActiveChamberAutosave=async()=>true;
+   if(!discard)return;chamberSaveConflict=false;flushActiveChamberAutosave=async()=>true;
   }
-  blockEditorControllers.forEach(controller=>controller.destroy());
-  richEditorController?.destroy();
-  status.textContent='';
+  blockEditorController?.destroy();richEditorController?.destroy();status.textContent='';
   renderRecordStructureView(record,grid,status,editButton,expandButton);
  });
  save.addEventListener('click',async()=>{
   if(!archiveAdmin||!archiveSupabase||!archiveUserId){status.textContent='ADMIN SESSION REQUIRED';return;}
   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
-  if(draftAutosaveInFlight){
-   status.textContent='WAITING FOR AUTOMATIC DRAFT SAVE…';
-   await new Promise(resolve=>{const wait=()=>draftAutosaveInFlight?setTimeout(wait,50):resolve();wait();});
-   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
-  }
-  if(record.source_type==='transmission'&&record.post_id&&recordMetadataInputs.status.value!==record.status){
-   const prompt=recordMetadataInputs.status.value==='published'
-    ?'Publish this Transmission? It will become visible on the public site.'
-    :'Unpublish this Transmission? It will become a private draft and disappear from public listings.';
+  if(draftAutosaveInFlight){status.textContent='WAITING FOR AUTOMATIC DRAFT SAVE…';await new Promise(resolve=>{const wait=()=>draftAutosaveInFlight?setTimeout(wait,50):resolve();wait();});}
+  if(record.source_type==='transmission'&&record.post_id&&statusInput.value!==record.status){
+   const prompt=statusInput.value==='published'?'Publish this Transmission? It will become visible on the public site.':'Unpublish this Transmission? It will become a private draft and disappear from public listings.';
    if(!window.confirm(prompt))return;
   }
-  save.disabled=true;cancel.disabled=true;save.textContent='SAVING…';status.textContent='PREPARING CHAMBER UPDATE…';
-  const uploadedPaths=[];
+  save.disabled=true;cancel.disabled=true;save.textContent='SAVING…';status.textContent='PREPARING BLOCK DOCUMENT…';
   const oldStructure=recordStructureOverrides.get(String(record.id))||{};
-  const existingOutput=oldStructure.output_media&&typeof oldStructure.output_media==='object'?oldStructure.output_media:{};
-  const oldOwnedPaths=['image','audio','video'].flatMap(type=>Array.isArray(existingOutput[type])?existingOutput[type]:[])
-   .filter(item=>item&&item.storage==='vha-post-media'&&typeof item.path==='string'&&item.path.startsWith('human-archive/'+String(record.id)+'/'))
-   .map(item=>item.path);
+  const body=getBody();
   try{
+   let metadata=record.source_type==='transmission'?getMetadata():null;
+   if(metadata?.status==='published'&&!getText().trim()&&!archiveHasContent(body))throw new Error('Add transmission content before publishing.');
+   if(metadata?.status==='published'&&!metadata.category)throw new Error('Choose a movement category before publishing.');
    if(record.source_type==='transmission'&&!record.post_id){
-    const metadata={
-     title:String(recordMetadataInputs.title.value).trim(),
-     slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
-     category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
-     excerpt:String(recordMetadataInputs.excerpt.value).trim(),
-     status:String(recordMetadataInputs.status.value).trim().toLowerCase(),
-     mediaWidth:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100))
-    };
-    if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
-    if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
-    if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
-    if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
-    if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
-    const initialBody=postLayoutControls&&postLayoutControls.select.value!=='standard'
-     ?(postLayoutControls.select.value==='plain'
-      ?'<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.plain.value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>'
-      :'<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.main.value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeLayoutText(postLayoutControls.fields.lyrics.value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+layoutParagraphs(postLayoutControls.fields.prompt.value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.learned.value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.chatgpt.value)+'</section></aside></div>')
-     :sanitizeTransmissionBody(transmissionEditor.innerHTML);
-    const publishText=getCurrentTransmissionText();
-    if(metadata.status==='published'&&!String(publishText||'').trim())throw new Error('Add transmission content before publishing.');
     status.textContent='CREATING TRANSMISSION…';
     const {data:createResult,error:createError}=await archiveSupabase.rpc('create_human_archive_transmission_v3',{
-     p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,
-     p_status:'draft',p_transmission_body:initialBody,p_prompt_style:sanitizeTransmissionBody(promptArea.innerHTML),p_lyrics_style:sanitizeTransmissionBody(lyricsArea.innerHTML),p_output_text:sanitizeTransmissionBody(textArea.innerHTML),
-     p_output_media:{image:[],audio:[],video:[]},p_media_items:[],p_media_width:metadata.mediaWidth
+     p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,p_status:'draft',
+     p_transmission_body:body,p_prompt_style:'',p_lyrics_style:'',p_output_text:'',p_output_media:{image:[],audio:[],video:[]},p_media_items:[],p_media_width:metadata.mediaWidth
     });
     if(createError)throw createError;
     const created=Array.isArray(createResult)?createResult[0]:createResult;
     if(!created?.post_id||!created?.archive_record_id||!created?.slug||!created?.updated_at)throw new Error('The Transmission record could not be confirmed.');
-    metadata.slug=String(created.slug);
-    recordMetadataInputs.slug.value=metadata.slug;
-    slugManuallyEdited=true;
     record.id=Number(created.archive_record_id);record.post_id=created.post_id;record.updated_at=created.updated_at;
-    record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;
-    record.status='draft';record.media_width=metadata.mediaWidth;record.created_at=new Date().toISOString();
-    record.date=record.created_at.slice(0,10);record.year=record.date.slice(0,4);
-    record.archiveIdentifier='HA-'+record.year+'-'+String(record.id).padStart(4,'0');
-    record.isNew=false;chamberRecordId=String(record.id);
+    record.title=metadata.title;record.slug=String(created.slug);record.categories=[metadata.category];record.excerpt=metadata.excerpt;
+    record.status='draft';record.media_width=metadata.mediaWidth;record.created_at=new Date().toISOString();record.date=record.created_at.slice(0,10);record.year=record.date.slice(0,4);
+    record.archiveIdentifier='HA-'+record.year+'-'+String(record.id).padStart(4,'0');record.isNew=false;chamberRecordId=String(record.id);
    }
-   const savedPostMedia=[];
-   for(const item of attachedPostMedia){
-    if(item.file){
-     status.textContent='UPLOADING POST ATTACHMENT // '+item.name;
-     const token=chamberUploadToken();
-     const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
-     const path='human-archive/'+String(record.id)+'/attachments/'+token+'-'+safeName;
-     const {error:uploadError}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{cacheControl:'3600',contentType:item.mime_type,upsert:false});
-     if(uploadError)throw uploadError;
-     uploadedPaths.push(path);
-     const {data:publicData}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
-     if(!publicData?.publicUrl)throw new Error('The attachment URL could not be created.');
-     savedPostMedia.push({url:publicData.publicUrl,path,type:item.type,name:item.name});
-    }else{
-     savedPostMedia.push({url:item.url,path:item.path||null,type:item.type,name:item.name});
-    }
-   }
-   const outputMedia={};
-   for(const type of ['image','audio','video']){
-    const savedItems=[];
-    for(const item of editorMedia[type]){
-     if(item.file){
-      status.textContent='UPLOADING '+type.toUpperCase()+' // '+item.name;
-      const token=chamberUploadToken();
-      const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
-      const path='human-archive/'+String(record.id)+'/'+type+'/'+token+'-'+safeName;
-      const {error:uploadError}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{
-       cacheControl:'3600',contentType:item.mime_type,upsert:false
-      });
-      if(uploadError)throw uploadError;
-      uploadedPaths.push(path);
-      const {data:publicData}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
-      if(!publicData?.publicUrl)throw new Error('The uploaded file URL could not be created.');
-      savedItems.push({id:'upload-'+token,name:item.name,url:publicData.publicUrl,path,mime_type:item.mime_type,storage:'vha-post-media'});
-     }else{
-      savedItems.push({
-       id:String(item.id||item.path||item.url||chamberUploadToken()),
-       name:String(item.name||record.title),
-       url:String(item.url||''),
-       path:typeof item.path==='string'?item.path:'',
-       mime_type:String(item.mime_type||''),
-       storage:String(item.storage||'recovered')
-      });
-     }
-    }
-    if(mediaTouched[type]||Array.isArray(existingOutput[type])||mediaReady)outputMedia[type]=savedItems;
-   }
-   const row={
-    record_id:Number(record.id),
-    transmission_body:postLayoutControls&&postLayoutControls.select.value!=='standard'
-     ?(postLayoutControls.select.value==='plain'
-      ?'<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.plain.value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>'
-      :'<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.main.value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeLayoutText(postLayoutControls.fields.lyrics.value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+layoutParagraphs(postLayoutControls.fields.prompt.value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.learned.value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.chatgpt.value)+'</section></aside></div>')
-     :sanitizeTransmissionBody(transmissionEditor.innerHTML),
-    prompt_style:sanitizeTransmissionBody(promptArea.innerHTML),
-    lyrics_style:sanitizeTransmissionBody(lyricsArea.innerHTML),
-    output_text:sanitizeTransmissionBody(textArea.innerHTML),
-    output_media:outputMedia,
-    updated_at:new Date().toISOString(),
-    updated_by:archiveUserId
-   };
-   status.textContent='SAVING CHAMBER STRUCTURE…';
+   const row={record_id:Number(record.id),transmission_body:body,prompt_style:'',lyrics_style:'',output_text:'',output_media:{image:[],audio:[],video:[]},updated_at:new Date().toISOString(),updated_by:archiveUserId};
    if(record.source_type==='transmission'){
-    const metadata={
-     title:String(recordMetadataInputs.title.value).trim(),
-     slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
-     category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
-     excerpt:String(recordMetadataInputs.excerpt.value).trim(),
-     status:String(recordMetadataInputs.status.value).trim().toLowerCase(),
-     mediaWidth:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100))
-    };
-    if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
-    if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
-    if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
-    if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
-    if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
-    if(metadata.status==='published'&&!getCurrentTransmissionText().trim())throw new Error('Add transmission content before publishing.');
-    if(metadata.status==='published'&&metadata.category==='UNASSIGNED')throw new Error('Choose a movement category before publishing.');
+    metadata=getMetadata();
+    if(metadata.status==='published'&&!getText().trim()&&!archiveHasContent(body))throw new Error('Add transmission content before publishing.');
     const {data:saveResult,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
      p_post_id:record.post_id,p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,p_status:metadata.status,
-     p_transmission_body:row.transmission_body,p_prompt_style:row.prompt_style,p_lyrics_style:row.lyrics_style,
-     p_output_text:row.output_text,p_output_media:row.output_media,p_media_items:savedPostMedia,
-     p_media_width:metadata.mediaWidth,p_expected_updated_at:record.updated_at
+     p_transmission_body:row.transmission_body,p_prompt_style:'',p_lyrics_style:'',p_output_text:'',p_output_media:row.output_media,
+     p_media_items:existingPostMedia(),p_media_width:metadata.mediaWidth,p_expected_updated_at:record.updated_at
     });
     if(error)throw error;
     const saved=Array.isArray(saveResult)?saveResult[0]:saveResult;
-    record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.content_html=row.transmission_body;
-    record.media_items=savedPostMedia.map((item,index)=>({id:'transmission-'+record.post_id+'-'+index,title:item.name||record.title,alt_text:item.name||record.title,mime_type:item.type+'/unknown',storage_path:item.path||'',source_url:item.url,url:item.url,storage:'vha-post-media',post_ids:[Number(record.id)]}));
-    record.status=metadata.status;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||new Date().toISOString();record.media_width=metadata.mediaWidth;
-    const dateStamp=record.published_at||record.created_at||record.updated_at;record.date=String(dateStamp).slice(0,10);record.year=record.date.slice(0,4);
-    if(!categoryOrder.includes(metadata.category))categoryOrder.push(metadata.category);
-    if(category&&![...category.options].some(option=>option.value===metadata.category)){
-     const option=document.createElement('option');option.value=metadata.category;option.textContent=metadata.category;category.append(option);
-    }
+    record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.status=metadata.status;
+    record.media_width=metadata.mediaWidth;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||row.updated_at;
+    const stamp=record.published_at||record.created_at||record.updated_at;record.date=String(stamp).slice(0,10);record.year=record.date.slice(0,4);
    }else{
     const {data:structureResult,error}=await archiveSupabase.rpc('save_human_archive_record_structure_v1',{
      p_record_id:Number(record.id),p_expected_updated_at:oldStructure.updated_at||null,
-     p_transmission_body:row.transmission_body,p_prompt_style:row.prompt_style,
-     p_lyrics_style:row.lyrics_style,p_output_text:row.output_text,p_output_media:row.output_media
+     p_transmission_body:row.transmission_body,p_prompt_style:'',p_lyrics_style:'',p_output_text:'',p_output_media:row.output_media
     });
     if(error)throw error;
-    const savedStructure=Array.isArray(structureResult)?structureResult[0]:structureResult;
-    row.updated_at=savedStructure?.updated_at||new Date().toISOString();
+    const saved=Array.isArray(structureResult)?structureResult[0]:structureResult;row.updated_at=saved?.updated_at||row.updated_at;
    }
-   recordStructureOverrides.set(String(record.id),row);
-   await cleanupBlockMediaUploads([row.transmission_body,row.prompt_style,row.lyrics_style,row.output_text].join('\n'));
+   record.content_html=row.transmission_body;recordStructureOverrides.set(String(record.id),row);
+   await cleanupBlockMediaUploads(row.transmission_body);
+   const oldMediaPaths=['image','audio','video'].flatMap(type=>Array.isArray(oldStructure.output_media?.[type])?oldStructure.output_media[type]:[])
+    .filter(item=>item&&item.storage==='vha-post-media'&&typeof item.path==='string'&&item.path.startsWith('human-archive/'+String(record.id)+'/'))
+    .filter(item=>!row.transmission_body.includes(item.path)&&!row.transmission_body.includes(String(item.url||''))).map(item=>item.path);
+   if(oldMediaPaths.length){const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove([...new Set(oldMediaPaths)]);if(removeError)console.warn('Removed block media could not be cleaned from storage:',removeError);}
    if(!records.some(item=>String(item.id)===String(record.id))){
-    records.push(record);
-    if(!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);
-    if(category&&![...category.options].some(option=>option.value===record.categories[0])){
-     const option=document.createElement('option');option.value=record.categories[0];option.textContent=record.categories[0];category.append(option);
-    }
+    records.push(record);if(!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);
+    if(category&&![...category.options].some(option=>option.value===record.categories[0])){const option=document.createElement('option');option.value=record.categories[0];option.textContent=record.categories[0];category.append(option);}
    }
-   const keepPaths=new Set(['image','audio','video'].flatMap(type=>Array.isArray(outputMedia[type])?outputMedia[type]:[])
-    .filter(item=>item&&item.storage==='vha-post-media').map(item=>item.path).filter(Boolean));
-   const removedPaths=[...new Set(oldOwnedPaths)].filter(path=>!keepPaths.has(path));
-   let cleanupWarning=false;
-   
-    if(removedPaths.length){
-    const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedPaths);
-    if(removeError){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from storage:',removeError);}
-   }
-   status.textContent=cleanupWarning?'CHAMBER SAVED — FILE CLEANUP NEEDS ATTENTION':'CHAMBER REDESIGNED // CHANGES SAVED';
-   blockEditorControllers.forEach(controller=>controller.destroy());
-   richEditorController?.destroy();
+   status.textContent='BLOCK DOCUMENT SAVED';
+   blockEditorController?.destroy();richEditorController?.destroy();
    if(record.source_type==='transmission'){
     const titleNode=recordChamber?.querySelector('.ha-chamber-title');if(titleNode)titleNode.textContent=record.title;
     const metaNode=recordChamber?.querySelector('.ha-chamber-meta');
     if(metaNode)metaNode.textContent='HA-'+record.year+'-'+String(record.id).padStart(4,'0')+' // '+record.date+' // '+record.categories.join(' / ');
     const shareNode=recordChamber?.querySelector('.ha-chamber-share'),shareStatus=recordChamber?.querySelector('.ha-chamber-share-status');
     if(shareNode&&shareStatus){shareNode.replaceChildren();appendChamberShareActions(shareNode,record,shareStatus);}
-    if(hasArchiveIndex){
-     const chamberUrl=new URL(archiveHomeUrl.href);chamberUrl.searchParams.set('record',String(record.id));
-     history.replaceState(history.state,'',chamberUrl.pathname+chamberUrl.search+chamberUrl.hash);
-     render();
-    }
+    if(hasArchiveIndex){const url=new URL(archiveHomeUrl.href);url.searchParams.set('record',String(record.id));history.replaceState(history.state,'',url.pathname+url.search+url.hash);render();}
    }
    renderRecordStructureView(record,grid,status,editButton,expandButton);
   }catch(error){
-   if(uploadedPaths.length){
-    const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
-    if(cleanupError)console.error('New chamber uploads could not be rolled back:',cleanupError);
-   }
-   console.error('Human Archive chamber could not be saved:',error);
+   console.error('Human Archive block document could not be saved:',error);
    if(error?.code==='40001')chamberSaveConflict=true;
    status.textContent=error?.code==='40001'?'EDIT CONFLICT — THIS RECORD CHANGED IN ANOTHER TAB. RELOAD BEFORE CONTINUING.':'SAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
    save.disabled=false;cancel.disabled=false;save.textContent='SAVE CHAMBER';
