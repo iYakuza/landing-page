@@ -728,7 +728,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  let postLayoutControls=null;
  const outputMediaRepaint={};
  const escapeLayoutText=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
- const layoutParagraphs=value=>String(value||'').split(/\n{2,}/).map(part=>'<p>'+escapeLayoutText(part).replace(/\n/g,'<br>')+'</p>').join('');
+ const layoutParagraphs=value=>{const raw=String(value||'');return /<\/?[a-z][^>]*>/i.test(raw)?sanitizeTransmissionBody(raw):raw.split(/\n{2,}/).map(part=>'<p>'+escapeLayoutText(part).replace(/\n/g,'<br>')+'</p>').join('');};
 
  grid.replaceChildren();
  const metadataDetails=makeChamberDisclosure('00 // RECORD DETAILS','ha-chamber-panel ha-chamber-edit-panel ha-chamber-metadata-panel','ha-chamber-panel-heading');
@@ -800,6 +800,11 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   };
   return read(clone).replace(/\r/g,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
  };
+ const readLayoutHtml=selector=>{
+  const node=savedLayoutDoc.querySelector(selector);if(!node)return '';
+  const clone=node.cloneNode(true);clone.querySelectorAll('.suno-label,.suno-collapse-hint').forEach(label=>label.remove());
+  return clone.innerHTML;
+ };
  const layoutPanel=makeChamberDisclosure('00.25 // POST PRESENTATION','ha-chamber-panel ha-chamber-edit-panel ha-chamber-layout-panel','ha-chamber-panel-heading');
  const layoutSelect=document.createElement('select');layoutSelect.className='ha-chamber-editor-field ha-chamber-meta-input';
  [['standard','STANDARD ARTICLE'],['plain','PLAIN TEXT + OH, SUN.'],['suno','SUNO LYRICS + STYLE BREAKDOWN']].forEach(([value,label])=>{const option=document.createElement('option');option.value=value;option.textContent=label;layoutSelect.append(option);});
@@ -811,15 +816,23 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   const wrap=makeChamberNode('label','ha-chamber-metadata-field ha-chamber-layout-field');
   wrap.dataset.layoutGroup=group;
   wrap.append(makeChamberNode('span','ha-chamber-metadata-label',label));
-  const area=document.createElement('textarea');area.className='ha-chamber-editor-field';area.name=name;area.rows=rows;area.value=value||'';
+  const area=makeChamberNode('div','ha-chamber-editor-field ha-rich-content ha-layout-block-field');
+  area.name=name;area.contentEditable=readOnly?'false':'true';area.setAttribute('role','textbox');area.setAttribute('aria-multiline','true');area.setAttribute('aria-label',label);
+  area.innerHTML=value||'<p><br></p>';
+  Object.defineProperty(area,'value',{configurable:true,get(){
+   const html=area.__haBlockEditor?.getHTML()||area.innerHTML;
+   if(name==='layout_lyrics'){const parsed=new DOMParser().parseFromString(html,'text/html');return parsed.body.textContent||'';}
+   return html;
+  },set(next){area.innerHTML=String(next??'');}});
   wrap.append(area);layoutFields.append(wrap);return area;
  };
- const layoutMain=addLayoutField('COLUMN 1 // THE TEXT','layout_main',savedSuno?readLayoutText('.suno-text-column'):savedPlain?readLayoutText('.plain-copy'):readLayoutText('body'),'suno',8);
- const layoutLyrics=addLayoutField('COLUMN 2 // SUNO LYRICS','layout_lyrics',readLayoutText('.suno-lyrics pre'),'suno',12);
- const layoutPrompt=addLayoutField('SUNO STYLE PROMPT','layout_prompt',readLayoutText('.suno-style-prompt')||readLayoutText('.suno-notes'),'suno',6);
- const layoutLearned=addLayoutField('WHAT I LEARNED','layout_learned',readLayoutText('.suno-learned'),'suno',4);
- const layoutChatgpt=addLayoutField('WHAT CHATGPT LEARNED','layout_chatgpt',readLayoutText('.suno-chatgpt-learned'),'suno',4);
- const layoutPlain=addLayoutField('PLAIN TEXT','layout_plain',savedPlain?readLayoutText('.plain-copy'):savedSuno?readLayoutText('.suno-text-column'):readLayoutText('body'),'plain',12);
+ const layoutMain=addLayoutField('COLUMN 1 // THE TEXT','layout_main',savedSuno?readLayoutHtml('.suno-text-column'):savedPlain?readLayoutHtml('.plain-copy'):readLayoutHtml('body'),'suno',8);
+ const lyricsSource=readLayoutText('.suno-lyrics pre');
+ const layoutLyrics=addLayoutField('COLUMN 2 // SUNO LYRICS','layout_lyrics',lyricsSource?'<pre>'+escapeLayoutText(lyricsSource)+'</pre>':'<pre><br></pre>','suno',12);
+ const layoutPrompt=addLayoutField('SUNO STYLE PROMPT','layout_prompt',readLayoutHtml('.suno-style-prompt')||readLayoutHtml('.suno-notes'),'suno',6);
+ const layoutLearned=addLayoutField('WHAT I LEARNED','layout_learned',readLayoutHtml('.suno-learned'),'suno',4);
+ const layoutChatgpt=addLayoutField('WHAT CHATGPT LEARNED','layout_chatgpt',readLayoutHtml('.suno-chatgpt-learned'),'suno',4);
+ const layoutPlain=addLayoutField('PLAIN TEXT','layout_plain',savedPlain?readLayoutHtml('.plain-copy'):savedSuno?readLayoutHtml('.suno-text-column'):readLayoutHtml('body'),'plain',12);
  const syncLayoutControls=()=>{
   layoutFields.querySelectorAll('[data-layout-group]').forEach(field=>{field.hidden=field.dataset.layoutGroup!==layoutSelect.value;});
   if(postLayoutControls?.transmissionDetails)postLayoutControls.transmissionDetails.hidden=layoutSelect.value!=='standard';
