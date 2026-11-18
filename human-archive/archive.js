@@ -149,9 +149,13 @@ function makeRelatedRecordButton(record,label){
  button.addEventListener('click',()=>openRelatedRecord(record));
  return button;
 }
+function applyRecordMediaWidth(element,record){
+ const width=Math.max(20,Math.min(100,Number(record?.media_width)||100));
+ if(width<100){element.style.width=width+'%';element.style.maxWidth='100%';}
+}
 function appendLocalImage(parent,item,record,used){
  const embedded=parent.tagName==='FIGURE';
- const figure=embedded?parent:document.createElement('figure');figure.classList.add('ha-local-media','ha-local-image');
+ const figure=embedded?parent:document.createElement('figure');figure.classList.add('ha-local-media','ha-local-image');applyRecordMediaWidth(figure,record);
  const img=document.createElement('img');img.src=localMediaUrl(item);img.alt=item.alt_text||mediaTitle(item,record);img.loading='lazy';img.decoding='async';
  const open=document.createElement('button');open.type='button';open.className='ha-image-open';open.setAttribute('aria-label','Open image full screen: '+mediaTitle(item,record));open.title='Open image full screen';open.append(img);
  open.addEventListener('click',()=>openImageViewer(item,record));
@@ -162,14 +166,14 @@ function appendLocalImage(parent,item,record,used){
 }
 function appendLocalAudio(parent,item,record,used){
  const embedded=parent.tagName==='FIGURE';
- const figure=embedded?parent:document.createElement('figure');figure.classList.add('ha-local-media','ha-local-audio');
+ const figure=embedded?parent:document.createElement('figure');figure.classList.add('ha-local-media','ha-local-audio');applyRecordMediaWidth(figure,record);
  if(!embedded){const title=document.createElement('figcaption');title.textContent=mediaTitle(item,record);figure.append(title);}
  const audio=document.createElement('audio');audio.controls=true;audio.preload='metadata';audio.src=localMediaUrl(item);audio.setAttribute('aria-label','Audio: '+mediaTitle(item,record));figure.append(audio);
  if(!embedded)parent.append(figure);markUsed(item,used);
 }
 function appendLocalVideo(parent,item,record,used){
  const embedded=parent.tagName==='FIGURE';
- const figure=embedded?parent:document.createElement('figure');figure.classList.add('ha-local-media','ha-local-video');
+ const figure=embedded?parent:document.createElement('figure');figure.classList.add('ha-local-media','ha-local-video');applyRecordMediaWidth(figure,record);
  const video=document.createElement('video');video.controls=true;video.preload='metadata';video.playsInline=true;video.src=localMediaUrl(item);video.setAttribute('aria-label','Video: '+mediaTitle(item,record));figure.append(video);
  if(!embedded){const title=document.createElement('figcaption');title.textContent=mediaTitle(item,record);figure.append(title);parent.append(figure);}
  markUsed(item,used);
@@ -196,7 +200,7 @@ function appendSafeContent(container,source,record,used){
     const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
     let valid=Boolean(src);
     if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else if(url.hostname==='ioguymqdeuuursizifnn.supabase.co')valid=/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname);else valid=url.pathname.includes('/wp-content/uploads/');}
-    if(valid){const image=document.createElement('img');image.src=src;image.alt=node.getAttribute('alt')||record.title;image.loading='lazy';image.style.maxWidth='100%';image.style.height='auto';parent.append(image);}
+    if(valid){const image=document.createElement('img');image.src=src;image.alt=node.getAttribute('alt')||record.title;image.loading='lazy';image.style.maxWidth='100%';image.style.height='auto';applyRecordMediaWidth(image,record);parent.append(image);}
     else appendMissing(parent,'Image not yet available in the recovered media collection.');
    }
    return;
@@ -207,7 +211,7 @@ function appendSafeContent(container,source,record,used){
    if(item&&(mediaReady||item.storage==='vha-post-media')){if(tag==='AUDIO')appendLocalAudio(parent,item,record,used);else appendLocalVideo(parent,item,record,used);return;}
    const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
    const valid=Boolean(src)&&/^\/storage\/v1\/object\/public\/(vha-post-media|human-archive-media)\//.test(new URL(src).pathname);
-   const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='metadata';
+   const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='metadata';applyRecordMediaWidth(mediaNode,record);
    if(valid)mediaNode.src=src;
    if(tag==='VIDEO')mediaNode.playsInline=true;
    node.childNodes.forEach(child=>copy(child,mediaNode));
@@ -242,7 +246,7 @@ function appendSafeContent(container,source,record,used){
    if(!src){appendMissing(parent,'This embedded media provider is not on the archive allowlist.');return;}
    const frame=document.createElement('iframe');frame.src=src;frame.title=node.getAttribute('title')||('Embedded media in '+record.title);
    frame.loading='lazy';frame.referrerPolicy='strict-origin-when-cross-origin';frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-   frame.allowFullscreen=true;frame.className='ha-archive-embed';parent.append(frame);return;
+   frame.allowFullscreen=true;frame.className='ha-archive-embed';applyRecordMediaWidth(frame,record);parent.append(frame);return;
   }
   if(!allowed.has(tag)){node.childNodes.forEach(child=>copy(child,parent));return;}
   const el=document.createElement(tag.toLowerCase());
@@ -271,6 +275,8 @@ function appendSafeContent(container,source,record,used){
   if(node.hasAttribute('class')){const classes=(node.getAttribute('class')||'').split(/\s+/).filter(name=>layoutClasses.has(name));if(classes.length)el.className=classes.join(' ');}
   const alignment=(node.style?.textAlign||'').toLowerCase();
   if(['left','center','right','justify'].includes(alignment))el.style.textAlign=alignment;
+  const mediaWidth=(node.style?.width||'').trim();
+  if(['FIGURE','IMG','AUDIO','VIDEO','IFRAME'].includes(tag)&&/^(?:[2-9]\\d|100)%$/.test(mediaWidth)){el.style.width=mediaWidth;el.style.maxWidth='100%';}
   node.childNodes.forEach(child=>copy(child,el));parent.append(el);
  }
  doc.body.childNodes.forEach(node=>copy(node,container));
