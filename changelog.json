@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T10:32:54.585492Z",
-  "last_processed_sha": "f8f199a2d9841c8486579f8c977c70c2d58a1415",
+  "updated_at": "2026-11-18T10:37:31.222887Z",
+  "last_processed_sha": "8e60a6a3f8236c902482b5c6522b55a954a1c8d6",
   "entries": [
+    {
+      "id": "8e60a6a3f8236c902482b5c6522b55a954a1c8d6",
+      "timestamp": "2026-11-18T11:37:22+01:00",
+      "category": "FIX",
+      "component": "Website",
+      "title": "More reliable Website",
+      "description": "This update brings together Fix Human Archive newline handling. It updates archive.js.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Fix Human Archive newline handling",
+          "url": "https://github.com/iYakuza/landing-page/commit/8e60a6a3f8236c902482b5c6522b55a954a1c8d6",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "f8f199a2d9841c8486579f8c977c70c2d58a1415",
       "timestamp": "2026-11-18T11:32:46+01:00",
@@ -1196,33 +1217,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/04e89cb0b0b6c7e81de6700bee85e4625ea04aae",
           "files": [
             "supabase/migrations/20261117170000_grant_public_read_vha_posts.sql"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "7768b4f7542c28d3440ec3190baccdc6174d1518",
-      "timestamp": "2026-11-17T11:26:54+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Persist Human Archive drafts automatically (#90). It updates archive.css, archive.js, index.html, 20261117150000_delete_human_archive_draft_transmission.sql.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html",
-        "supabase/migrations/20261117150000_delete_human_archive_draft_transmission.sql"
-      ],
-      "commits": [
-        {
-          "message": "Persist Human Archive drafts automatically (#90)",
-          "url": "https://github.com/iYakuza/landing-page/commit/7768b4f7542c28d3440ec3190baccdc6174d1518",
-          "files": [
-            "human-archive/archive.css",
-            "human-archive/archive.js",
-            "human-archive/index.html",
-            "supabase/migrations/20261117150000_delete_human_archive_draft_transmission.sql"
           ]
         }
       ]
