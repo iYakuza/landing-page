@@ -173,7 +173,7 @@
         const library=Array.isArray(getMediaLibrary(type))?getMediaLibrary(type):[];
         let librarySelect=null;
         if(library.length){
-          const libraryLabel=document.createElement('label');libraryLabel.className='ha-media-picker-library-label';libraryLabel.textContent='THIS RECORD’S MEDIA LIBRARY';
+          const libraryLabel=document.createElement('label');libraryLabel.className='ha-media-picker-library-label';libraryLabel.textContent='HUMAN ARCHIVE MEDIA LIBRARY';
           librarySelect=document.createElement('select');librarySelect.multiple=['gallery','slideshow','tiled-gallery','image-compare','playlist'].includes(type);librarySelect.size=Math.min(5,library.length);
           library.forEach((item,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=(item.name||'Media file')+' · '+(item.mime_type||item.type||'media');librarySelect.append(option);});
           libraryLabel.append(librarySelect);panel.append(libraryLabel);
