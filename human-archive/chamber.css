@@ -558,3 +558,28 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
  display:grid;grid-template-columns:minmax(0,1fr);align-items:stretch;
  gap:16px;width:min(1200px,100%);margin:22px auto 0
 }
+
+
+/* Keep the shared editor actions visible in every context. */
+.ha-chamber-topbar{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important}
+.ha-chamber-topbar-actions{
+ position:static!important;inset:auto!important;top:auto!important;right:auto!important;
+ z-index:6!important;display:flex!important;flex:0 0 auto!important;align-items:center!important;
+ justify-content:flex-end!important;gap:8px!important;margin-left:auto!important;
+ visibility:visible!important;opacity:1!important;pointer-events:auto!important
+}
+.ha-chamber-topbar-actions .ha-chamber-edit,
+.ha-chamber-topbar-actions .ha-chamber-close{
+ position:static!important;z-index:auto!important;display:inline-flex!important;
+ align-items:center!important;justify-content:center!important;min-height:34px!important;
+ white-space:nowrap!important
+}
+.ha-chamber-edit:disabled,.ha-chamber-close:disabled{opacity:.58!important;cursor:not-allowed!important}
+.ha-entry-quick-actions{display:flex!important;visibility:visible!important;opacity:1!important}
+.ha-entry-quick-actions[hidden]{display:none!important}
+@media(max-width:640px){
+ .ha-chamber-topbar{gap:7px!important}
+ .ha-chamber-topbar-actions{gap:5px!important}
+ .ha-chamber-topbar-actions .ha-chamber-edit,
+ .ha-chamber-topbar-actions .ha-chamber-close{min-height:32px!important;padding:7px 8px!important;font-size:8px!important}
+}
