@@ -129,7 +129,7 @@ function openRelatedRecord(record){
  if(target){
   target.hidden=false;
   const control=target.previousElementSibling;
-  if(control){control.setAttribute('aria-expanded','true');const action=control.querySelector('.ha-entry-bottom span');if(action)action.textContent='CLOSE LOCAL TEXT ↑';}
+  if(control){control.setAttribute('aria-expanded','true');const action=control.querySelector('.ha-entry-bottom span');if(action)action.textContent='EXIT NICHE ↑';}
   target.scrollIntoView({behavior:'smooth',block:'center'});
  }
 }
@@ -1481,12 +1481,12 @@ function makeEntry(record,index){
  const content=document.createElement('div');content.className='ha-entry-content';content.id='ha-record-'+record.id;content.hidden=true;
  const link=document.createElement('button');link.type='button';link.className='ha-entry';link.setAttribute('aria-controls',content.id);link.setAttribute('aria-expanded','false');link.setAttribute('aria-label','Read local archive record: '+record.title+', '+record.date);
  const top=document.createElement('div');top.className='ha-entry-top';const code=document.createElement('small');code.className='ha-entry-code';code.textContent=record.archiveIdentifier;top.append(code);
- const internalId=document.createElement('small');internalId.className='ha-entry-id';internalId.textContent='ID // '+String(record.id);const bottom=document.createElement('div');bottom.className='ha-entry-bottom';const action=document.createElement('span');action.textContent='READ LOCAL TEXT ↓';bottom.append(internalId,action);link.append(top,bottom);link.style.setProperty('--entry-order',String(index));
+ const internalId=document.createElement('small');internalId.className='ha-entry-id';internalId.textContent='ID // '+String(record.id);const bottom=document.createElement('div');bottom.className='ha-entry-bottom';const action=document.createElement('span');action.textContent='ACCESS NICHE ↓';bottom.append(internalId,action);link.append(top,bottom);link.style.setProperty('--entry-order',String(index));
  const quickActions=makeChamberNode('div','ha-entry-quick-actions');quickActions.hidden=true;
  const chamber=makeChamberNode('button','ha-entry-chamber','ENTER THE CHAMBER ↗');chamber.type='button';chamber.addEventListener('click',()=>openArchiveRecordChamber(record,chamber));
  const favorite=makeChamberNode('button','ha-favorite-toggle','☆');favorite.type='button';favorite.dataset.haFavoriteId=String(record.id);favorite.hidden=!archiveAdmin;favorite.setAttribute('aria-pressed',String(favoriteRecordIds.has(String(record.id))));favorite.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();toggleArchiveFavorite(record.id,favorite);});
  quickActions.append(chamber,favorite);
- link.addEventListener('click',()=>{const open=content.hidden;content.hidden=!open;link.setAttribute('aria-expanded',String(open));action.textContent=open?'CLOSE LOCAL TEXT ↑':'READ LOCAL TEXT ↓';quickActions.hidden=!open;});
+ link.addEventListener('click',()=>{const open=content.hidden;content.hidden=!open;link.setAttribute('aria-expanded',String(open));action.textContent=open?'EXIT NICHE ↑':'ACCESS NICHE ↓';quickActions.hidden=!open;});
  const body=document.createElement('div');body.className='ha-entry-body';const used=new Set();appendSafeContent(body,record.content_html||'',record,used);
  if(!body.childNodes.length){const message=document.createElement('p');message.textContent='No local text was captured for this entry.';body.append(message);}
  content.append(body);const gallery=makeAttachmentGallery(record,used);if(gallery)content.append(gallery);
