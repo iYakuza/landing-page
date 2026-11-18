@@ -460,7 +460,7 @@ function flattenArchivePostLayout(html){
  const append=(label,content)=>{if(archiveHasContent(content))output.insertAdjacentHTML('beforeend',archiveSectionHTML(label,content));};
  if(suno){
   append('THE TEXT',extract('.suno-text-column'));
-  append('SUNO STYLE LYRICS',extract('.suno-lyrics pre')||extract('.suno-lyrics'));
+  append('SUNO STYLE LYRICS',extract('.suno-lyrics'));
   append('SUNO STYLE PROMPT',extract('.suno-style-prompt'));
   append('WHAT I LEARNED',extract('.suno-learned'));
   append('WHAT CHATGPT LEARNED',extract('.suno-chatgpt-learned'));
