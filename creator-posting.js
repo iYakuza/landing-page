@@ -8,6 +8,7 @@
   const EDITOR_VERSION = '20261118-ha-column-layout-7';
   let client = null;
   let isCreator = false;
+  let isSignedIn = false;
   let refreshing = false;
   let authBound = false;
   let editorLoadPromise = null;
@@ -18,6 +19,7 @@
   button.dataset.actionVariant = 'primary';
   button.textContent = '+ NEW TRANSMISSION';
   button.hidden = true;
+  button.disabled = true;
   button.setAttribute('aria-label', 'Create a new transmission');
   document.body.appendChild(button);
 
@@ -177,12 +179,14 @@
         session = result.data?.session;
         if (result.error) isCreator = false;
       }
-      if (!session?.user) {
+      isSignedIn = Boolean(session?.user);
+      if (!isSignedIn) {
         isCreator = false;
       } else {
         const { data, error } = await client.from('vha_cms_admins')
           .select('user_id').eq('user_id', session.user.id).maybeSingle();
         isCreator = !error && Boolean(data);
+        if (error) console.warn('Transmission admin permission could not be confirmed:', error);
       }
       if (!authBound) {
         authBound = true;
@@ -195,11 +199,15 @@
       isCreator = false;
     } finally {
       refreshing = false;
-      button.hidden = !isCreator;
+      button.hidden = !isSignedIn;
       button.disabled = !isCreator;
+      button.setAttribute('aria-disabled',String(!isCreator));
+      button.title = isCreator ? '' : 'ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';
       document.querySelectorAll('[data-vha-new-transmission]').forEach(trigger => {
-        trigger.hidden = !isCreator;
+        trigger.hidden = !isSignedIn;
         if ('disabled' in trigger) trigger.disabled = !isCreator;
+        trigger.setAttribute('aria-disabled',String(!isCreator));
+        if(!isCreator)trigger.title='ADMIN ACCESS REQUIRED — sign in with the archive administrator account.';
       });
     }
   }
