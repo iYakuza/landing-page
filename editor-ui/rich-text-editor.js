@@ -23,6 +23,10 @@
       target.addEventListener('input', onChange, { signal });
     });
 
+    toolbar.addEventListener('mousedown', event => {
+      if (event.target.closest('button')) event.preventDefault();
+    }, { signal });
+
     toolbar.querySelectorAll('[data-command]').forEach(button => {
       button.addEventListener('click', () => {
         activeEditor.focus();
@@ -92,8 +96,7 @@
 
     toolbar.addEventListener('pointerdown', event => {
       const onChain = event.target.closest('[data-toolbar-drag]');
-      const onButton = event.target.closest('button');
-      if (!onChain && !onButton) return;
+      if (!onChain) return;
       const rect = toolbar.getBoundingClientRect();
       toolbarDrag = {
         id: event.pointerId,
@@ -101,13 +104,11 @@
         y: event.clientY,
         left: rect.left,
         top: rect.top,
-        started: Boolean(onChain)
+        started: true
       };
       toolbarWasDragged = false;
-      if (onChain) {
-        event.preventDefault();
-        toolbar.setPointerCapture?.(event.pointerId);
-      }
+      event.preventDefault();
+      toolbar.setPointerCapture?.(event.pointerId);
     }, { signal });
 
     document.addEventListener('pointermove', event => {
