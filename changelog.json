@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T17:31:34.971670Z",
-  "last_processed_sha": "e0ece34b98838d947860d9882649a70c31b8c2ab",
+  "updated_at": "2026-11-18T17:31:51.601781Z",
+  "last_processed_sha": "65762b11d9a8feae2acee03fa9e7d20870d5acad",
   "entries": [
+    {
+      "id": "65762b11d9a8feae2acee03fa9e7d20870d5acad",
+      "timestamp": "2026-11-18T18:31:43+01:00",
+      "category": "FEATURE",
+      "component": "Website",
+      "title": "New capabilities for Website",
+      "description": "This update brings together Keep New Transmission visible with permission-aware disabled state. It updates creator-posting.js.",
+      "commit_count": 1,
+      "files": [
+        "creator-posting.js"
+      ],
+      "commits": [
+        {
+          "message": "Keep New Transmission visible with permission-aware disabled state",
+          "url": "https://github.com/iYakuza/landing-page/commit/65762b11d9a8feae2acee03fa9e7d20870d5acad",
+          "files": [
+            "creator-posting.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "e0ece34b98838d947860d9882649a70c31b8c2ab",
       "timestamp": "2026-11-18T18:31:27+01:00",
@@ -1152,41 +1173,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/391593c00867ac60759303a73852373cec69edb8",
           "files": [
             "posts/posts.css"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "cb8d4ae09cd719f06ce1eb8922a119d5643f4cc4",
-      "timestamp": "2026-11-18T07:51:48+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Rollback Posts visual overhaul. It updates index.html, posts-human-archive.css, posts.js and related project files.",
-      "commit_count": 1,
-      "files": [
-        "posts/index.html",
-        "posts/posts-human-archive.css",
-        "posts/posts.js",
-        "posts/the-awakening/index.html",
-        "posts/the-descent/index.html",
-        "posts/the-reconnection/index.html",
-        "posts/the-return/index.html",
-        "posts/the-transformation/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Rollback Posts visual overhaul",
-          "url": "https://github.com/iYakuza/landing-page/commit/cb8d4ae09cd719f06ce1eb8922a119d5643f4cc4",
-          "files": [
-            "posts/index.html",
-            "posts/posts-human-archive.css",
-            "posts/posts.js",
-            "posts/the-awakening/index.html",
-            "posts/the-descent/index.html",
-            "posts/the-reconnection/index.html",
-            "posts/the-return/index.html",
-            "posts/the-transformation/index.html"
           ]
         }
       ]
