@@ -419,18 +419,6 @@ function appendChamberShareActions(parent,record,status){
  parent.append(nativeShare,copy);
  links.forEach(([label,href])=>{const link=makeChamberNode('a','ha-chamber-share-action',label);link.href=href;link.target='_blank';link.rel='noopener noreferrer';parent.append(link);});
 }
-function defaultRecordOutputText(record){
- const parsed=new DOMParser().parseFromString(String(record.content_html||''),'text/html');
- parsed.body.querySelectorAll('figure,iframe,img,audio,video,source,object,embed,script,style').forEach(node=>node.remove());
- const read=node=>{
-  if(node.nodeType===Node.TEXT_NODE)return node.nodeValue||'';
-  if(node.nodeType!==Node.ELEMENT_NODE)return '';
-  if(node.tagName==='BR')return '\n';
-  const value=[...node.childNodes].map(read).join('');
-  return ['P','DIV','LI','H2','H3','H4','BLOCKQUOTE'].includes(node.tagName)?value+'\n\n':value;
- };
- return read(parsed.body).replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
-}
 function getRecordStructure(record){
  const saved=recordStructureOverrides.get(String(record.id));
  return {
@@ -579,58 +567,6 @@ function resolveChamberMediaUrl(item,type){
   return url.href;
  }catch{return null;}
 }
-function appendChamberMedia(section,record,type,items){
- if(!items.length){
-  const note=!mediaReady&&!(recordStructureOverrides.get(String(record.id))?.output_media?.[type])
-   ?'MEDIA VAULT NOT VERIFIED // NO EDITED FILES AVAILABLE':'NO '+type.toUpperCase()+' OUTPUT IS ATTACHED TO THIS RECORD.';
-  section.append(makeChamberNode('p','ha-chamber-note',note));
-  return;
- }
- const gallery=makeChamberNode('div',type==='audio'?'ha-chamber-audio-list':'ha-chamber-media-grid');
- items.forEach(item=>{
-  const src=resolveChamberMediaUrl(item,type);
-  if(!src){appendMissing(gallery,'A media item has an invalid or unsupported source URL.');return;}
-  const name=mediaName(item,record);
-  const figure=makeChamberNode('figure','ha-local-media ha-local-'+type+' ha-chamber-media-item');
-  if(type==='image'){
-   const img=document.createElement('img');img.src=src;img.alt=name;img.loading='lazy';img.decoding='async';
-   const open=makeChamberNode('button','ha-image-open');open.type='button';open.setAttribute('aria-label','Open image full screen: '+name);open.append(img);
-   open.addEventListener('click',()=>openImageSourceViewer(src,name,name));
-   figure.append(open);
-  }else if(type==='audio'){
-   const audio=document.createElement('audio');audio.controls=true;audio.preload='metadata';audio.src=src;audio.setAttribute('aria-label','Audio: '+name);figure.append(audio);
-  }else if(item.storage==='external'){
-   const frame=document.createElement('iframe');frame.className='ha-chamber-video-frame';frame.src=src;frame.title=name;frame.loading='lazy';
-   frame.referrerPolicy='strict-origin-when-cross-origin';frame.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';frame.allowFullscreen=true;figure.append(frame);
-  }else{
-   const video=document.createElement('video');video.controls=true;video.preload='metadata';video.playsInline=true;video.src=src;video.setAttribute('aria-label','Video: '+name);figure.append(video);
-  }
-  const caption=makeChamberNode('figcaption','',name);figure.append(caption);gallery.append(figure);
- });
- section.append(gallery);
-}
-function makeChamberDisclosure(label,className,summaryClass){
- const details=makeChamberNode('details','ha-chamber-disclosure '+(className||''));details.open=true;details.dataset.haDisclosure='true';
- const summary=makeChamberNode('summary',summaryClass||'ha-chamber-panel-heading',label);
- summary.setAttribute('aria-label',label+' — expand or retract');
- const body=makeChamberNode('div','ha-chamber-disclosure-body');
- details.append(summary,body);
- return {details,body};
-}
-function syncChamberExpandButton(grid,button){
- if(!button)return;
- const disclosures=[...grid.querySelectorAll('details[data-ha-disclosure]')];
- const allOpen=disclosures.length>0&&disclosures.every(item=>item.open);
- button.textContent=allOpen?'SEAL ALL ↑':'UNSEAL ALL ↓';
- button.setAttribute('aria-expanded',String(allOpen));
- button.setAttribute('aria-label',allOpen?'Retract all chamber sections':'Expand all chamber sections');
-}
-function bindChamberDisclosureControls(grid,button){
- grid.querySelectorAll('details[data-ha-disclosure]').forEach(details=>{
-  details.addEventListener('toggle',()=>syncChamberExpandButton(grid,button));
- });
- syncChamberExpandButton(grid,button);
-}
 function sanitizeTransmissionBody(source){
  const raw=String(source??'');
  const parsed=new DOMParser().parseFromString(raw,'text/html');
@@ -706,32 +642,6 @@ function sanitizeTransmissionBody(source){
  parsed.body.childNodes.forEach(node=>copy(node,fragment));
  const holder=document.createElement('div');holder.append(fragment);return holder.innerHTML;
 }
-function makeChamberTransmissionBody(record,grid,structure){
- const panel=makeChamberDisclosure('01 // TRANSMISSION BODY','ha-chamber-panel ha-chamber-transmission-panel','ha-chamber-panel-heading');
- const body=makeChamberNode('div','ha-chamber-transmission-body');
- if(record.source_type==='transmission')appendSafeContent(body,record.content_html||'',record,new Set());
- else body.innerHTML=sanitizeTransmissionBody(structure.transmission_body);
- if(!body.childNodes.length)body.textContent='No transmission body has been saved for this record yet.';
- panel.body.append(body);grid.append(panel.details);
-}
-function makeChamberTextPanel(record,grid,structure){
- const panel=makeChamberDisclosure('02 // PROMPT STYLE','ha-chamber-panel','ha-chamber-panel-heading');
- const promptText=makeChamberNode('div','ha-chamber-structure-text');promptText.innerHTML=sanitizeTransmissionBody(structure.prompt_style)||'No prompt style has been saved for this record yet.';panel.body.append(promptText);grid.append(panel.details);
- const lyrics=makeChamberDisclosure('03 // LYRICS STYLE','ha-chamber-panel','ha-chamber-panel-heading');
- const lyricsText=makeChamberNode('div','ha-chamber-structure-text');lyricsText.innerHTML=sanitizeTransmissionBody(structure.lyrics_style)||'No lyrics-style notes have been saved for this record yet.';lyrics.body.append(lyricsText);grid.append(lyrics.details);
-}
-function appendChamberOutputView(record,grid,structure){
- const output=makeChamberDisclosure('04 // OUTPUT','ha-chamber-panel ha-chamber-output','ha-chamber-panel-heading');
- const text=makeChamberDisclosure('TEXT','ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
- const outputText=makeChamberNode('div','ha-chamber-text');outputText.innerHTML=sanitizeTransmissionBody(structure.output_text)||'No output text has been saved for this record yet.';text.body.append(outputText);
- output.body.append(text.details);
- ['image','audio','video'].forEach(type=>{
-  const child=makeChamberDisclosure(type.toUpperCase(),'ha-chamber-output-section ha-chamber-subdisclosure','ha-chamber-output-label');
-  appendChamberMedia(child.body,record,type,getRecordOutputMedia(record,structure,type));
-  output.body.append(child.details);
- });
- grid.append(output.details);
-}
 function renderRecordStructureView(record,grid,status,editButton,expandButton){
  const structure=getRecordStructure(record);
  grid.classList.remove('ha-chamber-unified-editor');
@@ -744,74 +654,9 @@ function renderRecordStructureView(record,grid,status,editButton,expandButton){
  if(editButton)editButton.hidden=!archiveAdmin;
  if(expandButton){expandButton.hidden=true;expandButton.setAttribute('aria-expanded','true');}
 }
-function chamberFileMime(file,type){
- const supplied=String(file.type||'').toLowerCase();
- const allowed={
-  image:new Set(['image/jpeg','image/png','image/webp','image/gif','image/avif']),
-  audio:new Set(['audio/mpeg','audio/mp4','audio/ogg','audio/wav','audio/webm']),
-  video:new Set(['video/mp4','video/webm'])
- };
- if(allowed[type].has(supplied))return supplied;
- if(supplied)return null;
- const extension=String(file.name||'').split('.').pop().toLowerCase();
- const fallback={
-  image:{jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif'},
-  audio:{mp3:'audio/mpeg',m4a:'audio/mp4',mp4:'audio/mp4',wav:'audio/wav',ogg:'audio/ogg',weba:'audio/webm'},
-  video:{mp4:'video/mp4',webm:'video/webm'}
- };
- return fallback[type][extension]||null;
-}
 function chamberUploadToken(){
  try{if(window.crypto?.randomUUID)return window.crypto.randomUUID();}catch{}
  return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
-}
-function renderChamberMediaEditor(sectionBody,record,type,items,status,onChange){
- sectionBody.replaceChildren();
- const list=makeChamberNode('div','ha-chamber-media-editor-list');
- const repaint=()=>{
-  list.replaceChildren();
-  if(!items.length)list.append(makeChamberNode('p','ha-chamber-note','NO '+type.toUpperCase()+' FILES SELECTED.'));
-  items.forEach((item,index)=>{
-   const row=makeChamberNode('div','ha-chamber-media-editor-item');
-   const description=makeChamberNode('span','ha-chamber-media-editor-name',item.name||record.title);
-   const state=makeChamberNode('small','ha-chamber-media-editor-state',item.file?'READY TO UPLOAD':(item.storage==='recovered'?'ARCHIVE ORIGINAL':item.storage==='external'?'EMBEDDED VIDEO':'SAVED FILE'));
-   const remove=makeChamberNode('button','ha-chamber-media-remove','REMOVE ✕');remove.type='button';
-   remove.setAttribute('aria-label','Remove '+(item.name||'media file')+' from '+type.toUpperCase());
-   remove.addEventListener('click',()=>{
-    items.splice(index,1);
-    if(onChange)onChange();
-    repaint();
-    status.textContent='MEDIA SELECTION UPDATED — SAVE THE CHAMBER TO APPLY IT.';
-   });
-   row.append(description,state,remove);list.append(row);
-  });
- };
- const input=document.createElement('input');input.type='file';input.multiple=true;input.className='ha-chamber-file-input';
- input.accept=type==='image'?'image/jpeg,image/png,image/webp,image/gif,image/avif':
-  type==='audio'?'audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm':'video/mp4,video/webm';
- input.setAttribute('aria-label','Choose multiple '+type+' files');
- const uploadLabel=makeChamberNode('label','ha-chamber-upload-label');
- const uploadText=makeChamberNode('span','', 'ADD '+type.toUpperCase()+' FILES +');
- uploadLabel.append(uploadText,input);
- input.addEventListener('change',()=>{
-  const files=[...input.files||[]];
-  const accepted=files.slice(0,10);
-  const rejected=[];
-  accepted.forEach(file=>{
-   const mime=chamberFileMime(file,type);
-   if(!mime){rejected.push(file.name+' (unsupported format)');return;}
-   if(file.size>30*1024*1024){rejected.push(file.name+' (over 30 MB)');return;}
-   items.push({id:'pending-'+chamberUploadToken(),name:file.name,mime_type:mime,storage:'pending',file});
-  });
-  if(files.length>10)rejected.push('Only the first 10 files in this selection were checked.');
-  if(onChange)onChange();
-  status.textContent=rejected.length?'Some files were not added: '+rejected.join('; '):'FILES ADDED — SAVE THE CHAMBER TO UPLOAD.';
-  input.value='';
-  repaint();
- });
- sectionBody.append(list,uploadLabel);
- repaint();
- return repaint;
 }
 function renderRecordStructureEditor(record,grid,status,editButton,expandButton,readOnly=false){
  if(!archiveAdmin&&!readOnly){status.textContent='ADMIN ACCESS REQUIRED';return;}
