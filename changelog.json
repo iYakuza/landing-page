@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T17:20:32.821178Z",
-  "last_processed_sha": "fa68a56bb8ea27a1cee60259cf0c6d0ed5f5f4e8",
+  "updated_at": "2026-11-18T17:21:16.893202Z",
+  "last_processed_sha": "17163df9b476a41409cb6916aa34e03395381768",
   "entries": [
+    {
+      "id": "17163df9b476a41409cb6916aa34e03395381768",
+      "timestamp": "2026-11-18T18:21:09+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Harden nested column block interactions. It updates block-editor.js.",
+      "commit_count": 1,
+      "files": [
+        "editor-ui/block-editor.js"
+      ],
+      "commits": [
+        {
+          "message": "Harden nested column block interactions",
+          "url": "https://github.com/iYakuza/landing-page/commit/17163df9b476a41409cb6916aa34e03395381768",
+          "files": [
+            "editor-ui/block-editor.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "ed79359587df1dd64b8b2c08d73524ffc338d7f0",
       "timestamp": "2026-11-18T18:20:28+01:00",
@@ -1246,33 +1267,6 @@
             "posts/the-return/index.html",
             "posts/the-transformation/index.html",
             "supabase/migrations/20261118050735_tighten_human_archive_structure_public_reads.sql"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "90ace2d1325fbc7d1b5098a552621fd9eafe3279",
-      "timestamp": "2026-11-18T05:41:19+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Bust cache for the shared editor update. It updates creator-posting.js, index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "creator-posting.js",
-        "human-archive/index.html",
-        "index.html",
-        "posts/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Bust cache for the shared editor update",
-          "url": "https://github.com/iYakuza/landing-page/commit/90ace2d1325fbc7d1b5098a552621fd9eafe3279",
-          "files": [
-            "creator-posting.js",
-            "human-archive/index.html",
-            "index.html",
-            "posts/index.html"
           ]
         }
       ]
