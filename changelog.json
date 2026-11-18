@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T17:30:54.823466Z",
-  "last_processed_sha": "97be1cc6606b544bd0bfb423dbf003a79686bbb7",
+  "updated_at": "2026-11-18T17:31:34.971670Z",
+  "last_processed_sha": "e0ece34b98838d947860d9882649a70c31b8c2ab",
   "entries": [
+    {
+      "id": "e0ece34b98838d947860d9882649a70c31b8c2ab",
+      "timestamp": "2026-11-18T18:31:27+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Restore signed-in chamber controls and show Enter Chamber directly. It updates archive.js.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Restore signed-in chamber controls and show Enter Chamber directly",
+          "url": "https://github.com/iYakuza/landing-page/commit/e0ece34b98838d947860d9882649a70c31b8c2ab",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "97be1cc6606b544bd0bfb423dbf003a79686bbb7",
       "timestamp": "2026-11-18T18:30:39+01:00",
@@ -1157,41 +1178,6 @@
         {
           "message": "Rollback Posts visual overhaul",
           "url": "https://github.com/iYakuza/landing-page/commit/cb8d4ae09cd719f06ce1eb8922a119d5643f4cc4",
-          "files": [
-            "posts/index.html",
-            "posts/posts-human-archive.css",
-            "posts/posts.js",
-            "posts/the-awakening/index.html",
-            "posts/the-descent/index.html",
-            "posts/the-reconnection/index.html",
-            "posts/the-return/index.html",
-            "posts/the-transformation/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "37ea71f1dae9728d15aaa469e69ecbd225de2f4c",
-      "timestamp": "2026-11-18T07:45:20+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Unify Posts archive with Human Archive visual system. It updates index.html, posts-human-archive.css, posts.js and related project files.",
-      "commit_count": 1,
-      "files": [
-        "posts/index.html",
-        "posts/posts-human-archive.css",
-        "posts/posts.js",
-        "posts/the-awakening/index.html",
-        "posts/the-descent/index.html",
-        "posts/the-reconnection/index.html",
-        "posts/the-return/index.html",
-        "posts/the-transformation/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Unify Posts archive with Human Archive visual system",
-          "url": "https://github.com/iYakuza/landing-page/commit/37ea71f1dae9728d15aaa469e69ecbd225de2f4c",
           "files": [
             "posts/index.html",
             "posts/posts-human-archive.css",
