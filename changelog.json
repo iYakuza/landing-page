@@ -1,8 +1,41 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T07:15:51.098244Z",
-  "last_processed_sha": "23d8be57c065b0192ad68060db5f25bc39358b25",
+  "updated_at": "2026-11-18T07:53:32.385508Z",
+  "last_processed_sha": "4c68a581691f81ec9d98b92976954d72773251f0",
   "entries": [
+    {
+      "id": "4c68a581691f81ec9d98b92976954d72773251f0",
+      "timestamp": "2026-11-18T08:53:23+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Experience",
+      "title": "A refined Website Experience",
+      "description": "This update brings together Introduce shared layout components for Human Archive and Posts. It updates archive.css, index.html, posts.css and related project files.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.css",
+        "human-archive/index.html",
+        "posts/index.html",
+        "posts/posts.css",
+        "shared/components/README.md",
+        "shared/components/layout.css",
+        "shared/components/layout.js"
+      ],
+      "commits": [
+        {
+          "message": "Introduce shared layout components for Human Archive and Posts",
+          "url": "https://github.com/iYakuza/landing-page/commit/4c68a581691f81ec9d98b92976954d72773251f0",
+          "files": [
+            "human-archive/archive.css",
+            "human-archive/index.html",
+            "posts/index.html",
+            "posts/posts.css",
+            "shared/components/README.md",
+            "shared/components/layout.css",
+            "shared/components/layout.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "23d8be57c065b0192ad68060db5f25bc39358b25",
       "timestamp": "2026-11-18T08:15:35+01:00",
@@ -1154,31 +1187,6 @@
           "files": [
             "docs/architecture/unified-posting-record-model.md",
             "human-archive/archive.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "dbe2ef2e5d67628703f3b9558bef1b5507b53ccc",
-      "timestamp": "2026-11-16T22:24:28+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Align identity migration files with production history (#74). It updates unified-posting-record-model.md, 20261116212229_enforce_immutable_archive_record_identity.sql, 20261116213000_enforce_immutable_archive_record_identity.sql.",
-      "commit_count": 1,
-      "files": [
-        "docs/architecture/unified-posting-record-model.md",
-        "supabase/migrations/20261116212229_enforce_immutable_archive_record_identity.sql",
-        "supabase/migrations/20261116213000_enforce_immutable_archive_record_identity.sql"
-      ],
-      "commits": [
-        {
-          "message": "Align identity migration files with production history (#74)",
-          "url": "https://github.com/iYakuza/landing-page/commit/dbe2ef2e5d67628703f3b9558bef1b5507b53ccc",
-          "files": [
-            "docs/architecture/unified-posting-record-model.md",
-            "supabase/migrations/20261116212229_enforce_immutable_archive_record_identity.sql",
-            "supabase/migrations/20261116213000_enforce_immutable_archive_record_identity.sql"
           ]
         }
       ]
