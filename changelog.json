@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T17:31:51.601781Z",
-  "last_processed_sha": "65762b11d9a8feae2acee03fa9e7d20870d5acad",
+  "updated_at": "2026-11-18T17:32:08.214451Z",
+  "last_processed_sha": "db5be6be50f4006a8bb35b37b2cdcc437080626a",
   "entries": [
+    {
+      "id": "db5be6be50f4006a8bb35b37b2cdcc437080626a",
+      "timestamp": "2026-11-18T18:32:02+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Keep admin action buttons visible with permission-aware disabled state; Ensure shared chamber buttons display on every page. It updates archive.js, chamber.css.",
+      "commit_count": 2,
+      "files": [
+        "human-archive/archive.js",
+        "human-archive/chamber.css"
+      ],
+      "commits": [
+        {
+          "message": "Keep admin action buttons visible with permission-aware disabled state",
+          "url": "https://github.com/iYakuza/landing-page/commit/8862e548e213b266afb5b2c71cc91ae203580e12",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Ensure shared chamber buttons display on every page",
+          "url": "https://github.com/iYakuza/landing-page/commit/db5be6be50f4006a8bb35b37b2cdcc437080626a",
+          "files": [
+            "human-archive/chamber.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "65762b11d9a8feae2acee03fa9e7d20870d5acad",
       "timestamp": "2026-11-18T18:31:43+01:00",
@@ -1150,27 +1179,6 @@
         {
           "message": "Match Posts inner content width to Human Archive",
           "url": "https://github.com/iYakuza/landing-page/commit/23d8be57c065b0192ad68060db5f25bc39358b25",
-          "files": [
-            "posts/posts.css"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "391593c00867ac60759303a73852373cec69edb8",
-      "timestamp": "2026-11-18T08:04:47+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Creative Archive",
-      "title": "A refined Creative Archive",
-      "description": "This update brings together Match Posts container width and margins to Human Archive. It updates posts.css.",
-      "commit_count": 1,
-      "files": [
-        "posts/posts.css"
-      ],
-      "commits": [
-        {
-          "message": "Match Posts container width and margins to Human Archive",
-          "url": "https://github.com/iYakuza/landing-page/commit/391593c00867ac60759303a73852373cec69edb8",
           "files": [
             "posts/posts.css"
           ]
