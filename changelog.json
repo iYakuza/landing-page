@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T08:22:22.816332Z",
-  "last_processed_sha": "7a1a8d20e7bb99057c9ea9739f33a02e156aca89",
+  "updated_at": "2026-11-18T08:32:49.451786Z",
+  "last_processed_sha": "bbcc319f72a0132a4f1d291a3fae6a6dd3dd6152",
   "entries": [
+    {
+      "id": "bbcc319f72a0132a4f1d291a3fae6a6dd3dd6152",
+      "timestamp": "2026-11-18T09:32:40+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Experience",
+      "title": "A refined Website Experience",
+      "description": "This update brings together Apply shared main padding from static root marker. It updates game-ui.css, index.html, layout.css and related project files.",
+      "commit_count": 1,
+      "files": [
+        "game-ui.css",
+        "human-archive/index.html",
+        "posts/index.html",
+        "shared/components/layout.css",
+        "shared/components/layout.js"
+      ],
+      "commits": [
+        {
+          "message": "Apply shared main padding from static root marker",
+          "url": "https://github.com/iYakuza/landing-page/commit/bbcc319f72a0132a4f1d291a3fae6a6dd3dd6152",
+          "files": [
+            "game-ui.css",
+            "human-archive/index.html",
+            "posts/index.html",
+            "shared/components/layout.css",
+            "shared/components/layout.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "7a1a8d20e7bb99057c9ea9739f33a02e156aca89",
       "timestamp": "2026-11-18T09:22:07+01:00",
@@ -1154,35 +1183,6 @@
             "human-archive/archive.js",
             "human-archive/index.html",
             "supabase/migrations/20261116234717_save_human_archive_transmission_publication.sql"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "846ec5c4a986159b3318ff3f351f825ae50dff18",
-      "timestamp": "2026-11-17T00:46:01+01:00",
-      "category": "FEATURE",
-      "component": "Website Updates",
-      "title": "New capabilities for Website Updates",
-      "description": "This update brings together Add Transmission metadata editing to Human Archive (#78). It updates unified-posting-record-model.md, archive.css, archive.js, index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "docs/architecture/unified-posting-record-model.md",
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html",
-        "supabase/migrations/20261116233208_save_human_archive_transmission_metadata.sql"
-      ],
-      "commits": [
-        {
-          "message": "Add Transmission metadata editing to Human Archive (#78)",
-          "url": "https://github.com/iYakuza/landing-page/commit/846ec5c4a986159b3318ff3f351f825ae50dff18",
-          "files": [
-            "docs/architecture/unified-posting-record-model.md",
-            "human-archive/archive.css",
-            "human-archive/archive.js",
-            "human-archive/index.html",
-            "supabase/migrations/20261116233208_save_human_archive_transmission_metadata.sql"
           ]
         }
       ]
