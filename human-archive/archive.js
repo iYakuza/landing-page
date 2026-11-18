@@ -612,6 +612,10 @@ function renderRecordStructureView(record,grid,status,editButton,expandButton,cl
   [structure.transmission_body,structure.prompt_style,structure.lyrics_style,structure.output_text,record.content_html].filter(value=>String(value||'').trim()).join('');
  if(html)appendSafeContent(body,html,record,new Set());
  else body.append(makeChamberNode('p','ha-chamber-note','NO CONTENT BLOCKS HAVE BEEN ADDED TO THIS RECORD.'));
+ body.querySelectorAll('.ha-columns').forEach(columns=>{
+  const count=[...columns.children].filter(node=>node.tagName==='SECTION').length;
+  if(count)columns.style.setProperty('--ha-saved-column-count',String(count));
+ });
  grid.append(body);
  if(editButton){
   editButton.hidden=!archiveAdmin;editButton.disabled=false;editButton.textContent='REDESIGN CHAMBER';
