@@ -1126,6 +1126,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    return uploadedPaths;
   }catch(error){
    if(uploadedPaths.length)await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
+   await cleanupBlockMediaUploads('');
    [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{delete item.uploadedDraft;});
    throw error;
   }
@@ -1168,6 +1169,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    record.updated_at=saved?.updated_at||state.row.updated_at;
    state.row.updated_at=record.updated_at;
    recordStructureOverrides.set(String(record.id),state.row);
+   await cleanupBlockMediaUploads([state.row.transmission_body,state.row.prompt_style,state.row.lyrics_style,state.row.output_text].join('\n'));
    [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{
     if(item.uploadedDraft){Object.assign(item,item.uploadedDraft);item.file=null;delete item.uploadedDraft;}
    });
@@ -1255,6 +1257,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  });
  bindChamberDisclosureControls(grid,expandButton);
  cancel.addEventListener('click',()=>{
+  void cleanupBlockMediaUploads('');
   if(chamberSaveConflict){
    const discard=window.confirm('This tab has unsaved changes that conflict with a newer version. Discard this tab’s changes and return to the read-only chamber?');
    if(!discard)return;
@@ -1432,6 +1435,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     row.updated_at=savedStructure?.updated_at||new Date().toISOString();
    }
    recordStructureOverrides.set(String(record.id),row);
+   await cleanupBlockMediaUploads([row.transmission_body,row.prompt_style,row.lyrics_style,row.output_text].join('\n'));
    if(!records.some(item=>String(item.id)===String(record.id))){
     records.push(record);
     if(!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);
