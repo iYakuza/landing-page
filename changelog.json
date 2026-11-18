@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T17:56:02.800193Z",
-  "last_processed_sha": "12ef8da52798c98c9a067730afd8365c1f6daebd",
+  "updated_at": "2026-11-18T17:56:19.293708Z",
+  "last_processed_sha": "3877f9f64edb2c482981fc5f68088b534af6c86c",
   "entries": [
+    {
+      "id": "3877f9f64edb2c482981fc5f68088b534af6c86c",
+      "timestamp": "2026-11-18T18:56:15+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Restore original launcher permission visibility; Force chamber action buttons visible in the action row; Force shared chamber action buttons visible in the action row. It updates creator-posting.js, archive.css, chamber.css.",
+      "commit_count": 3,
+      "files": [
+        "creator-posting.js",
+        "human-archive/archive.css",
+        "human-archive/chamber.css"
+      ],
+      "commits": [
+        {
+          "message": "Restore original launcher permission visibility",
+          "url": "https://github.com/iYakuza/landing-page/commit/8a12beb865c8a94021679480d724ef03ba82a13f",
+          "files": [
+            "creator-posting.js"
+          ]
+        },
+        {
+          "message": "Force chamber action buttons visible in the action row",
+          "url": "https://github.com/iYakuza/landing-page/commit/ec4ca7d37ddbe23c3709a211421a72985bad4f31",
+          "files": [
+            "human-archive/archive.css"
+          ]
+        },
+        {
+          "message": "Force shared chamber action buttons visible in the action row",
+          "url": "https://github.com/iYakuza/landing-page/commit/3877f9f64edb2c482981fc5f68088b534af6c86c",
+          "files": [
+            "human-archive/chamber.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "12ef8da52798c98c9a067730afd8365c1f6daebd",
       "timestamp": "2026-11-18T18:55:49+01:00",
@@ -1150,35 +1187,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/8e15cda68e333344f21665044e9b131ffa32e467",
           "files": [
             "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "bbcc319f72a0132a4f1d291a3fae6a6dd3dd6152",
-      "timestamp": "2026-11-18T09:32:40+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Experience",
-      "title": "A refined Website Experience",
-      "description": "This update brings together Apply shared main padding from static root marker. It updates game-ui.css, index.html, layout.css and related project files.",
-      "commit_count": 1,
-      "files": [
-        "game-ui.css",
-        "human-archive/index.html",
-        "posts/index.html",
-        "shared/components/layout.css",
-        "shared/components/layout.js"
-      ],
-      "commits": [
-        {
-          "message": "Apply shared main padding from static root marker",
-          "url": "https://github.com/iYakuza/landing-page/commit/bbcc319f72a0132a4f1d291a3fae6a6dd3dd6152",
-          "files": [
-            "game-ui.css",
-            "human-archive/index.html",
-            "posts/index.html",
-            "shared/components/layout.css",
-            "shared/components/layout.js"
           ]
         }
       ]
