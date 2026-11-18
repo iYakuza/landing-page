@@ -486,13 +486,24 @@
       block.dataset.haEditorWired='true';
       if(block.dataset.haBlock==='columns')wireColumns(block);
       addBlockControls(block);
-      block.addEventListener('focusin',()=>setSelected(block));
-      block.addEventListener('click',event=>{ if(!event.target.closest('button,select'))setSelected(block); });
-      block.addEventListener('dragstart',event=>{block.classList.add('is-dragging');event.dataTransfer?.setData('text/plain','ha-block');});
-      block.addEventListener('dragend',()=>block.classList.remove('is-dragging'));
-      block.addEventListener('dragover',event=>{if(event.dataTransfer?.types.includes('text/plain'))event.preventDefault();});
+      block.addEventListener('focusin',event=>{if(event.target.closest?.('[data-ha-editor-block]')===block)setSelected(block);});
+      block.addEventListener('click',event=>{
+        if(event.target.closest?.('[data-ha-editor-block]')!==block)return;
+        if(!event.target.closest('button,select'))setSelected(block);
+      });
+      block.addEventListener('dragstart',event=>{
+        if(event.target.closest?.('[data-ha-editor-block]')!==block)return;
+        block.classList.add('is-dragging');
+        event.dataTransfer?.setData('text/plain','ha-block');
+      });
+      block.addEventListener('dragend',event=>{
+        if(event.target.closest?.('[data-ha-editor-block]')===block)block.classList.remove('is-dragging');
+      });
+      block.addEventListener('dragover',event=>{
+        if(event.target.closest?.('[data-ha-editor-block]')===block&&event.dataTransfer?.types.includes('text/plain'))event.preventDefault();
+      });
       block.addEventListener('drop',event=>{
-        if(!event.dataTransfer?.types.includes('text/plain'))return;
+        if(event.target.closest?.('[data-ha-editor-block]')!==block||!event.dataTransfer?.types.includes('text/plain'))return;
         event.preventDefault();
         const dragging=allBlocks().find(node=>node.classList.contains('is-dragging'));
         if(dragging&&dragging!==block&&!dragging.contains(block)){
@@ -615,6 +626,10 @@
       clone.querySelectorAll('.ha-editor-column-blocks').forEach(stack=>stack.replaceWith(...stack.childNodes));
       clone.querySelectorAll('.ha-editor-column').forEach(column=>column.classList.remove('ha-editor-column'));
       clone.querySelectorAll('.ha-editor-columns-layout').forEach(columns=>columns.classList.remove('ha-editor-columns-layout'));
+      clone.querySelectorAll('.ha-columns').forEach(columns=>{
+        columns.style.removeProperty('--ha-column-count');
+        if(!columns.getAttribute('style')?.trim())columns.removeAttribute('style');
+      });
       clone.querySelectorAll('[contenteditable]').forEach(node=>node.removeAttribute('contenteditable'));
       return clone.innerHTML;
     }
