@@ -1000,6 +1000,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const save=makeChamberNode('button','ha-chamber-save','SAVE CHAMBER');save.type='button';
  const cancel=makeChamberNode('button','ha-chamber-cancel','CANCEL');cancel.type='button';
 
+ const getCurrentTransmissionText=()=>postLayoutControls?.select.value==='plain'?(postLayoutControls.fields.plain.__haBlockEditor?.getText()||''):postLayoutControls?.select.value==='suno'?(postLayoutControls.fields.main.__haBlockEditor?.getText()||''):(transmissionEditor.__haBlockEditor?.getText()||'');
  const updateSaveLabel=()=>{if(record.source_type!=='transmission')return;const next=recordMetadataInputs.status.value;save.textContent=next==='published'?(record.status==='published'?'SAVE PUBLISHED TRANSMISSION':'PUBLISH TRANSMISSION'):(record.status==='published'?'UNPUBLISH & SAVE DRAFT':'SAVE DRAFT');};
  recordMetadataInputs?.status?.addEventListener('change',updateSaveLabel);updateSaveLabel();
  // Draft Transmissions are database-backed as the user types. Publication remains an explicit action.
@@ -1250,8 +1251,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
       ?'<div class="plain-post-layout"><section class="plain-copy"><p class="suno-label">THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.plain.value)+'</section><aside class="plain-response"><p class="suno-label">A SMALL RESPONSE</p><h2>Oh, sun.</h2></aside></div>'
       :'<div class="suno-post-layout"><section class="suno-text-column"><p class="suno-label">01 // THE TEXT</p>'+layoutParagraphs(postLayoutControls.fields.main.value)+'</section><details class="suno-lyrics"><summary class="suno-label">02 // SUNO STYLE LYRICS <span class="suno-collapse-hint">CLICK TO EXPAND</span></summary><pre>'+escapeLayoutText(postLayoutControls.fields.lyrics.value)+'</pre></details><aside class="suno-notes"><p class="suno-label">03 // SUNO STYLE PROMPT</p><section class="suno-style-prompt">'+layoutParagraphs(postLayoutControls.fields.prompt.value)+'</section><section class="suno-learned"><p class="suno-label">WHAT I LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.learned.value)+'</section><section class="suno-chatgpt-learned"><p class="suno-label">WHAT CHATGPT LEARNED</p>'+layoutParagraphs(postLayoutControls.fields.chatgpt.value)+'</section></aside></div>')
      :sanitizeTransmissionBody(transmissionEditor.innerHTML);
-    const publishText=postLayoutControls?.select.value==='plain'?(postLayoutControls.fields.plain.__haBlockEditor?.getText()||''):
-     postLayoutControls?.select.value==='suno'?(postLayoutControls.fields.main.__haBlockEditor?.getText()||''):(transmissionEditor.__haBlockEditor?.getText()||'');
+    const publishText=getCurrentTransmissionText();
     if(metadata.status==='published'&&!String(publishText||'').trim())throw new Error('Add transmission content before publishing.');
     status.textContent='CREATING TRANSMISSION…';
     const {data:createResult,error:createError}=await archiveSupabase.rpc('create_human_archive_transmission_v3',{
@@ -1348,7 +1348,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
     if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
     if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
     if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
-    if(metadata.status==='published'&&!row.transmission_body.trim())throw new Error('Add transmission content before publishing.');
+    if(metadata.status==='published'&&!getCurrentTransmissionText().trim())throw new Error('Add transmission content before publishing.');
     if(metadata.status==='published'&&metadata.category==='UNASSIGNED')throw new Error('Choose a movement category before publishing.');
     const {data:saveResult,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
      p_post_id:record.post_id,p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,p_status:metadata.status,
