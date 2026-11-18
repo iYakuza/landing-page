@@ -892,8 +892,8 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   if(draftAutosaveTimer)clearTimeout(draftAutosaveTimer);
   draftAutosaveTimer=setTimeout(()=>{draftAutosaveTimer=null;runDraftAutosave();},delay);
  };
- grid.addEventListener('input',()=>scheduleDraftAutosave());
- grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});
+ metadata.addEventListener('input',()=>scheduleDraftAutosave());
+ metadata.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});
  const flushDraftAutosave=async()=>{
   if(draftAutosaveConflict)return false;if(!draftAutosaveEnabled)return true;
   draftAutosaveFlushing=true;
@@ -940,7 +940,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    const discard=window.confirm('This tab has unsaved changes that conflict with a newer version. Discard this tab’s changes and return to the read-only chamber?');
    if(!discard)return;chamberSaveConflict=false;flushActiveChamberAutosave=async()=>true;
   }
-  blockEditorController?.destroy();richEditorController?.destroy();status.textContent='';
+  blockEditorController?.destroy();richEditorController?.destroy();flushActiveChamberAutosave=async()=>true;status.textContent='';
   renderRecordStructureView(record,grid,status,editButton,expandButton);
  });
  save.addEventListener('click',async()=>{
