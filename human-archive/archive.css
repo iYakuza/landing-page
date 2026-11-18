@@ -999,3 +999,43 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
   }
   .ha-record-card>.ha-entry .ha-entry-code{font-size:10px!important}
 }
+
+
+/* COLUMBARIUM HERO — compact vertical rhythm and updated memorial typography. */
+main[data-vha-layout-root]{
+  padding:24px!important;
+}
+.ha-ego-hero.vha-layout-section--hero{
+  padding-top:clamp(18px,2.5vw,30px)!important;
+  padding-bottom:clamp(14px,2vw,24px)!important;
+}
+.ha-divider{
+  margin:8px 0 14px!important;
+}
+.ha-memorial-intro.vha-layout-section--intro{
+  display:block!important;
+  padding-top:0!important;
+  padding-bottom:18px!important;
+}
+.ha-kicker .ha-kicker-fragment{
+  color:#b8a67e!important;
+  font:9px/1.8 'DM Mono',monospace!important;
+  letter-spacing:.2em!important;
+}
+.ha-memorial-quote{
+  margin:0!important;
+  padding:0 0 0 16px!important;
+  border-left:1px solid rgba(184,166,126,.5);
+  color:#d0d7d3!important;
+  font:italic clamp(20px,3vw,32px)/1.45 Georgia,serif!important;
+  letter-spacing:.005em;
+}
+@media(max-width:760px){
+  main[data-vha-layout-root]{padding:18px!important}
+  .ha-ego-hero.vha-layout-section--hero{
+    padding-top:14px!important;
+    padding-bottom:12px!important;
+  }
+  .ha-divider{margin:6px 0 12px!important}
+  .ha-memorial-intro.vha-layout-section--intro{padding-bottom:14px!important}
+}
