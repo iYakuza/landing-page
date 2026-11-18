@@ -105,7 +105,7 @@
     return templates[type] || '<p><br></p>';
   }
 
-  function mountBlockEditor({ editor, onChange = () => {}, readOnly = false } = {}) {
+  function mountBlockEditor({ editor, onChange = () => {}, onUpload = null, getMediaLibrary = () => [], readOnly = false } = {}) {
     if (!(editor instanceof HTMLElement)) throw new TypeError('A block editor canvas is required.');
     if (editor.dataset.haBlockEditorMounted === 'true') return editor.__haBlockEditor || null;
     editor.dataset.haBlockEditorMounted = 'true';
@@ -155,71 +155,95 @@
     }
 
     function insertMedia(type, block) {
-      const promptText = ['image','cover','media-text'].includes(type) ? 'Image URL (archive or WordPress media URL)' :
-        ['audio','playlist','podcast'].includes(type) ? 'Audio URL (Human Archive media storage)' :
-        type==='video' ? 'Video URL (Human Archive media storage)' :
-        type==='file' ? 'File URL (Human Archive media storage)' : type==='gallery'||type==='tiled-gallery' ? 'Image URLs, separated by commas' : type==='image-compare' ? 'Two image URLs, separated by a comma' : 'Paste a YouTube, Spotify, SoundCloud, Vimeo, TikTok, Instagram, Facebook, Dailymotion, Loom, TED, CodePen, Reddit or Mixcloud URL';
-      const raw = window.prompt(promptText);
-      if (!raw) return;
-      let html = '';
-      if (['image','cover','media-text'].includes(type)) {
-        const src = safeURL(raw,IMAGE_HOSTS);
-        if (!src) return window.alert('Use a secure image URL from the archive media library or WordPress media.');
-        const alt=window.prompt('Alternative text for this image (optional)','')||'';
-        const figure=document.createElement('figure'),image=document.createElement('img'),caption=document.createElement('figcaption');
-        image.src=src;image.alt=alt;image.loading='lazy';caption.contentEditable='true';caption.textContent='Image caption';figure.append(image,caption);html=figure.outerHTML;
-        if(type==='cover')html='<section class="ha-cover" style="--ha-cover-image:url(&quot;'+src+'&quot;)"><img src="'+src+'" alt="'+alt.replace(/[&<>\"]/g,'')+'"><div class="ha-cover-content"><h2>Cover heading</h2><p>Write over the image…</p></div></section>';
-        if(type==='media-text')html='<div class="ha-media-text"><figure><img src="'+src+'" alt="'+alt.replace(/[&<>\"]/g,'')+'"></figure><section><h2>Heading</h2><p>Write alongside your media…</p></section></div>';
-      } else if (type==='gallery'||type==='tiled-gallery'||type==='slideshow'||type==='image-compare') {
-        const urls=raw.split(',').map(value=>safeURL(value.trim(),IMAGE_HOSTS)).filter(Boolean);
-        if(urls.length<(type==='image-compare'?2:1))return window.alert('Add valid image URLs from the archive media library or WordPress media.');
-        if(type==='image-compare'&&urls.length>=2)html='<div class="ha-image-compare"><figure><img src="'+urls[0]+'" alt="Before"></figure><figure><img src="'+urls[1]+'" alt="After"></figure></div>';
-        else html='<div class="'+(type==='slideshow'?'ha-slideshow':type==='tiled-gallery'?'ha-tiled-gallery':'ha-gallery')+'">'+urls.map((src,index)=>'<figure><img src="'+src+'" alt="" loading="lazy"><figcaption contenteditable="true">Image '+(index+1)+'</figcaption></figure>').join('')+'</div>';
-      } else if (type === 'audio' || type === 'video' || type==='playlist' || type==='podcast' || type==='file') {
-        const src = safeURL(raw,MEDIA_HOSTS);
-        if (!src || !new URL(src).pathname.startsWith('/storage/v1/object/public/vha-post-media/')) return window.alert('Use a secure URL from the Human Archive media library.');
-        html = type === 'audio' || type==='playlist' || type==='podcast' ? '<div class="'+(type==='podcast'?'ha-podcast':'ha-audio-block')+'"><audio controls preload="metadata" src="'+src+'"></audio></div>' : type==='file' ? '<p class="ha-file-block"><a href="'+src+'" download>Download file</a></p>' : '<video controls playsinline preload="metadata" src="'+src+'"></video>';
-      } else {
-        let url;
-        try { url = new URL(raw.trim()); } catch { return window.alert('Enter a valid embed URL.'); }
-        const host = url.hostname.toLowerCase();
-        if (!EMBED_HOSTS.has(host)) return window.alert('That provider is not in the secure embed allowlist. Use the Custom HTML block only for trusted code, or add a link.');
-        if (['youtube','spotify','soundcloud'].includes(type) && !((type==='youtube'&&['www.youtube.com','youtube.com','www.youtube-nocookie.com','youtu.be'].includes(host))||(type==='spotify'&&host==='open.spotify.com')||(type==='soundcloud'&&['w.soundcloud.com','soundcloud.com'].includes(host)))) return window.alert('The URL does not match the selected embed block.');
-        if (host === 'youtu.be') {
-          const id=url.pathname.slice(1).split('/')[0];
-          if(!/^[\w-]{6,20}$/.test(id))return window.alert('That YouTube URL is not valid.');
-          url=new URL('https://www.youtube-nocookie.com/embed/'+id);
-        } else if (['www.youtube.com','youtube.com'].includes(host) && url.pathname === '/watch') {
-          const id = url.searchParams.get('v');
-          if (!id || !/^[\w-]{6,20}$/.test(id)) return window.alert('That YouTube URL is not valid.');
-          url = new URL('https://www.youtube-nocookie.com/embed/'+id);
-        } else if (['www.youtube.com','youtube.com'].includes(host) && url.pathname.startsWith('/shorts/')) {
-          const id = url.pathname.split('/')[2];
-          if (!/^[\w-]{6,20}$/.test(id)) return window.alert('That YouTube URL is not valid.');
-          url = new URL('https://www.youtube-nocookie.com/embed/'+id);
-        } else if (host === 'open.spotify.com' && !url.pathname.includes('/embed/')) {
-          url.pathname = '/embed'+url.pathname;
-        } else if(host==='soundcloud.com') {
-          url=new URL('https://w.soundcloud.com/player/?url='+encodeURIComponent(url.href));
-        } else if (host === 'w.soundcloud.com' && !url.pathname.startsWith('/player/')) {
-          return window.alert('Use a SoundCloud player embed URL.');
+      const fileTypes=['image','gallery','slideshow','tiled-gallery','cover','media-text','image-compare','audio','video','file','playlist','podcast'];
+      if(fileTypes.includes(type)){
+        if(typeof onUpload!=='function')return window.alert('Media uploads are not available in this editor session.');
+        const dialog=document.createElement('div');dialog.className='ha-media-picker';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-label','Add '+labelFor(type));
+        const panel=document.createElement('div');panel.className='ha-media-picker-panel';
+        const heading=document.createElement('h3');heading.textContent='ADD '+labelFor(type).toUpperCase();panel.append(heading);
+        const help=document.createElement('p');help.textContent='Upload files from your device or reuse media already attached to this record.';panel.append(help);
+        const input=document.createElement('input');input.type='file';input.accept=type==='image'||type==='gallery'||type==='slideshow'||type==='tiled-gallery'||type==='cover'||type==='media-text'||type==='image-compare'?'image/jpeg,image/png,image/webp,image/gif,image/avif':type==='audio'||type==='playlist'||type==='podcast'?'audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm':type==='video'?'video/mp4,video/webm':'image/*,audio/*,video/*,application/pdf,text/plain,application/zip,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        input.multiple=['gallery','slideshow','tiled-gallery','image-compare','playlist'].includes(type);input.className='ha-media-picker-input';input.setAttribute('aria-label','Choose media files');panel.append(input);
+        const options=document.createElement('div');options.className='ha-media-picker-options';
+        const altLabel=document.createElement('label');altLabel.textContent='Alternative text';const alt=document.createElement('input');alt.type='text';alt.placeholder='Describe the image';altLabel.append(alt);
+        const captionLabel=document.createElement('label');captionLabel.textContent='Caption';const caption=document.createElement('input');caption.type='text';caption.placeholder='Optional caption';captionLabel.append(caption);
+        if(['image','cover','media-text','gallery','slideshow','tiled-gallery','image-compare'].includes(type)){options.append(altLabel,captionLabel);panel.append(options);}
+        const library=Array.isArray(getMediaLibrary(type))?getMediaLibrary(type):[];
+        let librarySelect=null;
+        if(library.length){
+          const libraryLabel=document.createElement('label');libraryLabel.className='ha-media-picker-library-label';libraryLabel.textContent='THIS RECORD’S MEDIA LIBRARY';
+          librarySelect=document.createElement('select');librarySelect.multiple=['gallery','slideshow','tiled-gallery','image-compare','playlist'].includes(type);librarySelect.size=Math.min(5,library.length);
+          library.forEach((item,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=(item.name||'Media file')+' · '+(item.mime_type||item.type||'media');librarySelect.append(option);});
+          libraryLabel.append(librarySelect);panel.append(libraryLabel);
         }
-        if(host==='vimeo.com'){const id=url.pathname.split('/').filter(Boolean)[0];if(!/^\\d+$/.test(id||''))return window.alert('That Vimeo URL is not valid.');url=new URL('https://player.vimeo.com/video/'+id);}
-        if(host==='www.dailymotion.com'&&url.pathname.startsWith('/video/')){const id=url.pathname.split('/')[2];url=new URL('https://www.dailymotion.com/embed/video/'+id);}
-        if(host==='www.loom.com'&&url.pathname.startsWith('/share/')){url=new URL('https://www.loom.com/embed/'+url.pathname.split('/')[2]);}
-        if(['www.youtube.com','youtube.com'].includes(host)&&url.pathname==='/watch'){const id=url.searchParams.get('v');if(!id||!/[\\w-]{6,20}/.test(id))return window.alert('That YouTube URL is not valid.');url=new URL('https://www.youtube-nocookie.com/embed/'+id);}
-        const src=safeURL(url.href,EMBED_HOSTS);
-        if(!src)return window.alert('That embed URL is not supported.');
-        const iframeHosts=['www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com','player.vimeo.com','www.dailymotion.com','www.loom.com'];
-        if(!iframeHosts.includes(new URL(src).hostname)){const link=document.createElement('a');link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';link.className='ha-embed-link';link.textContent='OPEN EMBED — '+url.hostname;html='<div class="ha-embed-card">'+link.outerHTML+'</div>';}
-        else html='<figure class="ha-embed ha-embed-'+type+'"><iframe src="'+src+'" title="Embedded media" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><figcaption contenteditable="true">Embedded media</figcaption></figure>';
+        const status=document.createElement('p');status.className='ha-media-picker-status';status.setAttribute('aria-live','polite');panel.append(status);
+        const actions=document.createElement('div');actions.className='ha-media-picker-actions';
+        const upload=document.createElement('button');upload.type='button';upload.textContent='UPLOAD & INSERT';upload.disabled=true;
+        const reuse=document.createElement('button');reuse.type='button';reuse.textContent='USE SELECTED';reuse.disabled=!librarySelect;
+        const cancel=document.createElement('button');cancel.type='button';cancel.textContent='CANCEL';actions.append(upload,reuse,cancel);panel.append(actions);dialog.append(panel);shell.append(dialog);
+        const close=()=>dialog.remove();
+        input.addEventListener('change',()=>{upload.disabled=!input.files?.length;});
+        cancel.addEventListener('click',close);
+        dialog.addEventListener('click',event=>{if(event.target===dialog)close();});
+        const build=(assets)=>{
+          if(!assets.length)return window.alert('Choose at least one media item.');
+          if(type==='image-compare'&&assets.length!==2)return window.alert('Choose exactly two images for an image comparison.');
+          let html='';
+          const safe=assets.filter(item=>item&&item.url).map(item=>({url:String(item.url),name:String(item.name||''),mime_type:String(item.mime_type||''),alt:alt.value.trim(),caption:caption.value.trim()}));
+          if(!safe.length)return window.alert('The selected media has no usable URL.');
+          const esc=value=>String(value||'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+          const figure=(item,index)=>'<figure><img src="'+esc(item.url)+'" alt="'+esc(item.alt||item.name)+'" loading="lazy"><figcaption contenteditable="true">'+esc(item.caption||item.name||('Image '+(index+1)))+'</figcaption></figure>';
+          if(['image','cover','media-text'].includes(type)){
+            const item=safe[0];
+            if(type==='cover')html='<section class="ha-cover" style="--ha-cover-image:url(&quot;'+esc(item.url)+'&quot;)"><img src="'+esc(item.url)+'" alt="'+esc(item.alt||item.name)+'"><div class="ha-cover-content"><h2>Cover heading</h2><p>Write over the image…</p></div></section>';
+            else if(type==='media-text')html='<div class="ha-media-text"><figure><img src="'+esc(item.url)+'" alt="'+esc(item.alt||item.name)+'" loading="lazy"><figcaption contenteditable="true">'+esc(item.caption)+'</figcaption></figure><section><h2>Heading</h2><p>Write alongside your media…</p></section></div>';
+            else html=figure(item,0);
+          }else if(['gallery','slideshow','tiled-gallery','image-compare'].includes(type)){
+            if(type==='image-compare')html='<div class="ha-image-compare">'+safe.map((item,index)=>figure(item,index)).join('')+'</div>';
+            else html='<div class="'+(type==='slideshow'?'ha-slideshow':type==='tiled-gallery'?'ha-tiled-gallery':'ha-gallery')+'">'+safe.map(figure).join('')+'</div>';
+          }else if(type==='video'){
+            const item=safe[0];html='<figure><video controls playsinline preload="metadata" src="'+esc(item.url)+'"></video><figcaption contenteditable="true">'+esc(item.caption||item.name)+'</figcaption></figure>';
+          }else if(type==='file'){
+            const item=safe[0];html='<p class="ha-file-block"><a href="'+esc(item.url)+'" download>'+esc(item.name||'Download file')+'</a></p>';
+          }else{
+            html='<div class="'+(type==='podcast'?'ha-podcast':'ha-audio-block')+'">'+safe.map(item=>'<figure><audio controls preload="metadata" src="'+esc(item.url)+'"></audio><figcaption contenteditable="true">'+esc(item.name)+'</figcaption></figure>').join('')+'</div>';
+          }
+          const next=makeBlock(type,html);if(block)block.after(next);else editor.append(next);wireBlock(next);setSelected(next);focusBlock(next);sync();close();
+        };
+        upload.addEventListener('click',async()=>{
+          const files=[...input.files||[]];if(!files.length)return;
+          upload.disabled=true;reuse.disabled=true;status.textContent='UPLOADING MEDIA…';
+          try{const assets=await onUpload(files,type);build(assets||[]);}
+          catch(error){status.textContent='UPLOAD FAILED — '+String(error?.message||'PLEASE TRY AGAIN');upload.disabled=false;reuse.disabled=!librarySelect;}
+        });
+        reuse.addEventListener('click',()=>{
+          if(!librarySelect)return;
+          const chosen=[...librarySelect.selectedOptions].map(option=>library[Number(option.value)]).filter(Boolean);
+          if(!chosen.length)return window.alert('Select media from the library first.');
+          build(chosen);
+        });
+        return;
       }
-      const next = makeBlock(type,html);
-      if(block)block.after(next);else editor.append(next);
-      wireBlock(next);
-      setSelected(next);
-      focusBlock(next);
-      sync();
+      const raw=window.prompt('Paste a YouTube, Spotify, SoundCloud, Vimeo, TikTok, Instagram, Facebook, Dailymotion, Loom, TED, CodePen, Reddit or Mixcloud URL');
+      if(!raw)return;
+      let url;try{url=new URL(raw.trim());}catch{return window.alert('Enter a valid embed URL.');}
+      const host=url.hostname.toLowerCase();
+      if(!EMBED_HOSTS.has(host))return window.alert('That provider is not in the secure embed allowlist.');
+      if(['youtube','spotify','soundcloud'].includes(type)&&!((type==='youtube'&&['www.youtube.com','youtube.com','www.youtube-nocookie.com','youtu.be'].includes(host))||(type==='spotify'&&host==='open.spotify.com')||(type==='soundcloud'&&['w.soundcloud.com','soundcloud.com'].includes(host))))return window.alert('The URL does not match the selected embed block.');
+      if(host==='youtu.be'){const id=url.pathname.slice(1).split('/')[0];if(!/^[\w-]{6,20}$/.test(id))return window.alert('That YouTube URL is not valid.');url=new URL('https://www.youtube-nocookie.com/embed/'+id);}
+      else if(['www.youtube.com','youtube.com'].includes(host)&&url.pathname==='/watch'){const id=url.searchParams.get('v');if(!id||!/[\w-]{6,20}/.test(id))return window.alert('That YouTube URL is not valid.');url=new URL('https://www.youtube-nocookie.com/embed/'+id);}
+      else if(['www.youtube.com','youtube.com'].includes(host)&&url.pathname.startsWith('/shorts/')){const id=url.pathname.split('/')[2];if(!/^[\w-]{6,20}$/.test(id))return window.alert('That YouTube URL is not valid.');url=new URL('https://www.youtube-nocookie.com/embed/'+id);}
+      else if(host==='open.spotify.com'&&!url.pathname.includes('/embed/'))url.pathname='/embed'+url.pathname;
+      else if(host==='soundcloud.com')url=new URL('https://w.soundcloud.com/player/?url='+encodeURIComponent(url.href));
+      else if(host==='vimeo.com'){const id=url.pathname.split('/').filter(Boolean)[0];if(!/^\d+$/.test(id||''))return window.alert('That Vimeo URL is not valid.');url=new URL('https://player.vimeo.com/video/'+id);}
+      else if(host==='www.dailymotion.com'&&url.pathname.startsWith('/video/')){const id=url.pathname.split('/')[2];url=new URL('https://www.dailymotion.com/embed/video/'+id);}
+      else if(host==='www.loom.com'&&url.pathname.startsWith('/share/'))url=new URL('https://www.loom.com/embed/'+url.pathname.split('/')[2]);
+      const src=safeURL(url.href,EMBED_HOSTS);if(!src)return window.alert('That embed URL is not supported.');
+      const iframeHosts=['www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com','player.vimeo.com','www.dailymotion.com','www.loom.com'];
+      let html;
+      if(!iframeHosts.includes(new URL(src).hostname)){const link=document.createElement('a');link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';link.className='ha-embed-link';link.textContent='OPEN EMBED — '+url.hostname;html='<div class="ha-embed-card">'+link.outerHTML+'</div>';}
+      else html='<figure class="ha-embed ha-embed-'+type+'"><iframe src="'+src+'" title="Embedded media" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe><figcaption contenteditable="true">Embedded media</figcaption></figure>';
+      const next=makeBlock(type,html);if(block)block.after(next);else editor.append(next);wireBlock(next);setSelected(next);focusBlock(next);sync();
     }
 
     function focusBlock(block) {
