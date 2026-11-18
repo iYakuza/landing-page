@@ -703,7 +703,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  };
  const titleInput=addField('TITLE','title',record.title,{placeholder:'Transmission title'});
  const slugInput=addField('PUBLIC URL SLUG','slug',record.slug,{placeholder:'lowercase-words-separated-by-hyphens'});
- const categories=[...new Set([...transmissionCategories,...categoryOrder,...(record.categories||[])])];
+ const categories=[...new Set([...transmissionCategories,...(record.categories||[])])];
  const categoryInput=addSelect('ARCHIVE / MOVEMENT','category',(record.categories||[])[0]||'',[
   ['','CHOOSE DESTINATION'],...categories.map(name=>[name,name])
  ]);
