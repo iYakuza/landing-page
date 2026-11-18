@@ -258,7 +258,7 @@
       else if(type==='preformatted'||type==='code') html=type==='code'?'<pre><code>'+current.textContent+'</code></pre>':'<pre>'+current.textContent+'</pre>';
       else if(type==='unordered-list') html='<ul><li>'+current.textContent+'</li></ul>';
       else if(type==='ordered-list') html='<ol><li>'+current.textContent+'</li></ol>';
-      const next=makeBlock(type,html);
+      const next=makeBlock(/^h[1-4]$/.test(type)?'heading':type,html);
       block.replaceWith(next); wireBlock(next); setSelected(next); focusBlock(next); sync();
     }
 
