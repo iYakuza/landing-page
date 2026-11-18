@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T21:59:32.967579Z",
-  "last_processed_sha": "7f2e7304b69f24eb6624fa76a7203026174056bb",
+  "updated_at": "2026-11-18T21:59:59.820628Z",
+  "last_processed_sha": "45447262e4dda7f213db401d2c8e8ee3a39849fe",
   "entries": [
+    {
+      "id": "45447262e4dda7f213db401d2c8e8ee3a39849fe",
+      "timestamp": "2026-11-18T22:59:53+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Align Human Archive category migration version; Remove duplicate migration filename. It updates 20261118215924_allow_human_archive_categories_for_transmissions.sql, 20261118230000_allow_human_archive_categories_for_transmissions.sql.",
+      "commit_count": 2,
+      "files": [
+        "supabase/migrations/20261118215924_allow_human_archive_categories_for_transmissions.sql",
+        "supabase/migrations/20261118230000_allow_human_archive_categories_for_transmissions.sql"
+      ],
+      "commits": [
+        {
+          "message": "Align Human Archive category migration version",
+          "url": "https://github.com/iYakuza/landing-page/commit/8fed03aa43186716d6183070f138e565ce443723",
+          "files": [
+            "supabase/migrations/20261118215924_allow_human_archive_categories_for_transmissions.sql"
+          ]
+        },
+        {
+          "message": "Remove duplicate migration filename",
+          "url": "https://github.com/iYakuza/landing-page/commit/45447262e4dda7f213db401d2c8e8ee3a39849fe",
+          "files": [
+            "supabase/migrations/20261118230000_allow_human_archive_categories_for_transmissions.sql"
+          ]
+        }
+      ]
+    },
     {
       "id": "7a60a9e0f26c4911ba6b91e133f5886f8396f06b",
       "timestamp": "2026-11-18T22:59:30+01:00",
@@ -1256,51 +1285,6 @@
         {
           "message": "Align shared Transmission editor toolbar across pages",
           "url": "https://github.com/iYakuza/landing-page/commit/01432bc90d1f113aa6f2c73a847f292d878fe45c",
-          "files": [
-            "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "c0c0d5c7f675dbd7f7fa502b602155ee428bba58",
-      "timestamp": "2026-11-18T17:29:25+01:00",
-      "category": "FEATURE",
-      "component": "Website Updates",
-      "title": "New capabilities for Website Updates",
-      "description": "This update brings together Move global New Transmission action to left; Refresh shared Transmission editor asset versions. It updates creator-posting.js, index.html and related project files.",
-      "commit_count": 4,
-      "files": [
-        "creator-posting.js",
-        "human-archive/index.html",
-        "index.html",
-        "posts/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Move global New Transmission action to left",
-          "url": "https://github.com/iYakuza/landing-page/commit/e95207a7230f9c87683c0289919a837d4ff17590",
-          "files": [
-            "creator-posting.js"
-          ]
-        },
-        {
-          "message": "Refresh shared Transmission editor asset versions",
-          "url": "https://github.com/iYakuza/landing-page/commit/7cbc8f17e769baa53d371527c408864f3268cb73",
-          "files": [
-            "index.html"
-          ]
-        },
-        {
-          "message": "Refresh shared Transmission editor asset versions",
-          "url": "https://github.com/iYakuza/landing-page/commit/982a1397c0689dd80048320fd10bdf08c2f0e12e",
-          "files": [
-            "posts/index.html"
-          ]
-        },
-        {
-          "message": "Refresh shared Transmission editor asset versions",
-          "url": "https://github.com/iYakuza/landing-page/commit/c0c0d5c7f675dbd7f7fa502b602155ee428bba58",
           "files": [
             "human-archive/index.html"
           ]
