@@ -719,7 +719,6 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  transmissionCategories.filter(name=>name!=='HUMAN ARCHIVE').forEach(name=>appendUniqueCategory(movementGroup,name));
  if(currentCategory==='HUMAN ARCHIVE')appendUniqueCategory(movementGroup,'HUMAN ARCHIVE','HUMAN ARCHIVE — LEGACY');
  categoryInput.append(archiveCategoryGroup,movementGroup);
- // Defensive final pass: each destination must appear exactly once, retaining its original value.
  categoryInput.value=categoryOrder.includes(currentCategory)||transmissionCategories.includes(currentCategory)?currentCategory:categoryOrder[0];
  categoryInputWrap.append(categoryInputLabel,categoryInput);metadataFields.append(categoryInputWrap);
  const excerptInput=addMetadataField('EXCERPT','excerpt',record.excerpt||'',{multiline:true,placeholder:'Short description shown in previews (up to 400 characters)',maxLength:400});
