@@ -297,7 +297,7 @@
             if(split.length>1){
               const first=split.shift();content.replaceChildren(first);
               let anchor=block;
-              split.forEach(node=>{const next=makeBlock(blockType(node),node.outerHTML);anchor.after(next);wireBlock(next);anchor=next;});
+              split.forEach(node=>{let nextType=blockType(node),nextHTML=node.outerHTML;if((block.dataset.haBlock==='heading'&&nextType==='heading')||(block.dataset.haBlock==='quote'&&nextType==='quote')||(nextType==='classic'&&!node.classList.contains('suno-post-layout')&&!node.classList.contains('plain-post-layout'))){nextType='paragraph';nextHTML='<p>'+node.innerHTML+'</p>';}const next=makeBlock(nextType,nextHTML);anchor.after(next);wireBlock(next);anchor=next;});
               setSelected(anchor);focusBlock(anchor);
             }else{
               const next=makeBlock('paragraph','<p><br></p>');block.after(next);wireBlock(next);setSelected(next);focusBlock(next);
