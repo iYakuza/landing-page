@@ -504,6 +504,10 @@
   background:rgba(5,9,6,.8);font:700 9px/1.2 ui-monospace,monospace;letter-spacing:.8px;text-decoration:none;white-space:nowrap;cursor:pointer;
 }
 .post-chamber-button:hover,.post-chamber-button:focus-visible{background:var(--viewer-accent,#b9d77a);color:#050906!important;outline:2px solid var(--viewer-accent,#b9d77a);outline-offset:2px}
+.post-chamber-actions{display:inline-flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:7px;margin-left:auto}
+.post-redesign-button{border-color:#e8f4df!important;color:#e8f4df!important}
+.post-redesign-button:hover,.post-redesign-button:focus-visible{background:#e8f4df!important;color:#050906!important;outline:2px solid #e8f4df;outline-offset:2px}
+.post-redesign-button[hidden]{display:none!important}
 .posts-list:has(.post-back) .post-card-top{align-items:center;flex-wrap:wrap}
 
 
@@ -1424,7 +1428,7 @@ body.image-viewer-open{overflow:hidden!important}
   order:0!important;
   margin-left:0!important;
 }
-.posts-list:not(:has(.post-back)) .post-card-top .post-chamber-button{
+.posts-list:not(:has(.post-back)) .post-card-top .post-chamber-actions{
   order:2!important;
   margin-left:auto!important;
 }

@@ -5,7 +5,7 @@
 
   const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-  const EDITOR_VERSION = '20261118-posts-shared-chamber-1';
+  const EDITOR_VERSION = '20261118-posts-edit-access-2';
   let client = null;
   let isCreator = false;
   let refreshing = false;
@@ -122,10 +122,11 @@
   async function openExistingTransmission(event) {
     const slug = String(event.detail?.slug || '').trim();
     const trigger = event.detail?.trigger || null;
+    const edit = Boolean(event.detail?.edit);
     if (!slug) return;
     try {
       await ensureSharedEditor();
-      window.dispatchEvent(new CustomEvent('VHA_OPEN_EXISTING_TRANSMISSION', { detail: { slug, trigger } }));
+      window.dispatchEvent(new CustomEvent('VHA_OPEN_EXISTING_TRANSMISSION', { detail: { slug, trigger, edit } }));
     } catch (error) {
       console.error('The shared Transmission chamber could not be opened:', error);
       if (trigger) trigger.title = String(error?.message || 'The chamber could not be opened. Please try again.');
