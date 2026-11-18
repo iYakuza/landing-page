@@ -435,7 +435,7 @@ function archiveHasContent(html){
 }
 function archiveSectionHTML(label,html){
  if(!archiveHasContent(html))return '';
- return '<h2>'+String(label).replace(/[&<>"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char ]))+'</h2>'+sanitizeTransmissionBody(html);
+ return '<h2>'+String(label).replace(/[&<>"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[char]))+'</h2>'+sanitizeTransmissionBody(html);
 }
 function flattenArchivePostLayout(html){
  const parsed=new DOMParser().parseFromString(String(html||''),'text/html');
