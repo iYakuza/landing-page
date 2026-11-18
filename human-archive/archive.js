@@ -764,7 +764,11 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  };
  const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
  const getEditorHTML=()=>transmissionEditor.__haBlockEditor?.getHTML()||transmissionEditor.innerHTML;
- const getEditorBlocks=()=>transmissionEditor.__haBlockEditor?.getBlocks()||[];
+ const getEditorBlocks=()=>{
+  const current=transmissionEditor.__haBlockEditor?.getBlocks?.();
+  const source=Array.isArray(current)?current:(getEditorHTML().trim()?[{id:'block-001',type:'classic',html:getEditorHTML()}]:[]);
+  return source.map((block,index)=>({id:String(block.id||'block-'+String(index+1).padStart(3,'0')),type:String(block.type||'classic'),html:sanitizeTransmissionBody(block.html||'')})).filter(block=>block.html.trim());
+ };
  const richEditorController=readOnly?null:window.VHAEditorUI?.mountRichTextEditor({editor:transmissionEditor,editors:[transmissionEditor],toolbar,focusButton,insertLinkButton,focusClass:'ha-writing-focus',onInvalidLink:message=>{status.textContent=message;}});
 
  if(!readOnly&&record.source_type==='transmission'){
