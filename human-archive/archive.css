@@ -1115,3 +1115,15 @@ main[data-vha-layout-root]{
  .ha-chamber-topbar-actions .ha-chamber-close{min-height:32px!important;padding:7px 8px!important;font-size:8px!important}
  .ha-chamber-mark{max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
+
+
+/* Public Transmission columns use the saved column count and collapse naturally on narrow screens. */
+.ha-chamber-blocks-view .ha-columns{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));
+ align-items:start;gap:16px;width:100%;margin:18px 0
+}
+.ha-chamber-blocks-view .ha-columns>section{
+ min-width:0;padding:14px;border:1px solid rgba(143,171,170,.2);
+ background:rgba(143,171,170,.035)
+}
+.ha-chamber-blocks-view .ha-columns>section>*:last-child{margin-bottom:0}
