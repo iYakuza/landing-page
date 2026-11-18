@@ -1,8 +1,43 @@
 {
   "version": 1,
-  "updated_at": "2026-11-18T05:50:38.730433Z",
-  "last_processed_sha": "96f6aaf507027835b43685746ca026c7f6747ee4",
+  "updated_at": "2026-11-18T06:19:50.569640Z",
+  "last_processed_sha": "1fd11bdf34db87bb88241ac2feee681a547a0d61",
   "entries": [
+    {
+      "id": "1fd11bdf34db87bb88241ac2feee681a547a0d61",
+      "timestamp": "2026-11-18T07:19:41+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Creative Archive",
+      "title": "A refined Creative Archive",
+      "description": "This update brings together Bring Posts archive into Human Archive parity. It updates index.html, posts.css, posts.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        "posts/index.html",
+        "posts/posts.css",
+        "posts/posts.js",
+        "posts/the-awakening/index.html",
+        "posts/the-descent/index.html",
+        "posts/the-reconnection/index.html",
+        "posts/the-return/index.html",
+        "posts/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Bring Posts archive into Human Archive parity",
+          "url": "https://github.com/iYakuza/landing-page/commit/1fd11bdf34db87bb88241ac2feee681a547a0d61",
+          "files": [
+            "posts/index.html",
+            "posts/posts.css",
+            "posts/posts.js",
+            "posts/the-awakening/index.html",
+            "posts/the-descent/index.html",
+            "posts/the-reconnection/index.html",
+            "posts/the-return/index.html",
+            "posts/the-transformation/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "96f6aaf507027835b43685746ca026c7f6747ee4",
       "timestamp": "2026-11-18T06:50:30+01:00",
@@ -1129,43 +1164,6 @@
             "404.html",
             "human-archive/archive.css",
             "human-archive/archive.js",
-            "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "a1118852df64bebe2eac2855943dfdfb915eac54",
-      "timestamp": "2026-11-16T20:03:20+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Place chamber title and expand control above sections; Style the chamber title row above the sections; Refresh Human Archive chamber title-row assets. It updates archive.css, archive.js, index.html.",
-      "commit_count": 3,
-      "files": [
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Place chamber title and expand control above sections",
-          "url": "https://github.com/iYakuza/landing-page/commit/51c3c5981f844bd927edb1ed862e2002e77cb77f",
-          "files": [
-            "human-archive/archive.js"
-          ]
-        },
-        {
-          "message": "Style the chamber title row above the sections",
-          "url": "https://github.com/iYakuza/landing-page/commit/5704439c84016721dc11b5d68ec98de36b5edfc9",
-          "files": [
-            "human-archive/archive.css"
-          ]
-        },
-        {
-          "message": "Refresh Human Archive chamber title-row assets",
-          "url": "https://github.com/iYakuza/landing-page/commit/2ee3f0952b8a01aac1384520022669ec64a63cc4",
-          "files": [
             "human-archive/index.html"
           ]
         }
