@@ -1050,3 +1050,18 @@ main[data-vha-layout-root]{
 .ha-record-chamber[open] .ha-rich-content{min-height:220px;max-height:60vh;overflow:auto;resize:vertical;padding:12px}
 .ha-record-chamber[open] .ha-rich-editor-top{padding-top:58px}
 @media(max-width:700px){.ha-record-chamber[open] .ha-rich-toolbar{top:8px;left:8px;right:8px;width:auto;max-width:none;transform:none;max-height:34vh;justify-content:center}.ha-record-chamber[open] .ha-rich-editor-top{padding-top:calc(34vh + 16px)}}
+
+
+/* Unified Human Archive block document */
+.ha-chamber-grid.ha-chamber-unified{display:block;min-width:0}
+.ha-chamber-unified-content{max-width:100%;min-width:0}
+.ha-chamber-document-settings{margin:0 0 18px;padding:16px;border:1px solid rgba(143,171,170,.22);background:rgba(7,13,10,.72)}
+.ha-chamber-document-settings .ha-chamber-metadata-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.ha-chamber-unified-editor{display:block}
+.ha-chamber-unified-editor .ha-chamber-unified-canvas{min-height:420px;margin-top:12px;padding:22px;background:rgba(5,9,6,.72);border:1px solid rgba(143,171,170,.24)}
+.ha-chamber-unified-editor .ha-rich-toolbar{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}
+.ha-chamber-unified-editor .ha-chamber-focus-toggle{margin:8px 0}
+.ha-chamber-unified-editor .ha-chamber-editor-actions{margin-top:18px}
+.ha-chamber-unified-editor .ha-block-editor-shell{margin-top:10px}
+.ha-chamber-unified-editor .ha-editor-block-content{min-width:0}
+@media(max-width:700px){.ha-chamber-document-settings .ha-chamber-metadata-grid{grid-template-columns:1fr}.ha-chamber-unified-editor .ha-chamber-unified-canvas{padding:14px}}
