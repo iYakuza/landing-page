@@ -61,7 +61,7 @@
     content.className = 'ha-editor-block-content';
     content.dataset.haBlockContent = '';
     content.innerHTML = html;
-    if (['separator','image','gallery','slideshow','tiled-gallery','cover','media-text','image-compare','audio','video','file','playlist','podcast','embed','youtube','spotify','soundcloud','spacer'].includes(type)) content.contentEditable = 'false';
+    if (['separator','image','gallery','slideshow','tiled-gallery','image-compare','audio','video','playlist','podcast','embed','youtube','spotify','soundcloud','spacer'].includes(type)) content.contentEditable = 'false';
     else content.contentEditable = 'true';
 
     const footer = document.createElement('div');
