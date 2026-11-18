@@ -534,12 +534,12 @@ function sanitizeTransmissionBody(source){
  const raw=String(source??'');
  const parsed=new DOMParser().parseFromString(raw,'text/html');
  // Legacy archive fields may contain plain text rather than HTML. Convert their
- // newline structure into real paragraph and line-break nodes before sanitizing.
- if(!parsed.body.children.length&&/[\\r\\n]/.test(raw)){
+ // actual newline structure into paragraphs and line breaks before sanitizing.
+ if(!parsed.body.children.length&&/[\r\n]/.test(raw)){
   const fragment=document.createDocumentFragment();
-  raw.replace(/\\r\\n?/g,'\\n').split(/\\n{2,}/).forEach(paragraph=>{
+  raw.replace(/\r\n?/g,'\n').split(/\n{2,}/).forEach(paragraph=>{
    const block=document.createElement('p');
-   paragraph.split('\\n').forEach((line,index)=>{
+   paragraph.split('\n').forEach((line,index)=>{
     if(index)block.append(document.createElement('br'));
     block.append(document.createTextNode(line));
    });
@@ -755,11 +755,11 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   const read=node=>{
    if(node.nodeType===Node.TEXT_NODE)return node.nodeValue||'';
    if(node.nodeType!==Node.ELEMENT_NODE)return '';
-   if(node.tagName==='BR')return '\\n';
+   if(node.tagName==='BR')return '\n';
    const value=[...node.childNodes].map(read).join('');
-   return ['P','DIV','LI','H1','H2','H3','H4','BLOCKQUOTE'].includes(node.tagName)?value+'\\n\\n':value;
+   return ['P','DIV','LI','H1','H2','H3','H4','BLOCKQUOTE'].includes(node.tagName)?value+'\n\n':value;
   };
-  return read(clone).replace(/\\r/g,'').replace(/[ \\t]+\\n/g,'\\n').replace(/\\n{3,}/g,'\\n\\n').trim();
+  return read(clone).replace(/\r/g,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
  };
  const layoutPanel=makeChamberDisclosure('00.25 // POST PRESENTATION','ha-chamber-panel ha-chamber-edit-panel ha-chamber-layout-panel','ha-chamber-panel-heading');
  const layoutSelect=document.createElement('select');layoutSelect.className='ha-chamber-editor-field ha-chamber-meta-input';
