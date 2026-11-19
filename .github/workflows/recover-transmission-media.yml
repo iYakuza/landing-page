@@ -1,0 +1,37 @@
+name: Recover available Transmissions media
+
+on:
+  push:
+    branches:
+      - recovery/supabase-content-export-20261119
+    paths:
+      - .github/workflows/recover-transmission-media.yml
+
+permissions:
+  contents: write
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out recovery branch
+        uses: actions/checkout@v4
+        with:
+          ref: recovery/supabase-content-export-20261119
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Download and verify available media from restore storage
+        run: node scripts/recover-transmission-media.mjs
+      - name: Commit recovered media and report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add media/transmissions content/transmissions.json recovery-data/transmission-media-report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "media: recover available Transmissions assets"
+            git push origin HEAD:recovery/supabase-content-export-20261119
+          else
+            echo "No recovered media changes to commit."
+          fi
