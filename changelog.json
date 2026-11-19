@@ -1,8 +1,53 @@
 {
   "version": 1,
-  "updated_at": "2026-11-19T17:21:56.087390Z",
-  "last_processed_sha": "be1887af85ebb2e38056d491f9b4404a391e8175",
+  "updated_at": "2026-11-19T18:36:39.353311Z",
+  "last_processed_sha": "0ab46d183d24361601e4a639fd56e18b526d2895",
   "entries": [
+    {
+      "id": "0ab46d183d24361601e4a639fd56e18b526d2895",
+      "timestamp": "2026-11-19T19:36:27+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Prevent background archive media downloads; Refresh Human Archive media loading asset; Prevent hidden post media prefetching; and 1 more related changes. It updates archive.js, index.html, posts.js and related project files.",
+      "commit_count": 4,
+      "files": [
+        "human-archive/archive.js",
+        "human-archive/index.html",
+        "posts/index.html",
+        "posts/posts.js"
+      ],
+      "commits": [
+        {
+          "message": "Prevent background archive media downloads",
+          "url": "https://github.com/iYakuza/landing-page/commit/9b6ebb07d24bcf1fc85b6844fae933eb3f1f11f4",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Refresh Human Archive media loading asset",
+          "url": "https://github.com/iYakuza/landing-page/commit/089f8ff05c70ed30fd0cd801d2bd95ed57c123ca",
+          "files": [
+            "human-archive/index.html"
+          ]
+        },
+        {
+          "message": "Prevent hidden post media prefetching",
+          "url": "https://github.com/iYakuza/landing-page/commit/c796fead10994394c3b254913ad4af4b13b209a5",
+          "files": [
+            "posts/posts.js"
+          ]
+        },
+        {
+          "message": "Refresh posts media loading asset",
+          "url": "https://github.com/iYakuza/landing-page/commit/0ab46d183d24361601e4a639fd56e18b526d2895",
+          "files": [
+            "posts/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "70ed53dff29f1da28107ababccf5282f7370438f",
       "timestamp": "2026-11-19T18:21:44+01:00",
@@ -1215,27 +1260,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/8bb8f7665f5a6b8b505fb65a1021fd840eed2ceb",
           "files": [
             "human-archive/archive.css"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "0499e842dcb8723b1e6515d9cff4246f6cfc9792",
-      "timestamp": "2026-11-18T18:19:42+01:00",
-      "category": "FEATURE",
-      "component": "Website",
-      "title": "New capabilities for Website",
-      "description": "This update brings together Add nested editable columns to block editor. It updates block-editor.js.",
-      "commit_count": 1,
-      "files": [
-        "editor-ui/block-editor.js"
-      ],
-      "commits": [
-        {
-          "message": "Add nested editable columns to block editor",
-          "url": "https://github.com/iYakuza/landing-page/commit/0499e842dcb8723b1e6515d9cff4246f6cfc9792",
-          "files": [
-            "editor-ui/block-editor.js"
           ]
         }
       ]
