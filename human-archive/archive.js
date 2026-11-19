@@ -329,13 +329,15 @@ async function loadRecordStructureOverrides(){
 }
 async function loadTransmissionRecords(){
  if(!archiveSupabase)return;
+ // Match the public Transmissions index query. Do not mutate the current archive
+ // until the database read succeeds, so a temporary query failure cannot hide posts.
+ let query=archiveSupabase.from('vha_posts').select('id,archive_record_id,title,slug,category,excerpt,content_html,status,created_at,published_at,media_items,media_url,media_type,media_width').order('published_at',{ascending:false,nullsFirst:false});
+ if(!archiveAdmin)query=query.eq('status','published');
+ const {data,error}=await query;
+ if(error){console.warn('Database-backed Transmissions could not be loaded into Human Archive; keeping the current records:',error);return;}
  records=records.filter(record=>record.source_type!=='transmission');
  mediaItems=mediaItems.filter(item=>item.storage!=='vha-post-media');
  for(const [key,item] of mediaMap){if(item.storage==='vha-post-media')mediaMap.delete(key);}
- let query=archiveSupabase.from('vha_posts').select('id,archive_record_id,title,slug,category,excerpt,content_html,status,created_at,updated_at,published_at,media_items,media_url,media_path,media_type,media_width').order('created_at',{ascending:false});
- if(!archiveAdmin)query=query.eq('status','published');
- const {data,error}=await query;
- if(error){console.warn('Database-backed Transmissions could not be loaded into Human Archive:',error);return;}
  const additions=(data||[]).filter(post=>Number.isSafeInteger(Number(post.archive_record_id))&&post.slug).map(post=>{
   const id=Number(post.archive_record_id),stamp=post.published_at||post.created_at||new Date().toISOString();
   const date=String(stamp).slice(0,10),year=date.slice(0,4);
