@@ -13,14 +13,20 @@ landing-page/
 ├── cv/                         Professional profile page
 ├── green-dream/                Green Dream page and its visual assets
 ├── human-archive/               Human Archive page, scripts, styles and snapshots
-├── transmissions/              Transmissions page and post-related files
+├── transmissions/              Existing Posts page, renamed, plus five movements
 │   ├── index.html              Transmissions page layout
-│   ├── posts.js                Loads and displays post records
+│   ├── posts.js                Current shared post renderer
 │   ├── posts.css               Transmissions-specific appearance
-│   ├── posts.json              Static snapshot of published Transmissions
-│   ├── community/              Community Signals page route
+│   ├── posts.json              Legacy published-post snapshot
 │   ├── imported/               Individually imported legacy posts and media
 │   └── the-awakening/ ...      Five movement landing pages
+├── signals/                    Existing Community Signals page, moved here
+├── community/                  Separate Green Dream community landing page
+├── content/                    Three canonical collection JSON files
+│   ├── transmissions.json
+│   ├── signals.json
+│   └── human-archive.json
+├── media/                      Central media library, organised by collection and ID
 ├── cms/                        Older administration interface
 ├── editor-ui/                  Reusable block and rich-text editor code
 ├── shared/                     Components reused by multiple pages
@@ -61,7 +67,7 @@ A page can use both shared files and its own files. For example, Transmissions u
 
 ## 3. The three content collections
 
-The three labels below are a useful way to understand the content. They are not yet implemented as three completely separate, consistently named folders or databases.
+The three collections now have separate canonical JSON files in `content/`. The public page loaders are still being migrated to read those files instead of querying Supabase.
 
 ### T — Transmissions (creator posts)
 
@@ -69,22 +75,24 @@ The three labels below are a useful way to understand the content. They are not 
 
 **Current source of truth:** Supabase table `public.vha_posts`.
 
-**GitHub copy:** `transmissions/posts.json` on this recovery branch contains the six published Transmissions only. The 51 test drafts have been excluded from this public-post snapshot.
+**Canonical GitHub collection:** `content/transmissions.json` contains the six published Transmissions, with permanent IDs `T-0001` through `T-0006`. The original UUIDs are retained as `legacy_id`. The legacy snapshot `transmissions/posts.json` is preserved during the loader transition. The 51 test drafts are excluded.
 
-**How it currently works:** `transmissions/index.html` provides the page layout; `transmissions/posts.js` currently queries Supabase for published rows and renders them. The JSON snapshot exists, but the current page script has not yet been switched to use it.
+**How it currently works:** `transmissions/index.html` provides the page layout; `transmissions/posts.js` still queries Supabase for published rows and renders them. The canonical JSON has been created but is not yet connected to the page loader.
 
-**Media:** The post records refer to image, audio and video files. Most Transmission media references still point to Supabase Storage and have not yet been copied into the repository. WFH has a local imported-post folder at `transmissions/imported/wfh/`.
+**Media:** The central library is `media/transmissions/{T-ID}/`. WFH's featured image is present at `media/transmissions/T-0006/featured.jpg`. Seven other files remain pending: three matching objects were found in restore storage but downloads returned HTTP 402; the four Purtata corporatriștilor files are absent from the available restore bucket. See `recovery-data/transmission-media-report.json`.
 
 ### HA — Human Archive (historical archive)
 
 **Public page:** `/human-archive/`
 
-**Current content snapshots:**
+**Canonical GitHub collection:** `content/human-archive.json` contains all 140 records, the 111-entry media manifest, and all 197 exported editor structures. Canonical IDs use `HA-` plus the original numeric ID; the original number is retained as `legacy_id`.
+
+**Legacy files still used by the current page loader:**
 - `human-archive/archive-data.json` — record metadata/index.
 - `human-archive/archive-content.json` — historical record content.
 - `human-archive/media-manifest.json` — inventory of media references; a manifest is a list of files, not the files themselves.
 
-The checked-in snapshot contains 140 historical records. The archive page is implemented by `human-archive/index.html`, `human-archive/archive.js` and the archive CSS files.
+The checked-in snapshots contain 140 historical records. The archive page is implemented by `human-archive/index.html`, `human-archive/archive.js` and the archive CSS files. The page loader has not yet been switched to the consolidated canonical JSON.
 
 Additional archive structures and favourites are held in Supabase and were exported under `recovery-data/` on this recovery branch. The archive's media files are not all stored in the GitHub repository yet.
 
@@ -94,9 +102,9 @@ Additional archive structures and favourites are held in Supabase and were expor
 
 **Current source of truth:** Supabase table `public.poetry_submissions`.
 
-**Current GitHub recovery export:** `recovery-data/poetry-submissions.json` contains the published submission export after test/rejected rows are excluded.
+**Canonical GitHub collection:** `content/signals.json` contains the one published submission with confirmed rights, assigned ID `S-0001`. The source export is also preserved at `recovery-data/poetry-submissions.json`.
 
-**How it currently works:** The community page uses the shared post-rendering script in community mode. That script currently queries Supabase; a local static Signals feed has not yet been connected.
+**How it currently works:** The existing page has moved to `/signals/` and still uses the shared `transmissions/posts.js` renderer in community mode. That script currently queries Supabase; the canonical static Signals JSON has not yet been connected.
 
 The separate `/community/` page is a Green Dream community landing page. It is not the same page as `/signals/`, which is the Signals archive.
 
@@ -116,9 +124,9 @@ The JSON record stores the text and the *addresses* of its media. The actual ima
 
 | Collection | Current content storage | Current page loader | Recovery status |
 |---|---|---|---|
-| T — Transmissions | Supabase `vha_posts`; six published rows also exported to `transmissions/posts.json` | Supabase query in `transmissions/posts.js` | Text snapshot recovered; most media still to copy; page not yet switched to local JSON |
-| HA — Human Archive | Static JSON snapshots plus Supabase structures/favourites and media storage | `human-archive/archive.js` | 140 historical records have static snapshots; additional structures exported; media recovery remains incomplete |
-| S — Signals | Supabase `poetry_submissions`; published export in `recovery-data/poetry-submissions.json` | Supabase query in shared `transmissions/posts.js` community mode | One published submission in the export; local static feed not yet connected |
+| T — Transmissions | Canonical `content/transmissions.json`; legacy snapshot `transmissions/posts.json`; Supabase `vha_posts` remains current loader source | Supabase query in `transmissions/posts.js` | Six published text records consolidated; WFH image copied to central media; seven files remain pending |
+| HA — Human Archive | Canonical `content/human-archive.json` plus legacy snapshots and exported Supabase structures | `human-archive/archive.js` still uses legacy snapshots | 140 records, 111 media references and 197 editor structures consolidated; actual media recovery remains incomplete |
+| S — Signals | Canonical `content/signals.json`; source export `recovery-data/poetry-submissions.json`; Supabase `poetry_submissions` remains current loader source | Supabase query in shared `transmissions/posts.js` community mode | One published, rights-confirmed submission consolidated; static loader not yet connected |
 
 The intended direction is for the public pages to read published content and media from GitHub, so visitors do not need Supabase to view existing posts. Supabase can remain available for administrative actions and new submissions until those workflows have a verified replacement.
 
