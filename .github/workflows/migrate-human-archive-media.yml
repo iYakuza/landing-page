@@ -1,0 +1,40 @@
+name: Migrate Human Archive media to production
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Copy and verify Human Archive media
+        id: migrate
+        continue-on-error: true
+        env:
+          TARGET_SUPABASE_URL: https://oeyxsqocldlovhsmzcjw.supabase.co
+          TARGET_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.TARGET_SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/migrate-human-archive-media.mjs
+      - name: Commit migration manifest and verification report
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add human-archive/media-manifest.json human-archive/media-import-report.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Migrate Human Archive media to production storage"
+            git push
+          else
+            echo "No manifest or report changes to commit."
+          fi
+      - name: Fail the run if any media did not verify
+        if: steps.migrate.outcome == 'failure'
+        run: exit 1
