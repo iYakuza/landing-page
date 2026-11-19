@@ -67,66 +67,66 @@
     const mix=(hex,target,amount)=>{const c=rgb(hex)||[80,100,80],t=target==="white"?255:0;return "#"+c.map(n=>Math.round(n+(t-n)*amount).toString(16).padStart(2,"0")).join("")};
     const validHex=value=>/^#[0-9a-f]{6}$/i.test(String(value||""));
     const minSurfaceContrast=1.5;
+    const surfaceContrastTarget=1.52;
     const sourcePage=validHex(theme.page)?theme.page:"#101810";
     const light=luminance(sourcePage)>.42;
     let page=sourcePage;
     if(!light&&luminance(page)>.07){for(let i=0;i<100&&luminance(page)>.07;i++)page=mix(page,"black",.035)}
+    const reachLuminance=(hex,target,targetLum)=>{
+      let low=0,high=1,best=hex;
+      for(let i=0;i<24;i++){
+        const amount=(low+high)/2;
+        const candidate=mix(hex,target,amount);
+        const currentLum=luminance(candidate);
+        const reached=target==="white"?currentLum>=targetLum:currentLum<=targetLum;
+        if(reached){best=candidate;high=amount}else low=amount;
+      }
+      return best;
+    };
     let surface=validHex(theme.surface)?theme.surface:page;
+    const pageLum=luminance(page);
     if(light){
-      const maxSurface=(luminance(page)+.05)/minSurfaceContrast-.05;
+      const maxSurface=(pageLum+.05)/surfaceContrastTarget-.05;
       const minSurface=Math.min(.30,maxSurface);
-      if(luminance(surface)>maxSurface){for(let i=0;i<100&&luminance(surface)>maxSurface;i++)surface=mix(surface,"black",.035)}
-      else if(luminance(surface)<minSurface){for(let i=0;i<100&&luminance(surface)<minSurface;i++)surface=mix(surface,"white",.035)}
+      if(luminance(surface)>maxSurface)surface=reachLuminance(surface,"black",maxSurface);
+      else if(luminance(surface)<minSurface)surface=reachLuminance(surface,"white",minSurface);
     }else{
-      const maxSurface=Math.min(.18,(luminance(page)+.05)*minSurfaceContrast-.05);
-      if(luminance(surface)>maxSurface){for(let i=0;i<100&&luminance(surface)>maxSurface;i++)surface=mix(surface,"black",.035)}
+      // Reserve enough luminance headroom for a raised surface and readable white text.
+      const maxSurface=Math.min(.1325,(pageLum+.05)*surfaceContrastTarget-.05);
+      if(luminance(surface)>maxSurface)surface=reachLuminance(surface,"black",maxSurface);
       if(contrast(surface,page)<minSurfaceContrast){
+        const currentSurfaceLum=luminance(surface);
+        const lighterTarget=(pageLum+.05)*surfaceContrastTarget-.05;
+        const darkerTarget=(pageLum+.05)/surfaceContrastTarget-.05;
         const candidates=[];
-        ["black","white"].forEach(target=>{
-          let candidate=surface;
-          for(let i=1;i<=100;i++){
-            const next=mix(candidate,target,.035);
-            if(luminance(next)>maxSurface)break;
-            candidate=next;
-            if(contrast(candidate,page)>=minSurfaceContrast){
-              candidates.push({color:candidate,distance:Math.abs(luminance(candidate)-luminance(surface))});
-              break;
-            }
-          }
-        });
-        if(candidates.length){
-          surface=candidates.sort((a,b)=>a.distance-b.distance)[0].color;
-        }else{
-          let best=surface,bestRatio=contrast(surface,page);
-          ["black","white"].forEach(target=>{
-            let candidate=surface;
-            for(let i=1;i<=100;i++){
-              const next=mix(candidate,target,.035);
-              if(luminance(next)>maxSurface)break;
-              candidate=next;
-              const ratio=contrast(candidate,page);
-              if(ratio>bestRatio){best=candidate;bestRatio=ratio}
-            }
-          });
-          surface=best;
+        if(lighterTarget>=currentSurfaceLum&&lighterTarget<=maxSurface){
+          const candidate=reachLuminance(surface,"white",lighterTarget);
+          if(contrast(candidate,page)>=minSurfaceContrast)candidates.push({color:candidate,distance:Math.abs(luminance(candidate)-currentSurfaceLum)});
         }
+        if(darkerTarget<=currentSurfaceLum&&darkerTarget>=0){
+          const candidate=reachLuminance(surface,"black",darkerTarget);
+          if(contrast(candidate,page)>=minSurfaceContrast)candidates.push({color:candidate,distance:Math.abs(luminance(candidate)-currentSurfaceLum)});
+        }
+        if(candidates.length)surface=candidates.sort((a,b)=>a.distance-b.distance)[0].color;
       }
     }
     const safeForeground=(hex,bgs,min=4.5)=>{let c=validHex(hex)?hex:(light?"#111511":"#f7f8f5");if(bgs.every(bg=>contrast(c,bg)>=min))return c;const target=light?"black":"white";for(let i=1;i<=100;i++){const candidate=mix(c,target,i/100);if(bgs.every(bg=>contrast(candidate,bg)>=min))return candidate}return target==="black"?"#000000":"#ffffff"};
-    // Give raised/table surfaces a second visible layer without sacrificing text contrast.
+    // Keep table/raised surfaces distinct while preserving readable foreground contrast.
+    const raisedContrastTarget=1.26;
     let raised=surface;
-    const raisedTarget=light?"black":"white";
-    for(let i=0;i<100&&contrast(raised,surface)<1.25;i++){
-      const candidate=mix(raised,raisedTarget,.035);
-      const candidateLuminance=luminance(candidate);
-      if((light&&candidateLuminance<.18)||(!light&&candidateLuminance>.18))break;
-      raised=candidate;
+    const surfaceLuminance=luminance(surface);
+    if(light){
+      const targetLuminance=(surfaceLuminance+.05)/raisedContrastTarget-.05;
+      if(targetLuminance>=0&&targetLuminance<surfaceLuminance)raised=reachLuminance(surface,"black",targetLuminance);
+    }else{
+      const targetLuminance=Math.min(.18,(surfaceLuminance+.05)*raisedContrastTarget-.05);
+      if(targetLuminance>surfaceLuminance)raised=reachLuminance(surface,"white",targetLuminance);
     }
-    const text=safeForeground(light?"#111511":"#f7f8f5",[page,surface,raised],4.5);
-    const accent=safeForeground(theme.accent,[page,surface,raised],4.5);
-    const muted=safeForeground(theme.muted,[page,surface,raised],4.5);
-    const border=safeForeground(theme.border||accent,[page,surface,raised],3);
-    const glow=safeForeground(theme.glow||accent,[page,surface,raised],3);
+    const text=safeForeground(light?"#111511":"#f7f8f5",[page,surface,raised],4.55);
+    const accent=safeForeground(theme.accent,[page,surface,raised],4.55);
+    const muted=safeForeground(theme.muted,[page,surface,raised],4.55);
+    const border=safeForeground(theme.border||accent,[page,surface,raised],3.1);
+    const glow=safeForeground(theme.glow||accent,[page,surface,raised],3.1);
     const onAccent=contrast("#000000",accent)>=contrast("#ffffff",accent)?"#000000":"#ffffff";
     const palette={page,surface,text,muted,accent,border,glow};
     Object.entries(palette).forEach(([key,value])=>{
@@ -184,6 +184,7 @@
       "html[data-vha-mood] :is(small,figcaption,caption,time,.muted,.text-muted,[data-muted=true],.vha-mood-status,#vha-presentation-hint){color:var(--theme-muted)!important}";
     globalStyle.textContent += "\n" + [
       "html[data-vha-mood] body,html[data-vha-mood] body>*,html[data-vha-mood] #app,html[data-vha-mood] #root,html[data-vha-mood] main,html[data-vha-mood] .gd,html[data-vha-mood] .gd-main,html[data-vha-mood] .gd-shell,html[data-vha-mood] .gd-page,html[data-vha-mood] .posts-main,html[data-vha-mood] .posts-content,html[data-vha-mood] .posts-page,html[data-vha-mood] .song-page,html[data-vha-mood] .cv-page,html[data-vha-mood] .cv-shell,html[data-vha-mood] .page-shell,html[data-vha-mood] .site-shell,html[data-vha-mood] .hero,html[data-vha-mood] .gd-hero,html[data-vha-mood] .posts-hero,html[data-vha-mood] .cv-hero{background-image:none!important}",
+      "html[data-vha-mood] body::before{content:none!important;display:none!important;background:none!important}",
       "html[data-vha-mood] body :is(header,footer,nav,section,article,aside,form,fieldset,details,.gd-nav,.gd-footer,.gd-panel,.gd-card,.gd-radio,.gd-move,.post-card,.posts-note,.posts-filters,.viewer-console,.song-panel,.song-player-card,.cv-card,.cv-section,.cv-wrap,.cv-hero,.transmission-card,.transmit-panel,.vha-journey-note,.vha-constellation-presets,.vha-mood-box,.vha-star-tooltip){background-image:none!important}",
       "html[data-vha-mood] body.vha-crystal-open #vha-world-map{background:var(--theme-page)!important;background-image:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}",
       "html[data-vha-mood] .vha-map-node{opacity:1!important}",
@@ -203,8 +204,96 @@
       "html[data-vha-mood] #vha-viewer-tools :is(button,[role=\"button\"],input[type=\"button\"],input[type=\"submit\"],input[type=\"reset\"]):is(:hover,:focus-visible) svg :is(path,line,polyline,polygon,circle,rect,ellipse){stroke:var(--theme-on-accent)!important}",
       "html[data-vha-mood] #vha-viewer-tools :is(button,[role=\"button\"],input[type=\"button\"],input[type=\"submit\"],input[type=\"reset\"]):is(:hover,:focus-visible) svg :is(path,polygon,circle,rect,ellipse)[fill]:not([fill=\"none\"]){fill:var(--theme-on-accent)!important}"
     ,
+       "html[data-vha-mood] .vha-map-node.is-current svg,html[data-vha-mood] .vha-map-node.is-current svg *{fill:var(--theme-accent)!important;stroke:var(--theme-accent)!important}",
+       "html[data-vha-mood] .vha-map-node:hover,html[data-vha-mood] .vha-map-node:focus-visible,html[data-vha-mood] .vha-map-node.is-current{background:var(--theme-raised)!important;border:1px solid var(--theme-border)!important;box-shadow:none!important}",
+       "html[data-vha-mood] .vha-map-node svg,html[data-vha-mood] .vha-map-node svg *{fill:none!important;stroke:var(--theme-accent)!important}",
        "html[data-vha-mood] .vha-map-node.is-current svg,html[data-vha-mood] .vha-map-node.is-current svg *{fill:var(--theme-accent)!important;stroke:var(--theme-accent)!important}"
     ].join("\n");
+    globalStyle.textContent += `
+      /* Crystal controls need a higher-specificity mood layer than the static HUD skin. */
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row,
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row[aria-pressed="true"],
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row[aria-expanded="true"]{
+        color:var(--theme-text)!important;background:transparent!important;border-color:transparent!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row:hover,
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row:focus-visible,
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row[aria-pressed="true"],
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row[aria-expanded="true"]{
+        color:var(--theme-accent)!important;background:transparent!important;border-color:transparent!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row:focus-visible{
+        outline:2px solid var(--theme-accent)!important;outline-offset:3px!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row .vha-tool-icon,
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row .vha-tool-icon svg,
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row .vha-tool-icon svg *{
+        color:var(--theme-accent)!important;stroke:var(--theme-accent)!important;fill:none!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row:hover *,
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row:focus-visible *,
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row[aria-expanded="true"] *{
+        color:var(--theme-accent)!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row:hover .vha-tool-icon svg *,
+      html[data-vha-mood] body #vha-viewer-tools .vha-tool-row:focus-visible .vha-tool-icon svg *{
+        stroke:var(--theme-accent)!important;fill:none!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-map-toggle:focus-visible{
+        outline:2px solid var(--theme-accent)!important;outline-offset:4px!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box{
+        background:var(--theme-surface)!important;background-image:none!important;
+        color:var(--theme-text)!important;border-color:var(--theme-border)!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box label{color:var(--theme-accent)!important}
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box :is(select,textarea){
+        background:var(--theme-surface)!important;color:var(--theme-text)!important;
+        border-color:var(--theme-border)!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box :is(select,textarea):focus-visible{
+        outline:2px solid var(--theme-accent)!important;outline-offset:2px!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box select option{
+        background:var(--theme-surface)!important;color:var(--theme-text)!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box .vha-mood-note,
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box .vha-mood-status{
+        color:var(--theme-muted)!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box button[data-tool="apply-mood"]{
+        background:var(--theme-accent)!important;color:var(--theme-on-accent)!important;
+        border-color:var(--theme-accent)!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box button.vha-mood-reset{
+        background:var(--theme-surface)!important;color:var(--theme-text)!important;
+        border-color:var(--theme-border)!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box button:hover,
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box button:focus-visible{
+        background:var(--theme-accent)!important;color:var(--theme-on-accent)!important;
+        border-color:var(--theme-accent)!important;outline:2px solid var(--theme-accent)!important;
+        outline-offset:2px!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box button:hover *,
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box button:focus-visible *{
+        color:var(--theme-on-accent)!important;
+      }
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box button:hover svg *,
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box button:focus-visible svg *{
+        stroke:var(--theme-on-accent)!important;fill:none!important;
+      }
+      html[data-vha-mood] body.vha-game-interface :is(input,select,textarea)::placeholder,
+      html[data-vha-mood] body #vha-viewer-tools .vha-mood-box :is(input,textarea)::placeholder{
+        color:var(--theme-muted)!important;opacity:1!important;
+      }
+      @media(max-width:760px){
+        html[data-vha-mood] body #vha-viewer-tools[data-open="true"]{
+          background:var(--theme-surface)!important;background-image:none!important;
+          border:1px solid var(--theme-border)!important;color:var(--theme-text)!important;
+        }
+      }
+    `;
     const font=key=>moodFontStacks[key]||moodFontStacks.sans;
     const radius=Math.min(28,Math.max(0,Number(theme.radius)||0));
     const shadow=Math.min(.45,Math.max(0,Number(theme.shadow)||0));
