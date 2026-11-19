@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-19T22:46:00+01:00",
+  "status": "partial",
+  "collection": "transmissions",
+  "expected_post_count": 6,
+  "recovered_file_count": 1,
+  "pending_file_count": 7,
+  "recovered": [
+    {
+      "record_id": "T-0006",
+      "title": "WFH",
+      "repository_path": "media/transmissions/T-0006/featured.jpg",
+      "bytes": 241665,
+      "blob_sha": "3abdfb0bb19b736697cbb665ca9f59a6b46e5885",
+      "verified": true,
+      "method": "reused existing Git blob"
+    }
+  ],
+  "pending": [
+    {
+      "record_id": "T-0001",
+      "title": "Purtata corporatriștilor",
+      "files": [
+        "lyrics.png",
+        "video.mp4",
+        "cover.jpeg",
+        "audio.mp3"
+      ],
+      "reason": "Not present in available restore bucket; production source access previously returned HTTP 402 cached egress quota exceeded."
+    },
+    {
+      "record_id": "T-0002",
+      "title": "Sunt o culoare",
+      "files": [
+        "featured.jpeg"
+      ],
+      "reason": "Matching object found in restore bucket; transfer to GitHub not yet completed."
+    },
+    {
+      "record_id": "T-0003",
+      "title": "The God Beneath the Noise",
+      "files": [
+        "video.mp4"
+      ],
+      "reason": "Matching object found in restore bucket; transfer to GitHub not yet completed."
+    },
+    {
+      "record_id": "T-0004",
+      "title": "Negocieri pe timp de pace",
+      "files": [
+        "featured.jpeg"
+      ],
+      "reason": "Matching object found in restore bucket; transfer to GitHub not yet completed."
+    }
+  ],
+  "notes": [
+    "The archive page and main branch have not been changed.",
+    "A GitHub Actions recovery script/workflow was added on the recovery branch, but the push did not start that workflow; only the repository's existing secret-scanning workflow was triggered."
+  ]
+}
