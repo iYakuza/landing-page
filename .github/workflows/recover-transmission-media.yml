@@ -1,11 +1,7 @@
 name: Recover available Transmissions media
 
 on:
-  push:
-    branches:
-      - recovery/supabase-content-export-20261119
-    paths:
-      - .github/workflows/recover-transmission-media.yml
+  workflow_call:
 
 permissions:
   contents: write
