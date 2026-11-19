@@ -105,7 +105,7 @@
       const type=item.type||item.media_type||'audio';
       const fallback=url.includes('emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg')?'https://i0.wp.com/emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg?w=1024':'';
       const label='Media '+(i+1)+' of '+items.length;
-      const content=type==='image'?'<a class="post-image-open" href="'+safe(url)+'" target="_blank" rel="noopener noreferrer" aria-label="Open full-size image: '+safe(post.title)+'"><img src="'+safe(url)+'"'+(fallback?' data-fallback-src="'+safe(fallback)+'"':'')+' alt="'+safe(post.title)+' — '+label+'" loading="lazy"></a>':type==='video'?'<video src="'+safe(url)+'" controls preload="metadata"></video>':'<audio src="'+safe(url)+'" controls preload="metadata"></audio>';
+      const content=type==='image'?'<a class="post-image-open" href="'+safe(url)+'" target="_blank" rel="noopener noreferrer" aria-label="Open full-size image: '+safe(post.title)+'"><img src="'+safe(url)+'"'+(fallback?' data-fallback-src="'+safe(fallback)+'"':'')+' alt="'+safe(post.title)+' — '+label+'" loading="lazy"></a>':type==='video'?'<video src="'+safe(url)+'" controls preload="none"></video>':'<audio src="'+safe(url)+'" controls preload="none"></audio>';
       return '<div class="post-media-item">'+content+'</div>';
     }).join('')+'</div>';
   }
