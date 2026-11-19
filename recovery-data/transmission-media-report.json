@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-19T22:46:00+01:00",
-  "status": "partial",
+  "generated_at": "2026-11-19",
+  "status": "blocked-partial",
   "collection": "transmissions",
   "expected_post_count": 6,
   "recovered_file_count": 1,
@@ -14,7 +14,8 @@
       "bytes": 241665,
       "blob_sha": "3abdfb0bb19b736697cbb665ca9f59a6b46e5885",
       "verified": true,
-      "method": "reused existing Git blob"
+      "method": "reused existing Git blob",
+      "note": "The original WFH image already existed in the repository and its Git blob was reused at the canonical path."
     }
   ],
   "pending": [
@@ -27,7 +28,7 @@
         "cover.jpeg",
         "audio.mp3"
       ],
-      "reason": "Not present in available restore bucket; production source access previously returned HTTP 402 cached egress quota exceeded."
+      "reason": "Four source objects are absent from the available restore project's vha-post-media bucket. Production storage access previously returned HTTP 402 (cached egress quota exceeded)."
     },
     {
       "record_id": "T-0002",
@@ -35,7 +36,7 @@
       "files": [
         "featured.jpeg"
       ],
-      "reason": "Matching object found in restore bucket; transfer to GitHub not yet completed."
+      "reason": "A matching object exists in the restore project's vha-post-media bucket, but the public download returned HTTP 402 (cached egress quota exceeded)."
     },
     {
       "record_id": "T-0003",
@@ -43,7 +44,7 @@
       "files": [
         "video.mp4"
       ],
-      "reason": "Matching object found in restore bucket; transfer to GitHub not yet completed."
+      "reason": "A matching object exists in the restore project's vha-post-media bucket, but the public download returned HTTP 402 (cached egress quota exceeded)."
     },
     {
       "record_id": "T-0004",
@@ -51,11 +52,15 @@
       "files": [
         "featured.jpeg"
       ],
-      "reason": "Matching object found in restore bucket; transfer to GitHub not yet completed."
+      "reason": "A matching object exists in the restore project's vha-post-media bucket, but the public download returned HTTP 402 (cached egress quota exceeded)."
     }
   ],
   "notes": [
-    "The archive page and main branch have not been changed.",
-    "A GitHub Actions recovery script/workflow was added on the recovery branch, but the push did not start that workflow; only the repository's existing secret-scanning workflow was triggered."
+    "Only the WFH featured image is physically present in the canonical GitHub media library.",
+    "The three other matching assets were confirmed in restore storage metadata but could not be downloaded; the restore storage endpoint returned HTTP 402.",
+    "The four Purtata corporatriștilor assets are absent from the available restore project's Transmission-media bucket.",
+    "The production storage endpoint previously returned HTTP 402 (cached egress quota exceeded).",
+    "No more automatic transfer attempts will be made against these blocked endpoints.",
+    "The live main branch and existing public pages have not been changed."
   ]
 }
