@@ -14,7 +14,7 @@
   function validImageUrl(value){
     try{
       const raw=String(value||'').trim();
-      if(raw.startsWith('/landing-page/posts/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
+      if(raw.startsWith('/landing-page/transmissions/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
       const url=new URL(raw);
       const ownStorage=url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&(url.pathname.includes('/storage/v1/object/public/vha-post-media/')||url.pathname.includes('/storage/v1/object/public/poetry-media/'));
       const wordpress=['emanuelstefancu.wordpress.com','i0.wp.com'].includes(url.hostname)&&url.pathname.includes('/wp-content/uploads/')&&/\.(jpg|jpeg|png|webp|gif|avif)$/i.test(url.pathname);
@@ -31,14 +31,14 @@
     if(!grid)return;
     const selected=(posts||[]).filter(post=>String(post.category||'').toUpperCase()!=='SITE NOTE').slice(0,4);
     if(!selected.length){
-      grid.innerHTML='<p class="va-empty">No published transmissions are available yet. <a href="/landing-page/posts/">Open the archive ↗</a></p>';
+      grid.innerHTML='<p class="va-empty">No published transmissions are available yet. <a href="/landing-page/transmissions/">Open the archive ↗</a></p>';
       return;
     }
     grid.innerHTML=selected.map(post=>{
       const image=post.media_type==='image'?validImageUrl(post.media_url):'';
       const art='<svg class="va-poem-art" viewBox="0 0 280 360" role="img" aria-label="'+safe(post.category||'Green Dream artwork')+' artwork"><use href="/landing-page/green-dream/movements.svg#'+movementId(post.category)+'"></use></svg>';
       const media=image?'<img class="va-poem-image" src="'+safe(image)+'" alt="" loading="lazy">':art;
-      const href='/landing-page/posts/?post='+encodeURIComponent(post.slug);
+      const href='/landing-page/transmissions/?post='+encodeURIComponent(post.slug);
       return '<a class="va-poem-card" href="'+href+'">'+media+'<span class="va-poem-copy"><strong>'+safe(post.title)+'</strong><time datetime="'+safe(post.published_at||post.created_at||'')+'">'+dateLabel(post.published_at||post.created_at)+'</time><small>'+safe(post.category||'TRANSMISSION')+'</small></span></a>';
     }).join('');
   }
@@ -60,11 +60,11 @@
   }
   async function loadPosts(){
     const grid=document.getElementById('latest-poetry');
-    if(!await ensureSupabaseSdk()){if(grid)grid.innerHTML='<p class="va-empty">The poetry archive is temporarily unavailable. <a href="/landing-page/posts/">Browse all transmissions ↗</a></p>';return;}
+    if(!await ensureSupabaseSdk()){if(grid)grid.innerHTML='<p class="va-empty">The poetry archive is temporarily unavailable. <a href="/landing-page/transmissions/">Browse all transmissions ↗</a></p>';return;}
     const client=window.supabase?.createClient('https://oeyxsqocldlovhsmzcjw.supabase.co','sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h');
-    if(!client){if(grid)grid.innerHTML='<p class="va-empty">The poetry archive is temporarily unavailable. <a href="/landing-page/posts/">Browse all transmissions ↗</a></p>';return;}
+    if(!client){if(grid)grid.innerHTML='<p class="va-empty">The poetry archive is temporarily unavailable. <a href="/landing-page/transmissions/">Browse all transmissions ↗</a></p>';return;}
     const {data,error}=await client.from('vha_posts').select('title,slug,category,media_url,media_type,published_at,created_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).limit(12);
-    if(error){if(grid)grid.innerHTML='<p class="va-empty">The latest transmissions could not be loaded. <a href="/landing-page/posts/">Browse the archive ↗</a></p>';return;}
+    if(error){if(grid)grid.innerHTML='<p class="va-empty">The latest transmissions could not be loaded. <a href="/landing-page/transmissions/">Browse the archive ↗</a></p>';return;}
     renderPosts(data||[]);
   }
   const menuButton=document.querySelector('.va-menu-toggle');

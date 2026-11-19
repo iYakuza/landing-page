@@ -58,7 +58,7 @@
   function validMediaUrl(value){
     try{
       const raw=String(value||'').trim();
-      if(raw.startsWith('/landing-page/posts/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
+      if(raw.startsWith('/landing-page/transmissions/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
       const url=new URL(raw);
       const ownStorage=url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&(
         url.pathname.includes('/storage/v1/object/public/vha-post-media/')||
@@ -112,7 +112,7 @@
   function renderPostRecordCard(post){
     const category=displayCategory(post.category);
     const movementSlugs={'THE AWAKENING':'the-awakening','THE DESCENT':'the-descent','THE RECONNECTION':'the-reconnection','THE TRANSFORMATION':'the-transformation','THE RETURN':'the-return'};
-    const href='/landing-page/posts/'+(movementSlugs[category]||'')+'/';
+    const href='/landing-page/transmissions/'+(movementSlugs[category]||'')+'/';
     const categoryLink=movementSlugs[category]?'<a class="post-category" href="'+href+'" aria-label="Browse '+safe(category)+'">'+safe(category)+'</a>':'<span class="post-category">'+safe(category)+'</span>';
     const media=renderPostMedia(post),body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
     const isSuno=/class=["']suno-post-layout["']/.test(post.content_html||'');

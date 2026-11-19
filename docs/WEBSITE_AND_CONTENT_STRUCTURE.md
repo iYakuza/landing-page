@@ -90,7 +90,7 @@ Additional archive structures and favourites are held in Supabase and were expor
 
 ### S — Signals (visitor submissions)
 
-**Public page:** `/posts/community/`
+**Public page:** `/signals/`
 
 **Current source of truth:** Supabase table `public.poetry_submissions`.
 
@@ -98,7 +98,7 @@ Additional archive structures and favourites are held in Supabase and were expor
 
 **How it currently works:** The community page uses the shared post-rendering script in community mode. That script currently queries Supabase; a local static Signals feed has not yet been connected.
 
-The separate `/community/` page is a Green Dream community landing page. It is not the same page as `/posts/community/`, which is the Signals archive.
+The separate `/community/` page is a Green Dream community landing page. It is not the same page as `/signals/`, which is the Signals archive.
 
 ## 4. How a content record is stored
 
