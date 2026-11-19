@@ -14,6 +14,7 @@
   function validImageUrl(value){
     try{
       const raw=String(value||'').trim();
+      if(raw.startsWith('/landing-page/posts/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw.replace('/landing-page/posts/imported/','/landing-page/transmissions/imported/');
       if(raw.startsWith('/landing-page/transmissions/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
       const url=new URL(raw);
       const ownStorage=url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&(url.pathname.includes('/storage/v1/object/public/vha-post-media/')||url.pathname.includes('/storage/v1/object/public/poetry-media/'));

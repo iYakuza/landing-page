@@ -58,6 +58,7 @@
   function validMediaUrl(value){
     try{
       const raw=String(value||'').trim();
+      if(raw.startsWith('/landing-page/posts/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw.replace('/landing-page/posts/imported/','/landing-page/transmissions/imported/');
       if(raw.startsWith('/landing-page/transmissions/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
       const url=new URL(raw);
       const ownStorage=url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&(
