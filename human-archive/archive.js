@@ -325,7 +325,7 @@ async function loadRecordStructureOverrides(){
  if(!archiveSupabase)return;
  const {data,error}=await archiveSupabase.from('human_archive_record_structures').select('record_id,transmission_body,prompt_style,lyrics_style,output_text,output_media,blocks,updated_at');
  if(error){console.warn('Human Archive structures could not be loaded:',error);return;}
- recordStructureOverrides=new Map((data||[]).map(item=>[String(item.record_id),item]));
+ const merged=new Map(recordStructureOverrides);(data||[]).forEach(item=>merged.set(String(item.record_id),item));recordStructureOverrides=merged;
 }
 async function loadTransmissionRecords(){
  if(!archiveSupabase)return;
@@ -1653,17 +1653,13 @@ async function fetchArchiveJson(path,required=false){
 }
 async function init(){
  try{
-  const [data,content,manifest,report]=await Promise.all([
-   fetchArchiveJson('archive-data.json',true),
-   fetchArchiveJson('archive-content.json',true),
-   fetchArchiveJson('media-manifest.json'),
-   fetchArchiveJson('media-import-report.json')
-  ]);
-  if(!Array.isArray(data)||!Array.isArray(content.records)||content.record_count!==content.records.length)throw new Error('Invalid local archive data');
-  const contentById=new Map(content.records.map(record=>[String(record.id),record]));
-  records=assignArchiveSlugs(data.filter(r=>r&&typeof r.title==='string'&&typeof r.year==='string'&&typeof r.date==='string'&&Number.isFinite(Number(r.id))&&typeof r.url==='string'&&Array.isArray(r.categories))
-   .map(r=>({...r,content_html:contentById.get(String(r.id))?.content_html||''})));
-  if(records.length!==content.record_count||records.some(r=>!contentById.has(String(r.id))))throw new Error('The local archive is incomplete');
+  const [collection,report]=await Promise.all([fetchArchiveJson('../content/human-archive.json',true),fetchArchiveJson('media-import-report.json')]);
+  if(!collection||!Array.isArray(collection.records)||collection.record_count!==collection.records.length||!collection.media_manifest||!collection.editor_structures)throw new Error('Invalid canonical Human Archive collection');
+  const manifest=collection.media_manifest;
+  recordStructureOverrides=new Map(Object.entries(collection.editor_structures).map(([id,item])=>[String(id),item]));
+  const data=collection.records.map(item=>({...item,canonical_id:item.id,id:Number(item.legacy_id)}));
+  records=assignArchiveSlugs(data.filter(r=>r&&typeof r.title==='string'&&typeof r.year==='string'&&typeof r.date==='string'&&Number.isSafeInteger(r.id)&&typeof r.url==='string'&&Array.isArray(r.categories)));
+  if(records.length!==collection.record_count)throw new Error('The canonical Human Archive collection is incomplete');
   if(manifest&&Array.isArray(manifest.items)&&manifest.item_count===manifest.items.length){
    mediaItems=manifest.items;publicBase=manifest.public_base_url||'';
    const reportSuccesses=Array.isArray(report?.successes)?report.successes:[];
