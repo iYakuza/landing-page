@@ -172,13 +172,13 @@ function appendLocalAudio(parent,item,record,used){
  const embedded=parent.tagName==='FIGURE';
  const figure=embedded?parent:document.createElement('figure');figure.classList.add('ha-local-media','ha-local-audio');
  if(!embedded){const title=document.createElement('figcaption');title.textContent=mediaTitle(item,record);figure.append(title);}
- const audio=document.createElement('audio');audio.controls=true;audio.preload='metadata';audio.src=localMediaUrl(item);audio.setAttribute('aria-label','Audio: '+mediaTitle(item,record));figure.append(audio);
+ const audio=document.createElement('audio');audio.controls=true;audio.preload='none';audio.src=localMediaUrl(item);audio.setAttribute('aria-label','Audio: '+mediaTitle(item,record));figure.append(audio);
  if(!embedded)parent.append(figure);markUsed(item,used);
 }
 function appendLocalVideo(parent,item,record,used){
  const embedded=parent.tagName==='FIGURE';
  const figure=embedded?parent:document.createElement('figure');figure.classList.add('ha-local-media','ha-local-video');
- const video=document.createElement('video');video.controls=true;video.preload='metadata';video.playsInline=true;video.src=localMediaUrl(item);video.setAttribute('aria-label','Video: '+mediaTitle(item,record));figure.append(video);
+ const video=document.createElement('video');video.controls=true;video.preload='none';video.playsInline=true;video.src=localMediaUrl(item);video.setAttribute('aria-label','Video: '+mediaTitle(item,record));figure.append(video);
  if(!embedded){const title=document.createElement('figcaption');title.textContent=mediaTitle(item,record);figure.append(title);parent.append(figure);}
  markUsed(item,used);
 }
@@ -222,7 +222,7 @@ function appendSafeContent(container,source,record,used){
    if(item&&(mediaReady||item.storage==='vha-post-media')){if(tag==='AUDIO')appendLocalAudio(parent,item,record,used);else appendLocalVideo(parent,item,record,used);return;}
    const src=safeArchiveMediaUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
    const valid=Boolean(src)&&(()=>{const url=new URL(src);return url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'?/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname):url.hostname==='ioguymqdeuuursizifnn.supabase.co'?/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname):url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/');})();
-   const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='metadata';
+   const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='none';
    if(valid)mediaNode.src=src;
    if(tag==='VIDEO')mediaNode.playsInline=true;
    node.childNodes.forEach(child=>copy(child,mediaNode));
@@ -569,7 +569,7 @@ function sanitizeTransmissionBody(source){
     if(!src||!(()=>{const url=new URL(src);return url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'?/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname):url.hostname==='ioguymqdeuuursizifnn.supabase.co'?/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname):url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/');})())return;
     element.src=src;
    }else if(!node.querySelector('source'))return;
-   element.controls=true;element.preload='metadata';
+   element.controls=true;element.preload='none';
    if(node.tagName==='VIDEO')element.playsInline=true;
   }
   if(node.tagName==='SOURCE'){
