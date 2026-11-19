@@ -13,7 +13,7 @@ landing-page/
 ├── cv/                         Professional profile page
 ├── green-dream/                Green Dream page and its visual assets
 ├── human-archive/               Human Archive page, scripts, styles and snapshots
-├── posts/                      Transmissions page and post-related files
+├── transmissions/              Transmissions page and post-related files
 │   ├── index.html              Transmissions page layout
 │   ├── posts.js                Loads and displays post records
 │   ├── posts.css               Transmissions-specific appearance
@@ -38,11 +38,11 @@ landing-page/
 
 | File type | Plain-language purpose | Examples in this repository |
 |---|---|---|
-| `.html` | The page's structure and visible content placeholders | `index.html`, `posts/index.html` |
-| `.css` | Colours, spacing, fonts, layout and responsive design | `game-ui.css`, `typography.css`, `posts/posts.css` |
-| `.js` | Behaviour: loading data, buttons, search, filters, editors | `posts/posts.js`, `human-archive/archive.js` |
-| `.json` | Structured information, such as posts, metadata or indexes | `posts/posts.json`, `human-archive/archive-content.json` |
-| Images / audio / video | The actual media files displayed or played by pages | `assets/`, `posts/imported/` |
+| `.html` | The page's structure and visible content placeholders | `index.html`, `transmissions/index.html` |
+| `.css` | Colours, spacing, fonts, layout and responsive design | `game-ui.css`, `typography.css`, `transmissions/posts.css` |
+| `.js` | Behaviour: loading data, buttons, search, filters, editors | `transmissions/posts.js`, `human-archive/archive.js` |
+| `.json` | Structured information, such as posts, metadata or indexes | `transmissions/posts.json`, `human-archive/archive-content.json` |
+| Images / audio / video | The actual media files displayed or played by pages | `assets/`, `transmissions/imported/` |
 | `.md` | Human-readable documentation | `docs/`, `README.md` |
 | `.yml` | Instructions for automated GitHub tasks | `.github/workflows/` |
 
@@ -57,7 +57,7 @@ These files are shared by multiple pages rather than belonging to one content co
 - `shared/components/` — reusable page-layout components.
 - `assets/` — shared logos and images.
 
-A page can use both shared files and its own files. For example, Transmissions uses the shared visual files plus `posts/posts.css` and `posts/posts.js`.
+A page can use both shared files and its own files. For example, Transmissions uses the shared visual files plus `transmissions/posts.css` and `transmissions/posts.js`.
 
 ## 3. The three content collections
 
@@ -65,15 +65,15 @@ The three labels below are a useful way to understand the content. They are not 
 
 ### T — Transmissions (creator posts)
 
-**Public page:** `/posts/`
+**Public page:** `/transmissions/`
 
 **Current source of truth:** Supabase table `public.vha_posts`.
 
-**GitHub copy:** `posts/posts.json` on this recovery branch contains the six published Transmissions only. The 51 test drafts have been excluded from this public-post snapshot.
+**GitHub copy:** `transmissions/posts.json` on this recovery branch contains the six published Transmissions only. The 51 test drafts have been excluded from this public-post snapshot.
 
-**How it currently works:** `posts/index.html` provides the page layout; `posts/posts.js` currently queries Supabase for published rows and renders them. The JSON snapshot exists, but the current page script has not yet been switched to use it.
+**How it currently works:** `transmissions/index.html` provides the page layout; `transmissions/posts.js` currently queries Supabase for published rows and renders them. The JSON snapshot exists, but the current page script has not yet been switched to use it.
 
-**Media:** The post records refer to image, audio and video files. Most Transmission media references still point to Supabase Storage and have not yet been copied into the repository. WFH has a local imported-post folder at `posts/imported/wfh/`.
+**Media:** The post records refer to image, audio and video files. Most Transmission media references still point to Supabase Storage and have not yet been copied into the repository. WFH has a local imported-post folder at `transmissions/imported/wfh/`.
 
 ### HA — Human Archive (historical archive)
 
@@ -116,9 +116,9 @@ The JSON record stores the text and the *addresses* of its media. The actual ima
 
 | Collection | Current content storage | Current page loader | Recovery status |
 |---|---|---|---|
-| T — Transmissions | Supabase `vha_posts`; six published rows also exported to `posts/posts.json` | Supabase query in `posts/posts.js` | Text snapshot recovered; most media still to copy; page not yet switched to local JSON |
+| T — Transmissions | Supabase `vha_posts`; six published rows also exported to `transmissions/posts.json` | Supabase query in `transmissions/posts.js` | Text snapshot recovered; most media still to copy; page not yet switched to local JSON |
 | HA — Human Archive | Static JSON snapshots plus Supabase structures/favourites and media storage | `human-archive/archive.js` | 140 historical records have static snapshots; additional structures exported; media recovery remains incomplete |
-| S — Signals | Supabase `poetry_submissions`; published export in `recovery-data/poetry-submissions.json` | Supabase query in shared `posts/posts.js` community mode | One published submission in the export; local static feed not yet connected |
+| S — Signals | Supabase `poetry_submissions`; published export in `recovery-data/poetry-submissions.json` | Supabase query in shared `transmissions/posts.js` community mode | One published submission in the export; local static feed not yet connected |
 
 The intended direction is for the public pages to read published content and media from GitHub, so visitors do not need Supabase to view existing posts. Supabase can remain available for administrative actions and new submissions until those workflows have a verified replacement.
 

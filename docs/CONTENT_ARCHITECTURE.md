@@ -10,7 +10,7 @@ This is the agreed target architecture for the website. It is being introduced o
 | Signals | `/signals/` | `S-0001` | `content/signals.json` | `media/signals/` |
 | Human Archive | `/human-archive/` | `HA-0004` | `content/human-archive.json` | `media/human-archive/` |
 
-The existing Transmissions page and five movement pages are to be moved from `/posts/` to `/transmissions/`. The existing Signals community page is to be moved from `/posts/community/` to `/signals/`. These are moves/renames of the existing pages, not redesigns or replacements. No redirects are to be created. The existing Human Archive page remains at `/human-archive/`.
+The existing Transmissions page and five movement pages have been moved from `/posts/` to `/transmissions/`. The existing Signals community page has been moved from `/posts/community/` to `/signals/`. These were moves/renames of the existing pages, not redesigns or replacements. No redirects were created. The existing Human Archive page remains at `/human-archive/`.
 
 ## JSON design
 
