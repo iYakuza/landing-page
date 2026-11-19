@@ -13,8 +13,8 @@ The public site and the entire publishing workflow must operate without Supabase
 - **Administrator identity:** GitHub OAuth, restricted to the explicitly allowlisted administrator account. OAuth client credentials and the allowed GitHub numeric user ID must be configured as Worker secrets/variables before login can be enabled.
 
 ## Private D1 database
-Database: `landing-page-cms` (EU jurisdiction, read replication disabled).
-Schema is in `cloudflare/schema.sql`. It defines:
+Database: `landing-page-cms` (EU jurisdiction, read replication disabled; created 2026-11-19).
+Schema is in `cloudflare/schema.sql` and has been applied to the new EU-jurisdiction database. It defines:
 - administrator allowlist;
 - private drafts with optimistic version numbers;
 - pending/approved/rejected Signals submissions;

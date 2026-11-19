@@ -77,3 +77,19 @@ CREATE TABLE IF NOT EXISTS cms_rate_limits (
   window_started_at INTEGER NOT NULL,
   request_count INTEGER NOT NULL DEFAULT 0
 );
+
+CREATE TABLE IF NOT EXISTS cms_sessions (
+  session_hash TEXT PRIMARY KEY,
+  github_user_id TEXT NOT NULL,
+  github_login TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  last_seen_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+);
+CREATE INDEX IF NOT EXISTS idx_cms_sessions_expiry ON cms_sessions(expires_at);
+
+CREATE TABLE IF NOT EXISTS cms_oauth_states (
+  state_hash TEXT PRIMARY KEY,
+  expires_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_cms_oauth_expiry ON cms_oauth_states(expires_at);
