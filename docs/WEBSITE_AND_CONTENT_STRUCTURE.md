@@ -77,7 +77,7 @@ The three collections now have separate canonical JSON files in `content/`. The 
 
 **Canonical GitHub collection:** `content/transmissions.json` contains the six published Transmissions, with permanent IDs `T-0001` through `T-0006`. The original UUIDs are retained as `legacy_id`. The legacy snapshot `transmissions/posts.json` is preserved during the loader transition. The 51 test drafts are excluded.
 
-**How it currently works:** `transmissions/index.html` provides the page layout; `transmissions/posts.js` still queries Supabase for published rows and renders them. The canonical JSON has been created but is not yet connected to the page loader.
+**How it currently works:** `transmissions/index.html` provides the page layout; `transmissions/posts.js` loads `content/transmissions.json` first and renders those canonical records. When Supabase is reachable, published CMS rows are merged over matching slugs so the existing editor workflow and newly published records remain visible. If that optional overlay fails, the GitHub records still render.
 
 **Media:** The central library is `media/transmissions/{T-ID}/`. WFH's featured image is present at `media/transmissions/T-0006/featured.jpg`. Seven other files remain pending: three matching objects were found in restore storage but downloads returned HTTP 402; the four Purtata corporatriștilor files are absent from the available restore bucket. See `recovery-data/transmission-media-report.json`.
 
@@ -87,14 +87,11 @@ The three collections now have separate canonical JSON files in `content/`. The 
 
 **Canonical GitHub collection:** `content/human-archive.json` contains all 140 records, the 111-entry media manifest, and all 197 exported editor structures. Canonical IDs use `HA-` plus the original numeric ID; the original number is retained as `legacy_id`.
 
-**Legacy files still used by the current page loader:**
-- `human-archive/archive-data.json` — record metadata/index.
-- `human-archive/archive-content.json` — historical record content.
-- `human-archive/media-manifest.json` — inventory of media references; a manifest is a list of files, not the files themselves.
+**Canonical page loader:** `human-archive/archive.js` loads `content/human-archive.json`, which contains all 140 historical records, the 111-entry media manifest and 197 editor structures. The older `archive-data.json`, `archive-content.json` and `media-manifest.json` files are retained as migration/recovery snapshots, not as the public page's record source.
 
 The checked-in snapshots contain 140 historical records. The archive page is implemented by `human-archive/index.html`, `human-archive/archive.js` and the archive CSS files. The page loader has not yet been switched to the consolidated canonical JSON.
 
-Additional archive structures and favourites are held in Supabase and were exported under `recovery-data/` on this recovery branch. The archive's media files are not all stored in the GitHub repository yet.
+Supabase remains connected for administrator authentication, favourites, saved editor overrides and the existing Transmission chamber workflow. Canonical editor structures are loaded first, with saved Supabase overrides taking precedence. The archive's media files are not all stored in the GitHub repository yet.
 
 ### S — Signals (visitor submissions)
 
@@ -124,9 +121,9 @@ The JSON record stores the text and the *addresses* of its media. The actual ima
 
 | Collection | Current content storage | Current page loader | Recovery status |
 |---|---|---|---|
-| T — Transmissions | Canonical `content/transmissions.json`; legacy snapshot `transmissions/posts.json`; Supabase `vha_posts` remains current loader source | Supabase query in `transmissions/posts.js` | Six published text records consolidated; WFH image copied to central media; seven files remain pending |
-| HA — Human Archive | Canonical `content/human-archive.json` plus legacy snapshots and exported Supabase structures | `human-archive/archive.js` still uses legacy snapshots | 140 records, 111 media references and 197 editor structures consolidated; actual media recovery remains incomplete |
-| S — Signals | Canonical `content/signals.json`; source export `recovery-data/poetry-submissions.json`; Supabase `poetry_submissions` remains current loader source | Supabase query in shared `transmissions/posts.js` community mode | One published, rights-confirmed submission consolidated; static loader not yet connected |
+| T — Transmissions | Canonical `content/transmissions.json`, with optional live published-row overlay from Supabase | Canonical JSON first; optional Supabase overlay in `transmissions/posts.js` | Six published records connected; WFH image copied to central media; other pending media can be uploaded through the editor |
+| HA — Human Archive | Canonical `content/human-archive.json`; legacy snapshots retained for recovery | `human-archive/archive.js` loads the canonical collection; Supabase remains for interactive/editor features | 140 records, 111 media references and 197 editor structures connected; actual media recovery remains incomplete |
+| S — Signals | Canonical `content/signals.json`, with optional live published-submission overlay from Supabase | Canonical JSON first; optional Supabase overlay in shared `transmissions/posts.js` | One published, rights-confirmed submission connected; visitor submissions and moderation remain on Supabase |
 
 The intended direction is for the public pages to read published content and media from GitHub, so visitors do not need Supabase to view existing posts. Supabase can remain available for administrative actions and new submissions until those workflows have a verified replacement.
 

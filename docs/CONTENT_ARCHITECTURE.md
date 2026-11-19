@@ -39,7 +39,7 @@ Only published content belongs in the public collection JSON files. Drafts, reje
 
 ## Loading
 
-Each public collection page should load only its own JSON file. The page can render records in batches and lazy-load media where appropriate; the collection JSON remains one file per type.
+Each public collection page loads its own canonical JSON file. Transmissions and Signals also merge in published Supabase rows when the CMS is reachable, so existing editor changes and newly published records remain visible; if that optional live overlay is unavailable, the canonical GitHub records still render. Human Archive loads its 140 historical records, media manifest and editor structures from its consolidated JSON; Supabase remains available for favourites, administrator permissions, editor overrides and the existing Transmission chamber workflow. The collection JSON remains one file per type.
 
 ## Recovery and deployment safety
 
