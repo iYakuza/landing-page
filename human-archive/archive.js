@@ -744,6 +744,7 @@ function chamberUploadToken(){
  return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
 }
 function renderRecordStructureEditor(record,grid,status,editButton,expandButton,closeButton,readOnly=false){
+ record._publicCommitSha=record._publicCommitSha||archivePublicHeadSha;
  grid.classList.add('ha-chamber-grid-editor');
  const structure=getRecordStructure(record);
  const initialRecordSnapshot=JSON.parse(JSON.stringify(record));
@@ -790,7 +791,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  };
  const titleInput=addMetadataField('TITLE','title',record.title,{placeholder:'Transmission title',maxLength:180});
  const slugInput=addMetadataField('PUBLIC URL SLUG','slug',record.slug,{placeholder:'lowercase-words-separated-by-hyphens',maxLength:180});
- const currentCategory=(record.categories||[])[0]||'';
+ const currentCategory=(record.categories||[])[0]||(record.source_type==='transmission'?'THE TRANSFORMATION':'');
  const categoryInputWrap=makeChamberNode('label','ha-chamber-metadata-field');
  const categoryInputLabel=makeChamberNode('span','ha-chamber-metadata-label','ARCHIVE / MOVEMENT');
  const categoryInput=document.createElement('select');
@@ -1725,7 +1726,7 @@ window.addEventListener('VHA_OPEN_EXISTING_TRANSMISSION',async event=>{
   if(event.detail?.edit&&record.source_type==='transmission'&&record.status==='published'&&!record.draft_id){
    const draft=await window.VHACMSStore.createEditDraft(record.post_id);
    record.draft_id=draft.draft_id;record._draftData=draft;record._repoCommitSha=draft._repoCommitSha;
-   record._editOfPublished=true;record.isNew=false;record.draft_source='existing';record.status='draft';
+   record._editOfPublished=true;record.isNew=false;record.draft_source='existing';record.status='published';
    record.title=draft.metadata.title;record.slug=draft.metadata.slug;record.categories=[draft.metadata.category];
    record.excerpt=draft.metadata.excerpt;record.media_width=draft.metadata.media_width;
    record.content_html=draft.content.transmission_body||record.content_html;
