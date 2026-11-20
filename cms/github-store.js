@@ -232,8 +232,15 @@
     if (!transmissions.value?.records || !archive.value?.editor_structures) throw new Error('The canonical public collections are incomplete.');
     const publicHead = await currentHead('public');
     if (options.expectedPublicHead && publicHead !== options.expectedPublicHead) throw new Error('The public repository changed. Reload before publishing.');
+    const slug = String(draft.metadata.slug || '').trim().toLowerCase();
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error('The Transmission slug is invalid.');
+    if (!String(draft.metadata.title || '').trim() || String(draft.metadata.title).length > 180) throw new Error('The Transmission title is invalid.');
+    if (!String(draft.metadata.category || '').trim()) throw new Error('Choose a Transmission movement before publishing.');
+    const duplicateSlug = transmissions.value.records.find(item => item.slug === slug && item.id !== draft.post_id);
+    if (duplicateSlug) throw new Error('That public URL slug is already in use.');
+    const pathMap = new Map();
     const post = {
-      id: draft.post_id, slug: draft.metadata.slug, title: draft.metadata.title, status: 'published',
+      id: draft.post_id, slug, title: draft.metadata.title, status: 'published',
       excerpt: draft.metadata.excerpt || '', category: draft.metadata.category,
       created_at: draft.created_at, updated_at: new Date().toISOString(), published_at: new Date().toISOString(),
       media_width: draft.metadata.media_width || 100,
@@ -249,13 +256,22 @@
       const fileName = String(item.name || item.path.split('/').pop()).split('/').pop().replace(/[^a-zA-Z0-9._-]+/g, '-');
       const target = 'media/transmissions/' + draft.post_id + '/' + fileName;
       mediaChanges.push({ path: target, content: source.bytes });
-      return { ...item, name: item.name || fileName, path: target, src: target, url: target, storage: 'github-public' };
+      pathMap.set(item.path, target);
+      return { ...item, name: item.name || fileName, path: target, src: target, url: target, storage: 'github-public', status: 'published' };
     };
     post.media_items = await Promise.all(post.media_items.map(promote));
     const outputMedia = {};
     for (const kind of ['image', 'audio', 'video']) {
       outputMedia[kind] = await Promise.all((draft.content.output_media?.[kind] || []).map(promote));
     }
+    post.content_html = String(post.content_html).replace(/cms-data\\/v1\\/media\\/drafts\\/[^\\s"'<>)]*/g, match => pathMap.get(match) || match);
+    post.media_url = post.media_items[0]?.url || '';
+    post.media_path = post.media_items[0]?.path || '';
+    post.media_type = post.media_items[0]?.type || '';
+    const blocks = (Array.isArray(draft.content.blocks) ? draft.content.blocks : []).map(block => ({
+      ...block,
+      html: String(block.html || '').replace(/cms-data\\/v1\\/media\\/drafts\\/[^\\s"'<>)]*/g, match => pathMap.get(match) || match)
+    }));
     const oldIndex = transmissions.value.records.findIndex(item => item.id === draft.post_id);
     if (oldIndex >= 0) transmissions.value.records[oldIndex] = post;
     else transmissions.value.records.push(post);
@@ -266,12 +282,13 @@
       lyrics_style: draft.content.lyrics_style || '',
       output_text: draft.content.output_text || '',
       output_media,
-      blocks: Array.isArray(draft.content.blocks) ? draft.content.blocks : [],
+      blocks,
       updated_at: new Date().toISOString()
     };
     const structures = archive.value.editor_structures;
     const structureIndex = structures.findIndex(item => String(item.record_id) === String(draft.record_id));
     if (structureIndex >= 0) structures[structureIndex] = structure; else structures.push(structure);
+    if (post.content_html.includes('cms-data/v1/media/drafts/') || JSON.stringify(outputMedia).includes('cms-data/v1/media/drafts/')) throw new Error('A private draft media reference could not be promoted safely.');
     const changes = [
       { path: CONFIG.transmissionsPath, content: json(transmissions.value) },
       { path: CONFIG.archivePath, content: json(archive.value) },
