@@ -322,7 +322,28 @@
     if (!transmissions?.data?.records || !archive?.data?.editor_structures) throw new Error('The canonical public collections are incomplete.');
     transmissions.value = transmissions.data; archive.value = archive.data;
     const expectedPublicHead = options.expectedPublicHead || (draft.source === 'existing' ? draft.base_public_commit : null);
-    if (expectedPublicHead && publicHead !== expectedPublicHead) throw new Error('The public Transmission changed after this draft was opened. Reload and reconcile before publishing.');
+    if (expectedPublicHead && publicHead !== expectedPublicHead) {
+      // A draft is tied to the public version of its own Transmission, not to
+      // every unrelated commit in the public repository. Compare the target
+      // post and its Human Archive structure at the draft's base commit with
+      // the latest versions. This safely permits unrelated public updates while
+      // still rejecting a concurrent edit to this exact Transmission.
+      const [baseTransmissions, baseArchive] = await Promise.all([
+        readJson('public', CONFIG.transmissionsPath, null, { atCommit: expectedPublicHead }),
+        readJson('public', CONFIG.archivePath, null, { atCommit: expectedPublicHead })
+      ]);
+      if (!baseTransmissions?.data?.records || !baseArchive?.data?.editor_structures) {
+        throw new Error('The original public Transmission version could not be verified. Reload and reconcile before publishing.');
+      }
+      const basePost = baseTransmissions.data.records.find(item => item.id === draft.post_id) || null;
+      const currentPost = transmissions.value.records.find(item => item.id === draft.post_id) || null;
+      const baseStructure = baseArchive.data.editor_structures.find(item => String(item.record_id) === String(draft.record_id)) || null;
+      const currentStructure = archive.value.editor_structures.find(item => String(item.record_id) === String(draft.record_id)) || null;
+      if (JSON.stringify(basePost) !== JSON.stringify(currentPost) ||
+          JSON.stringify(baseStructure) !== JSON.stringify(currentStructure)) {
+        throw new Error('The public Transmission changed after this draft was opened. Reload and reconcile before publishing.');
+      }
+    }
     const slug = String(draft.metadata.slug || '').trim().toLowerCase();
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error('The Transmission slug is invalid.');
     if (!String(draft.metadata.title || '').trim() || String(draft.metadata.title).length > 180) throw new Error('The Transmission title is invalid.');
