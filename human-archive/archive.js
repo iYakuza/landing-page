@@ -674,9 +674,30 @@ function renderRecordStructureView(record,grid,status,editButton,expandButton,cl
  if(editButton){
   editButton.hidden=!archiveAdmin||!archiveWriteReady;editButton.disabled=false;editButton.textContent='REDESIGN CHAMBER';
   editButton.setAttribute('aria-label','Redesign this archive chamber');
-  editButton.onclick=()=>{
-   if(!archiveAdmin||!archiveWriteReady){status.textContent='GITHUB EDITOR MIGRATION IS NOT YET ENABLED';return;}
-   renderRecordStructureEditor(record,grid,status,editButton,expandButton,closeButton);
+  editButton.onclick=async()=>{
+   if(!archiveAdmin||!archiveWriteReady||!window.VHACMSStore){status.textContent='GITHUB OWNER SESSION REQUIRED';return;}
+   editButton.disabled=true;
+   try{
+    if(record.source_type==='transmission'&&record.status==='published'&&!record.draft_id){
+     status.textContent='CREATING PRIVATE EDIT DRAFT…';
+     const draft=await window.VHACMSStore.createEditDraft(record.post_id);
+     record.draft_id=draft.draft_id;record._draftData=draft;record._repoCommitSha=draft._repoCommitSha;
+     record._editOfPublished=true;record.isNew=false;record.draft_source='existing';record.status='draft';
+     record.title=draft.metadata.title;record.slug=draft.metadata.slug;record.categories=[draft.metadata.category];
+     record.excerpt=draft.metadata.excerpt;record.media_width=draft.metadata.media_width;
+     record.content_html=draft.content.transmission_body||record.content_html;
+     recordStructureOverrides.set(String(record.id),{
+      record_id:Number(record.id),transmission_body:draft.content.transmission_body||record.content_html,
+      prompt_style:draft.content.prompt_style||'',lyrics_style:draft.content.lyrics_style||'',output_text:draft.content.output_text||'',
+      output_media:draft.content.output_media||{},blocks:draft.content.blocks||[],updated_at:draft.updated_at
+     });
+    }
+    renderRecordStructureEditor(record,grid,status,editButton,expandButton,closeButton);
+   }catch(error){
+    console.error('Private edit draft could not be created:',error);
+    status.textContent='EDITOR COULD NOT OPEN — '+String(error.message||'PLEASE TRY AGAIN');
+    editButton.disabled=false;
+   }
   };
  }
  if(closeButton){
