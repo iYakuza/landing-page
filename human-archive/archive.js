@@ -62,7 +62,7 @@ function urlKey(raw){
 }
 function localMediaUrl(item){
  const storage=String(item?.storage||'');
- const storedPath=String(item?.storage_path||item?.path||'');
+ const storedPath=String(item?.local_path||item?.storage_path||item?.path||'');
  if(storage==='github-public'&&storedPath.startsWith('media/'))return '/landing-page/'+storedPath.split('/').map(encodeURIComponent).join('/');
  if(storage==='github-private'&&String(item?.url||'').startsWith('blob:'))return item.url;
  const recordId=(item?.post_ids||[]).map(value=>String(value).trim()).find(value=>/^[0-9]+$/.test(value));
@@ -356,7 +356,7 @@ async function loadTransmissionRecords(){
    const publicUrl=relative.startsWith('http')?relative:('/landing-page/'+relative.replace(/^\/+/, ''));
    return {id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
     mime_type:item.type==='image'?'image/unknown':item.type==='video'?'video/unknown':'audio/unknown',
-    storage_path:String(item.path||item.src||item.url||''),source_url:item.source_url||publicUrl,url:publicUrl,
+    storage_path:String(item.path||item.src||item.url||''),source_url:publicUrl,url:publicUrl,
     storage:'github-public',post_ids:[id]};
   });
   const content=String(post.content_html||'').replace(/(["'])((?:media\/transmissions)\/[^"']+)\1/g,(match,quote,path)=>quote+'/landing-page/'+path.replace(/^\/+/, '')+quote);
@@ -761,7 +761,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  let attachedPostMedia=(Array.isArray(record.media_items)?record.media_items:[]).map((item,index)=>{
   const mime=String(item.mime_type||'').toLowerCase();
   const type=['image','audio','video'].includes(item.type)?item.type:(mime.startsWith('image/')?'image':mime.startsWith('video/')?'video':'audio');
-  return {id:String(item.id||'attached-'+index),name:String(item.title||item.name||record.title),url:String(item.source_url||item.url||''),path:String(item.storage_path||item.path||''),type,mime_type:mime,storage:String(item.storage||'vha-post-media')};
+  return {id:String(item.id||'attached-'+index),name:String(item.title||item.name||record.title),url:String(item.url||item.src||item.source_url||''),path:String(item.local_path||item.storage_path||item.path||item.src||''),type,mime_type:mime,storage:String(item.storage||'vha-post-media')};
  }).filter(item=>item.url);
  const blockMediaUploadedPaths=[];
  const blockMediaUploadedAssets=[];
@@ -1687,7 +1687,7 @@ async function init(){
   records=assignArchiveSlugs(data.filter(r=>r&&typeof r.title==='string'&&typeof r.year==='string'&&typeof r.date==='string'&&Number.isSafeInteger(r.id)&&typeof r.url==='string'&&Array.isArray(r.categories)));
   if(records.length!==collection.record_count)throw new Error('The canonical Human Archive collection is incomplete');
   if(manifest&&Array.isArray(manifest.items)&&manifest.item_count===manifest.items.length){
-   mediaItems=manifest.items.filter(item=>item&&item.source_type!=='external-inline-reference'&&Array.isArray(item.post_ids)&&item.post_ids.length&&String(item.storage_path||'').split('/').pop());
+   mediaItems=manifest.items.filter(item=>item&&(item.source_type!=='external-inline-reference'||item.recovery_status==='verified')&&Array.isArray(item.post_ids)&&item.post_ids.length&&String(item.local_path||item.storage_path||'').split('/').pop());
    mediaHashByPath.clear();mediaReady=mediaItems.length>0;
    if(mediaReady){
     for(const item of mediaItems){
