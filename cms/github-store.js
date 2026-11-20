@@ -391,6 +391,11 @@
 
 
   async function createEditDraft(postId) {
+    const privateHead = await currentHead('private');
+    if (privateHead) {
+      const existing = (await listDrafts()).find(item => item.post_id === postId && item.source === 'existing');
+      if (existing) return existing;
+    }
     const publicHead = await currentHead('public');
     const [transmissions, archive] = await Promise.all([
       readJson('public', CONFIG.transmissionsPath, null, { atCommit: publicHead }),
@@ -418,7 +423,7 @@
         media_items: Array.isArray(post.media_items) ? post.media_items : []
       }
     };
-    const saved = await saveDraft(draft);
+    const saved = await saveDraft(draft, privateHead || undefined);
     return { ...draft, revision: saved.draft.revision, _repoCommitSha: saved.commitSha, commitSha: saved.commitSha };
   }
 
