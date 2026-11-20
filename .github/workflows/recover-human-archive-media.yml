@@ -31,7 +31,7 @@ jobs:
           EXPECTED_BRANCH: recovery/supabase-content-export-20261119
           COMMIT_MEDIA: "false"
         run: |
-          node <<'NODE'
+          node --input-type=module <<'NODE'
           import fs from 'node:fs/promises';
           import path from 'node:path';
           import crypto from 'node:crypto';
@@ -53,7 +53,7 @@ jobs:
             if (Array.isArray(value)) {
               for (const item of value) visit(item);
             } else if (value && typeof value === 'object') {
-              if (typeof value.id === 'string' && /^HA-\\d+$/.test(value.id) && value.legacy_id != null) {
+              if (typeof value.id === 'string' && /^HA-\d+$/.test(value.id) && value.legacy_id != null) {
                 records.push(value);
               }
               for (const child of Object.values(value)) {
@@ -126,7 +126,7 @@ jobs:
               await fs.mkdir(folder, { recursive: true });
               const destination = path.join(folder, target.filename);
               await fs.writeFile(destination, bytes, { flag: 'wx' });
-              savedPaths.push(destination.replace(/^recovery-output\\//, ''));
+              savedPaths.push(destination.slice('recovery-output/'.length));
             }
 
             return {
@@ -186,7 +186,7 @@ jobs:
             failures
           };
           await fs.mkdir('recovery-output', { recursive: true });
-          await fs.writeFile('recovery-output/media-recovery-report.json', JSON.stringify(report, null, 2) + '\\n');
+          await fs.writeFile('recovery-output/media-recovery-report.json', JSON.stringify(report, null, 2) + '\n');
 
           if (failures.length || results.length !== attachments.length) {
             throw new Error(`Recovery incomplete: ${results.length}/${attachments.length} attachments verified.`);
@@ -198,7 +198,7 @@ jobs:
             for (const record of results) {
               for (const relativePath of record.local_paths) {
                 const sourcePath = path.join('recovery-output', relativePath);
-                const destinationPath = path.join('media', 'human-archive', relativePath.split('/').slice(3).join('/'));
+                const destinationPath = path.join('media', 'human-archive', relativePath.split('/').slice(2).join('/'));
                 await fs.mkdir(path.dirname(destinationPath), { recursive: true });
                 const bytes = await fs.readFile(sourcePath);
                 try {
