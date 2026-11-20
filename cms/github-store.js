@@ -300,7 +300,7 @@
   async function savePublicStructure(recordId, structure, expectedHeadSha) {
     const head = await currentHead('public');
     const archive = await readJson('public', CONFIG.archivePath, null, { atCommit: head });
-    if (!archive) throw new Error('The canonical Human Archive collection could not be read.');
+    if (!archive?.data?.editor_structures) throw new Error('The canonical Human Archive collection could not be read.');
     if (expectedHeadSha && expectedHeadSha !== head) throw new Error('The public repository changed. Reload before saving.');
     const structures = Array.isArray(archive.data.editor_structures) ? [...archive.data.editor_structures] : [];
     const index = structures.findIndex(item => String(item.record_id) === String(recordId));
@@ -450,7 +450,11 @@
     ]);
     if (!transmissions?.data?.records || !archive?.data?.editor_structures) throw new Error('The canonical public collections are incomplete.');
     const postExists = transmissions.data.records.some(item => item.id === draft.post_id);
-    if (!postExists) throw new Error('The public Transmission is already absent. Reload the private draft.');
+    if (!postExists) {
+      draft.base_public_commit = publicHead;
+      const saved = await saveDraft(draft, draft._repoCommitSha);
+      return { commitSha: publicHead, privateCommitSha: saved.commitSha, alreadyUnpublished: true };
+    }
     transmissions.data.records = transmissions.data.records.filter(item => item.id !== draft.post_id);
     archive.data.editor_structures = archive.data.editor_structures.filter(item => String(item.record_id) !== String(draft.record_id));
     const result = await write('public', [
