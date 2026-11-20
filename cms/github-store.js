@@ -116,12 +116,23 @@
   }
 
   async function getSequences() {
-    const file = await readJson('private', privatePath('sequences.json'), { transmission_post_id: 0, archive_record_id: 3008 });
+    const file = await readJson('private', privatePath('sequences.json'), null);
     return file.value;
   }
 
+  async function seedSequences(transmissionPostId, archiveRecordId) {
+    const post = Number(transmissionPostId), record = Number(archiveRecordId);
+    if (!Number.isSafeInteger(post) || post < 0 || !Number.isSafeInteger(record) || record < 1) throw new Error('Sequence seeds must be verified non-negative/positive integers.');
+    const path = privatePath('sequences.json');
+    if (await github().readFile('private', path)) throw new Error('The CMS sequences have already been initialized.');
+    const head = await currentHead('private') || await github().initializePrivateRepository();
+    const result = await write('private', [{ path, content: json({ transmission_post_id: post, archive_record_id: record, initialized_at: new Date().toISOString() }) }], 'Initialize verified CMS identifier sequences', head);
+    return { transmission_post_id: post, archive_record_id: record, commitSha: result.commitSha };
+  }
+
   async function reserveSequence(expectedHeadSha) {
-    const file = await readJson('private', privatePath('sequences.json'), { transmission_post_id: 0, archive_record_id: 3008 });
+    const file = await readJson('private', privatePath('sequences.json'), null);
+    if (!file) throw new Error('CMS identifier sequences have not been initialized from the verified content export.');
     const head = await currentHead('private') || await github().initializePrivateRepository();
     if (expectedHeadSha && head !== expectedHeadSha) throw new Error('The private CMS sequence changed. Reload before creating a record.');
     const next = {
@@ -157,6 +168,7 @@
     getFavorites,
     setFavorite,
     getSequences,
+    seedSequences,
     reserveSequence,
     savePrivateOverride,
     getPrivateOverride
