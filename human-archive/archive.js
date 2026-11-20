@@ -397,7 +397,7 @@ async function loadTransmissionRecords(){
     const record={id,title:draft.metadata?.title||'Untitled Transmission',slug:draft.metadata?.slug||'untitled-transmission',
      archiveIdentifier:'HA-'+date.slice(0,4)+'-'+String(id).padStart(4,'0'),year:date.slice(0,4),date,url:'',
      categories:[draft.metadata?.category||'UNASSIGNED'],content_html:body,source_type:'transmission',post_id:draft.post_id,draft_id:draft.draft_id,
-     status:'draft',excerpt:draft.metadata?.excerpt||'',media_items:(content.media_items||[]).map(hydrate),created_at:draft.created_at,
+     status:hadPublishedRecord?'published':'draft',excerpt:draft.metadata?.excerpt||'',media_items:(content.media_items||[]).map(hydrate),created_at:draft.created_at,
      updated_at:draft.updated_at,published_at:null,media_width:draft.metadata?.media_width||100,isDraft:true,isNew:draft.source==='new',_editOfPublished:hadPublishedRecord,draft_source:draft.source,_repoCommitSha:draft._repoCommitSha,_draftData:draft};
     records.push(record);
     record.media_items.forEach(item=>{if(item.url){mediaItems.push({...item,post_ids:[id],storage:'github-private'});mediaMap.set(urlKey(item.url),item);}});
@@ -713,7 +713,7 @@ function renderRecordStructureView(record,grid,status,editButton,expandButton,cl
      status.textContent='CREATING PRIVATE EDIT DRAFT…';
      const draft=await window.VHACMSStore.createEditDraft(record.post_id);
      record.draft_id=draft.draft_id;record._draftData=draft;record._repoCommitSha=draft._repoCommitSha;
-     record._editOfPublished=true;record.isNew=false;record.draft_source='existing';record.status='draft';
+     record._editOfPublished=true;record.isNew=false;record.draft_source='existing';record.status='published';
      record.title=draft.metadata.title;record.slug=draft.metadata.slug;record.categories=[draft.metadata.category];
      record.excerpt=draft.metadata.excerpt;record.media_width=draft.metadata.media_width;
      record.content_html=draft.content.transmission_body||record.content_html;
@@ -981,7 +981,7 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
  recordMetadataInputs?.status?.addEventListener('change',updateSaveLabel);updateSaveLabel();
  // Draft Transmissions are database-backed as the user types. Publication remains an explicit action.
  let draftAutosaveTimer=null,draftAutosaveInFlight=false,draftAutosaveQueued=false,draftAutosaveStopped=false,draftAutosaveFlushing=false,draftAutosaveConflict=false,draftAutosaveLastSignature='';
- const draftAutosaveEnabled=record.source_type==='transmission'&&record.status==='draft';
+ const draftAutosaveEnabled=record.source_type==='transmission'&&Boolean(record.draft_id);
  const deleteDraft=draftAutosaveEnabled?makeChamberNode('button','ha-chamber-delete-draft','DELETE DRAFT'):null;
  if(deleteDraft){
   deleteDraft.type='button';
