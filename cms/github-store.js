@@ -28,15 +28,16 @@
   const currentHead = repo => github().getBranchHead(repo);
 
   async function getPublicCollections() {
+    const commitSha = await currentHead('public');
     const [archive, transmissions] = await Promise.all([
-      readJson('public', CONFIG.archivePath, null),
-      readJson('public', CONFIG.transmissionsPath, [])
+      readJson('public', CONFIG.archivePath, null, { atCommit: commitSha }),
+      readJson('public', CONFIG.transmissionsPath, null, { atCommit: commitSha })
     ]);
     if (!archive.value || !Array.isArray(archive.value.records || archive.value.items || archive.value)) {
       throw new Error('The canonical Human Archive collection is missing or has an unexpected structure.');
     }
     if (!Array.isArray(transmissions.value.records)) throw new Error('The canonical Transmissions collection has an unexpected structure.');
-    return { archive, transmissions };
+    return { archive, transmissions, commitSha };
   }
 
   async function savePublicJson(path, value, expectedHeadSha, message) {
@@ -48,10 +49,12 @@
   }
 
   async function listDrafts() {
-    const files = await github().listFiles('private', privatePath('drafts/transmissions'));
+    const commitSha = await currentHead('private');
+    if (!commitSha) return [];
+    const files = await github().listFiles('private', privatePath('drafts/transmissions'), { atCommit: commitSha });
     const drafts = [];
     for (const file of files.filter(item => item.path.endsWith('.json'))) {
-      const record = await github().readJson('private', file.path);
+      const record = await github().readJson('private', file.path, { atCommit: commitSha });
       if (record?.data) drafts.push({ ...record.data, _path: file.path, _sha: file.sha });
     }
     return drafts.sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || '')));
@@ -59,7 +62,9 @@
 
   async function getDraft(draftId) {
     const path = privatePath('drafts/transmissions/' + id(draftId) + '.json');
-    const file = await github().readJson('private', path);
+    const commitSha = await currentHead('private');
+    if (!commitSha) return null;
+    const file = await github().readJson('private', path, { atCommit: commitSha });
     return file ? { ...file.data, _path: path, _sha: file.sha } : null;
   }
 
