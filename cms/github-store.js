@@ -55,7 +55,7 @@
     const drafts = [];
     for (const file of files.filter(item => item.path.endsWith('.json'))) {
       const record = await github().readJson('private', file.path, { atCommit: commitSha });
-      if (record?.data) drafts.push({ ...record.data, _path: file.path, _sha: file.sha });
+      if (record?.data) drafts.push({ ...record.data, _path: file.path, _sha: file.sha, _repoCommitSha: commitSha });
     }
     return drafts.sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || '')));
   }
@@ -65,7 +65,7 @@
     const commitSha = await currentHead('private');
     if (!commitSha) return null;
     const file = await github().readJson('private', path, { atCommit: commitSha });
-    return file ? { ...file.data, _path: path, _sha: file.sha } : null;
+    return file ? { ...file.data, _path: path, _sha: file.sha, _repoCommitSha: commitSha } : null;
   }
 
   async function saveDraft(draft, expectedHeadSha) {
@@ -74,7 +74,7 @@
     const path = privatePath('drafts/transmissions/' + draftId + '.json');
     const head = await currentHead('private') || await github().initializePrivateRepository();
     if (expectedHeadSha && head !== expectedHeadSha) throw new Error('The private CMS repository changed. Reload before saving.');
-    const value = { ...draft, draft_id: draftId, updated_at: new Date().toISOString() };
+    const value = { ...draft, draft_id: draftId, revision: Number(draft.revision || 0) + 1, updated_at: new Date().toISOString() };
     const result = await write('private', [{ path, content: json(value) }], 'Save Transmission draft ' + draftId, head);
     return { draft: value, commitSha: result.commitSha };
   }
@@ -222,7 +222,7 @@
         output_media: { image: [], audio: [], video: [] }, blocks: [], media_items: [] }
     };
     const saved = await saveDraft(draft);
-    return { ...draft, commitSha: saved.commitSha };
+    return { ...draft, revision: saved.draft.revision, _repoCommitSha: saved.commitSha, commitSha: saved.commitSha };
   }
 
   async function uploadDraftMedia(draftId, files, folder = 'attachments') {
@@ -417,7 +417,7 @@
       }
     };
     const saved = await saveDraft(draft);
-    return { ...draft, commitSha: saved.commitSha };
+    return { ...draft, revision: saved.draft.revision, _repoCommitSha: saved.commitSha, commitSha: saved.commitSha };
   }
 
 
