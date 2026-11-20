@@ -1654,7 +1654,7 @@ async function init(){
   const collection=await fetchArchiveJson('../content/human-archive.json',true);
   if(!collection||!Array.isArray(collection.records)||collection.record_count!==collection.records.length||!collection.media_manifest||!collection.editor_structures)throw new Error('Invalid canonical Human Archive collection');
   const manifest=collection.media_manifest;
-  recordStructureOverrides=new Map(Object.entries(collection.editor_structures).map(([id,item])=>[String(id),item]));
+  recordStructureOverrides=new Map(collection.editor_structures.map(item=>[String(item.record_id),item]));
   const data=collection.records.map(item=>({...item,canonical_id:item.id,id:Number(item.legacy_id)}));
   records=assignArchiveSlugs(data.filter(r=>r&&typeof r.title==='string'&&typeof r.year==='string'&&typeof r.date==='string'&&Number.isSafeInteger(r.id)&&typeof r.url==='string'&&Array.isArray(r.categories)));
   if(records.length!==collection.record_count)throw new Error('The canonical Human Archive collection is incomplete');
