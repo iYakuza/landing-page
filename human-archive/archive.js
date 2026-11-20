@@ -996,7 +996,12 @@ const getBlockMediaLibrary=type=>{
   }catch(error){console.warn('Unreferenced media could not be cleaned up:',error);}
  };
 
-const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,showTopbar:true,mediaBasePath:archiveSiteBasePath,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
+if(!readOnly&&typeof window.VHABlockEditor?.mountBlockEditor!=='function'){
+  status.textContent='BLOCK EDITOR UNAVAILABLE — REFRESH THE PAGE AND REOPEN THIS RECORD.';
+  throw new Error('The Human Archive block editor module did not load.');
+ }
+ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window.VHABlockEditor.mountBlockEditor({editor,showTopbar:true,mediaBasePath:archiveSiteBasePath,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
+ if(!readOnly&&!blockEditorControllers.length)throw new Error('The Human Archive block editor could not be mounted.');
  const getEditorHTML=()=>transmissionEditor.__haBlockEditor?.getHTML()||transmissionEditor.innerHTML;
  const getEditorBlocks=()=>{
   const current=transmissionEditor.__haBlockEditor?.getBlocks?.();
