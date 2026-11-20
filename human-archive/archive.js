@@ -384,11 +384,13 @@ async function loadTransmissionRecords(){
      output_media:Object.fromEntries(['image','audio','video'].map(kind=>[kind,(content.output_media?.[kind]||[]).map(hydrate)])),blocks,updated_at:draft.updated_at};
     recordStructureOverrides.set(String(id),structure);
     const stamp=draft.created_at||new Date().toISOString(),date=String(stamp).slice(0,10);
+    const hadPublishedRecord=records.some(item=>item.source_type==='transmission'&&item.post_id===draft.post_id);
+    if(hadPublishedRecord)records=records.filter(item=>!(item.source_type==='transmission'&&item.post_id===draft.post_id));
     const record={id,title:draft.metadata?.title||'Untitled Transmission',slug:draft.metadata?.slug||'untitled-transmission',
      archiveIdentifier:'HA-'+date.slice(0,4)+'-'+String(id).padStart(4,'0'),year:date.slice(0,4),date,url:'',
      categories:[draft.metadata?.category||'UNASSIGNED'],content_html:body,source_type:'transmission',post_id:draft.post_id,draft_id:draft.draft_id,
      status:'draft',excerpt:draft.metadata?.excerpt||'',media_items:(content.media_items||[]).map(hydrate),created_at:draft.created_at,
-     updated_at:draft.updated_at,published_at:null,media_width:draft.metadata?.media_width||100,isDraft:true,_privateCommitSha:draft._sha};
+     updated_at:draft.updated_at,published_at:null,media_width:draft.metadata?.media_width||100,isDraft:true,isNew:draft.source==='new',_editOfPublished:hadPublishedRecord,draft_source:draft.source,_repoCommitSha:draft._repoCommitSha};
     records.push(record);
     record.media_items.forEach(item=>{if(item.url){mediaItems.push({...item,post_ids:[id],storage:'github-private'});mediaMap.set(urlKey(item.url),item);}});
     if(record.categories[0]&&!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);
