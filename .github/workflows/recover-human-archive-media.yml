@@ -79,16 +79,13 @@ jobs:
           await fs.mkdir(outputRoot, { recursive: true });
 
           const safeFilename = item => {
-            const source = new URL(item.source_url);
-            const raw = decodeURIComponent(source.pathname.split('/').pop() || `attachment-${item.wp_media_id}`);
-            const extension = path.extname(raw).slice(0, 12).toLowerCase();
-            const stem = path.basename(raw, path.extname(raw))
-              .normalize('NFKD')
-              .replace(/[^a-zA-Z0-9._-]+/g, '-')
-              .replace(/-+/g, '-')
-              .replace(/^-|-$/g, '')
-              .slice(0, 100) || 'media';
-            return `${item.wp_media_id}-${stem}${extension}`;
+            // The manifest path preserves the original media extension and filename.
+            // WordPress occasionally serves a JPEG from a URL ending in .webp.
+            const raw = path.posix.basename(String(item.storage_path || ''));
+            if (!raw || raw.includes('..') || !raw.startsWith(`${item.wp_media_id}-`)) {
+              throw new Error(`Invalid manifest storage filename for attachment ${item.wp_media_id}.`);
+            }
+            return raw.normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g, '-').slice(0, 180);
           };
 
           const download = async item => {
