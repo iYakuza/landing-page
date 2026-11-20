@@ -40,9 +40,9 @@
   }
 
   async function savePublicJson(path, value, expectedHeadSha, message) {
-    const file = await github().readFile('public', path);
-    if (!file) throw new Error('The public content file does not exist: ' + path);
     const head = await currentHead('public');
+    const file = await github().readFile('public', path, { atCommit: head });
+    if (!file) throw new Error('The public content file does not exist: ' + path);
     if (expectedHeadSha && head !== expectedHeadSha) throw new Error('The public repository changed. Reload before saving.');
     return write('public', [{ path, content: json(value) }], message || 'Update public CMS content', head);
   }
@@ -111,11 +111,11 @@
 
   async function setFavorite(recordId, isFavorite) {
     const record = id(recordId);
-    const file = await readJson('private', privatePath('human-archive-favorites.json'), []);
+    const head = await currentHead('private') || await github().initializePrivateRepository();
+    const file = await readJson('private', privatePath('human-archive-favorites.json'), [], { atCommit: head });
     const entries = new Map((Array.isArray(file.value) ? file.value : []).map(item => [String(item.record_id), item]));
     if (isFavorite) { if (!entries.has(record)) entries.set(record, { record_id: Number(record), created_at: new Date().toISOString() }); }
     else entries.delete(record);
-    const head = await currentHead('private') || await github().initializePrivateRepository();
     const value = [...entries.values()].sort((a, b) => Number(a.record_id) - Number(b.record_id));
     const result = await write('private', [{ path: privatePath('human-archive-favorites.json'), content: json(value) }], 'Update Human Archive favourites', head);
     return { record_ids: value.map(item => String(item.record_id)), commitSha: result.commitSha };
@@ -138,13 +138,14 @@
   }
 
   async function reserveSequence(expectedHeadSha) {
-    const file = await readJson('private', privatePath('sequences.json'), null);
-    if (!file) throw new Error('CMS identifier sequences have not been initialized from the verified content export.');
     const head = await currentHead('private') || await github().initializePrivateRepository();
+    const file = await readJson('private', privatePath('sequences.json'), null, { atCommit: head });
+    if (!file) throw new Error('CMS identifier sequences have not been initialized from the verified content export.');
+    if (!Number.isSafeInteger(Number(file.data.transmission_number)) || !Number.isSafeInteger(Number(file.data.archive_record_id))) throw new Error('The CMS identifier sequence file is invalid. Reconcile it before creating records.');
     if (expectedHeadSha && head !== expectedHeadSha) throw new Error('The private CMS sequence changed. Reload before creating a record.');
     const next = {
-      transmission_number: Number(file.value.transmission_number || 0) + 1,
-      archive_record_id: Number(file.value.archive_record_id || 0) + 1,
+      transmission_number: Number(file.data.transmission_number) + 1,
+      archive_record_id: Number(file.data.archive_record_id) + 1,
       updated_at: new Date().toISOString()
     };
     const result = await write('private', [{ path: privatePath('sequences.json'), content: json(next) }], 'Reserve CMS record identifiers', head);
@@ -213,28 +214,31 @@
   }
 
   async function savePublicStructure(recordId, structure, expectedHeadSha) {
-    const { archive } = await getPublicCollections();
     const head = await currentHead('public');
+    const archive = await readJson('public', CONFIG.archivePath, null, { atCommit: head });
+    if (!archive) throw new Error('The canonical Human Archive collection could not be read.');
     if (expectedHeadSha && expectedHeadSha !== head) throw new Error('The public repository changed. Reload before saving.');
-    const structures = Array.isArray(archive.value.editor_structures) ? [...archive.value.editor_structures] : [];
+    const structures = Array.isArray(archive.data.editor_structures) ? [...archive.data.editor_structures] : [];
     const index = structures.findIndex(item => String(item.record_id) === String(recordId));
     const value = { ...structure, record_id: Number(recordId), updated_at: new Date().toISOString() };
     if (index >= 0) structures[index] = value; else structures.push(value);
-    archive.value.editor_structures = structures;
-    return write('public', [{ path: CONFIG.archivePath, content: json(archive.value) }], 'Save Human Archive editor structure ' + recordId, head);
+    archive.data.editor_structures = structures;
+    return write('public', [{ path: CONFIG.archivePath, content: json(archive.data) }], 'Save Human Archive editor structure ' + recordId, head);
   }
 
   async function publishDraft(draftId, options = {}) {
     const draft = await getDraft(draftId);
     if (!draft) throw new Error('The private draft no longer exists.');
     if (draft.kind !== 'transmission' || !draft.metadata || !draft.content) throw new Error('The private draft has an unsupported structure.');
-    const [transmissions, archive] = await Promise.all([
-      readJson('public', CONFIG.transmissionsPath, null),
-      readJson('public', CONFIG.archivePath, null)
-    ]);
-    if (!transmissions.value?.records || !archive.value?.editor_structures) throw new Error('The canonical public collections are incomplete.');
     const publicHead = await currentHead('public');
-    if (options.expectedPublicHead && publicHead !== options.expectedPublicHead) throw new Error('The public repository changed. Reload before publishing.');
+    const [transmissions, archive] = await Promise.all([
+      readJson('public', CONFIG.transmissionsPath, null, { atCommit: publicHead }),
+      readJson('public', CONFIG.archivePath, null, { atCommit: publicHead })
+    ]);
+    if (!transmissions?.data?.records || !archive?.data?.editor_structures) throw new Error('The canonical public collections are incomplete.');
+    transmissions.value = transmissions.data; archive.value = archive.data;
+    const expectedPublicHead = options.expectedPublicHead || (draft.source === 'existing' ? draft.base_public_commit : null);
+    if (expectedPublicHead && publicHead !== expectedPublicHead) throw new Error('The public Transmission changed after this draft was opened. Reload and reconcile before publishing.');
     const slug = String(draft.metadata.slug || '').trim().toLowerCase();
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) throw new Error('The Transmission slug is invalid.');
     if (!String(draft.metadata.title || '').trim() || String(draft.metadata.title).length > 180) throw new Error('The Transmission title is invalid.');
@@ -304,7 +308,13 @@
 
 
   async function createEditDraft(postId) {
-    const { transmissions, archive } = await getPublicCollections();
+    const publicHead = await currentHead('public');
+    const [transmissions, archive] = await Promise.all([
+      readJson('public', CONFIG.transmissionsPath, null, { atCommit: publicHead }),
+      readJson('public', CONFIG.archivePath, null, { atCommit: publicHead })
+    ]);
+    if (!transmissions?.data?.records || !archive?.data?.editor_structures) throw new Error('The canonical public collections are incomplete.');
+    transmissions.value = transmissions.data; archive.value = archive.data;
     const post = transmissions.value.records.find(item => item.id === postId);
     if (!post) throw new Error('The published Transmission could not be found.');
     const structure = (archive.value.editor_structures || []).find(item => String(item.record_id) === String(post.archive_record_id)) || {};
@@ -314,7 +324,7 @@
       schema_version: 1, draft_id: draftId, kind: 'transmission',
       record_id: Number(post.archive_record_id), post_id: post.id, source: 'existing',
       status: 'draft', created_at: now, updated_at: now, revision: 1,
-      base_public_commit: await currentHead('public'),
+      base_public_commit: publicHead,
       metadata: { title: post.title || '', slug: post.slug || '', category: post.category || '', excerpt: post.excerpt || '', media_width: post.media_width || 100 },
       content: {
         transmission_body: structure.transmission_body || post.content_html || '',
@@ -330,7 +340,13 @@
   }
 
   async function unpublishTransmission(postId) {
-    const { transmissions, archive } = await getPublicCollections();
+    const publicHead = await currentHead('public');
+    const [transmissions, archive] = await Promise.all([
+      readJson('public', CONFIG.transmissionsPath, null, { atCommit: publicHead }),
+      readJson('public', CONFIG.archivePath, null, { atCommit: publicHead })
+    ]);
+    if (!transmissions?.data?.records || !archive?.data?.editor_structures) throw new Error('The canonical public collections are incomplete.');
+    transmissions.value = transmissions.data; archive.value = archive.data;
     const post = transmissions.value.records.find(item => item.id === postId);
     if (!post) throw new Error('The published Transmission could not be found.');
     const structureIndex = (archive.value.editor_structures || []).findIndex(item => String(item.record_id) === String(post.archive_record_id));
@@ -353,7 +369,7 @@
       }
     };
     await saveDraft(draft);
-    const head = await currentHead('public');
+    const head = publicHead;
     transmissions.value.records = transmissions.value.records.filter(item => item.id !== postId);
     if (structureIndex >= 0) archive.value.editor_structures.splice(structureIndex, 1);
     const result = await write('public', [
