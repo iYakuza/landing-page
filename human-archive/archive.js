@@ -351,7 +351,7 @@ async function loadTransmissionRecords(){
   const id=Number(post.archive_record_id),stamp=post.published_at||post.created_at||new Date().toISOString();
   const date=String(stamp).slice(0,10),year=date.slice(0,4);
   const sourceItems=Array.isArray(post.media_items)?post.media_items:(post.media_url?[{url:post.media_url,path:post.media_path,type:post.media_type||'audio',name:post.title}]:[]);
-  const attached=sourceItems.filter(item=>item&&typeof(item.src||item.url)==='string'&&['image','audio','video'].includes(item.type)).map((item,index)=>{
+  const attached=sourceItems.filter(item=>item&&item.status!=='pending_recovery'&&typeof(item.src||item.url)==='string'&&['image','audio','video'].includes(item.type)).map((item,index)=>{
    const relative=String(item.src||item.url||item.path||'');
    const publicUrl=relative.startsWith('http')?relative:('/landing-page/'+relative.replace(/^\/+/, ''));
    return {id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
