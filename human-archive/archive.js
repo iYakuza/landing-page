@@ -314,42 +314,39 @@ function syncFavoriteControls(){
  document.querySelectorAll('[data-ha-favorite-mark]').forEach(mark=>{mark.hidden=!favoriteRecordIds.has(String(mark.dataset.haFavoriteMark||''));});
 }
 async function loadArchiveFavorites(){
- if(!archiveSupabase)return;
- const {data,error}=await archiveSupabase.from('human_archive_favorites').select('record_id');
- if(error){console.warn('Human Archive favourites could not be loaded:',error);return;}
- favoriteRecordIds=new Set((data||[]).map(item=>String(item.record_id)));
+ if(!archiveAdmin||!window.VHACMSStore)return;
+ try{favoriteRecordIds=new Set(await window.VHACMSStore.getFavorites());}
+ catch(error){console.warn('Private Human Archive favourites could not be loaded:',error);}
 }
+
 async function loadRecordStructureOverrides(){
- if(!archiveSupabase)return;
- const {data,error}=await archiveSupabase.from('human_archive_record_structures').select('record_id,transmission_body,prompt_style,lyrics_style,output_text,output_media,blocks,updated_at');
- if(error){console.warn('Human Archive structures could not be loaded:',error);return;}
- const merged=new Map(recordStructureOverrides);(data||[]).forEach(item=>merged.set(String(item.record_id),item));recordStructureOverrides=merged;
+ // The canonical Human Archive JSON already contains the complete editor_structures array.
+ // It is indexed during init(); no separate database overlay is required.
+ return recordStructureOverrides;
 }
+
 async function loadTransmissionRecords(){
- if(!archiveSupabase)return;
- // Match the public Transmissions index query. Do not mutate the current archive
- // until the database read succeeds, so a temporary query failure cannot hide posts.
- let query=archiveSupabase.from('vha_posts').select('id,archive_record_id,title,slug,category,excerpt,content_html,status,created_at,published_at,media_items,media_url,media_type,media_width').order('published_at',{ascending:false,nullsFirst:false});
- if(!archiveAdmin)query=query.eq('status','published');
- const {data,error}=await query;
- if(error){console.warn('Database-backed Transmissions could not be loaded into Human Archive; keeping the current records:',error);return;}
+ const collection=await fetchArchiveJson('../content/transmissions.json',true);
+ if(!collection||!Array.isArray(collection.records))throw new Error('The canonical Transmissions collection is unavailable.');
  records=records.filter(record=>record.source_type!=='transmission');
- mediaItems=mediaItems.filter(item=>item.storage!=='vha-post-media');
- for(const [key,item] of mediaMap){if(item.storage==='vha-post-media')mediaMap.delete(key);}
- const additions=(data||[]).filter(post=>Number.isSafeInteger(Number(post.archive_record_id))&&post.slug).map(post=>{
+ mediaItems=mediaItems.filter(item=>item.storage!=='github-public');
+ for(const [key,item] of mediaMap){if(item.storage==='github-public')mediaMap.delete(key);}
+ const additions=collection.records.filter(post=>post&&post.status==='published'&&Number.isSafeInteger(Number(post.archive_record_id))&&post.slug).map(post=>{
   const id=Number(post.archive_record_id),stamp=post.published_at||post.created_at||new Date().toISOString();
   const date=String(stamp).slice(0,10),year=date.slice(0,4);
-  const sourceItems=Array.isArray(post.media_items)&&post.media_items.length?post.media_items:(post.media_url?[{url:post.media_url,path:post.media_path,type:post.media_type||'audio',name:post.title}]:[]);
-  const attached=sourceItems.filter(item=>item&&typeof item.url==='string'&&['image','audio','video'].includes(item.type)).map((item,index)=>({
-   id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
-   mime_type:item.type==='image'?'image/unknown':item.type==='video'?'video/unknown':'audio/unknown',
-   storage_path:String(item.path||''),source_url:item.url,url:item.url,storage:'vha-post-media',post_ids:[id]
-  }));
-  return {id,title:post.title,slug:post.slug,archiveIdentifier:'HA-'+year+'-'+String(id).padStart(4,'0'),year,date,url:'',categories:[post.category||'TRANSMISSIONS'],content_html:post.content_html||'',source_type:'transmission',post_id:post.id,status:post.status,excerpt:post.excerpt||'',media_items:attached,created_at:post.created_at,published_at:post.published_at,updated_at:post.updated_at,media_width:post.media_width||100};
+  const sourceItems=Array.isArray(post.media_items)?post.media_items:(post.media_url?[{url:post.media_url,path:post.media_path,type:post.media_type||'audio',name:post.title}]:[]);
+  const attached=sourceItems.filter(item=>item&&typeof(item.src||item.url)==='string'&&['image','audio','video'].includes(item.type)).map((item,index)=>{
+   const relative=String(item.src||item.url||item.path||'');
+   const publicUrl=relative.startsWith('http')?relative:('/landing-page/'+relative.replace(/^\/+/, ''));
+   return {id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
+    mime_type:item.type==='image'?'image/unknown':item.type==='video'?'video/unknown':'audio/unknown',
+    storage_path:String(item.path||item.src||item.url||''),source_url:item.source_url||publicUrl,url:publicUrl,
+    storage:'github-public',post_ids:[id]};
+  });
+  const content=String(post.content_html||'').replace(/(["'])((?:media\/transmissions)\/[^"']+)\1/g,(match,quote,path)=>quote+'/landing-page/'+path.replace(/^\/+/, '')+quote);
+  return {id,title:post.title,slug:post.slug,archiveIdentifier:'HA-'+year+'-'+String(id).padStart(4,'0'),year,date,url:'',categories:[post.category||'TRANSMISSIONS'],content_html:content,source_type:'transmission',post_id:post.id,status:'published',excerpt:post.excerpt||'',media_items:attached,created_at:post.created_at,published_at:post.published_at,updated_at:post.updated_at,media_width:post.media_width||100};
  });
- const existingIds=new Set(records.map(record=>String(record.id)));
- const unique=additions.filter(record=>!existingIds.has(String(record.id)));
- unique.forEach(record=>{
+ additions.forEach(record=>{
   records.push(record);
   record.media_items.forEach(item=>{mediaItems.push(item);if(item.url)mediaMap.set(urlKey(item.url),item);});
   const name=record.categories[0];
@@ -357,7 +354,40 @@ async function loadTransmissionRecords(){
   if(category&&![...category.options].some(option=>option.value===name)){const option=document.createElement('option');option.value=name;option.textContent=name;category.append(option);}
   expandedCategories.add(name);
  });
+ if(archiveAdmin&&window.VHACMSStore){
+  try{
+   const drafts=await window.VHACMSStore.listDrafts();
+   for(const draft of drafts){
+    const id=Number(draft.record_id);
+    if(!Number.isSafeInteger(id)||!draft.post_id)continue;
+    const privateAssets=await window.VHACMSStore.getDraftMediaFiles(draft.draft_id);
+    const urlByPath=new Map(privateAssets.map(asset=>[asset.path,asset.url]));
+    const hydrate=item=>{
+     if(!item||typeof item!=='object')return item;
+     const path=String(item.path||'');
+     const url=urlByPath.get(path)||item.url||path;
+     return {...item,url,src:url,storage:item.storage||'github-private'};
+    };
+    const content=draft.content||{};
+    const body=String(content.transmission_body||'').replace(/cms-data\/v1\/media\/drafts\/[^\s"'<>)]*/g,match=>urlByPath.get(match)||match);
+    const blocks=(content.blocks||[]).map(block=>({...block,html:String(block.html||'').replace(/cms-data\/v1\/media\/drafts\/[^\s"'<>)]*/g,match=>urlByPath.get(match)||match)}));
+    const structure={record_id:id,transmission_body:body,prompt_style:content.prompt_style||'',lyrics_style:content.lyrics_style||'',output_text:content.output_text||'',
+     output_media:Object.fromEntries(['image','audio','video'].map(kind=>[kind,(content.output_media?.[kind]||[]).map(hydrate)])),blocks,updated_at:draft.updated_at};
+    recordStructureOverrides.set(String(id),structure);
+    const stamp=draft.created_at||new Date().toISOString(),date=String(stamp).slice(0,10);
+    const record={id,title:draft.metadata?.title||'Untitled Transmission',slug:draft.metadata?.slug||'untitled-transmission',
+     archiveIdentifier:'HA-'+date.slice(0,4)+'-'+String(id).padStart(4,'0'),year:date.slice(0,4),date,url:'',
+     categories:[draft.metadata?.category||'UNASSIGNED'],content_html:body,source_type:'transmission',post_id:draft.post_id,draft_id:draft.draft_id,
+     status:'draft',excerpt:draft.metadata?.excerpt||'',media_items:(content.media_items||[]).map(hydrate),created_at:draft.created_at,
+     updated_at:draft.updated_at,published_at:null,media_width:draft.metadata?.media_width||100,isDraft:true,_privateCommitSha:draft._sha};
+    records.push(record);
+    record.media_items.forEach(item=>{if(item.url){mediaItems.push({...item,post_ids:[id],storage:'github-private'});mediaMap.set(urlKey(item.url),item);}});
+    if(record.categories[0]&&!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);
+   }
+  }catch(error){console.warn('Private Transmission drafts could not be loaded:',error);}
+ }
 }
+
 async function ensureStandaloneTransmissionRecords(){
  if(hasArchiveIndex)return;
  if(!standaloneTransmissionRecordsPromise){
@@ -367,31 +397,28 @@ async function ensureStandaloneTransmissionRecords(){
  await standaloneTransmissionRecordsPromise;
 }
 async function refreshArchiveAdmin(sessionOverride){
- if(!archiveSupabase){archiveAdmin=false;archiveUserId=null;return false;}
- let session=sessionOverride;
- if(sessionOverride===undefined){
-  const result=await archiveSupabase.auth.getSession();
-  if(result.error){archiveAdmin=false;archiveUserId=null;return false;}
-  session=result.data?.session;
- }
- if(!session?.user){archiveAdmin=false;archiveUserId=null;return false;}
- const {data,error}=await archiveSupabase.from('vha_cms_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
- archiveAdmin=!error&&Boolean(data);
- archiveUserId=archiveAdmin?session.user.id:null;
+ if(!window.VHAGitHub){archiveAdmin=false;archiveUserId=null;return false;}
+ try{
+  const session=sessionOverride===undefined?await window.VHAGitHub.restoreSession():sessionOverride;
+  const user=session?.user||null;
+  archiveAdmin=Boolean(user&&String(user.login||'').toLowerCase()==='iyakuza');
+  archiveUserId=archiveAdmin?String(user.login):null;
+ }catch(error){archiveAdmin=false;archiveUserId=null;}
  return archiveAdmin;
 }
+
 async function toggleArchiveFavorite(recordId,button){
  const id=String(recordId);
- if(!archiveAdmin||!archiveSupabase||!/^[0-9]+$/.test(id)||button.disabled)return;
+ if(!archiveAdmin||!window.VHACMSStore||!/^[0-9]+$/.test(id)||button.disabled)return;
  const wasFavorite=favoriteRecordIds.has(id);button.disabled=true;favoriteSaveError=false;
  button.title=wasFavorite?'REMOVING FAVOURITE…':'SAVING FAVOURITE…';
  try{
-  const result=wasFavorite?await archiveSupabase.from('human_archive_favorites').delete().eq('record_id',Number(id)):await archiveSupabase.from('human_archive_favorites').insert({record_id:Number(id)});
-  if(result.error&&!(result.error.code==='23505'&&!wasFavorite))throw result.error;
+  await window.VHACMSStore.setFavorite(id,!wasFavorite);
   if(wasFavorite)favoriteRecordIds.delete(id);else favoriteRecordIds.add(id);
  }catch(error){console.error('Human Archive favourite could not be saved:',error);favoriteSaveError=true;}
  finally{document.querySelectorAll('[data-ha-favorite-id="'+id+'"]').forEach(control=>{control.disabled=!archiveAdmin;});syncFavoriteControls();}
 }
+
 function chamberShareUrl(record){
  return new URL(encodeURIComponent(record.slug),archiveHomeUrl).href;
 }
