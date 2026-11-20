@@ -1323,7 +1323,7 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
       const output=Object.fromEntries(['image','audio','video'].map(kind=>[kind,(publicStructure.output_media?.[kind]||[]).map(item=>({...item,url:makePublicUrl(item.url||item.path)}))]));
       recordStructureOverrides.set(String(record.id),{...publicStructure,transmission_body:rewriteHtml(publicStructure.transmission_body),blocks:(publicStructure.blocks||[]).map(block=>({...block,html:rewriteHtml(block.html)})),output_media:output});
      }
-     status.textContent='TRANSMISSION PUBLISHED // CHANGES COMMITTED';
+     status.textContent=published.privateCleanupPending?'PUBLISHED — PRIVATE DRAFT CLEANUP IS PENDING':'TRANSMISSION PUBLISHED // CHANGES COMMITTED';
     }else{
      if(record._editOfPublished){
       status.textContent='REMOVING PUBLIC VERSION…';
