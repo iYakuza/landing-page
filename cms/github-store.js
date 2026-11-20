@@ -158,7 +158,7 @@
   }
 
 
-  async function uploadPublicMedia(recordId, files, folder = 'blocks') {
+  async function uploadPublicMedia(recordId, files, folder = 'blocks', expectedHeadSha) {
     const record = Number(recordId);
     if (!Number.isSafeInteger(record) || record < 1) throw new Error('A valid Human Archive record ID is required.');
     const safeFolder = String(folder || 'blocks').replace(/[^a-z0-9_-]/gi, '').slice(0, 40) || 'blocks';
@@ -172,6 +172,7 @@
     }
     if (!changes.length) return [];
     const head = await currentHead('public');
+    if (expectedHeadSha && expectedHeadSha !== head) throw new Error('The public repository changed. Reload before uploading media.');
     const result = await write('public', changes, 'Upload Human Archive media HA-' + record, head);
     return changes.map((change, index) => ({
       path: change.path, url: '/landing-page/' + change.path, name: change.path.split('/').pop(),
@@ -225,7 +226,7 @@
     return { ...draft, revision: saved.draft.revision, _repoCommitSha: saved.commitSha, commitSha: saved.commitSha };
   }
 
-  async function uploadDraftMedia(draftId, files, folder = 'attachments') {
+  async function uploadDraftMedia(draftId, files, folder = 'attachments', expectedHeadSha) {
     const key = id(draftId);
     const safeFolder = String(folder || 'attachments').replace(/[^a-z0-9_-]/gi, '').slice(0, 40) || 'attachments';
     const changes = [];
@@ -238,6 +239,7 @@
     }
     if (!changes.length) return [];
     const head = await currentHead('private') || await github().initializePrivateRepository();
+    if (expectedHeadSha && expectedHeadSha !== head) throw new Error('The private CMS repository changed. Reload before uploading media.');
     const result = await write('private', changes, 'Upload private Transmission draft media ' + key, head);
     return changes.map(change => ({ path: change.path, name: change.path.split('/').pop(), commitSha: result.commitSha }));
   }
