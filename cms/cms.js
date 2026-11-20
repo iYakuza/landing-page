@@ -1,80 +1,115 @@
 (() => {
   'use strict';
-  const SUPABASE_URL='https://oeyxsqocldlovhsmzcjw.supabase.co';
-  const SUPABASE_PUBLISHABLE_KEY='sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-  const client=window.supabase?.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-  const $=id=>document.getElementById(id);
-  const loginPanel=$('login-panel'),workspace=$('workspace'),setupNote=$('setup-note');
-  const loginForm=$('login-form'),loginMessage=$('login-message');
-  const PAGE_SIZE=10;
-  let currentUser=null,submissions=[],offset=0,hasMore=false;
-  const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-  function message(element,value,isError=false){if(!element)return;element.textContent=value;element.classList.toggle('error',Boolean(isError));}
-  function showLogin(){loginPanel.hidden=false;workspace.hidden=true;setupNote.hidden=false;}
-  function showWorkspace(user){loginPanel.hidden=true;workspace.hidden=false;setupNote.hidden=true;$('community-review').hidden=false;$('user-line').textContent='SIGNED IN // '+(user.email||'CMS ADMIN');}
-  async function ensureAdmin(user){
-    const {data,error}=await client.from('vha_cms_admins').select('user_id').eq('user_id',user.id).maybeSingle();
-    if(error||!data){await client.auth.signOut();showLogin();message(loginMessage,'This account has no CMS admin role. An owner must grant access through vha_cms_admins.',true);return false;}
-    return true;
+
+  const $ = id => document.getElementById(id);
+  const github = window.VHAGitHub;
+  const store = window.VHACMSStore;
+  const loginPanel = $('login-panel');
+  const workspace = $('workspace');
+  const setupNote = $('setup-note');
+  const loginForm = $('login-form');
+  const loginMessage = $('login-message');
+  const sequencePanel = $('github-sequence-setup');
+  const sequenceMessage = $('sequence-message');
+  const communityPanel = $('community-review');
+  let currentUser = null;
+
+  function message(element, value, isError = false) {
+    if (!element) return;
+    element.textContent = value;
+    element.classList.toggle('error', Boolean(isError));
   }
-  async function loadCommunitySubmissions(reset=true){
-    const target=$('community-submissions');if(!target)return;
-    if(reset){offset=0;submissions=[];target.innerHTML='<p class="cms-help">Loading recent community submissions…</p>';}
-    const {data,error}=await client.from('poetry_submissions').select('id,title,medium,body,byline,media_url,created_at,status').order('created_at',{ascending:false}).range(offset,offset+PAGE_SIZE-1);
-    if(error){target.innerHTML='<p class="cms-message error">Could not load community submissions: '+escapeHtml(error.message)+'</p>';return;}
-    const items=data||[];submissions=reset?items:submissions.concat(items);offset+=items.length;hasMore=items.length===PAGE_SIZE;
-    if(!submissions.length)target.innerHTML='<p class="cms-help">No visitor submissions yet.</p>';
-    else target.innerHTML=submissions.map(item=>{
-      const media=item.media_url?'<p><a href="'+escapeHtml(item.media_url)+'" target="_blank" rel="noopener noreferrer">OPEN ATTACHED MEDIA ↗</a></p>':'';
-      const body=item.body?'<p class="community-submission-body">'+escapeHtml(item.body).replace(/\n/g,'<br>')+'</p>':'';
-      const actions=item.status==='pending'?'<div class="community-submission-actions"><button type="button" class="cms-button primary vha-editor-action" data-action-variant="primary" data-submission-action="published" data-submission-id="'+escapeHtml(item.id)+'">APPROVE & PUBLISH</button><button type="button" class="cms-button danger vha-editor-action" data-action-variant="danger" data-submission-action="rejected" data-submission-id="'+escapeHtml(item.id)+'">DECLINE</button></div>':'';
-      return '<article class="community-submission"><div class="community-submission-top"><div><p class="gd-kicker">'+escapeHtml(String(item.medium||'').toUpperCase())+' // '+escapeHtml(item.byline||'ANONYMOUS')+'</p><h3>'+escapeHtml(item.title)+'</h3></div><span class="'+(item.status==='published'?'published-label':item.status==='pending'?'draft-label':item.status==='rejected'?'rejected-label':item.status==='failed'?'failed-label':'')+'">'+escapeHtml(String(item.status||'').toUpperCase())+'</span></div>'+body+media+'<small class="cms-help">RECEIVED '+new Date(item.created_at).toLocaleString('en-GB')+'</small>'+actions+'</article>';
-    }).join('');
-    $('load-more-submissions').hidden=!hasMore;
+
+  function showLogin() {
+    loginPanel.hidden = false;
+    workspace.hidden = true;
+    setupNote.hidden = true;
+    if (sequencePanel) sequencePanel.hidden = true;
+    if (communityPanel) communityPanel.hidden = true;
   }
-  $('refresh-submissions')?.addEventListener('click',()=>loadCommunitySubmissions(true));
-  $('load-more-submissions')?.addEventListener('click',()=>loadCommunitySubmissions(false));
-  $('community-submissions')?.addEventListener('click',async event=>{
-    const button=event.target.closest('[data-submission-action]');if(!button)return;
-    button.disabled=true;const status=button.dataset.submissionAction,id=button.dataset.submissionId;
-    const {error}=await client.from('poetry_submissions').update({status,...(status==='published'?{published_at:new Date().toISOString()}:{})}).eq('id',id);
-    if(error){button.disabled=false;alert('Could not update submission: '+error.message);return;}
-    await loadCommunitySubmissions(true);
-  });
-  async function restoreSession(){
-    if(!client){showLogin();message(loginMessage,'The admin client could not initialise. Reload the page or contact the site owner.',true);return;}
-    const {data:{session}}=await client.auth.getSession();
-    if(new URLSearchParams(window.location.hash.slice(1)).get('type')==='recovery'&&session?.user){
-      loginPanel.hidden=true;workspace.hidden=true;$('password-reset-panel').hidden=false;$('password-reset-message').textContent='Choose a new password for your account.';return;
+
+  async function showWorkspace(user) {
+    currentUser = user;
+    loginPanel.hidden = true;
+    workspace.hidden = false;
+    setupNote.hidden = true;
+    if (communityPanel) communityPanel.hidden = true;
+    $('user-line').textContent = 'SIGNED IN // ' + (user.login || 'iYakuza') + ' // GITHUB OWNER';
+    try {
+      const sequences = await store.getSequences();
+      sequencePanel.hidden = Boolean(sequences);
+      if (sequences) {
+        message(sequenceMessage, 'IDENTIFIERS INITIALIZED // NEXT: T-' + String(Number(sequences.transmission_number) + 1).padStart(4, '0') + ' / ' + (Number(sequences.archive_record_id) + 1));
+      } else {
+        message(sequenceMessage, 'The private repository is ready for its one-time sequence initialization.');
+      }
+    } catch (error) {
+      sequencePanel.hidden = false;
+      message(sequenceMessage, error.message || 'Could not inspect the private CMS repository.', true);
     }
-    if(session?.user&&await ensureAdmin(session.user)){currentUser=session.user;showWorkspace(currentUser);await loadCommunitySubmissions(true);}
-    else showLogin();
   }
-  $('forgot-password')?.addEventListener('click',async()=>{
-    const email=$('login-email').value.trim();
-    if(!email){message(loginMessage,'Enter your account email above first, then request a reset link.',true);$('login-email').focus();return;}
-    const button=$('forgot-password');button.disabled=true;message(loginMessage,'REQUESTING PASSWORD RESET…');
-    try{const redirectTo=new URL('/landing-page/cms/',window.location.origin).href;const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo});if(error)throw error;message(loginMessage,'If an account exists for that email, a password reset link has been sent. Check your inbox and spam folder.');}
-    catch(error){message(loginMessage,error.message||'Could not request a reset link.',true);}
-    finally{button.disabled=false;}
+
+  async function connect(token) {
+    if (!github || !store) throw new Error('The GitHub CMS modules did not load. Refresh this page and try again.');
+    const result = await github.authenticate(token);
+    $('github-token').value = '';
+    await showWorkspace(result.user);
+    message(loginMessage, '');
+  }
+
+  loginForm?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const button = loginForm.querySelector('button[type="submit"]');
+    button.disabled = true;
+    message(loginMessage, 'VERIFYING GITHUB ACCOUNT AND BOTH REPOSITORIES…');
+    try {
+      await connect($('github-token').value);
+    } catch (error) {
+      message(loginMessage, error.message || 'GitHub authentication failed.', true);
+    } finally {
+      button.disabled = false;
+    }
   });
-  $('password-reset-form')?.addEventListener('submit',async event=>{
-    event.preventDefault();const password=$('new-password').value,confirmPassword=$('confirm-password').value;
-    if(password.length<8){message($('password-reset-message'),'Use at least 8 characters.',true);return;}
-    if(password!==confirmPassword){message($('password-reset-message'),'The passwords do not match.',true);return;}
-    const button=event.currentTarget.querySelector('button');button.disabled=true;message($('password-reset-message'),'UPDATING PASSWORD…');
-    try{const {error}=await client.auth.updateUser({password});if(error)throw error;await client.auth.signOut();window.history.replaceState({},document.title,window.location.pathname);$('password-reset-panel').hidden=true;showLogin();$('login-password').value='';message(loginMessage,'Password updated. Sign in with your admin account.');}
-    catch(error){message($('password-reset-message'),error.message||'Could not update the password. Request a fresh reset link and try again.',true);}
-    finally{button.disabled=false;}
+
+  $('initialize-sequences')?.addEventListener('click', async event => {
+    const button = event.currentTarget;
+    button.disabled = true;
+    message(sequenceMessage, 'INITIALIZING THE PRIVATE CMS REPOSITORY…');
+    try {
+      const result = await store.seedSequences(6, 3008);
+      sequencePanel.hidden = true;
+      message(sequenceMessage, 'SEQUENCES INITIALIZED // NEXT: ' + result.transmission_number + ' / ' + result.archive_record_id);
+    } catch (error) {
+      message(sequenceMessage, error.message || 'The sequence initialization failed.', true);
+    } finally {
+      button.disabled = false;
+    }
   });
-  loginForm.addEventListener('submit',async event=>{
-    event.preventDefault();message(loginMessage,'AUTHENTICATING…');
-    const {data,error}=await client.auth.signInWithPassword({email:$('login-email').value.trim(),password:$('login-password').value});
-    if(error){message(loginMessage,error.message,true);return;}
-    if(!(await ensureAdmin(data.user)))return;
-    currentUser=data.user;showWorkspace(currentUser);message(loginMessage,'');await loadCommunitySubmissions(true);
+
+  $('sign-out')?.addEventListener('click', () => {
+    github?.signOut();
+    currentUser = null;
+    showLogin();
+    message(loginMessage, 'Signed out. The session token has been cleared from this tab.');
   });
-  $('sign-out').addEventListener('click',async()=>{await client.auth.signOut();currentUser=null;showLogin();message(loginMessage,'Signed out.');});
-  client?.auth.onAuthStateChange((_event,session)=>{if(!session){currentUser=null;showLogin();}});
-  restoreSession();
+
+  github?.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      showLogin();
+    } else if (event === 'SIGNED_IN' && session?.user) {
+      showWorkspace(session.user);
+    }
+  });
+
+  window.__vhaCmsAuthReady = (async () => {
+    try {
+      const session = await github?.restoreSession();
+      if (session?.user) await showWorkspace(session.user);
+      else showLogin();
+    } catch (error) {
+      showLogin();
+      message(loginMessage, error.message || 'The saved GitHub session could not be restored. Sign in again.', true);
+    }
+  })();
 })();
