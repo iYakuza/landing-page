@@ -1,4 +1,27 @@
 (()=>{'use strict';
+// The shared layout renderer normally expands these templates before this deferred script runs.
+ // Keep the archive self-sufficient if that shared asset fails to load on the preview deployment.
+function ensureArchiveLayout(){
+ const root=document.querySelector('[data-vha-layout-root]');
+ if(!root)return;
+ root.querySelectorAll('template[data-vha-component="section"]').forEach(template=>{
+  const kind=String(template.dataset.vhaKind||'');
+  if(!['hero','intro','records'].includes(kind))return;
+  const section=document.createElement('section');
+  section.classList.add('vha-layout-section','vha-layout-section--'+kind);
+  String(template.dataset.vhaClasses||'').split(/\s+/).filter(name=>/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(name)).forEach(name=>section.classList.add(name));
+  for(const attribute of [...template.attributes]){
+   const name=attribute.name.toLowerCase();
+   if(name.startsWith('data-vha-'))continue;
+   if(name==='id'||name==='role'||name==='lang'||name.startsWith('aria-'))section.setAttribute(name,attribute.value);
+  }
+  section.dataset.vhaComponent='section';
+  section.dataset.vhaKind=kind;
+  section.append(template.content.cloneNode(true));
+  template.replaceWith(section);
+ });
+}
+ensureArchiveLayout();
 const search=document.getElementById('ha-search'),year=document.getElementById('ha-year'),category=document.getElementById('ha-category'),list=document.getElementById('ha-list'),count=document.getElementById('ha-count'),mediaStatus=document.getElementById('ha-media-status');
 const newTransmissionButton=document.getElementById('ha-new-transmission'),createTransmissionStatus=document.getElementById('ha-create-status');
 const hasArchiveIndex=Boolean(search&&year&&category&&list&&count);
@@ -229,7 +252,7 @@ function appendSafeContent(container,source,record,used){
     const src=safeArchiveMediaUrl(raw,new Set(['i0.wp.com','emanuelstefancu.wordpress.com']));
     let valid=Boolean(src);
     if(valid){
-     if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
+     if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(raw);
      else{
       const url=new URL(src);
       if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);
@@ -1651,7 +1674,8 @@ function makeEntry(record,index){
  const content=document.createElement('div');content.className='ha-entry-content';content.id='ha-record-'+record.id;content.hidden=true;
  const link=document.createElement('button');link.type='button';link.className='ha-entry';link.setAttribute('aria-controls',content.id);link.setAttribute('aria-expanded','false');link.setAttribute('aria-label','Read local archive record: '+record.title+', '+record.date);
  const top=document.createElement('div');top.className='ha-entry-top';const code=document.createElement('small');code.className='ha-entry-code';code.textContent=record.archiveIdentifier;top.append(code);
- const internalId=document.createElement('small');internalId.className='ha-entry-id';internalId.textContent='ID // '+String(record.id);const bottom=document.createElement('div');bottom.className='ha-entry-bottom';const action=document.createElement('span');action.textContent='ACCESS NICHE ↓';bottom.append(internalId,action);link.append(top,bottom);link.style.setProperty('--entry-order',String(index));
+ const title=document.createElement('strong');title.textContent=String(record.title||'Untitled record');
+ const internalId=document.createElement('small');internalId.className='ha-entry-id';internalId.textContent='ID // '+String(record.id);const bottom=document.createElement('div');bottom.className='ha-entry-bottom';const action=document.createElement('span');action.textContent='ACCESS NICHE ↓';bottom.append(internalId,action);link.append(top,title,bottom);link.style.setProperty('--entry-order',String(index));
  const quickActions=makeChamberNode('div','ha-entry-quick-actions');quickActions.hidden=true;
  const chamber=makeChamberNode('button','ha-entry-chamber','ENTER THE CHAMBER ↗');chamber.type='button';chamber.addEventListener('click',()=>openArchiveRecordChamber(record,chamber));
  const favorite=makeChamberNode('button','ha-favorite-toggle','☆');favorite.type='button';favorite.dataset.haFavoriteId=String(record.id);favorite.hidden=!archiveAdmin;favorite.setAttribute('aria-pressed',String(favoriteRecordIds.has(String(record.id))));favorite.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();toggleArchiveFavorite(record.id,favorite);});
@@ -1678,7 +1702,18 @@ function render(){
   const items=visible.filter(r=>(r.categories||[]).includes(name)).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);if(!items.length)return;
   const section=document.createElement('section');section.className='ha-category-group';section.dataset.category=name;
   const heading=document.createElement('div');heading.className='ha-category-heading';const toggle=document.createElement('button');toggle.type='button';toggle.className='ha-category-toggle';toggle.setAttribute('aria-expanded',String(expandedCategories.has(name)));const h=document.createElement('span');h.className='ha-category-title';h.textContent=name;const marker=document.createElement('span');marker.className='ha-category-marker';marker.setAttribute('aria-hidden','true');marker.textContent=expandedCategories.has(name)?'−':'+';const total=document.createElement('span');total.className='ha-category-total';total.textContent=String(items.length).padStart(2,'0')+' RECORDS';toggle.append(h,marker);heading.append(toggle,total);section.append(heading);
-  const entries=document.createElement('div');entries.className='ha-category-entries';entries.hidden=!expandedCategories.has(name);items.forEach((r,i)=>entries.append(makeEntry(r,i)));toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));entries.hidden=!open;marker.textContent=open?'−':'+';if(open)expandedCategories.add(name);else expandedCategories.delete(name)});section.append(entries);fragment.append(section);
+  const entries=document.createElement('div');entries.className='ha-category-entries';entries.hidden=!expandedCategories.has(name);
+  items.forEach((r,i)=>{
+   try{entries.append(makeEntry(r,i));}
+   catch(error){
+    console.error('A Human Archive record could not be fully rendered:',r?.id,r?.title,error);
+    const fallback=document.createElement('article');fallback.className='ha-record-card';fallback.dataset.haRecordId=String(r?.id??'');
+    const title=document.createElement('strong');title.className='ha-entry';title.textContent=String(r?.title||'Untitled record');
+    const code=document.createElement('small');code.className='ha-entry-code';code.textContent=String(r?.archiveIdentifier||'');
+    fallback.append(code,title);entries.append(fallback);
+   }
+  });
+  toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));entries.hidden=!open;marker.textContent=open?'−':'+';if(open)expandedCategories.add(name);else expandedCategories.delete(name)});section.append(entries);fragment.append(section);
  });
  list.append(fragment);
 }
