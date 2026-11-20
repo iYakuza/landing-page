@@ -54,8 +54,8 @@
   function validMediaUrl(value){
     try{
       const raw=String(value||'').trim();
-      if(raw.startsWith('media/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return isCommunityArchive||availableMediaPaths.has(raw)?'/landing-page/'+raw:'';
-      if(raw.startsWith('/landing-page/media/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return isCommunityArchive||availableMediaPaths.has(raw.slice('/landing-page/'.length))?raw:'';
+      if(raw.startsWith('media/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return availableMediaPaths.has(raw)?'/landing-page/'+raw:'';
+      if(raw.startsWith('/landing-page/media/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return availableMediaPaths.has(raw.slice('/landing-page/'.length))?raw:'';
       if(raw.startsWith('/landing-page/posts/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw.replace('/landing-page/posts/imported/','/landing-page/transmissions/imported/');
       if(raw.startsWith('/landing-page/transmissions/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
       const url=new URL(raw);
@@ -356,7 +356,7 @@
       const collection=await response.json();
       if(!Array.isArray(collection.records))throw new Error('The canonical collection is malformed.');
       availableMediaPaths.clear();
-      if(!isCommunityArchive)collection.records.forEach(record=>{
+      collection.records.forEach(record=>{
         (record?.media_items||[]).filter(media=>media?.status==='available').forEach(media=>{
           const mediaPath=String(media.src||media.url||'').trim();
           if(mediaPath.startsWith('media/')&&!mediaPath.includes('..')&&!mediaPath.includes('?')&&!mediaPath.includes('#')&&!mediaPath.includes(String.fromCharCode(92)))availableMediaPaths.add(mediaPath);
@@ -367,7 +367,7 @@
           id:item.id,legacy_id:item.legacy_id,title:item.title,slug:item.slug,category:'COMMUNITY SIGNAL',
           excerpt:item.byline?'TRANSMITTED BY '+item.byline:'COMMUNITY SUBMISSION',
           content_html:item.body?'<p>'+safe(item.body).replace(/\n/g,'<br>')+'</p>':'',
-          media_url:item.media_url,media_items:(item.media_items||[]).map(media=>({...media,url:media.src||media.url})),
+          media_url:(item.media_items||[]).find(media=>media?.status==='available')?.src||'',media_items:(item.media_items||[]).filter(media=>media?.status==='available').map(media=>({...media,url:media.src||media.url})),
           media_type:item.medium==='photograph'?'image':item.medium==='video'?'video':'audio',
           created_at:item.created_at,published_at:item.published_at||item.created_at,community:true
         }))
