@@ -79,12 +79,14 @@ jobs:
 
           creator_path = Path("creator-posting.js")
           creator = creator_path.read_text(encoding="utf-8") if creator_path.exists() else ""
-          if "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" not in creator:
-              errors.append("Creator SDK must remain pinned to an explicit Supabase JS version.")
-          if "crossOrigin='anonymous'" not in creator or "referrerPolicy='no-referrer'" not in creator:
-              errors.append("Creator SDK loader must set anonymous CORS and no-referrer policy.")
-          if "integrity=" not in creator:
-              warnings.append("Creator SDK is dynamically loaded from a pinned CDN version but still lacks a verified SRI hash.")
+          if not creator:
+              errors.append("Creator posting controller is missing.")
+          if "/landing-page/cms/github-client.js" not in creator:
+              errors.append("Creator controller must load the GitHub CMS client.")
+          if "window.VHAGitHub.restoreSession()" not in creator:
+              errors.append("Creator controller must restore the GitHub owner session.")
+          if "@supabase/supabase-js" in creator.lower() or "supabase.createclient" in creator.lower():
+              errors.append("Creator controller must not load or initialize Supabase.")
 
           security_path = Path(".well-known/security.txt")
           if not security_path.exists():
