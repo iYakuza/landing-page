@@ -1100,7 +1100,7 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
     prompt_style:'',lyrics_style:'',output_text:'',output_media:liveOutput,
     blocks:state.editorBlocks,updated_at:record.updated_at
    });
-   await cleanupBlockMediaUploads(state.editorBody);
+   await cleanupBlockMediaUploads(state.editorBody+'\n'+state.editorBlocks.map(block=>block.html||'').join('\n'));
    [...attachedPostMedia,...['image','audio','video'].flatMap(kind=>editorMedia[kind])].forEach(item=>{
     if(item.uploadedDraft){Object.assign(item,item.uploadedDraft);item.file=null;delete item.uploadedDraft;}
    });
@@ -1374,7 +1374,7 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
     const saved=await window.VHACMSStore.savePublicStructure(record.id,row,record._publicCommitSha||archivePublicHeadSha);
     publicStructureSaved=true;record._publicCommitSha=saved.commitSha;
     recordStructureOverrides.set(String(record.id),row);
-    await cleanupBlockMediaUploads(body);
+    await cleanupBlockMediaUploads(body+'\n'+blocks.map(block=>block.html||'').join('\n'));
     const keepPaths=new Set(['image','audio','video'].flatMap(kind=>Array.isArray(outputMedia[kind])?outputMedia[kind]:[])
      .filter(item=>item&&item.storage==='github-public').map(item=>item.path).filter(Boolean));
     const removedPaths=[...new Set(oldOwnedPaths)].filter(path=>!keepPaths.has(path));
