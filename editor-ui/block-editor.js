@@ -24,7 +24,7 @@
 
   function safeEditorMediaURL(value, hosts, mediaBasePath) {
     const raw = String(value || '').trim();
-    const basePath = String(mediaBasePath || (window.location.pathname.startsWith('/landing-page-preview/') ? '/landing-page-preview' : '/landing-page')).replace(/\\/+$/, '');
+    const basePathValue = String(mediaBasePath || (window.location.pathname.startsWith('/landing-page-preview/') ? '/landing-page-preview' : '/landing-page')); const basePath = basePathValue.endsWith('/') ? basePathValue.slice(0, -1) : basePathValue;
     try {
       if (raw.startsWith('media/') && !raw.includes('..') && !raw.includes('?') && !raw.includes('#') && !raw.includes(String.fromCharCode(92))) return new URL(basePath + '/' + raw, window.location.origin).href;
       const url = new URL(raw, window.location.href);
@@ -587,7 +587,7 @@
                    let valid=Boolean(safe);
                    if(valid&&['AUDIO','VIDEO','SOURCE'].includes(node.tagName)){
                      const url=new URL(safe,window.location.href);
-                     valid=(url.protocol==='blob:'&&url.origin===window.location.origin)||
+                     const mediaBaseValue=String(mediaBasePath || (window.location.pathname.startsWith('/landing-page-preview/') ? '/landing-page-preview' : '/landing-page')); const normalizedMediaBase=mediaBaseValue.endsWith('/') ? mediaBaseValue.slice(0,-1) : mediaBaseValue; valid=(url.protocol==='blob:'&&url.origin===window.location.origin)||(url.origin===window.location.origin&&url.pathname.startsWith(normalizedMediaBase+'/media/'))||(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.startsWith('/storage/v1/object/public/vha-post-media/'));
                        (url.origin===window.location.origin&&url.pathname.startsWith((String(mediaBasePath || (window.location.pathname.startsWith('/landing-page-preview/') ? '/landing-page-preview' : '/landing-page')).replace(/\\/+$/,'')+'/media/')))||
                        (url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.startsWith('/storage/v1/object/public/vha-post-media/'));
                    }
