@@ -1195,7 +1195,7 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
  if(editButton)editButton.onclick=discardChanges;
  
  save.onclick=async()=>{
-  if(!archiveAdmin||!archiveWriteReady||!archiveUserId){status.textContent='GITHUB EDITOR MIGRATION IS NOT YET ENABLED';return;}
+  if(!archiveAdmin||!archiveWriteReady||!archiveUserId||!window.VHACMSStore){status.textContent='GITHUB EDITOR MIGRATION IS NOT YET ENABLED';return;}
   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
   if(draftAutosaveInFlight){
    status.textContent='WAITING FOR AUTOMATIC DRAFT SAVE…';
@@ -1209,118 +1209,22 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
    if(!window.confirm(prompt))return;
   }
   save.disabled=true;editButton.disabled=true;if(deleteDraft)deleteDraft.disabled=true;save.textContent='SAVING…';status.textContent='PREPARING CHAMBER UPDATE…';
-  const uploadedPaths=[];
+  const uploadedPublicPaths=[];
+  let publicStructureSaved=false;
   const oldStructure=recordStructureOverrides.get(String(record.id))||{};
-  const existingOutput=oldStructure.output_media&&typeof oldStructure.output_media==='object'?oldStructure.output_media:{};
-  const oldOwnedPaths=['image','audio','video'].flatMap(type=>Array.isArray(existingOutput[type])?existingOutput[type]:[])
-   .filter(item=>item&&item.storage==='vha-post-media'&&typeof item.path==='string'&&item.path.startsWith('human-archive/'+String(record.id)+'/'))
+  const oldOutput=oldStructure.output_media&&typeof oldStructure.output_media==='object'?oldStructure.output_media:{};
+  const oldOwnedPaths=['image','audio','video'].flatMap(kind=>Array.isArray(oldOutput[kind])?oldOutput[kind]:[])
+   .filter(item=>item&&item.storage==='github-public'&&typeof item.path==='string'&&item.path.startsWith('media/human-archive/HA-'+String(record.id).padStart(4,'0')+'/'))
    .map(item=>item.path);
   try{
-   if(record.source_type==='transmission'&&!record.post_id){
-    const metadata={
-     title:String(recordMetadataInputs.title.value).trim(),
-     slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
-     category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
-     excerpt:String(recordMetadataInputs.excerpt.value).trim(),
-     status:String(recordMetadataInputs.status.value).trim().toLowerCase(),
-     mediaWidth:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100))
-    };
-    if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
-    if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
-    if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
-    if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
-    if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
-    const initialBody=sanitizeTransmissionBody(getEditorHTML());
-    const publishText=getCurrentTransmissionText();
-    if(metadata.status==='published'&&!String(publishText||'').trim())throw new Error('Add transmission content before publishing.');
-    status.textContent='CREATING TRANSMISSION…';
-    const {data:createResult,error:createError}=await archiveSupabase.rpc('create_human_archive_transmission_v3',{
-     p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,
-     p_status:'draft',p_transmission_body:initialBody,p_prompt_style:'',p_lyrics_style:'',p_output_text:'',
-     p_output_media:{},p_media_items:[],p_media_width:metadata.mediaWidth
-    });
-    if(createError)throw createError;
-    const created=Array.isArray(createResult)?createResult[0]:createResult;
-    if(!created?.post_id||!created?.archive_record_id||!created?.slug||!created?.updated_at)throw new Error('The Transmission record could not be confirmed.');
-    metadata.slug=String(created.slug);
-    recordMetadataInputs.slug.value=metadata.slug;
-    slugManuallyEdited=true;
-    record.id=Number(created.archive_record_id);record.post_id=created.post_id;record.updated_at=created.updated_at;
-    record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;
-    record.status='draft';record.media_width=metadata.mediaWidth;record.created_at=new Date().toISOString();
-    record.date=record.created_at.slice(0,10);record.year=record.date.slice(0,4);
-    record.archiveIdentifier='HA-'+record.year+'-'+String(record.id).padStart(4,'0');
-    record.isNew=false;chamberRecordId=String(record.id);
-   }
-   const savedPostMedia=[];
-   for(const item of attachedPostMedia){
-    if(item.file){
-     status.textContent='UPLOADING POST ATTACHMENT // '+item.name;
-     const token=chamberUploadToken();
-     const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
-     const path='human-archive/'+String(record.id)+'/attachments/'+token+'-'+safeName;
-     const {error:uploadError}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{cacheControl:'3600',contentType:item.mime_type,upsert:false});
-     if(uploadError)throw uploadError;
-     uploadedPaths.push(path);
-     const {data:publicData}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
-     if(!publicData?.publicUrl)throw new Error('The attachment URL could not be created.');
-     savedPostMedia.push({url:publicData.publicUrl,path,type:item.type,name:item.name});
-    }else{
-     savedPostMedia.push({url:item.url,path:item.path||null,type:item.type,name:item.name});
-    }
-   }
-   const outputMedia={};
-   for(const type of ['image','audio','video']){
-    const savedItems=[];
-    for(const item of editorMedia[type]){
-     if(item.file){
-      status.textContent='UPLOADING '+type.toUpperCase()+' // '+item.name;
-      const token=chamberUploadToken();
-      const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
-      const path='human-archive/'+String(record.id)+'/'+type+'/'+token+'-'+safeName;
-      const {error:uploadError}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{
-       cacheControl:'3600',contentType:item.mime_type,upsert:false
-      });
-      if(uploadError)throw uploadError;
-      uploadedPaths.push(path);
-      const {data:publicData}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
-      if(!publicData?.publicUrl)throw new Error('The uploaded file URL could not be created.');
-      savedItems.push({id:'upload-'+token,name:item.name,url:publicData.publicUrl,path,mime_type:item.mime_type,storage:'vha-post-media'});
-     }else{
-      savedItems.push({
-       id:String(item.id||item.path||item.url||chamberUploadToken()),
-       name:String(item.name||record.title),
-       url:String(item.url||''),
-       path:typeof item.path==='string'?item.path:'',
-       mime_type:String(item.mime_type||''),
-       storage:String(item.storage||'recovered')
-      });
-     }
-    }
-    if(mediaTouched[type]||Array.isArray(existingOutput[type])||mediaReady)outputMedia[type]=savedItems;
-   }
-   const blocks=getEditorBlocks();
-   const row={
-    record_id:Number(record.id),
-    transmission_body:sanitizeTransmissionBody(getEditorHTML()),
-    prompt_style:'',
-    lyrics_style:'',
-    output_text:'',
-    output_media:outputMedia,
-    blocks,
-    updated_at:new Date().toISOString(),
-    updated_by:archiveUserId
-   };
-   status.textContent='SAVING CHAMBER STRUCTURE…';
-   let blocksExpectedUpdatedAt=oldStructure.updated_at||null;
    if(record.source_type==='transmission'){
+    const flushed=await flushDraftAutosave();
+    if(flushed===false||draftAutosaveConflict||chamberSaveConflict)throw new Error('The private draft changed in another session. Reload before continuing.');
+    const state=buildDraftAutosaveState();
     const metadata={
-     title:String(recordMetadataInputs.title.value).trim(),
-     slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
-     category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
-     excerpt:String(recordMetadataInputs.excerpt.value).trim(),
-     status:String(recordMetadataInputs.status.value).trim().toLowerCase(),
-     mediaWidth:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100))
+     title:state.metadata.title,slug:state.metadata.slug,category:state.metadata.category,
+     excerpt:state.metadata.excerpt,status:String(recordMetadataInputs.status.value).trim().toLowerCase(),
+     media_width:state.metadata.media_width
     };
     if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
     if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
@@ -1328,60 +1232,109 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
     if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
     if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
     if(metadata.status==='published'&&!getCurrentTransmissionText().trim())throw new Error('Add transmission content before publishing.');
-    if(metadata.status==='published'&&metadata.category==='UNASSIGNED')throw new Error('Choose a movement category before publishing.');
-    const {data:saveResult,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
-     p_post_id:record.post_id,p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,p_status:metadata.status,
-     p_transmission_body:row.transmission_body,p_prompt_style:row.prompt_style,p_lyrics_style:row.lyrics_style,
-     p_output_text:row.output_text,p_output_media:row.output_media,p_media_items:savedPostMedia,
-     p_media_width:metadata.mediaWidth,p_expected_updated_at:record.updated_at
-    });
-    if(error)throw error;
-    const saved=Array.isArray(saveResult)?saveResult[0]:saveResult;
-    record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.content_html=row.transmission_body;
-    record.media_items=savedPostMedia.map((item,index)=>({id:'transmission-'+record.post_id+'-'+index,title:item.name||record.title,alt_text:item.name||record.title,mime_type:item.type+'/unknown',storage_path:item.path||'',source_url:item.url,url:item.url,storage:'vha-post-media',post_ids:[Number(record.id)]}));
-    record.status=metadata.status;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||new Date().toISOString();record.media_width=metadata.mediaWidth;
-    blocksExpectedUpdatedAt=saved?.updated_at||null;
-    const dateStamp=record.published_at||record.created_at||record.updated_at;record.date=String(dateStamp).slice(0,10);record.year=record.date.slice(0,4);
+    const current=await window.VHACMSStore.getDraft(record.draft_id);
+    if(!current)throw new Error('The private draft could not be found. Reload before continuing.');
+    const draftToSave={
+     ...current,metadata,
+     content:{
+      transmission_body:state.row.transmission_body,
+      prompt_style:state.row.prompt_style,lyrics_style:state.row.lyrics_style,output_text:state.row.output_text,
+      output_media:state.row.output_media,blocks:state.blocks,media_items:state.mediaItems
+     }
+    };
+    const saved=await window.VHACMSStore.saveDraft(draftToSave,record._repoCommitSha||current._repoCommitSha);
+    record._repoCommitSha=saved.commitSha;record._draftData=saved.draft;record.updated_at=saved.draft.updated_at;
+    if(metadata.status==='published'){
+     status.textContent='PUBLISHING TRANSMISSION TO THE PUBLIC REPOSITORY…';
+     const published=await window.VHACMSStore.publishDraft(record.draft_id);
+     const post=published.post;
+     record.title=post.title;record.slug=post.slug;record.categories=[post.category];record.excerpt=post.excerpt||'';
+     const makePublicUrl=value=>{
+      const raw=String(value||'');
+      return raw.startsWith('http')||raw.startsWith('blob:')?raw:('/landing-page/'+raw.replace(/^\/+/, ''));
+     };
+     const rewriteHtml=html=>String(html||'').replace(/(["'])((?:media\/transmissions)\/[^"']+)\1/g,(match,quote,path)=>quote+'/landing-page/'+path.replace(/^\/+/, '')+quote);
+     record.content_html=rewriteHtml(post.content_html);
+     record.media_items=(post.media_items||[]).map((item,index)=>({
+      id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
+      mime_type:item.type==='image'?'image/unknown':item.type==='video'?'video/unknown':'audio/unknown',
+      storage_path:item.path||item.src||item.url||'',source_url:item.source_url||makePublicUrl(item.url||item.src||item.path),
+      url:makePublicUrl(item.url||item.src||item.path),storage:'github-public',post_ids:[Number(record.id)]
+     }));
+     record.status='published';record.published_at=post.published_at;record.updated_at=post.updated_at;
+     record.media_width=post.media_width||100;record.draft_id=null;record._draftData=null;record._repoCommitSha=null;
+     record.isNew=false;record._editOfPublished=false;record._publicCommitSha=published.commitSha;
+     const publicStructure=await window.VHACMSStore.getPublicStructure(record.id);
+     if(publicStructure){
+      const output=Object.fromEntries(['image','audio','video'].map(kind=>[kind,(publicStructure.output_media?.[kind]||[]).map(item=>({...item,url:makePublicUrl(item.url||item.path)}))]));
+      recordStructureOverrides.set(String(record.id),{...publicStructure,transmission_body:rewriteHtml(publicStructure.transmission_body),blocks:(publicStructure.blocks||[]).map(block=>({...block,html:rewriteHtml(block.html)})),output_media:output});
+     }
+     status.textContent='TRANSMISSION PUBLISHED // CHANGES COMMITTED';
+    }else{
+     if(record._editOfPublished){
+      status.textContent='REMOVING PUBLIC VERSION…';
+      const unpublished=await window.VHACMSStore.unpublishDraft(record.draft_id);
+      record._repoCommitSha=unpublished.privateCommitSha;
+      record._editOfPublished=false;
+      record._draftData=await window.VHACMSStore.getDraft(record.draft_id);
+     }
+     record.title=metadata.title;record.slug=metadata.slug;record.categories=metadata.category?[metadata.category]:[];
+     record.excerpt=metadata.excerpt;record.media_width=metadata.media_width;record.status='draft';
+     record.content_html=state.editorBody;record.updated_at=record._draftData?.updated_at||record.updated_at;
+     const liveOutput=Object.fromEntries(['image','audio','video'].map(kind=>[kind,editorMedia[kind].map(item=>({
+      ...item,url:item.uploadedDraft?.url||item.url,path:item.uploadedDraft?.path||item.path,
+      storage:item.uploadedDraft?.storage||item.storage||'github-private'
+     }))]));
+     recordStructureOverrides.set(String(record.id),{
+      record_id:Number(record.id),transmission_body:state.editorBody,
+      prompt_style:'',lyrics_style:'',output_text:'',output_media:liveOutput,
+      blocks:state.editorBlocks,updated_at:record.updated_at
+     });
+     status.textContent='DRAFT SAVED PRIVATELY';
+    }
     if(!categoryOrder.includes(metadata.category))categoryOrder.push(metadata.category);
     if(category&&![...category.options].some(option=>option.value===metadata.category)){
      const option=document.createElement('option');option.value=metadata.category;option.textContent=metadata.category;category.append(option);
     }
    }else{
-    const {data:structureResult,error}=await archiveSupabase.rpc('save_human_archive_record_structure_v1',{
-     p_record_id:Number(record.id),p_expected_updated_at:oldStructure.updated_at||null,
-     p_transmission_body:row.transmission_body,p_prompt_style:row.prompt_style,
-     p_lyrics_style:row.lyrics_style,p_output_text:row.output_text,p_output_media:row.output_media
-    });
-    if(error)throw error;
-    const savedStructure=Array.isArray(structureResult)?structureResult[0]:structureResult;
-    row.updated_at=savedStructure?.updated_at||new Date().toISOString();
-    blocksExpectedUpdatedAt=row.updated_at;
-   }
-   row.updated_at=blocksExpectedUpdatedAt||row.updated_at;
-   recordStructureOverrides.set(String(record.id),{...row,blocks:oldStructure.blocks||[]});
-   const {data:blockSaveData,error:blockSaveError}=await archiveSupabase.rpc('save_human_archive_record_blocks_v1',{p_record_id:Number(record.id),p_blocks:blocks,p_expected_updated_at:blocksExpectedUpdatedAt});
-   if(blockSaveError)throw blockSaveError;
-   row.blocks=blocks;
-   row.updated_at=blockSaveData||row.updated_at;
-   recordStructureOverrides.set(String(record.id),row);
-   await cleanupBlockMediaUploads(row.transmission_body);
-   if(!records.some(item=>String(item.id)===String(record.id))){
-    records.push(record);
-    if(!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);
-    if(category&&![...category.options].some(option=>option.value===record.categories[0])){
-     const option=document.createElement('option');option.value=record.categories[0];option.textContent=record.categories[0];category.append(option);
+    const outputMedia={};
+    for(const kind of ['image','audio','video']){
+     const savedItems=[];
+     for(const item of editorMedia[kind]){
+      if(item.file){
+       status.textContent='UPLOADING '+kind.toUpperCase()+' TO GITHUB…';
+       const uploaded=await window.VHACMSStore.uploadPublicMedia(record.id,[item.file],kind);
+       const media=uploaded[0];uploadedPublicPaths.push(media.path);record._publicCommitSha=media.commitSha;
+       savedItems.push({id:'upload-'+chamberUploadToken(),name:item.name,url:media.url,path:media.path,mime_type:media.mime_type,storage:'github-public'});
+       item.url=media.url;item.path=media.path;item.storage='github-public';item.file=null;
+      }else{
+       savedItems.push({
+        id:String(item.id||item.path||item.url||chamberUploadToken()),name:String(item.name||record.title),
+        url:String(item.url||''),path:String(item.path||''),mime_type:String(item.mime_type||''),
+        storage:String(item.storage||'recovered')
+       });
+      }
+     }
+     if(mediaTouched[kind]||Array.isArray(oldOutput[kind])||mediaReady)outputMedia[kind]=savedItems;
     }
-   }
-   const keepPaths=new Set(['image','audio','video'].flatMap(type=>Array.isArray(outputMedia[type])?outputMedia[type]:[])
-    .filter(item=>item&&item.storage==='vha-post-media').map(item=>item.path).filter(Boolean));
-   const removedPaths=[...new Set(oldOwnedPaths)].filter(path=>!keepPaths.has(path));
-   let cleanupWarning=false;
-   
+    const body=sanitizeTransmissionBody(getEditorHTML());
+    const blocks=getEditorBlocks();
+    const row={record_id:Number(record.id),transmission_body:body,prompt_style:'',lyrics_style:'',output_text:'',output_media:outputMedia,blocks,updated_at:new Date().toISOString()};
+    status.textContent='SAVING HUMAN ARCHIVE STRUCTURE TO GITHUB…';
+    const saved=await window.VHACMSStore.savePublicStructure(record.id,row,record._publicCommitSha||archivePublicHeadSha);
+    publicStructureSaved=true;record._publicCommitSha=saved.commitSha;
+    recordStructureOverrides.set(String(record.id),row);
+    await cleanupBlockMediaUploads(body);
+    const keepPaths=new Set(['image','audio','video'].flatMap(kind=>Array.isArray(outputMedia[kind])?outputMedia[kind]:[])
+     .filter(item=>item&&item.storage==='github-public').map(item=>item.path).filter(Boolean));
+    const removedPaths=[...new Set(oldOwnedPaths)].filter(path=>!keepPaths.has(path));
+    let cleanupWarning=false;
     if(removedPaths.length){
-    const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedPaths);
-    if(removeError){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from storage:',removeError);}
+     try{const removed=await window.VHACMSStore.deletePublicMedia(record.id,removedPaths,record._publicCommitSha);record._publicCommitSha=removed.commitSha||record._publicCommitSha;}
+     catch(error){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from GitHub:',error);}
+    }
+    status.textContent=cleanupWarning?'CHAMBER SAVED — UNUSED MEDIA CLEANUP NEEDS ATTENTION':'CHAMBER REDESIGNED // CHANGES SAVED';
    }
-   status.textContent=cleanupWarning?'CHAMBER SAVED — FILE CLEANUP NEEDS ATTENTION':'CHAMBER REDESIGNED // CHANGES SAVED';
    blockEditorControllers.forEach(controller=>controller.destroy());
    richEditorController?.destroy();
    if(record.source_type==='transmission'){
@@ -1398,16 +1351,17 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
    }
    renderRecordStructureView(record,grid,status,editButton,expandButton,closeButton);
   }catch(error){
-   if(uploadedPaths.length){
-    const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
-    if(cleanupError)console.error('New chamber uploads could not be rolled back:',cleanupError);
+   if(uploadedPublicPaths.length&&!publicStructureSaved){
+    try{const removed=await window.VHACMSStore.deletePublicMedia(record.id,uploadedPublicPaths,record._publicCommitSha);record._publicCommitSha=removed.commitSha||record._publicCommitSha;}
+    catch(cleanupError){console.warn('New public media could not be rolled back:',cleanupError);}
    }
    console.error('Human Archive chamber could not be saved:',error);
-   if(error?.code==='40001')chamberSaveConflict=true;
-   status.textContent=error?.code==='40001'?'EDIT CONFLICT — THIS RECORD CHANGED IN ANOTHER TAB. RELOAD BEFORE CONTINUING.':'SAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
+   if(error?.code==='EDIT_CONFLICT'||error?.status===409)chamberSaveConflict=true;
+   status.textContent=chamberSaveConflict?'EDIT CONFLICT — RELOAD BEFORE CONTINUING.':'SAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
    save.disabled=false;editButton.disabled=false;if(deleteDraft)deleteDraft.disabled=false;save.textContent='SAVE CHAMBER';
   }
- }; 
+ };
+
 }
 function buildRecordChamber(record){
  const shell=makeChamberNode('div','ha-chamber-shell');
