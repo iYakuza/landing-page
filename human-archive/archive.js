@@ -1049,7 +1049,7 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
    for(const kind of ['image','audio','video'])for(const item of editorMedia[kind])await uploadOne(item,kind,kind);
    return uploadedPaths;
   }catch(error){
-   if(uploadedPaths.length&&!draftSaved){
+    if(uploadedPaths.length){
     try{const result=await window.VHACMSStore.deleteDraftMedia(record.draft_id,uploadedPaths,record._repoCommitSha);record._repoCommitSha=result.commitSha||record._repoCommitSha;}catch(cleanupError){console.warn('Failed private uploads were retained for later cleanup:',cleanupError);}
    }
    [...attachedPostMedia,...['image','audio','video'].flatMap(kind=>editorMedia[kind])].forEach(item=>{if(item.uploadedDraft){privateMediaUrlToPath.delete(item.uploadedDraft.url);delete item.uploadedDraft;}});
@@ -1110,7 +1110,7 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
    status.textContent='DRAFT SAVED AUTOMATICALLY';
    return true;
   }catch(error){
-   if(uploadedPaths.length){
+    if(uploadedPaths.length&&!draftSaved){
     try{const result=await window.VHACMSStore.deleteDraftMedia(record.draft_id,uploadedPaths,record._repoCommitSha);record._repoCommitSha=result.commitSha||record._repoCommitSha;}catch(cleanupError){console.warn('Failed draft uploads could not be cleaned up:',cleanupError);}
    }
    console.error('Human Archive draft autosave failed:',error);
