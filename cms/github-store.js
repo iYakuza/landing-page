@@ -340,29 +340,43 @@
       archive_record_id: Number(draft.record_id), human_archive_id: 'HA-' + String(draft.record_id)
     };
     const mediaChanges = [];
-    const promote = async item => {
-      if (!item || !String(item.path || '').startsWith(privatePath('media/drafts/' + id(draftId) + '/'))) return item;
-      const source = await github().readFile('private', item.path, { atCommit: draft._repoCommitSha });
-      if (!source) throw new Error('A referenced private media file is missing: ' + item.path);
-      const fileName = String(item.path.split('/').pop() || item.name || 'media').replace(/[^a-zA-Z0-9._-]+/g, '-');
+    const privateMediaPrefix = privatePath('media/drafts/' + id(draftId) + '/');
+    const promotePath = async sourcePath => {
+      if (pathMap.has(sourcePath)) return pathMap.get(sourcePath);
+      if (!String(sourcePath || '').startsWith(privateMediaPrefix)) return sourcePath;
+      const source = await github().readFile('private', sourcePath, { atCommit: draft._repoCommitSha });
+      if (!source) throw new Error('A referenced private media file is missing: ' + sourcePath);
+      const fileName = String(sourcePath.split('/').pop() || 'media').replace(/[^a-zA-Z0-9._-]+/g, '-');
       const target = 'media/transmissions/' + draft.post_id + '/' + fileName;
       mediaChanges.push({ path: target, content: source.bytes });
-      pathMap.set(item.path, target);
+      pathMap.set(sourcePath, target);
+      return target;
+    };
+    const promote = async item => {
+      if (!item || !String(item.path || '').startsWith(privateMediaPrefix)) return item;
+      const target = await promotePath(item.path);
+      const fileName = String(target.split('/').pop() || item.name || 'media');
       return { ...item, name: item.name || fileName, path: target, src: target, url: target, storage: 'github-public', status: 'available' };
+    };
+    const promoteHtml = async html => {
+      const value = String(html || '');
+      const matches = [...value.matchAll(/cms-data\/v1\/media\/drafts\/[^\s"'<>)]*/g)].map(match => match[0]);
+      for (const sourcePath of new Set(matches)) await promotePath(sourcePath);
+      return value.replace(/cms-data\/v1\/media\/drafts\/[^\s"'<>)]*/g, match => pathMap.get(match) || match);
     };
     post.media_items = await Promise.all(post.media_items.map(promote));
     const outputMedia = {};
     for (const kind of ['image', 'audio', 'video']) {
       outputMedia[kind] = await Promise.all((draft.content.output_media?.[kind] || []).map(promote));
     }
-    post.content_html = String(post.content_html).replace(/cms-data\/v1\/media\/drafts\/[^\s"'<>)]*/g, match => pathMap.get(match) || match);
+    post.content_html = await promoteHtml(post.content_html);
     post.media_url = post.media_items[0]?.url || '';
     post.media_path = post.media_items[0]?.path || '';
     post.media_type = post.media_items[0]?.type || '';
-    const blocks = (Array.isArray(draft.content.blocks) ? draft.content.blocks : []).map(block => ({
+    const blocks = await Promise.all((Array.isArray(draft.content.blocks) ? draft.content.blocks : []).map(async block => ({
       ...block,
-      html: String(block.html || '').replace(/cms-data\/v1\/media\/drafts\/[^\s"'<>)]*/g, match => pathMap.get(match) || match)
-    }));
+      html: await promoteHtml(block.html || '')
+    })));
     const oldIndex = transmissions.value.records.findIndex(item => item.id === draft.post_id);
     if (oldIndex >= 0) transmissions.value.records[oldIndex] = post;
     else transmissions.value.records.push(post);
@@ -379,7 +393,7 @@
     const structures = archive.value.editor_structures;
     const structureIndex = structures.findIndex(item => String(item.record_id) === String(draft.record_id));
     if (structureIndex >= 0) structures[structureIndex] = structure; else structures.push(structure);
-    if (post.content_html.includes('cms-data/v1/media/drafts/') || JSON.stringify(outputMedia).includes('cms-data/v1/media/drafts/')) throw new Error('A private draft media reference could not be promoted safely.');
+    if ([post.content_html, JSON.stringify(outputMedia), JSON.stringify(blocks)].some(value => value.includes('cms-data/v1/media/drafts/'))) throw new Error('A private draft media reference could not be promoted safely.');
     const changes = [
       { path: CONFIG.transmissionsPath, content: json(transmissions.value) },
       { path: CONFIG.archivePath, content: json(archive.value) },
