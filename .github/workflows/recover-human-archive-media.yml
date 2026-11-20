@@ -29,7 +29,7 @@ jobs:
       - name: Download and verify WordPress attachments
         env:
           EXPECTED_BRANCH: recovery/supabase-content-export-20261119
-          COMMIT_MEDIA: "false"
+          COMMIT_MEDIA: "true"
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs/promises';
