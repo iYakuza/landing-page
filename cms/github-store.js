@@ -367,6 +367,30 @@
     return { ...draft, commitSha: saved.commitSha };
   }
 
+
+  async function unpublishDraft(draftId) {
+    const draft = await getDraft(draftId);
+    if (!draft || draft.source !== 'existing') throw new Error('Only an edit draft for an existing published Transmission can be unpublished.');
+    const publicHead = await currentHead('public');
+    if (draft.base_public_commit && draft.base_public_commit !== publicHead) throw new Error('The public repository changed after this edit draft was opened. Reload and reconcile before unpublishing.');
+    const [transmissions, archive] = await Promise.all([
+      readJson('public', CONFIG.transmissionsPath, null, { atCommit: publicHead }),
+      readJson('public', CONFIG.archivePath, null, { atCommit: publicHead })
+    ]);
+    if (!transmissions?.data?.records || !archive?.data?.editor_structures) throw new Error('The canonical public collections are incomplete.');
+    const postExists = transmissions.data.records.some(item => item.id === draft.post_id);
+    if (!postExists) throw new Error('The public Transmission is already absent. Reload the private draft.');
+    transmissions.data.records = transmissions.data.records.filter(item => item.id !== draft.post_id);
+    archive.data.editor_structures = archive.data.editor_structures.filter(item => String(item.record_id) !== String(draft.record_id));
+    const result = await write('public', [
+      { path: CONFIG.transmissionsPath, content: json(transmissions.data) },
+      { path: CONFIG.archivePath, content: json(archive.data) }
+    ], 'Unpublish Transmission ' + draft.post_id, publicHead);
+    draft.base_public_commit = result.commitSha;
+    const saved = await saveDraft(draft);
+    return { commitSha: result.commitSha, privateCommitSha: saved.commitSha };
+  }
+
   async function unpublishTransmission(postId) {
     const publicHead = await currentHead('public');
     const [transmissions, archive] = await Promise.all([
@@ -425,6 +449,7 @@
     publishDraft,
     createEditDraft,
     unpublishTransmission,
+    unpublishDraft,
     getPublicStructure,
     savePublicStructure,
     getFavorites,
