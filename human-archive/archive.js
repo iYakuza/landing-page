@@ -1277,12 +1277,13 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
      excerpt:state.metadata.excerpt,status:String(recordMetadataInputs.status.value).trim().toLowerCase(),
      media_width:state.metadata.media_width
     };
-    if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
-    if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
-    if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
-    if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
-    if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
-    if(metadata.status==='published'&&!getCurrentTransmissionText().trim())throw new Error('Add transmission content before publishing.');
+     if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
+     if(metadata.status==='published'){
+      if(!metadata.title)throw new Error('Add a title before publishing.');
+      if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
+      if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
+      if(!getCurrentTransmissionText().trim())throw new Error('Add transmission content before publishing.');
+     }
     const current=await window.VHACMSStore.getDraft(record.draft_id);
     if(!current)throw new Error('The private draft could not be found. Reload before continuing.');
     const draftToSave={
