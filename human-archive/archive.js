@@ -89,7 +89,7 @@ function safeExternalUrl(raw,allowedHosts){
 function safeArchiveMediaUrl(raw,allowedHosts){
  const rawValue=String(raw||'').trim();
  if(rawValue.startsWith('blob:')&&privateMediaUrlToPath.has(rawValue))return rawValue;
- if(/^media\//.test(rawValue)&&!rawValue.split('/').some(part=>part==='..')&&!/[?#\\\\]/.test(rawValue)){
+ if(/^media\//.test(rawValue)&&!rawValue.split('/').some(part=>part==='..')&&!rawValue.includes('?')&&!rawValue.includes('#')&&!rawValue.includes(String.fromCharCode(92))){
   return new URL(archiveSiteBasePath+'/'+rawValue.split('/').map(encodeURIComponent).join('/'),window.location.origin).href;
  }
  const storageHosts=new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']);
