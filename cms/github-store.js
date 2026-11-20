@@ -213,6 +213,29 @@
     return new Blob([file.bytes]);
   }
 
+
+  async function getDraftMediaFiles(draftId) {
+    const key = id(draftId);
+    const commitSha = await currentHead('private');
+    if (!commitSha) return [];
+    const prefix = privatePath('media/drafts/' + key);
+    const files = await github().listFiles('private', prefix, { atCommit: commitSha });
+    const mimeFor = name => {
+      const ext = String(name).split('.').pop().toLowerCase();
+      return ({ jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', avif: 'image/avif', mp3: 'audio/mpeg', m4a: 'audio/mp4', wav: 'audio/wav', ogg: 'audio/ogg', mp4: 'video/mp4', webm: 'video/webm' })[ext] || 'application/octet-stream';
+    };
+    const result = [];
+    for (const item of files) {
+      const file = await github().readFile('private', item.path, { atCommit: commitSha });
+      if (!file) continue;
+      const name = item.path.split('/').pop();
+      const mime_type = mimeFor(name);
+      const blob = new Blob([file.bytes], { type: mime_type });
+      result.push({ path: item.path, name, mime_type, type: mime_type.split('/')[0], url: URL.createObjectURL(blob) });
+    }
+    return result;
+  }
+
   async function getPublicStructure(recordId) {
     const { archive } = await getPublicCollections();
     return (archive.value.editor_structures || []).find(item => String(item.record_id) === String(recordId)) || null;
@@ -397,6 +420,7 @@
     savePrivateMedia,
     uploadDraftMedia,
     readPrivateMedia,
+    getDraftMediaFiles,
     createDraft,
     publishDraft,
     createEditDraft,
