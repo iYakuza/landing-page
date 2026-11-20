@@ -934,116 +934,121 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
   deleteDraft.type='button';
   recordChamber?.querySelector('.ha-chamber-topbar-actions')?.append(deleteDraft);
  }
+ const serializePrivateMediaRefs=value=>{
+  let output=String(value||'');
+  for(const [url,path] of privateMediaUrlToPath)output=output.split(url).join(path);
+  return output;
+ };
+ const persistMediaItem=item=>{
+  const uploaded=item.uploadedDraft||{};
+  const path=String(uploaded.path||item.path||privateMediaUrlToPath.get(item.url)||'');
+  const privateRef=path.startsWith('cms-data/v1/media/drafts/');
+  return {
+   id:String(item.id||path||item.url||chamberUploadToken()),
+   name:String(item.name||record.title||'Media'),
+   url:privateRef?path:String(uploaded.url||item.url||''),
+   path,
+   type:String(item.type||uploaded.type||'file'),
+   mime_type:String(uploaded.mime_type||item.mime_type||''),
+   storage:String(uploaded.storage||item.storage||(privateRef?'github-private':'github-public'))
+  };
+ };
  const buildDraftAutosaveState=()=>{
   const metadata={
    title:String(recordMetadataInputs.title.value).trim(),
    slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
    category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
    excerpt:String(recordMetadataInputs.excerpt.value).trim(),
-   mediaWidth:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100)),
-   status:'draft'
+   media_width:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100))
   };
-  if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
-  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
-  if(![...categoryOrder.map(name=>name.toUpperCase()),...transmissionCategories].includes(metadata.category))throw new Error('Choose a Human Archive category or one of the five Transmissions movements.');
+  if(metadata.title.length>180)throw new Error('Title must contain 180 characters or fewer.');
+  if(metadata.slug&&!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
   if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
-  const transmissionBody=sanitizeTransmissionBody(getEditorHTML());
-  const blocks=getEditorBlocks();
-  const existingOutput=structure.output_media&&typeof structure.output_media==='object'?structure.output_media:{};
+  const editorBody=sanitizeTransmissionBody(getEditorHTML());
+  const editorBlocks=getEditorBlocks();
+  const body=serializePrivateMediaRefs(editorBody);
+  const blocks=editorBlocks.map(block=>({...block,html:serializePrivateMediaRefs(block.html)}));
   const outputMedia={};
-  for(const type of ['image','audio','video']){
-   const hasUnuploaded=editorMedia[type].some(item=>item.file&&!item.uploadedDraft);
-   outputMedia[type]=hasUnuploaded?(Array.isArray(existingOutput[type])?existingOutput[type]:[]):editorMedia[type].map(item=>{
-    const uploaded=item.uploadedDraft||{};
-    return {
-     id:String(item.id||uploaded.path||item.path||item.url||chamberUploadToken()),name:String(item.name||record.title),
-     url:String(uploaded.url||item.url||''),path:String(uploaded.path||item.path||''),
-     mime_type:String(uploaded.mime_type||item.mime_type||''),storage:String(uploaded.storage||item.storage||'recovered')
-    };
-   });
-  }
-  const mediaItems=attachedPostMedia.map(item=>{
-   const uploaded=item.uploadedDraft||{};
-   return {url:uploaded.url||item.url,path:uploaded.path||item.path||null,type:item.type,name:item.name};
-  }).filter(item=>item.url);
+  for(const kind of ['image','audio','video'])outputMedia[kind]=editorMedia[kind].map(persistMediaItem);
+  const mediaItems=attachedPostMedia.map(persistMediaItem).filter(item=>item.url);
   const row={
-   record_id:Number(record.id),transmission_body:transmissionBody,
+   record_id:Number(record.id),transmission_body:body,
    prompt_style:'',lyrics_style:'',output_text:'',
-   output_media:outputMedia,updated_at:new Date().toISOString(),updated_by:archiveUserId
+   output_media:outputMedia,blocks,updated_at:new Date().toISOString()
   };
-  return {metadata,row,mediaItems,blocks};
+  return {metadata,row,mediaItems,blocks,editorBody,editorBlocks};
  };
  const uploadPendingDraftMedia=async()=>{
   const uploadedPaths=[];
   const uploadOne=async(item,folder,type)=>{
    if(!item.file||item.uploadedDraft)return;
-   const token=chamberUploadToken();
-   const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
-   const path='human-archive/'+String(record.id)+'/'+folder+'/'+token+'-'+safeName;
-   const {error}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{cacheControl:'3600',contentType:item.mime_type,upsert:false});
-   if(error)throw error;
+   if(!record.draft_id)throw new Error('The private Transmission draft has not been initialized.');
+   const uploaded=await window.VHACMSStore.uploadDraftMedia(record.draft_id,[item.file],folder);
+   const path=uploaded[0].path,url=URL.createObjectURL(item.file);
+   privateMediaUrlToPath.set(url,path);
+   record._repoCommitSha=uploaded[0].commitSha;
    uploadedPaths.push(path);
-   const {data}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
-   if(!data?.publicUrl)throw new Error('The uploaded media URL could not be created.');
-   item.uploadedDraft={url:data.publicUrl,path,type:type||item.type,name:item.name,mime_type:item.mime_type,storage:'vha-post-media'};
+   item.uploadedDraft={url,path,type:type||item.type,name:item.name,mime_type:item.mime_type,storage:'github-private'};
   };
   try{
    for(const item of attachedPostMedia)await uploadOne(item,'attachments',item.type);
-   for(const type of ['image','audio','video'])for(const item of editorMedia[type])await uploadOne(item,type,type);
+   for(const kind of ['image','audio','video'])for(const item of editorMedia[kind])await uploadOne(item,kind,kind);
    return uploadedPaths;
   }catch(error){
-   if(uploadedPaths.length)await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
-   await cleanupBlockMediaUploads('');
-   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{delete item.uploadedDraft;});
+   if(uploadedPaths.length){
+    try{const result=await window.VHACMSStore.deleteDraftMedia(record.draft_id,uploadedPaths,record._repoCommitSha);record._repoCommitSha=result.commitSha||record._repoCommitSha;}catch(cleanupError){console.warn('Failed private uploads were retained for later cleanup:',cleanupError);}
+   }
+   [...attachedPostMedia,...['image','audio','video'].flatMap(kind=>editorMedia[kind])].forEach(item=>{if(item.uploadedDraft){privateMediaUrlToPath.delete(item.uploadedDraft.url);delete item.uploadedDraft;}});
    throw error;
   }
  };
  const runDraftAutosave=async()=>{
   if(draftAutosaveConflict)return false;
-  if(!draftAutosaveEnabled||draftAutosaveStopped||!archiveAdmin||!archiveSupabase||!archiveUserId)return true;
+  if(!draftAutosaveEnabled||draftAutosaveStopped||!archiveAdmin||!window.VHACMSStore||!archiveUserId)return true;
   if(draftAutosaveInFlight){draftAutosaveQueued=true;return null;}
   let state,signature,uploadedPaths=[];
   draftAutosaveInFlight=true;
   try{
    uploadedPaths=await uploadPendingDraftMedia();
    state=buildDraftAutosaveState();
-   signature=JSON.stringify({metadata:state.metadata,row:{...state.row,updated_at:null,updated_by:null},mediaItems:state.mediaItems,blocks:state.blocks});
-   if(signature===draftAutosaveLastSignature){
-    uploadedPaths.forEach(path=>console.warn('Draft media already represented in the saved record:',path));
-    return true;
-   }
-   status.textContent='SAVING DRAFT…';
-   const {data,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
-    p_post_id:record.post_id,p_title:state.metadata.title,p_slug:state.metadata.slug,
-    p_category:state.metadata.category,p_excerpt:state.metadata.excerpt,p_status:'draft',
-    p_transmission_body:state.row.transmission_body,p_prompt_style:state.row.prompt_style,
-    p_lyrics_style:state.row.lyrics_style,p_output_text:state.row.output_text,
-    p_output_media:state.row.output_media,p_media_items:state.mediaItems,
-    p_media_width:state.metadata.mediaWidth,p_expected_updated_at:record.updated_at
-   });
-   if(error)throw error;
-   const saved=Array.isArray(data)?data[0]:data;
-   const previousBlocks=recordStructureOverrides.get(String(record.id))?.blocks||[];
-   record.updated_at=saved?.updated_at||record.updated_at;
-   state.row.updated_at=record.updated_at;
-   recordStructureOverrides.set(String(record.id),{...state.row,blocks:previousBlocks});
-   const {data:blockSaveData,error:blockSaveError}=await archiveSupabase.rpc('save_human_archive_record_blocks_v1',{p_record_id:Number(record.id),p_blocks:state.blocks,p_expected_updated_at:saved?.updated_at||record.updated_at});
-   if(blockSaveError)throw blockSaveError;
-   state.row.blocks=state.blocks;
-   state.row.updated_at=blockSaveData||saved?.updated_at||state.row.updated_at;
-   record.media_width=state.metadata.mediaWidth;
+   signature=JSON.stringify({metadata:state.metadata,row:{...state.row,updated_at:null},mediaItems:state.mediaItems,blocks:state.blocks});
+   if(signature===draftAutosaveLastSignature)return true;
+   status.textContent='SAVING PRIVATE DRAFT…';
+   const current=await window.VHACMSStore.getDraft(record.draft_id);
+   if(!current)throw new Error('The private draft could not be found. Reload the editor before continuing.');
+   const next={
+    ...current,revision:Number(current.revision||0),
+    metadata:state.metadata,
+    content:{
+     transmission_body:state.row.transmission_body,
+     prompt_style:state.row.prompt_style,lyrics_style:state.row.lyrics_style,output_text:state.row.output_text,
+     output_media:state.row.output_media,blocks:state.blocks,media_items:state.mediaItems
+    }
+   };
+   const saved=await window.VHACMSStore.saveDraft(next,record._repoCommitSha||current._repoCommitSha);
+   record._repoCommitSha=saved.commitSha;record.updated_at=saved.draft.updated_at;record.draft_revision=saved.draft.revision;
+   record.media_width=state.metadata.media_width;
    record.title=state.metadata.title;record.slug=state.metadata.slug;
-   record.categories=[state.metadata.category];record.excerpt=state.metadata.excerpt;
-   record.content_html=state.row.transmission_body;record.status='draft';
-   record.media_items=state.mediaItems.map((item,index)=>({
-    id:'transmission-'+record.post_id+'-'+index,title:item.name||record.title,
-    alt_text:item.name||record.title,mime_type:item.type+'/unknown',
-    storage_path:item.path||'',source_url:item.url,url:item.url,
-    storage:'vha-post-media',post_ids:[Number(record.id)]
+   record.categories=state.metadata.category?[state.metadata.category]:[];
+   record.excerpt=state.metadata.excerpt;record.content_html=state.editorBody;record.status='draft';
+   record.media_items=attachedPostMedia.map(item=>({
+    id:'transmission-'+record.post_id+'-'+String(item.name||'attachment'),
+    title:item.name||record.title,alt_text:item.name||record.title,
+    mime_type:item.mime_type||'application/octet-stream',storage_path:item.uploadedDraft?.path||item.path||'',
+    source_url:item.uploadedDraft?.url||item.url,url:item.uploadedDraft?.url||item.url,
+    storage:item.uploadedDraft?.storage||item.storage||'github-private',post_ids:[Number(record.id)]
    }));
-   recordStructureOverrides.set(String(record.id),state.row);
-   await cleanupBlockMediaUploads(state.row.transmission_body);
-   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{
+   const liveOutput=Object.fromEntries(['image','audio','video'].map(kind=>[kind,editorMedia[kind].map(item=>({
+    ...item,url:item.uploadedDraft?.url||item.url,path:item.uploadedDraft?.path||item.path,
+    storage:item.uploadedDraft?.storage||item.storage||'github-private'
+   }))]));
+   recordStructureOverrides.set(String(record.id),{
+    record_id:Number(record.id),transmission_body:state.editorBody,
+    prompt_style:'',lyrics_style:'',output_text:'',output_media:liveOutput,
+    blocks:state.editorBlocks,updated_at:record.updated_at
+   });
+   await cleanupBlockMediaUploads(state.editorBody);
+   [...attachedPostMedia,...['image','audio','video'].flatMap(kind=>editorMedia[kind])].forEach(item=>{
     if(item.uploadedDraft){Object.assign(item,item.uploadedDraft);item.file=null;delete item.uploadedDraft;}
    });
    repaintAttachedPostMedia();
@@ -1051,13 +1056,13 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
    status.textContent='DRAFT SAVED AUTOMATICALLY';
    return true;
   }catch(error){
-   if(uploadedPaths.length)await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
-   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{delete item.uploadedDraft;});
+   if(uploadedPaths.length){
+    try{const result=await window.VHACMSStore.deleteDraftMedia(record.draft_id,uploadedPaths,record._repoCommitSha);record._repoCommitSha=result.commitSha||record._repoCommitSha;}catch(cleanupError){console.warn('Failed draft uploads could not be cleaned up:',cleanupError);}
+   }
    console.error('Human Archive draft autosave failed:',error);
-   if(error?.code==='40001'){
-    chamberSaveConflict=true;
-    draftAutosaveConflict=true;
-    status.textContent='EDIT CONFLICT — THIS TRANSMISSION CHANGED IN ANOTHER TAB. RELOAD BEFORE CONTINUING.';
+   if(error?.code==='EDIT_CONFLICT'||error?.status===409){
+    chamberSaveConflict=true;draftAutosaveConflict=true;
+    status.textContent='EDIT CONFLICT — THE PRIVATE CMS REPOSITORY CHANGED. RELOAD BEFORE CONTINUING.';
    }else status.textContent='AUTOSAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
    return false;
   }finally{
