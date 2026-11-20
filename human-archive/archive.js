@@ -1083,7 +1083,7 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
    record.media_width=state.metadata.media_width;
    record.title=state.metadata.title;record.slug=state.metadata.slug;
    record.categories=state.metadata.category?[state.metadata.category]:[];
-   record.excerpt=state.metadata.excerpt;record.content_html=state.editorBody;record.status='draft';
+   record.excerpt=state.metadata.excerpt;record.content_html=state.editorBody;record.status=record._editOfPublished?'published':'draft';
    record.media_items=attachedPostMedia.map(item=>({
     id:'transmission-'+record.post_id+'-'+String(item.name||'attachment'),
     title:item.name||record.title,alt_text:item.name||record.title,
