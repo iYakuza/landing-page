@@ -103,7 +103,7 @@ For an edit of an existing published Transmission, `source` identifies the exist
 
 ### Sequences
 
-`v1/sequences.json` reserves unique identifiers for new Transmissions and their linked Archive record IDs. Reserving an ID is a private-repository commit with an expected-head check. Concurrent draft creation must not silently allocate the same identifier. Gaps after discarded drafts are acceptable; reuse is not.
+`v1/sequences.json` stores the last verified numeric Transmissions suffix (`transmission_number`) and the last verified Archive record ID (`archive_record_id`). For the verified current export, the initial values are 6 and 3008 respectively, producing the next identifiers `T-0007` and `3009`. The seed must be written once after the export has been checked. Reserving an ID is a private-repository commit with an expected-head check. Concurrent draft creation must not silently allocate the same identifier. Gaps after discarded drafts are acceptable; reuse is not.
 
 ### Favourites
 
@@ -149,3 +149,10 @@ Keep the existing 30 MB per-file limit until a separate measured test justifies 
 - Drafts never appear in public JSON or public media paths.
 - The five existing Transmissions movements and their existing category values remain intact.
 - Signals/community submissions are outside this data model and remain deferred.
+
+
+### GitHub store implementation notes
+
+The first storage adapter implementation lives in `cms/github-store.js`. It provides private draft creation and persistence, private media upload/read, private favourites, public Archive structure updates, and a publish operation that writes the Transmissions collection, Archive editor structure, and promoted media files in one public Git commit. The private draft is deleted only after that public commit succeeds, preserving a recoverable private copy if publication fails.
+
+The sequence file is intentionally not initialized automatically. The verified export supports seeding `transmission_number: 6` and `archive_record_id: 3008`, but that one-time seed must be performed explicitly after the owner has authenticated and confirmed the private repository is the intended CMS data store.
