@@ -347,7 +347,7 @@
       const target = 'media/transmissions/' + draft.post_id + '/' + fileName;
       mediaChanges.push({ path: target, content: source.bytes });
       pathMap.set(item.path, target);
-      return { ...item, name: item.name || fileName, path: target, src: target, url: target, storage: 'github-public', status: 'published' };
+      return { ...item, name: item.name || fileName, path: target, src: target, url: target, storage: 'github-public', status: 'available' };
     };
     post.media_items = await Promise.all(post.media_items.map(promote));
     const outputMedia = {};
