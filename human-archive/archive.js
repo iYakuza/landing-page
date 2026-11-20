@@ -390,7 +390,7 @@ async function loadTransmissionRecords(){
      archiveIdentifier:'HA-'+date.slice(0,4)+'-'+String(id).padStart(4,'0'),year:date.slice(0,4),date,url:'',
      categories:[draft.metadata?.category||'UNASSIGNED'],content_html:body,source_type:'transmission',post_id:draft.post_id,draft_id:draft.draft_id,
      status:'draft',excerpt:draft.metadata?.excerpt||'',media_items:(content.media_items||[]).map(hydrate),created_at:draft.created_at,
-     updated_at:draft.updated_at,published_at:null,media_width:draft.metadata?.media_width||100,isDraft:true,isNew:draft.source==='new',_editOfPublished:hadPublishedRecord,draft_source:draft.source,_repoCommitSha:draft._repoCommitSha};
+     updated_at:draft.updated_at,published_at:null,media_width:draft.metadata?.media_width||100,isDraft:true,isNew:draft.source==='new',_editOfPublished:hadPublishedRecord,draft_source:draft.source,_repoCommitSha:draft._repoCommitSha,_draftData:draft};
     records.push(record);
     record.media_items.forEach(item=>{if(item.url){mediaItems.push({...item,post_ids:[id],storage:'github-private'});mediaMap.set(urlKey(item.url),item);}});
     if(record.categories[0]&&!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);
@@ -698,6 +698,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const structure=getRecordStructure(record);
  const initialRecordSnapshot=JSON.parse(JSON.stringify(record));
  const initialStructureSnapshot=JSON.parse(JSON.stringify(structure));
+  const initialDraftSnapshot=record._draftData?JSON.parse(JSON.stringify(record._draftData)):null;
  const editorMedia={
   image:getRecordOutputMedia(record,structure,'image').map(item=>({...item})),
   audio:getRecordOutputMedia(record,structure,'audio').map(item=>({...item})),
@@ -1028,7 +1029,7 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
     }
    };
    const saved=await window.VHACMSStore.saveDraft(next,record._repoCommitSha||current._repoCommitSha);
-   record._repoCommitSha=saved.commitSha;record.updated_at=saved.draft.updated_at;record.draft_revision=saved.draft.revision;
+   record._repoCommitSha=saved.commitSha;record.updated_at=saved.draft.updated_at;record.draft_revision=saved.draft.revision;record._draftData=saved.draft;
    record.media_width=state.metadata.media_width;
    record.title=state.metadata.title;record.slug=state.metadata.slug;
    record.categories=state.metadata.category?[state.metadata.category]:[];
@@ -1104,37 +1105,26 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
  };
 
  deleteDraft?.addEventListener('click',async()=>{
-  if(!draftAutosaveEnabled||draftAutosaveStopped||!archiveAdmin||!archiveSupabase||!archiveUserId)return;
-  if(!window.confirm('Permanently delete this draft Transmission? Its Human Archive record and associated Human Archive attachment files will be removed. This cannot be undone.'))return;
+  if(!draftAutosaveEnabled||draftAutosaveStopped||!archiveAdmin||!window.VHACMSStore)return;
+  if(!window.confirm('Permanently delete this private draft and its private media? This cannot be undone.'))return;
   draftAutosaveStopped=true;
   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
   deleteDraft.disabled=true;save.disabled=true;editButton.disabled=true;status.textContent='WAITING FOR ANY ACTIVE DRAFT SAVE…';
   try{
    while(draftAutosaveInFlight)await new Promise(resolve=>setTimeout(resolve,50));
    draftAutosaveQueued=false;
-   status.textContent='DELETING DRAFT…';
-   const {data,error}=await archiveSupabase.rpc('delete_human_archive_transmission_draft_v1',{p_post_id:record.post_id});
-   if(error)throw error;
-   const deleted=Array.isArray(data)?data[0]:data;
-   if(!deleted||Number(deleted.archive_record_id)!==Number(record.id))throw new Error('The database did not confirm deletion of this exact Archive record.');
-   let cleanupWarning=false;
-   const paths=Array.isArray(deleted.storage_paths)?deleted.storage_paths.filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')):[];
-   if(paths.length){
-    const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(paths);
-    if(cleanupError){cleanupWarning=true;console.warn('Draft was deleted, but some associated storage files remain:',cleanupError);}
-   }
+   status.textContent='DELETING PRIVATE DRAFT…';
+   await window.VHACMSStore.deleteDraft(record.draft_id,record._repoCommitSha);
    records=records.filter(item=>String(item.id)!==String(record.id));
-   const removedMediaUrls=new Set((record.media_items||[]).map(item=>item.url).filter(Boolean));
-   mediaItems=mediaItems.filter(item=>!(item.post_ids||[]).includes(Number(record.id))&&!removedMediaUrls.has(item.url));
-   removedMediaUrls.forEach(url=>mediaMap.delete(urlKey(url)));
-   recordStructureOverrides.delete(String(record.id));favoriteRecordIds.delete(String(record.id));
+   recordStructureOverrides.delete(String(record.id));
+   await loadTransmissionRecords();
    blockEditorControllers.forEach(controller=>controller.destroy());
    richEditorController?.destroy();clearChamberFormattingToolbar();
-   chamberCloseRequestedByUser=true;recordChamber?.close();render();
-   setMediaStatus(cleanupWarning?'DRAFT DELETED — SOME STORAGE FILES COULD NOT BE CLEANED UP':'DRAFT DELETED',!cleanupWarning);
+   chamberCloseRequestedByUser=true;recordChamber?.close();if(hasArchiveIndex)render();
+   setMediaStatus('PRIVATE DRAFT DELETED',true);
   }catch(error){
    draftAutosaveStopped=false;deleteDraft.disabled=false;save.disabled=false;editButton.disabled=false;
-   console.error('Human Archive draft could not be deleted:',error);
+   console.error('Private draft could not be deleted:',error);
    status.textContent='DELETE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
    scheduleDraftAutosave(0);
   }
@@ -1148,101 +1138,50 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
  const waitForDraftSave=async()=>{
   while(draftAutosaveInFlight)await new Promise(resolve=>setTimeout(resolve,50));
  };
- const removeNewDraftStorage=async(paths)=>{
-  const safe=[...new Set((paths||[]).filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')))];
-  if(!safe.length)return;
-  const {error}=await archiveSupabase.storage.from('vha-post-media').remove(safe);
-  if(error)console.warn('Discarded draft media could not be fully cleaned up:',error);
- };
  const discardChanges=async()=>{
   if(editButton.disabled)return;
   editButton.disabled=true;save.disabled=true;if(deleteDraft)deleteDraft.disabled=true;
   status.textContent='DISCARDING CHANGES…';
   try{
-   const wasNewBeforeEditing=Boolean(initialRecordSnapshot.isNew&&!initialRecordSnapshot.post_id);
-   if(wasNewBeforeEditing&&!record.post_id){
-    if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
-    await cleanupBlockMediaUploads('');
-    destroyEditor();
-    if(createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // DISCARDED';
-    chamberCloseRequestedByUser=true;recordChamber?.close();
-    return;
-   }
-   if(wasNewBeforeEditing&&record.post_id){
-    draftAutosaveStopped=true;
-    if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
-    await waitForDraftSave();
-    const {data,error}=await archiveSupabase.rpc('delete_human_archive_transmission_draft_v1',{p_post_id:record.post_id});
-    if(error)throw error;
-    const deleted=Array.isArray(data)?data[0]:data;
-    if(!deleted||Number(deleted.archive_record_id)!==Number(record.id))throw new Error('The newly created draft could not be confirmed for deletion.');
-    await cleanupBlockMediaUploads('');
-    await removeNewDraftStorage(Array.isArray(deleted.storage_paths)?deleted.storage_paths:[]);
-    records=records.filter(item=>String(item.id)!==String(record.id));
-    recordStructureOverrides.delete(String(record.id));favoriteRecordIds.delete(String(record.id));
-    destroyEditor();chamberCloseRequestedByUser=true;recordChamber?.close();render();
-    if(createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // DISCARDED';
-    return;
-   }
-   if(draftAutosaveEnabled){
-    draftAutosaveStopped=true;
-    if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
-    draftAutosaveQueued=false;
-    await waitForDraftSave();
-    if(chamberSaveConflict||draftAutosaveConflict){
-     if(!window.confirm('A newer version of this draft was saved elsewhere. Discard this editor session without overwriting that version?')){
-      draftAutosaveStopped=false;editButton.disabled=false;save.disabled=false;if(deleteDraft)deleteDraft.disabled=false;return;
-     }
-     await Promise.all([loadRecordStructureOverrides(),loadTransmissionRecords()]);
-     const latest=records.find(item=>String(item.id)===String(record.id));
-     if(latest)Object.assign(record,latest);
-    }else{
-     const original=initialRecordSnapshot;
-     const originalStructure=initialStructureSnapshot;
-     const originalBody=sanitizeTransmissionBody(originalStructure.transmission_body||original.content_html||'');
-     const originalBlocks=Array.isArray(originalStructure.blocks)?originalStructure.blocks:[];
-     const originalOutput=originalStructure.output_media&&typeof originalStructure.output_media==='object'?originalStructure.output_media:{};
-     const originalMedia=(Array.isArray(original.media_items)?original.media_items:[]).map(item=>{
-      const mime=String(item.mime_type||'').toLowerCase();
-      const type=['image','audio','video'].includes(item.type)?item.type:(mime.split('/')[0]||'file');
-      return {url:String(item.source_url||item.url||''),path:item.storage_path||item.path||null,type,name:String(item.title||item.name||original.title)};
-     }).filter(item=>item.url);
-     const expectedUpdatedAt=record.updated_at;
-     status.textContent='RESTORING THE ORIGINAL DRAFT…';
-     const {data,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
-      p_post_id:original.post_id,p_title:original.title,p_slug:original.slug,
-      p_category:String((original.categories||[])[0]||'').toUpperCase(),p_excerpt:original.excerpt||'',p_status:'draft',
-      p_transmission_body:originalBody,p_prompt_style:originalStructure.prompt_style||'',
-      p_lyrics_style:originalStructure.lyrics_style||'',p_output_text:originalStructure.output_text||'',
-      p_output_media:originalOutput,p_media_items:originalMedia,p_media_width:original.media_width||100,
-      p_expected_updated_at:expectedUpdatedAt
-     });
-     if(error)throw error;
-     const saved=Array.isArray(data)?data[0]:data;
-     const {data:blockSaveData,error:blockSaveError}=await archiveSupabase.rpc('save_human_archive_record_blocks_v1',{
-      p_record_id:Number(record.id),p_blocks:originalBlocks,p_expected_updated_at:saved?.updated_at||expectedUpdatedAt
-     });
-     if(blockSaveError)throw blockSaveError;
-     Object.assign(record,original);
-     record.content_html=originalBody;
-     record.updated_at=blockSaveData||saved?.updated_at||expectedUpdatedAt;
-     recordStructureOverrides.set(String(record.id),{
-      ...originalStructure,transmission_body:originalBody,output_media:originalOutput,
-      blocks:originalBlocks,updated_at:record.updated_at
-     });
-     const originalPaths=new Set([
-      ...(Array.isArray(original.media_items)?original.media_items:[]).map(item=>item.storage_path||item.path||''),
-      ...Object.values(originalOutput).flatMap(items=>Array.isArray(items)?items.map(item=>item?.path||''):[])
-     ].filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')));
-     const newPaths=[
-      ...attachedPostMedia.map(item=>item.uploadedDraft?.path||item.path||''),
-      ...['image','audio','video'].flatMap(type=>editorMedia[type].map(item=>item.uploadedDraft?.path||item.path||''))
-     ].filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')&&!originalPaths.has(path));
-     await removeNewDraftStorage(newPaths);
-    }
-   }
-   await cleanupBlockMediaUploads('');
    draftAutosaveStopped=true;
+   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
+   await waitForDraftSave();
+   await cleanupBlockMediaUploads('');
+   if(record.source_type==='transmission'&&record.draft_id){
+    if(record.isNew||record._editOfPublished){
+     await window.VHACMSStore.deleteDraft(record.draft_id,record._repoCommitSha);
+     await loadTransmissionRecords();
+     const original=records.find(item=>item.source_type==='transmission'&&item.post_id===record.post_id);
+     if(original)Object.assign(record,original);
+     else records=records.filter(item=>String(item.id)!==String(record.id));
+     if(record.isNew&&createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // DISCARDED';
+    }else if(initialDraftSnapshot){
+     const collectPaths=draft=>{
+      const paths=[];
+      const content=draft?.content||{};
+      (content.media_items||[]).forEach(item=>{if(item?.path)paths.push(item.path);});
+      Object.values(content.output_media||{}).forEach(items=>(Array.isArray(items)?items:[]).forEach(item=>{if(item?.path)paths.push(item.path);}));
+      const html=[content.transmission_body||'',...(content.blocks||[]).map(block=>block.html||'')].join('\n');
+      for(const match of html.matchAll(/cms-data\/v1\/media\/drafts\/[^\s"'<>)]*/g))paths.push(match[0]);
+      return [...new Set(paths.filter(path=>path.startsWith('cms-data/v1/media/drafts/')))];
+     };
+     const latest=await window.VHACMSStore.getDraft(record.draft_id);
+     const originalPaths=new Set(collectPaths(initialDraftSnapshot));
+     const removePaths=collectPaths(latest).filter(path=>!originalPaths.has(path));
+     if(removePaths.length){
+      const removed=await window.VHACMSStore.deleteDraftMedia(record.draft_id,removePaths,record._repoCommitSha);
+      record._repoCommitSha=removed.commitSha||record._repoCommitSha;
+     }
+     const restore={...initialDraftSnapshot};delete restore._path;delete restore._sha;delete restore._repoCommitSha;
+     const restored=await window.VHACMSStore.saveDraft(restore,record._repoCommitSha);
+     Object.assign(record,initialRecordSnapshot);
+     record._repoCommitSha=restored.commitSha;record._draftData=restored.draft;
+     recordStructureOverrides.set(String(record.id),initialStructureSnapshot);
+    }
+   }else{
+    Object.assign(record,initialRecordSnapshot);
+    recordStructureOverrides.set(String(record.id),initialStructureSnapshot);
+   }
    destroyEditor();
    status.textContent='EDITOR CHANGES DISCARDED';
    if(hasArchiveIndex)render();
@@ -1254,6 +1193,7 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
   }
  };
  if(editButton)editButton.onclick=discardChanges;
+ 
  save.onclick=async()=>{
   if(!archiveAdmin||!archiveWriteReady||!archiveUserId){status.textContent='GITHUB EDITOR MIGRATION IS NOT YET ENABLED';return;}
   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
