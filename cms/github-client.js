@@ -170,7 +170,7 @@
     const head = options.atCommit || await getBranchHead(key, branch);
     if (!head) return [];
     const tree = await getTree(key, head);
-    const normalized = String(prefix || '').replace(/^\\/+|\\/+$/g, '');
+    const normalized = String(prefix || '').split('/').filter(Boolean).join('/');
     return tree.filter(item => item.type === 'blob' && (!normalized || item.path.startsWith(normalized + '/') || item.path === normalized))
       .map(item => ({ path: item.path, sha: item.sha, size: item.size || 0 }));
   }
