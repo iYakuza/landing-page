@@ -86,7 +86,7 @@ The block editor itself has no Supabase database client. It receives media uploa
 |---|---|---|
 | `content/transmissions.json` | Valid collection object with `schema_version`, `collection` and `records`; six records observed | Canonical published Transmissions |
 | `content/signals.json` | Existing public collection | Public Signals rendering; moderation deferred |
-| `content/human-archive.json` | Valid canonical collection (1,143,614 bytes; 140 records), with embedded `media_manifest` and 197 `editor_structures` entries. The large-file `fetch_file` response was empty, but the Git blob endpoint returned and parsed the complete JSON. | Existing canonical Human Archive source; preserve and validate its schema and references |
+| `content/human-archive.json` | **Zero-byte file on this recovery branch at the time of inspection** | Required by `human-archive/archive.js`; must be restored/constructed and validated before cutover |
 | `human-archive/archive-content.json` | Captured source collection with 140 records | Source material for rebuilding the canonical Human Archive collection |
 | `human-archive/archive-data.json` | 140-record index array | Supporting source/index data |
 | `human-archive/media-manifest.json` | Existing media inventory | Local media reference mapping |
@@ -94,7 +94,7 @@ The block editor itself has no Supabase database client. It receives media uploa
 | `recovery-data/human-archive-structures.json` | Export containing 197 structure records | Seed for structure overrides and block streams |
 | `transmissions/posts.json` | Legacy array with six Transmission records observed | Legacy/reference data; canonical public collection remains `content/transmissions.json` |
 
-`content/human-archive.json` is present and structurally complete. The earlier apparent empty result was a limitation of the large-file fetch response, not an empty repository file. Before cutover, still compare its 140 records, embedded media manifest and 197 editor-structure entries against the captured source/export files and any newer backups; validate IDs, media references and block streams. Do not rewrite the canonical collection without a verified reason.
+The zero-byte `content/human-archive.json` finding is a pre-cutover blocker, not permission to overwrite or reconstruct public content casually. Before cutover, compare the captured 140-record source, media manifest, structure export and any newer backups, then validate record counts, IDs, media references and editor structures. Keep the public branch unchanged during that recovery.
 
 ## Security and integration requirements
 
