@@ -289,3 +289,9 @@
 .ha-editor-block.is-drop-before::before{top:-2px}
 .ha-editor-block.is-drop-after::after{bottom:-2px}
 .ha-editor-block.is-dragging{opacity:.42}
+
+
+/* Keep the block editing controls available without hover-only discovery. */
+.ha-block-editor-shell:not(.is-read-only) .ha-editor-block-controls{opacity:1!important}
+.ha-block-editor-shell:not(.is-read-only) .ha-editor-block-footer{opacity:1!important}
+.ha-block-editor-shell:not(.is-read-only) .ha-editor-column>.ha-editor-add-column{opacity:.92!important}
