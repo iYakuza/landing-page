@@ -87,9 +87,25 @@ function safeExternalUrl(raw,allowedHosts){
  }catch{return null;}
 }
 function safeArchiveMediaUrl(raw,allowedHosts){
- const rawValue=String(raw||'');if(rawValue.startsWith('blob:')&&privateMediaUrlToPath.has(rawValue))return rawValue;
- const remote=safeExternalUrl(raw,allowedHosts);if(remote)return remote;
- try{const url=new URL(String(raw||''),document.baseURI);if(url.protocol==='https:'&&url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/')))return url.href;}catch{}
+ const rawValue=String(raw||'').trim();
+ if(rawValue.startsWith('blob:')&&privateMediaUrlToPath.has(rawValue))return rawValue;
+ if(/^media\//.test(rawValue)&&!rawValue.split('/').some(part=>part==='..')&&!/[?#\\\\]/.test(rawValue)){
+  return new URL(archiveSiteBasePath+'/'+rawValue.split('/').map(encodeURIComponent).join('/'),window.location.origin).href;
+ }
+ const storageHosts=new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']);
+ const remote=safeExternalUrl(rawValue,new Set([...(allowedHosts||[]),...storageHosts]));
+ if(remote){
+  const url=new URL(remote);
+  const host=url.hostname.toLowerCase();
+  if(host==='oeyxsqocldlovhsmzcjw.supabase.co'&&!/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media|human-archive-media)\//.test(url.pathname))return null;
+  if(host==='ioguymqdeuuursizifnn.supabase.co'&&!/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname))return null;
+  return remote;
+ }
+ try{
+  const url=new URL(rawValue,document.baseURI);
+  if(url.protocol==='https:'&&url.origin===window.location.origin&&
+    (url.pathname.startsWith(archiveSiteBasePath+'/media/')||url.pathname.startsWith('/landing-page/media/')||url.pathname.startsWith('/landing-page-preview/media/')))return url.href;
+ }catch{}
  return null;
 }
 function mediaTitle(item,record){
@@ -949,7 +965,7 @@ const getBlockMediaLibrary=type=>{
   }catch(error){console.warn('Unreferenced media could not be cleaned up:',error);}
  };
 
-const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,showTopbar:false,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
+const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,showTopbar:false,mediaBasePath:archiveSiteBasePath,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
  const getEditorHTML=()=>transmissionEditor.__haBlockEditor?.getHTML()||transmissionEditor.innerHTML;
  const getEditorBlocks=()=>{
   const current=transmissionEditor.__haBlockEditor?.getBlocks?.();
