@@ -304,6 +304,7 @@
     request,
     getBranchHead,
     readFile,
+    listFiles,
     readJson,
     commitFiles,
     initializePrivateRepository
