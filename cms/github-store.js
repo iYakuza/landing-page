@@ -75,13 +75,16 @@
   }
 
   async function deleteDraft(draftId, expectedHeadSha) {
-    const path = privatePath('drafts/transmissions/' + id(draftId) + '.json');
+    const key = id(draftId);
+    const path = privatePath('drafts/transmissions/' + key + '.json');
     const file = await github().readFile('private', path);
     if (!file) return { deleted: false };
     const head = await currentHead('private');
     if (expectedHeadSha && head !== expectedHeadSha) throw new Error('The private CMS repository changed. Reload before deleting.');
-    const result = await write('private', [{ path, delete: true }], 'Delete Transmission draft ' + draftId, head);
-    return { deleted: true, commitSha: result.commitSha };
+    const media = await github().listFiles('private', privatePath('media/drafts/' + key));
+    const changes = [{ path, delete: true }, ...media.map(item => ({ path: item.path, delete: true }))];
+    const result = await write('private', changes, 'Delete Transmission draft and private media ' + key, head);
+    return { deleted: true, removedMediaCount: media.length, commitSha: result.commitSha };
   }
 
   async function savePrivateMedia(draftId, files) {
@@ -299,6 +302,67 @@
     return { post, commitSha: result.commitSha };
   }
 
+
+  async function createEditDraft(postId) {
+    const { transmissions, archive } = await getPublicCollections();
+    const post = transmissions.value.records.find(item => item.id === postId);
+    if (!post) throw new Error('The published Transmission could not be found.');
+    const structure = (archive.value.editor_structures || []).find(item => String(item.record_id) === String(post.archive_record_id)) || {};
+    const draftId = crypto.randomUUID ? crypto.randomUUID() : 'draft-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+    const now = new Date().toISOString();
+    const draft = {
+      schema_version: 1, draft_id: draftId, kind: 'transmission',
+      record_id: Number(post.archive_record_id), post_id: post.id, source: 'existing',
+      status: 'draft', created_at: now, updated_at: now, revision: 1,
+      base_public_commit: await currentHead('public'),
+      metadata: { title: post.title || '', slug: post.slug || '', category: post.category || '', excerpt: post.excerpt || '', media_width: post.media_width || 100 },
+      content: {
+        transmission_body: structure.transmission_body || post.content_html || '',
+        prompt_style: structure.prompt_style || '', lyrics_style: structure.lyrics_style || '',
+        output_text: structure.output_text || '',
+        output_media: structure.output_media || { image: [], audio: [], video: [] },
+        blocks: Array.isArray(structure.blocks) ? structure.blocks : [],
+        media_items: Array.isArray(post.media_items) ? post.media_items : []
+      }
+    };
+    const saved = await saveDraft(draft);
+    return { ...draft, commitSha: saved.commitSha };
+  }
+
+  async function unpublishTransmission(postId) {
+    const { transmissions, archive } = await getPublicCollections();
+    const post = transmissions.value.records.find(item => item.id === postId);
+    if (!post) throw new Error('The published Transmission could not be found.');
+    const structureIndex = (archive.value.editor_structures || []).findIndex(item => String(item.record_id) === String(post.archive_record_id));
+    const structure = structureIndex >= 0 ? archive.value.editor_structures[structureIndex] : {};
+    const draftId = crypto.randomUUID ? crypto.randomUUID() : 'draft-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+    const now = new Date().toISOString();
+    const draft = {
+      schema_version: 1, draft_id: draftId, kind: 'transmission',
+      record_id: Number(post.archive_record_id), post_id: post.id, source: 'existing',
+      status: 'draft', created_at: now, updated_at: now, revision: 1,
+      base_public_commit: await currentHead('public'),
+      metadata: { title: post.title || '', slug: post.slug || '', category: post.category || '', excerpt: post.excerpt || '', media_width: post.media_width || 100 },
+      content: {
+        transmission_body: structure.transmission_body || post.content_html || '',
+        prompt_style: structure.prompt_style || '', lyrics_style: structure.lyrics_style || '',
+        output_text: structure.output_text || '',
+        output_media: structure.output_media || { image: [], audio: [], video: [] },
+        blocks: Array.isArray(structure.blocks) ? structure.blocks : [],
+        media_items: Array.isArray(post.media_items) ? post.media_items : []
+      }
+    };
+    await saveDraft(draft);
+    const head = await currentHead('public');
+    transmissions.value.records = transmissions.value.records.filter(item => item.id !== postId);
+    if (structureIndex >= 0) archive.value.editor_structures.splice(structureIndex, 1);
+    const result = await write('public', [
+      { path: CONFIG.transmissionsPath, content: json(transmissions.value) },
+      { path: CONFIG.archivePath, content: json(archive.value) }
+    ], 'Unpublish Transmission ' + postId, head);
+    return { draftId, commitSha: result.commitSha };
+  }
+
   window.VHACMSStore = Object.freeze({
     config: CONFIG,
     getPublicCollections,
@@ -312,6 +376,8 @@
     readPrivateMedia,
     createDraft,
     publishDraft,
+    createEditDraft,
+    unpublishTransmission,
     getPublicStructure,
     savePublicStructure,
     getFavorites,
