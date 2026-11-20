@@ -214,6 +214,22 @@
   }
 
 
+
+  async function deleteDraftMedia(draftId, paths, expectedHeadSha) {
+    const key = id(draftId);
+    const prefix = privatePath('media/drafts/' + key + '/');
+    const safe = [...new Set((paths || []).filter(path => typeof path === 'string' && path.startsWith(prefix)))];
+    if (!safe.length) return { deleted: 0 };
+    const head = await currentHead('private');
+    if (expectedHeadSha && head !== expectedHeadSha) throw new Error('The private CMS repository changed. Reload before cleaning up media.');
+    const existing = await github().listFiles('private', prefix, { atCommit: head });
+    const allowed = new Set(existing.map(item => item.path));
+    const changes = safe.filter(path => allowed.has(path)).map(path => ({ path, delete: true }));
+    if (!changes.length) return { deleted: 0 };
+    const result = await write('private', changes, 'Remove unused private Transmission draft media ' + key, head);
+    return { deleted: changes.length, commitSha: result.commitSha };
+  }
+
   async function getDraftMediaFiles(draftId) {
     const key = id(draftId);
     const commitSha = await currentHead('private');
@@ -445,6 +461,7 @@
     uploadDraftMedia,
     readPrivateMedia,
     getDraftMediaFiles,
+    deleteDraftMedia,
     createDraft,
     publishDraft,
     createEditDraft,
