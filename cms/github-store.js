@@ -343,7 +343,7 @@
       if (!item || !String(item.path || '').startsWith(privatePath('media/drafts/' + id(draftId) + '/'))) return item;
       const source = await github().readFile('private', item.path);
       if (!source) throw new Error('A referenced private media file is missing: ' + item.path);
-      const fileName = String(item.name || item.path.split('/').pop()).split('/').pop().replace(/[^a-zA-Z0-9._-]+/g, '-');
+      const fileName = String(item.path.split('/').pop() || item.name || 'media').replace(/[^a-zA-Z0-9._-]+/g, '-');
       const target = 'media/transmissions/' + draft.post_id + '/' + fileName;
       mediaChanges.push({ path: target, content: source.bytes });
       pathMap.set(item.path, target);
