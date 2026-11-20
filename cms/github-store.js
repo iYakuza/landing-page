@@ -77,9 +77,9 @@
   async function deleteDraft(draftId, expectedHeadSha) {
     const key = id(draftId);
     const path = privatePath('drafts/transmissions/' + key + '.json');
-    const file = await github().readFile('private', path);
-    if (!file) return { deleted: false };
     const head = await currentHead('private');
+    const file = await github().readFile('private', path, { atCommit: head });
+    if (!file) return { deleted: false };
     if (expectedHeadSha && head !== expectedHeadSha) throw new Error('The private CMS repository changed. Reload before deleting.');
     const media = await github().listFiles('private', privatePath('media/drafts/' + key));
     const changes = [{ path, delete: true }, ...media.map(item => ({ path: item.path, delete: true }))];
@@ -130,8 +130,8 @@
     const post = Number(transmissionNumber), record = Number(archiveRecordId);
     if (!Number.isSafeInteger(post) || post < 0 || !Number.isSafeInteger(record) || record < 1) throw new Error('Sequence seeds must be verified non-negative/positive integers.');
     const path = privatePath('sequences.json');
-    if (await github().readFile('private', path)) throw new Error('The CMS sequences have already been initialized.');
     const head = await currentHead('private') || await github().initializePrivateRepository();
+    if (await github().readFile('private', path, { atCommit: head })) throw new Error('The CMS sequences have already been initialized.');
     const value = { transmission_number: post, archive_record_id: record, initialized_at: new Date().toISOString() };
     const result = await write('private', [{ path, content: json(value) }], 'Initialize verified CMS identifier sequences', head);
     return { ...value, commitSha: result.commitSha };
@@ -140,7 +140,7 @@
   async function reserveSequence(expectedHeadSha) {
     const head = await currentHead('private') || await github().initializePrivateRepository();
     const file = await readJson('private', privatePath('sequences.json'), null, { atCommit: head });
-    if (!file) throw new Error('CMS identifier sequences have not been initialized from the verified content export.');
+    if (!file?.data) throw new Error('CMS identifier sequences have not been initialized from the verified content export.');
     if (!Number.isSafeInteger(Number(file.data.transmission_number)) || !Number.isSafeInteger(Number(file.data.archive_record_id))) throw new Error('The CMS identifier sequence file is invalid. Reconcile it before creating records.');
     if (expectedHeadSha && head !== expectedHeadSha) throw new Error('The private CMS sequence changed. Reload before creating a record.');
     const next = {
@@ -357,7 +357,7 @@
       schema_version: 1, draft_id: draftId, kind: 'transmission',
       record_id: Number(post.archive_record_id), post_id: post.id, source: 'existing',
       status: 'draft', created_at: now, updated_at: now, revision: 1,
-      base_public_commit: await currentHead('public'),
+      base_public_commit: publicHead,
       metadata: { title: post.title || '', slug: post.slug || '', category: post.category || '', excerpt: post.excerpt || '', media_width: post.media_width || 100 },
       content: {
         transmission_body: structure.transmission_body || post.content_html || '',
