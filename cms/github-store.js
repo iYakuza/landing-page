@@ -441,7 +441,7 @@
 
   async function unpublishDraft(draftId) {
     const draft = await getDraft(draftId);
-    if (!draft || draft.source !== 'existing') throw new Error('Only an edit draft for an existing published Transmission can be unpublished.');
+    if (!draft || draft.kind !== 'transmission') throw new Error('Only a Transmission draft can be unpublished.');
     const publicHead = await currentHead('public');
     if (draft.base_public_commit && draft.base_public_commit !== publicHead) throw new Error('The public repository changed after this edit draft was opened. Reload and reconcile before unpublishing.');
     const [transmissions, archive] = await Promise.all([
@@ -451,6 +451,7 @@
     if (!transmissions?.data?.records || !archive?.data?.editor_structures) throw new Error('The canonical public collections are incomplete.');
     const postExists = transmissions.data.records.some(item => item.id === draft.post_id);
     if (!postExists) {
+      draft.source = 'existing';
       draft.base_public_commit = publicHead;
       const saved = await saveDraft(draft, draft._repoCommitSha);
       return { commitSha: publicHead, privateCommitSha: saved.commitSha, alreadyUnpublished: true };
@@ -461,6 +462,7 @@
       { path: CONFIG.transmissionsPath, content: json(transmissions.data) },
       { path: CONFIG.archivePath, content: json(archive.data) }
     ], 'Unpublish Transmission ' + draft.post_id, publicHead);
+    draft.source = 'existing';
     draft.base_public_commit = result.commitSha;
     let saved;
     try {
