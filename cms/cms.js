@@ -39,6 +39,7 @@
       const sequences = await store.getSequences();
       sequencePanel.hidden = Boolean(sequences);
       if (sequences) {
+        $('user-line').textContent += ' // IDENTIFIERS READY';
         message(sequenceMessage, 'IDENTIFIERS INITIALIZED // NEXT: T-' + String(Number(sequences.transmission_number) + 1).padStart(4, '0') + ' / ' + (Number(sequences.archive_record_id) + 1));
       } else {
         message(sequenceMessage, 'The private repository is ready for its one-time sequence initialization.');
@@ -77,8 +78,9 @@
     message(sequenceMessage, 'INITIALIZING THE PRIVATE CMS REPOSITORY…');
     try {
       const result = await store.seedSequences(6, 3008);
-      sequencePanel.hidden = true;
-      message(sequenceMessage, 'SEQUENCES INITIALIZED // NEXT: ' + result.transmission_number + ' / ' + result.archive_record_id);
+      sequencePanel.hidden = false;
+      button.hidden = true;
+      message(sequenceMessage, 'SEQUENCES INITIALIZED // NEXT: T-' + String(result.transmission_number + 1).padStart(4, '0') + ' / ' + (result.archive_record_id + 1));
     } catch (error) {
       message(sequenceMessage, error.message || 'The sequence initialization failed.', true);
     } finally {
