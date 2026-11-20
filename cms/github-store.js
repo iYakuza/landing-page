@@ -264,20 +264,20 @@
     for (const kind of ['image', 'audio', 'video']) {
       outputMedia[kind] = await Promise.all((draft.content.output_media?.[kind] || []).map(promote));
     }
-    post.content_html = String(post.content_html).replace(/cms-data\\/v1\\/media\\/drafts\\/[^\\s"'<>)]*/g, match => pathMap.get(match) || match);
+    post.content_html = String(post.content_html).replace(/cms-data\/v1\/media\/drafts\/[^\\s"'<>)]*/g, match => pathMap.get(match) || match);
     post.media_url = post.media_items[0]?.url || '';
     post.media_path = post.media_items[0]?.path || '';
     post.media_type = post.media_items[0]?.type || '';
     const blocks = (Array.isArray(draft.content.blocks) ? draft.content.blocks : []).map(block => ({
       ...block,
-      html: String(block.html || '').replace(/cms-data\\/v1\\/media\\/drafts\\/[^\\s"'<>)]*/g, match => pathMap.get(match) || match)
+      html: String(block.html || '').replace(/cms-data\/v1\/media\/drafts\/[^\\s"'<>)]*/g, match => pathMap.get(match) || match)
     }));
     const oldIndex = transmissions.value.records.findIndex(item => item.id === draft.post_id);
     if (oldIndex >= 0) transmissions.value.records[oldIndex] = post;
     else transmissions.value.records.push(post);
     const structure = {
       record_id: Number(draft.record_id),
-      transmission_body: draft.content.transmission_body || '',
+      transmission_body: post.content_html,
       prompt_style: draft.content.prompt_style || '',
       lyrics_style: draft.content.lyrics_style || '',
       output_text: draft.content.output_text || '',
