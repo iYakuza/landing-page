@@ -157,6 +157,43 @@
     return { ...next, post_id: 'T-' + String(next.transmission_number).padStart(4, '0'), commitSha: result.commitSha };
   }
 
+
+  async function uploadPublicMedia(recordId, files, folder = 'blocks') {
+    const record = Number(recordId);
+    if (!Number.isSafeInteger(record) || record < 1) throw new Error('A valid Human Archive record ID is required.');
+    const safeFolder = String(folder || 'blocks').replace(/[^a-z0-9_-]/gi, '').slice(0, 40) || 'blocks';
+    const changes = [];
+    for (const file of files || []) {
+      if (!(file instanceof Blob)) throw new Error('A media upload must be a browser File or Blob.');
+      if (file.size > CONFIG.maxMediaBytes) throw new Error(file.name + ' exceeds the 30 MB upload limit.');
+      const name = String(file.name || 'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(-110) || 'media';
+      const suffix = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
+      changes.push({ path: 'media/human-archive/HA-' + String(record).padStart(4, '0') + '/' + safeFolder + '/' + suffix + '-' + name, content: file });
+    }
+    if (!changes.length) return [];
+    const head = await currentHead('public');
+    const result = await write('public', changes, 'Upload Human Archive media HA-' + record, head);
+    return changes.map((change, index) => ({
+      path: change.path, url: '/landing-page/' + change.path, name: change.path.split('/').pop(),
+      mime_type: files[index].type || 'application/octet-stream', commitSha: result.commitSha
+    }));
+  }
+
+  async function deletePublicMedia(recordId, paths, expectedHeadSha) {
+    const record = Number(recordId);
+    const prefix = 'media/human-archive/HA-' + String(record).padStart(4, '0') + '/';
+    const safe = [...new Set((paths || []).filter(path => typeof path === 'string' && path.startsWith(prefix)))];
+    if (!safe.length) return { deleted: 0 };
+    const head = await currentHead('public');
+    if (expectedHeadSha && expectedHeadSha !== head) throw new Error('The public repository changed. Reload before cleaning up media.');
+    const existing = await github().listFiles('public', prefix, { atCommit: head });
+    const allowed = new Set(existing.map(item => item.path));
+    const changes = safe.filter(path => allowed.has(path)).map(path => ({ path, delete: true }));
+    if (!changes.length) return { deleted: 0 };
+    const result = await write('public', changes, 'Remove unused Human Archive media HA-' + record, head);
+    return { deleted: changes.length, commitSha: result.commitSha };
+  }
+
   async function savePrivateOverride(recordId, override) {
     const key = id(recordId);
     const head = await currentHead('private') || await github().initializePrivateRepository();
@@ -469,6 +506,8 @@
     unpublishDraft,
     getPublicStructure,
     savePublicStructure,
+    uploadPublicMedia,
+    deletePublicMedia,
     getFavorites,
     setFavorite,
     getSequences,
