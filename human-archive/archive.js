@@ -1314,8 +1314,10 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
       url:makePublicUrl(item.url||item.src||item.path),storage:'github-public',post_ids:[Number(record.id)]
      }));
      record.status='published';record.published_at=post.published_at;record.updated_at=post.updated_at;
-     record.media_width=post.media_width||100;record.draft_id=null;record._draftData=null;record._repoCommitSha=null;
-     record.isNew=false;record._editOfPublished=false;record._publicCommitSha=published.commitSha;
+     record.media_width=post.media_width||100;record._publicCommitSha=published.commitSha;
+     record.isNew=false;record._editOfPublished=Boolean(published.privateCleanupPending);
+     if(published.privateCleanupPending){record._draftData=await window.VHACMSStore.getDraft(record.draft_id);record._repoCommitSha=record._draftData?._repoCommitSha;status.textContent='PUBLISHED — PRIVATE DRAFT CLEANUP IS PENDING';}
+     else{record.draft_id=null;record._draftData=null;record._repoCommitSha=null;}
      const publicStructure=await window.VHACMSStore.getPublicStructure(record.id);
      if(publicStructure){
       const output=Object.fromEntries(['image','audio','video'].map(kind=>[kind,(publicStructure.output_media?.[kind]||[]).map(item=>({...item,url:makePublicUrl(item.url||item.path)}))]));
