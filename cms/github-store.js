@@ -342,7 +342,7 @@
     const mediaChanges = [];
     const promote = async item => {
       if (!item || !String(item.path || '').startsWith(privatePath('media/drafts/' + id(draftId) + '/'))) return item;
-      const source = await github().readFile('private', item.path);
+      const source = await github().readFile('private', item.path, { atCommit: draft._repoCommitSha });
       if (!source) throw new Error('A referenced private media file is missing: ' + item.path);
       const fileName = String(item.path.split('/').pop() || item.name || 'media').replace(/[^a-zA-Z0-9._-]+/g, '-');
       const target = 'media/transmissions/' + draft.post_id + '/' + fileName;
