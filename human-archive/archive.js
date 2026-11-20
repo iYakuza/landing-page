@@ -17,7 +17,7 @@ const SUPABASE_URL='https://oeyxsqocldlovhsmzcjw.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
 let archiveSupabase=null,archiveAdmin=false,archiveUserId=null,archiveAuthBound=false,archiveWriteReady=false;
 let standaloneTransmissionRecordsPromise=null;
-let favoriteRecordIds=new Set(),favoriteSaveError=false,recordStructureOverrides=new Map();
+let favoriteRecordIds=new Set(),favoriteSaveError=false,recordStructureOverrides=new Map(),privateMediaUrlToPath=new Map();
 let mediaHashByPath=new Map();
 let recordChamber=null,recordChamberReturnFocus=null;
 
@@ -370,6 +370,7 @@ async function loadTransmissionRecords(){
     if(!Number.isSafeInteger(id)||!draft.post_id)continue;
     const privateAssets=await window.VHACMSStore.getDraftMediaFiles(draft.draft_id);
     const urlByPath=new Map(privateAssets.map(asset=>[asset.path,asset.url]));
+    privateAssets.forEach(asset=>privateMediaUrlToPath.set(asset.url,asset.path));
     const hydrate=item=>{
      if(!item||typeof item!=='object')return item;
      const path=String(item.path||'');
