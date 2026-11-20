@@ -35,7 +35,7 @@
     if (!archive.value || !Array.isArray(archive.value.records || archive.value.items || archive.value)) {
       throw new Error('The canonical Human Archive collection is missing or has an unexpected structure.');
     }
-    if (!Array.isArray(transmissions.value)) throw new Error('The canonical Transmissions collection has an unexpected structure.');
+    if (!Array.isArray(transmissions.value.records)) throw new Error('The canonical Transmissions collection has an unexpected structure.');
     return { archive, transmissions };
   }
 
@@ -101,18 +101,21 @@
   }
 
   async function getFavorites() {
-    const file = await readJson('private', privatePath('human-archive-favorites.json'), { record_ids: [] });
+    const file = await readJson('private', privatePath('human-archive-favorites.json'), []);
+    if (Array.isArray(file.value)) return file.value.map(item => String(item.record_id));
     return Array.isArray(file.value.record_ids) ? file.value.record_ids.map(String) : [];
   }
 
   async function setFavorite(recordId, isFavorite) {
     const record = id(recordId);
-    const file = await readJson('private', privatePath('human-archive-favorites.json'), { record_ids: [] });
-    const set = new Set((file.value.record_ids || []).map(String));
-    if (isFavorite) set.add(record); else set.delete(record);
+    const file = await readJson('private', privatePath('human-archive-favorites.json'), []);
+    const entries = new Map((Array.isArray(file.value) ? file.value : []).map(item => [String(item.record_id), item]));
+    if (isFavorite) { if (!entries.has(record)) entries.set(record, { record_id: Number(record), created_at: new Date().toISOString() }); }
+    else entries.delete(record);
     const head = await currentHead('private') || await github().initializePrivateRepository();
-    const result = await write('private', [{ path: privatePath('human-archive-favorites.json'), content: json({ record_ids: [...set].sort(), updated_at: new Date().toISOString() }) }], 'Update Human Archive favourites', head);
-    return { record_ids: [...set], commitSha: result.commitSha };
+    const value = [...entries.values()].sort((a, b) => Number(a.record_id) - Number(b.record_id));
+    const result = await write('private', [{ path: privatePath('human-archive-favorites.json'), content: json(value) }], 'Update Human Archive favourites', head);
+    return { record_ids: value.map(item => String(item.record_id)), commitSha: result.commitSha };
   }
 
   async function getSequences() {
