@@ -21,6 +21,18 @@
     } catch { return ''; }
   }
 
+
+  function safeEditorMediaURL(value, hosts) {
+    const raw = String(value || '').trim();
+    try {
+      const url = new URL(raw, window.location.href);
+      if (url.protocol === 'blob:' && url.origin === window.location.origin) return url.href;
+      if (url.origin === window.location.origin && url.pathname.startsWith('/landing-page/media/') &&
+          !url.pathname.includes('..') && !url.search && !url.hash) return url.href;
+    } catch {}
+    return safeURL(raw, hosts);
+  }
+
   function blockType(node) {
     if (!node || node.nodeType !== Node.ELEMENT_NODE) return 'paragraph';
     const tag = node.tagName;
@@ -568,7 +580,17 @@
                 try{const url=new URL(value);if(!((url.protocol==='https:'&&url.hostname&&!url.username&&!url.password)||(url.protocol==='mailto:'&&url.pathname)))node.removeAttribute(attribute.name);}catch{node.removeAttribute(attribute.name);}
               }else if(name==='src'){
                 const hosts=node.tagName==='IMG'?IMAGE_HOSTS:['AUDIO','VIDEO','SOURCE'].includes(node.tagName)?MEDIA_HOSTS:node.tagName==='IFRAME'?EMBED_HOSTS:null;
-                if(hosts){const safe=safeURL(value,hosts);const valid=safe&&(!['AUDIO','VIDEO','SOURCE'].includes(node.tagName)||new URL(safe).pathname.startsWith('/storage/v1/object/public/vha-post-media/'));if(valid)node.setAttribute('src',safe);else node.removeAttribute(attribute.name);}
+                 if(hosts){
+                   const safe=safeEditorMediaURL(value,hosts);
+                   let valid=Boolean(safe);
+                   if(valid&&['AUDIO','VIDEO','SOURCE'].includes(node.tagName)){
+                     const url=new URL(safe,window.location.href);
+                     valid=(url.protocol==='blob:'&&url.origin===window.location.origin)||
+                       (url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/media/'))||
+                       (url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.startsWith('/storage/v1/object/public/vha-post-media/'));
+                   }
+                   if(valid)node.setAttribute('src',safe);else node.removeAttribute(attribute.name);
+                 }
                 else node.removeAttribute(attribute.name);
               }
             });
