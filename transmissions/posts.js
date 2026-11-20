@@ -1,9 +1,4 @@
 (() => {
-  const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
-  // Publishable key is intended for public clients; RLS protects the database.
-  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-  const client = window.__vhaSupabaseClient || window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) || null;
-  if (client) window.__vhaSupabaseClient = client;
   const list = document.getElementById('posts-list');
   const search = document.getElementById('post-search');
   const categoryFilter = document.getElementById('category-filter');
@@ -310,45 +305,32 @@
     });
   }
   async function loadMorePosts(){
-    if(!client||!postsHasMore||!loadMoreButton)return;
-    loadMoreButton.disabled=true;loadMoreButton.textContent='LOADING…';
-    try{
-      const result=isCommunityArchive
-        ? await client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(postsOffset,postsOffset+PAGE_SIZE-1)
-        : await client.from('vha_posts').select('id,archive_record_id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,media_items,created_at,published_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(postsOffset,postsOffset+PAGE_SIZE-1);
-      if(result.error)throw result.error;
-      const rows=result.data||[];postsOffset+=rows.length;postsHasMore=rows.length===PAGE_SIZE;
-      const additions=isCommunityArchive?rows.map(item=>({id:item.id,title:item.title,slug:item.slug,category:'COMMUNITY SIGNAL',excerpt:item.byline?'TRANSMITTED BY '+item.byline:'COMMUNITY SUBMISSION',content_html:item.body?'<p>'+safe(item.body).replace(/\n/g,'<br>')+'</p>':'',media_url:item.media_url,media_type:item.medium==='photograph'?'image':item.medium==='video'?'video':'audio',created_at:item.created_at,published_at:item.published_at||item.created_at,community:true})):rows.map(item=>({...item,community:false}));
-      const known=new Set(posts.map(post=>post.slug));posts=[...posts,...additions.filter(post=>!known.has(post.slug))].sort((x,y)=>new Date(y.published_at||y.created_at)-new Date(x.published_at||x.created_at));
-      renderYears();render();loadMoreButton.hidden=!postsHasMore;
-    }catch(error){console.warn('Additional published records could not be loaded:',error);loadMoreButton.textContent='RETRY LOADING OLDER POSTS ↓';}
-    finally{loadMoreButton.disabled=false;if(postsHasMore)loadMoreButton.textContent='LOAD OLDER TRANSMISSIONS ↓';}
+    postsHasMore=false;
+    if(loadMoreButton)loadMoreButton.hidden=true;
   }
   async function loadPostFavorites(){
-    if(!client||!canRedesignPosts){favoriteRecordIds.clear();return;}
-    try{const {data,error}=await client.from('human_archive_favorites').select('record_id');if(error)throw error;favoriteRecordIds=new Set((data||[]).map(item=>String(item.record_id)));favoriteSaveError=false;}
+    if(!canRedesignPosts||!window.VHACMSStore){favoriteRecordIds.clear();return;}
+    try{favoriteRecordIds=new Set(await window.VHACMSStore.getFavorites());favoriteSaveError=false;}
     catch(error){console.warn('Human Archive favourites could not be loaded on Posts:',error);favoriteRecordIds.clear();}
   }
   async function refreshPostEditorAccess(sessionOverride){
-    if(!client){canRedesignPosts=false;favoriteRecordIds.clear();return false;}
+    if(!window.VHAGitHub||!window.VHACMSStore){canRedesignPosts=false;favoriteRecordIds.clear();return false;}
     try{
-      let session=sessionOverride;
-      if(sessionOverride===undefined){const result=await client.auth.getSession();if(result.error)throw result.error;session=result.data?.session;}
-      if(!session?.user){canRedesignPosts=false;favoriteRecordIds.clear();render();return false;}
-      const {data,error}=await client.from('vha_cms_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
-      if(error)throw error;
-      canRedesignPosts=Boolean(data);await loadPostFavorites();render();return canRedesignPosts;
-    }catch(error){canRedesignPosts=false;favoriteRecordIds.clear();console.warn('Posts redesign controls could not verify CMS admin access:',error);render();return false;}
+      const session=sessionOverride===undefined?await window.VHAGitHub.restoreSession():sessionOverride;
+      const user=session?.user||null;
+      canRedesignPosts=Boolean(user&&String(user.login||'').toLowerCase()==='iyakuza');
+      if(!canRedesignPosts){favoriteRecordIds.clear();render();return false;}
+      await loadPostFavorites();render();return true;
+    }catch(error){canRedesignPosts=false;favoriteRecordIds.clear();console.warn('Posts redesign controls could not verify GitHub owner access:',error);render();return false;}
   }
   async function togglePostFavorite(recordId,button){
     const id=String(recordId||'');
-    if(!canRedesignPosts||!client||!/^[0-9]+$/.test(id)||button.disabled)return;
+    if(!canRedesignPosts||!window.VHACMSStore||!/^[0-9]+$/.test(id)||button.disabled)return;
     const wasFavorite=favoriteRecordIds.has(id);
     document.querySelectorAll('[data-ha-favorite-id="'+id+'"]').forEach(control=>{control.disabled=true;});
     favoriteSaveError=false;
     try{
-      const result=wasFavorite?await client.from('human_archive_favorites').delete().eq('record_id',Number(id)):await client.from('human_archive_favorites').insert({record_id:Number(id)});
-      if(result.error&&!(result.error.code==='23505'&&!wasFavorite))throw result.error;
+      await window.VHACMSStore.setFavorite(id,!wasFavorite);
       if(wasFavorite)favoriteRecordIds.delete(id);else favoriteRecordIds.add(id);
     }catch(error){favoriteSaveError=true;console.error('Posts archive favourite could not be saved:',error);}
     finally{
@@ -361,41 +343,48 @@
       document.querySelectorAll('[data-ha-favorite-mark="'+id+'"]').forEach(mark=>{mark.hidden=!favoriteRecordIds.has(id);});
     }
   }
-  if(client){
-    client.auth.onAuthStateChange((_event,session)=>window.setTimeout(()=>refreshPostEditorAccess(session),0));
+  if(window.VHAGitHub){
+    window.VHAGitHub.onAuthStateChange((_event,session)=>window.setTimeout(()=>refreshPostEditorAccess(session),0));
     refreshPostEditorAccess();
   }
   async function load(){
     postsOffset=0;postsHasMore=false;if(loadMoreButton)loadMoreButton.hidden=true;
     try{
       const path=isCommunityArchive?'/landing-page/content/signals.json':'/landing-page/content/transmissions.json';
-      const response=await fetch(path,{credentials:'same-origin',cache:'no-store'});if(!response.ok)throw new Error(path+' returned HTTP '+response.status);
-      const collection=await response.json();if(!Array.isArray(collection.records))throw new Error('The canonical collection is malformed.');
+      const response=await fetch(path,{credentials:'same-origin',cache:'no-store'});
+      if(!response.ok)throw new Error(path+' returned HTTP '+response.status);
+      const collection=await response.json();
+      if(!Array.isArray(collection.records))throw new Error('The canonical collection is malformed.');
       availableMediaPaths.clear();
       if(!isCommunityArchive)collection.records.forEach(record=>{
         (record?.media_items||[]).filter(media=>media?.status==='available').forEach(media=>{
-          const path=String(media.src||media.url||'').trim();
-          if(path.startsWith('media/')&&!path.includes('..')&&!path.includes('?')&&!path.includes('#')&&!path.includes(String.fromCharCode(92)))availableMediaPaths.add(path);
+          const mediaPath=String(media.src||media.url||'').trim();
+          if(mediaPath.startsWith('media/')&&!mediaPath.includes('..')&&!mediaPath.includes('?')&&!mediaPath.includes('#')&&!mediaPath.includes(String.fromCharCode(92)))availableMediaPaths.add(mediaPath);
         });
       });
-      const canonical=isCommunityArchive
-        ? collection.records.filter(item=>item&&item.status==='published'&&item.rights_confirmed===true).map(item=>({id:item.id,legacy_id:item.legacy_id,title:item.title,slug:item.slug,category:'COMMUNITY SIGNAL',excerpt:item.byline?'TRANSMITTED BY '+item.byline:'COMMUNITY SUBMISSION',content_html:item.body?'<p>'+safe(item.body).replace(/\n/g,'<br>')+'</p>':'',media_url:item.media_url,media_items:(item.media_items||[]).map(media=>({...media,url:media.src||media.url})),media_type:item.medium==='photograph'?'image':item.medium==='video'?'video':'audio',created_at:item.created_at,published_at:item.published_at||item.created_at,community:true}))
-        : collection.records.filter(item=>item&&item.status==='published').map(item=>({...item,media_items:(item.media_items||[]).filter(media=>media?.status==='available').map(media=>({...media,url:media.src||media.url})),archive_record_id:item.archive_record_id||Number(String(item.human_archive_id||'').replace(/^HA-/,'')||0),community:false}));
-      let live=[];
-      if(isCommunityArchive&&client){
-        try{
-          const result=isCommunityArchive
-            ? await client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(0,PAGE_SIZE-1)
-            : await client.from('vha_posts').select('id,archive_record_id,title,slug,category,excerpt,content_html,media_url,media_type,media_width,media_items,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(0,PAGE_SIZE-1);
-          if(result.error)throw result.error;const rows=result.data||[];postsOffset=rows.length;postsHasMore=rows.length===PAGE_SIZE;
-          live=isCommunityArchive?rows.map(item=>({id:item.id,title:item.title,slug:item.slug,category:'COMMUNITY SIGNAL',excerpt:item.byline?'TRANSMITTED BY '+item.byline:'COMMUNITY SUBMISSION',content_html:item.body?'<p>'+safe(item.body).replace(/\n/g,'<br>')+'</p>':'',media_url:item.media_url,media_type:item.medium==='photograph'?'image':item.medium==='video'?'video':'audio',created_at:item.created_at,published_at:item.published_at||item.created_at,community:true})):rows.map(item=>({...item,community:false}));
-        }catch(error){console.warn('Live CMS overlay unavailable; showing canonical GitHub records:',error);}
-      }
-      const liveBySlug=new Map(live.filter(item=>item.slug).map(item=>[item.slug,item]));
-      const merged=canonical.map(item=>{const current=liveBySlug.get(item.slug);if(!current)return item;liveBySlug.delete(item.slug);return {...item,...current,id:item.id,legacy_id:item.legacy_id,archive_record_id:item.archive_record_id||current.archive_record_id,community:item.community};});
-      posts=[...merged,...liveBySlug.values()].sort((x,y)=>new Date(y.published_at||y.created_at)-new Date(x.published_at||x.created_at));
-      renderCategories();renderYears();render();if(loadMoreButton)loadMoreButton.hidden=!postsHasMore;
-    }catch(error){console.error('Canonical collection loading failed:',error);list.innerHTML='<p class="posts-empty">THE COLLECTION COULD NOT LOAD. PLEASE REFRESH AND TRY AGAIN.</p>';count.textContent='COLLECTION UNAVAILABLE';if(loadMoreButton)loadMoreButton.hidden=true;}
+      posts=isCommunityArchive
+        ? collection.records.filter(item=>item&&item.status==='published'&&item.rights_confirmed===true).map(item=>({
+          id:item.id,legacy_id:item.legacy_id,title:item.title,slug:item.slug,category:'COMMUNITY SIGNAL',
+          excerpt:item.byline?'TRANSMITTED BY '+item.byline:'COMMUNITY SUBMISSION',
+          content_html:item.body?'<p>'+safe(item.body).replace(/\n/g,'<br>')+'</p>':'',
+          media_url:item.media_url,media_items:(item.media_items||[]).map(media=>({...media,url:media.src||media.url})),
+          media_type:item.medium==='photograph'?'image':item.medium==='video'?'video':'audio',
+          created_at:item.created_at,published_at:item.published_at||item.created_at,community:true
+        }))
+        : collection.records.filter(item=>item&&item.status==='published').map(item=>({
+          ...item,
+          media_items:(item.media_items||[]).filter(media=>media?.status==='available').map(media=>({...media,url:media.src||media.url})),
+          archive_record_id:item.archive_record_id||Number(String(item.human_archive_id||'').replace(/^HA-/,'')||0),
+          community:false
+        }));
+      posts.sort((a,b)=>new Date(b.published_at||b.created_at)-new Date(a.published_at||a.created_at));
+      renderCategories();renderYears();render();
+    }catch(error){
+      console.error('Canonical collection loading failed:',error);
+      list.innerHTML='<p class="posts-empty">THE COLLECTION COULD NOT LOAD. PLEASE REFRESH AND TRY AGAIN.</p>';
+      count.textContent='COLLECTION UNAVAILABLE';
+      if(loadMoreButton)loadMoreButton.hidden=true;
+    }
   }
 
   list.addEventListener('error',event=>{
