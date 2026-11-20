@@ -63,8 +63,12 @@ function urlKey(raw){
  }catch{return '';}
 }
 function localMediaUrl(item){
+ const storage=String(item?.storage||'');
+ const storedPath=String(item?.storage_path||item?.path||'');
+ if(storage==='github-public'&&storedPath.startsWith('media/'))return '/landing-page/'+storedPath.split('/').map(encodeURIComponent).join('/');
+ if(storage==='github-private'&&String(item?.url||'').startsWith('blob:'))return item.url;
  const recordId=(item?.post_ids||[]).map(value=>String(value).trim()).find(value=>/^[0-9]+$/.test(value));
- const filename=String(item?.storage_path||'').split('/').pop();
+ const filename=storedPath.split('/').pop();
  if(!recordId||!filename)return '';
  return '/landing-page/media/human-archive/HA-'+recordId.padStart(4,'0')+'/'+encodeURIComponent(filename);
 }
