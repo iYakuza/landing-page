@@ -165,6 +165,16 @@
     return tree.tree || [];
   }
 
+  async function listFiles(key, prefix = '', options = {}) {
+    const branch = options.branch || repoBranch(key);
+    const head = options.atCommit || await getBranchHead(key, branch);
+    if (!head) return [];
+    const tree = await getTree(key, head);
+    const normalized = String(prefix || '').replace(/^\\/+|\\/+$/g, '');
+    return tree.filter(item => item.type === 'blob' && (!normalized || item.path.startsWith(normalized + '/') || item.path === normalized))
+      .map(item => ({ path: item.path, sha: item.sha, size: item.size || 0 }));
+  }
+
   async function readFile(key, path, options = {}) {
     const safe = safePath(path);
     const branch = options.branch || repoBranch(key);
