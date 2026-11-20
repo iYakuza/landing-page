@@ -371,7 +371,7 @@
       prompt_style: draft.content.prompt_style || '',
       lyrics_style: draft.content.lyrics_style || '',
       output_text: draft.content.output_text || '',
-      output_media,
+      output_media: outputMedia,
       blocks,
       updated_at: new Date().toISOString()
     };
