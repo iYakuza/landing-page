@@ -839,28 +839,33 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   const inferred=byExt[ext]||'';return accepted[type]?.includes(inferred)?inferred:null;
  };
  const uploadBlockMedia=async(files,type)=>{
-  if(!archiveAdmin||!archiveSupabase||!archiveUserId)throw new Error('An active CMS admin session is required to upload media.');
+  if(!archiveAdmin||!window.VHACMSStore||!archiveUserId)throw new Error('An active GitHub CMS owner session is required to upload media.');
   const acceptedType=type==='image'||type==='gallery'||type==='slideshow'||type==='tiled-gallery'||type==='cover'||type==='media-text'||type==='image-compare'?'image':type==='audio'||type==='playlist'||type==='podcast'?'audio':type==='video'?'video':'file';
   const assets=[];
   for(const file of files){
    const mime=blockMediaMime(file,acceptedType);
    if(!mime)throw new Error(file.name+' has an unsupported file format.');
    if(file.size>30*1024*1024)throw new Error(file.name+' exceeds the 30 MB upload limit.');
-   const token=chamberUploadToken();
-   const safeName=String(file.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
    const folder=mime.startsWith('image/')?'image':mime.startsWith('audio/')?'audio':mime.startsWith('video/')?'video':'files';
-   const path='human-archive/'+String(record.id)+'/blocks/'+folder+'/'+token+'-'+safeName;
-   const {error}=await archiveSupabase.storage.from('vha-post-media').upload(path,file,{cacheControl:'3600',contentType:mime,upsert:false});
-   if(error)throw error;
-   blockMediaUploadedPaths.push(path);
-   const {data}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
-   if(!data?.publicUrl)throw new Error('The uploaded media URL could not be created.');
-   const asset={url:data.publicUrl,path,name:file.name,mime_type:mime,type:folder,storage:'vha-post-media'};assets.push(asset);blockMediaUploadedAssets.push(asset);
+   let asset;
+   if(record.source_type==='transmission'){
+    if(!record.draft_id)throw new Error('The private Transmission draft has not been initialized.');
+    const uploaded=await window.VHACMSStore.uploadDraftMedia(record.draft_id,[file],'blocks-'+folder);
+    const path=uploaded[0].path,url=URL.createObjectURL(file);
+    privateMediaUrlToPath.set(url,path);record._repoCommitSha=uploaded[0].commitSha;
+    asset={url,path,name:file.name,mime_type:mime,type:folder,storage:'github-private'};
+   }else{
+    const uploaded=await window.VHACMSStore.uploadPublicMedia(record.id,[file],'blocks-'+folder);
+    const item=uploaded[0];record._publicCommitSha=item.commitSha;
+    asset={url:item.url,path:item.path,name:file.name,mime_type:mime,type:folder,storage:'github-public'};
+   }
+   blockMediaUploadedPaths.push(asset.path);assets.push(asset);blockMediaUploadedAssets.push(asset);
   }
   status.textContent=assets.length+' MEDIA FILE'+(assets.length===1?'':'S')+' UPLOADED — SAVE TO KEEP CHANGES.';
   return assets;
  };
- const getBlockMediaLibrary=type=>{
+
+const getBlockMediaLibrary=type=>{
   const desired=type==='image'||type==='gallery'||type==='slideshow'||type==='tiled-gallery'||type==='cover'||type==='media-text'||type==='image-compare'?'image':type==='audio'||type==='playlist'||type==='podcast'?'audio':type==='video'?'video':'';
   const archiveAssets=records.flatMap(archiveRecord=>{
    const archiveStructure=getRecordStructure(archiveRecord);
@@ -878,12 +883,18 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const cleanupBlockMediaUploads=async(keepContent='')=>{
   if(!blockMediaUploadedPaths.length)return;
   const paths=blockMediaUploadedPaths.splice(0);
-  blockMediaUploadedAssets.splice(0);
-  const keep=paths.filter(path=>String(keepContent||'').includes(path));
-  const remove=paths.filter(path=>!keep.includes(path));
-  if(remove.length&&archiveSupabase){const {error}=await archiveSupabase.storage.from('vha-post-media').remove(remove);if(error)console.warn('Unreferenced block media could not be cleaned up:',error);}
+  const assets=blockMediaUploadedAssets.splice(0);
+  const keep=assets.filter(item=>String(keepContent||'').includes(item.url)||String(keepContent||'').includes(item.path));
+  const remove=paths.filter(path=>!keep.some(item=>item.path===path));
+  const privatePaths=remove.filter(path=>path.startsWith('cms-data/v1/media/drafts/'));
+  const publicPaths=remove.filter(path=>path.startsWith('media/human-archive/HA-'));
+  try{
+   if(privatePaths.length){const result=await window.VHACMSStore.deleteDraftMedia(record.draft_id,privatePaths,record._repoCommitSha);record._repoCommitSha=result.commitSha||record._repoCommitSha;}
+   if(publicPaths.length){const result=await window.VHACMSStore.deletePublicMedia(record.id,publicPaths,record._publicCommitSha);record._publicCommitSha=result.commitSha||record._publicCommitSha;}
+  }catch(error){console.warn('Unreferenced media could not be cleaned up:',error);}
  };
- const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,showTopbar:false,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
+
+const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,showTopbar:false,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
  const getEditorHTML=()=>transmissionEditor.__haBlockEditor?.getHTML()||transmissionEditor.innerHTML;
  const getEditorBlocks=()=>{
   const current=transmissionEditor.__haBlockEditor?.getBlocks?.();
