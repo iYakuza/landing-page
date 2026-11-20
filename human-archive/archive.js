@@ -1687,7 +1687,20 @@ window.addEventListener('VHA_OPEN_EXISTING_TRANSMISSION',async event=>{
   await ensureStandaloneTransmissionRecords();
   const record=records.find(item=>item.source_type==='transmission'&&item.slug===slug);
   if(!record)throw new Error('This Transmission is unavailable. It may have been unpublished or removed.');
-  if(event.detail?.edit&&(!archiveAdmin||!archiveWriteReady))throw new Error('THE GITHUB-BACKED EDITOR IS NOT YET ENABLED.');
+  if(event.detail?.edit&&(!archiveAdmin||!archiveWriteReady||!window.VHACMSStore))throw new Error('GITHUB OWNER SESSION REQUIRED.');
+  if(event.detail?.edit&&record.source_type==='transmission'&&record.status==='published'&&!record.draft_id){
+   const draft=await window.VHACMSStore.createEditDraft(record.post_id);
+   record.draft_id=draft.draft_id;record._draftData=draft;record._repoCommitSha=draft._repoCommitSha;
+   record._editOfPublished=true;record.isNew=false;record.draft_source='existing';record.status='draft';
+   record.title=draft.metadata.title;record.slug=draft.metadata.slug;record.categories=[draft.metadata.category];
+   record.excerpt=draft.metadata.excerpt;record.media_width=draft.metadata.media_width;
+   record.content_html=draft.content.transmission_body||record.content_html;
+   recordStructureOverrides.set(String(record.id),{
+    record_id:Number(record.id),transmission_body:draft.content.transmission_body||record.content_html,
+    prompt_style:draft.content.prompt_style||'',lyrics_style:draft.content.lyrics_style||'',output_text:draft.content.output_text||'',
+    output_media:draft.content.output_media||{},blocks:draft.content.blocks||[],updated_at:draft.updated_at
+   });
+  }
   openArchiveRecordChamber(record,trigger,Boolean(event.detail?.edit));
  }catch(error){
   console.error('The shared Transmission chamber could not be opened:',error);
