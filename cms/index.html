@@ -40,18 +40,17 @@
     <section class="cms-hero">
       <p class="gd-kicker">VERSE AFTER HOURS // OWNER STUDIO</p>
       <h1>ADMIN<br><em>CONSOLE.</em></h1>
-      <p>Administrative access, recovery operations and community-submission review. Post creation and editing happen through the shared Human Archive chamber.</p>
+      <p>Owner authentication and GitHub-backed content administration. Post creation and editing happen through the shared Human Archive chamber.</p>
     </section>
     <section id="login-panel" class="cms-login cms-panel">
       <p class="gd-kicker">AUTHENTICATION REQUIRED</p>
       <h2>OPEN <em>CHANNEL</em></h2>
       <form id="login-form">
-        <label for="login-email">EMAIL ADDRESS</label><input id="login-email" type="email" autocomplete="username" required>
-        <label for="login-password">PASSWORD</label><input id="login-password" type="password" autocomplete="current-password" required>
-        <button class="cms-button primary vha-editor-action" data-action-variant="primary" type="submit">SIGN IN ↗</button>
+        <label for="github-token">GITHUB FINE-GRAINED TOKEN</label><input id="github-token" type="password" autocomplete="off" spellcheck="false" required>
+        <button class="cms-button primary vha-editor-action" data-action-variant="primary" type="submit">CONNECT GITHUB ↗</button>
       </form>
-      <p class="cms-help">Forgot your password? <button type="button" id="forgot-password" class="cms-text-button">EMAIL ME A RESET LINK ↗</button></p>
-      <p class="cms-help">This console has no public sign-up. Your account must be created and granted the CMS admin role by the site owner in Supabase.</p>
+      <p class="cms-help">Use a fine-grained token belonging to the iYakuza GitHub account. Grant Contents read/write access to both <code>iYakuza/landing-page</code> and the private <code>iYakuza/iyakuza-cms-private</code> repository. Metadata read access is required by GitHub automatically.</p>
+      <p class="cms-help">The token is kept in this browser tab’s session storage. It is not sent to a separate CMS server. Sign out when finished, and revoke the token in GitHub if it is no longer needed.</p>
       <p id="login-message" class="cms-message" role="status"></p>
     </section>
     <section id="password-reset-panel" class="cms-login cms-panel" hidden>
@@ -131,6 +130,13 @@
         <p class="cms-recovery-foot">THE RECOVERY WEBSITE IS OFFLINE BY DEFAULT. ONLY AN EXPLICIT OWNER-INITIATED CMS WORKFLOW CAN CREATE IT. RESTORE IS ALWAYS MANUAL. BACKUP SCHEDULING REMAINS DISABLED. The known successful drill used <code>system-20261113T000000Z-428ddefb</code> and destination <code>green-dream-restore-drill-2</code>.</p>
       </section>
     </section>
+    <section id="github-sequence-setup" class="cms-panel" hidden>
+      <p class="gd-kicker">ONE-TIME CONTENT INITIALIZATION</p>
+      <h2>INITIALIZE <em>IDENTIFIERS</em></h2>
+      <p class="cms-help">The verified export contains six Transmissions and the highest Human Archive record ID is 3008. This one-time action seeds the private sequence at T-0006 / 3008 so the next new record receives T-0007 / 3009.</p>
+      <button type="button" id="initialize-sequences" class="cms-button primary vha-editor-action" data-action-variant="primary">INITIALIZE VERIFIED SEQUENCES</button>
+      <p id="sequence-message" class="cms-message" role="status"></p>
+    </section>
     <section id="community-review" class="cms-panel community-review" hidden>
       <div class="cms-list-head"><div><p class="gd-kicker">INCOMING FROM THE COMMUNITY</p><h2>REVIEW <em>QUEUE</em></h2></div><button type="button" id="refresh-submissions" class="cms-text-button">REFRESH ↻</button></div>
       <p class="cms-help">Visitor submissions stay private until you approve them. Approving makes them visible in the public Transmissions archive.</p>
@@ -144,8 +150,9 @@
   </main>
   <footer class="gd-footer"><span>THE CITY IS LOUD. LEAVE A TRACE.</span></footer>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
-<script src="cms.js?v=20261117-admin-console-2"></script>
+<script src="github-client.js?v=20261120-store-1"></script>
+<script src="github-store.js?v=20261120-store-1"></script>
+<script src="cms.js?v=20261120-github-auth-1"></script>
   <script src="/landing-page/tools.js?v=20261105-crystal-shared-9"></script>
 
   <script src="/landing-page/game-ui.js?v=20261119-mood-accessibility-regression-1" defer></script>
