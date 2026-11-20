@@ -141,16 +141,27 @@
     shell.className = 'ha-block-editor-shell';
     let topbar = null;
     let addTop = null;
+    let addMediaTop = null;
+    let addColumnTop = null;
     if(showTopbar){
       topbar = document.createElement('div');
       topbar.className = 'ha-block-editor-topbar';
+      const actions = document.createElement('div');
+      actions.className = 'ha-block-editor-topbar-actions';
       addTop = document.createElement('button');
       addTop.type = 'button'; addTop.className = 'ha-editor-inserter';
       addTop.innerHTML = '<span aria-hidden="true">＋</span> Add block';
+      addMediaTop = document.createElement('button');
+      addMediaTop.type = 'button'; addMediaTop.className = 'ha-editor-inserter ha-editor-inserter-media';
+      addMediaTop.innerHTML = '<span aria-hidden="true">▧</span> Add media';
+      addColumnTop = document.createElement('button');
+      addColumnTop.type = 'button'; addColumnTop.className = 'ha-editor-inserter ha-editor-inserter-columns';
+      addColumnTop.innerHTML = '<span aria-hidden="true">▥</span> Add columns';
       const hint = document.createElement('span');
       hint.className = 'ha-block-editor-hint';
-      hint.textContent = 'Type / to insert a block';
-      topbar.append(addTop,hint);
+      hint.textContent = 'Every piece of content is a block';
+      actions.append(addTop,addMediaTop,addColumnTop);
+      topbar.append(actions,hint);
     }
     editor.parentNode.insertBefore(shell,editor);
     if(topbar)shell.append(topbar,editor);else shell.append(editor);
@@ -390,7 +401,7 @@
       selection.removeAllRanges(); selection.addRange(range);
     }
 
-    function createMenu(anchor, block, pointer = null) {
+    function createMenu(anchor, block, pointer = null, initialFilter = '') {
       closeMenu();
       menu = document.createElement('div'); menu.className = 'ha-block-inserter-menu'; menu.setAttribute('role','dialog'); menu.setAttribute('aria-label','Choose a block');
       const search = document.createElement('input'); search.type='search'; search.className='ha-block-search'; search.placeholder='Search all blocks…'; search.setAttribute('aria-label','Search blocks'); menu.append(search);
@@ -432,7 +443,9 @@
         }
         if(!count){const empty=document.createElement('p');empty.className='ha-block-empty';empty.textContent='No matching blocks';results.append(empty);}
       }
-      search.addEventListener('input',()=>render(search.value)); render();
+      search.addEventListener('input',()=>render(search.value));
+      search.value=String(initialFilter||'');
+      render(search.value);
       const anchorRect=anchor.getBoundingClientRect(),shellRect=shell.getBoundingClientRect();
       const usePointer=pointer?.valid!==false&&Number.isFinite(pointer?.x)&&Number.isFinite(pointer?.y);
       const x=usePointer?pointer.x:anchorRect.left;
@@ -654,6 +667,8 @@
     });
 
     addTop?.addEventListener('click',event=>createMenu(addTop,null,{x:event.clientX,y:event.clientY,valid:event.detail!==0}));
+    addMediaTop?.addEventListener('click',event=>createMenu(addMediaTop,null,{x:event.clientX,y:event.clientY,valid:event.detail!==0},'Media'));
+    addColumnTop?.addEventListener('click',addCanvasColumn);
     shell.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu){event.preventDefault();closeMenu();(addTop||editor).focus();}});
     document.addEventListener('pointerdown',event=>{if(menu&&!shell.contains(event.target))closeMenu();},{signal:listeners.signal});
     editor.addEventListener('focusin',event=>{
