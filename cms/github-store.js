@@ -381,6 +381,8 @@
       { path: CONFIG.transmissionsPath, content: json(transmissions.value) },
       { path: CONFIG.archivePath, content: json(archive.value) }
     ], 'Unpublish Transmission ' + postId, head);
+    draft.base_public_commit = result.commitSha;
+    await saveDraft(draft);
     return { draftId, commitSha: result.commitSha };
   }
 
