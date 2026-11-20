@@ -31,7 +31,7 @@ media/
 └── human-archive/HA-0004/...
 ```
 
-A record's media entries contain a relative `src` path, a media type, a display name, the original source URL for recovery provenance, and a recovery status. The source URL is not used by the intended public page once the local file has been recovered.
+A record's media entries contain a relative `src` path, a media type, a display name, the original source URL for recovery provenance, and a recovery status. The source URL is retained for recovery provenance. Human Archive resolves its 108 recovered local files from the manifest and GitHub media tree; three external references remain intentionally unmirrored.
 
 ## Publication and security
 
@@ -39,8 +39,8 @@ Only published content belongs in the public collection JSON files. Drafts, reje
 
 ## Loading
 
-Each public collection page loads its own canonical JSON file. Transmissions and Signals also merge in published Supabase rows when the CMS is reachable, so existing editor changes and newly published records remain visible; if that optional live overlay is unavailable, the canonical GitHub records still render. Human Archive loads its 140 historical records, media manifest and editor structures from its consolidated JSON; Supabase remains available for favourites, administrator permissions, editor overrides and the existing Transmission chamber workflow. The collection JSON remains one file per type.
+Each public collection page loads its canonical JSON file. The Transmissions public listing treats `content/transmissions.json` as authoritative and does not merge live database rows. Media references marked `pending_recovery` are omitted from public media galleries and embedded media rendering until their files are recovered and the canonical status is updated to `available`. Signals retains its existing loading and submission implementation for now; its future visitor-submission workflow is deferred. Human Archive loads its 140 historical records, media manifest and editor structures from `content/human-archive.json`; its recovered local media resolves to `media/human-archive/HA-####/` paths in GitHub. The existing shared Chamber, administrator permissions, favourites and editor save/upload workflow remain on their current integration in this phase. The collection JSON remains one file per type.
 
 ## Recovery and deployment safety
 
-All work is performed on `recovery/supabase-content-export-20261119`. The existing `main` branch remains untouched until content, media, page routes, links, editor workflows and deployment behaviour have been verified. A media reference marked `pending_recovery` must not be treated as a recovered asset.
+All work is performed on `recovery/supabase-content-export-20261119`. The existing `main` branch remains untouched until content, media, page routes, links, editor workflows and deployment behaviour have been verified. A media reference marked `pending_recovery` must not be treated as a recovered asset. The Human Archive media manifest currently contains 111 entries: 108 files are present in the GitHub media tree, while three external inline references are intentionally not mirrored.

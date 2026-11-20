@@ -16,6 +16,7 @@
   let postsOffset=0,postsHasMore=false;
   const isCommunityArchive=document.body.dataset.archive==='community';
   let posts = [];
+  const availableMediaPaths = new Set();
   let canRedesignPosts = false;
   const safe = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const slugify = value => String(value||'').normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,180);
@@ -58,12 +59,12 @@
   function validMediaUrl(value){
     try{
       const raw=String(value||'').trim();
-      if(raw.startsWith('media/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return '/landing-page/'+raw;
-      if(raw.startsWith('/landing-page/media/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
+      if(raw.startsWith('media/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return isCommunityArchive||availableMediaPaths.has(raw)?'/landing-page/'+raw:'';
+      if(raw.startsWith('/landing-page/media/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return isCommunityArchive||availableMediaPaths.has(raw.slice('/landing-page/'.length))?raw:'';
       if(raw.startsWith('/landing-page/posts/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw.replace('/landing-page/posts/imported/','/landing-page/transmissions/imported/');
       if(raw.startsWith('/landing-page/transmissions/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
       const url=new URL(raw);
-      const ownStorage=url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&(
+      const ownStorage=isCommunityArchive&&url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&(
         url.pathname.includes('/storage/v1/object/public/vha-post-media/')||
         url.pathname.includes('/storage/v1/object/public/poetry-media/')
       );
@@ -370,11 +371,18 @@
       const path=isCommunityArchive?'/landing-page/content/signals.json':'/landing-page/content/transmissions.json';
       const response=await fetch(path,{credentials:'same-origin',cache:'no-store'});if(!response.ok)throw new Error(path+' returned HTTP '+response.status);
       const collection=await response.json();if(!Array.isArray(collection.records))throw new Error('The canonical collection is malformed.');
+      availableMediaPaths.clear();
+      if(!isCommunityArchive)collection.records.forEach(record=>{
+        (record?.media_items||[]).filter(media=>media?.status==='available').forEach(media=>{
+          const path=String(media.src||media.url||'').trim();
+          if(path.startsWith('media/')&&!path.includes('..')&&!path.includes('?')&&!path.includes('#')&&!path.includes(String.fromCharCode(92)))availableMediaPaths.add(path);
+        });
+      });
       const canonical=isCommunityArchive
         ? collection.records.filter(item=>item&&item.status==='published'&&item.rights_confirmed===true).map(item=>({id:item.id,legacy_id:item.legacy_id,title:item.title,slug:item.slug,category:'COMMUNITY SIGNAL',excerpt:item.byline?'TRANSMITTED BY '+item.byline:'COMMUNITY SUBMISSION',content_html:item.body?'<p>'+safe(item.body).replace(/\n/g,'<br>')+'</p>':'',media_url:item.media_url,media_items:(item.media_items||[]).map(media=>({...media,url:media.src||media.url})),media_type:item.medium==='photograph'?'image':item.medium==='video'?'video':'audio',created_at:item.created_at,published_at:item.published_at||item.created_at,community:true}))
-        : collection.records.filter(item=>item&&item.status==='published').map(item=>({...item,media_items:(item.media_items||[]).map(media=>({...media,url:media.src||media.url})),archive_record_id:item.archive_record_id||Number(String(item.human_archive_id||'').replace(/^HA-/,'')||0),community:false}));
+        : collection.records.filter(item=>item&&item.status==='published').map(item=>({...item,media_items:(item.media_items||[]).filter(media=>media?.status==='available').map(media=>({...media,url:media.src||media.url})),archive_record_id:item.archive_record_id||Number(String(item.human_archive_id||'').replace(/^HA-/,'')||0),community:false}));
       let live=[];
-      if(client){
+      if(isCommunityArchive&&client){
         try{
           const result=isCommunityArchive
             ? await client.from('poetry_submissions').select('id,title,slug,medium,body,byline,media_url,created_at,published_at,status').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).range(0,PAGE_SIZE-1)

@@ -63,12 +63,10 @@ function urlKey(raw){
  }catch{return '';}
 }
 function localMediaUrl(item){
- if(item?.storage==='vha-post-media'){
-  try{const url=new URL(String(item.url||''),document.baseURI);if(url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/'))return url.href;}catch{}
-  return safeExternalUrl(item.url,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']))||'';
- }
- const path=String(item.storage_path||'').split('/').map(part=>encodeURIComponent(part)).join('/');
- return publicBase+path;
+ const recordId=(item?.post_ids||[]).map(value=>String(value).trim()).find(value=>/^[0-9]+$/.test(value));
+ const filename=String(item?.storage_path||'').split('/').pop();
+ if(!recordId||!filename)return '';
+ return '/landing-page/media/human-archive/HA-'+recordId.padStart(4,'0')+'/'+encodeURIComponent(filename);
 }
 function getMedia(raw){return mediaMap.get(urlKey(raw))||null;}
 function markUsed(item,used){if(item&&used)used.add(String(item.id));}
@@ -1653,7 +1651,7 @@ async function fetchArchiveJson(path,required=false){
 }
 async function init(){
  try{
-  const [collection,report]=await Promise.all([fetchArchiveJson('../content/human-archive.json',true),fetchArchiveJson('media-import-report.json')]);
+  const collection=await fetchArchiveJson('../content/human-archive.json',true);
   if(!collection||!Array.isArray(collection.records)||collection.record_count!==collection.records.length||!collection.media_manifest||!collection.editor_structures)throw new Error('Invalid canonical Human Archive collection');
   const manifest=collection.media_manifest;
   recordStructureOverrides=new Map(Object.entries(collection.editor_structures).map(([id,item])=>[String(id),item]));
@@ -1661,19 +1659,17 @@ async function init(){
   records=assignArchiveSlugs(data.filter(r=>r&&typeof r.title==='string'&&typeof r.year==='string'&&typeof r.date==='string'&&Number.isSafeInteger(r.id)&&typeof r.url==='string'&&Array.isArray(r.categories)));
   if(records.length!==collection.record_count)throw new Error('The canonical Human Archive collection is incomplete');
   if(manifest&&Array.isArray(manifest.items)&&manifest.item_count===manifest.items.length){
-   mediaItems=manifest.items;publicBase=manifest.public_base_url||'';
-   const reportSuccesses=Array.isArray(report?.successes)?report.successes:[];
-   const successes=new Map(reportSuccesses.filter(x=>x&&x.verified===true).map(x=>[String(x.storage_path),x]));
-   mediaHashByPath=new Map([...successes].map(([path,item])=>[path,String(item.sha256||'').toLowerCase()]).filter(([,hash])=>Boolean(hash)));
-   mediaReady=Boolean(report&&report.status==='complete'&&report.target_project_ref==='ioguymqdeuuursizifnn'&&report.asset_count===manifest.item_count&&report.successful_count===manifest.item_count&&report.failed_count===0&&successes.size===manifest.item_count&&manifest.bucket==='human-archive-media'&&publicBase.startsWith('https://ioguymqdeuuursizifnn.supabase.co/'));
+   mediaItems=manifest.items.filter(item=>item&&item.source_type!=='external-inline-reference'&&Array.isArray(item.post_ids)&&item.post_ids.length&&String(item.storage_path||'').split('/').pop());
+   mediaHashByPath.clear();mediaReady=mediaItems.length>0;
    if(mediaReady){
     for(const item of mediaItems){
      const keys=[item.source_url,...(item.aliases||[])].map(urlKey).filter(Boolean);
      keys.forEach(key=>mediaMap.set(key,item));
      (item.post_ids||[]).forEach(id=>{if(!mediaByPost.has(id))mediaByPost.set(id,[]);mediaByPost.get(id).push(item);});
     }
-    setMediaStatus('MEDIA VAULT VERIFIED // '+manifest.item_count+' FILES // IMAGES, AUDIO, VIDEO AND DOCUMENTS',true);
-   }else setMediaStatus('MEDIA RECOVERY IN PROGRESS // TEXT IS AVAILABLE; MEDIA WILL APPEAR AFTER EVERY FILE HAS BEEN VERIFIED',false);
+    const externalCount=manifest.items.length-mediaItems.length;
+    setMediaStatus('GITHUB MEDIA VERIFIED // '+mediaItems.length+' LOCAL FILES // '+externalCount+' EXTERNAL REFERENCES NOT MIRRORED',true);
+   }else setMediaStatus('MEDIA INVENTORY UNAVAILABLE // LOCAL TEXT REMAINS AVAILABLE',false);
   }else if(manifest)setMediaStatus('MEDIA INVENTORY UNAVAILABLE // LOCAL TEXT REMAINS AVAILABLE',false);
   else setMediaStatus('MEDIA INVENTORY TEMPORARILY UNAVAILABLE // LOCAL TEXT REMAINS AVAILABLE',false);
   categoryOrder.filter(name=>records.some(r=>r.categories.includes(name))).forEach(name=>{expandedCategories.add(name);const option=document.createElement('option');option.value=name;option.textContent=name;category.append(option)});
