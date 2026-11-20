@@ -85,13 +85,7 @@ jobs:
             if (!raw || raw.includes('..') || !raw.startsWith(`${item.wp_media_id}-`)) {
               throw new Error(`Invalid manifest storage filename for attachment ${item.wp_media_id}.`);
             }
-            const originalExtension = path.extname(raw);
-            const extension = originalExtension.slice(0, 12).toLowerCase();
-            const stem = path.basename(raw, originalExtension)
-              .normalize('NFKD')
-              .replace(/[^a-zA-Z0-9._-]+/g, '-')
-              .slice(0, 150);
-            return `${stem}${extension}`;
+            return raw;
           };
 
           const download = async item => {
