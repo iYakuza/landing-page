@@ -22,13 +22,14 @@
   }
 
 
-  function safeEditorMediaURL(value, hosts) {
+  function safeEditorMediaURL(value, hosts, mediaBasePath) {
     const raw = String(value || '').trim();
+    const basePath = String(mediaBasePath || (window.location.pathname.startsWith('/landing-page-preview/') ? '/landing-page-preview' : '/landing-page')).replace(/\\/+$/, '');
     try {
-      if (raw.startsWith('media/') && !raw.includes('..') && !raw.includes('?') && !raw.includes('#') && !raw.includes(String.fromCharCode(92))) return new URL('/landing-page/' + raw, window.location.origin).href;
+      if (raw.startsWith('media/') && !raw.includes('..') && !raw.includes('?') && !raw.includes('#') && !raw.includes(String.fromCharCode(92))) return new URL(basePath + '/' + raw, window.location.origin).href;
       const url = new URL(raw, window.location.href);
       if (url.protocol === 'blob:' && url.origin === window.location.origin) return url.href;
-      if (url.origin === window.location.origin && url.pathname.startsWith('/landing-page/media/') &&
+      if (url.origin === window.location.origin && url.pathname.startsWith(basePath + '/media/') &&
           !url.pathname.includes('..') && !url.search && !url.hash) return url.href;
     } catch {}
     return safeURL(raw, hosts);
@@ -126,7 +127,7 @@
     return templates[type] || '<p><br></p>';
   }
 
-  function mountBlockEditor({ editor, onChange = () => {}, onUpload = null, getMediaLibrary = () => [], readOnly = false, showTopbar = true } = {}) {
+  function mountBlockEditor({ editor, onChange = () => {}, onUpload = null, getMediaLibrary = () => [], readOnly = false, showTopbar = true, mediaBasePath = '' } = {}) {
     if (!(editor instanceof HTMLElement)) throw new TypeError('A block editor canvas is required.');
     if (editor.dataset.haBlockEditorMounted === 'true') return editor.__haBlockEditor || null;
     editor.dataset.haBlockEditorMounted = 'true';
@@ -582,12 +583,12 @@
               }else if(name==='src'){
                 const hosts=node.tagName==='IMG'?IMAGE_HOSTS:['AUDIO','VIDEO','SOURCE'].includes(node.tagName)?MEDIA_HOSTS:node.tagName==='IFRAME'?EMBED_HOSTS:null;
                  if(hosts){
-                   const safe=safeEditorMediaURL(value,hosts);
+                   const safe=safeEditorMediaURL(value,hosts,mediaBasePath);
                    let valid=Boolean(safe);
                    if(valid&&['AUDIO','VIDEO','SOURCE'].includes(node.tagName)){
                      const url=new URL(safe,window.location.href);
                      valid=(url.protocol==='blob:'&&url.origin===window.location.origin)||
-                       (url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/media/'))||
+                       (url.origin===window.location.origin&&url.pathname.startsWith((String(mediaBasePath || (window.location.pathname.startsWith('/landing-page-preview/') ? '/landing-page-preview' : '/landing-page')).replace(/\\/+$/,'')+'/media/')))||
                        (url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.startsWith('/storage/v1/object/public/vha-post-media/'));
                    }
                    if(valid)node.setAttribute('src',safe);else node.removeAttribute(attribute.name);
