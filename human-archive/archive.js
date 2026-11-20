@@ -13,9 +13,7 @@ const transmissionCategories=['HUMAN ARCHIVE','THE AWAKENING','THE DESCENT','THE
 
 // Human Archive chamber state and public Supabase configuration.
 let chamberRecordId=null;
-const SUPABASE_URL='https://oeyxsqocldlovhsmzcjw.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY='sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-let archiveSupabase=null,archiveAdmin=false,archiveUserId=null,archiveAuthBound=false,archiveWriteReady=false;
+let archiveAdmin=false,archiveUserId=null,archiveAuthBound=false,archiveWriteReady=true,archivePublicHeadSha=null;
 let standaloneTransmissionRecordsPromise=null;
 let favoriteRecordIds=new Set(),favoriteSaveError=false,recordStructureOverrides=new Map(),privateMediaUrlToPath=new Map();
 let mediaHashByPath=new Map();
