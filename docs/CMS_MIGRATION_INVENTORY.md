@@ -115,3 +115,9 @@ The block editor itself has no Supabase database client. It receives media uploa
 6. Replace the Chamber's Supabase RPC calls with version-checked GitHub commits while preserving the current UI.
 7. Remove Supabase SDK/configuration and obsolete CSP permissions only after every caller has been migrated.
 8. Validate all existing records and workflows on the recovery branch before any cutover.
+
+## Follow-up integration status
+
+The recovery branch now replaces the Supabase client in the core Shared Chamber, CMS authentication, Transmission launcher, and public Transmissions reader with the GitHub client/store. The public Transmissions and Signals pages read the canonical JSON collections. The Shared Chamber writes private Transmission drafts/media to the private repository and public Archive structures/media to the public repository.
+
+Community visitor submission and moderation are explicitly deferred: the existing published Signals collection remains available, while the submission form and moderation queue are paused. Historical media source URLs may still point to the former Supabase storage host until media recovery is complete; they are content references, not active database/API dependencies.
