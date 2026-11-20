@@ -321,7 +321,11 @@ async function loadArchiveFavorites(){
 
 async function loadRecordStructureOverrides(){
  // The canonical Human Archive JSON already contains the complete editor_structures array.
- // It is indexed during init(); no separate database overlay is required.
+ // The standalone editor launcher also needs to hydrate it when no archive index has run.
+ if(recordStructureOverrides.size)return recordStructureOverrides;
+ const collection=await fetchArchiveJson('../content/human-archive.json',true);
+ if(!collection||!Array.isArray(collection.editor_structures))throw new Error('The canonical Human Archive editor structures are unavailable.');
+ recordStructureOverrides=new Map(collection.editor_structures.map(item=>[String(item.record_id),item]));
  return recordStructureOverrides;
 }
 
