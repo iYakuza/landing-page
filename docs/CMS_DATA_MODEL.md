@@ -39,22 +39,22 @@ The public JSON remains the source for public Transmissions rendering. The Chamb
 The following layout is the proposed v1 contract. It is private-repository content only; no draft path is served by GitHub Pages.
 
 ```text
-cms-data/
-├── README.md
-├── v1/
-│   ├── sequences.json
-│   ├── drafts/
-│   │   └── transmissions/
-│   │       └── <draft-uuid>.json
-│   ├── media/
-│   │   └── drafts/
-│   │       └── <draft-uuid>/
-│   ├── human-archive-favorites.json
-│   ├── private-overrides/
-│   │   └── <record-id>.json
-│   ├── preferences.json
-│   └── audit/
-│       └── YYYY-MM.jsonl
+README.md
+└── cms-data/
+    └── v1/
+        ├── sequences.json
+        ├── drafts/
+        │   └── transmissions/
+        │       └── <draft-uuid>.json
+        ├── media/
+        │   └── drafts/
+        │       └── <draft-uuid>/
+        ├── human-archive-favorites.json
+        ├── private-overrides/
+        │   └── <record-id>.json
+        ├── preferences.json
+        └── audit/
+            └── YYYY-MM.jsonl
 ```
 
 ### Draft record
