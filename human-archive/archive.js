@@ -1508,20 +1508,42 @@ function openRequestedRecordFromUrl(){
  search.value=record.title;year.value='';category.value='';render();
  const card=list.querySelector('.ha-record-card[data-ha-record-id="'+record.id+'"]');card?.scrollIntoView({behavior:'smooth',block:'center'});openArchiveRecordChamber(record,null);
 }
-function createHumanArchiveTransmission(trigger){
+async function createHumanArchiveTransmission(trigger){
  if(recordChamber?.open){recordChamber.focus();return;}
- if(!archiveAdmin||!archiveWriteReady||!archiveUserId){if(createTransmissionStatus)createTransmissionStatus.textContent='GITHUB EDITOR MIGRATION IS NOT YET ENABLED';return;}
- const temporaryId=Date.now();
- const now=new Date().toISOString();
- const record={
-  id:temporaryId,post_id:null,source_type:'transmission',title:'',slug:'untitled-transmission',
-  categories:[],excerpt:'',content_html:'',status:'new',media_items:[],media_width:100,
-  created_at:now,updated_at:now,published_at:null,date:now.slice(0,10),year:now.slice(0,4),
-  url:'',archiveIdentifier:'UNSAVED TRANSMISSION',isNew:true
- };
- openArchiveRecordChamber(record,trigger||newTransmissionButton,true);
- if(createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // UNSAVED';
- recordChamber?.querySelector('[name="title"]')?.focus({preventScroll:true});
+ if(!archiveAdmin||!archiveWriteReady||!window.VHACMSStore||!archiveUserId){
+  if(createTransmissionStatus)createTransmissionStatus.textContent='GITHUB OWNER SESSION REQUIRED';return;
+ }
+ if(createTransmissionStatus)createTransmissionStatus.textContent='CREATING PRIVATE TRANSMISSION DRAFT…';
+ try{
+  const draft=await window.VHACMSStore.createDraft({
+   title:'Untitled Transmission',slug:'untitled-transmission',category:'THE TRANSFORMATION',excerpt:'',media_width:100
+  });
+  const now=draft.created_at||new Date().toISOString(),date=String(now).slice(0,10);
+  const record={
+   id:Number(draft.record_id),post_id:draft.post_id,draft_id:draft.draft_id,
+   source_type:'transmission',title:draft.metadata.title,slug:draft.metadata.slug,
+   categories:[draft.metadata.category],excerpt:draft.metadata.excerpt||'',
+   content_html:draft.content.transmission_body||'',status:'draft',media_items:[],
+   media_width:draft.metadata.media_width||100,created_at:now,updated_at:draft.updated_at,
+   published_at:null,date,year:date.slice(0,4),url:'',
+   archiveIdentifier:'HA-'+date.slice(0,4)+'-'+String(draft.record_id).padStart(4,'0'),
+   isNew:true,_repoCommitSha:draft._repoCommitSha,_draftData:draft,_publicCommitSha:archivePublicHeadSha
+  };
+  record.draft_id=draft.draft_id;
+  records=records.filter(item=>String(item.id)!==String(record.id));
+  records.push(record);
+  recordStructureOverrides.set(String(record.id),{
+   record_id:record.id,transmission_body:'',prompt_style:'',lyrics_style:'',output_text:'',
+   output_media:{image:[],audio:[],video:[]},blocks:[],updated_at:draft.updated_at
+  });
+  if(hasArchiveIndex){if(!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);render();}
+  openArchiveRecordChamber(record,trigger||newTransmissionButton,true);
+  if(createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // PRIVATE DRAFT CREATED';
+  recordChamber?.querySelector('[name="title"]')?.focus({preventScroll:true});
+ }catch(error){
+  console.error('A private Transmission draft could not be created:',error);
+  if(createTransmissionStatus)createTransmissionStatus.textContent='DRAFT CREATION FAILED — '+String(error.message||'INITIALIZE THE PRIVATE SEQUENCE IN ADMIN FIRST');
+ }
 }
 async function initArchiveFeatures(){
  if(!window.VHAGitHub||!window.VHACMSStore)throw new Error('The GitHub CMS modules are unavailable.');
