@@ -1,48 +1,98 @@
-# Supabase-independent CMS migration
+# Supabase- and Cloudflare-independent CMS migration
 
-## Goal
-The public site and the entire publishing workflow must operate without Supabase. GitHub is the published content source of truth; the Cloudflare backend provides private workflow services.
+## Non-negotiable constraints
 
-## Target components
-- **GitHub Pages:** serves the existing public website and published collection JSON.
-- **Canonical GitHub JSON:** `content/transmissions.json`, `content/signals.json`, and `content/human-archive.json`.
-- **Cloudflare Worker:** secure API for administrator actions and visitor submissions. It will be exposed on a `workers.dev` hostname because this Cloudflare account currently has no custom domain zone configured.
-- **Cloudflare D1 (EU jurisdiction):** private drafts, pending Signals, favourites, media metadata, audit history, and rate-limit counters.
-- **Private object storage:** draft and pending-submission media must remain private until publication. Cloudflare R2 is the intended store, but R2 is not yet enabled in the account.
-- **GitHub API:** the Worker publishes approved/published records and public media into the repository. GitHub credentials must be stored as Worker secrets, never in browser code or this repository.
-- **Administrator identity:** GitHub OAuth, restricted to the explicitly allowlisted administrator account. OAuth client credentials and the allowed GitHub numeric user ID must be configured as Worker secrets/variables before login can be enabled.
+- No Supabase services, SDKs, authentication, database, or storage.
+- No Cloudflare services, including Workers, D1, R2, Pages, or tunnels.
+- No additional paid hosting or storage provider.
+- Keep the existing GitHub Pages website, public URLs, editor interface, block model, keyboard behavior, and publishing features.
+- All implementation work stays on \`recovery/supabase-content-export-20261119\`. Do not change \`main\` or deploy until cutover is explicitly approved.
 
-## Private D1 database
-Database: `landing-page-cms` (EU jurisdiction, read replication disabled; created 2026-11-19).
-Schema is in `cloudflare/schema.sql` and has been applied to the new EU-jurisdiction database. It defines:
-- administrator allowlist;
-- private drafts with optimistic version numbers;
-- pending/approved/rejected Signals submissions;
-- Human Archive favourites;
-- media metadata;
-- audit log;
-- basic submission rate-limit counters.
+## Target architecture
 
-No public content is stored exclusively in D1. Published content is committed to the canonical GitHub JSON collections.
+GitHub is both the public publishing platform and the private CMS data store.
 
-## Workflow rules
-1. Public pages read published content from GitHub only. They must not query Supabase or use Supabase SDKs.
-2. Draft autosave writes to the private CMS API/D1 and does not expose unpublished content in the public repository.
-3. Draft media and visitor-submission media stay in private storage until publication/approval.
-4. Publishing validates the draft, uploads approved media to the repository's canonical media folder, updates the correct JSON collection, and records an audit entry.
-5. Signals visitor submissions are stored as pending; only an authenticated administrator can approve or reject them. Approval publishes the record to `content/signals.json`.
-6. Administrator authentication and authorization are checked server-side on every privileged request. Browser-side flags are never treated as authorization.
-7. Favourites are private CMS data and are only exposed to authenticated administrators.
-8. Existing editor markup, controls, keyboard behavior, block model, layouts, and content renderers are preserved while their data transport is replaced.
+### Public repository: \`iYakuza/landing-page\`
 
-## Rollout safety
-- All work remains on `recovery/supabase-content-export-20261119`.
-- GitHub Pages production branch `main` is not changed during development.
-- Do not deploy a partially configured API or switch off Supabase in the live site until OAuth, GitHub publishing credentials, private media storage, editor CRUD, Signals moderation, and rollback tests pass.
-- The old Supabase integration remains in place on the live branch only until cutover is complete; it is not the target architecture.
+- GitHub Pages serves the existing public website.
+- \`content/transmissions.json\`, \`content/human-archive.json\`, and \`content/signals.json\` are the canonical public collections.
+- Published media lives in the existing \`media/\` hierarchy.
+- A publish/edit/unpublish operation creates one Git commit containing all related JSON and media changes. The commit is the publication transaction and audit reference.
 
-## Remaining setup
-- Enable Cloudflare R2 in the Cloudflare dashboard and create a private bucket for drafts and pending uploads.
-- Create a GitHub OAuth App with callback URL on the deployed Worker; configure its client ID/secret and allowlisted numeric GitHub user ID as Worker settings/secrets.
-- Create a least-privilege GitHub credential for the Worker to write only to the website repository.
-- Deploy the Worker to a `workers.dev` hostname and configure the public site to call it.
+### Private companion repository
+
+A separate private repository (to be created by the owner) stores:
+- unpublished Transmission drafts and their revision history;
+- draft media before publication;
+- private Human Archive favourites;
+- private editor preferences and any non-public overrides;
+- a CMS audit log and recovery snapshots.
+
+The private repository must never be made public. Published records and media are copied into the public repository only on an explicit Publish action. A draft save must never write unpublished content to the public repository.
+
+### Browser-side administrator access
+
+There is no application server in this design. The existing CMS login will be replaced with an owner-entered GitHub fine-grained personal access token (PAT):
+- The PAT must be restricted to the two explicitly selected repositories (public website and private companion repository).
+- Required permissions are repository Metadata (read) and Contents (read/write); no Actions, Administration, Issues, Packages, or organization permissions are needed for the core CMS.
+- The CMS verifies the token by calling GitHub's authenticated \`/user\` endpoint and checks the returned login against a fixed owner allowlist.
+- The token is held in \`sessionStorage\` only, never in source files, canonical JSON, localStorage, URLs, logs, or commits. Signing out clears it.
+- The owner creates, scopes, expires, and revokes the PAT in GitHub settings. The CMS must explain the risk of entering a repository-write token into a browser and must not request a classic PAT.
+- If token verification fails, editor controls remain unavailable. Browser-side flags alone are never authorization; GitHub enforces the token's repository permissions on every write.
+
+This avoids an OAuth client secret or private key in browser code. GitHub's device flow is not suitable for this browser-only design: GitHub documents it for headless clients, and the device-code endpoints do not support cross-origin browser requests. A GitHub App web flow would require a client secret exchange that must not be exposed in static browser code.
+
+## Data mapping
+
+| Existing Supabase responsibility | GitHub-only replacement |
+|---|---|
+| Admin sign-in and allowlist | Owner-scoped fine-grained PAT; verify \`/user\` login |
+| Transmission drafts and autosave | Private JSON records in companion repo; revision/ETag checks |
+| Create, edit, publish, unpublish | Validate and commit canonical JSON to public repo |
+| Delete draft | Delete private draft and its private media; keep published records untouched |
+| Media uploads | Commit draft assets to private repo; copy to public media paths only when publishing |
+| Media cleanup | Git tree/blob references and explicit removal commits after reference checks |
+| Human Archive block structures and output overrides | Canonical Human Archive JSON for public display structures; private repo only for unpublished/private overrides |
+| Favourites | Private JSON in companion repo |
+| Audit history | Append-only private JSONL or dated audit records, with public commit SHA for publication events |
+| Community/Signals moderation | Deferred; no replacement is to be implemented in this Chamber phase |
+
+## Editor behavior to preserve
+
+- Existing Shared Chamber UI, opening/closing, discard/save controls and keyboard behavior.
+- Existing Human Archive block editor, rich-text editor, block types, ordering, naming, columns, media library and media insertion.
+- Existing Transmission metadata, category/movement hierarchy, slug validation and permalinks.
+- Draft autosave, explicit publish/unpublish, edit existing post, delete draft, conflict detection and recovery.
+- Existing Human Archive structure overrides, output text, image/audio/video arrangements, media width and favourites.
+- Existing public page rendering and canonical JSON schema.
+
+The data adapter is to be replaced beneath the existing UI. Do not redesign the editor as part of this migration.
+
+## Important limitations and safeguards
+
+- A static GitHub Pages site has no private server-side secret store. A browser-held PAT is a deliberate security trade-off: XSS or a compromised browser extension could access it while the CMS session is active. Keep the token session-only, restrict it to the two repositories, use an expiry, and revoke it immediately if exposure is suspected.
+- Drafts are private because they live in a private repository. This requires the owner to create that companion repository and grant the fine-grained PAT access to it.
+- GitHub is not object storage. Keep the existing per-file upload limit, reject oversized assets before upload, and validate file type, size, path and references. Do not use Git LFS unless separately evaluated.
+- Multi-file publication must use the Git database API (blobs, tree, commit, ref) so the canonical JSON and all referenced media enter the public repository in one commit. Check the expected branch SHA before updating the ref to prevent overwriting concurrent edits.
+- GitHub API rate limits and repository size limits apply. Cache reads during an editing session and avoid unnecessary polling.
+- Never place a PAT, OAuth secret, private key, or any other credential in the repository.
+
+## Migration sequence
+
+1. **Inventory and adapter design:** map every current Supabase call to a GitHub operation; preserve UI contracts and define JSON schemas for private drafts, favourites, overrides and audit records.
+2. **Authentication:** replace Supabase login with owner-scoped fine-grained PAT entry, \`/user\` verification, session-only storage and sign-out.
+3. **Private draft store:** add companion-repository read/write, autosave, version checks, conflict handling, delete and restore.
+4. **Media pipeline:** private draft upload, media library integration, publish-time copy to public media, reference validation and cleanup.
+5. **Publishing transaction:** atomically update canonical JSON and media in one public Git commit; support edit, publish, unpublish and rollback.
+6. **Human Archive extras:** migrate favourites and remaining editor overrides without losing existing canonical structures.
+7. **CMS console:** retain the current visual console where practical, remove Supabase recovery/login dependencies, and keep Signals moderation explicitly deferred.
+8. **Validation:** test draft privacy, every editor block type, uploads, autosave, concurrent edits, publish/unpublish, delete, media integrity, favourites, rollback and a clean sign-out.
+9. **Cutover:** only after owner review and explicit approval; keep \`main\` untouched until then.
+
+## Owner setup required before live authentication can be tested
+
+- Create a new **private** GitHub repository for CMS data (suggested name: \`iyakuza-cms-private\`).
+- Create a **fine-grained personal access token** limited to \`iYakuza/landing-page\` and that private repository, with Metadata read and Contents read/write only. Set an expiry and do not paste the token into chat or commit it.
+- Enter the token directly into the CMS login field once that interface is implemented.
+
+No Cloudflare setup, Supabase setup, OAuth app, worker, external database, or third-party storage is required.
