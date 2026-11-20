@@ -3,10 +3,7 @@
   if (window.__vhaUnifiedNewTransmissionLoaded) return;
   window.__vhaUnifiedNewTransmissionLoaded = true;
 
-  const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
-  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
   const EDITOR_VERSION = '20261118-ha-block-names-dropzones-1';
-  let client = null;
   let isCreator = false;
   let refreshing = false;
   let authBound = false;
@@ -30,19 +27,6 @@
   ].join('');
   document.head.appendChild(style);
 
-  function ensureSupabase() {
-    if (window.supabase?.createClient) return Promise.resolve(true);
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';
-      script.async = true;
-      script.crossOrigin='anonymous';
-      script.referrerPolicy='no-referrer';
-      script.onload = () => window.supabase?.createClient ? resolve(true) : reject(new Error('Supabase loaded without createClient.'));
-      script.onerror = () => reject(new Error('Supabase could not be loaded.'));
-      document.head.appendChild(script);
-    });
-  }
 
   function loadStylesheet() {
     if (document.querySelector('link[data-vha-chamber-styles]')) return Promise.resolve();
@@ -100,7 +84,8 @@
   async function ensureSharedEditor() {
     if (editorLoadPromise) return editorLoadPromise;
     editorLoadPromise = (async () => {
-      await ensureSupabase();
+      await loadScript('/landing-page/cms/github-client.js?v=20261120-store-2', () => Boolean(window.VHAGitHub));
+      await loadScript('/landing-page/cms/github-store.js?v=20261120-store-2', () => Boolean(window.VHACMSStore));
       await loadStylesheet();
       await loadBlockEditorStylesheet();
       await loadScript('/landing-page/editor-ui/block-editor.js?v=' + EDITOR_VERSION, () => Boolean(window.VHABlockEditor?.mountBlockEditor));
@@ -165,34 +150,23 @@
     openNewTransmission(trigger);
   });
 
-  async function refresh(sessionOverride) {
+  async function refresh() {
     if (refreshing) return;
     refreshing = true;
     try {
-      await ensureSupabase();
-      if (!client) client = window.__vhaSupabaseClient || window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-      window.__vhaSupabaseClient = client;
-      let session = sessionOverride;
-      if (sessionOverride === undefined) {
-        const result = await client.auth.getSession();
-        session = result.data?.session;
-        if (result.error) isCreator = false;
+      if (!window.VHAGitHub) {
+        await loadScript('/landing-page/cms/github-client.js?v=20261120-store-2', () => Boolean(window.VHAGitHub));
       }
-      if (!session?.user) {
-        isCreator = false;
-      } else {
-        const { data, error } = await client.from('vha_cms_admins')
-          .select('user_id').eq('user_id', session.user.id).maybeSingle();
-        isCreator = !error && Boolean(data);
-      }
+      const session = await window.VHAGitHub.restoreSession();
+      isCreator = Boolean(session?.user && String(session.user.login || '').toLowerCase() === 'iyakuza' && window.VHA_GITHUB_EDITOR_READY === true);
       if (!authBound) {
         authBound = true;
-        client.auth.onAuthStateChange((_event, session) => {
-          window.setTimeout(() => refresh(session), 0);
+        window.VHAGitHub.onAuthStateChange(() => {
+          window.setTimeout(() => refresh(), 0);
         });
       }
     } catch (error) {
-      console.error('Transmission creator permissions could not be refreshed:', error);
+      if (error?.code !== 'NOT_AUTHENTICATED') console.error('Transmission creator permissions could not be refreshed:', error);
       isCreator = false;
     } finally {
       refreshing = false;
@@ -204,6 +178,5 @@
       });
     }
   }
-
   refresh();
 })();
