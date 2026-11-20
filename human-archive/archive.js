@@ -11,7 +11,7 @@ const expandedCategories=new Set();
 const categoryOrder=['Nimic și Ființă','This notion','Dialog monolog','Gânduri','Cântec','Belief','Snob','PERSONAL PROJECTS','Haiku'];
 const transmissionCategories=['HUMAN ARCHIVE','THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'];
 
-// Human Archive chamber state and public Supabase configuration.
+// Human Archive chamber state and GitHub-backed persistence.
 let chamberRecordId=null;
 let archiveAdmin=false,archiveUserId=null,archiveAuthBound=false,archiveWriteReady=true,archivePublicHeadSha=null;
 let standaloneTransmissionRecordsPromise=null;
@@ -326,7 +326,7 @@ function syncFavoriteControls(){
  document.querySelectorAll('[data-ha-favorite-mark]').forEach(mark=>{mark.hidden=!favoriteRecordIds.has(String(mark.dataset.haFavoriteMark||''));});
 }
 async function loadArchiveFavorites(){
- if(!archiveAdmin||!window.VHACMSStore)return;
+ if(!archiveAdmin||!window.VHACMSStore){favoriteRecordIds=new Set();return;}
  try{favoriteRecordIds=new Set(await window.VHACMSStore.getFavorites());}
  catch(error){console.warn('Private Human Archive favourites could not be loaded:',error);}
 }
