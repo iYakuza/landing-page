@@ -84,8 +84,8 @@
   async function ensureSharedEditor() {
     if (editorLoadPromise) return editorLoadPromise;
     editorLoadPromise = (async () => {
-      await loadScript('/landing-page/cms/github-client.js?v=20261120-store-2', () => Boolean(window.VHAGitHub));
-      await loadScript('/landing-page/cms/github-store.js?v=20261120-store-2', () => Boolean(window.VHACMSStore));
+      await loadScript('/landing-page/cms/github-client.js?v=20261120-github-cms-4', () => Boolean(window.VHAGitHub));
+      await loadScript('/landing-page/cms/github-store.js?v=20261120-github-cms-4', () => Boolean(window.VHACMSStore));
       await loadStylesheet();
       await loadBlockEditorStylesheet();
       await loadScript('/landing-page/editor-ui/block-editor.js?v=' + EDITOR_VERSION, () => Boolean(window.VHABlockEditor?.mountBlockEditor));
@@ -155,7 +155,7 @@
     refreshing = true;
     try {
       if (!window.VHAGitHub) {
-        await loadScript('/landing-page/cms/github-client.js?v=20261120-store-2', () => Boolean(window.VHAGitHub));
+        await loadScript('/landing-page/cms/github-client.js?v=20261120-github-cms-4', () => Boolean(window.VHAGitHub));
       }
       const session = await window.VHAGitHub.restoreSession();
       isCreator = Boolean(session?.user && String(session.user.login || '').toLowerCase() === 'iyakuza');
