@@ -156,3 +156,17 @@ Keep the existing 30 MB per-file limit until a separate measured test justifies 
 The first storage adapter implementation lives in `cms/github-store.js`. It provides private draft creation and persistence, private media upload/read, private favourites, public Archive structure updates, and a publish operation that writes the Transmissions collection, Archive editor structure, and promoted media files in one public Git commit. The private draft is deleted only after that public commit succeeds, preserving a recoverable private copy if publication fails.
 
 The sequence file is intentionally not initialized automatically. The verified export supports seeding `transmission_number: 6` and `archive_record_id: 3008`, but that one-time seed must be performed explicitly after the owner has authenticated and confirmed the private repository is the intended CMS data store.
+
+## Implemented transaction paths
+
+The GitHub store now implements these transaction paths:
+
+- **New draft:** reserve the next identifiers in the private sequence commit, then create the private draft JSON.
+- **Autosave:** upload draft media to the private repository, serialize private media paths into the draft, and commit the updated draft with an expected private-branch head.
+- **Edit published Transmission:** clone the public record and its editor structure into a private edit draft with the public base commit recorded.
+- **Publish:** read the draft and public collections at a known public commit, promote private media, update the Transmissions collection and Archive editor structure together, and create one public commit. Delete the private draft only after that public commit succeeds.
+- **Unpublish:** preserve the complete private edit draft first, remove the public Transmission and its editor structure in one public commit, then update the private draft’s base commit.
+- **Discard:** remove a new or published-edit draft; for an existing private draft, restore its opening snapshot and remove media uploaded during the edit session.
+- **Favourites:** store private owner favourites in the existing array-based JSON shape.
+
+All write operations use expected branch-head checks to detect concurrent changes. A stale editor must reload rather than silently overwrite another commit.
