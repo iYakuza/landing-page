@@ -3,7 +3,7 @@
   if (window.__vhaUnifiedNewTransmissionLoaded) return;
   window.__vhaUnifiedNewTransmissionLoaded = true;
 
-  const EDITOR_VERSION = '20261118-ha-block-names-dropzones-1';
+  const EDITOR_VERSION = '20261120-github-cms-4';
   let isCreator = false;
   let refreshing = false;
   let authBound = false;
