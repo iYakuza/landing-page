@@ -616,45 +616,18 @@
 
   const submissionForm=document.getElementById('visitor-transmission-form');
   if(submissionForm){
-    const submissionStatus=document.getElementById('visitor-status'),submissionButton=document.getElementById('visitor-submit');
-    const setSubmissionStatus=(text,kind='')=>{submissionStatus.textContent=text;submissionStatus.classList.remove('error','success');if(kind)submissionStatus.classList.add(kind);};
-    submissionForm.addEventListener('submit',async event=>{
+    const submissionStatus=document.getElementById('visitor-status');
+    const submissionButton=document.getElementById('visitor-submit');
+    const setSubmissionStatus=(text,kind='')=>{
+      submissionStatus.textContent=text;
+      submissionStatus.classList.remove('error','success');
+      if(kind)submissionStatus.classList.add(kind);
+    };
+    submissionForm.addEventListener('submit',event=>{
       event.preventDefault();
-      if(document.getElementById('visitor-website').value.trim()){setSubmissionStatus('SIGNAL RECEIVED. THANK YOU.','success');submissionForm.reset();return;}
-      const title=document.getElementById('visitor-title').value.trim();
-      const body=document.getElementById('visitor-body').value.trim();
-      const mediumSelect=document.getElementById('visitor-medium');
-      let medium=mediumSelect.value;
-      const byline=document.getElementById('visitor-byline').value.trim();
-      const file=document.getElementById('visitor-media').files?.[0];
-      if(file){
-        if(file.type.startsWith('image/'))medium='photograph';
-        else if(file.type.startsWith('audio/'))medium='music';
-        else if(file.type.startsWith('video/'))medium='video';
-        else {setSubmissionStatus('THIS FILE TYPE IS NOT SUPPORTED. PLEASE CHOOSE AN IMAGE, AUDIO, OR VIDEO FILE.','error');return;}
-        mediumSelect.value=medium;
-      }
-      if(!title){setSubmissionStatus('PLEASE GIVE YOUR TRANSMISSION A NAME.','error');return;}
-      if(!body&&!file){setSubmissionStatus('ADD SOME WORDS OR ATTACH A MEDIA FILE.','error');return;}
-      if(file&&file.size>25*1024*1024){setSubmissionStatus('THIS FILE IS OVER 25 MB. PLEASE SEND A SMALLER ONE.','error');return;}
-      if(!client){setSubmissionStatus('THE CHANNEL IS OFFLINE. PLEASE TRY AGAIN LATER.','error');return;}
-      submissionButton.disabled=true;setSubmissionStatus('UPLOADING YOUR SIGNAL…');
-      try{
-        let mediaUrl=null,storagePath=null;
-        if(file){
-          const extension=(file.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,8)||'bin';
-          storagePath='submissions/'+(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36))+'.'+extension;
-          const upload=await client.storage.from('poetry-media').upload(storagePath,file,{contentType:file.type,upsert:false});
-          if(upload.error)throw upload.error;
-          mediaUrl=client.storage.from('poetry-media').getPublicUrl(storagePath).data.publicUrl;
-        }
-        const slug=(title.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,100)||'transmission')+'-'+Date.now().toString(36);
-        const {error}=await client.from('poetry_submissions').insert({title,slug,medium,body,byline,rights_confirmed:true,media_url:mediaUrl,storage_path:storagePath,status:'pending'});
-        if(error)throw error;
-        submissionForm.reset();setSubmissionStatus('SIGNAL RECEIVED. IT IS IN THE REVIEW QUEUE; IF APPROVED, IT WILL APPEAR IN THE COMMUNITY GALLERY.','success');
-      }catch(error){setSubmissionStatus(error?.message||'THE TRANSMISSION DID NOT GO THROUGH. PLEASE TRY AGAIN.','error');}
-      finally{submissionButton.disabled=false;}
+      setSubmissionStatus('COMMUNITY SUBMISSIONS ARE TEMPORARILY PAUSED DURING THE GITHUB MIGRATION. THE EXISTING SIGNALS ARCHIVE REMAINS AVAILABLE.','error');
     });
+    if(submissionButton)submissionButton.setAttribute('aria-disabled','true');
   }
   search.addEventListener('input',render);categoryFilter?.addEventListener('change',render);yearFilter?.addEventListener('change',render);loadMoreButton?.addEventListener('click',loadMorePosts);load();
 })();
