@@ -601,8 +601,6 @@
                    if(valid&&['AUDIO','VIDEO','SOURCE'].includes(node.tagName)){
                      const url=new URL(safe,window.location.href);
                      const mediaBaseValue=String(mediaBasePath || (window.location.pathname.startsWith('/landing-page-preview/') ? '/landing-page-preview' : '/landing-page')); const normalizedMediaBase=mediaBaseValue.endsWith('/') ? mediaBaseValue.slice(0,-1) : mediaBaseValue; valid=(url.protocol==='blob:'&&url.origin===window.location.origin)||(url.origin===window.location.origin&&url.pathname.startsWith(normalizedMediaBase+'/media/'))||(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.startsWith('/storage/v1/object/public/vha-post-media/'));
-                       (url.origin===window.location.origin&&url.pathname.startsWith((String(mediaBasePath || (window.location.pathname.startsWith('/landing-page-preview/') ? '/landing-page-preview' : '/landing-page')).replace(/\\/+$/,'')+'/media/')))||
-                       (url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.startsWith('/storage/v1/object/public/vha-post-media/'));
                    }
                    if(valid)node.setAttribute('src',safe);else node.removeAttribute(attribute.name);
                  }
@@ -806,7 +804,7 @@
           return text.trim()||(parsed.querySelector('img,audio,video,iframe')?'media':'');
         }).filter(Boolean).join('\\n\\n');
       },
-      replaceHTML(html) { this.destroy(); editor.innerHTML=String(html||'<p><br></p>'); return mountBlockEditor({editor,onChange,onUpload,getMediaLibrary,readOnly,showTopbar}); },
+      replaceHTML(html) { this.destroy(); editor.innerHTML=String(html||'<p><br></p>'); return mountBlockEditor({editor,onChange,onUpload,getMediaLibrary,readOnly,showTopbar,mediaBasePath}); },
       focus() { focusBlock(selected||blocks()[0]); },
       destroy() {
         listeners.abort();closeMenu();
