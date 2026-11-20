@@ -123,14 +123,15 @@
     return file.value;
   }
 
-  async function seedSequences(transmissionPostId, archiveRecordId) {
-    const post = Number(transmissionPostId), record = Number(archiveRecordId);
+  async function seedSequences(transmissionNumber, archiveRecordId) {
+    const post = Number(transmissionNumber), record = Number(archiveRecordId);
     if (!Number.isSafeInteger(post) || post < 0 || !Number.isSafeInteger(record) || record < 1) throw new Error('Sequence seeds must be verified non-negative/positive integers.');
     const path = privatePath('sequences.json');
     if (await github().readFile('private', path)) throw new Error('The CMS sequences have already been initialized.');
     const head = await currentHead('private') || await github().initializePrivateRepository();
-    const result = await write('private', [{ path, content: json({ transmission_post_id: post, archive_record_id: record, initialized_at: new Date().toISOString() }) }], 'Initialize verified CMS identifier sequences', head);
-    return { transmission_post_id: post, archive_record_id: record, commitSha: result.commitSha };
+    const value = { transmission_number: post, archive_record_id: record, initialized_at: new Date().toISOString() };
+    const result = await write('private', [{ path, content: json(value) }], 'Initialize verified CMS identifier sequences', head);
+    return { ...value, commitSha: result.commitSha };
   }
 
   async function reserveSequence(expectedHeadSha) {
@@ -139,12 +140,12 @@
     const head = await currentHead('private') || await github().initializePrivateRepository();
     if (expectedHeadSha && head !== expectedHeadSha) throw new Error('The private CMS sequence changed. Reload before creating a record.');
     const next = {
-      transmission_post_id: Number(file.value.transmission_post_id || 0) + 1,
-      archive_record_id: Number(file.value.archive_record_id || 3008) + 1,
+      transmission_number: Number(file.value.transmission_number || 0) + 1,
+      archive_record_id: Number(file.value.archive_record_id || 0) + 1,
       updated_at: new Date().toISOString()
     };
     const result = await write('private', [{ path: privatePath('sequences.json'), content: json(next) }], 'Reserve CMS record identifiers', head);
-    return { ...next, commitSha: result.commitSha };
+    return { ...next, post_id: 'T-' + String(next.transmission_number).padStart(4, '0'), commitSha: result.commitSha };
   }
 
   async function savePrivateOverride(recordId, override) {
@@ -159,6 +160,128 @@
     return file?.data || null;
   }
 
+
+  async function createDraft(metadata = {}, source = 'new') {
+    const reserved = await reserveSequence();
+    const draftId = crypto.randomUUID ? crypto.randomUUID() : 'draft-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+    const now = new Date().toISOString();
+    const publicHead = await currentHead('public');
+    const draft = {
+      schema_version: 1, draft_id: draftId, kind: 'transmission',
+      record_id: reserved.archive_record_id, post_id: reserved.post_id,
+      source, status: 'draft', created_at: now, updated_at: now, revision: 1,
+      base_public_commit: source === 'new' ? null : publicHead,
+      metadata: { title: '', slug: '', category: '', excerpt: '', media_width: 100, ...metadata },
+      content: { transmission_body: '', prompt_style: '', lyrics_style: '', output_text: '',
+        output_media: { image: [], audio: [], video: [] }, blocks: [], media_items: [] }
+    };
+    const saved = await saveDraft(draft);
+    return { ...draft, commitSha: saved.commitSha };
+  }
+
+  async function uploadDraftMedia(draftId, files, folder = 'attachments') {
+    const key = id(draftId);
+    const safeFolder = String(folder || 'attachments').replace(/[^a-z0-9_-]/gi, '').slice(0, 40) || 'attachments';
+    const changes = [];
+    for (const file of files || []) {
+      if (!(file instanceof Blob)) throw new Error('A media upload must be a browser File or Blob.');
+      if (file.size > CONFIG.maxMediaBytes) throw new Error(file.name + ' exceeds the 30 MB upload limit.');
+      const name = String(file.name || 'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(-110) || 'media';
+      const suffix = crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2);
+      changes.push({ path: privatePath('media/drafts/' + key + '/' + safeFolder + '/' + suffix + '-' + name), content: file });
+    }
+    if (!changes.length) return [];
+    const head = await currentHead('private') || await github().initializePrivateRepository();
+    const result = await write('private', changes, 'Upload private Transmission draft media ' + key, head);
+    return changes.map(change => ({ path: change.path, name: change.path.split('/').pop(), commitSha: result.commitSha }));
+  }
+
+  async function readPrivateMedia(path) {
+    const safe = String(path || '');
+    if (!safe.startsWith(privatePath('media/drafts/'))) throw new Error('The requested path is not private draft media.');
+    const file = await github().readFile('private', safe);
+    if (!file) throw new Error('The private draft media file could not be found.');
+    return new Blob([file.bytes]);
+  }
+
+  async function getPublicStructure(recordId) {
+    const { archive } = await getPublicCollections();
+    return (archive.value.editor_structures || []).find(item => String(item.record_id) === String(recordId)) || null;
+  }
+
+  async function savePublicStructure(recordId, structure, expectedHeadSha) {
+    const { archive } = await getPublicCollections();
+    const head = await currentHead('public');
+    if (expectedHeadSha && expectedHeadSha !== head) throw new Error('The public repository changed. Reload before saving.');
+    const structures = Array.isArray(archive.value.editor_structures) ? [...archive.value.editor_structures] : [];
+    const index = structures.findIndex(item => String(item.record_id) === String(recordId));
+    const value = { ...structure, record_id: Number(recordId), updated_at: new Date().toISOString() };
+    if (index >= 0) structures[index] = value; else structures.push(value);
+    archive.value.editor_structures = structures;
+    return write('public', [{ path: CONFIG.archivePath, content: json(archive.value) }], 'Save Human Archive editor structure ' + recordId, head);
+  }
+
+  async function publishDraft(draftId, options = {}) {
+    const draft = await getDraft(draftId);
+    if (!draft) throw new Error('The private draft no longer exists.');
+    if (draft.kind !== 'transmission' || !draft.metadata || !draft.content) throw new Error('The private draft has an unsupported structure.');
+    const [transmissions, archive] = await Promise.all([
+      readJson('public', CONFIG.transmissionsPath, null),
+      readJson('public', CONFIG.archivePath, null)
+    ]);
+    if (!transmissions.value?.records || !archive.value?.editor_structures) throw new Error('The canonical public collections are incomplete.');
+    const publicHead = await currentHead('public');
+    if (options.expectedPublicHead && publicHead !== options.expectedPublicHead) throw new Error('The public repository changed. Reload before publishing.');
+    const post = {
+      id: draft.post_id, slug: draft.metadata.slug, title: draft.metadata.title, status: 'published',
+      excerpt: draft.metadata.excerpt || '', category: draft.metadata.category,
+      created_at: draft.created_at, updated_at: new Date().toISOString(), published_at: new Date().toISOString(),
+      media_width: draft.metadata.media_width || 100,
+      content_html: draft.content.transmission_body || '',
+      media_items: Array.isArray(draft.content.media_items) ? [...draft.content.media_items] : [],
+      archive_record_id: Number(draft.record_id), human_archive_id: 'HA-' + String(draft.record_id)
+    };
+    const mediaChanges = [];
+    const promote = async item => {
+      if (!item || !String(item.path || '').startsWith(privatePath('media/drafts/' + id(draftId) + '/'))) return item;
+      const source = await github().readFile('private', item.path);
+      if (!source) throw new Error('A referenced private media file is missing: ' + item.path);
+      const fileName = String(item.name || item.path.split('/').pop()).split('/').pop().replace(/[^a-zA-Z0-9._-]+/g, '-');
+      const target = 'media/transmissions/' + draft.post_id + '/' + fileName;
+      mediaChanges.push({ path: target, content: source.bytes });
+      return { ...item, name: item.name || fileName, path: target, src: target, url: target, storage: 'github-public' };
+    };
+    post.media_items = await Promise.all(post.media_items.map(promote));
+    const outputMedia = {};
+    for (const kind of ['image', 'audio', 'video']) {
+      outputMedia[kind] = await Promise.all((draft.content.output_media?.[kind] || []).map(promote));
+    }
+    const oldIndex = transmissions.value.records.findIndex(item => item.id === draft.post_id);
+    if (oldIndex >= 0) transmissions.value.records[oldIndex] = post;
+    else transmissions.value.records.push(post);
+    const structure = {
+      record_id: Number(draft.record_id),
+      transmission_body: draft.content.transmission_body || '',
+      prompt_style: draft.content.prompt_style || '',
+      lyrics_style: draft.content.lyrics_style || '',
+      output_text: draft.content.output_text || '',
+      output_media,
+      blocks: Array.isArray(draft.content.blocks) ? draft.content.blocks : [],
+      updated_at: new Date().toISOString()
+    };
+    const structures = archive.value.editor_structures;
+    const structureIndex = structures.findIndex(item => String(item.record_id) === String(draft.record_id));
+    if (structureIndex >= 0) structures[structureIndex] = structure; else structures.push(structure);
+    const changes = [
+      { path: CONFIG.transmissionsPath, content: json(transmissions.value) },
+      { path: CONFIG.archivePath, content: json(archive.value) },
+      ...mediaChanges
+    ];
+    const result = await write('public', changes, 'Publish Transmission ' + draft.post_id, publicHead);
+    await deleteDraft(draftId);
+    return { post, commitSha: result.commitSha };
+  }
+
   window.VHACMSStore = Object.freeze({
     config: CONFIG,
     getPublicCollections,
@@ -168,6 +291,12 @@
     saveDraft,
     deleteDraft,
     savePrivateMedia,
+    uploadDraftMedia,
+    readPrivateMedia,
+    createDraft,
+    publishDraft,
+    getPublicStructure,
+    savePublicStructure,
     getFavorites,
     setFavorite,
     getSequences,
