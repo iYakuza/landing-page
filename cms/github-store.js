@@ -18,8 +18,8 @@
   };
   const json = value => JSON.stringify(value, null, 2) + '\n';
   const privatePath = suffix => CONFIG.privateRoot + '/' + suffix;
-  const readJson = async (repo, path, fallback) => {
-    const file = await github().readJson(repo, path);
+  const readJson = async (repo, path, fallback, options = {}) => {
+    const file = await github().readJson(repo, path, options);
     return file ? { ...file, value: file.data } : { sha: null, value: fallback };
   };
   const write = async (repo, changes, message, expectedHeadSha) => {
