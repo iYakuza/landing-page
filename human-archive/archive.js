@@ -875,12 +875,12 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    let asset;
    if(record.source_type==='transmission'){
     if(!record.draft_id)throw new Error('The private Transmission draft has not been initialized.');
-    const uploaded=await window.VHACMSStore.uploadDraftMedia(record.draft_id,[file],'blocks-'+folder);
+    const uploaded=await window.VHACMSStore.uploadDraftMedia(record.draft_id,[file],'blocks-'+folder,record._repoCommitSha);
     const path=uploaded[0].path,url=URL.createObjectURL(file);
     privateMediaUrlToPath.set(url,path);record._repoCommitSha=uploaded[0].commitSha;
     asset={url,path,name:file.name,mime_type:mime,type:folder,storage:'github-private'};
    }else{
-    const uploaded=await window.VHACMSStore.uploadPublicMedia(record.id,[file],'blocks-'+folder);
+    const uploaded=await window.VHACMSStore.uploadPublicMedia(record.id,[file],'blocks-'+folder,record._publicCommitSha||archivePublicHeadSha);
     const item=uploaded[0];record._publicCommitSha=item.commitSha;
     asset={url:item.url,path:item.path,name:file.name,mime_type:mime,type:folder,storage:'github-public'};
    }
@@ -1008,7 +1008,7 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
   const uploadOne=async(item,folder,type)=>{
    if(!item.file||item.uploadedDraft)return;
    if(!record.draft_id)throw new Error('The private Transmission draft has not been initialized.');
-   const uploaded=await window.VHACMSStore.uploadDraftMedia(record.draft_id,[item.file],folder);
+   const uploaded=await window.VHACMSStore.uploadDraftMedia(record.draft_id,[item.file],folder,record._repoCommitSha);
    const path=uploaded[0].path,url=URL.createObjectURL(item.file);
    privateMediaUrlToPath.set(url,path);
    record._repoCommitSha=uploaded[0].commitSha;
@@ -1325,7 +1325,7 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
      for(const item of editorMedia[kind]){
       if(item.file){
        status.textContent='UPLOADING '+kind.toUpperCase()+' TO GITHUB…';
-       const uploaded=await window.VHACMSStore.uploadPublicMedia(record.id,[item.file],kind);
+       const uploaded=await window.VHACMSStore.uploadPublicMedia(record.id,[item.file],kind,record._publicCommitSha||archivePublicHeadSha);
        const media=uploaded[0];uploadedPublicPaths.push(media.path);record._publicCommitSha=media.commitSha;
        savedItems.push({id:'upload-'+chamberUploadToken(),name:item.name,url:media.url,path:media.path,mime_type:media.mime_type,storage:'github-public'});
        item.url=media.url;item.path=media.path;item.storage='github-public';item.file=null;
