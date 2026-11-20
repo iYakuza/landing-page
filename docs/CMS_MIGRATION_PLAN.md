@@ -116,3 +116,21 @@ The next integration stage must replace those calls as one coordinated change wh
 ### Safety and deployment state
 
 All work remains on `recovery/supabase-content-export-20261119`. The public `main` branch has not been changed and nothing has been deployed. The private repository remains the intended location for unpublished drafts and private media. No Supabase or Cloudflare service is part of the target architecture.
+
+## GitHub integration progress — editor and public readers
+
+The recovery branch now has the first integrated GitHub-only implementation across the core content paths:
+
+- The CMS sign-in uses the owner’s fine-grained GitHub token. The token remains in browser session storage and is cleared on sign-out.
+- The CMS includes an explicit one-time action to initialize the private sequence from the verified export (`T-0006`, Archive record `3008`).
+- The Shared Chamber now reads published Transmissions from the canonical JSON collection, reads private drafts from the private repository, saves draft autosaves and private media to the private repository, and saves Human Archive editor structures and media to the public repository.
+- Publishing promotes private draft media and updates `content/transmissions.json` plus the Human Archive editor structure in one public Git commit. The private draft is removed only after that commit succeeds.
+- Editing a published Transmission starts a private edit draft. Saving as draft unpublishes it; publishing writes the updated record; discarding the edit draft leaves the original published version intact.
+- Public Transmissions and Signals readers now use the canonical JSON collections. The Signals archive remains readable, but new visitor submissions and the legacy moderation queue are paused/deferred while their write and moderation workflow is redesigned for GitHub.
+- The public Human Archive and Transmissions pages no longer load the Supabase JavaScript SDK. Legacy Supabase-hosted media URLs remain in some historical records as source references until their media recovery is completed; these are not used as a CMS database or storage API.
+
+### Validation and remaining boundary
+
+The GitHub store was exercised against a mocked GitHub API using the actual repository exports. The test covered sequence seeding, draft creation and update, publication, editing, unpublishing, draft deletion, and favourites. Private-media promotion was also tested. JavaScript syntax checks pass for the client, store, CMS login, Shared Chamber, Transmissions launcher, and public Transmissions reader.
+
+A live test with the owner’s actual GitHub token has not yet been performed. The token must be entered directly in the CMS UI; it must never be pasted into chat. The CMS has not been deployed. The public write branch is still the recovery branch, and must be switched to `main` only as part of a separately approved deployment.
