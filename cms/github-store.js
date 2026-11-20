@@ -391,7 +391,8 @@
       await deleteDraft(draftId, draft._repoCommitSha);
     } catch (cleanupError) {
       const latest = await getDraft(draftId);
-      if (latest && latest.revision === draft.revision && latest.updated_at === draft.updated_at) {
+      if (!latest) privateCleanupPending = false;
+      else if (latest.revision === draft.revision && latest.updated_at === draft.updated_at) {
         try { await deleteDraft(draftId, latest._repoCommitSha); }
         catch (retryError) { privateCleanupPending = true; }
       } else privateCleanupPending = true;
