@@ -627,7 +627,9 @@
       event.preventDefault();
       setSubmissionStatus('COMMUNITY SUBMISSIONS ARE TEMPORARILY PAUSED DURING THE GITHUB MIGRATION. THE EXISTING SIGNALS ARCHIVE REMAINS AVAILABLE.','error');
     });
-    if(submissionButton)submissionButton.setAttribute('aria-disabled','true');
+    if(submissionButton)submissionButton.disabled=true;
+    submissionForm.querySelectorAll('input,textarea,select').forEach(control=>{control.disabled=true;});
+    setSubmissionStatus('COMMUNITY SUBMISSIONS ARE TEMPORARILY PAUSED DURING THE GITHUB MIGRATION. THE EXISTING SIGNALS ARCHIVE REMAINS AVAILABLE.','error');
   }
   search.addEventListener('input',render);categoryFilter?.addEventListener('change',render);yearFilter?.addEventListener('change',render);loadMoreButton?.addEventListener('click',loadMorePosts);load();
 })();
