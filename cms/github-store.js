@@ -385,8 +385,18 @@
       ...mediaChanges
     ];
     const result = await write('public', changes, 'Publish Transmission ' + draft.post_id, publicHead);
-    await deleteDraft(draftId);
-    return { post, commitSha: result.commitSha };
+    let privateCleanupPending = false;
+    try {
+      await deleteDraft(draftId, draft._repoCommitSha);
+    } catch (cleanupError) {
+      const latest = await getDraft(draftId);
+      if (latest && latest.revision === draft.revision && latest.updated_at === draft.updated_at) {
+        try { await deleteDraft(draftId, latest._repoCommitSha); }
+        catch (retryError) { privateCleanupPending = true; }
+      } else privateCleanupPending = true;
+      if (privateCleanupPending) console.warn('Transmission published, but the private draft was retained because it changed during publication.', cleanupError);
+    }
+    return { post, commitSha: result.commitSha, privateCleanupPending };
   }
 
 
@@ -447,7 +457,15 @@
       { path: CONFIG.archivePath, content: json(archive.data) }
     ], 'Unpublish Transmission ' + draft.post_id, publicHead);
     draft.base_public_commit = result.commitSha;
-    const saved = await saveDraft(draft);
+    let saved;
+    try {
+      saved = await saveDraft(draft, draft._repoCommitSha);
+    } catch (saveError) {
+      const latest = await getDraft(draftId);
+      if (!latest) throw new Error('The public Transmission was unpublished, but its private draft could not be reconciled. Preserve the private repository before retrying.');
+      latest.base_public_commit = result.commitSha;
+      saved = await saveDraft(latest, latest._repoCommitSha);
+    }
     return { commitSha: result.commitSha, privateCommitSha: saved.commitSha };
   }
 
