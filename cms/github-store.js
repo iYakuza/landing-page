@@ -391,7 +391,7 @@
 
 
   async function createEditDraft(postId) {
-    const privateHead = await currentHead('private');
+    const privateHead = await currentHead('private') || await github().initializePrivateRepository();
     if (privateHead) {
       const existing = (await listDrafts()).find(item => item.post_id === postId && item.source === 'existing');
       if (existing) return existing;
