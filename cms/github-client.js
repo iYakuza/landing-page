@@ -5,7 +5,7 @@
     owner: 'iYakuza',
     publicRepo: 'landing-page',
     privateRepo: 'iyakuza-cms-private',
-    publicBranch: 'recovery/supabase-content-export-20261119',
+    publicBranch: 'main',
     privateBranch: 'main',
     tokenKey: 'vha.github.token.v1',
     api: 'https://api.github.com'
