@@ -2,7 +2,8 @@
 const search=document.getElementById('ha-search'),year=document.getElementById('ha-year'),category=document.getElementById('ha-category'),list=document.getElementById('ha-list'),count=document.getElementById('ha-count'),mediaStatus=document.getElementById('ha-media-status');
 const newTransmissionButton=document.getElementById('ha-new-transmission'),createTransmissionStatus=document.getElementById('ha-create-status');
 const hasArchiveIndex=Boolean(search&&year&&category&&list&&count);
-const archiveHomeUrl=new URL('/landing-page/human-archive/',window.location.origin);
+const archiveSiteBasePath=window.location.pathname.startsWith('/landing-page-preview/')?'/landing-page-preview':'/landing-page';
+const archiveHomeUrl=new URL(archiveSiteBasePath+'/human-archive/',window.location.origin);
 let chamberSaveConflict=false;
 let flushActiveChamberAutosave=async()=>true;
 let records=[],mediaItems=[],mediaMap=new Map(),mediaByPost=new Map(),mediaReady=false,publicBase='';
@@ -63,12 +64,12 @@ function urlKey(raw){
 function localMediaUrl(item){
  const storage=String(item?.storage||'');
  const storedPath=String(item?.local_path||item?.storage_path||item?.path||'');
- if(storage==='github-public'&&storedPath.startsWith('media/'))return '/landing-page/'+storedPath.split('/').map(encodeURIComponent).join('/');
+  if((storage==='github-public'||storage==='github-transmission')&&storedPath.startsWith('media/'))return archiveSiteBasePath+'/'+storedPath.split('/').map(encodeURIComponent).join('/');
  if(storage==='github-private'&&String(item?.url||'').startsWith('blob:'))return item.url;
  const recordId=(item?.post_ids||[]).map(value=>String(value).trim()).find(value=>/^[0-9]+$/.test(value));
  const filename=storedPath.split('/').pop();
  if(!recordId||!filename)return '';
- return '/landing-page/media/human-archive/HA-'+recordId.padStart(4,'0')+'/'+encodeURIComponent(filename);
+  return archiveSiteBasePath+'/media/human-archive/HA-'+recordId.padStart(4,'0')+'/'+encodeURIComponent(filename);
 }
 function getMedia(raw){return mediaMap.get(urlKey(raw))||null;}
 function markUsed(item,used){if(item&&used)used.add(String(item.id));}
@@ -345,21 +346,21 @@ async function loadTransmissionRecords(){
  const collection=await fetchArchiveJson('../content/transmissions.json',true);
  if(!collection||!Array.isArray(collection.records))throw new Error('The canonical Transmissions collection is unavailable.');
  records=records.filter(record=>record.source_type!=='transmission');
- mediaItems=mediaItems.filter(item=>item.storage!=='github-public');
- for(const [key,item] of mediaMap){if(item.storage==='github-public')mediaMap.delete(key);}
+  mediaItems=mediaItems.filter(item=>item.storage!=='github-transmission');
+  for(const [key,item] of mediaMap){if(item.storage==='github-transmission')mediaMap.delete(key);}
  const additions=collection.records.filter(post=>post&&post.status==='published'&&Number.isSafeInteger(Number(post.archive_record_id))&&post.slug).map(post=>{
   const id=Number(post.archive_record_id),stamp=post.published_at||post.created_at||new Date().toISOString();
   const date=String(stamp).slice(0,10),year=date.slice(0,4);
   const sourceItems=Array.isArray(post.media_items)?post.media_items:(post.media_url?[{url:post.media_url,path:post.media_path,type:post.media_type||'audio',name:post.title}]:[]);
   const attached=sourceItems.filter(item=>item&&item.status!=='pending_recovery'&&typeof(item.src||item.url)==='string'&&['image','audio','video'].includes(item.type)).map((item,index)=>{
    const relative=String(item.src||item.url||item.path||'');
-   const publicUrl=relative.startsWith('http')?relative:('/landing-page/'+relative.replace(/^\/+/, ''));
+    const publicUrl=relative.startsWith('http')?relative:(archiveSiteBasePath+'/'+relative.replace(/^\/+/, ''));
    return {id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
     mime_type:item.type==='image'?'image/unknown':item.type==='video'?'video/unknown':'audio/unknown',
     storage_path:String(item.path||item.src||item.url||''),source_url:publicUrl,url:publicUrl,
-    storage:'github-public',post_ids:[id]};
+     storage:'github-transmission',post_ids:[id]};
   });
-  const content=String(post.content_html||'').replace(/(["'])((?:media\/transmissions)\/[^"']+)\1/g,(match,quote,path)=>quote+'/landing-page/'+path.replace(/^\/+/, '')+quote);
+   const content=String(post.content_html||'').replace(/(["'])((?:media\/transmissions)\/[^"']+)\1/g,(match,quote,path)=>quote+archiveSiteBasePath+'/'+path.replace(/^\/+/, '')+quote);
   return {id,title:post.title,slug:post.slug,archiveIdentifier:'HA-'+year+'-'+String(id).padStart(4,'0'),year,date,url:'',categories:[post.category||'TRANSMISSIONS'],content_html:content,source_type:'transmission',post_id:post.id,status:'published',excerpt:post.excerpt||'',media_items:attached,created_at:post.created_at,published_at:post.published_at,updated_at:post.updated_at,media_width:post.media_width||100};
  });
  additions.forEach(record=>{
@@ -526,7 +527,7 @@ function defaultChamberOutputMedia(record,type){
   url:localMediaUrl(item),
   path:String(item.storage_path||''),
   mime_type:String(item.mime_type||''),
-  storage:item.storage==='vha-post-media'?'vha-post-media':'recovered'
+   storage:item.storage||'recovered'
  }));
  if(type!=='video')return recovered;
  const allowedHosts=new Set(['www.youtube.com','www.youtube-nocookie.com']);
@@ -1303,9 +1304,9 @@ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window
      record.title=post.title;record.slug=post.slug;record.categories=[post.category];record.excerpt=post.excerpt||'';
      const makePublicUrl=value=>{
       const raw=String(value||'');
-      return raw.startsWith('http')||raw.startsWith('blob:')?raw:('/landing-page/'+raw.replace(/^\/+/, ''));
+       return raw.startsWith('http')||raw.startsWith('blob:')?raw:(archiveSiteBasePath+'/'+raw.replace(/^\/+/, ''));
      };
-     const rewriteHtml=html=>String(html||'').replace(/(["'])((?:media\/transmissions)\/[^"']+)\1/g,(match,quote,path)=>quote+'/landing-page/'+path.replace(/^\/+/, '')+quote);
+      const rewriteHtml=html=>String(html||'').replace(/(["'])((?:media\/transmissions)\/[^"']+)\1/g,(match,quote,path)=>quote+archiveSiteBasePath+'/'+path.replace(/^\/+/, '')+quote);
      record.content_html=rewriteHtml(post.content_html);
      record.media_items=(post.media_items||[]).map((item,index)=>({
       id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
