@@ -96,3 +96,23 @@ The data adapter is to be replaced beneath the existing UI. Do not redesign the 
 - Enter the token directly into the CMS login field once that interface is implemented.
 
 No Cloudflare setup, Supabase setup, OAuth app, worker, external database, or third-party storage is required.
+
+
+## Implementation progress — GitHub storage foundation
+
+The recovery branch now contains the first GitHub persistence layer:
+
+- `cms/github-client.js` authenticates a fine-grained GitHub token for the owner account, verifies both repositories and their visibility, keeps the token in browser session storage, reads Git trees/blobs, uploads binary blobs, and creates non-force commits on the recovery branch.
+- `cms/github-store.js` provides the first storage adapter for canonical public collections, private Transmission drafts, private draft media, favourites, private overrides, and identifier sequences.
+- `listFiles()` was added to the GitHub client so the adapter can enumerate draft records and media paths.
+- Identifier allocation deliberately refuses to run until the sequence file is initialized from a verified complete export. It does not guess the next archive or post ID.
+
+### Important integration boundary
+
+This is persistence infrastructure, not yet a working replacement CMS. The existing Shared Chamber still calls Supabase directly for authentication, draft autosave, record creation, structure/block saves, media upload and cleanup. The existing CMS console also uses Supabase for community moderation. Those UI flows have not been switched over, and the new GitHub token login has not been exposed to visitors or administrators.
+
+The next integration stage must replace those calls as one coordinated change while preserving the current editor UI and behavior. It must also preserve the current public archive/Transmissions JSON contracts, media URL behavior, autosave conflict protection, explicit Save/Discard, publish/unpublish, and all existing IDs. Community submission moderation is a separate deferred workflow and must not be represented as migrated until its storage and moderation UI are implemented.
+
+### Safety and deployment state
+
+All work remains on `recovery/supabase-content-export-20261119`. The public `main` branch has not been changed and nothing has been deployed. The private repository remains the intended location for unpublished drafts and private media. No Supabase or Cloudflare service is part of the target architecture.
