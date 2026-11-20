@@ -15,7 +15,7 @@ const transmissionCategories=['HUMAN ARCHIVE','THE AWAKENING','THE DESCENT','THE
 let chamberRecordId=null;
 const SUPABASE_URL='https://oeyxsqocldlovhsmzcjw.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-let archiveSupabase=null,archiveAdmin=false,archiveUserId=null,archiveAuthBound=false;
+let archiveSupabase=null,archiveAdmin=false,archiveUserId=null,archiveAuthBound=false,archiveWriteReady=false;
 let standaloneTransmissionRecordsPromise=null;
 let favoriteRecordIds=new Set(),favoriteSaveError=false,recordStructureOverrides=new Map();
 let mediaHashByPath=new Map();
@@ -663,10 +663,10 @@ function renderRecordStructureView(record,grid,status,editButton,expandButton,cl
  });
  grid.append(body);
  if(editButton){
-  editButton.hidden=!archiveAdmin;editButton.disabled=false;editButton.textContent='REDESIGN CHAMBER';
+  editButton.hidden=!archiveAdmin||!archiveWriteReady;editButton.disabled=false;editButton.textContent='REDESIGN CHAMBER';
   editButton.setAttribute('aria-label','Redesign this archive chamber');
   editButton.onclick=()=>{
-   if(!archiveAdmin){status.textContent='ADMIN ACCESS REQUIRED';return;}
+   if(!archiveAdmin||!archiveWriteReady){status.textContent='GITHUB EDITOR MIGRATION IS NOT YET ENABLED';return;}
    renderRecordStructureEditor(record,grid,status,editButton,expandButton,closeButton);
   };
  }
@@ -889,7 +889,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   grid.querySelectorAll('select,button').forEach(control=>{control.disabled=true;});
   grid.querySelectorAll('[contenteditable="true"]').forEach(control=>{control.contentEditable='false';});
   grid.querySelectorAll('.ha-chamber-upload-label,.ha-chamber-media-remove').forEach(control=>{control.hidden=true;});
-  if(editButton)editButton.hidden=!archiveAdmin;
+  if(editButton)editButton.hidden=!archiveAdmin||!archiveWriteReady;
   clearChamberFormattingToolbar();
   bindChamberDisclosureControls(grid,expandButton);
   return;
@@ -1228,7 +1228,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  };
  if(editButton)editButton.onclick=discardChanges;
  save.onclick=async()=>{
-  if(!archiveAdmin||!archiveSupabase||!archiveUserId){status.textContent='ADMIN SESSION REQUIRED';return;}
+  if(!archiveAdmin||!archiveWriteReady||!archiveUserId){status.textContent='GITHUB EDITOR MIGRATION IS NOT YET ENABLED';return;}
   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
   if(draftAutosaveInFlight){
    status.textContent='WAITING FOR AUTOMATIC DRAFT SAVE…';
@@ -1464,7 +1464,7 @@ function buildRecordChamber(record){
  const actions=makeChamberNode('div','ha-chamber-topbar-actions');
  actions.setAttribute('aria-label','Chamber controls');
  const edit=makeChamberNode('button','ha-chamber-edit','REDESIGN CHAMBER');
- edit.type='button';edit.hidden=!archiveAdmin;edit.setAttribute('aria-label','Redesign this archive chamber');
+ edit.type='button';edit.hidden=!archiveAdmin||!archiveWriteReady;edit.setAttribute('aria-label','Redesign this archive chamber');
  const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');
  close.type='button';close.setAttribute('aria-label','Close record chamber');
  actions.append(edit,close);
@@ -1570,7 +1570,7 @@ function openRequestedRecordFromUrl(){
 }
 function createHumanArchiveTransmission(trigger){
  if(recordChamber?.open){recordChamber.focus();return;}
- if(!archiveAdmin||!archiveSupabase||!archiveUserId){if(createTransmissionStatus)createTransmissionStatus.textContent='ADMIN SESSION REQUIRED';return;}
+ if(!archiveAdmin||!archiveWriteReady||!archiveUserId){if(createTransmissionStatus)createTransmissionStatus.textContent='GITHUB EDITOR MIGRATION IS NOT YET ENABLED';return;}
  const temporaryId=Date.now();
  const now=new Date().toISOString();
  const record={
@@ -1584,27 +1584,29 @@ function createHumanArchiveTransmission(trigger){
  recordChamber?.querySelector('[name="title"]')?.focus({preventScroll:true});
 }
 async function initArchiveFeatures(){
- if(!window.supabase?.createClient)throw new Error('Supabase is unavailable; the Transmission editor cannot start.');
- archiveSupabase=window.__vhaSupabaseClient||window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
- window.__vhaSupabaseClient=archiveSupabase;
+ if(!window.VHAGitHub||!window.VHACMSStore)throw new Error('The GitHub CMS modules are unavailable.');
  await refreshArchiveAdmin();
- if(newTransmissionButton){newTransmissionButton.hidden=!archiveAdmin;newTransmissionButton.disabled=!archiveAdmin;newTransmissionButton.addEventListener('click',createHumanArchiveTransmission);}
+ if(newTransmissionButton){
+  newTransmissionButton.hidden=true;
+  newTransmissionButton.disabled=true;
+  if(!newTransmissionButton.dataset.githubHandlerBound){
+   newTransmissionButton.dataset.githubHandlerBound='true';
+   newTransmissionButton.addEventListener('click',createHumanArchiveTransmission);
+  }
+ }
  if(hasArchiveIndex)await Promise.all([loadArchiveFavorites(),loadRecordStructureOverrides(),loadTransmissionRecords()]);
  if(!archiveAuthBound){
   archiveAuthBound=true;
-  archiveSupabase.auth.onAuthStateChange((_event,session)=>{
-   window.setTimeout(async()=>{
-    await refreshArchiveAdmin(session);
-    if(newTransmissionButton){newTransmissionButton.hidden=!archiveAdmin;newTransmissionButton.disabled=!archiveAdmin;}
-    if(hasArchiveIndex){
-     await loadTransmissionRecords();
-     render();
-     syncFavoriteControls();
-    }
-    // Refresh permissions without rebuilding an open chamber or discarding editor state.
-    const chamberEditButton=recordChamber?.querySelector('.ha-chamber-edit');
-    if(chamberEditButton)chamberEditButton.hidden=!archiveAdmin;
-   },0);
+  window.VHAGitHub.onAuthStateChange(async(_event,session)=>{
+   await refreshArchiveAdmin(session);
+   if(hasArchiveIndex){
+    await loadArchiveFavorites();
+    await loadTransmissionRecords();
+    render();
+    syncFavoriteControls();
+   }
+   const chamberEditButton=recordChamber?.querySelector('.ha-chamber-edit');
+   if(chamberEditButton)chamberEditButton.hidden=!archiveAdmin||!archiveWriteReady;
   });
  }
  if(hasArchiveIndex){
@@ -1613,7 +1615,6 @@ async function initArchiveFeatures(){
   openRequestedRecordFromUrl();
  }
 }
-
 function makeFavoriteMark(record){
  const mark=makeChamberNode('span','ha-favorite-mark');mark.dataset.haFavoriteMark=String(record.id);mark.hidden=!favoriteRecordIds.has(String(record.id));mark.setAttribute('aria-hidden','true');
  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 40 40');svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');
@@ -1724,7 +1725,7 @@ window.addEventListener('VHA_OPEN_EXISTING_TRANSMISSION',async event=>{
   await ensureStandaloneTransmissionRecords();
   const record=records.find(item=>item.source_type==='transmission'&&item.slug===slug);
   if(!record)throw new Error('This Transmission is unavailable. It may have been unpublished or removed.');
-  if(event.detail?.edit&&!archiveAdmin)throw new Error('CMS ADMIN ACCESS COULD NOT BE CONFIRMED. PLEASE SIGN IN AGAIN.');
+  if(event.detail?.edit&&(!archiveAdmin||!archiveWriteReady))throw new Error('THE GITHUB-BACKED EDITOR IS NOT YET ENABLED.');
   openArchiveRecordChamber(record,trigger,Boolean(event.detail?.edit));
  }catch(error){
   console.error('The shared Transmission chamber could not be opened:',error);
