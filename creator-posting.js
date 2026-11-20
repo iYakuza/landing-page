@@ -158,7 +158,7 @@
         await loadScript('/landing-page/cms/github-client.js?v=20261120-store-2', () => Boolean(window.VHAGitHub));
       }
       const session = await window.VHAGitHub.restoreSession();
-      isCreator = Boolean(session?.user && String(session.user.login || '').toLowerCase() === 'iyakuza' && window.VHA_GITHUB_EDITOR_READY === true);
+      isCreator = Boolean(session?.user && String(session.user.login || '').toLowerCase() === 'iyakuza');
       if (!authBound) {
         authBound = true;
         window.VHAGitHub.onAuthStateChange(() => {
