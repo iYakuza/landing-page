@@ -1579,9 +1579,10 @@ async function createHumanArchiveTransmission(trigger){
 async function initArchiveFeatures(){
  if(!window.VHAGitHub||!window.VHACMSStore)throw new Error('The GitHub CMS modules are unavailable.');
  await refreshArchiveAdmin();
+ archivePublicHeadSha=archiveAdmin?await window.VHAGitHub.getBranchHead('public'):null;
  if(newTransmissionButton){
-  newTransmissionButton.hidden=true;
-  newTransmissionButton.disabled=true;
+  newTransmissionButton.hidden=!archiveAdmin||!archiveWriteReady;
+  newTransmissionButton.disabled=!archiveAdmin||!archiveWriteReady;
   if(!newTransmissionButton.dataset.githubHandlerBound){
    newTransmissionButton.dataset.githubHandlerBound='true';
    newTransmissionButton.addEventListener('click',createHumanArchiveTransmission);
@@ -1592,6 +1593,8 @@ async function initArchiveFeatures(){
   archiveAuthBound=true;
   window.VHAGitHub.onAuthStateChange(async(_event,session)=>{
    await refreshArchiveAdmin(session);
+   archivePublicHeadSha=archiveAdmin?await window.VHAGitHub.getBranchHead('public'):null;
+   if(newTransmissionButton){newTransmissionButton.hidden=!archiveAdmin||!archiveWriteReady;newTransmissionButton.disabled=!archiveAdmin||!archiveWriteReady;}
    if(hasArchiveIndex){
     await loadArchiveFavorites();
     await loadTransmissionRecords();
