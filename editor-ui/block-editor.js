@@ -25,6 +25,7 @@
   function safeEditorMediaURL(value, hosts) {
     const raw = String(value || '').trim();
     try {
+      if (raw.startsWith('media/') && !raw.includes('..') && !raw.includes('?') && !raw.includes('#') && !raw.includes(String.fromCharCode(92))) return new URL('/landing-page/' + raw, window.location.origin).href;
       const url = new URL(raw, window.location.href);
       if (url.protocol === 'blob:' && url.origin === window.location.origin) return url.href;
       if (url.origin === window.location.origin && url.pathname.startsWith('/landing-page/media/') &&
