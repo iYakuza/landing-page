@@ -1465,7 +1465,7 @@ function openArchiveRecordChamber(record,trigger,openInEditor=false){
  try{
   dialog.showModal();
   if(openInEditor){
-   if(!archiveAdmin||!archiveSupabase||!archiveUserId)throw new Error('ADMIN SESSION REQUIRED');
+   if(!archiveAdmin||!archiveWriteReady||!archiveUserId)throw new Error('GITHUB OWNER SESSION REQUIRED');
    const grid=dialog.querySelector('.ha-chamber-grid');
    const status=dialog.querySelector('.ha-chamber-share-status');
    const editButton=dialog.querySelector('.ha-chamber-edit');
@@ -1631,7 +1631,7 @@ window.__vhaArchiveChamberControllerLoaded=true;
 window.addEventListener('VHA_OPEN_NEW_TRANSMISSION',async event=>{
  try{
   await window.__vhaArchiveChamberReady;
-  if(!archiveAdmin||!archiveSupabase||!archiveUserId){
+  if(!archiveAdmin||!archiveWriteReady||!archiveUserId){
    console.warn('New Transmission was requested without an active archive administrator session.');
    return;
   }
