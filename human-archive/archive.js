@@ -15,7 +15,7 @@ const transmissionCategories=['HUMAN ARCHIVE','THE AWAKENING','THE DESCENT','THE
 let chamberRecordId=null;
 const SUPABASE_URL='https://oeyxsqocldlovhsmzcjw.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-let archiveSupabase=null,archiveAdmin=false,archiveUserId=null,archiveAuthBound=false,archiveWriteReady=false;
+let archiveSupabase=null,archiveAdmin=false,archiveUserId=null,archiveAuthBound=false,archiveWriteReady=false,archivePublicHeadSha=null;
 let standaloneTransmissionRecordsPromise=null;
 let favoriteRecordIds=new Set(),favoriteSaveError=false,recordStructureOverrides=new Map(),privateMediaUrlToPath=new Map();
 let mediaHashByPath=new Map();
@@ -1549,6 +1549,7 @@ function createHumanArchiveTransmission(trigger){
 async function initArchiveFeatures(){
  if(!window.VHAGitHub||!window.VHACMSStore)throw new Error('The GitHub CMS modules are unavailable.');
  await refreshArchiveAdmin();
+ archivePublicHeadSha=await window.VHAGitHub.getBranchHead('public');
  if(newTransmissionButton){
   newTransmissionButton.hidden=true;
   newTransmissionButton.disabled=true;
@@ -1562,6 +1563,7 @@ async function initArchiveFeatures(){
   archiveAuthBound=true;
   window.VHAGitHub.onAuthStateChange(async(_event,session)=>{
    await refreshArchiveAdmin(session);
+   archivePublicHeadSha=await window.VHAGitHub.getBranchHead('public');
    if(hasArchiveIndex){
     await loadArchiveFavorites();
     await loadTransmissionRecords();
