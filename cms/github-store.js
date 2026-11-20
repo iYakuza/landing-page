@@ -74,7 +74,8 @@
     const path = privatePath('drafts/transmissions/' + draftId + '.json');
     const head = await currentHead('private') || await github().initializePrivateRepository();
     if (expectedHeadSha && head !== expectedHeadSha) throw new Error('The private CMS repository changed. Reload before saving.');
-    const value = { ...draft, draft_id: draftId, revision: Number(draft.revision || 0) + 1, updated_at: new Date().toISOString() };
+    const { _path, _sha, _repoCommitSha, commitSha, ...draftData } = draft;
+    const value = { ...draftData, draft_id: draftId, revision: Number(draft.revision || 0) + 1, updated_at: new Date().toISOString() };
     const result = await write('private', [{ path, content: json(value) }], 'Save Transmission draft ' + draftId, head);
     return { draft: value, commitSha: result.commitSha };
   }
