@@ -1,0 +1,243 @@
+name: One-time Preview T-0001 content reconciliation
+
+on:
+  push:
+    branches:
+      - recovery/supabase-content-export-20261119
+    paths:
+      - .github/workflows/reconcile-preview-t1.yml
+
+permissions:
+  contents: write
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the recovery branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Transfer verified T-0001 content and media from isolated Preview
+        env:
+          PREVIEW_BASE: https://raw.githubusercontent.com/iYakuza/landing-page-preview/main
+          TARGET_BRANCH: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          import copy
+          import hashlib
+          import json
+          import os
+          import re
+          import urllib.request
+          from pathlib import Path
+
+          preview_base = os.environ["PREVIEW_BASE"]
+          target_branch = os.environ["TARGET_BRANCH"]
+
+          expected_assets = {
+              "media/transmissions/T-0001/3bf2c4f2-7a59-4a4e-a71e-6c7956c23234-Purtata-corporatris-tilor-video.mp4": {
+                  "size": 12981931,
+                  "git_blob_sha": "8b5191309fb8275a983e0a8fda676b9c593027b4",
+                  "type": "video",
+                  "mime_type": "video/mp4",
+              },
+              "media/transmissions/T-0001/ae2ae42b-1f30-4ae3-bdbb-3884857ee3a9-Purtata-corporatris-tilor-lyrics.png": {
+                  "size": 3487332,
+                  "git_blob_sha": "21587a36e6e803cf02928f4f38ba1ab00ee1ea48",
+                  "type": "image",
+                  "mime_type": "image/png",
+              },
+              "media/transmissions/T-0001/b793521b-5bb5-404b-82ba-598a64cc46f3-Purtata-corporatris-tilor-mp3.mp3": {
+                  "size": 2722328,
+                  "git_blob_sha": "3d829c8ed53a2e13aec10f8993eadf115b2bfc4b",
+                  "type": "audio",
+                  "mime_type": "audio/mpeg",
+              },
+          }
+
+          def fetch_json(path):
+              request = urllib.request.Request(
+                  f"{preview_base}/{path}",
+                  headers={"User-Agent": "landing-page-preview-reconciliation/1.0"},
+              )
+              with urllib.request.urlopen(request, timeout=60) as response:
+                  return json.loads(response.read().decode("utf-8"))
+
+          def normalize_html(value):
+              return str(value or "").replace("/landing-page-preview/", "")
+
+          def git_blob_sha(data):
+              header = f"blob {len(data)}\0".encode("ascii")
+              return hashlib.sha1(header + data).hexdigest()
+
+          preview_transmissions = fetch_json("content/transmissions.json")
+          preview_archive = fetch_json("content/human-archive.json")
+          preview_post = next(
+              (item for item in preview_transmissions.get("records", [])
+               if item.get("id") == "T-0001" and item.get("archive_record_id") == 3008),
+              None,
+          )
+          preview_structure = next(
+              (item for item in preview_archive.get("editor_structures", [])
+               if str(item.get("record_id")) == "3008"),
+              None,
+          )
+          if not preview_post or not preview_structure:
+              raise SystemExit("Preview does not contain the expected T-0001 / record 3008.")
+
+          normalized_body = normalize_html(preview_post.get("content_html", ""))
+          normalized_blocks = [
+              {**block, "html": normalize_html(block.get("html", ""))}
+              for block in preview_structure.get("blocks", [])
+          ]
+          searchable_html = normalized_body + "\n" + "\n".join(
+              block.get("html", "") for block in normalized_blocks
+          )
+
+          # Only the three verified assets used by the current T-0001 body are
+          # eligible. The obsolete Bing Bong attachment is deliberately omitted.
+          if "Bing-Bong-I-Am-a-Spoon.mp3" in searchable_html:
+              raise SystemExit("The obsolete Bing Bong asset is unexpectedly referenced in the Preview body.")
+
+          referenced_assets = {}
+          for item in preview_post.get("media_items", []):
+              raw_path = str(item.get("path") or item.get("src") or item.get("url") or "")
+              path = raw_path.lstrip("/")
+              if path.startswith("landing-page-preview/"):
+                  path = path[len("landing-page-preview/"):]
+              if path in expected_assets and path in searchable_html:
+                  referenced_assets[path] = item
+
+          if set(referenced_assets) != set(expected_assets):
+              raise SystemExit(
+                  "Preview T-0001 media references do not match the expected verified assets. "
+                  f"Found: {sorted(referenced_assets)}"
+              )
+
+          for path, expected in expected_assets.items():
+              request = urllib.request.Request(
+                  f"{preview_base}/{path}",
+                  headers={"User-Agent": "landing-page-preview-reconciliation/1.0"},
+              )
+              with urllib.request.urlopen(request, timeout=180) as response:
+                  data = response.read()
+              actual_sha = git_blob_sha(data)
+              if len(data) != expected["size"] or actual_sha != expected["git_blob_sha"]:
+                  raise SystemExit(
+                      f"Checksum/size mismatch for {path}: "
+                      f"size={len(data)} sha={actual_sha}"
+                  )
+              destination = Path(path)
+              destination.parent.mkdir(parents=True, exist_ok=True)
+              destination.write_bytes(data)
+              print(f"Verified and copied {path} ({len(data)} bytes, {actual_sha})")
+
+          local_media_items = []
+          for path, expected in expected_assets.items():
+              source_item = copy.deepcopy(referenced_assets[path])
+              filename = path.split("/")[-1]
+              source_item.update({
+                  "name": source_item.get("name") or filename,
+                  "path": path,
+                  "src": path,
+                  "url": path,
+                  "type": expected["type"],
+                  "mime_type": expected["mime_type"],
+                  "storage": "github-public",
+                  "status": "available",
+              })
+              source_item.pop("source_url", None)
+              local_media_items.append(source_item)
+
+          transmissions_path = Path("content/transmissions.json")
+          transmissions = json.loads(transmissions_path.read_text(encoding="utf-8"))
+          existing_post = next(
+              (item for item in transmissions.get("records", []) if item.get("id") == "T-0001"),
+              None,
+          )
+          if not existing_post or existing_post.get("archive_record_id") != 3008:
+              raise SystemExit("Recovery branch does not contain the expected T-0001 / record 3008.")
+
+          # Keep the production lineage/timestamps and unknown legacy metadata;
+          # import only the owner's confirmed Preview content and media contract.
+          for field in (
+              "title", "slug", "status", "excerpt", "category",
+              "updated_at", "media_width", "content_html",
+          ):
+              existing_post[field] = (
+                  normalized_body if field == "content_html"
+                  else copy.deepcopy(preview_post.get(field, existing_post.get(field)))
+              )
+          existing_post["media_items"] = local_media_items
+          existing_post["media_url"] = local_media_items[0]["url"]
+          existing_post["media_path"] = local_media_items[0]["path"]
+          existing_post["media_type"] = local_media_items[0]["type"]
+          # created_at and published_at deliberately remain the production values.
+
+          archive_path = Path("content/human-archive.json")
+          archive = json.loads(archive_path.read_text(encoding="utf-8"))
+          existing_structure = next(
+              (item for item in archive.get("editor_structures", [])
+               if str(item.get("record_id")) == "3008"),
+              None,
+          )
+          if not existing_structure:
+              raise SystemExit("Recovery branch does not contain Human Archive structure 3008.")
+
+          existing_structure["transmission_body"] = normalized_body
+          existing_structure["blocks"] = normalized_blocks
+          existing_structure["prompt_style"] = copy.deepcopy(preview_structure.get("prompt_style", ""))
+          existing_structure["lyrics_style"] = copy.deepcopy(preview_structure.get("lyrics_style", ""))
+          existing_structure["output_text"] = copy.deepcopy(preview_structure.get("output_text", ""))
+          existing_structure["updated_at"] = preview_structure.get("updated_at") or preview_post.get("updated_at")
+
+          output_media = {"image": [], "audio": [], "video": []}
+          for item in local_media_items:
+              kind = item["type"]
+              output_media[kind].append({
+                  "id": item.get("id") or item["path"],
+                  "name": item["name"],
+                  "url": item["url"],
+                  "path": item["path"],
+                  "type": kind,
+                  "mime_type": item["mime_type"],
+                  "storage": "github-public",
+              })
+          existing_structure["output_media"] = output_media
+
+          if "Bing-Bong-I-Am-a-Spoon.mp3" in json.dumps(existing_post["media_items"]):
+              raise SystemExit("The obsolete Bing Bong item must not enter the production media manifest.")
+          for path in expected_assets:
+              if path not in normalized_body:
+                  raise SystemExit(f"The reconciled transmission body does not reference {path}.")
+
+          transmissions_path.write_text(
+              json.dumps(transmissions, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          archive_path.write_text(
+              json.dumps(archive, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          print("Reconciled T-0001 / record 3008. Preserved production created_at/published_at and structure metadata.")
+          print("Production media manifest contains exactly the three verified body assets; obsolete Bing Bong excluded.")
+          PY
+
+      - name: Commit reconciled T-0001 content and verified assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/transmissions.json content/human-archive.json media/transmissions/T-0001
+          if git diff --cached --quiet; then
+            echo "No Preview reconciliation changes were needed."
+            exit 0
+          fi
+          git commit -m "content: reconcile verified Preview T-0001 edits"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
