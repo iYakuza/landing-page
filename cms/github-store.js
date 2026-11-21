@@ -78,6 +78,53 @@
     }
     return [...references].map(([path, type]) => ({ path, type }));
   }
+  function buildPublishedMediaItems(existingItems, htmlDocuments, availablePaths) {
+    const mediaByPath = new Map();
+    const preservedMedia = [];
+    (Array.isArray(existingItems) ? existingItems : []).forEach(item => {
+      const path = [item?.path, item?.src, item?.url].map(publicMediaPath).find(Boolean) || '';
+      if (!path) {
+        preservedMedia.push(item);
+        return;
+      }
+      if (!availablePaths.has(path)) {
+        // Keep intentionally pending legacy references in the canonical data;
+        // they must not be advertised as available until their bytes are recovered.
+        if (!mediaByPath.has(path)) mediaByPath.set(path, item);
+        return;
+      }
+      const type = mediaTypeForPath(path, item.type || '');
+      mediaByPath.set(path, {
+        ...item,
+        name: item.name || item.title || path.split('/').pop(),
+        type: type || item.type || 'file',
+        mime_type: item.mime_type || mimeTypeForPath(path, type),
+        path,
+        src: path,
+        url: path,
+        storage: 'github-public',
+        status: 'available'
+      });
+    });
+    for (const html of (Array.isArray(htmlDocuments) ? htmlDocuments : [])) {
+      for (const reference of getPublicMediaReferencesFromHtml(html)) {
+        if (!availablePaths.has(reference.path) || mediaByPath.has(reference.path)) continue;
+        const name = reference.path.split('/').pop();
+        mediaByPath.set(reference.path, {
+          name,
+          type: reference.type,
+          mime_type: mimeTypeForPath(reference.path, reference.type),
+          path: reference.path,
+          src: reference.path,
+          url: reference.path,
+          storage: 'github-public',
+          status: 'available'
+        });
+      }
+    }
+    return [...mediaByPath.values(), ...preservedMedia];
+  }
+
   const privatePath = suffix => CONFIG.privateRoot + '/' + suffix;
   const readJson = async (repo, path, fallback, options = {}) => {
     const file = await github().readJson(repo, path, options);
@@ -463,55 +510,11 @@
     const publicFiles = await github().listFiles('public', 'media', { atCommit: publicHead });
     const availablePaths = new Set(publicFiles.map(item => item.path));
     mediaChanges.forEach(change => availablePaths.add(change.path));
-    const mediaByPath = new Map();
-    const preservedMedia = [];
-    post.media_items.forEach(item => {
-      const path = [item?.path, item?.src, item?.url].map(publicMediaPath).find(Boolean) || '';
-      if (!path) {
-        preservedMedia.push(item);
-        return;
-      }
-      if (!availablePaths.has(path)) {
-        // Keep intentionally pending legacy references in the canonical data;
-        // they must not be advertised as available until their bytes are recovered.
-        if (!mediaByPath.has(path)) mediaByPath.set(path, item);
-        return;
-      }
-      const type = mediaTypeForPath(path, item.type || '');
-      const normalized = {
-        ...item,
-        name: item.name || item.title || path.split('/').pop(),
-        type: type || item.type || 'file',
-        mime_type: item.mime_type || mimeTypeForPath(path, type),
-        path,
-        src: path,
-        url: path,
-        storage: 'github-public',
-        status: 'available'
-      };
-      mediaByPath.set(path, normalized);
-    });
-    const blockMediaReferences = [
-      ...getPublicMediaReferencesFromHtml(post.content_html),
-      ...blocks.flatMap(block => getPublicMediaReferencesFromHtml(block.html || ''))
-    ];
-    for (const reference of blockMediaReferences) {
-      if (!availablePaths.has(reference.path)) continue;
-      if (!mediaByPath.has(reference.path)) {
-        const name = reference.path.split('/').pop();
-        mediaByPath.set(reference.path, {
-          name,
-          type: reference.type,
-          mime_type: mimeTypeForPath(reference.path, reference.type),
-          path: reference.path,
-          src: reference.path,
-          url: reference.path,
-          storage: 'github-public',
-          status: 'available'
-        });
-      }
-    }
-    post.media_items = [...mediaByPath.values(), ...preservedMedia];
+    post.media_items = buildPublishedMediaItems(
+      post.media_items,
+      [post.content_html, ...blocks.map(block => block.html || '')],
+      availablePaths
+    );
     post.media_url = post.media_items[0]?.url || '';
     post.media_path = post.media_items[0]?.path || '';
     post.media_type = post.media_items[0]?.type || '';
@@ -675,6 +678,7 @@
   window.VHACMSStore = Object.freeze({
     config: CONFIG,
     getPublicMediaReferencesFromHtml,
+    buildPublishedMediaItems,
     getPublicCollections,
     savePublicJson,
     listDrafts,
