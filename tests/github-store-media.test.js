@@ -8,6 +8,7 @@ const test = require('node:test');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'cms', 'github-store.js'), 'utf8');
 const archiveSource = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'archive.js'), 'utf8');
+const archiveHtml = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'index.html'), 'utf8');
 const context = vm.createContext({ window: {}, URL });
 vm.runInContext(source, context, { filename: 'cms/github-store.js' });
 
@@ -337,4 +338,15 @@ test('creates a new Transmission in one atomic sequence-and-draft commit', async
   assert.equal(JSON.parse(draftChange.content).record_id, 3013);
   assert.equal(JSON.parse(draftChange.content).revision, 2);
   assert.equal(calls.some(call => call.operation === 'head' && call.key === 'public'), false);
+});
+
+
+test('Human Archive CSP permits private draft image and media Blob URLs', () => {
+  const match = archiveHtml.match(/<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]+content=["']([^"']+)["']/i);
+  assert.ok(match, 'Human Archive must define its content security policy');
+  const policy = match[1];
+  const imgSrc = policy.match(/(?:^|;)\\s*img-src\\s+([^;]+)/i)?.[1] || '';
+  const mediaSrc = policy.match(/(?:^|;)\\s*media-src\\s+([^;]+)/i)?.[1] || '';
+  assert.match(imgSrc, /(?:^|\\s)blob:(?:\\s|$)/, 'img-src must allow mapped private image Blob URLs');
+  assert.match(mediaSrc, /(?:^|\\s)blob:(?:\\s|$)/, 'media-src must allow mapped private audio/video Blob URLs');
 });
