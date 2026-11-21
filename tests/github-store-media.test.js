@@ -251,18 +251,20 @@ test('republishing an unpublished edit restores structure metadata snapshot', ()
 
 
 test('recognizes only private draft blob URLs mapped to a stored draft path', () => {
-  const helper = archiveSource.match(/function isPrivateDraftBlobUrl\\(raw\\)\\s*\\{[^}]+\\}/);
-  assert.ok(helper, 'archive renderer must define its private draft blob guard');
+  const helperStart = archiveSource.indexOf('function isPrivateDraftBlobUrl(raw){');
+  const helperEnd = archiveSource.indexOf('function markUsed', helperStart);
+  assert.ok(helperStart >= 0 && helperEnd > helperStart, 'archive renderer must define its private draft blob guard');
+  const helper = archiveSource.slice(helperStart, helperEnd).trim();
 
   const mapped = 'blob:https://iyakuza.github.io/landing-page-preview/allowed-upload';
   const unmapped = 'blob:https://iyakuza.github.io/landing-page-preview/not-in-private-store';
-  const context = vm.createContext({ privateMediaUrlToPath: new Set([mapped]) });
-  vm.runInContext(helper[0] + '\\nthis.isPrivateDraftBlobUrl = isPrivateDraftBlobUrl;', context);
+  const helperContext = vm.createContext({ privateMediaUrlToPath: new Set([mapped]) });
+  vm.runInContext(helper + '\\nthis.isPrivateDraftBlobUrl = isPrivateDraftBlobUrl;', helperContext);
 
-  assert.equal(context.isPrivateDraftBlobUrl(mapped), true);
-  assert.equal(context.isPrivateDraftBlobUrl(unmapped), false);
-  assert.equal(context.isPrivateDraftBlobUrl('https://example.com/audio.mp3'), false);
-  assert.equal(context.isPrivateDraftBlobUrl('media/transmissions/T-0010/audio.mp3'), false);
+  assert.equal(helperContext.isPrivateDraftBlobUrl(mapped), true);
+  assert.equal(helperContext.isPrivateDraftBlobUrl(unmapped), false);
+  assert.equal(helperContext.isPrivateDraftBlobUrl('https://example.com/audio.mp3'), false);
+  assert.equal(helperContext.isPrivateDraftBlobUrl('media/transmissions/T-0010/audio.mp3'), false);
 });
 
 test('audio, video and source elements accept mapped private draft blobs', () => {
@@ -273,8 +275,66 @@ test('audio, video and source elements accept mapped private draft blobs', () =>
 
   const mediaBranch = archiveSource.slice(audioStart, sourceStart);
   const sourceBranch = archiveSource.slice(sourceStart, iframeStart);
-  assert.match(mediaBranch, /const privateDraftBlob=isPrivateDraftBlobUrl\\(raw\\)/);
-  assert.match(mediaBranch, /privateDraftBlob\\|\\|/);
-  assert.match(sourceBranch, /const privateDraftBlob=isPrivateDraftBlobUrl\\(raw\\)/);
-  assert.match(sourceBranch, /source\\.src=privateDraftBlob\\?raw:localMediaUrl\\(item\\)/);
+  assert.ok(mediaBranch.includes('const privateDraftBlob=isPrivateDraftBlobUrl(raw);'));
+  assert.ok(mediaBranch.includes('privateDraftBlob||'));
+  assert.ok(sourceBranch.includes('const privateDraftBlob=isPrivateDraftBlobUrl(raw);'));
+  assert.ok(sourceBranch.includes('source.src=privateDraftBlob?raw:localMediaUrl(item)'));
+});
+
+test('creates a new Transmission in one atomic sequence-and-draft commit', async () => {
+  const calls = [];
+  const privateHead = 'private-head-before';
+  const mockGitHub = {
+    getBranchHead: async key => {
+      calls.push({ operation: 'head', key });
+      return key === 'private' ? privateHead : 'public-head';
+    },
+    readJson: async (key, filePath, options) => {
+      calls.push({ operation: 'read-json', key, path: filePath, atCommit: options?.atCommit });
+      return { data: { transmission_number: 9, archive_record_id: 3012 } };
+    },
+    commitFiles: async (key, changes, options) => {
+      calls.push({ operation: 'commit', key, changes, options });
+      return { commitSha: 'private-head-after' };
+    },
+    initializePrivateRepository: async () => privateHead
+  };
+  const apiWindow = { VHAGitHub: mockGitHub };
+  const apiContext = vm.createContext({
+    window: apiWindow,
+    URL,
+    crypto: { randomUUID: () => 'test-draft-id' }
+  });
+  vm.runInContext(source, apiContext);
+
+  const draft = await apiWindow.VHACMSStore.createDraft({
+    title: 'New Transmission',
+    category: 'THE TRANSFORMATION'
+  }, 'new');
+
+  assert.equal(draft.record_id, 3013);
+  assert.equal(draft.post_id, 'T-0010');
+  assert.equal(draft.revision, 2);
+  assert.equal(draft.base_public_commit, null);
+  assert.equal(draft._repoCommitSha, 'private-head-after');
+
+  const commits = calls.filter(call => call.operation === 'commit');
+  assert.equal(commits.length, 1);
+  assert.equal(commits[0].key, 'private');
+  assert.equal(commits[0].options.expectedHeadSha, privateHead);
+  assert.equal(commits[0].changes.length, 2);
+
+  const sequenceChange = commits[0].changes.find(change => change.path.endsWith('/sequences.json'));
+  const draftChange = commits[0].changes.find(change => change.path.endsWith('/test-draft-id.json'));
+  assert.ok(sequenceChange);
+  assert.ok(draftChange);
+  assert.deepEqual(JSON.parse(sequenceChange.content), {
+    transmission_number: 10,
+    archive_record_id: 3013,
+    updated_at: JSON.parse(sequenceChange.content).updated_at
+  });
+  assert.equal(JSON.parse(draftChange.content).post_id, 'T-0010');
+  assert.equal(JSON.parse(draftChange.content).record_id, 3013);
+  assert.equal(JSON.parse(draftChange.content).revision, 2);
+  assert.equal(calls.some(call => call.operation === 'head' && call.key === 'public'), false);
 });
