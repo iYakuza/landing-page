@@ -1,0 +1,631 @@
+(() => {
+  const list = document.getElementById('posts-list');
+  const search = document.getElementById('post-search');
+  const categoryFilter = document.getElementById('category-filter');
+  const yearFilter = document.getElementById('post-year');
+  const controls = document.getElementById('posts-controls');
+  const count = document.getElementById('post-count');
+  const requestedSlug = new URLSearchParams(window.location.search).get('post');
+  const requestedMovement = String(document.body.dataset.movement || '').trim().toUpperCase();
+  const PAGE_SIZE=100, loadMoreButton=document.getElementById('posts-load-more');
+  let postsOffset=0,postsHasMore=false;
+  const isCommunityArchive=document.body.dataset.archive==='community';
+  let posts = [];
+  const availableMediaPaths = new Set();
+  let canRedesignPosts = false;
+  const safe = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const slugify = value => String(value||'').normalize('NFKD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,180);
+  const prettyDate = value => {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+  };
+  function safeLink(value){
+    try{
+      const url=new URL(String(value||''));
+      if(url.protocol==='https:'&&url.hostname)return url.href;
+      if(url.protocol==='mailto:'&&url.pathname)return url.href;
+    }catch{}
+    return '';
+  }
+  function cleanHtml(html){
+    const doc=new DOMParser().parseFromString(String(html||''),'text/html');
+    const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','IMG','VIDEO','AUDIO','DIV','SECTION','ASIDE','DETAILS','SUMMARY']);
+    function clean(node){[...node.childNodes].forEach(child=>{
+      if(child.nodeType===Node.TEXT_NODE)return;
+      if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
+      if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
+      const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
+      const originalClass=(child.getAttribute('class')||'').split(/\s+/).filter(name=>['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response'].includes(name)).join(' ');
+      const originalSrc=['IMG','VIDEO','AUDIO'].includes(child.tagName)?validMediaUrl(child.getAttribute('src')||''):'';
+      const originalAlt=child.tagName==='IMG'?(child.getAttribute('alt')||''):'';
+      [...child.attributes].forEach(a=>child.removeAttribute(a.name));
+      if(originalClass)child.setAttribute('class',originalClass); 
+      const safeHref=child.tagName==='A'?safeLink(originalHref):'';
+      if(['IMG','VIDEO','AUDIO'].includes(child.tagName)&&!originalSrc){child.remove();return;}
+      if(child.tagName==='IMG'){child.setAttribute('src',originalSrc);child.setAttribute('alt',originalAlt);child.setAttribute('loading','lazy');child.style.maxWidth='100%';child.style.height='auto';}
+      if(['VIDEO','AUDIO'].includes(child.tagName)){child.setAttribute('src',originalSrc);child.setAttribute('controls','');child.setAttribute('preload','metadata');if(child.tagName==='VIDEO'){child.style.maxWidth='100%';child.style.height='auto';}}
+        if(child.tagName==='A'&&safeHref){
+        child.setAttribute('href',safeHref);child.setAttribute('target','_blank');child.setAttribute('rel','noopener noreferrer');
+      }
+      clean(child);
+    });}
+    clean(doc.body);return doc.body.innerHTML;
+  }
+  function validMediaUrl(value){
+    try{
+      const raw=String(value||'').trim();
+      if(raw.startsWith('media/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return availableMediaPaths.has(raw)?'/landing-page/'+raw:'';
+      if(raw.startsWith('/landing-page/media/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return availableMediaPaths.has(raw.slice('/landing-page/'.length))?raw:'';
+      if(raw.startsWith('/landing-page/posts/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw.replace('/landing-page/posts/imported/','/landing-page/transmissions/imported/');
+      if(raw.startsWith('/landing-page/transmissions/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
+      const url=new URL(raw);
+      const wordpressHost=['emanuelstefancu.wordpress.com','i0.wp.com'].includes(url.hostname);
+      const extension=url.pathname.split('.').pop().toLowerCase();
+      const wordpressMedia=wordpressHost&&url.pathname.includes('/wp-content/uploads/')&&['jpg','jpeg','png','webp','gif','avif'].includes(extension);
+      return url.protocol==='https:'&&wordpressMedia?url.href:'';
+    }catch{return '';}
+  }
+  const MOVEMENTS=['THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'];
+  const CATEGORY_ORDER=[...MOVEMENTS,'UNASSIGNED','COMMUNITY SIGNAL'];
+  const expandedCategories=new Set(CATEGORY_ORDER);
+  let favoriteRecordIds=new Set();
+  let favoriteSaveError=false;
+  function displayCategory(value){
+    const category=String(value||'').trim().toUpperCase();
+    return MOVEMENTS.includes(category)?category:(category==='HUMAN ARCHIVE'?'HUMAN ARCHIVE':(category.startsWith('COMMUNITY')?'COMMUNITY SIGNAL':'UNASSIGNED'));
+  }
+  function renderCategories(){
+    if(!categoryFilter)return;
+    const selected=categoryFilter.value;
+    const categories=isCommunityArchive?['COMMUNITY SIGNAL']:[...MOVEMENTS,'UNASSIGNED'];
+    categoryFilter.innerHTML='<option value="">ALL CATEGORIES</option>'+categories.map(c=>'<option value="'+safe(c)+'">'+safe(c)+'</option>').join('');
+    categoryFilter.value=categories.includes(selected)?selected:'';
+    const label=categoryFilter.closest('label');if(label)label.hidden=Boolean(requestedMovement)||isCommunityArchive;
+  }
+  function postDate(post){const stamp=String(post.published_at||post.created_at||'');return /^\d{4}-\d{2}-\d{2}/.test(stamp)?stamp.slice(0,10):'UNDATED';}
+  function postYear(post){const date=postDate(post);return date==='UNDATED'?'UNDATED':date.slice(0,4);}
+  function renderYears(){
+    if(!yearFilter)return;
+    const selected=yearFilter.value;
+    const years=[...new Set(posts.map(postYear).filter(value=>value!=='UNDATED'))].sort((a,b)=>Number(b)-Number(a));
+    yearFilter.innerHTML='<option value="">ALL YEARS</option>'+years.map(value=>'<option value="'+safe(value)+'">'+safe(value)+'</option>').join('');
+    yearFilter.value=years.includes(selected)?selected:'';
+  }
+  function renderPostMedia(post){
+    const items=Array.isArray(post.media_items)&&post.media_items.length?post.media_items.filter(item=>item&&typeof item.url==='string'):(post.media_url?[{url:post.media_url,type:post.media_type||'audio'}]:[]);
+    if(!items.length)return '';
+    const width=Math.max(20,Math.min(100,Number(post.media_width)||100));
+    return '<div class="post-media post-media-gallery" style="--post-media-width:'+width+'%">'+items.map((item,i)=>{
+      const url=validMediaUrl(item.url);if(!url)return '';
+      const type=item.type||item.media_type||'audio';
+      const fallback=url.includes('emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg')?'https://i0.wp.com/emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg?w=1024':'';
+      const label='Media '+(i+1)+' of '+items.length;
+      const content=type==='image'?'<a class="post-image-open" href="'+safe(url)+'" target="_blank" rel="noopener noreferrer" aria-label="Open full-size image: '+safe(post.title)+'"><img src="'+safe(url)+'"'+(fallback?' data-fallback-src="'+safe(fallback)+'"':'')+' alt="'+safe(post.title)+' — '+label+'" loading="lazy"></a>':type==='video'?'<video src="'+safe(url)+'" controls preload="none"></video>':'<audio src="'+safe(url)+'" controls preload="none"></audio>';
+      return '<div class="post-media-item">'+content+'</div>';
+    }).join('')+'</div>';
+  }
+  function renderPostRecordCard(post){
+    const category=displayCategory(post.category);
+    const movementSlugs={'THE AWAKENING':'the-awakening','THE DESCENT':'the-descent','THE RECONNECTION':'the-reconnection','THE TRANSFORMATION':'the-transformation','THE RETURN':'the-return'};
+    const href='/landing-page/transmissions/'+(movementSlugs[category]||'')+'/';
+    const categoryLink=movementSlugs[category]?'<a class="post-category" href="'+href+'" aria-label="Browse '+safe(category)+'">'+safe(category)+'</a>':'<span class="post-category">'+safe(category)+'</span>';
+    const media=renderPostMedia(post),body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
+    const isSuno=/class=["']suno-post-layout["']/.test(post.content_html||'');
+    const sections=(isSuno||/<details\b/i.test(post.content_html||''))?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
+    const date=postDate(post),year=postYear(post),archiveId=Number(post.archive_record_id),hasId=Number.isSafeInteger(archiveId)&&archiveId>0;
+    const recordId=hasId?String(archiveId):String(post.id||'UNKNOWN');
+    const code=hasId?'HA-'+year+'-'+String(archiveId).padStart(4,'0'):'HA-'+year+'-'+String(post.slug||'record').trim();
+    const favoriteId=hasId?String(archiveId):'',isFavorite=favoriteId&&favoriteRecordIds.has(favoriteId);
+    const mark=hasId?'<span class="ha-favorite-mark" data-ha-favorite-mark="'+favoriteId+'"'+(isFavorite?'':' hidden')+' aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><path d="M20 1 24.8 14.2 39 15.2 28 24.1 31.5 38 20 30.4 8.5 38 12 24.1 1 15.2 15.2 14.2Z"></path></svg></span>':'';
+    const kind=post.community?'COMMUNITY SIGNAL':'TRANSMISSION'+(post.status==='draft'?' // DRAFT':'');
+    const entry='<button type="button" class="ha-entry post-record-entry" data-post-toggle="'+safe(post.slug)+'" aria-expanded="false" aria-controls="post-content-'+safe(post.slug)+'" aria-label="Read local archive record: '+safe(post.title)+', '+safe(date)+'"><span class="ha-entry-top"><small class="ha-entry-code">'+safe(code)+'</small><small class="ha-entry-id">ID // '+safe(recordId)+'</small></span><strong>'+safe(post.title)+'</strong><span class="ha-entry-bottom"><small>'+safe(date)+' // '+safe(kind)+'</small><span data-post-read-label>READ LOCAL TEXT ↓</span></span>'+mark+'</button>';
+    const chamber=!post.community?'<div class="post-chamber-actions"><button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button><button type="button" class="post-chamber-button post-redesign-button" data-vha-edit-transmission="'+safe(post.slug)+'" aria-label="Redesign '+safe(post.title)+'"'+(canRedesignPosts?'':' hidden')+'>REDESIGN CHAMBER ↗</button></div>':'';
+    const favorite=hasId?'<button type="button" class="ha-favorite-toggle post-record-favorite" data-ha-favorite-id="'+favoriteId+'" aria-pressed="'+String(Boolean(isFavorite))+'" aria-label="'+(isFavorite?'Remove author favourite':'Mark as favourite')+'" title="'+(favoriteSaveError?'SAVE FAILED — ACTIVATE TO RETRY':(isFavorite?'REMOVE AUTHOR FAVOURITE':'MARK AS FAVOURITE'))+'"'+(canRedesignPosts?'':' hidden')+'>'+(isFavorite?'★':'☆')+'</button>':'';
+    const actions='<div class="ha-entry-quick-actions post-record-quick-actions" hidden>'+chamber+favorite+shareActions(post)+'</div>';
+    const excerpt=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
+    const expanded=isSuno?renderSunoGrid(post,media,'',''):media+body;
+    const empty=!post.content_html&&!media?'<p class="ha-empty-record">No local text was captured for this entry.</p>':'';
+    const content='<div class="ha-entry-content post-collapsible post-record-content'+(isSuno?' suno-three-column':'')+'" id="post-content-'+safe(post.slug)+'" hidden><div class="post-record-content-meta">'+categoryLink+sections+'</div>'+excerpt+expanded+empty+'</div>';
+    return '<article class="ha-record-card post-record-card" id="post-'+safe(post.slug)+'" data-record="'+safe(code)+'">'+entry+actions+content+'</article>';
+  }
+  function renderPostPermalink(post){
+    const back='<p class="post-back"><a href="./">← BACK TO THE ARCHIVE</a></p>';
+    const media=renderPostMedia(post);
+    const mediaItems=Array.isArray(post.media_items)&&post.media_items.length?post.media_items.filter(item=>item&&typeof item.url==='string'):(post.media_url?[{url:post.media_url,type:post.media_type||'audio'}]:[]);
+    const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
+    const chamber=!post.community?'<div class="post-chamber-actions"><button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button><button type="button" class="post-chamber-button post-redesign-button" data-vha-edit-transmission="'+safe(post.slug)+'" aria-label="Redesign '+safe(post.title)+'"'+(canRedesignPosts?'':' hidden')+'>REDESIGN CHAMBER ↗</button></div>':'';
+    if(/class=["']suno-post-layout["']/.test(post.content_html||'')){
+      const excerpt=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
+      const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+chamber+'</div>';
+      const titleRow='<div class="suno-post-title-row"><h3>'+safe(post.title)+'</h3><button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button></div>';
+      return renderSunoColumns(post,media,'',excerpt,lead,titleRow,back,'shape-square');
+    }
+    const detail='<div class="post-detail-copy">'+(post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'')+body+'</div>';
+    const detailMedia=media?'<aside class="post-detail-media" aria-label="Transmission media">'+media+'<p class="post-media-caption">TRANSMISSION MEDIA // '+mediaItems.length+' FILE(S)</p></aside>':'';
+    const sections=/<details\b/i.test(post.content_html||'')?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
+    return '<article class="post-card shape-square" id="post-'+safe(post.slug)+'"><div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+sections+chamber+'</div><h3>'+safe(post.title)+'</h3><div class="post-detail-grid">'+detail+detailMedia+'</div>'+shareActions(post)+back+'</article>';
+  }
+  function shareActions(post){
+    const postUrl=new URL(window.location.pathname,window.location.origin);
+    postUrl.searchParams.set('post',post.slug);
+    const url=postUrl.href, encodedUrl=encodeURIComponent(url), encodedTitle=encodeURIComponent(post.title||'Verse After Hours');
+    return '<div class="post-share" aria-label="Share this post">'+
+      '<button type="button" class="post-share-action" data-share-url="'+safe(url)+'" data-share-title="'+safe(post.title||'Verse After Hours')+'">↗ SHARE</button>'+
+      '<button type="button" class="post-share-action" data-copy-share="'+safe(url)+'">COPY LINK</button>'+
+      '<a class="post-share-action" href="https://www.facebook.com/sharer/sharer.php?u='+encodedUrl+'" target="_blank" rel="noopener noreferrer" aria-label="Share on Facebook">FACEBOOK</a>'+
+      '<a class="post-share-action" href="https://twitter.com/intent/tweet?url='+encodedUrl+'&text='+encodedTitle+'" target="_blank" rel="noopener noreferrer" aria-label="Share on X">X</a>'+
+      '<a class="post-share-action" href="https://www.linkedin.com/sharing/share-offsite/?url='+encodedUrl+'" target="_blank" rel="noopener noreferrer" aria-label="Share on LinkedIn">LINKEDIN</a>'+
+      '<a class="post-share-action" href="https://wa.me/?text='+encodedTitle+'%20'+encodedUrl+'" target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp">WHATSAPP</a>'+
+      '<a class="post-share-action" href="mailto:?subject='+encodedTitle+'&body='+encodedUrl+'" aria-label="Share by email">EMAIL</a>'+
+      '</div>';
+  }
+  let imageViewer=null,viewerImage=null,viewerScale=1,viewerReturnFocus=null;
+  function closeImageViewer(){
+    if(!imageViewer)return;
+    imageViewer.hidden=true;
+    document.body.classList.remove('image-viewer-open');
+    viewerImage.removeAttribute('src');
+    viewerScale=1;
+    viewerReturnFocus?.focus?.();
+    viewerReturnFocus=null;
+  }
+  function updateViewerScale(){
+    if(viewerImage)viewerImage.style.transform='scale('+viewerScale+')';
+    const value=imageViewer?.querySelector('[data-viewer-zoom-value]');
+    if(value)value.textContent=Math.round(viewerScale*100)+'%';
+  }
+  function ensureImageViewer(){
+    if(imageViewer)return imageViewer;
+    imageViewer=document.createElement('div');
+    imageViewer.className='post-image-viewer';
+    imageViewer.hidden=true;
+    imageViewer.setAttribute('role','dialog');
+    imageViewer.setAttribute('aria-modal','true');
+    imageViewer.setAttribute('aria-label','Image viewer');
+    imageViewer.innerHTML='<div class="post-image-viewer-stage" data-viewer-backdrop><img class="post-image-viewer-image" alt=""><div class="post-image-viewer-controls" role="toolbar" aria-label="Image controls"><button type="button" data-viewer-zoom-out aria-label="Zoom out" title="Zoom out">−</button><output data-viewer-zoom-value>100%</output><button type="button" data-viewer-zoom-in aria-label="Zoom in" title="Zoom in">+</button><button type="button" data-viewer-zoom-reset aria-label="Reset zoom" title="Reset zoom">RESET</button><button type="button" data-viewer-close aria-label="Close image viewer" title="Close">×</button></div></div>';
+    document.body.appendChild(imageViewer);
+    viewerImage=imageViewer.querySelector('.post-image-viewer-image');
+    imageViewer.addEventListener('click',event=>{
+      if(event.target===imageViewer||event.target.matches('[data-viewer-backdrop]')){closeImageViewer();return;}
+      if(event.target.closest('[data-viewer-close]')){closeImageViewer();return;}
+      if(event.target.closest('[data-viewer-zoom-in]')){viewerScale=Math.min(5,viewerScale+0.25);updateViewerScale();return;}
+      if(event.target.closest('[data-viewer-zoom-out]')){viewerScale=Math.max(0.5,viewerScale-0.25);updateViewerScale();return;}
+      if(event.target.closest('[data-viewer-zoom-reset]')){viewerScale=1;updateViewerScale();}
+    });
+    imageViewer.addEventListener('wheel',event=>{
+      if(imageViewer.hidden)return;
+      event.preventDefault();
+      viewerScale=Math.max(0.5,Math.min(5,viewerScale+(event.deltaY<0?0.15:-0.15)));
+      updateViewerScale();
+    },{passive:false});
+    document.addEventListener('keydown',event=>{
+      if(imageViewer.hidden)return;
+      if(event.key==='Escape'){event.preventDefault();closeImageViewer();}
+      else if(event.key==='+'||event.key==='='){viewerScale=Math.min(5,viewerScale+0.25);updateViewerScale();}
+      else if(event.key==='-'){viewerScale=Math.max(0.5,viewerScale-0.25);updateViewerScale();}
+      else if(event.key==='0'){viewerScale=1;updateViewerScale();}
+    });
+    return imageViewer;
+  }
+  function openImageViewer(src,alt,trigger){
+    const viewer=ensureImageViewer();
+    viewerReturnFocus=trigger;
+    viewerImage.src=src;
+    viewerImage.alt=alt||'Full-size image';
+    viewerScale=1;updateViewerScale();
+    viewer.hidden=false;
+    document.body.classList.add('image-viewer-open');
+    viewer.querySelector('[data-viewer-close]')?.focus();
+  }
+  function renderSunoGrid(post,media,titleHtml,excerptHtml){
+    const doc=new DOMParser().parseFromString(cleanHtml(post.content_html||''),'text/html');
+    const textColumn=doc.querySelector('.suno-text-column');
+    const lyrics=doc.querySelector('.suno-lyrics');
+    const style=doc.querySelector('.suno-notes');
+    const learned=doc.querySelector('.suno-learned');
+    const chatgptLearned=doc.querySelector('.suno-chatgpt-learned');
+    const takeSection=(element,fallback)=>{
+      if(!element)return {label:fallback,content:''};
+      const label=element.querySelector(':scope > .suno-label');
+      const title=label?.outerHTML||fallback;
+      label?.remove();
+      return {label:title,content:element.innerHTML};
+    };
+    // Keep reflection sections independent even when the imported source nests them inside .suno-notes.
+    learned?.remove();
+    chatgptLearned?.remove();
+    const textSection=takeSection(textColumn,'<p class="suno-label">01 // THE TEXT</p>');
+    const lyricsTitle=lyrics?.querySelector(':scope > summary')?.textContent?.trim()||'02 // SUNO STYLE LYRICS';
+    const lyricsLabel='<p class="suno-label">'+safe(lyricsTitle.replace(/\\s+CLICK TO EXPAND$/i,''))+'</p>';
+    if(lyrics){
+      lyrics.querySelector(':scope > summary')?.remove();
+      lyrics.removeAttribute('open');
+    }
+    const styleSection=takeSection(style,'<p class="suno-label">03 // SUNO STYLE PROMPT</p>');
+    const learnedSection=takeSection(learned,'<p class="suno-label">WHAT I LEARNED</p>');
+    const chatgptSection=takeSection(chatgptLearned,'<p class="suno-label">WHAT CHATGPT LEARNED</p>');
+    const textHtml=textColumn?textSection.content:'<p class="suno-empty-column">No accompanying text added yet.</p>';
+    const lyricsContent=lyrics?lyrics.innerHTML:'<p>No lyrics added yet.</p>';
+    const styleContent=style?styleSection.content:'<p>No Suno style prompt added yet.</p>';
+    const collapsible=(label,content,classes='')=>'<details class="suno-collapsible '+classes+'"><summary class="suno-label">'+(label||'SECTION')+'</summary><div class="suno-section-content">'+content+'</div></details>';
+    const reflection=(section)=>section.content?'<section class="suno-reflection">'+collapsible(section.label.replace(/<[^>]*>/g,''),section.content,'suno-reflection-disclosure')+'</section>':'';
+    const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+collapsible(textSection.label.replace(/^<p[^>]*>|<\/p>$/g,''),textHtml,'suno-text-disclosure')+'</section>';
+    const lyricsHtml='<section class="suno-column suno-column-lyrics">'+collapsible(lyricsLabel.replace(/^<p[^>]*>|<\/p>$/g,''),lyricsContent,'suno-lyrics-disclosure')+'</section>';
+    const styleHtml='<section class="suno-column suno-column-style">'+collapsible(styleSection.label.replace(/^<p[^>]*>|<\/p>$/g,''),styleContent,'suno-style-disclosure')+reflection(learnedSection)+reflection(chatgptSection)+'</section>';
+    return '<div class="suno-three-grid">'+first+styleHtml+lyricsHtml+'</div>';
+  }
+  function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,titleRow,permalinkBack,shapeClass){
+    return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+titleRow+renderSunoGrid(post,media,titleHtml,excerptHtml)+shareActions(post)+permalinkBack+'</article>';
+  }
+  function render(){
+    const permalink=Boolean(requestedSlug);
+    if(controls)controls.hidden=permalink;
+    const searchLabel=search?.closest('label'),categoryLabel=categoryFilter?.closest('label'),yearLabel=yearFilter?.closest('label');
+    if(permalink){
+      searchLabel?.setAttribute('hidden','');categoryLabel?.setAttribute('hidden','');yearLabel?.setAttribute('hidden','');
+      const found=posts.find(post=>post.slug===requestedSlug);
+      count.textContent=found?'SINGLE TRANSMISSION':'TRANSMISSION NOT FOUND';
+      if(!found){list.innerHTML='<p class="ha-empty">THIS TRANSMISSION COULD NOT BE FOUND. IT MAY HAVE BEEN MOVED OR UNPUBLISHED. <a href="./">RETURN TO THE ARCHIVE ↗</a></p>';return;}
+      list.innerHTML=renderPostPermalink(found);
+      document.title=found.title+' // VERSE AFTER HOURS';
+      requestAnimationFrame(()=>list.querySelector('.post-card')?.scrollIntoView({behavior:'smooth',block:'start'}));
+      return;
+    }
+    searchLabel?.removeAttribute('hidden');yearLabel?.removeAttribute('hidden');
+    if(categoryLabel)categoryLabel.hidden=Boolean(requestedMovement)||isCommunityArchive;
+    const query=search.value.trim().toLowerCase(),selectedCategory=categoryFilter?.value||'',selectedYear=yearFilter?.value||'';
+    const scoped=posts.filter(post=>displayCategory(post.category)!=='HUMAN ARCHIVE'&&(!requestedMovement||displayCategory(post.category)===requestedMovement));
+    const visible=scoped.filter(post=>{
+      const searchable=[post.title,post.category,post.excerpt,post.content_html,post.slug,post.archive_record_id,postDate(post)].join(' ').replace(/<[^>]*>/g,' ').toLowerCase();
+      return (!selectedCategory||displayCategory(post.category)===selectedCategory)&&(!selectedYear||postYear(post)===selectedYear)&&(!query||searchable.includes(query));
+    });
+    visible.sort((a,b)=>postDate(b).localeCompare(postDate(a))||Number(b.archive_record_id||b.id)-Number(a.archive_record_id||a.id));
+    count.textContent=visible.length+' / '+scoped.length+' RECORDS';
+    list.classList.add('ha-list');
+    if(!visible.length){list.innerHTML='<p class="ha-empty">NO RECORDS MATCH THIS SEARCH. TRY ANOTHER CATEGORY, WORD OR YEAR.</p>';return;}
+    const groups=selectedCategory?[selectedCategory]:CATEGORY_ORDER.filter(name=>visible.some(post=>displayCategory(post.category)===name));
+    list.innerHTML=groups.map(name=>{
+      const items=visible.filter(post=>displayCategory(post.category)===name);
+      if(!items.length)return '';
+      const open=expandedCategories.has(name),categoryId='post-category-'+slugify(name);
+      const entries=items.map(post=>renderPostRecordCard(post)).join('');
+      return '<section class="ha-category-group" data-category="'+safe(name)+'"><div class="ha-category-heading"><button type="button" class="ha-category-toggle" data-ha-category-toggle="'+safe(name)+'" aria-expanded="'+String(open)+'" aria-controls="'+categoryId+'"><span class="ha-category-title">'+safe(name)+'</span><span class="ha-category-marker" aria-hidden="true">'+(open?'−':'+')+'</span></button><span class="ha-category-total">'+String(items.length).padStart(2,'0')+' RECORDS</span></div><div class="ha-category-entries" id="'+categoryId+'"'+(open?'':' hidden')+'>'+entries+'</div></section>';
+    }).join('');
+    list.querySelectorAll('[data-ha-category-toggle]').forEach(toggle=>{
+      toggle.addEventListener('click',()=>{
+        const name=toggle.dataset.haCategoryToggle,open=toggle.getAttribute('aria-expanded')!=='true';
+        const group=toggle.closest('.ha-category-group'),entries=group?.querySelector('.ha-category-entries'),marker=toggle.querySelector('.ha-category-marker');
+        toggle.setAttribute('aria-expanded',String(open));if(entries)entries.hidden=!open;if(marker)marker.textContent=open?'−':'+';
+        if(open)expandedCategories.add(name);else expandedCategories.delete(name);
+      });
+    });
+  }
+  async function loadMorePosts(){
+    postsHasMore=false;
+    if(loadMoreButton)loadMoreButton.hidden=true;
+  }
+  async function loadPostFavorites(){
+    if(!canRedesignPosts||!window.VHACMSStore){favoriteRecordIds.clear();return;}
+    try{favoriteRecordIds=new Set(await window.VHACMSStore.getFavorites());favoriteSaveError=false;}
+    catch(error){console.warn('Human Archive favourites could not be loaded on Posts:',error);favoriteRecordIds.clear();}
+  }
+  async function refreshPostEditorAccess(sessionOverride){
+    if(!window.VHAGitHub||!window.VHACMSStore){canRedesignPosts=false;favoriteRecordIds.clear();return false;}
+    try{
+      const session=sessionOverride===undefined?await window.VHAGitHub.restoreSession():sessionOverride;
+      const user=session?.user||null;
+      canRedesignPosts=Boolean(user&&String(user.login||'').toLowerCase()==='iyakuza');
+      if(!canRedesignPosts){favoriteRecordIds.clear();render();return false;}
+      await loadPostFavorites();render();return true;
+    }catch(error){canRedesignPosts=false;favoriteRecordIds.clear();console.warn('Posts redesign controls could not verify GitHub owner access:',error);render();return false;}
+  }
+  async function togglePostFavorite(recordId,button){
+    const id=String(recordId||'');
+    if(!canRedesignPosts||!window.VHACMSStore||!/^[0-9]+$/.test(id)||button.disabled)return;
+    const wasFavorite=favoriteRecordIds.has(id);
+    document.querySelectorAll('[data-ha-favorite-id="'+id+'"]').forEach(control=>{control.disabled=true;});
+    favoriteSaveError=false;
+    try{
+      await window.VHACMSStore.setFavorite(id,!wasFavorite);
+      if(wasFavorite)favoriteRecordIds.delete(id);else favoriteRecordIds.add(id);
+    }catch(error){favoriteSaveError=true;console.error('Posts archive favourite could not be saved:',error);}
+    finally{
+      document.querySelectorAll('[data-ha-favorite-id="'+id+'"]').forEach(control=>{
+        control.disabled=false;const saved=favoriteRecordIds.has(id);
+        control.setAttribute('aria-pressed',String(saved));control.textContent=saved?'★':'☆';
+        control.title=favoriteSaveError?'SAVE FAILED — ACTIVATE TO RETRY':(saved?'REMOVE AUTHOR FAVOURITE':'MARK AS FAVOURITE');
+        control.setAttribute('aria-label',saved?'Remove author favourite':'Mark as favourite');
+      });
+      document.querySelectorAll('[data-ha-favorite-mark="'+id+'"]').forEach(mark=>{mark.hidden=!favoriteRecordIds.has(id);});
+    }
+  }
+  if(window.VHAGitHub){
+    window.VHAGitHub.onAuthStateChange((_event,session)=>window.setTimeout(()=>refreshPostEditorAccess(session),0));
+    refreshPostEditorAccess();
+  }
+  async function load(){
+    postsOffset=0;postsHasMore=false;if(loadMoreButton)loadMoreButton.hidden=true;
+    try{
+      const path=isCommunityArchive?'/landing-page/content/signals.json':'/landing-page/content/transmissions.json';
+      const response=await fetch(path,{credentials:'same-origin',cache:'no-store'});
+      if(!response.ok)throw new Error(path+' returned HTTP '+response.status);
+      const collection=await response.json();
+      if(!Array.isArray(collection.records))throw new Error('The canonical collection is malformed.');
+      availableMediaPaths.clear();
+      collection.records.forEach(record=>{
+        (record?.media_items||[]).filter(media=>media?.status==='available').forEach(media=>{
+          const mediaPath=String(media.src||media.url||'').trim();
+          if(mediaPath.startsWith('media/')&&!mediaPath.includes('..')&&!mediaPath.includes('?')&&!mediaPath.includes('#')&&!mediaPath.includes(String.fromCharCode(92)))availableMediaPaths.add(mediaPath);
+        });
+      });
+      posts=isCommunityArchive
+        ? collection.records.filter(item=>item&&item.status==='published'&&item.rights_confirmed===true).map(item=>({
+          id:item.id,legacy_id:item.legacy_id,title:item.title,slug:item.slug,category:'COMMUNITY SIGNAL',
+          excerpt:item.byline?'TRANSMITTED BY '+item.byline:'COMMUNITY SUBMISSION',
+          content_html:item.body?'<p>'+safe(item.body).replace(/\n/g,'<br>')+'</p>':'',
+          media_url:(item.media_items||[]).find(media=>media?.status==='available')?.src||'',media_items:(item.media_items||[]).filter(media=>media?.status==='available').map(media=>({...media,url:media.src||media.url})),
+          media_type:item.medium==='photograph'?'image':item.medium==='video'?'video':'audio',
+          created_at:item.created_at,published_at:item.published_at||item.created_at,community:true
+        }))
+        : collection.records.filter(item=>item&&item.status==='published').map(item=>({
+          ...item,
+          media_items:(item.media_items||[]).filter(media=>media?.status==='available').map(media=>({...media,url:media.src||media.url})),
+          archive_record_id:item.archive_record_id||Number(String(item.human_archive_id||'').replace(/^HA-/,'')||0),
+          community:false
+        }));
+      posts.sort((a,b)=>new Date(b.published_at||b.created_at)-new Date(a.published_at||a.created_at));
+      renderCategories();renderYears();render();
+    }catch(error){
+      console.error('Canonical collection loading failed:',error);
+      list.innerHTML='<p class="posts-empty">THE COLLECTION COULD NOT LOAD. PLEASE REFRESH AND TRY AGAIN.</p>';
+      count.textContent='COLLECTION UNAVAILABLE';
+      if(loadMoreButton)loadMoreButton.hidden=true;
+    }
+  }
+
+  list.addEventListener('error',event=>{
+    const image=event.target.closest?.('.post-media img');
+    if(image&&image.dataset.fallbackSrc&&!image.dataset.fallbackAttempted){
+      image.dataset.fallbackAttempted='true';
+      image.src=image.dataset.fallbackSrc;image.closest('.post-image-open')?.setAttribute('href',image.dataset.fallbackSrc);
+    }
+  },true);
+  list.addEventListener('click',async event=>{
+    const redesignButton=event.target.closest('[data-vha-edit-transmission]');
+    if(redesignButton){
+      event.preventDefault();
+      window.dispatchEvent(new CustomEvent('VHA_REQUEST_OPEN_TRANSMISSION',{detail:{slug:redesignButton.dataset.vhaEditTransmission,trigger:redesignButton,edit:true}}));
+      return;
+    }
+    const chamberButton=event.target.closest('[data-vha-open-transmission]');
+    if(chamberButton){
+      event.preventDefault();
+      window.dispatchEvent(new CustomEvent('VHA_REQUEST_OPEN_TRANSMISSION',{detail:{slug:chamberButton.dataset.vhaOpenTransmission,trigger:chamberButton}}));
+      return;
+    }
+    const imageLink=event.target.closest('.post-image-open');
+    if(imageLink){
+      event.preventDefault();
+      const image=imageLink.querySelector('img');
+      openImageViewer(image?.currentSrc||image?.src||imageLink.href,image?.alt||imageLink.getAttribute('aria-label')||'',imageLink);
+      return;
+    }
+    const favoriteButton=event.target.closest('[data-ha-favorite-id]');
+    if(favoriteButton){event.preventDefault();event.stopPropagation();await togglePostFavorite(favoriteButton.dataset.haFavoriteId,favoriteButton);return;}
+    const sectionsButton=event.target.closest('[data-post-sections-toggle]');
+    if(sectionsButton){
+      const article=sectionsButton.closest('.post-card, .post-record-card');
+      if(article){
+        const details=[...article.querySelectorAll('details')];
+        const opening=details.some(section=>!section.open);
+        details.forEach(section=>{section.open=opening;});
+        sectionsButton.setAttribute('aria-expanded',String(opening));
+        sectionsButton.textContent=opening?'RETRACT ALL SECTIONS':'EXPAND ALL SECTIONS';
+        const content=article.querySelector('.post-collapsible');
+        if(content?.hidden){content.hidden=false;const titleRow=article.querySelector('.post-card-title-row');if(titleRow)titleRow.hidden=false;const dateToggle=article.querySelector('[data-post-toggle]');dateToggle?.setAttribute('aria-expanded','true');const mark=dateToggle?.querySelector('.post-disclosure-mark');if(mark)mark.textContent='−';}
+      }
+      return;
+    }
+    const toggleButton=event.target.closest('[data-post-toggle]');
+    if(toggleButton){
+      const slug=toggleButton.dataset.postToggle;
+      const content=document.getElementById('post-content-'+slug);
+      if(content){
+        const opening=content.hidden;
+        const article=toggleButton.closest('.post-card, .post-record-card');
+        content.hidden=!opening;
+        const titleRow=article?.querySelector('.post-card-title-row');
+        if(titleRow)titleRow.hidden=!opening;
+        const quickActions=article?.querySelector('.post-record-quick-actions');
+        if(quickActions)quickActions.hidden=!opening;
+        toggleButton.setAttribute('aria-expanded',String(opening));
+        const label=toggleButton.querySelector('[data-post-read-label]');
+        if(label)label.textContent=opening?'CLOSE LOCAL TEXT ↑':'READ LOCAL TEXT ↓';
+        const mark=toggleButton.querySelector('.post-disclosure-mark');
+        if(mark)mark.textContent=opening?'−':'+';
+      }
+      return;
+    }
+    const shareButton=event.target.closest('[data-share-url]');
+    if(shareButton){
+      event.preventDefault();
+      const shareData={title:shareButton.dataset.shareTitle||document.title,url:shareButton.dataset.shareUrl};
+      try{
+        if(navigator.share){await navigator.share(shareData);}
+        else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(shareData.url);shareButton.textContent='LINK COPIED';}
+        else {window.prompt('Copy this post link:',shareData.url);}
+      }catch(error){if(error?.name!=='AbortError')window.prompt('Copy this post link:',shareData.url);}
+      return;
+    }
+    const copyButton=event.target.closest('[data-copy-share]');
+    if(copyButton){
+      event.preventDefault();
+      const url=copyButton.dataset.copyShare;
+      try{
+        if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);}
+        else {const field=document.createElement('textarea');field.value=url;field.style.position='fixed';field.style.opacity='0';document.body.appendChild(field);field.select();document.execCommand('copy');field.remove();}
+        copyButton.textContent='LINK COPIED';
+      }catch{window.prompt('Copy this post link:',url);}
+    }
+  });
+
+  function initViewerThemes(){
+    const root=document.documentElement,form=document.getElementById("theme-prompt-form"),prompt=document.getElementById("theme-prompt"),status=document.getElementById("theme-status"),progress=document.getElementById("theme-progress"),bar=document.getElementById("theme-progress-bar"),percent=document.getElementById("theme-progress-percent"),message=document.getElementById("theme-progress-message"),result=document.getElementById("theme-result"),resultTitle=document.getElementById("theme-result-title"),resultDescription=document.getElementById("theme-result-description"),applyButton=document.getElementById("theme-apply"),resetButton=document.getElementById("theme-reset");
+    const presets={
+      neon:{name:"Neon Biosphere",summary:"Acid-green terminal archive with pixel edges and modular tiles.",colors:{page:"#050906",surface:"#0b150d",raised:"#122017",text:"#e8f4df",muted:"#aab7a7",accent:"#b6e833",secondary:"#a98bff",border:"#52613e",glow:"#24351b"},typography:{heading:"mono",body:"modern",scale:"balanced",weight:"bold"},layout:{density:"balanced",columns:"mosaic",card:"pixel",geometry:"cut-corner",hero:"poster"},details:{pattern:"grid",media:"framed",buttons:"mechanical",motion:"subtle",shadows:"glow",nav:"terminal"}},
+      cyber:{name:"Cyberpunk",summary:"Electric night-city palette with high-contrast panels.",colors:{page:"#08051a",surface:"#140b26",raised:"#211137",text:"#f8edff",muted:"#c1aaca",accent:"#ff4fd8",secondary:"#54d7ef",border:"#75476e",glow:"#512044"},typography:{heading:"condensed",body:"modern",scale:"expressive",weight:"black"},layout:{density:"dense",columns:"mosaic",card:"glass",geometry:"cut-corner",hero:"immersive"},details:{pattern:"scanlines",media:"glow",buttons:"outlined",motion:"energetic",shadows:"glow",nav:"boxed"}},
+      violet:{name:"Violet Static",summary:"Dreamlike violet editorial surfaces and soft neon detail.",colors:{page:"#090617",surface:"#17102b",raised:"#241a3e",text:"#f0ebff",muted:"#b7add0",accent:"#b69cff",secondary:"#54d7ef",border:"#625180",glow:"#34245b"},typography:{heading:"editorial",body:"humanist",scale:"expressive",weight:"regular"},layout:{density:"airy",columns:"masonry",card:"editorial",geometry:"organic",hero:"editorial"},details:{pattern:"grain",media:"film",buttons:"pill",motion:"subtle",shadows:"soft",nav:"underline"}},
+      ember:{name:"Ember Signal",summary:"Warm, cinematic charcoal surfaces with firelight accents.",colors:{page:"#160906",surface:"#26110d",raised:"#351a14",text:"#fff0e7",muted:"#c8a99a",accent:"#ff9b54",secondary:"#ff4f82",border:"#7c4934",glow:"#54251a"},typography:{heading:"display",body:"editorial",scale:"expressive",weight:"bold"},layout:{density:"balanced",columns:"mosaic",card:"brutalist",geometry:"stacked",hero:"immersive"},details:{pattern:"grain",media:"film",buttons:"solid",motion:"subtle",shadows:"hard",nav:"boxed"}},
+      ocean:{name:"Deep Ocean",summary:"Bioluminescent deep-water surfaces with cool glass framing.",colors:{page:"#031015",surface:"#071e27",raised:"#0c2a34",text:"#e4fbff",muted:"#9cbfc6",accent:"#53e7df",secondary:"#579bff",border:"#31616b",glow:"#12454a"},typography:{heading:"modern",body:"humanist",scale:"balanced",weight:"regular"},layout:{density:"airy",columns:"masonry",card:"glass",geometry:"rounded",hero:"immersive"},details:{pattern:"blueprint",media:"glow",buttons:"outlined",motion:"subtle",shadows:"soft",nav:"minimal"}}
+    };
+    let pendingTheme=null;
+    const valid=(value,allowed,fallback)=>allowed.includes(value)?value:fallback;
+    function applyTheme(theme,save=true){
+      if(!theme||!theme.colors||!theme.typography||!theme.layout||!theme.details)return;
+      const c=theme.colors;
+      Object.entries({page:c.page,surface:c.surface,raised:c.raised,text:c.text,muted:c.muted,accent:c.accent,secondary:c.secondary,border:c.border,glow:c.glow}).forEach(([key,value])=>{if(/^#[0-9a-f]{6}$/i.test(value||""))root.style.setProperty("--theme-"+key,value);});
+      root.dataset.themeHeading=valid(theme.typography.heading,["editorial","modern","mono","condensed","display"],"modern");
+      root.dataset.themeBody=valid(theme.typography.body,["editorial","modern","mono","humanist"],"modern");
+      root.dataset.themeScale=valid(theme.typography.scale,["compact","balanced","expressive"],"balanced");
+      root.dataset.themeWeight=valid(theme.typography.weight,["light","regular","bold","black"],"bold");
+      root.dataset.themeDensity=valid(theme.layout.density,["airy","balanced","dense"],"balanced");
+      root.dataset.themeColumns=valid(theme.layout.columns,["one","two","mosaic","masonry"],"mosaic");
+      root.dataset.themeCard=valid(theme.layout.card,["glass","paper","brutalist","pixel","soft","editorial"],"editorial");
+      root.dataset.themeGeometry=valid(theme.layout.geometry,["square","rounded","cut-corner","organic","stacked"],"cut-corner");
+      root.dataset.themeHero=valid(theme.layout.hero,["minimal","editorial","immersive","grid","poster"],"poster");
+      root.dataset.themePattern=valid(theme.details.pattern,["none","grid","grain","botanical","scanlines","blueprint","paper"],"grid");
+      root.dataset.themeMedia=valid(theme.details.media,["clean","film","framed","glow","polaroid"],"framed");
+      root.dataset.themeButtons=valid(theme.details.buttons,["minimal","outlined","solid","pill","mechanical"],"mechanical");
+      root.dataset.themeMotion=valid(theme.details.motion,["none","subtle","energetic"],"subtle");
+      root.dataset.themeShadows=valid(theme.details.shadows,["flat","soft","hard","glow"],"glow");
+      root.dataset.themeNav=valid(theme.details.nav,["minimal","boxed","underline","terminal"],"terminal");
+      root.dataset.viewerTheme="custom";
+      document.querySelectorAll(".theme-swatch").forEach(b=>{b.classList.remove("is-active");b.setAttribute("aria-pressed","false");});
+      if(save){try{localStorage.setItem("vha-ai-theme",JSON.stringify(theme));}catch{}try{if(window.parent!==window)window.parent.postMessage({type:"vha-theme-apply",theme},"*");}catch{}}
+    }
+    function setProgress(value,label){progress.hidden=false;bar.style.width=value+"%";percent.textContent=value+"%";message.textContent=label;}
+    function showPreset(name){const p=presets[name]||presets.neon;pendingTheme=p;applyTheme(p);result.hidden=false;resultTitle.textContent=p.name.toUpperCase();resultDescription.textContent=p.summary;status.textContent="PRESET LOADED. IT IS APPLIED LOCALLY.";document.querySelectorAll(".theme-swatch").forEach(b=>{const active=b.dataset.theme===name;b.classList.toggle("is-active",active);b.setAttribute("aria-pressed",String(active));});}
+    document.querySelectorAll(".theme-swatch").forEach(b=>b.addEventListener("click",()=>showPreset(b.dataset.theme)));
+    document.querySelectorAll("[data-prompt]").forEach(b=>b.addEventListener("click",()=>{prompt.value=b.dataset.prompt;prompt.focus();}));
+    try{const saved=JSON.parse(localStorage.getItem("vha-ai-theme")||"null");if(saved)applyTheme(saved,false);else showPreset("neon");}catch{showPreset("neon");}
+    function buildLocalTheme(description){
+      const q=description.toLowerCase();
+      const moods=[
+        {re:/\b(calm|peaceful|relaxed|serene|quiet|grounded)\b/,base:"ocean",name:"Quiet Tide",colors:{page:"#eaf2ef",surface:"#f7fbf8",raised:"#d8e7e1",text:"#203a38",muted:"#617a75",accent:"#438f87",secondary:"#8ab9c8",border:"#bfd4cc",glow:"#d6e7df"},heading:"editorial",body:"humanist",density:"airy",card:"soft",geometry:"rounded",pattern:"none",motion:"subtle",shadows:"soft"},
+        {re:/\b(sad|down|heartbroken|grieving|hurt|melancholy|blue)\b/,base:"violet",name:"Blue Hour",colors:{page:"#111827",surface:"#1a2436",raised:"#263248",text:"#e5eaf4",muted:"#a8b4ca",accent:"#8caee8",secondary:"#b8a5d8",border:"#46536c",glow:"#293b5b"},heading:"editorial",body:"humanist",density:"airy",card:"soft",geometry:"rounded",pattern:"grain",motion:"subtle",shadows:"soft"},
+        {re:/\b(anxious|anxiety|stressed|overthinking|overwhelmed|restless|frazzled)\b/,base:"ocean",name:"Steady Ground",colors:{page:"#edf1ed",surface:"#fbfcf8",raised:"#dce5dc",text:"#28352e",muted:"#65736a",accent:"#56816a",secondary:"#7f9ca5",border:"#c7d2c7",glow:"#d8e2d8"},heading:"modern",body:"humanist",density:"airy",card:"soft",geometry:"rounded",pattern:"none",motion:"none",shadows:"flat",columns:"one"},
+        {re:/\b(angry|furious|frustrated|rage|irritated)\b/,base:"ember",name:"Redline",colors:{page:"#170b0d",surface:"#271316",raised:"#3a1b20",text:"#fff0ef",muted:"#d0a8aa",accent:"#ff5b62",secondary:"#ffb15e",border:"#7d343d",glow:"#5a2029"},heading:"condensed",body:"modern",density:"dense",card:"brutalist",geometry:"square",pattern:"grid",motion:"energetic",shadows:"hard"},
+        {re:/\b(happy|joyful|excited|playful|cheerful|delighted|energized)\b/,base:"ember",name:"Little Sun",colors:{page:"#fff5df",surface:"#fffaf0",raised:"#ffe7b8",text:"#49301c",muted:"#80674f",accent:"#e88a35",secondary:"#e85d75",border:"#e7c998",glow:"#f7d69b"},heading:"display",body:"modern",density:"balanced",card:"soft",geometry:"rounded",pattern:"grain",motion:"energetic",shadows:"soft"},
+        {re:/\b(hopeful|hope|optimistic|inspired|fresh start|motivated)\b/,base:"neon",name:"New Growth",colors:{page:"#f0f5e8",surface:"#fbfff5",raised:"#dfeacb",text:"#293923",muted:"#68785e",accent:"#6e9e42",secondary:"#e0a65b",border:"#c8d7b2",glow:"#d9e7c4"},heading:"editorial",body:"humanist",density:"airy",card:"paper",geometry:"organic",pattern:"botanical",motion:"subtle",shadows:"soft"},
+        {re:/\b(lonely|alone|isolated|unseen|invisible)\b/,base:"violet",name:"After Hours",colors:{page:"#100d1c",surface:"#1b172b",raised:"#29223d",text:"#eee8f7",muted:"#b0a4c6",accent:"#a78bd4",secondary:"#6e9ec5",border:"#514464",glow:"#332546"},heading:"editorial",body:"humanist",density:"airy",card:"editorial",geometry:"rounded",pattern:"grain",motion:"subtle",shadows:"soft"},
+        {re:/\b(nostalgic|nostalgia|homesick|wistful|sentimental)\b/,base:"ember",name:"Memory Lane",colors:{page:"#eee4d2",surface:"#faf3e5",raised:"#e1d1b5",text:"#3e3328",muted:"#796957",accent:"#a56c48",secondary:"#71816a",border:"#c7b79e",glow:"#d8c4a4"},heading:"editorial",body:"editorial",density:"airy",card:"paper",geometry:"organic",pattern:"grain",motion:"none",shadows:"soft"},
+        {re:/\b(romantic|romance|tender|affection|in love)\b/,base:"violet",name:"Soft Focus",colors:{page:"#fff0f2",surface:"#fff9fa",raised:"#f5dce5",text:"#482d3a",muted:"#8a6878",accent:"#c45e87",secondary:"#9a8ad1",border:"#e6c3d2",glow:"#f0d4e0"},heading:"editorial",body:"humanist",density:"airy",card:"soft",geometry:"rounded",pattern:"grain",motion:"subtle",shadows:"soft"}
+      ];
+      const mood=moods.find(item=>item.re.test(q));
+      const baseKey=mood?mood.base:(/cyberpunk|cyber punk|neon city|night city|futuristic/.test(q)?"cyber":/violet|lavender|dreamy|ethereal|poetic/.test(q)?"violet":/ember|fire|warm|sunset|orange|cinematic/.test(q)?"ember":/ocean|underwater|aquatic|blue|teal|bioluminescent/.test(q)?"ocean":/green dream|botanical|forest|nature|acid green|terminal|matrix/.test(q)?"neon":"neon");
+      const theme=JSON.parse(JSON.stringify(presets[baseKey]));
+      if(mood){
+        theme.name=mood.name;theme.summary="A visual atmosphere shaped by the feeling you described.";
+        theme.colors={...theme.colors,...mood.colors};
+        theme.typography.heading=mood.heading;theme.typography.body=mood.body;
+        theme.layout.density=mood.density;theme.layout.card=mood.card;theme.layout.geometry=mood.geometry;
+        theme.details.pattern=mood.pattern;theme.details.motion=mood.motion;theme.details.shadows=mood.shadows;
+        if(mood.columns)theme.layout.columns=mood.columns;
+      }
+      const setColor=(keys,value)=>{if(keys.some(k=>q.includes(k)))theme.colors.accent=value;};
+      setColor(["pink","magenta","hot pink","fuchsia"],"#ff4fd8");
+      setColor(["purple","violet","lavender"],"#b69cff");
+      setColor(["cyan","ice blue","electric blue"],"#54d7ef");
+      setColor(["orange","amber","sunset","fire"],"#ff9b54");
+      setColor(["red","crimson","blood"],"#ff4f68");
+      setColor(["gold","golden","yellow"],"#f3d35b");
+      setColor(["lime","acid green","green"],"#b6e833");
+      setColor(["turquoise","teal","mint"],"#53e7c1");
+      if(/light mode|light theme|bright background|white background|cream|ivory|paper/.test(q)){
+        theme.colors.page="#f2eee5";theme.colors.surface="#fffaf0";theme.colors.raised="#e8e0d2";
+        theme.colors.text="#20251d";theme.colors.muted="#62695e";theme.colors.border="#b8b09f";theme.colors.glow="#d8d0c0";
+        theme.layout.card=/brutalist|brutalism|raw/.test(q)?"brutalist":"paper";
+        theme.details.pattern=/grid|blueprint/.test(q)?"blueprint":"paper";
+      }
+      if(/dark|black background|midnight|noir/.test(q)){theme.colors.page="#07080b";theme.colors.surface="#111319";theme.colors.raised="#1b1f29";theme.colors.text="#f2f4f8";theme.colors.muted="#a4aab7";}
+      if(/minimal|minimalist|clean|simple/.test(q)){theme.layout.density="airy";theme.layout.columns="one";theme.layout.card="soft";theme.layout.geometry="square";theme.layout.hero="minimal";theme.details.pattern="none";theme.details.buttons="minimal";theme.details.nav="minimal";theme.details.motion="none";}
+      if(/brutalist|brutalism|raw/.test(q)){theme.layout.card="brutalist";theme.layout.geometry="square";theme.details.buttons="mechanical";theme.details.shadows="hard";theme.details.pattern="grid";}
+      if(/glass|glassmorphism|transparent|frosted/.test(q)){theme.layout.card="glass";theme.layout.geometry="rounded";theme.details.media="glow";theme.details.shadows="soft";}
+      if(/pixel|8.bit|retro game|arcade|tetris/.test(q)){theme.typography.heading="mono";theme.layout.card="pixel";theme.layout.geometry="cut-corner";theme.details.buttons="mechanical";theme.details.pattern="grid";}
+      if(/editorial|magazine|literary|bookish|serif/.test(q)){theme.typography.heading="editorial";theme.typography.body="editorial";theme.layout.card="editorial";theme.layout.columns="masonry";theme.layout.hero="editorial";theme.details.media="film";}
+      if(/condensed|narrow type|industrial/.test(q))theme.typography.heading="condensed";
+      if(/monospace|monospaced|terminal|code|hacker/.test(q)){theme.typography.heading="mono";theme.typography.body="mono";theme.details.nav="terminal";}
+      if(/large type|oversized|bold typography|expressive type/.test(q)){theme.typography.scale="expressive";theme.typography.weight="black";theme.layout.hero="poster";}
+      if(/compact|dense|tight spacing/.test(q))theme.layout.density="dense";
+      if(/spacious|airy|lots of whitespace|wide spacing/.test(q))theme.layout.density="airy";
+      if(/two columns|two-column/.test(q))theme.layout.columns="two";
+      if(/single column|one column|full width/.test(q))theme.layout.columns="one";
+      if(/masonry/.test(q))theme.layout.columns="masonry";
+      if(/mosaic|asymmetric|asymmetrical/.test(q))theme.layout.columns="mosaic";
+      if(/rounded|round corners|soft corners|pill/.test(q)){theme.layout.geometry="rounded";theme.details.buttons="pill";}
+      if(/sharp corners|square corners|angular/.test(q))theme.layout.geometry="square";
+      if(/cut corners|cyber corners/.test(q))theme.layout.geometry="cut-corner";
+      if(/botanical|leaves|plant|organic/.test(q)){theme.details.pattern="botanical";theme.layout.geometry="organic";}
+      if(/scanline|crt|vhs/.test(q))theme.details.pattern="scanlines";
+      if(/blueprint|technical drawing/.test(q))theme.details.pattern="blueprint";
+      if(/grain|film grain|analog/.test(q)){theme.details.pattern="grain";theme.details.media="film";}
+      if(/no pattern|plain background|no texture/.test(q))theme.details.pattern="none";
+      if(/polaroid|instant photo/.test(q))theme.details.media="polaroid";
+      if(/glowing media|glow|neon glow/.test(q)){theme.details.media="glow";theme.details.shadows="glow";}
+      if(/framed image|framed media|borders around media/.test(q))theme.details.media="framed";
+      if(/no animation|static|reduced motion/.test(q))theme.details.motion="none";
+      if(/energetic|animated|dynamic motion/.test(q))theme.details.motion="energetic";
+      if(/underline navigation|underlined nav/.test(q))theme.details.nav="underline";
+      if(/boxed navigation|navigation boxes/.test(q))theme.details.nav="boxed";
+      if(/flat|no shadows/.test(q))theme.details.shadows="flat";
+      if(/no buttons|outlined buttons|outline/.test(q))theme.details.buttons="outlined";
+      if(/solid buttons|filled buttons/.test(q))theme.details.buttons="solid";
+      if(!mood){
+        theme.name="Local Design // "+({neon:"Neon Biosphere",cyber:"Cyberpunk",violet:"Violet Static",ember:"Ember Signal",ocean:"Deep Ocean"}[baseKey]);
+        theme.summary="Built locally from your design brief. No paid API, account, or prompt history required.";
+      }
+      return theme;
+    }
+    form?.addEventListener("submit",event=>{
+      event.preventDefault();
+      const description=prompt.value.trim();
+      if(description.length<12){status.textContent="DESCRIBE THE REDESIGN IN AT LEAST A FEW WORDS.";prompt.focus();return;}
+      const button=form.querySelector("button[type=submit]");
+      button.disabled=true;result.hidden=true;status.textContent="BUILDING YOUR DESIGN LOCALLY — NO API CALLS.";
+      setProgress(20,"INTERPRETING STYLE, COLOR & MOOD…");
+      pendingTheme=buildLocalTheme(description);
+      setProgress(58,"CONFIGURING LAYOUT, TYPOGRAPHY & COMPONENTS…");
+      applyTheme(pendingTheme,true);
+      setProgress(82,"APPLYING MEDIA, NAVIGATION & DECORATION…");
+      resultTitle.textContent=pendingTheme.name.toUpperCase();
+      resultDescription.textContent=pendingTheme.summary;
+      result.hidden=false;
+      setProgress(100,"LOCAL DESIGN READY — APPLYING TO THIS PAGE");
+      prompt.value="";prompt.removeAttribute("value");
+      status.textContent="DESIGN GENERATED AND APPLIED LOCALLY. NO PAID API USED.";
+      button.disabled=false;
+    });
+    applyButton?.addEventListener("click",()=>{if(!pendingTheme)return;applyTheme(pendingTheme);status.textContent="THE NEW DESIGN SYSTEM IS APPLIED AND SAVED IN THIS BROWSER.";progress.hidden=true;});
+    resetButton?.addEventListener("click",()=>{try{localStorage.removeItem("vha-ai-theme");}catch{}root.removeAttribute("data-theme-heading");root.removeAttribute("data-theme-body");root.removeAttribute("data-theme-scale");root.removeAttribute("data-theme-weight");root.removeAttribute("data-theme-density");root.removeAttribute("data-theme-columns");root.removeAttribute("data-theme-card");root.removeAttribute("data-theme-geometry");root.removeAttribute("data-theme-hero");root.removeAttribute("data-theme-pattern");root.removeAttribute("data-theme-media");root.removeAttribute("data-theme-buttons");root.removeAttribute("data-theme-motion");root.removeAttribute("data-theme-shadows");root.removeAttribute("data-theme-nav");["page","surface","raised","text","muted","accent","secondary","border","glow"].forEach(k=>root.style.removeProperty("--theme-"+k));showPreset("neon");status.textContent="DEFAULT DESIGN RESTORED.";});
+  }
+  if(document.getElementById('theme-prompt-form'))initViewerThemes();
+
+  const submissionForm=document.getElementById('visitor-transmission-form');
+  if(submissionForm){
+    const submissionStatus=document.getElementById('visitor-status');
+    const submissionButton=document.getElementById('visitor-submit');
+    const setSubmissionStatus=(text,kind='')=>{
+      submissionStatus.textContent=text;
+      submissionStatus.classList.remove('error','success');
+      if(kind)submissionStatus.classList.add(kind);
+    };
+    submissionForm.addEventListener('submit',event=>{
+      event.preventDefault();
+      setSubmissionStatus('COMMUNITY SUBMISSIONS ARE TEMPORARILY PAUSED DURING THE GITHUB MIGRATION. THE EXISTING SIGNALS ARCHIVE REMAINS AVAILABLE.','error');
+    });
+    if(submissionButton)submissionButton.disabled=true;
+    submissionForm.querySelectorAll('input,textarea,select').forEach(control=>{control.disabled=true;});
+    setSubmissionStatus('COMMUNITY SUBMISSIONS ARE TEMPORARILY PAUSED DURING THE GITHUB MIGRATION. THE EXISTING SIGNALS ARCHIVE REMAINS AVAILABLE.','error');
+  }
+  search.addEventListener('input',render);categoryFilter?.addEventListener('change',render);yearFilter?.addEventListener('change',render);loadMoreButton?.addEventListener('click',loadMorePosts);load();
+})();

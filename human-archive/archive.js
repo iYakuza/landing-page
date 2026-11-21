@@ -1,8 +1,32 @@
 (()=>{'use strict';
+// The shared layout renderer normally expands these templates before this deferred script runs.
+ // Keep the archive self-sufficient if that shared asset fails to load on the preview deployment.
+function ensureArchiveLayout(){
+ const root=document.querySelector('[data-vha-layout-root]');
+ if(!root)return;
+ root.querySelectorAll('template[data-vha-component="section"]').forEach(template=>{
+  const kind=String(template.dataset.vhaKind||'');
+  if(!['hero','intro','records'].includes(kind))return;
+  const section=document.createElement('section');
+  section.classList.add('vha-layout-section','vha-layout-section--'+kind);
+  String(template.dataset.vhaClasses||'').split(/\s+/).filter(name=>/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(name)).forEach(name=>section.classList.add(name));
+  for(const attribute of [...template.attributes]){
+   const name=attribute.name.toLowerCase();
+   if(name.startsWith('data-vha-'))continue;
+   if(name==='id'||name==='role'||name==='lang'||name.startsWith('aria-'))section.setAttribute(name,attribute.value);
+  }
+  section.dataset.vhaComponent='section';
+  section.dataset.vhaKind=kind;
+  section.append(template.content.cloneNode(true));
+  template.replaceWith(section);
+ });
+}
+ensureArchiveLayout();
 const search=document.getElementById('ha-search'),year=document.getElementById('ha-year'),category=document.getElementById('ha-category'),list=document.getElementById('ha-list'),count=document.getElementById('ha-count'),mediaStatus=document.getElementById('ha-media-status');
 const newTransmissionButton=document.getElementById('ha-new-transmission'),createTransmissionStatus=document.getElementById('ha-create-status');
 const hasArchiveIndex=Boolean(search&&year&&category&&list&&count);
-const archiveHomeUrl=new URL('/landing-page/human-archive/',window.location.origin);
+const archiveSiteBasePath=window.location.pathname.startsWith('/landing-page-preview/')?'/landing-page-preview':'/landing-page';
+const archiveHomeUrl=new URL(archiveSiteBasePath+'/human-archive/',window.location.origin);
 let chamberSaveConflict=false;
 let flushActiveChamberAutosave=async()=>true;
 let records=[],mediaItems=[],mediaMap=new Map(),mediaByPost=new Map(),mediaReady=false,publicBase='';
@@ -11,13 +35,11 @@ const expandedCategories=new Set();
 const categoryOrder=['Nimic și Ființă','This notion','Dialog monolog','Gânduri','Cântec','Belief','Snob','PERSONAL PROJECTS','Haiku'];
 const transmissionCategories=['HUMAN ARCHIVE','THE AWAKENING','THE DESCENT','THE RECONNECTION','THE TRANSFORMATION','THE RETURN'];
 
-// Human Archive chamber state and public Supabase configuration.
+// Human Archive chamber state and GitHub-backed persistence.
 let chamberRecordId=null;
-const SUPABASE_URL='https://oeyxsqocldlovhsmzcjw.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY='sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
-let archiveSupabase=null,archiveAdmin=false,archiveUserId=null,archiveAuthBound=false;
+let archiveAdmin=false,archiveUserId=null,archiveAuthBound=false,archiveWriteReady=true,archivePublicHeadSha=null;
 let standaloneTransmissionRecordsPromise=null;
-let favoriteRecordIds=new Set(),favoriteSaveError=false,recordStructureOverrides=new Map();
+let favoriteRecordIds=new Set(),favoriteSaveError=false,recordStructureOverrides=new Map(),privateMediaUrlToPath=new Map();
 let mediaHashByPath=new Map();
 let recordChamber=null,recordChamberReturnFocus=null;
 
@@ -63,14 +85,17 @@ function urlKey(raw){
  }catch{return '';}
 }
 function localMediaUrl(item){
- if(item?.storage==='vha-post-media'){
-  try{const url=new URL(String(item.url||''),document.baseURI);if(url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/'))return url.href;}catch{}
-  return safeExternalUrl(item.url,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']))||'';
- }
- const path=String(item.storage_path||'').split('/').map(part=>encodeURIComponent(part)).join('/');
- return publicBase+path;
+ const storage=String(item?.storage||'');
+ const storedPath=String(item?.local_path||item?.storage_path||item?.path||'');
+  if((storage==='github-public'||storage==='github-transmission')&&storedPath.startsWith('media/'))return archiveSiteBasePath+'/'+storedPath.split('/').map(encodeURIComponent).join('/');
+ if(storage==='github-private'&&String(item?.url||'').startsWith('blob:'))return item.url;
+ const recordId=(item?.post_ids||[]).map(value=>String(value).trim()).find(value=>/^[0-9]+$/.test(value));
+ const filename=storedPath.split('/').pop();
+ if(!recordId||!filename)return '';
+  return archiveSiteBasePath+'/media/human-archive/HA-'+recordId.padStart(4,'0')+'/'+encodeURIComponent(filename);
 }
 function getMedia(raw){return mediaMap.get(urlKey(raw))||null;}
+function isPrivateDraftBlobUrl(raw){const value=String(raw||'');return value.startsWith('blob:')&&privateMediaUrlToPath.has(value);}
 function markUsed(item,used){if(item&&used)used.add(String(item.id));}
 function appendMissing(parent,label){
  const notice=document.createElement('span');
@@ -86,8 +111,18 @@ function safeExternalUrl(raw,allowedHosts){
  }catch{return null;}
 }
 function safeArchiveMediaUrl(raw,allowedHosts){
- const remote=safeExternalUrl(raw,allowedHosts);if(remote)return remote;
- try{const url=new URL(String(raw||''),document.baseURI);if(url.protocol==='https:'&&url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/'))return url.href;}catch{}
+ const rawValue=String(raw||'').trim();
+ if(rawValue.startsWith('blob:')&&privateMediaUrlToPath.has(rawValue))return rawValue;
+ if(/^media\//.test(rawValue)&&!rawValue.split('/').some(part=>part==='..')&&!rawValue.includes('?')&&!rawValue.includes('#')&&!rawValue.includes(String.fromCharCode(92))){
+  return new URL(archiveSiteBasePath+'/'+rawValue.split('/').map(encodeURIComponent).join('/'),window.location.origin).href;
+ }
+ const remote=safeExternalUrl(rawValue,new Set(allowedHosts||[]));
+ if(remote)return remote;
+try{
+  const url=new URL(rawValue,document.baseURI);
+  if(url.protocol==='https:'&&url.origin===window.location.origin&&
+    (url.pathname.startsWith(archiveSiteBasePath+'/media/')||url.pathname.startsWith('/landing-page/media/')||url.pathname.startsWith('/landing-page-preview/media/')))return url.href;
+ }catch{}
  return null;
 }
 function mediaTitle(item,record){
@@ -208,9 +243,16 @@ function appendSafeContent(container,source,record,used){
    const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){appendLocalImage(parent,item,record,used);}
    else{
-    const src=safeArchiveMediaUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
+    const src=safeArchiveMediaUrl(raw,new Set(['i0.wp.com','emanuelstefancu.wordpress.com']));
     let valid=Boolean(src);
-    if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else if(url.hostname==='ioguymqdeuuursizifnn.supabase.co')valid=/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname);else if(url.origin===window.location.origin)valid=url.pathname.startsWith('/landing-page/');else valid=url.pathname.includes('/wp-content/uploads/');}
+    if(valid){
+     if(String(src).startsWith('blob:'))valid=isPrivateDraftBlobUrl(raw);
+     else{
+      const url=new URL(src);
+      if(url.origin===window.location.origin)valid=(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
+      else valid=url.pathname.includes('/wp-content/uploads/');
+     }
+    }
     if(valid){const image=document.createElement('img');image.src=src;image.alt=node.getAttribute('alt')||record.title;image.loading='lazy';image.style.maxWidth='100%';image.style.height='auto';parent.append(image);}
     else appendMissing(parent,'Image not yet available in the recovered media collection.');
    }
@@ -220,8 +262,12 @@ function appendSafeContent(container,source,record,used){
    const raw=node.getAttribute('src')||'';
    const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){if(tag==='AUDIO')appendLocalAudio(parent,item,record,used);else appendLocalVideo(parent,item,record,used);return;}
-   const src=safeArchiveMediaUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
-   const valid=Boolean(src)&&(()=>{const url=new URL(src);return url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'?/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname):url.hostname==='ioguymqdeuuursizifnn.supabase.co'?/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname):url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/');})();
+   // Private draft blobs are trusted only while mapped to a verified path in this
+   // draft's private repository. The local-origin check below intentionally rejects
+   // arbitrary external/blob sources, but must not reject those mapped upload blobs.
+   const privateDraftBlob=isPrivateDraftBlobUrl(raw);
+   const src=privateDraftBlob?raw:safeArchiveMediaUrl(raw,new Set());
+   const valid=privateDraftBlob||(Boolean(src)&&(()=>{const url=new URL(src);return url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));})());
    const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='none';
    if(valid)mediaNode.src=src;
    if(tag==='VIDEO')mediaNode.playsInline=true;
@@ -232,13 +278,14 @@ function appendSafeContent(container,source,record,used){
   if(tag==='SOURCE'){
    const raw=node.getAttribute('src')||'';
    const item=getMedia(raw);
-   if(item&&(mediaReady||item.storage==='vha-post-media')&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
-    const source=document.createElement('source');source.src=localMediaUrl(item);source.type=item.mime_type;parent.append(source);markUsed(item,used);
-   }else{
-    const src=safeExternalUrl(raw,new Set(['oeyxsqocldlovhsmzcjw.supabase.co']));
-    if(src&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname)&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
-     const source=document.createElement('source');source.src=src;source.type=node.getAttribute('type')||'';parent.append(source);
-    }
+   const privateDraftBlob=isPrivateDraftBlobUrl(raw);
+   if((privateDraftBlob||(item&&(mediaReady||item.storage==='vha-post-media')))&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
+    const source=document.createElement('source');
+    source.src=privateDraftBlob?raw:localMediaUrl(item);
+    const mime=String(item?.mime_type||node.getAttribute('type')||'').trim();
+    if(mime)source.type=mime;
+    parent.append(source);
+    if(item)markUsed(item,used);
    }
    return;
   }
@@ -316,42 +363,43 @@ function syncFavoriteControls(){
  document.querySelectorAll('[data-ha-favorite-mark]').forEach(mark=>{mark.hidden=!favoriteRecordIds.has(String(mark.dataset.haFavoriteMark||''));});
 }
 async function loadArchiveFavorites(){
- if(!archiveSupabase)return;
- const {data,error}=await archiveSupabase.from('human_archive_favorites').select('record_id');
- if(error){console.warn('Human Archive favourites could not be loaded:',error);return;}
- favoriteRecordIds=new Set((data||[]).map(item=>String(item.record_id)));
+ if(!archiveAdmin||!window.VHACMSStore){favoriteRecordIds=new Set();return;}
+ try{favoriteRecordIds=new Set(await window.VHACMSStore.getFavorites());}
+ catch(error){console.warn('Private Human Archive favourites could not be loaded:',error);}
 }
+
 async function loadRecordStructureOverrides(){
- if(!archiveSupabase)return;
- const {data,error}=await archiveSupabase.from('human_archive_record_structures').select('record_id,transmission_body,prompt_style,lyrics_style,output_text,output_media,blocks,updated_at');
- if(error){console.warn('Human Archive structures could not be loaded:',error);return;}
- recordStructureOverrides=new Map((data||[]).map(item=>[String(item.record_id),item]));
+ // The canonical Human Archive JSON already contains the complete editor_structures array.
+ // The standalone editor launcher also needs to hydrate it when no archive index has run.
+ if(recordStructureOverrides.size)return recordStructureOverrides;
+ const collection=await fetchArchiveJson('../content/human-archive.json',true);
+ if(!collection||!Array.isArray(collection.editor_structures))throw new Error('The canonical Human Archive editor structures are unavailable.');
+ recordStructureOverrides=new Map(collection.editor_structures.map(item=>[String(item.record_id),item]));
+ return recordStructureOverrides;
 }
+
 async function loadTransmissionRecords(){
- if(!archiveSupabase)return;
- // Match the public Transmissions index query. Do not mutate the current archive
- // until the database read succeeds, so a temporary query failure cannot hide posts.
- let query=archiveSupabase.from('vha_posts').select('id,archive_record_id,title,slug,category,excerpt,content_html,status,created_at,published_at,media_items,media_url,media_type,media_width').order('published_at',{ascending:false,nullsFirst:false});
- if(!archiveAdmin)query=query.eq('status','published');
- const {data,error}=await query;
- if(error){console.warn('Database-backed Transmissions could not be loaded into Human Archive; keeping the current records:',error);return;}
+ const collection=await fetchArchiveJson('../content/transmissions.json',true);
+ if(!collection||!Array.isArray(collection.records))throw new Error('The canonical Transmissions collection is unavailable.');
  records=records.filter(record=>record.source_type!=='transmission');
- mediaItems=mediaItems.filter(item=>item.storage!=='vha-post-media');
- for(const [key,item] of mediaMap){if(item.storage==='vha-post-media')mediaMap.delete(key);}
- const additions=(data||[]).filter(post=>Number.isSafeInteger(Number(post.archive_record_id))&&post.slug).map(post=>{
+  mediaItems=mediaItems.filter(item=>item.storage!=='github-transmission');
+  for(const [key,item] of mediaMap){if(item.storage==='github-transmission')mediaMap.delete(key);}
+ const additions=collection.records.filter(post=>post&&post.status==='published'&&Number.isSafeInteger(Number(post.archive_record_id))&&post.slug).map(post=>{
   const id=Number(post.archive_record_id),stamp=post.published_at||post.created_at||new Date().toISOString();
   const date=String(stamp).slice(0,10),year=date.slice(0,4);
-  const sourceItems=Array.isArray(post.media_items)&&post.media_items.length?post.media_items:(post.media_url?[{url:post.media_url,path:post.media_path,type:post.media_type||'audio',name:post.title}]:[]);
-  const attached=sourceItems.filter(item=>item&&typeof item.url==='string'&&['image','audio','video'].includes(item.type)).map((item,index)=>({
-   id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
-   mime_type:item.type==='image'?'image/unknown':item.type==='video'?'video/unknown':'audio/unknown',
-   storage_path:String(item.path||''),source_url:item.url,url:item.url,storage:'vha-post-media',post_ids:[id]
-  }));
-  return {id,title:post.title,slug:post.slug,archiveIdentifier:'HA-'+year+'-'+String(id).padStart(4,'0'),year,date,url:'',categories:[post.category||'TRANSMISSIONS'],content_html:post.content_html||'',source_type:'transmission',post_id:post.id,status:post.status,excerpt:post.excerpt||'',media_items:attached,created_at:post.created_at,published_at:post.published_at,updated_at:post.updated_at,media_width:post.media_width||100};
+  const sourceItems=Array.isArray(post.media_items)?post.media_items:(post.media_url?[{url:post.media_url,path:post.media_path,type:post.media_type||'audio',name:post.title}]:[]);
+  const attached=sourceItems.filter(item=>item&&item.status!=='pending_recovery'&&typeof(item.src||item.url)==='string'&&['image','audio','video'].includes(item.type)).map((item,index)=>{
+   const relative=String(item.src||item.url||item.path||'');
+    const publicUrl=relative.startsWith('http')?relative:(archiveSiteBasePath+'/'+relative.replace(/^\/+/, ''));
+   return {id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
+    mime_type:item.type==='image'?'image/unknown':item.type==='video'?'video/unknown':'audio/unknown',
+    storage_path:String(item.path||item.src||item.url||''),source_url:publicUrl,url:publicUrl,
+     storage:'github-transmission',post_ids:[id]};
+  });
+   const content=String(post.content_html||'').replace(/(["'])((?:media\/transmissions)\/[^"']+)\1/g,(match,quote,path)=>quote+archiveSiteBasePath+'/'+path.replace(/^\/+/, '')+quote);
+  return {id,title:post.title,slug:post.slug,archiveIdentifier:'HA-'+year+'-'+String(id).padStart(4,'0'),year,date,url:'',categories:[post.category||'TRANSMISSIONS'],content_html:content,source_type:'transmission',post_id:post.id,status:'published',excerpt:post.excerpt||'',media_items:attached,created_at:post.created_at,published_at:post.published_at,updated_at:post.updated_at,media_width:post.media_width||100};
  });
- const existingIds=new Set(records.map(record=>String(record.id)));
- const unique=additions.filter(record=>!existingIds.has(String(record.id)));
- unique.forEach(record=>{
+ additions.forEach(record=>{
   records.push(record);
   record.media_items.forEach(item=>{mediaItems.push(item);if(item.url)mediaMap.set(urlKey(item.url),item);});
   const name=record.categories[0];
@@ -359,7 +407,43 @@ async function loadTransmissionRecords(){
   if(category&&![...category.options].some(option=>option.value===name)){const option=document.createElement('option');option.value=name;option.textContent=name;category.append(option);}
   expandedCategories.add(name);
  });
+ if(archiveAdmin&&window.VHACMSStore){
+  try{
+   const drafts=await window.VHACMSStore.listDrafts();
+   for(const draft of drafts){
+    const id=Number(draft.record_id);
+    if(!Number.isSafeInteger(id)||!draft.post_id)continue;
+    const privateAssets=await window.VHACMSStore.getDraftMediaFiles(draft.draft_id);
+    const urlByPath=new Map(privateAssets.map(asset=>[asset.path,asset.url]));
+    privateAssets.forEach(asset=>privateMediaUrlToPath.set(asset.url,asset.path));
+    const hydrate=item=>{
+     if(!item||typeof item!=='object')return item;
+     const path=String(item.path||'');
+     const url=urlByPath.get(path)||item.url||path;
+     return {...item,url,src:url,storage:item.storage||'github-private'};
+    };
+    const content=draft.content||{};
+    const body=String(content.transmission_body||'').replace(/cms-data\/v1\/media\/drafts\/[^\s"'<>)]*/g,match=>urlByPath.get(match)||match);
+    const blocks=(content.blocks||[]).map(block=>({...block,html:String(block.html||'').replace(/cms-data\/v1\/media\/drafts\/[^\s"'<>)]*/g,match=>urlByPath.get(match)||match)}));
+    const structure={record_id:id,transmission_body:body,prompt_style:content.prompt_style||'',lyrics_style:content.lyrics_style||'',output_text:content.output_text||'',
+     output_media:Object.fromEntries(['image','audio','video'].map(kind=>[kind,(content.output_media?.[kind]||[]).map(hydrate)])),blocks,updated_at:draft.updated_at};
+    recordStructureOverrides.set(String(id),structure);
+    const stamp=draft.created_at||new Date().toISOString(),date=String(stamp).slice(0,10);
+    const hadPublishedRecord=records.some(item=>item.source_type==='transmission'&&item.post_id===draft.post_id);
+    if(hadPublishedRecord)records=records.filter(item=>!(item.source_type==='transmission'&&item.post_id===draft.post_id));
+    const record={id,title:draft.metadata?.title||'Untitled Transmission',slug:draft.metadata?.slug||'untitled-transmission',
+     archiveIdentifier:'HA-'+date.slice(0,4)+'-'+String(id).padStart(4,'0'),year:date.slice(0,4),date,url:'',
+     categories:[draft.metadata?.category||'UNASSIGNED'],content_html:body,source_type:'transmission',post_id:draft.post_id,draft_id:draft.draft_id,
+     status:hadPublishedRecord?'published':'draft',excerpt:draft.metadata?.excerpt||'',media_items:(content.media_items||[]).map(hydrate),created_at:draft.created_at,
+     updated_at:draft.updated_at,published_at:null,media_width:draft.metadata?.media_width||100,isDraft:true,isNew:draft.source==='new',_editOfPublished:hadPublishedRecord,draft_source:draft.source,_repoCommitSha:draft._repoCommitSha,_draftData:draft};
+    records.push(record);
+    record.media_items.forEach(item=>{if(item.url){mediaItems.push({...item,post_ids:[id],storage:'github-private'});mediaMap.set(urlKey(item.url),item);}});
+    if(record.categories[0]&&!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);
+   }
+  }catch(error){console.warn('Private Transmission drafts could not be loaded:',error);}
+ }
 }
+
 async function ensureStandaloneTransmissionRecords(){
  if(hasArchiveIndex)return;
  if(!standaloneTransmissionRecordsPromise){
@@ -369,31 +453,28 @@ async function ensureStandaloneTransmissionRecords(){
  await standaloneTransmissionRecordsPromise;
 }
 async function refreshArchiveAdmin(sessionOverride){
- if(!archiveSupabase){archiveAdmin=false;archiveUserId=null;return false;}
- let session=sessionOverride;
- if(sessionOverride===undefined){
-  const result=await archiveSupabase.auth.getSession();
-  if(result.error){archiveAdmin=false;archiveUserId=null;return false;}
-  session=result.data?.session;
- }
- if(!session?.user){archiveAdmin=false;archiveUserId=null;return false;}
- const {data,error}=await archiveSupabase.from('vha_cms_admins').select('user_id').eq('user_id',session.user.id).maybeSingle();
- archiveAdmin=!error&&Boolean(data);
- archiveUserId=archiveAdmin?session.user.id:null;
+ if(!window.VHAGitHub){archiveAdmin=false;archiveUserId=null;return false;}
+ try{
+  const session=sessionOverride===undefined?await window.VHAGitHub.restoreSession():sessionOverride;
+  const user=session?.user||null;
+  archiveAdmin=Boolean(user&&String(user.login||'').toLowerCase()==='iyakuza');
+  archiveUserId=archiveAdmin?String(user.login):null;
+ }catch(error){archiveAdmin=false;archiveUserId=null;}
  return archiveAdmin;
 }
+
 async function toggleArchiveFavorite(recordId,button){
  const id=String(recordId);
- if(!archiveAdmin||!archiveSupabase||!/^[0-9]+$/.test(id)||button.disabled)return;
+ if(!archiveAdmin||!window.VHACMSStore||!/^[0-9]+$/.test(id)||button.disabled)return;
  const wasFavorite=favoriteRecordIds.has(id);button.disabled=true;favoriteSaveError=false;
  button.title=wasFavorite?'REMOVING FAVOURITE…':'SAVING FAVOURITE…';
  try{
-  const result=wasFavorite?await archiveSupabase.from('human_archive_favorites').delete().eq('record_id',Number(id)):await archiveSupabase.from('human_archive_favorites').insert({record_id:Number(id)});
-  if(result.error&&!(result.error.code==='23505'&&!wasFavorite))throw result.error;
+  await window.VHACMSStore.setFavorite(id,!wasFavorite);
   if(wasFavorite)favoriteRecordIds.delete(id);else favoriteRecordIds.add(id);
  }catch(error){console.error('Human Archive favourite could not be saved:',error);favoriteSaveError=true;}
  finally{document.querySelectorAll('[data-ha-favorite-id="'+id+'"]').forEach(control=>{control.disabled=!archiveAdmin;});syncFavoriteControls();}
 }
+
 function chamberShareUrl(record){
  return new URL(encodeURIComponent(record.slug),archiveHomeUrl).href;
 }
@@ -482,7 +563,7 @@ function defaultChamberOutputMedia(record,type){
   url:localMediaUrl(item),
   path:String(item.storage_path||''),
   mime_type:String(item.mime_type||''),
-  storage:item.storage==='vha-post-media'?'vha-post-media':'recovered'
+   storage:item.storage||'recovered'
  }));
  if(type!=='video')return recovered;
  const allowedHosts=new Set(['www.youtube.com','www.youtube-nocookie.com']);
@@ -555,9 +636,16 @@ function sanitizeTransmissionBody(source){
   if(node.tagName==='IMG'){
    const rawSrc=node.getAttribute('src')||'';
    const media=getMedia(rawSrc);
-   const src=media&&mediaReady?localMediaUrl(media):safeArchiveMediaUrl(rawSrc,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']));
+   const src=media&&mediaReady?localMediaUrl(media):safeArchiveMediaUrl(rawSrc,new Set(['i0.wp.com','emanuelstefancu.wordpress.com']));
    let valid=Boolean(src);
-   if(valid){const url=new URL(src);if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);else if(url.hostname==='ioguymqdeuuursizifnn.supabase.co')valid=/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname);else if(url.origin===window.location.origin)valid=url.pathname.startsWith('/landing-page/');else valid=url.pathname.includes('/wp-content/uploads/');}
+   if(valid){
+    if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
+    else{
+     const url=new URL(src);
+     if(url.origin===window.location.origin)valid=(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
+     else valid=url.pathname.includes('/wp-content/uploads/');
+    }
+   }
    if(!valid)return;
    element.src=src;element.alt=String(node.getAttribute('alt')||'');element.loading='lazy';element.style.maxWidth='100%';element.style.height='auto';
   }
@@ -565,8 +653,16 @@ function sanitizeTransmissionBody(source){
    const rawSrc=node.getAttribute('src')||'';
    if(rawSrc){
     const media=getMedia(rawSrc);
-    const src=media&&mediaReady?localMediaUrl(media):safeArchiveMediaUrl(rawSrc,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
-    if(!src||!(()=>{const url=new URL(src);return url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'?/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname):url.hostname==='ioguymqdeuuursizifnn.supabase.co'?/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname):url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/');})())return;
+    const src=media&&mediaReady?localMediaUrl(media):safeArchiveMediaUrl(rawSrc,new Set());
+     let valid=Boolean(src);
+     if(valid){
+      if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
+      else{
+       const url=new URL(src);
+       valid=url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
+      }
+     }
+     if(!valid)return;
     element.src=src;
    }else if(!node.querySelector('source'))return;
    element.controls=true;element.preload='none';
@@ -575,8 +671,16 @@ function sanitizeTransmissionBody(source){
   if(node.tagName==='SOURCE'){
    const rawSrc=node.getAttribute('src')||'';
    const media=getMedia(rawSrc);
-   const src=media&&mediaReady?localMediaUrl(media):safeArchiveMediaUrl(rawSrc,new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']));
-   if(!src||!(()=>{const url=new URL(src);return url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'?/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname):url.hostname==='ioguymqdeuuursizifnn.supabase.co'?/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname):url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/');})())return;
+   const src=media&&mediaReady?localMediaUrl(media):safeArchiveMediaUrl(rawSrc,new Set());
+    let valid=Boolean(src);
+    if(valid){
+     if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
+     else{
+      const url=new URL(src);
+      valid=url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
+     }
+    }
+    if(!valid)return;
    element.src=src;element.type=String(node.getAttribute('type')||'');
   }
   if(node.tagName==='IFRAME'){
@@ -638,11 +742,32 @@ function renderRecordStructureView(record,grid,status,editButton,expandButton,cl
  });
  grid.append(body);
  if(editButton){
-  editButton.hidden=!archiveAdmin;editButton.disabled=false;editButton.textContent='REDESIGN CHAMBER';
+  editButton.hidden=!archiveAdmin||!archiveWriteReady;editButton.disabled=false;editButton.textContent='REDESIGN CHAMBER';
   editButton.setAttribute('aria-label','Redesign this archive chamber');
-  editButton.onclick=()=>{
-   if(!archiveAdmin){status.textContent='ADMIN ACCESS REQUIRED';return;}
-   renderRecordStructureEditor(record,grid,status,editButton,expandButton,closeButton);
+  editButton.onclick=async()=>{
+   if(!archiveAdmin||!archiveWriteReady||!window.VHACMSStore){status.textContent='GITHUB OWNER SESSION REQUIRED';return;}
+   editButton.disabled=true;
+   try{
+    if(record.source_type==='transmission'&&record.status==='published'&&!record.draft_id){
+     status.textContent='CREATING PRIVATE EDIT DRAFT…';
+     const draft=await window.VHACMSStore.createEditDraft(record.post_id);
+     record.draft_id=draft.draft_id;record._draftData=draft;record._repoCommitSha=draft._repoCommitSha;
+     record._editOfPublished=true;record.isNew=false;record.draft_source='existing';record.status='published';
+     record.title=draft.metadata.title;record.slug=draft.metadata.slug;record.categories=[draft.metadata.category];
+     record.excerpt=draft.metadata.excerpt;record.media_width=draft.metadata.media_width;
+     record.content_html=draft.content.transmission_body||record.content_html;
+     recordStructureOverrides.set(String(record.id),{
+      record_id:Number(record.id),transmission_body:draft.content.transmission_body||record.content_html,
+      prompt_style:draft.content.prompt_style||'',lyrics_style:draft.content.lyrics_style||'',output_text:draft.content.output_text||'',
+      output_media:draft.content.output_media||{},blocks:draft.content.blocks||[],updated_at:draft.updated_at
+     });
+    }
+    renderRecordStructureEditor(record,grid,status,editButton,expandButton,closeButton);
+   }catch(error){
+    console.error('Private edit draft could not be created:',error);
+    status.textContent='EDITOR COULD NOT OPEN — '+String(error.message||'PLEASE TRY AGAIN');
+    editButton.disabled=false;
+   }
   };
  }
  if(closeButton){
@@ -658,10 +783,12 @@ function chamberUploadToken(){
  return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
 }
 function renderRecordStructureEditor(record,grid,status,editButton,expandButton,closeButton,readOnly=false){
+ record._publicCommitSha=record._publicCommitSha||archivePublicHeadSha;
  grid.classList.add('ha-chamber-grid-editor');
  const structure=getRecordStructure(record);
  const initialRecordSnapshot=JSON.parse(JSON.stringify(record));
  const initialStructureSnapshot=JSON.parse(JSON.stringify(structure));
+  const initialDraftSnapshot=record._draftData?JSON.parse(JSON.stringify(record._draftData)):null;
  const editorMedia={
   image:getRecordOutputMedia(record,structure,'image').map(item=>({...item})),
   audio:getRecordOutputMedia(record,structure,'audio').map(item=>({...item})),
@@ -673,7 +800,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  let attachedPostMedia=(Array.isArray(record.media_items)?record.media_items:[]).map((item,index)=>{
   const mime=String(item.mime_type||'').toLowerCase();
   const type=['image','audio','video'].includes(item.type)?item.type:(mime.startsWith('image/')?'image':mime.startsWith('video/')?'video':'audio');
-  return {id:String(item.id||'attached-'+index),name:String(item.title||item.name||record.title),url:String(item.source_url||item.url||''),path:String(item.storage_path||item.path||''),type,mime_type:mime,storage:String(item.storage||'vha-post-media')};
+  return {id:String(item.id||'attached-'+index),name:String(item.title||item.name||record.title),url:String(item.url||item.src||item.source_url||''),path:String(item.local_path||item.storage_path||item.path||item.src||''),type,mime_type:mime,storage:String(item.storage||'vha-post-media')};
  }).filter(item=>item.url);
  const blockMediaUploadedPaths=[];
  const blockMediaUploadedAssets=[];
@@ -703,7 +830,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  };
  const titleInput=addMetadataField('TITLE','title',record.title,{placeholder:'Transmission title',maxLength:180});
  const slugInput=addMetadataField('PUBLIC URL SLUG','slug',record.slug,{placeholder:'lowercase-words-separated-by-hyphens',maxLength:180});
- const currentCategory=(record.categories||[])[0]||'';
+ const currentCategory=(record.categories||[])[0]||(record.source_type==='transmission'?'THE TRANSFORMATION':'');
  const categoryInputWrap=makeChamberNode('label','ha-chamber-metadata-field');
  const categoryInputLabel=makeChamberNode('span','ha-chamber-metadata-label','ARCHIVE / MOVEMENT');
  const categoryInput=document.createElement('select');
@@ -805,34 +932,43 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   const inferred=byExt[ext]||'';return accepted[type]?.includes(inferred)?inferred:null;
  };
  const uploadBlockMedia=async(files,type)=>{
-  if(!archiveAdmin||!archiveSupabase||!archiveUserId)throw new Error('An active CMS admin session is required to upload media.');
+  if(!archiveAdmin||!window.VHACMSStore||!archiveUserId)throw new Error('An active GitHub CMS owner session is required to upload media.');
   const acceptedType=type==='image'||type==='gallery'||type==='slideshow'||type==='tiled-gallery'||type==='cover'||type==='media-text'||type==='image-compare'?'image':type==='audio'||type==='playlist'||type==='podcast'?'audio':type==='video'?'video':'file';
   const assets=[];
   for(const file of files){
    const mime=blockMediaMime(file,acceptedType);
    if(!mime)throw new Error(file.name+' has an unsupported file format.');
    if(file.size>30*1024*1024)throw new Error(file.name+' exceeds the 30 MB upload limit.');
-   const token=chamberUploadToken();
-   const safeName=String(file.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
    const folder=mime.startsWith('image/')?'image':mime.startsWith('audio/')?'audio':mime.startsWith('video/')?'video':'files';
-   const path='human-archive/'+String(record.id)+'/blocks/'+folder+'/'+token+'-'+safeName;
-   const {error}=await archiveSupabase.storage.from('vha-post-media').upload(path,file,{cacheControl:'3600',contentType:mime,upsert:false});
-   if(error)throw error;
-   blockMediaUploadedPaths.push(path);
-   const {data}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
-   if(!data?.publicUrl)throw new Error('The uploaded media URL could not be created.');
-   const asset={url:data.publicUrl,path,name:file.name,mime_type:mime,type:folder,storage:'vha-post-media'};assets.push(asset);blockMediaUploadedAssets.push(asset);
+   let asset;
+   if(record.source_type==='transmission'){
+    if(!record.draft_id)throw new Error('The private Transmission draft has not been initialized.');
+    const uploaded=await window.VHACMSStore.uploadDraftMedia(record.draft_id,[file],'blocks-'+folder,record._repoCommitSha);
+    const path=uploaded[0].path,url=URL.createObjectURL(file);
+    privateMediaUrlToPath.set(url,path);record._repoCommitSha=uploaded[0].commitSha;
+    asset={url,path,name:file.name,mime_type:mime,type:folder,storage:'github-private'};
+   }else{
+    const uploaded=await window.VHACMSStore.uploadPublicMedia(record.id,[file],'blocks-'+folder,record._publicCommitSha||archivePublicHeadSha);
+    const item=uploaded[0];record._publicCommitSha=item.commitSha;
+    asset={url:item.url,path:item.path,name:file.name,mime_type:mime,type:folder,storage:'github-public'};
+   }
+   blockMediaUploadedPaths.push(asset.path);assets.push(asset);blockMediaUploadedAssets.push(asset);
   }
   status.textContent=assets.length+' MEDIA FILE'+(assets.length===1?'':'S')+' UPLOADED — SAVE TO KEEP CHANGES.';
   return assets;
  };
- const getBlockMediaLibrary=type=>{
+
+const getBlockMediaLibrary=type=>{
   const desired=type==='image'||type==='gallery'||type==='slideshow'||type==='tiled-gallery'||type==='cover'||type==='media-text'||type==='image-compare'?'image':type==='audio'||type==='playlist'||type==='podcast'?'audio':type==='video'?'video':'';
   const archiveAssets=records.flatMap(archiveRecord=>{
    const archiveStructure=getRecordStructure(archiveRecord);
    return [...['image','audio','video'].flatMap(kind=>getRecordOutputMedia(archiveRecord,archiveStructure,kind).map(item=>({...item,type:kind}))),...(Array.isArray(archiveRecord.media_items)?archiveRecord.media_items:[])];
   });
-  const source=[...archiveAssets,...['image','audio','video'].flatMap(kind=>editorMedia[kind].map(item=>({...item,type:kind}))),...attachedPostMedia,...blockMediaUploadedAssets];
+  const currentBlockAssets=(window.VHACMSStore?.getPublicMediaReferencesFromHtml?.(getEditorHTML())||[]).map(item=>({
+   url:archiveSiteBasePath+'/'+item.path.split('/').map(encodeURIComponent).join('/'),
+   path:item.path,name:item.path.split('/').pop(),type:item.type,mime_type:item.type+'/unknown',storage:'github-public'
+  }));
+  const source=[...archiveAssets,...currentBlockAssets,...['image','audio','video'].flatMap(kind=>editorMedia[kind].map(item=>({...item,type:kind}))),...attachedPostMedia,...blockMediaUploadedAssets];
   const seen=new Set();
   return source.filter(item=>{
    const itemType=String(item.type||item.mime_type||'').toLowerCase();
@@ -844,12 +980,23 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const cleanupBlockMediaUploads=async(keepContent='')=>{
   if(!blockMediaUploadedPaths.length)return;
   const paths=blockMediaUploadedPaths.splice(0);
-  blockMediaUploadedAssets.splice(0);
-  const keep=paths.filter(path=>String(keepContent||'').includes(path));
-  const remove=paths.filter(path=>!keep.includes(path));
-  if(remove.length&&archiveSupabase){const {error}=await archiveSupabase.storage.from('vha-post-media').remove(remove);if(error)console.warn('Unreferenced block media could not be cleaned up:',error);}
+  const assets=blockMediaUploadedAssets.splice(0);
+  const keep=assets.filter(item=>String(keepContent||'').includes(item.url)||String(keepContent||'').includes(item.path));
+  const remove=paths.filter(path=>!keep.some(item=>item.path===path));
+  const privatePaths=remove.filter(path=>path.startsWith('cms-data/v1/media/drafts/'));
+  const publicPaths=remove.filter(path=>path.startsWith('media/human-archive/HA-'));
+  try{
+   if(privatePaths.length){const result=await window.VHACMSStore.deleteDraftMedia(record.draft_id,privatePaths,record._repoCommitSha);record._repoCommitSha=result.commitSha||record._repoCommitSha;}
+   if(publicPaths.length){const result=await window.VHACMSStore.deletePublicMedia(record.id,publicPaths,record._publicCommitSha);record._publicCommitSha=result.commitSha||record._publicCommitSha;}
+  }catch(error){console.warn('Unreferenced media could not be cleaned up:',error);}
  };
- const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window.VHABlockEditor?.mountBlockEditor({editor,showTopbar:false,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
+
+if(!readOnly&&typeof window.VHABlockEditor?.mountBlockEditor!=='function'){
+  status.textContent='BLOCK EDITOR UNAVAILABLE — REFRESH THE PAGE AND REOPEN THIS RECORD.';
+  throw new Error('The Human Archive block editor module did not load.');
+ }
+ const blockEditorControllers=readOnly?[]:[transmissionEditor].map(editor=>window.VHABlockEditor.mountBlockEditor({editor,showTopbar:true,mediaBasePath:archiveSiteBasePath,onUpload:uploadBlockMedia,getMediaLibrary:getBlockMediaLibrary,onChange:()=>{if(record.source_type==='transmission'&&record.status==='draft')scheduleDraftAutosave?.();}})).filter(Boolean);
+ if(!readOnly&&!blockEditorControllers.length)throw new Error('The Human Archive block editor could not be mounted.');
  const getEditorHTML=()=>transmissionEditor.__haBlockEditor?.getHTML()||transmissionEditor.innerHTML;
  const getEditorBlocks=()=>{
   const current=transmissionEditor.__haBlockEditor?.getBlocks?.();
@@ -864,7 +1011,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   grid.querySelectorAll('select,button').forEach(control=>{control.disabled=true;});
   grid.querySelectorAll('[contenteditable="true"]').forEach(control=>{control.contentEditable='false';});
   grid.querySelectorAll('.ha-chamber-upload-label,.ha-chamber-media-remove').forEach(control=>{control.hidden=true;});
-  if(editButton)editButton.hidden=!archiveAdmin;
+  if(editButton)editButton.hidden=!archiveAdmin||!archiveWriteReady;
   clearChamberFormattingToolbar();
   bindChamberDisclosureControls(grid,expandButton);
   return;
@@ -883,122 +1030,127 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  recordMetadataInputs?.status?.addEventListener('change',updateSaveLabel);updateSaveLabel();
  // Draft Transmissions are database-backed as the user types. Publication remains an explicit action.
  let draftAutosaveTimer=null,draftAutosaveInFlight=false,draftAutosaveQueued=false,draftAutosaveStopped=false,draftAutosaveFlushing=false,draftAutosaveConflict=false,draftAutosaveLastSignature='';
- const draftAutosaveEnabled=record.source_type==='transmission'&&record.status==='draft';
+ const draftAutosaveEnabled=record.source_type==='transmission'&&Boolean(record.draft_id);
  const deleteDraft=draftAutosaveEnabled?makeChamberNode('button','ha-chamber-delete-draft','DELETE DRAFT'):null;
  if(deleteDraft){
   deleteDraft.type='button';
   recordChamber?.querySelector('.ha-chamber-topbar-actions')?.append(deleteDraft);
  }
+ const serializePrivateMediaRefs=value=>{
+  let output=String(value||'');
+  for(const [url,path] of privateMediaUrlToPath)output=output.split(url).join(path);
+  return output;
+ };
+ const persistMediaItem=item=>{
+  const uploaded=item.uploadedDraft||{};
+  const path=String(uploaded.path||item.path||privateMediaUrlToPath.get(item.url)||'');
+  const privateRef=path.startsWith('cms-data/v1/media/drafts/');
+  return {
+   id:String(item.id||path||item.url||chamberUploadToken()),
+   name:String(item.name||record.title||'Media'),
+   url:privateRef?path:String(uploaded.url||item.url||''),
+   path,
+   type:String(item.type||uploaded.type||'file'),
+   mime_type:String(uploaded.mime_type||item.mime_type||''),
+   storage:String(uploaded.storage||item.storage||(privateRef?'github-private':'github-public'))
+  };
+ };
  const buildDraftAutosaveState=()=>{
   const metadata={
    title:String(recordMetadataInputs.title.value).trim(),
    slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
    category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
    excerpt:String(recordMetadataInputs.excerpt.value).trim(),
-   mediaWidth:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100)),
-   status:'draft'
+   media_width:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100))
   };
-  if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
-  if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
-  if(![...categoryOrder.map(name=>name.toUpperCase()),...transmissionCategories].includes(metadata.category))throw new Error('Choose a Human Archive category or one of the five Transmissions movements.');
+  if(metadata.title.length>180)throw new Error('Title must contain 180 characters or fewer.');
+  if(metadata.slug&&!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
   if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
-  const transmissionBody=sanitizeTransmissionBody(getEditorHTML());
-  const blocks=getEditorBlocks();
-  const existingOutput=structure.output_media&&typeof structure.output_media==='object'?structure.output_media:{};
+  const editorBody=sanitizeTransmissionBody(getEditorHTML());
+  const editorBlocks=getEditorBlocks();
+  const body=serializePrivateMediaRefs(editorBody);
+  const blocks=editorBlocks.map(block=>({...block,html:serializePrivateMediaRefs(block.html)}));
   const outputMedia={};
-  for(const type of ['image','audio','video']){
-   const hasUnuploaded=editorMedia[type].some(item=>item.file&&!item.uploadedDraft);
-   outputMedia[type]=hasUnuploaded?(Array.isArray(existingOutput[type])?existingOutput[type]:[]):editorMedia[type].map(item=>{
-    const uploaded=item.uploadedDraft||{};
-    return {
-     id:String(item.id||uploaded.path||item.path||item.url||chamberUploadToken()),name:String(item.name||record.title),
-     url:String(uploaded.url||item.url||''),path:String(uploaded.path||item.path||''),
-     mime_type:String(uploaded.mime_type||item.mime_type||''),storage:String(uploaded.storage||item.storage||'recovered')
-    };
-   });
-  }
-  const mediaItems=attachedPostMedia.map(item=>{
-   const uploaded=item.uploadedDraft||{};
-   return {url:uploaded.url||item.url,path:uploaded.path||item.path||null,type:item.type,name:item.name};
-  }).filter(item=>item.url);
+  for(const kind of ['image','audio','video'])outputMedia[kind]=editorMedia[kind].map(persistMediaItem);
+  const mediaItems=attachedPostMedia.map(persistMediaItem).filter(item=>item.url);
   const row={
-   record_id:Number(record.id),transmission_body:transmissionBody,
+   record_id:Number(record.id),transmission_body:body,
    prompt_style:'',lyrics_style:'',output_text:'',
-   output_media:outputMedia,updated_at:new Date().toISOString(),updated_by:archiveUserId
+   output_media:outputMedia,blocks,updated_at:new Date().toISOString()
   };
-  return {metadata,row,mediaItems,blocks};
+  return {metadata,row,mediaItems,blocks,editorBody,editorBlocks};
  };
  const uploadPendingDraftMedia=async()=>{
   const uploadedPaths=[];
   const uploadOne=async(item,folder,type)=>{
    if(!item.file||item.uploadedDraft)return;
-   const token=chamberUploadToken();
-   const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
-   const path='human-archive/'+String(record.id)+'/'+folder+'/'+token+'-'+safeName;
-   const {error}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{cacheControl:'3600',contentType:item.mime_type,upsert:false});
-   if(error)throw error;
+   if(!record.draft_id)throw new Error('The private Transmission draft has not been initialized.');
+   const uploaded=await window.VHACMSStore.uploadDraftMedia(record.draft_id,[item.file],folder,record._repoCommitSha);
+   const path=uploaded[0].path,url=URL.createObjectURL(item.file);
+   privateMediaUrlToPath.set(url,path);
+   record._repoCommitSha=uploaded[0].commitSha;
    uploadedPaths.push(path);
-   const {data}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
-   if(!data?.publicUrl)throw new Error('The uploaded media URL could not be created.');
-   item.uploadedDraft={url:data.publicUrl,path,type:type||item.type,name:item.name,mime_type:item.mime_type,storage:'vha-post-media'};
+   item.uploadedDraft={url,path,type:type||item.type,name:item.name,mime_type:item.mime_type,storage:'github-private'};
   };
   try{
    for(const item of attachedPostMedia)await uploadOne(item,'attachments',item.type);
-   for(const type of ['image','audio','video'])for(const item of editorMedia[type])await uploadOne(item,type,type);
+   for(const kind of ['image','audio','video'])for(const item of editorMedia[kind])await uploadOne(item,kind,kind);
    return uploadedPaths;
   }catch(error){
-   if(uploadedPaths.length)await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
-   await cleanupBlockMediaUploads('');
-   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{delete item.uploadedDraft;});
+    if(uploadedPaths.length){
+    try{const result=await window.VHACMSStore.deleteDraftMedia(record.draft_id,uploadedPaths,record._repoCommitSha);record._repoCommitSha=result.commitSha||record._repoCommitSha;}catch(cleanupError){console.warn('Failed private uploads were retained for later cleanup:',cleanupError);}
+   }
+   [...attachedPostMedia,...['image','audio','video'].flatMap(kind=>editorMedia[kind])].forEach(item=>{if(item.uploadedDraft){privateMediaUrlToPath.delete(item.uploadedDraft.url);delete item.uploadedDraft;}});
    throw error;
   }
  };
  const runDraftAutosave=async()=>{
   if(draftAutosaveConflict)return false;
-  if(!draftAutosaveEnabled||draftAutosaveStopped||!archiveAdmin||!archiveSupabase||!archiveUserId)return true;
+  if(!draftAutosaveEnabled||draftAutosaveStopped||!archiveAdmin||!window.VHACMSStore||!archiveUserId)return true;
   if(draftAutosaveInFlight){draftAutosaveQueued=true;return null;}
-  let state,signature,uploadedPaths=[];
+  let state,signature,uploadedPaths=[],draftSaved=false;
   draftAutosaveInFlight=true;
   try{
    uploadedPaths=await uploadPendingDraftMedia();
    state=buildDraftAutosaveState();
-   signature=JSON.stringify({metadata:state.metadata,row:{...state.row,updated_at:null,updated_by:null},mediaItems:state.mediaItems,blocks:state.blocks});
-   if(signature===draftAutosaveLastSignature){
-    uploadedPaths.forEach(path=>console.warn('Draft media already represented in the saved record:',path));
-    return true;
-   }
-   status.textContent='SAVING DRAFT…';
-   const {data,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
-    p_post_id:record.post_id,p_title:state.metadata.title,p_slug:state.metadata.slug,
-    p_category:state.metadata.category,p_excerpt:state.metadata.excerpt,p_status:'draft',
-    p_transmission_body:state.row.transmission_body,p_prompt_style:state.row.prompt_style,
-    p_lyrics_style:state.row.lyrics_style,p_output_text:state.row.output_text,
-    p_output_media:state.row.output_media,p_media_items:state.mediaItems,
-    p_media_width:state.metadata.mediaWidth,p_expected_updated_at:record.updated_at
-   });
-   if(error)throw error;
-   const saved=Array.isArray(data)?data[0]:data;
-   const previousBlocks=recordStructureOverrides.get(String(record.id))?.blocks||[];
-   record.updated_at=saved?.updated_at||record.updated_at;
-   state.row.updated_at=record.updated_at;
-   recordStructureOverrides.set(String(record.id),{...state.row,blocks:previousBlocks});
-   const {data:blockSaveData,error:blockSaveError}=await archiveSupabase.rpc('save_human_archive_record_blocks_v1',{p_record_id:Number(record.id),p_blocks:state.blocks,p_expected_updated_at:saved?.updated_at||record.updated_at});
-   if(blockSaveError)throw blockSaveError;
-   state.row.blocks=state.blocks;
-   state.row.updated_at=blockSaveData||saved?.updated_at||state.row.updated_at;
-   record.media_width=state.metadata.mediaWidth;
+   signature=JSON.stringify({metadata:state.metadata,row:{...state.row,updated_at:null},mediaItems:state.mediaItems,blocks:state.blocks});
+   if(signature===draftAutosaveLastSignature)return true;
+   status.textContent='SAVING PRIVATE DRAFT…';
+   const current=await window.VHACMSStore.getDraft(record.draft_id);
+   if(!current)throw new Error('The private draft could not be found. Reload the editor before continuing.');
+   const next={
+    ...current,revision:Number(current.revision||0),
+    metadata:state.metadata,
+    content:{
+     transmission_body:state.row.transmission_body,
+     prompt_style:state.row.prompt_style,lyrics_style:state.row.lyrics_style,output_text:state.row.output_text,
+     output_media:state.row.output_media,blocks:state.blocks,media_items:state.mediaItems
+    }
+   };
+   const saved=await window.VHACMSStore.saveDraft(next,record._repoCommitSha||current._repoCommitSha);
+   record._repoCommitSha=saved.commitSha;record.updated_at=saved.draft.updated_at;record.draft_revision=saved.draft.revision;record._draftData=saved.draft;
+   record.media_width=state.metadata.media_width;
    record.title=state.metadata.title;record.slug=state.metadata.slug;
-   record.categories=[state.metadata.category];record.excerpt=state.metadata.excerpt;
-   record.content_html=state.row.transmission_body;record.status='draft';
-   record.media_items=state.mediaItems.map((item,index)=>({
-    id:'transmission-'+record.post_id+'-'+index,title:item.name||record.title,
-    alt_text:item.name||record.title,mime_type:item.type+'/unknown',
-    storage_path:item.path||'',source_url:item.url,url:item.url,
-    storage:'vha-post-media',post_ids:[Number(record.id)]
+   record.categories=state.metadata.category?[state.metadata.category]:[];
+   record.excerpt=state.metadata.excerpt;record.content_html=state.editorBody;record.status=record._editOfPublished?'published':'draft';
+   record.media_items=attachedPostMedia.map(item=>({
+    id:'transmission-'+record.post_id+'-'+String(item.name||'attachment'),
+    title:item.name||record.title,alt_text:item.name||record.title,
+    mime_type:item.mime_type||'application/octet-stream',storage_path:item.uploadedDraft?.path||item.path||'',
+    source_url:item.uploadedDraft?.url||item.url,url:item.uploadedDraft?.url||item.url,
+    storage:item.uploadedDraft?.storage||item.storage||'github-private',post_ids:[Number(record.id)]
    }));
-   recordStructureOverrides.set(String(record.id),state.row);
-   await cleanupBlockMediaUploads(state.row.transmission_body);
-   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{
+   const liveOutput=Object.fromEntries(['image','audio','video'].map(kind=>[kind,editorMedia[kind].map(item=>({
+    ...item,url:item.uploadedDraft?.url||item.url,path:item.uploadedDraft?.path||item.path,
+    storage:item.uploadedDraft?.storage||item.storage||'github-private'
+   }))]));
+   recordStructureOverrides.set(String(record.id),{
+    record_id:Number(record.id),transmission_body:state.editorBody,
+    prompt_style:'',lyrics_style:'',output_text:'',output_media:liveOutput,
+    blocks:state.editorBlocks,updated_at:record.updated_at
+   });
+   await cleanupBlockMediaUploads(state.editorBody+'\n'+state.editorBlocks.map(block=>block.html||'').join('\n'));
+   [...attachedPostMedia,...['image','audio','video'].flatMap(kind=>editorMedia[kind])].forEach(item=>{
     if(item.uploadedDraft){Object.assign(item,item.uploadedDraft);item.file=null;delete item.uploadedDraft;}
    });
    repaintAttachedPostMedia();
@@ -1006,13 +1158,13 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    status.textContent='DRAFT SAVED AUTOMATICALLY';
    return true;
   }catch(error){
-   if(uploadedPaths.length)await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
-   [...attachedPostMedia,...['image','audio','video'].flatMap(type=>editorMedia[type])].forEach(item=>{delete item.uploadedDraft;});
+    if(uploadedPaths.length&&!draftSaved){
+    try{const result=await window.VHACMSStore.deleteDraftMedia(record.draft_id,uploadedPaths,record._repoCommitSha);record._repoCommitSha=result.commitSha||record._repoCommitSha;}catch(cleanupError){console.warn('Failed draft uploads could not be cleaned up:',cleanupError);}
+   }
    console.error('Human Archive draft autosave failed:',error);
-   if(error?.code==='40001'){
-    chamberSaveConflict=true;
-    draftAutosaveConflict=true;
-    status.textContent='EDIT CONFLICT — THIS TRANSMISSION CHANGED IN ANOTHER TAB. RELOAD BEFORE CONTINUING.';
+   if(error?.code==='EDIT_CONFLICT'||error?.status===409){
+    chamberSaveConflict=true;draftAutosaveConflict=true;
+    status.textContent='EDIT CONFLICT — THE PRIVATE CMS REPOSITORY CHANGED. RELOAD BEFORE CONTINUING.';
    }else status.textContent='AUTOSAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
    return false;
   }finally{
@@ -1052,37 +1204,26 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  };
 
  deleteDraft?.addEventListener('click',async()=>{
-  if(!draftAutosaveEnabled||draftAutosaveStopped||!archiveAdmin||!archiveSupabase||!archiveUserId)return;
-  if(!window.confirm('Permanently delete this draft Transmission? Its Human Archive record and associated Human Archive attachment files will be removed. This cannot be undone.'))return;
+  if(!draftAutosaveEnabled||draftAutosaveStopped||!archiveAdmin||!window.VHACMSStore)return;
+  if(!window.confirm('Permanently delete this private draft and its private media? This cannot be undone.'))return;
   draftAutosaveStopped=true;
   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
   deleteDraft.disabled=true;save.disabled=true;editButton.disabled=true;status.textContent='WAITING FOR ANY ACTIVE DRAFT SAVE…';
   try{
    while(draftAutosaveInFlight)await new Promise(resolve=>setTimeout(resolve,50));
    draftAutosaveQueued=false;
-   status.textContent='DELETING DRAFT…';
-   const {data,error}=await archiveSupabase.rpc('delete_human_archive_transmission_draft_v1',{p_post_id:record.post_id});
-   if(error)throw error;
-   const deleted=Array.isArray(data)?data[0]:data;
-   if(!deleted||Number(deleted.archive_record_id)!==Number(record.id))throw new Error('The database did not confirm deletion of this exact Archive record.');
-   let cleanupWarning=false;
-   const paths=Array.isArray(deleted.storage_paths)?deleted.storage_paths.filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')):[];
-   if(paths.length){
-    const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(paths);
-    if(cleanupError){cleanupWarning=true;console.warn('Draft was deleted, but some associated storage files remain:',cleanupError);}
-   }
+   status.textContent='DELETING PRIVATE DRAFT…';
+   await window.VHACMSStore.deleteDraft(record.draft_id,record._repoCommitSha);
    records=records.filter(item=>String(item.id)!==String(record.id));
-   const removedMediaUrls=new Set((record.media_items||[]).map(item=>item.url).filter(Boolean));
-   mediaItems=mediaItems.filter(item=>!(item.post_ids||[]).includes(Number(record.id))&&!removedMediaUrls.has(item.url));
-   removedMediaUrls.forEach(url=>mediaMap.delete(urlKey(url)));
-   recordStructureOverrides.delete(String(record.id));favoriteRecordIds.delete(String(record.id));
+   recordStructureOverrides.delete(String(record.id));
+   await loadTransmissionRecords();
    blockEditorControllers.forEach(controller=>controller.destroy());
    richEditorController?.destroy();clearChamberFormattingToolbar();
-   chamberCloseRequestedByUser=true;recordChamber?.close();render();
-   setMediaStatus(cleanupWarning?'DRAFT DELETED — SOME STORAGE FILES COULD NOT BE CLEANED UP':'DRAFT DELETED',!cleanupWarning);
+   chamberCloseRequestedByUser=true;recordChamber?.close();if(hasArchiveIndex)render();
+   setMediaStatus('PRIVATE DRAFT DELETED',true);
   }catch(error){
    draftAutosaveStopped=false;deleteDraft.disabled=false;save.disabled=false;editButton.disabled=false;
-   console.error('Human Archive draft could not be deleted:',error);
+   console.error('Private draft could not be deleted:',error);
    status.textContent='DELETE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
    scheduleDraftAutosave(0);
   }
@@ -1096,101 +1237,50 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  const waitForDraftSave=async()=>{
   while(draftAutosaveInFlight)await new Promise(resolve=>setTimeout(resolve,50));
  };
- const removeNewDraftStorage=async(paths)=>{
-  const safe=[...new Set((paths||[]).filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')))];
-  if(!safe.length)return;
-  const {error}=await archiveSupabase.storage.from('vha-post-media').remove(safe);
-  if(error)console.warn('Discarded draft media could not be fully cleaned up:',error);
- };
  const discardChanges=async()=>{
   if(editButton.disabled)return;
   editButton.disabled=true;save.disabled=true;if(deleteDraft)deleteDraft.disabled=true;
   status.textContent='DISCARDING CHANGES…';
   try{
-   const wasNewBeforeEditing=Boolean(initialRecordSnapshot.isNew&&!initialRecordSnapshot.post_id);
-   if(wasNewBeforeEditing&&!record.post_id){
-    if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
-    await cleanupBlockMediaUploads('');
-    destroyEditor();
-    if(createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // DISCARDED';
-    chamberCloseRequestedByUser=true;recordChamber?.close();
-    return;
-   }
-   if(wasNewBeforeEditing&&record.post_id){
-    draftAutosaveStopped=true;
-    if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
-    await waitForDraftSave();
-    const {data,error}=await archiveSupabase.rpc('delete_human_archive_transmission_draft_v1',{p_post_id:record.post_id});
-    if(error)throw error;
-    const deleted=Array.isArray(data)?data[0]:data;
-    if(!deleted||Number(deleted.archive_record_id)!==Number(record.id))throw new Error('The newly created draft could not be confirmed for deletion.');
-    await cleanupBlockMediaUploads('');
-    await removeNewDraftStorage(Array.isArray(deleted.storage_paths)?deleted.storage_paths:[]);
-    records=records.filter(item=>String(item.id)!==String(record.id));
-    recordStructureOverrides.delete(String(record.id));favoriteRecordIds.delete(String(record.id));
-    destroyEditor();chamberCloseRequestedByUser=true;recordChamber?.close();render();
-    if(createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // DISCARDED';
-    return;
-   }
-   if(draftAutosaveEnabled){
-    draftAutosaveStopped=true;
-    if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
-    draftAutosaveQueued=false;
-    await waitForDraftSave();
-    if(chamberSaveConflict||draftAutosaveConflict){
-     if(!window.confirm('A newer version of this draft was saved elsewhere. Discard this editor session without overwriting that version?')){
-      draftAutosaveStopped=false;editButton.disabled=false;save.disabled=false;if(deleteDraft)deleteDraft.disabled=false;return;
-     }
-     await Promise.all([loadRecordStructureOverrides(),loadTransmissionRecords()]);
-     const latest=records.find(item=>String(item.id)===String(record.id));
-     if(latest)Object.assign(record,latest);
-    }else{
-     const original=initialRecordSnapshot;
-     const originalStructure=initialStructureSnapshot;
-     const originalBody=sanitizeTransmissionBody(originalStructure.transmission_body||original.content_html||'');
-     const originalBlocks=Array.isArray(originalStructure.blocks)?originalStructure.blocks:[];
-     const originalOutput=originalStructure.output_media&&typeof originalStructure.output_media==='object'?originalStructure.output_media:{};
-     const originalMedia=(Array.isArray(original.media_items)?original.media_items:[]).map(item=>{
-      const mime=String(item.mime_type||'').toLowerCase();
-      const type=['image','audio','video'].includes(item.type)?item.type:(mime.split('/')[0]||'file');
-      return {url:String(item.source_url||item.url||''),path:item.storage_path||item.path||null,type,name:String(item.title||item.name||original.title)};
-     }).filter(item=>item.url);
-     const expectedUpdatedAt=record.updated_at;
-     status.textContent='RESTORING THE ORIGINAL DRAFT…';
-     const {data,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
-      p_post_id:original.post_id,p_title:original.title,p_slug:original.slug,
-      p_category:String((original.categories||[])[0]||'').toUpperCase(),p_excerpt:original.excerpt||'',p_status:'draft',
-      p_transmission_body:originalBody,p_prompt_style:originalStructure.prompt_style||'',
-      p_lyrics_style:originalStructure.lyrics_style||'',p_output_text:originalStructure.output_text||'',
-      p_output_media:originalOutput,p_media_items:originalMedia,p_media_width:original.media_width||100,
-      p_expected_updated_at:expectedUpdatedAt
-     });
-     if(error)throw error;
-     const saved=Array.isArray(data)?data[0]:data;
-     const {data:blockSaveData,error:blockSaveError}=await archiveSupabase.rpc('save_human_archive_record_blocks_v1',{
-      p_record_id:Number(record.id),p_blocks:originalBlocks,p_expected_updated_at:saved?.updated_at||expectedUpdatedAt
-     });
-     if(blockSaveError)throw blockSaveError;
-     Object.assign(record,original);
-     record.content_html=originalBody;
-     record.updated_at=blockSaveData||saved?.updated_at||expectedUpdatedAt;
-     recordStructureOverrides.set(String(record.id),{
-      ...originalStructure,transmission_body:originalBody,output_media:originalOutput,
-      blocks:originalBlocks,updated_at:record.updated_at
-     });
-     const originalPaths=new Set([
-      ...(Array.isArray(original.media_items)?original.media_items:[]).map(item=>item.storage_path||item.path||''),
-      ...Object.values(originalOutput).flatMap(items=>Array.isArray(items)?items.map(item=>item?.path||''):[])
-     ].filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')));
-     const newPaths=[
-      ...attachedPostMedia.map(item=>item.uploadedDraft?.path||item.path||''),
-      ...['image','audio','video'].flatMap(type=>editorMedia[type].map(item=>item.uploadedDraft?.path||item.path||''))
-     ].filter(path=>typeof path==='string'&&path.startsWith('human-archive/'+String(record.id)+'/')&&!originalPaths.has(path));
-     await removeNewDraftStorage(newPaths);
-    }
-   }
-   await cleanupBlockMediaUploads('');
    draftAutosaveStopped=true;
+   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
+   await waitForDraftSave();
+   await cleanupBlockMediaUploads('');
+   if(record.source_type==='transmission'&&record.draft_id){
+    if(record.isNew||record._editOfPublished){
+     await window.VHACMSStore.deleteDraft(record.draft_id,record._repoCommitSha);
+     await loadTransmissionRecords();
+     const original=records.find(item=>item.source_type==='transmission'&&item.post_id===record.post_id);
+     if(original)Object.assign(record,original);
+     else records=records.filter(item=>String(item.id)!==String(record.id));
+     if(record.isNew&&createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // DISCARDED';
+    }else if(initialDraftSnapshot){
+     const collectPaths=draft=>{
+      const paths=[];
+      const content=draft?.content||{};
+      (content.media_items||[]).forEach(item=>{if(item?.path)paths.push(item.path);});
+      Object.values(content.output_media||{}).forEach(items=>(Array.isArray(items)?items:[]).forEach(item=>{if(item?.path)paths.push(item.path);}));
+      const html=[content.transmission_body||'',...(content.blocks||[]).map(block=>block.html||'')].join('\n');
+      for(const match of html.matchAll(/cms-data\/v1\/media\/drafts\/[^\s"'<>)]*/g))paths.push(match[0]);
+      return [...new Set(paths.filter(path=>path.startsWith('cms-data/v1/media/drafts/')))];
+     };
+     const latest=await window.VHACMSStore.getDraft(record.draft_id);
+     const originalPaths=new Set(collectPaths(initialDraftSnapshot));
+     const removePaths=collectPaths(latest).filter(path=>!originalPaths.has(path));
+     if(removePaths.length){
+      const removed=await window.VHACMSStore.deleteDraftMedia(record.draft_id,removePaths,record._repoCommitSha);
+      record._repoCommitSha=removed.commitSha||record._repoCommitSha;
+     }
+     const restore={...initialDraftSnapshot};delete restore._path;delete restore._sha;delete restore._repoCommitSha;
+     const restored=await window.VHACMSStore.saveDraft(restore,record._repoCommitSha);
+     Object.assign(record,initialRecordSnapshot);
+     record._repoCommitSha=restored.commitSha;record._draftData=restored.draft;
+     recordStructureOverrides.set(String(record.id),initialStructureSnapshot);
+    }
+   }else{
+    Object.assign(record,initialRecordSnapshot);
+    recordStructureOverrides.set(String(record.id),initialStructureSnapshot);
+   }
    destroyEditor();
    status.textContent='EDITOR CHANGES DISCARDED';
    if(hasArchiveIndex)render();
@@ -1202,8 +1292,9 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
   }
  };
  if(editButton)editButton.onclick=discardChanges;
+ 
  save.onclick=async()=>{
-  if(!archiveAdmin||!archiveSupabase||!archiveUserId){status.textContent='ADMIN SESSION REQUIRED';return;}
+  if(!archiveAdmin||!archiveWriteReady||!archiveUserId||!window.VHACMSStore){status.textContent='GITHUB EDITOR MIGRATION IS NOT YET ENABLED';return;}
   if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
   if(draftAutosaveInFlight){
    status.textContent='WAITING FOR AUTOMATIC DRAFT SAVE…';
@@ -1217,179 +1308,135 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    if(!window.confirm(prompt))return;
   }
   save.disabled=true;editButton.disabled=true;if(deleteDraft)deleteDraft.disabled=true;save.textContent='SAVING…';status.textContent='PREPARING CHAMBER UPDATE…';
-  const uploadedPaths=[];
+  const uploadedPublicPaths=[];
+  let publicStructureSaved=false;
   const oldStructure=recordStructureOverrides.get(String(record.id))||{};
-  const existingOutput=oldStructure.output_media&&typeof oldStructure.output_media==='object'?oldStructure.output_media:{};
-  const oldOwnedPaths=['image','audio','video'].flatMap(type=>Array.isArray(existingOutput[type])?existingOutput[type]:[])
-   .filter(item=>item&&item.storage==='vha-post-media'&&typeof item.path==='string'&&item.path.startsWith('human-archive/'+String(record.id)+'/'))
+  const oldOutput=oldStructure.output_media&&typeof oldStructure.output_media==='object'?oldStructure.output_media:{};
+  const oldOwnedPaths=['image','audio','video'].flatMap(kind=>Array.isArray(oldOutput[kind])?oldOutput[kind]:[])
+   .filter(item=>item&&item.storage==='github-public'&&typeof item.path==='string'&&item.path.startsWith('media/human-archive/HA-'+String(record.id).padStart(4,'0')+'/'))
    .map(item=>item.path);
   try{
-   if(record.source_type==='transmission'&&!record.post_id){
-    const metadata={
-     title:String(recordMetadataInputs.title.value).trim(),
-     slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
-     category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
-     excerpt:String(recordMetadataInputs.excerpt.value).trim(),
-     status:String(recordMetadataInputs.status.value).trim().toLowerCase(),
-     mediaWidth:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100))
-    };
-    if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
-    if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
-    if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
-    if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
-    if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
-    const initialBody=sanitizeTransmissionBody(getEditorHTML());
-    const publishText=getCurrentTransmissionText();
-    if(metadata.status==='published'&&!String(publishText||'').trim())throw new Error('Add transmission content before publishing.');
-    status.textContent='CREATING TRANSMISSION…';
-    const {data:createResult,error:createError}=await archiveSupabase.rpc('create_human_archive_transmission_v3',{
-     p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,
-     p_status:'draft',p_transmission_body:initialBody,p_prompt_style:'',p_lyrics_style:'',p_output_text:'',
-     p_output_media:{},p_media_items:[],p_media_width:metadata.mediaWidth
-    });
-    if(createError)throw createError;
-    const created=Array.isArray(createResult)?createResult[0]:createResult;
-    if(!created?.post_id||!created?.archive_record_id||!created?.slug||!created?.updated_at)throw new Error('The Transmission record could not be confirmed.');
-    metadata.slug=String(created.slug);
-    recordMetadataInputs.slug.value=metadata.slug;
-    slugManuallyEdited=true;
-    record.id=Number(created.archive_record_id);record.post_id=created.post_id;record.updated_at=created.updated_at;
-    record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;
-    record.status='draft';record.media_width=metadata.mediaWidth;record.created_at=new Date().toISOString();
-    record.date=record.created_at.slice(0,10);record.year=record.date.slice(0,4);
-    record.archiveIdentifier='HA-'+record.year+'-'+String(record.id).padStart(4,'0');
-    record.isNew=false;chamberRecordId=String(record.id);
-   }
-   const savedPostMedia=[];
-   for(const item of attachedPostMedia){
-    if(item.file){
-     status.textContent='UPLOADING POST ATTACHMENT // '+item.name;
-     const token=chamberUploadToken();
-     const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
-     const path='human-archive/'+String(record.id)+'/attachments/'+token+'-'+safeName;
-     const {error:uploadError}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{cacheControl:'3600',contentType:item.mime_type,upsert:false});
-     if(uploadError)throw uploadError;
-     uploadedPaths.push(path);
-     const {data:publicData}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
-     if(!publicData?.publicUrl)throw new Error('The attachment URL could not be created.');
-     savedPostMedia.push({url:publicData.publicUrl,path,type:item.type,name:item.name});
-    }else{
-     savedPostMedia.push({url:item.url,path:item.path||null,type:item.type,name:item.name});
-    }
-   }
-   const outputMedia={};
-   for(const type of ['image','audio','video']){
-    const savedItems=[];
-    for(const item of editorMedia[type]){
-     if(item.file){
-      status.textContent='UPLOADING '+type.toUpperCase()+' // '+item.name;
-      const token=chamberUploadToken();
-      const safeName=String(item.name||'media').normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(-110)||'media';
-      const path='human-archive/'+String(record.id)+'/'+type+'/'+token+'-'+safeName;
-      const {error:uploadError}=await archiveSupabase.storage.from('vha-post-media').upload(path,item.file,{
-       cacheControl:'3600',contentType:item.mime_type,upsert:false
-      });
-      if(uploadError)throw uploadError;
-      uploadedPaths.push(path);
-      const {data:publicData}=archiveSupabase.storage.from('vha-post-media').getPublicUrl(path);
-      if(!publicData?.publicUrl)throw new Error('The uploaded file URL could not be created.');
-      savedItems.push({id:'upload-'+token,name:item.name,url:publicData.publicUrl,path,mime_type:item.mime_type,storage:'vha-post-media'});
-     }else{
-      savedItems.push({
-       id:String(item.id||item.path||item.url||chamberUploadToken()),
-       name:String(item.name||record.title),
-       url:String(item.url||''),
-       path:typeof item.path==='string'?item.path:'',
-       mime_type:String(item.mime_type||''),
-       storage:String(item.storage||'recovered')
-      });
-     }
-    }
-    if(mediaTouched[type]||Array.isArray(existingOutput[type])||mediaReady)outputMedia[type]=savedItems;
-   }
-   const blocks=getEditorBlocks();
-   const row={
-    record_id:Number(record.id),
-    transmission_body:sanitizeTransmissionBody(getEditorHTML()),
-    prompt_style:'',
-    lyrics_style:'',
-    output_text:'',
-    output_media:outputMedia,
-    blocks,
-    updated_at:new Date().toISOString(),
-    updated_by:archiveUserId
-   };
-   status.textContent='SAVING CHAMBER STRUCTURE…';
-   let blocksExpectedUpdatedAt=oldStructure.updated_at||null;
    if(record.source_type==='transmission'){
+    const flushed=await flushDraftAutosave();
+    if(flushed===false||draftAutosaveConflict||chamberSaveConflict)throw new Error('The private draft changed in another session. Reload before continuing.');
+    const state=buildDraftAutosaveState();
     const metadata={
-     title:String(recordMetadataInputs.title.value).trim(),
-     slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
-     category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
-     excerpt:String(recordMetadataInputs.excerpt.value).trim(),
-     status:String(recordMetadataInputs.status.value).trim().toLowerCase(),
-     mediaWidth:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100))
+     title:state.metadata.title,slug:state.metadata.slug,category:state.metadata.category,
+     excerpt:state.metadata.excerpt,status:String(recordMetadataInputs.status.value).trim().toLowerCase(),
+     media_width:state.metadata.media_width
     };
-    if(!metadata.title||metadata.title.length>180)throw new Error('Title must contain between 1 and 180 characters.');
-    if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
-    if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
-    if(metadata.excerpt.length>400)throw new Error('Excerpt must be 400 characters or fewer.');
-    if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
-    if(metadata.status==='published'&&!getCurrentTransmissionText().trim())throw new Error('Add transmission content before publishing.');
-    if(metadata.status==='published'&&metadata.category==='UNASSIGNED')throw new Error('Choose a movement category before publishing.');
-    const {data:saveResult,error}=await archiveSupabase.rpc('save_human_archive_transmission_v5',{
-     p_post_id:record.post_id,p_title:metadata.title,p_slug:metadata.slug,p_category:metadata.category,p_excerpt:metadata.excerpt,p_status:metadata.status,
-     p_transmission_body:row.transmission_body,p_prompt_style:row.prompt_style,p_lyrics_style:row.lyrics_style,
-     p_output_text:row.output_text,p_output_media:row.output_media,p_media_items:savedPostMedia,
-     p_media_width:metadata.mediaWidth,p_expected_updated_at:record.updated_at
-    });
-    if(error)throw error;
-    const saved=Array.isArray(saveResult)?saveResult[0]:saveResult;
-    record.title=metadata.title;record.slug=metadata.slug;record.categories=[metadata.category];record.excerpt=metadata.excerpt;record.content_html=row.transmission_body;
-    record.media_items=savedPostMedia.map((item,index)=>({id:'transmission-'+record.post_id+'-'+index,title:item.name||record.title,alt_text:item.name||record.title,mime_type:item.type+'/unknown',storage_path:item.path||'',source_url:item.url,url:item.url,storage:'vha-post-media',post_ids:[Number(record.id)]}));
-    record.status=metadata.status;record.published_at=saved?.published_at||null;record.updated_at=saved?.updated_at||new Date().toISOString();record.media_width=metadata.mediaWidth;
-    blocksExpectedUpdatedAt=saved?.updated_at||null;
-    const dateStamp=record.published_at||record.created_at||record.updated_at;record.date=String(dateStamp).slice(0,10);record.year=record.date.slice(0,4);
+     if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
+     if(metadata.status==='published'){
+      if(!metadata.title)throw new Error('Add a title before publishing.');
+      if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(metadata.slug))throw new Error('Use a valid lowercase URL slug with words separated by hyphens.');
+      if(!transmissionCategories.includes(metadata.category))throw new Error('Choose Human Archive or one of the five Movements.');
+      if(!getCurrentTransmissionText().trim())throw new Error('Add transmission content before publishing.');
+     }
+    const current=await window.VHACMSStore.getDraft(record.draft_id);
+    if(!current)throw new Error('The private draft could not be found. Reload before continuing.');
+    const draftToSave={
+     ...current,metadata,
+     content:{
+      transmission_body:state.row.transmission_body,
+      prompt_style:state.row.prompt_style,lyrics_style:state.row.lyrics_style,output_text:state.row.output_text,
+      output_media:state.row.output_media,blocks:state.blocks,media_items:state.mediaItems
+     }
+    };
+    const saved=await window.VHACMSStore.saveDraft(draftToSave,record._repoCommitSha||current._repoCommitSha);
+    record._repoCommitSha=saved.commitSha;record._draftData=saved.draft;record.updated_at=saved.draft.updated_at;
+    if(metadata.status==='published'){
+     status.textContent='PUBLISHING TRANSMISSION TO THE PUBLIC REPOSITORY…';
+     const published=await window.VHACMSStore.publishDraft(record.draft_id);
+     const post=published.post;
+     record.title=post.title;record.slug=post.slug;record.categories=[post.category];record.excerpt=post.excerpt||'';
+     const makePublicUrl=value=>{
+      const raw=String(value||'');
+       return raw.startsWith('http')||raw.startsWith('blob:')?raw:(archiveSiteBasePath+'/'+raw.replace(/^\/+/, ''));
+     };
+      const rewriteHtml=html=>String(html||'').replace(/(["'])((?:media\/transmissions)\/[^"']+)\1/g,(match,quote,path)=>quote+archiveSiteBasePath+'/'+path.replace(/^\/+/, '')+quote);
+     record.content_html=rewriteHtml(post.content_html);
+     record.media_items=(post.media_items||[]).map((item,index)=>({
+      id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
+      mime_type:item.type==='image'?'image/unknown':item.type==='video'?'video/unknown':'audio/unknown',
+      storage_path:item.path||item.src||item.url||'',source_url:item.source_url||makePublicUrl(item.url||item.src||item.path),
+      url:makePublicUrl(item.url||item.src||item.path),storage:'github-public',post_ids:[Number(record.id)]
+     }));
+     record.status='published';record.published_at=post.published_at;record.updated_at=post.updated_at;
+     record.media_width=post.media_width||100;record._publicCommitSha=published.commitSha;
+     record.isNew=false;record._editOfPublished=Boolean(published.privateCleanupPending);
+     if(published.privateCleanupPending){record._draftData=await window.VHACMSStore.getDraft(record.draft_id);record._repoCommitSha=record._draftData?._repoCommitSha;status.textContent='PUBLISHED — PRIVATE DRAFT CLEANUP IS PENDING';}
+     else{record.draft_id=null;record._draftData=null;record._repoCommitSha=null;}
+     const publicStructure=await window.VHACMSStore.getPublicStructure(record.id);
+     if(publicStructure){
+      const output=Object.fromEntries(['image','audio','video'].map(kind=>[kind,(publicStructure.output_media?.[kind]||[]).map(item=>({...item,url:makePublicUrl(item.url||item.path)}))]));
+      recordStructureOverrides.set(String(record.id),{...publicStructure,transmission_body:rewriteHtml(publicStructure.transmission_body),blocks:(publicStructure.blocks||[]).map(block=>({...block,html:rewriteHtml(block.html)})),output_media:output});
+     }
+     status.textContent=published.privateCleanupPending?'PUBLISHED — PRIVATE DRAFT CLEANUP IS PENDING':'TRANSMISSION PUBLISHED // CHANGES COMMITTED';
+    }else{
+     if(record._editOfPublished){
+      status.textContent='REMOVING PUBLIC VERSION…';
+      const unpublished=await window.VHACMSStore.unpublishDraft(record.draft_id);
+      record._repoCommitSha=unpublished.privateCommitSha;
+      record._editOfPublished=false;
+      record._draftData=await window.VHACMSStore.getDraft(record.draft_id);
+     }
+     record.title=metadata.title;record.slug=metadata.slug;record.categories=metadata.category?[metadata.category]:[];
+     record.excerpt=metadata.excerpt;record.media_width=metadata.media_width;record.status='draft';
+     record.content_html=state.editorBody;record.updated_at=record._draftData?.updated_at||record.updated_at;
+     const liveOutput=Object.fromEntries(['image','audio','video'].map(kind=>[kind,editorMedia[kind].map(item=>({
+      ...item,url:item.uploadedDraft?.url||item.url,path:item.uploadedDraft?.path||item.path,
+      storage:item.uploadedDraft?.storage||item.storage||'github-private'
+     }))]));
+     recordStructureOverrides.set(String(record.id),{
+      record_id:Number(record.id),transmission_body:state.editorBody,
+      prompt_style:'',lyrics_style:'',output_text:'',output_media:liveOutput,
+      blocks:state.editorBlocks,updated_at:record.updated_at
+     });
+     status.textContent='DRAFT SAVED PRIVATELY';
+    }
     if(!categoryOrder.includes(metadata.category))categoryOrder.push(metadata.category);
     if(category&&![...category.options].some(option=>option.value===metadata.category)){
      const option=document.createElement('option');option.value=metadata.category;option.textContent=metadata.category;category.append(option);
     }
    }else{
-    const {data:structureResult,error}=await archiveSupabase.rpc('save_human_archive_record_structure_v1',{
-     p_record_id:Number(record.id),p_expected_updated_at:oldStructure.updated_at||null,
-     p_transmission_body:row.transmission_body,p_prompt_style:row.prompt_style,
-     p_lyrics_style:row.lyrics_style,p_output_text:row.output_text,p_output_media:row.output_media
-    });
-    if(error)throw error;
-    const savedStructure=Array.isArray(structureResult)?structureResult[0]:structureResult;
-    row.updated_at=savedStructure?.updated_at||new Date().toISOString();
-    blocksExpectedUpdatedAt=row.updated_at;
-   }
-   row.updated_at=blocksExpectedUpdatedAt||row.updated_at;
-   recordStructureOverrides.set(String(record.id),{...row,blocks:oldStructure.blocks||[]});
-   const {data:blockSaveData,error:blockSaveError}=await archiveSupabase.rpc('save_human_archive_record_blocks_v1',{p_record_id:Number(record.id),p_blocks:blocks,p_expected_updated_at:blocksExpectedUpdatedAt});
-   if(blockSaveError)throw blockSaveError;
-   row.blocks=blocks;
-   row.updated_at=blockSaveData||row.updated_at;
-   recordStructureOverrides.set(String(record.id),row);
-   await cleanupBlockMediaUploads(row.transmission_body);
-   if(!records.some(item=>String(item.id)===String(record.id))){
-    records.push(record);
-    if(!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);
-    if(category&&![...category.options].some(option=>option.value===record.categories[0])){
-     const option=document.createElement('option');option.value=record.categories[0];option.textContent=record.categories[0];category.append(option);
+    const outputMedia={};
+    for(const kind of ['image','audio','video']){
+     const savedItems=[];
+     for(const item of editorMedia[kind]){
+      if(item.file){
+       status.textContent='UPLOADING '+kind.toUpperCase()+' TO GITHUB…';
+       const uploaded=await window.VHACMSStore.uploadPublicMedia(record.id,[item.file],kind,record._publicCommitSha||archivePublicHeadSha);
+       const media=uploaded[0];uploadedPublicPaths.push(media.path);record._publicCommitSha=media.commitSha;
+       savedItems.push({id:'upload-'+chamberUploadToken(),name:item.name,url:media.url,path:media.path,mime_type:media.mime_type,storage:'github-public'});
+       item.url=media.url;item.path=media.path;item.storage='github-public';item.file=null;
+      }else{
+       savedItems.push({
+        id:String(item.id||item.path||item.url||chamberUploadToken()),name:String(item.name||record.title),
+        url:String(item.url||''),path:String(item.path||''),mime_type:String(item.mime_type||''),
+        storage:String(item.storage||'recovered')
+       });
+      }
+     }
+     if(mediaTouched[kind]||Array.isArray(oldOutput[kind])||mediaReady)outputMedia[kind]=savedItems;
     }
-   }
-   const keepPaths=new Set(['image','audio','video'].flatMap(type=>Array.isArray(outputMedia[type])?outputMedia[type]:[])
-    .filter(item=>item&&item.storage==='vha-post-media').map(item=>item.path).filter(Boolean));
-   const removedPaths=[...new Set(oldOwnedPaths)].filter(path=>!keepPaths.has(path));
-   let cleanupWarning=false;
-   
+    const body=sanitizeTransmissionBody(getEditorHTML());
+    const blocks=getEditorBlocks();
+    const row={record_id:Number(record.id),transmission_body:body,prompt_style:'',lyrics_style:'',output_text:'',output_media:outputMedia,blocks,updated_at:new Date().toISOString()};
+    status.textContent='SAVING HUMAN ARCHIVE STRUCTURE TO GITHUB…';
+    const saved=await window.VHACMSStore.savePublicStructure(record.id,row,record._publicCommitSha||archivePublicHeadSha);
+    publicStructureSaved=true;record._publicCommitSha=saved.commitSha;
+    recordStructureOverrides.set(String(record.id),row);
+    await cleanupBlockMediaUploads(body+'\n'+blocks.map(block=>block.html||'').join('\n'));
+    const keepPaths=new Set(['image','audio','video'].flatMap(kind=>Array.isArray(outputMedia[kind])?outputMedia[kind]:[])
+     .filter(item=>item&&item.storage==='github-public').map(item=>item.path).filter(Boolean));
+    const removedPaths=[...new Set(oldOwnedPaths)].filter(path=>!keepPaths.has(path));
+    let cleanupWarning=false;
     if(removedPaths.length){
-    const {error:removeError}=await archiveSupabase.storage.from('vha-post-media').remove(removedPaths);
-    if(removeError){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from storage:',removeError);}
+     try{const removed=await window.VHACMSStore.deletePublicMedia(record.id,removedPaths,record._publicCommitSha);record._publicCommitSha=removed.commitSha||record._publicCommitSha;}
+     catch(error){cleanupWarning=true;console.warn('Removed chamber media could not be cleaned from GitHub:',error);}
+    }
+    status.textContent=cleanupWarning?'CHAMBER SAVED — UNUSED MEDIA CLEANUP NEEDS ATTENTION':'CHAMBER REDESIGNED // CHANGES SAVED';
    }
-   status.textContent=cleanupWarning?'CHAMBER SAVED — FILE CLEANUP NEEDS ATTENTION':'CHAMBER REDESIGNED // CHANGES SAVED';
    blockEditorControllers.forEach(controller=>controller.destroy());
    richEditorController?.destroy();
    if(record.source_type==='transmission'){
@@ -1406,16 +1453,17 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
    }
    renderRecordStructureView(record,grid,status,editButton,expandButton,closeButton);
   }catch(error){
-   if(uploadedPaths.length){
-    const {error:cleanupError}=await archiveSupabase.storage.from('vha-post-media').remove(uploadedPaths);
-    if(cleanupError)console.error('New chamber uploads could not be rolled back:',cleanupError);
+   if(uploadedPublicPaths.length&&!publicStructureSaved){
+    try{const removed=await window.VHACMSStore.deletePublicMedia(record.id,uploadedPublicPaths,record._publicCommitSha);record._publicCommitSha=removed.commitSha||record._publicCommitSha;}
+    catch(cleanupError){console.warn('New public media could not be rolled back:',cleanupError);}
    }
    console.error('Human Archive chamber could not be saved:',error);
-   if(error?.code==='40001')chamberSaveConflict=true;
-   status.textContent=error?.code==='40001'?'EDIT CONFLICT — THIS RECORD CHANGED IN ANOTHER TAB. RELOAD BEFORE CONTINUING.':'SAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
+   if(error?.code==='EDIT_CONFLICT'||error?.status===409)chamberSaveConflict=true;
+   status.textContent=chamberSaveConflict?'EDIT CONFLICT — RELOAD BEFORE CONTINUING.':'SAVE FAILED — '+String(error.message||'PLEASE TRY AGAIN');
    save.disabled=false;editButton.disabled=false;if(deleteDraft)deleteDraft.disabled=false;save.textContent='SAVE CHAMBER';
   }
- }; 
+ };
+
 }
 function buildRecordChamber(record){
  const shell=makeChamberNode('div','ha-chamber-shell');
@@ -1439,7 +1487,7 @@ function buildRecordChamber(record){
  const actions=makeChamberNode('div','ha-chamber-topbar-actions');
  actions.setAttribute('aria-label','Chamber controls');
  const edit=makeChamberNode('button','ha-chamber-edit','REDESIGN CHAMBER');
- edit.type='button';edit.hidden=!archiveAdmin;edit.setAttribute('aria-label','Redesign this archive chamber');
+ edit.type='button';edit.hidden=!archiveAdmin||!archiveWriteReady;edit.setAttribute('aria-label','Redesign this archive chamber');
  const close=makeChamberNode('button','ha-chamber-close','CLOSE ✕');
  close.type='button';close.setAttribute('aria-label','Close record chamber');
  actions.append(edit,close);
@@ -1519,7 +1567,7 @@ function openArchiveRecordChamber(record,trigger,openInEditor=false){
  try{
   dialog.showModal();
   if(openInEditor){
-   if(!archiveAdmin||!archiveSupabase||!archiveUserId)throw new Error('ADMIN SESSION REQUIRED');
+   if(!archiveAdmin||!archiveWriteReady||!archiveUserId)throw new Error('GITHUB OWNER SESSION REQUIRED');
    const grid=dialog.querySelector('.ha-chamber-grid');
    const status=dialog.querySelector('.ha-chamber-share-status');
    const editButton=dialog.querySelector('.ha-chamber-edit');
@@ -1543,43 +1591,70 @@ function openRequestedRecordFromUrl(){
  search.value=record.title;year.value='';category.value='';render();
  const card=list.querySelector('.ha-record-card[data-ha-record-id="'+record.id+'"]');card?.scrollIntoView({behavior:'smooth',block:'center'});openArchiveRecordChamber(record,null);
 }
-function createHumanArchiveTransmission(trigger){
+async function createHumanArchiveTransmission(trigger){
  if(recordChamber?.open){recordChamber.focus();return;}
- if(!archiveAdmin||!archiveSupabase||!archiveUserId){if(createTransmissionStatus)createTransmissionStatus.textContent='ADMIN SESSION REQUIRED';return;}
- const temporaryId=Date.now();
- const now=new Date().toISOString();
- const record={
-  id:temporaryId,post_id:null,source_type:'transmission',title:'',slug:'untitled-transmission',
-  categories:[],excerpt:'',content_html:'',status:'new',media_items:[],media_width:100,
-  created_at:now,updated_at:now,published_at:null,date:now.slice(0,10),year:now.slice(0,4),
-  url:'',archiveIdentifier:'UNSAVED TRANSMISSION',isNew:true
- };
- openArchiveRecordChamber(record,trigger||newTransmissionButton,true);
- if(createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // UNSAVED';
- recordChamber?.querySelector('[name="title"]')?.focus({preventScroll:true});
+ if(!archiveAdmin||!archiveWriteReady||!window.VHACMSStore||!archiveUserId){
+  if(createTransmissionStatus)createTransmissionStatus.textContent='GITHUB OWNER SESSION REQUIRED';return;
+ }
+ if(createTransmissionStatus)createTransmissionStatus.textContent='CREATING PRIVATE TRANSMISSION DRAFT…';
+ try{
+  const draft=await window.VHACMSStore.createDraft({
+   title:'Untitled Transmission',slug:'untitled-transmission',category:'THE TRANSFORMATION',excerpt:'',media_width:100
+  });
+  const now=draft.created_at||new Date().toISOString(),date=String(now).slice(0,10);
+  const record={
+   id:Number(draft.record_id),post_id:draft.post_id,draft_id:draft.draft_id,
+   source_type:'transmission',title:draft.metadata.title,slug:draft.metadata.slug,
+   categories:[draft.metadata.category],excerpt:draft.metadata.excerpt||'',
+   content_html:draft.content.transmission_body||'',status:'draft',media_items:[],
+   media_width:draft.metadata.media_width||100,created_at:now,updated_at:draft.updated_at,
+   published_at:null,date,year:date.slice(0,4),url:'',
+   archiveIdentifier:'HA-'+date.slice(0,4)+'-'+String(draft.record_id).padStart(4,'0'),
+   isNew:true,_repoCommitSha:draft._repoCommitSha,_draftData:draft,_publicCommitSha:archivePublicHeadSha
+  };
+  record.draft_id=draft.draft_id;
+  records=records.filter(item=>String(item.id)!==String(record.id));
+  records.push(record);
+  recordStructureOverrides.set(String(record.id),{
+   record_id:record.id,transmission_body:'',prompt_style:'',lyrics_style:'',output_text:'',
+   output_media:{image:[],audio:[],video:[]},blocks:[],updated_at:draft.updated_at
+  });
+  if(hasArchiveIndex){if(!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);render();}
+  openArchiveRecordChamber(record,trigger||newTransmissionButton,true);
+  if(createTransmissionStatus)createTransmissionStatus.textContent='NEW TRANSMISSION // PRIVATE DRAFT CREATED';
+  recordChamber?.querySelector('[name="title"]')?.focus({preventScroll:true});
+ }catch(error){
+  console.error('A private Transmission draft could not be created:',error);
+  if(createTransmissionStatus)createTransmissionStatus.textContent='DRAFT CREATION FAILED — '+String(error.message||'INITIALIZE THE PRIVATE SEQUENCE IN ADMIN FIRST');
+ }
 }
 async function initArchiveFeatures(){
- if(!window.supabase?.createClient)throw new Error('Supabase is unavailable; the Transmission editor cannot start.');
- archiveSupabase=window.__vhaSupabaseClient||window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
- window.__vhaSupabaseClient=archiveSupabase;
+ if(!window.VHAGitHub||!window.VHACMSStore)throw new Error('The GitHub CMS modules are unavailable.');
  await refreshArchiveAdmin();
- if(newTransmissionButton){newTransmissionButton.hidden=!archiveAdmin;newTransmissionButton.disabled=!archiveAdmin;newTransmissionButton.addEventListener('click',createHumanArchiveTransmission);}
+ archivePublicHeadSha=archiveAdmin?await window.VHAGitHub.getBranchHead('public'):null;
+ if(newTransmissionButton){
+  newTransmissionButton.hidden=!archiveAdmin||!archiveWriteReady;
+  newTransmissionButton.disabled=!archiveAdmin||!archiveWriteReady;
+  if(!newTransmissionButton.dataset.githubHandlerBound){
+   newTransmissionButton.dataset.githubHandlerBound='true';
+   newTransmissionButton.addEventListener('click',createHumanArchiveTransmission);
+  }
+ }
  if(hasArchiveIndex)await Promise.all([loadArchiveFavorites(),loadRecordStructureOverrides(),loadTransmissionRecords()]);
  if(!archiveAuthBound){
   archiveAuthBound=true;
-  archiveSupabase.auth.onAuthStateChange((_event,session)=>{
-   window.setTimeout(async()=>{
-    await refreshArchiveAdmin(session);
-    if(newTransmissionButton){newTransmissionButton.hidden=!archiveAdmin;newTransmissionButton.disabled=!archiveAdmin;}
-    if(hasArchiveIndex){
-     await loadTransmissionRecords();
-     render();
-     syncFavoriteControls();
-    }
-    // Refresh permissions without rebuilding an open chamber or discarding editor state.
-    const chamberEditButton=recordChamber?.querySelector('.ha-chamber-edit');
-    if(chamberEditButton)chamberEditButton.hidden=!archiveAdmin;
-   },0);
+  window.VHAGitHub.onAuthStateChange(async(_event,session)=>{
+   await refreshArchiveAdmin(session);
+   archivePublicHeadSha=archiveAdmin?await window.VHAGitHub.getBranchHead('public'):null;
+   if(newTransmissionButton){newTransmissionButton.hidden=!archiveAdmin||!archiveWriteReady;newTransmissionButton.disabled=!archiveAdmin||!archiveWriteReady;}
+   if(hasArchiveIndex){
+    await loadArchiveFavorites();
+    await loadTransmissionRecords();
+    render();
+    syncFavoriteControls();
+   }
+   const chamberEditButton=recordChamber?.querySelector('.ha-chamber-edit');
+   if(chamberEditButton)chamberEditButton.hidden=!archiveAdmin||!archiveWriteReady;
   });
  }
  if(hasArchiveIndex){
@@ -1588,7 +1663,6 @@ async function initArchiveFeatures(){
   openRequestedRecordFromUrl();
  }
 }
-
 function makeFavoriteMark(record){
  const mark=makeChamberNode('span','ha-favorite-mark');mark.dataset.haFavoriteMark=String(record.id);mark.hidden=!favoriteRecordIds.has(String(record.id));mark.setAttribute('aria-hidden','true');
  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 40 40');svg.setAttribute('aria-hidden','true');svg.setAttribute('focusable','false');
@@ -1600,7 +1674,8 @@ function makeEntry(record,index){
  const content=document.createElement('div');content.className='ha-entry-content';content.id='ha-record-'+record.id;content.hidden=true;
  const link=document.createElement('button');link.type='button';link.className='ha-entry';link.setAttribute('aria-controls',content.id);link.setAttribute('aria-expanded','false');link.setAttribute('aria-label','Read local archive record: '+record.title+', '+record.date);
  const top=document.createElement('div');top.className='ha-entry-top';const code=document.createElement('small');code.className='ha-entry-code';code.textContent=record.archiveIdentifier;top.append(code);
- const internalId=document.createElement('small');internalId.className='ha-entry-id';internalId.textContent='ID // '+String(record.id);const bottom=document.createElement('div');bottom.className='ha-entry-bottom';const action=document.createElement('span');action.textContent='ACCESS NICHE ↓';bottom.append(internalId,action);link.append(top,bottom);link.style.setProperty('--entry-order',String(index));
+ const title=document.createElement('strong');title.textContent=String(record.title||'Untitled record');
+ const internalId=document.createElement('small');internalId.className='ha-entry-id';internalId.textContent='ID // '+String(record.id);const bottom=document.createElement('div');bottom.className='ha-entry-bottom';const action=document.createElement('span');action.textContent='ACCESS NICHE ↓';bottom.append(internalId,action);link.append(top,title,bottom);link.style.setProperty('--entry-order',String(index));
  const quickActions=makeChamberNode('div','ha-entry-quick-actions');quickActions.hidden=true;
  const chamber=makeChamberNode('button','ha-entry-chamber','ENTER THE CHAMBER ↗');chamber.type='button';chamber.addEventListener('click',()=>openArchiveRecordChamber(record,chamber));
  const favorite=makeChamberNode('button','ha-favorite-toggle','☆');favorite.type='button';favorite.dataset.haFavoriteId=String(record.id);favorite.hidden=!archiveAdmin;favorite.setAttribute('aria-pressed',String(favoriteRecordIds.has(String(record.id))));favorite.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();toggleArchiveFavorite(record.id,favorite);});
@@ -1627,7 +1702,18 @@ function render(){
   const items=visible.filter(r=>(r.categories||[]).includes(name)).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);if(!items.length)return;
   const section=document.createElement('section');section.className='ha-category-group';section.dataset.category=name;
   const heading=document.createElement('div');heading.className='ha-category-heading';const toggle=document.createElement('button');toggle.type='button';toggle.className='ha-category-toggle';toggle.setAttribute('aria-expanded',String(expandedCategories.has(name)));const h=document.createElement('span');h.className='ha-category-title';h.textContent=name;const marker=document.createElement('span');marker.className='ha-category-marker';marker.setAttribute('aria-hidden','true');marker.textContent=expandedCategories.has(name)?'−':'+';const total=document.createElement('span');total.className='ha-category-total';total.textContent=String(items.length).padStart(2,'0')+' RECORDS';toggle.append(h,marker);heading.append(toggle,total);section.append(heading);
-  const entries=document.createElement('div');entries.className='ha-category-entries';entries.hidden=!expandedCategories.has(name);items.forEach((r,i)=>entries.append(makeEntry(r,i)));toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));entries.hidden=!open;marker.textContent=open?'−':'+';if(open)expandedCategories.add(name);else expandedCategories.delete(name)});section.append(entries);fragment.append(section);
+  const entries=document.createElement('div');entries.className='ha-category-entries';entries.hidden=!expandedCategories.has(name);
+  items.forEach((r,i)=>{
+   try{entries.append(makeEntry(r,i));}
+   catch(error){
+    console.error('A Human Archive record could not be fully rendered:',r?.id,r?.title,error);
+    const fallback=document.createElement('article');fallback.className='ha-record-card';fallback.dataset.haRecordId=String(r?.id??'');
+    const title=document.createElement('strong');title.className='ha-entry';title.textContent=String(r?.title||'Untitled record');
+    const code=document.createElement('small');code.className='ha-entry-code';code.textContent=String(r?.archiveIdentifier||'');
+    fallback.append(code,title);entries.append(fallback);
+   }
+  });
+  toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));entries.hidden=!open;marker.textContent=open?'−':'+';if(open)expandedCategories.add(name);else expandedCategories.delete(name)});section.append(entries);fragment.append(section);
  });
  list.append(fragment);
 }
@@ -1653,31 +1739,25 @@ async function fetchArchiveJson(path,required=false){
 }
 async function init(){
  try{
-  const [data,content,manifest,report]=await Promise.all([
-   fetchArchiveJson('archive-data.json',true),
-   fetchArchiveJson('archive-content.json',true),
-   fetchArchiveJson('media-manifest.json'),
-   fetchArchiveJson('media-import-report.json')
-  ]);
-  if(!Array.isArray(data)||!Array.isArray(content.records)||content.record_count!==content.records.length)throw new Error('Invalid local archive data');
-  const contentById=new Map(content.records.map(record=>[String(record.id),record]));
-  records=assignArchiveSlugs(data.filter(r=>r&&typeof r.title==='string'&&typeof r.year==='string'&&typeof r.date==='string'&&Number.isFinite(Number(r.id))&&typeof r.url==='string'&&Array.isArray(r.categories))
-   .map(r=>({...r,content_html:contentById.get(String(r.id))?.content_html||''})));
-  if(records.length!==content.record_count||records.some(r=>!contentById.has(String(r.id))))throw new Error('The local archive is incomplete');
+  const collection=await fetchArchiveJson('../content/human-archive.json',true);
+  if(!collection||!Array.isArray(collection.records)||collection.record_count!==collection.records.length||!collection.media_manifest||!collection.editor_structures)throw new Error('Invalid canonical Human Archive collection');
+  const manifest=collection.media_manifest;
+  recordStructureOverrides=new Map(collection.editor_structures.map(item=>[String(item.record_id),item]));
+  const data=collection.records.map(item=>({...item,canonical_id:item.id,id:Number(item.legacy_id)}));
+  records=assignArchiveSlugs(data.filter(r=>r&&typeof r.title==='string'&&typeof r.year==='string'&&typeof r.date==='string'&&Number.isSafeInteger(r.id)&&typeof r.url==='string'&&Array.isArray(r.categories)));
+  if(records.length!==collection.record_count)throw new Error('The canonical Human Archive collection is incomplete');
   if(manifest&&Array.isArray(manifest.items)&&manifest.item_count===manifest.items.length){
-   mediaItems=manifest.items;publicBase=manifest.public_base_url||'';
-   const reportSuccesses=Array.isArray(report?.successes)?report.successes:[];
-   const successes=new Map(reportSuccesses.filter(x=>x&&x.verified===true).map(x=>[String(x.storage_path),x]));
-   mediaHashByPath=new Map([...successes].map(([path,item])=>[path,String(item.sha256||'').toLowerCase()]).filter(([,hash])=>Boolean(hash)));
-   mediaReady=Boolean(report&&report.status==='complete'&&report.target_project_ref==='ioguymqdeuuursizifnn'&&report.asset_count===manifest.item_count&&report.successful_count===manifest.item_count&&report.failed_count===0&&successes.size===manifest.item_count&&manifest.bucket==='human-archive-media'&&publicBase.startsWith('https://ioguymqdeuuursizifnn.supabase.co/'));
+   mediaItems=manifest.items.filter(item=>item&&(item.source_type!=='external-inline-reference'||item.recovery_status==='verified')&&Array.isArray(item.post_ids)&&item.post_ids.length&&String(item.local_path||item.storage_path||'').split('/').pop());
+   mediaHashByPath.clear();mediaReady=mediaItems.length>0;
    if(mediaReady){
     for(const item of mediaItems){
      const keys=[item.source_url,...(item.aliases||[])].map(urlKey).filter(Boolean);
      keys.forEach(key=>mediaMap.set(key,item));
      (item.post_ids||[]).forEach(id=>{if(!mediaByPost.has(id))mediaByPost.set(id,[]);mediaByPost.get(id).push(item);});
     }
-    setMediaStatus('MEDIA VAULT VERIFIED // '+manifest.item_count+' FILES // IMAGES, AUDIO, VIDEO AND DOCUMENTS',true);
-   }else setMediaStatus('MEDIA RECOVERY IN PROGRESS // TEXT IS AVAILABLE; MEDIA WILL APPEAR AFTER EVERY FILE HAS BEEN VERIFIED',false);
+    const externalCount=manifest.items.length-mediaItems.length;
+    setMediaStatus('GITHUB MEDIA VERIFIED // '+mediaItems.length+' LOCAL FILES // '+externalCount+' EXTERNAL REFERENCES NOT MIRRORED',true);
+   }else setMediaStatus('MEDIA INVENTORY UNAVAILABLE // LOCAL TEXT REMAINS AVAILABLE',false);
   }else if(manifest)setMediaStatus('MEDIA INVENTORY UNAVAILABLE // LOCAL TEXT REMAINS AVAILABLE',false);
   else setMediaStatus('MEDIA INVENTORY TEMPORARILY UNAVAILABLE // LOCAL TEXT REMAINS AVAILABLE',false);
   categoryOrder.filter(name=>records.some(r=>r.categories.includes(name))).forEach(name=>{expandedCategories.add(name);const option=document.createElement('option');option.value=name;option.textContent=name;category.append(option)});
@@ -1690,7 +1770,7 @@ window.__vhaArchiveChamberControllerLoaded=true;
 window.addEventListener('VHA_OPEN_NEW_TRANSMISSION',async event=>{
  try{
   await window.__vhaArchiveChamberReady;
-  if(!archiveAdmin||!archiveSupabase||!archiveUserId){
+  if(!archiveAdmin||!archiveWriteReady||!archiveUserId){
    console.warn('New Transmission was requested without an active archive administrator session.');
    return;
   }
@@ -1705,7 +1785,20 @@ window.addEventListener('VHA_OPEN_EXISTING_TRANSMISSION',async event=>{
   await ensureStandaloneTransmissionRecords();
   const record=records.find(item=>item.source_type==='transmission'&&item.slug===slug);
   if(!record)throw new Error('This Transmission is unavailable. It may have been unpublished or removed.');
-  if(event.detail?.edit&&!archiveAdmin)throw new Error('CMS ADMIN ACCESS COULD NOT BE CONFIRMED. PLEASE SIGN IN AGAIN.');
+  if(event.detail?.edit&&(!archiveAdmin||!archiveWriteReady||!window.VHACMSStore))throw new Error('GITHUB OWNER SESSION REQUIRED.');
+  if(event.detail?.edit&&record.source_type==='transmission'&&record.status==='published'&&!record.draft_id){
+   const draft=await window.VHACMSStore.createEditDraft(record.post_id);
+   record.draft_id=draft.draft_id;record._draftData=draft;record._repoCommitSha=draft._repoCommitSha;
+   record._editOfPublished=true;record.isNew=false;record.draft_source='existing';record.status='published';
+   record.title=draft.metadata.title;record.slug=draft.metadata.slug;record.categories=[draft.metadata.category];
+   record.excerpt=draft.metadata.excerpt;record.media_width=draft.metadata.media_width;
+   record.content_html=draft.content.transmission_body||record.content_html;
+   recordStructureOverrides.set(String(record.id),{
+    record_id:Number(record.id),transmission_body:draft.content.transmission_body||record.content_html,
+    prompt_style:draft.content.prompt_style||'',lyrics_style:draft.content.lyrics_style||'',output_text:draft.content.output_text||'',
+    output_media:draft.content.output_media||{},blocks:draft.content.blocks||[],updated_at:draft.updated_at
+   });
+  }
   openArchiveRecordChamber(record,trigger,Boolean(event.detail?.edit));
  }catch(error){
   console.error('The shared Transmission chamber could not be opened:',error);
