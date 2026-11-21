@@ -149,3 +149,20 @@ The production private repository `iYakuza/iyakuza-cms-private` now has `cms-dat
 Commit: [`25c424d`](https://github.com/iYakuza/iyakuza-cms-private/commit/25c424d9bda757c017fc9845bb9d3eff006d08e7).
 
 This produces the next production identifiers **T-0007** and **3009**. The seed was created only because the production `main` branch had no sequence file; the production export's last-used identifiers were verified from the migration inventory and data. The private Preview branch remains unchanged and retains its test sequence (`10`, `3012`) and test drafts. Do not copy those Preview values or drafts into production.
+
+
+## Remaining legacy media after T-0001 reconciliation — 21 November 2026
+
+The migration branch's `recovery-data/transmission-media-report.json` and current canonical collections identify these remaining pending assets:
+
+| Record | Missing/pending asset | Evidence / disposition |
+|---|---|---|
+| T-0001 | Original `cover.jpeg` | The source object was absent from the available restore bucket. The new uploaded audio, video and lyrics image are already verified and reconciled as replacements. |
+| T-0002 | `featured.jpeg` | Matching object exists in restore metadata; download was blocked by HTTP 402. |
+| T-0003 | `video.mp4` | Matching object exists in restore metadata; download was blocked by HTTP 402. |
+| T-0004 | `featured.jpeg` | Matching object exists in restore metadata; download was blocked by HTTP 402. |
+| S-0001 | `audio.mp3` | Remains `pending_recovery`; no local asset is present in the recovery or Preview media directories. |
+
+The Transmission recovery report originally listed 7 pending Transmission files (4 for T-0001 and one each for T-0002/T-0003/T-0004). After the verified T-0001 reconciliation, 4 of those remain. S-0001 adds one further pending Signals asset. Keep these references marked unavailable/pending; do not guess filenames, substitute other files, or mark them available without verifying bytes.
+
+The old Supabase download source returned HTTP 402 (cached egress quota exceeded). T-0002/T-0003/T-0004 matching objects were found in restore metadata but could not be downloaded. T-0001's source files were not present in the available restore project's bucket. This is still a production cutover exception that requires recovery, replacements or explicit owner acceptance.
