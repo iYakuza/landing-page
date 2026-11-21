@@ -434,7 +434,7 @@ test('Human Archive record cards defer body and attachment creation until expand
   const relatedStart = archiveSource.indexOf('function openRelatedRecord(record){');
   const relatedEnd = archiveSource.indexOf('function makeRelatedRecordButton', relatedStart);
   const related = archiveSource.slice(relatedStart, relatedEnd);
-  assert.match(related, /control\\.click\\(\\)/, 'related records must use the same lazy card-open path');
+  assert.ok(related.includes('control.click();'), 'related records must use the same lazy card-open path');
 
   const hydratorStart = archiveSource.indexOf('async function hydrateArchiveCardContent(record,content){');
   const hydratorEnd = archiveSource.indexOf('async function loadTransmissionRecords(){', hydratorStart);
@@ -452,4 +452,14 @@ test('private draft media is not fetched while building the general archive inde
   const loader = archiveSource.slice(loaderStart, loaderEnd);
   assert.match(loader, /if\(!requestedRecordId&&!requestedSlug\)return false;/, 'the archive index must not fetch all private draft blobs');
   assert.match(loader, /if\(shouldHydratePrivateDraftMedia\(draft\)\)await hydratePrivateDraftMediaForRecord\(record\)/, 'direct record URLs may hydrate their matching draft only');
+});
+
+
+test('Human Archive media elements keep browser preloading disabled', () => {
+  const image = archiveSource.slice(archiveSource.indexOf('function appendLocalImage'), archiveSource.indexOf('function appendLocalAudio'));
+  const audio = archiveSource.slice(archiveSource.indexOf('function appendLocalAudio'), archiveSource.indexOf('function appendLocalVideo'));
+  const video = archiveSource.slice(archiveSource.indexOf('function appendLocalVideo'), archiveSource.indexOf('function appendMediaLink'));
+  assert.match(image, /img\\.loading='lazy'/, 'images should be lazy-loaded after their card opens');
+  assert.match(audio, /audio\\.preload='none'/, 'audio should not preload before playback');
+  assert.match(video, /video\\.preload='none'/, 'video should not preload before playback');
 });
