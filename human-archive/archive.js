@@ -393,30 +393,36 @@ async function loadTransmissionRecords(){
  const collection=await fetchArchiveJson('../content/transmissions.json',true);
  if(!collection||!Array.isArray(collection.records))throw new Error('The canonical Transmissions collection is unavailable.');
  records=records.filter(record=>record.source_type!=='transmission');
-  mediaItems=mediaItems.filter(item=>item.storage!=='github-transmission');
-  for(const [key,item] of mediaMap){if(item.storage==='github-transmission')mediaMap.delete(key);}
+ mediaItems=mediaItems.filter(item=>item.storage!=='github-transmission');
+ for(const [key,item] of mediaMap){if(item.storage==='github-transmission')mediaMap.delete(key);}
  const additions=collection.records.filter(post=>post&&post.status==='published'&&Number.isSafeInteger(Number(post.archive_record_id))&&post.slug).map(post=>{
   const id=Number(post.archive_record_id),stamp=post.published_at||post.created_at||new Date().toISOString();
   const date=String(stamp).slice(0,10),year=date.slice(0,4);
   const sourceItems=Array.isArray(post.media_items)?post.media_items:(post.media_url?[{url:post.media_url,path:post.media_path,type:post.media_type||'audio',name:post.title}]:[]);
   const attached=sourceItems.filter(item=>item&&item.status!=='pending_recovery'&&typeof(item.src||item.url)==='string'&&['image','audio','video'].includes(item.type)).map((item,index)=>{
    const relative=String(item.src||item.url||item.path||'');
-    const publicUrl=relative.startsWith('http')?relative:(archiveSiteBasePath+'/'+relative.replace(/^\/+/, ''));
+   const publicUrl=relative.startsWith('http')?relative:(archiveSiteBasePath+'/'+relative.replace(/^\\/+/, ''));
    return {id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
     mime_type:item.type==='image'?'image/unknown':item.type==='video'?'video/unknown':'audio/unknown',
     storage_path:String(item.path||item.src||item.url||''),source_url:publicUrl,url:publicUrl,
-     storage:'github-transmission',post_ids:[id]};
+    storage:'github-transmission',post_ids:[id]};
   });
-   const content=String(post.content_html||'').replace(/(["'])((?:media\/transmissions)\/[^"']+)\1/g,(match,quote,path)=>quote+archiveSiteBasePath+'/'+path.replace(/^\/+/, '')+quote);
+  const content=String(post.content_html||'').replace(/(["'])((?:media\\/transmissions)\\/[^"']+)\\1/g,(match,quote,path)=>quote+archiveSiteBasePath+'/'+path.replace(/^\\/+/, '')+quote);
   return {id,title:post.title,slug:post.slug,archiveIdentifier:'HA-'+year+'-'+String(id).padStart(4,'0'),year,date,url:'',categories:[post.category||'TRANSMISSIONS'],content_html:content,source_type:'transmission',post_id:post.id,status:'published',excerpt:post.excerpt||'',media_items:attached,created_at:post.created_at,published_at:post.published_at,updated_at:post.updated_at,media_width:post.media_width||100};
  });
  additions.forEach(record=>{
   records.push(record);
-  record.media_items if(archiveAdmin&&window.VHACMSStore){
+  record.media_items.forEach(item=>{mediaItems.push(item);if(item.url)mediaMap.set(urlKey(item.url),item);});
+  const name=record.categories[0];
+  if(!categoryOrder.includes(name))categoryOrder.push(name);
+  if(category&&![...category.options].some(option=>option.value===name)){const option=document.createElement('option');option.value=name;option.textContent=name;category.append(option);}
+  expandedCategories.add(name);
+ });
+ if(archiveAdmin&&window.VHACMSStore){
   try{
    const drafts=await window.VHACMSStore.listDrafts();
-   // Resolve media only for the draft requested by a direct record/slug URL.
-   // Public records must not wait for unrelated private uploads to download.
+   // On a direct record URL, load only that record's private media. A public
+   // Transmission must not wait for unrelated private draft uploads.
    const loadedDrafts=await Promise.all(drafts.map(async draft=>{
     const id=Number(draft.record_id);
     if(!Number.isSafeInteger(id)||!draft.post_id)return null;
@@ -431,33 +437,27 @@ async function loadTransmissionRecords(){
      const url=urlByPath.get(path)||item.url||path;
      return {...item,url,src:url,storage:item.storage||'github-private'};
     };
-    const content=draft.content||{};
-    const body=String(content.transmission_body||'').replace(/cms-data\/v1\/media\/drafts\/[^\s"'<>)]*/g,match=>urlByPath.get(match)||match);
-    const blocks=(content.blocks||[]).map(block=>({...block,html:String(block.html||'').replace(/cms-data\/v1\/media\/drafts\/[^\s"'<>)]*/g,match=>urlByPath.get(match)||match)}));
-    const structure={record_id:id,transmission_body:body,prompt_style:content.prompt_style||'',lyrics_style:content.lyrics_style||'',output_text:content.output_text||'',
-     output_media:Object.fromEntries(['image','audio','video'].map(kind=>[kind,(content.output_media?.[kind]||[]).map(hydrate)])),blocks,updated_at:draft.updated_at};
+    const draftContent=draft.content||{};
+    const body=String(draftContent.transmission_body||'').replace(/cms-data\\/v1\\/media\\/drafts\\/[^\\s"'<>)]*/g,match=>urlByPath.get(match)||match);
+    const blocks=(draftContent.blocks||[]).map(block=>({...block,html:String(block.html||'').replace(/cms-data\\/v1\\/media\\/drafts\\/[^\\s"'<>)]*/g,match=>urlByPath.get(match)||match)}));
+    const structure={record_id:id,transmission_body:body,prompt_style:draftContent.prompt_style||'',lyrics_style:draftContent.lyrics_style||'',output_text:draftContent.output_text||'',
+     output_media:Object.fromEntries(['image','audio','video'].map(kind=>[kind,(draftContent.output_media?.[kind]||[]).map(hydrate)])),blocks,updated_at:draft.updated_at};
     const stamp=draft.created_at||new Date().toISOString(),date=String(stamp).slice(0,10);
     const hadPublishedRecord=records.some(item=>item.source_type==='transmission'&&item.post_id===draft.post_id);
     const record={id,title:draft.metadata?.title||'Untitled Transmission',slug:draft.metadata?.slug||'untitled-transmission',
      archiveIdentifier:'HA-'+date.slice(0,4)+'-'+String(id).padStart(4,'0'),year:date.slice(0,4),date,url:'',
      categories:[draft.metadata?.category||'UNASSIGNED'],content_html:body,source_type:'transmission',post_id:draft.post_id,draft_id:draft.draft_id,
-     status:hadPublishedRecord?'published':'draft',excerpt:draft.metadata?.excerpt||'',media_items:(content.media_items||[]).map(hydrate),created_at:draft.created_at,
+     status:hadPublishedRecord?'published':'draft',excerpt:draft.metadata?.excerpt||'',media_items:(draftContent.media_items||[]).map(hydrate),created_at:draft.created_at,
      updated_at:draft.updated_at,published_at:null,media_width:draft.metadata?.media_width||100,isDraft:true,isNew:draft.source==='new',_editOfPublished:hadPublishedRecord,draft_source:draft.source,_repoCommitSha:draft._repoCommitSha,_draftData:draft};
-    return {id,record,structure};
+    return {id,record,structure,hadPublishedRecord};
    }));
-   loadedDrafts.filter(Boolean).forEach(({id,record,structure})=>{
+   loadedDrafts.filter(Boolean).forEach(({id,record,structure,hadPublishedRecord})=>{
     recordStructureOverrides.set(String(id),structure);
-    if(record.status==='published')records=records.filter(item=>!(item.source_type==='transmission'&&item.post_id===record.post_id));
+    if(hadPublishedRecord)records=records.filter(item=>!(item.source_type==='transmission'&&item.post_id===record.post_id));
     records.push(record);
     record.media_items.forEach(item=>{if(item.url){mediaItems.push({...item,post_ids:[id],storage:'github-private'});mediaMap.set(urlKey(item.url),item);}});
     if(record.categories[0]&&!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);
    });
-  }catch(error){console.warn('Private Transmission drafts could not be loaded:',error);}
- }Data:draft};
-    records.push(record);
-    record.media_items.forEach(item=>{if(item.url){mediaItems.push({...item,post_ids:[id],storage:'github-private'});mediaMap.set(urlKey(item.url),item);}});
-    if(record.categories[0]&&!categoryOrder.includes(record.categories[0]))categoryOrder.push(record.categories[0]);
-   }
   }catch(error){console.warn('Private Transmission drafts could not be loaded:',error);}
  }
 }
