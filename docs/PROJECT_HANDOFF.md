@@ -132,3 +132,20 @@ The reconciliation updated only T-0001 and its linked Human Archive structure:
 Repository-level verification confirmed the three paths exist with the expected sizes and blob SHAs, the T-0001 body and structure contain no obsolete Bing Bong reference, the linked structure has no Preview-specific URL prefixes, and no Preview sequence or test drafts were copied.
 
 **Remaining:** owner-authenticated Preview browser acceptance of the reconciled editor changes, and the other release gates above. This reconciliation is on the recovery branch only; production `main` has not been changed.
+
+
+## Production private sequence initialization — 21 November 2026
+
+The production private repository `iYakuza/iyakuza-cms-private` now has `cms-data/v1/sequences.json` on its `main` branch:
+
+```json
+{
+  "transmission_number": 6,
+  "archive_record_id": 3008,
+  "updated_at": "2026-11-21T21:38:00.000Z"
+}
+```
+
+Commit: [`25c424d`](https://github.com/iYakuza/iyakuza-cms-private/commit/25c424d9bda757c017fc9845bb9d3eff006d08e7).
+
+This produces the next production identifiers **T-0007** and **3009**. The seed was created only because the production `main` branch had no sequence file; the production export's last-used identifiers were verified from the migration inventory and data. The private Preview branch remains unchanged and retains its test sequence (`10`, `3012`) and test drafts. Do not copy those Preview values or drafts into production.
