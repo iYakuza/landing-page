@@ -483,7 +483,7 @@ test('Transmission chamber HTML resolves attachment aliases to verified public T
   const sandbox = vm.createContext({
     URL,
     archiveSiteBasePath: '/landing-page-preview',
-    window: { location: { href: 'https://iyakuza.github.io/landing-page-preview/human-archive/' } }
+    window: { location: { origin: 'https://iyakuza.github.io', href: 'https://iyakuza.github.io/landing-page-preview/human-archive/' } }
   });
   vm.runInContext(helper + '; this.rewriteTransmissionMediaReferences = rewriteTransmissionMediaReferences;', sandbox);
   const items = [
@@ -510,7 +510,7 @@ test('Transmission chamber media normalizer refuses pending-recovery and cross-T
   const sandbox = vm.createContext({
     URL,
     archiveSiteBasePath: '/landing-page-preview',
-    window: { location: { href: 'https://iyakuza.github.io/landing-page-preview/human-archive/' } }
+    window: { location: { origin: 'https://iyakuza.github.io', href: 'https://iyakuza.github.io/landing-page-preview/human-archive/' } }
   });
   vm.runInContext(helper + '; this.rewriteTransmissionMediaReferences = rewriteTransmissionMediaReferences;', sandbox);
   const html = '<img src="https://legacy.example/featured.jpg"><video src="https://legacy.example/clip.mp4"></video>';
