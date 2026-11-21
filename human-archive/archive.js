@@ -468,13 +468,16 @@ async function loadTransmissionRecords(){
   const sourceItems=Array.isArray(post.media_items)?post.media_items:(post.media_url?[{url:post.media_url,path:post.media_path,type:post.media_type||'audio',name:post.title}]:[]);
   const attached=sourceItems.filter(item=>item&&item.status!=='pending_recovery'&&typeof(item.src||item.url)==='string'&&['image','audio','video'].includes(item.type)).map((item,index)=>{
    const relative=String(item.src||item.url||item.path||'');
-   const publicUrl=relative.startsWith('http')?relative:(archiveSiteBasePath+'/'+relative.replace(/^\/+/, ''));
+   const storedPath=String(item.path||item.src||item.url||'').replace(/^\/+/, '');
+   const publicUrl=/^https?:\/\//i.test(relative)?relative:(archiveSiteBasePath+'/'+relative.replace(/^\/+/, ''));
    return {id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
     mime_type:item.type==='image'?'image/unknown':item.type==='video'?'video/unknown':'audio/unknown',
-    storage_path:String(item.path||item.src||item.url||''),source_url:publicUrl,url:publicUrl,
-    storage:'github-transmission',post_ids:[id]};
+    storage_path:storedPath,path:storedPath,source_url:item.source_url||publicUrl,url:publicUrl,
+    type:item.type,status:item.status||'available',storage:'github-transmission',post_ids:[id]};
+
   });
-  const postHtml=String(post.content_html||'').replace(/(["'])((?:media\/transmissions)\/[^"']+)\1/g,(match,quote,path)=>quote+archiveSiteBasePath+'/'+path.replace(/^\/+/, '')+quote);
+  const normalizedPostHtml=rewriteTransmissionMediaReferences(post.content_html,post.id,sourceItems);
+   const postHtml=String(normalizedPostHtml||'').replace(/(["'])((?:media\/transmissions)\/[^"']+)\1/g,(match,quote,path)=>quote+archiveSiteBasePath+'/'+path.replace(/^\/+/, '')+quote);
   return {id,title:post.title,slug:post.slug,archiveIdentifier:'HA-'+year+'-'+String(id).padStart(4,'0'),year,date,url:'',categories:[post.category||'TRANSMISSIONS'],content_html:postHtml,source_type:'transmission',post_id:post.id,status:'published',excerpt:post.excerpt||'',media_items:attached,created_at:post.created_at,published_at:post.published_at,updated_at:post.updated_at,media_width:post.media_width||100};
  });
  additions.forEach(record=>{
@@ -608,15 +611,61 @@ function defaultRecordOutputText(record){
  };
  return read(parsed.body).replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
 }
+function rewriteTransmissionMediaReferences(html,postId,items){
+ const folder='media/transmissions/'+String(postId||'').trim()+'/';
+ if(!/^media\/transmissions\/T-[0-9]+\/$/.test(folder))return String(html||'');
+ const byReference=new Map(),byFilename=new Map(),ambiguous=new Set();
+ const referenceKey=raw=>{
+  try{
+   const url=new URL(String(raw||''),window.location.href);
+   if(!['http:','https:'].includes(url.protocol))return '';
+   return url.origin+url.pathname;
+  }catch{return '';}
+ };
+ const filenameKey=raw=>{
+  const key=referenceKey(raw);
+  if(!key)return '';
+  try{return decodeURIComponent(new URL(key).pathname.split('/').pop()||'');}
+  catch{return '';}
+ };
+ const register=(map,key,url)=>{
+  if(!key)return;
+  if(map.has(key)&&map.get(key)!==url){map.delete(key);ambiguous.add(key);return;}
+  if(!ambiguous.has(key))map.set(key,url);
+ };
+ (Array.isArray(items)?items:[]).forEach(item=>{
+  if(!item||item.status==='pending_recovery')return;
+  const rawPath=String(item.path||item.local_path||item.storage_path||item.src||item.url||'').trim();
+  const path=rawPath.replace(/^\/+/, '');
+  if(!path.startsWith(folder)||/[?#\\]/.test(path))return;
+  const segments=path.split('/');
+  if(segments.some(part=>!part||part==='.'||part==='..'))return;
+  const filename=segments[segments.length-1];
+  const localUrl=archiveSiteBasePath+'/'+segments.map(encodeURIComponent).join('/');
+  register(byFilename,filename,localUrl);
+  [item.source_url,item.original_url,item.url,item.src,item.path,item.local_path,item.storage_path]
+   .filter(value=>typeof value==='string'&&value.trim())
+   .forEach(value=>register(byReference,referenceKey(value),localUrl));
+ });
+ return String(html||'').replace(/(\bsrc\s*=\s*)(["'])(.*?)\2/gi,(match,prefix,quote,raw)=>{
+  const direct=byReference.get(referenceKey(raw));
+  const byName=byFilename.get(filenameKey(raw));
+  const localUrl=direct||byName;
+  return localUrl?prefix+quote+localUrl+quote:match;
+ });
+}
 function getRecordStructure(record){
  const saved=recordStructureOverrides.get(String(record.id));
+ const isTransmission=record.source_type==='transmission';
+ const transmissionItems=isTransmission?(record.media_items||[]):[];
+ const normalizeHTML=value=>isTransmission?rewriteTransmissionMediaReferences(String(value||''),record.post_id,transmissionItems):String(value||'');
  return {
-  transmission_body:record.source_type==='transmission'?String(record.content_html||saved?.transmission_body||''):(typeof saved?.transmission_body==='string'?saved.transmission_body:''),
+  transmission_body:isTransmission?normalizeHTML(record.content_html||saved?.transmission_body||''):(typeof saved?.transmission_body==='string'?saved.transmission_body:''),
   prompt_style:String(saved?.prompt_style||''),
   lyrics_style:String(saved?.lyrics_style||''),
   output_text:typeof saved?.output_text==='string'?saved.output_text:defaultRecordOutputText(record),
   output_media:saved?.output_media&&typeof saved.output_media==='object'&&!Array.isArray(saved.output_media)?saved.output_media:null,
-  blocks:Array.isArray(saved?.blocks)?saved.blocks:[]
+  blocks:Array.isArray(saved?.blocks)?saved.blocks.map(block=>({...block,html:normalizeHTML(block?.html)})):[]
  };
 }
 function uniqueRecordMedia(record,mimePrefix){
