@@ -103,3 +103,32 @@ Do not merge PR #135 until each item is resolved or explicitly accepted by the o
 - After each change: inspect the diff, run syntax/regression/security checks, inspect workflow results, and update this handoff/PR status.
 - Separate verified evidence from hypotheses. Never claim browser acceptance based only on CI or repository inspection.
 - Keep PR #135 Draft until every release gate has an evidence-backed disposition.
+
+
+## Preview T-0001 reconciliation into the migration branch — 21 November 2026
+
+**Status: reconciled at repository level; browser acceptance still required.**
+
+A one-time checksum-verified GitHub Actions transfer copied these Preview files into the recovery branch:
+
+| File | Bytes | Git blob SHA |
+|---|---:|---|
+| `media/transmissions/T-0001/3bf2c4f2-7a59-4a4e-a71e-6c7956c23234-Purtata-corporatris-tilor-video.mp4` | 12,981,931 | `8b5191309fb8275a983e0a8fda676b9c593027b4` |
+| `media/transmissions/T-0001/ae2ae42b-1f30-4ae3-bdbb-3884857ee3a9-Purtata-corporatris-tilor-lyrics.png` | 3,487,332 | `21587a36e6e803cf02928f4f38ba1ab00ee1ea48` |
+| `media/transmissions/T-0001/b793521b-5bb5-404b-82ba-598a64cc46f3-Purtata-corporatris-tilor-mp3.mp3` | 2,722,328 | `3d829c8ed53a2e13aec10f8993eadf115b2bfc4b` |
+
+The Actions job checked each downloaded file's exact byte count and Git blob SHA before committing any data. Transfer run: [#44952369034](https://github.com/iYakuza/landing-page/actions/runs/44952369034). Data commit: [`f1d83c4`](https://github.com/iYakuza/landing-page/commit/f1d83c46de4b6f38f6f3cfbbfb15e3ae1885ddc2).
+
+The reconciliation updated only T-0001 and its linked Human Archive structure:
+
+- The Transmission body and saved block HTML now reference the uploaded MP3, video and lyrics image using production-relative `media/transmissions/T-0001/...` paths.
+- The Transmission's public `media_items` manifest contains exactly those three available local assets.
+- The Human Archive `editor_structures` entry for `record_id: 3008` retains `public_record_id: HA-3008`; its body, block stream and output-media lists now use the same three local files.
+- The obsolete Bing Bong attachment is absent from the reconciled public manifest and body. Its physical file was not copied to production.
+- Production `created_at` and `published_at` remain unchanged. `updated_at` records the latest Preview save.
+- The 111-item Human Archive media manifest was not broadly replaced or rewritten.
+- The temporary `.github/workflows/reconcile-preview-t1.yml` transfer workflow was removed immediately after the successful transfer.
+
+Repository-level verification confirmed the three paths exist with the expected sizes and blob SHAs, the T-0001 body and structure contain no obsolete Bing Bong reference, the linked structure has no Preview-specific URL prefixes, and no Preview sequence or test drafts were copied.
+
+**Remaining:** owner-authenticated Preview browser acceptance of the reconciled editor changes, and the other release gates above. This reconciliation is on the recovery branch only; production `main` has not been changed.
