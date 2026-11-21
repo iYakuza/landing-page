@@ -128,6 +128,18 @@ test('Human Archive sanitizes stored HTML before parsing it into DOM nodes', () 
   assert.match(archiveHtml, /dompurify-3\.4\.18\.min\.js[\s\S]*archive\.js/);
 });
 
+test('Transmission reflection labels are escaped and embed providers use exact hostnames', () => {
+  const postsSource = fs.readFileSync(path.join(__dirname, '..', 'transmissions', 'posts.js'), 'utf8');
+  assert.match(postsSource, /collapsible\(safe\(section\.label\.replace/);
+  assert.match(blockEditorSource, /new URL\(src, window\.location\.href\)\.hostname\.toLowerCase\(\)/);
+  assert.match(blockEditorSource, /host === 'open\.spotify\.com'/);
+  assert.match(blockEditorSource, /\['soundcloud\.com','www\.soundcloud\.com','w\.soundcloud\.com'\]\.includes\(host\)/);
+  assert.match(blockEditorSource, /\['youtube\.com','www\.youtube\.com','youtube-nocookie\.com','www\.youtube-nocookie\.com','youtu\.be'\]\.includes\(host\)/);
+  assert.doesNotMatch(blockEditorSource, /if \(\/spotify\\\\\.com\/i\.test\(src\)\)/);
+  assert.doesNotMatch(blockEditorSource, /if \(\/soundcloud\\\\\.com\/i\.test\(src\)\)/);
+  assert.doesNotMatch(blockEditorSource, /if \(\/youtube\(\?-nocookie\)\?\\\\\.com\|youtu\\\\\.be\/i\.test\(src\)\)/);
+});
+
 test('newly promoted media is verified at its public URL before the normal published status', () => {
   assert.match(archiveSource, /async function waitForPublishedMedia/);
   assert.match(archiveSource, /method:'HEAD',cache:'no-store'/);
