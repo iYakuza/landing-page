@@ -1888,6 +1888,7 @@ window.addEventListener('VHA_OPEN_EXISTING_TRANSMISSION',async event=>{
     output_media:draft.content.output_media||{},blocks:draft.content.blocks||[],updated_at:draft.updated_at
    });
   }
+  await hydratePrivateDraftMediaForRecord(record);
   openArchiveRecordChamber(record,trigger,Boolean(event.detail?.edit));
  }catch(error){
   console.error('The shared Transmission chamber could not be opened:',error);
