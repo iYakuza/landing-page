@@ -71,6 +71,59 @@ test('uses the HTML element type when a media extension is ambiguous', () => {
   ]);
 });
 
+test('recognizes unchanged publications despite site-prefix normalization and generated manifest IDs', () => {
+  const asset = 'media/transmissions/T-0001/song.mp3';
+  const originalPost = {
+    id: 'T-0001', slug: 'song', title: 'Song', status: 'published',
+    excerpt: '', category: 'THE TRANSFORMATION', media_width: 100,
+    created_at: '2026-11-20T10:00:00.000Z', published_at: '2026-11-20T10:00:00.000Z',
+    updated_at: '2026-11-20T11:00:00.000Z',
+    content_html: '<audio src="' + asset + '" controls></audio>',
+    media_items: [{ name: 'song.mp3', type: 'audio', mime_type: 'audio/mpeg', path: asset, src: asset, url: asset, storage: 'github-public', status: 'available' }]
+  };
+  const nextPost = {
+    ...originalPost,
+    updated_at: '2026-11-21T12:00:00.000Z',
+    content_html: '<audio src="/landing-page-preview/' + asset + '" controls></audio>',
+    media_url: '/landing-page-preview/' + asset,
+    media_path: '/landing-page-preview/' + asset,
+    media_type: 'audio',
+    media_items: [{ id: 'generated-media-id', name: 'song.mp3', type: 'audio', mime_type: 'audio/mpeg', path: '/landing-page-preview/' + asset, src: '/landing-page-preview/' + asset, url: '/landing-page-preview/' + asset, storage: 'github-public', status: 'available' }]
+  };
+  originalPost.media_url = asset;
+  originalPost.media_path = asset;
+  originalPost.media_type = 'audio';
+  const originalStructure = {
+    record_id: 3008, transmission_body: '<audio src="' + asset + '" controls></audio>',
+    blocks: [{ id: 'block-001', type: 'audio', html: '<audio src="' + asset + '" controls></audio>' }],
+    output_media: { image: [], audio: [], video: [] }, updated_at: '2026-11-20T11:00:00.000Z'
+  };
+  const nextStructure = {
+    ...originalStructure, updated_at: '2026-11-21T12:00:00.000Z',
+    transmission_body: '<audio src="/landing-page-preview/' + asset + '" controls></audio>',
+    blocks: [{ id: 'block-001', type: 'audio', html: '<audio src="/landing-page-preview/' + asset + '" controls></audio>' }]
+  };
+
+  assert.equal(context.window.VHACMSStore.isPublicationUnchanged(nextPost, originalPost, nextStructure, originalStructure), true);
+  assert.equal(context.window.VHACMSStore.isPublicationUnchanged({ ...nextPost, title: 'Changed title' }, originalPost, nextStructure, originalStructure), false);
+  assert.equal(context.window.VHACMSStore.isPublicationUnchanged({ ...nextPost, content_html: '<audio src="media/transmissions/T-0001/other.mp3"></audio>' }, originalPost, nextStructure, originalStructure), false);
+});
+
+test('Transmission editor exposes explicit removal for loose attachment manifest entries', () => {
+  assert.match(archiveSource, /01 \/\/ ATTACHED MEDIA/);
+  assert.match(archiveSource, /const renderAttachedPostMedia/);
+  assert.match(archiveSource, /attachedPostMedia=attachedPostMedia\.filter/);
+  assert.match(archiveSource, /scheduleDraftAutosave\(\)/);
+  assert.match(archiveSource, /media still used in the body will remain published/);
+});
+
+test('newly promoted media is verified at its public URL before the normal published status', () => {
+  assert.match(archiveSource, /async function waitForPublishedMedia/);
+  assert.match(archiveSource, /method:'HEAD',cache:'no-store'/);
+  assert.match(archiveSource, /WAITING FOR NEW MEDIA TO DEPLOY/);
+  assert.match(archiveSource, /NEW MEDIA IS STILL DEPLOYING/);
+});
+
 test('adds block-only media to the published manifest when the file exists', () => {
   // This is the actual T-0001 pattern found in Preview: the MP3 exists in
   // media/transmissions/T-0001 but the post had an empty media_items array.
