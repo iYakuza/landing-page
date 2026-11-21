@@ -7,6 +7,7 @@ const vm = require('node:vm');
 const test = require('node:test');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'cms', 'github-store.js'), 'utf8');
+const archiveSource = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'archive.js'), 'utf8');
 const context = vm.createContext({ window: {}, URL });
 vm.runInContext(source, context, { filename: 'cms/github-store.js' });
 
@@ -246,4 +247,34 @@ test('republishing an unpublished edit restores structure metadata snapshot', ()
   const result = context.window.VHACMSStore.buildPublishedStructure(draft, null, '2026-11-21T12:00:00.000Z');
   assert.equal(result.public_record_id, 'HA-3008');
   assert.equal(result.legacy_structure_id, 'structure-uuid-1');
+});
+
+
+test('recognizes only private draft blob URLs mapped to a stored draft path', () => {
+  const helper = archiveSource.match(/function isPrivateDraftBlobUrl\\(raw\\)\\s*\\{[^}]+\\}/);
+  assert.ok(helper, 'archive renderer must define its private draft blob guard');
+
+  const mapped = 'blob:https://iyakuza.github.io/landing-page-preview/allowed-upload';
+  const unmapped = 'blob:https://iyakuza.github.io/landing-page-preview/not-in-private-store';
+  const context = vm.createContext({ privateMediaUrlToPath: new Set([mapped]) });
+  vm.runInContext(helper[0] + '\\nthis.isPrivateDraftBlobUrl = isPrivateDraftBlobUrl;', context);
+
+  assert.equal(context.isPrivateDraftBlobUrl(mapped), true);
+  assert.equal(context.isPrivateDraftBlobUrl(unmapped), false);
+  assert.equal(context.isPrivateDraftBlobUrl('https://example.com/audio.mp3'), false);
+  assert.equal(context.isPrivateDraftBlobUrl('media/transmissions/T-0010/audio.mp3'), false);
+});
+
+test('audio, video and source elements accept mapped private draft blobs', () => {
+  const audioStart = archiveSource.indexOf("if(tag==='AUDIO'||tag==='VIDEO'){");
+  const sourceStart = archiveSource.indexOf("if(tag==='SOURCE'){", audioStart);
+  const iframeStart = archiveSource.indexOf("if(tag==='IFRAME'){", sourceStart);
+  assert.ok(audioStart >= 0 && sourceStart > audioStart && iframeStart > sourceStart);
+
+  const mediaBranch = archiveSource.slice(audioStart, sourceStart);
+  const sourceBranch = archiveSource.slice(sourceStart, iframeStart);
+  assert.match(mediaBranch, /const privateDraftBlob=isPrivateDraftBlobUrl\\(raw\\)/);
+  assert.match(mediaBranch, /privateDraftBlob\\|\\|/);
+  assert.match(sourceBranch, /const privateDraftBlob=isPrivateDraftBlobUrl\\(raw\\)/);
+  assert.match(sourceBranch, /source\\.src=privateDraftBlob\\?raw:localMediaUrl\\(item\\)/);
 });
