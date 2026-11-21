@@ -31,10 +31,10 @@
     let path;
     try { path = decodeURIComponent(url.pathname); }
     catch { return ''; }
-    path = path.replace(/^\\/(?:landing-page|landing-page-preview)\\//, '');
+    path = path.replace(/^\/(?:landing-page|landing-page-preview)\//, '');
     if (!path.startsWith('media/')) return '';
     const parts = path.split('/');
-    if (parts.some(part => !part || part === '.' || part === '..') || path.includes('\\\\') || path.includes('\\u0000')) return '';
+    if (parts.some(part => !part || part === '.' || part === '..') || path.includes('\\') || path.includes('\u0000')) return '';
     return path;
   }
 
@@ -65,10 +65,10 @@
   // consumed by the public Transmissions renderer.
   function getPublicMediaReferencesFromHtml(html) {
     const references = new Map();
-    const tags = String(html || '').match(/<(?:img|audio|video|source)\\b[^>]*>/gi) || [];
+    const tags = String(html || '').match(/<(?:img|audio|video|source)\b[^>]*>/gi) || [];
     for (const tag of tags) {
       const tagName = (tag.match(/^<([a-z]+)/i) || [])[1]?.toLowerCase() || '';
-      const attribute = tag.match(/\\bsrc\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))/i);
+      const attribute = tag.match(/\bsrc\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/i);
       const raw = attribute && (attribute[1] ?? attribute[2] ?? attribute[3]);
       const path = publicMediaPath(raw);
       if (!path) continue;
@@ -464,9 +464,19 @@
     const availablePaths = new Set(publicFiles.map(item => item.path));
     mediaChanges.forEach(change => availablePaths.add(change.path));
     const mediaByPath = new Map();
+    const preservedMedia = [];
     post.media_items.forEach(item => {
-      const path = publicMediaPath(item?.path || item?.src || item?.url);
-      if (!path || !availablePaths.has(path)) return;
+      const path = [item?.path, item?.src, item?.url].map(publicMediaPath).find(Boolean) || '';
+      if (!path) {
+        preservedMedia.push(item);
+        return;
+      }
+      if (!availablePaths.has(path)) {
+        // Keep intentionally pending legacy references in the canonical data;
+        // they must not be advertised as available until their bytes are recovered.
+        if (!mediaByPath.has(path)) mediaByPath.set(path, item);
+        return;
+      }
       const type = mediaTypeForPath(path, item.type || '');
       const normalized = {
         ...item,
@@ -501,7 +511,7 @@
         });
       }
     }
-    post.media_items = [...mediaByPath.values()];
+    post.media_items = [...mediaByPath.values(), ...preservedMedia];
     post.media_url = post.media_items[0]?.url || '';
     post.media_path = post.media_items[0]?.path || '';
     post.media_type = post.media_items[0]?.type || '';
