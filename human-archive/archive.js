@@ -235,8 +235,27 @@ function appendLocalVideo(parent,item,record,used){
 function appendMediaLink(parent,item,record,used){
  const link=document.createElement('a');link.className='ha-local-media-link';link.href=localMediaUrl(item);link.target='_blank';link.rel='noopener noreferrer';link.textContent='OPEN FILE — '+mediaTitle(item,record);parent.append(link);markUsed(item,used);
 }
+function parseSanitizedHTML(source){
+ const purifier=window.DOMPurify;
+ const body=document.createElement('div');
+ if(!purifier||typeof purifier.sanitize!=='function'){
+  console.error('Human Archive HTML sanitizer is unavailable; refusing to render untrusted markup.');
+  return {body};
+ }
+ const fragment=purifier.sanitize(String(source??''),{
+  RETURN_DOM_FRAGMENT:true,
+  // Keep iframes inert until the renderer recreates them from the provider allowlist.
+  ADD_TAGS:['iframe']
+ });
+ if(!fragment||fragment.nodeType!==Node.DOCUMENT_FRAGMENT_NODE){
+  console.error('Human Archive HTML sanitizer returned an invalid fragment.');
+  return {body};
+ }
+ body.append(fragment);
+ return {body};
+}
 function appendSafeContent(container,source,record,used){
- const doc=new DOMParser().parseFromString(String(source||''),'text/html');
+ const doc=parseSanitizedHTML(source);
  const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','H4','UL','OL','LI','BLOCKQUOTE','HR','PRE','CODE','A','FIGURE','FIGCAPTION','DIV','SECTION','ASIDE','DETAILS','SUMMARY','SPAN','SMALL','SUP','SUB','TABLE','THEAD','TBODY','TR','TH','TD','NAV','ARTICLE','MARK']);
  const blocked=new Set(['SCRIPT','STYLE','OBJECT','EMBED','SVG','MATH','FORM','INPUT','BUTTON','TEXTAREA','SELECT','OPTION','LINK','META']);
  const iframeHosts=new Set(['www.youtube.com','www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com','player.vimeo.com','www.dailymotion.com','www.loom.com']);
@@ -615,7 +634,7 @@ function appendChamberShareActions(parent,record,status){
  links.forEach(([label,href])=>{const link=makeChamberNode('a','ha-chamber-share-action',label);link.href=href;link.target='_blank';link.rel='noopener noreferrer';parent.append(link);});
 }
 function defaultRecordOutputText(record){
- const parsed=new DOMParser().parseFromString(String(record.content_html||''),'text/html');
+ const parsed=parseSanitizedHTML(record.content_html||'');
  parsed.body.querySelectorAll('figure,iframe,img,audio,video,source,object,embed,script,style').forEach(node=>node.remove());
  const read=node=>{
   if(node.nodeType===Node.TEXT_NODE)return node.nodeValue||'';
@@ -719,7 +738,7 @@ function defaultChamberOutputMedia(record,type){
  }));
  if(type!=='video')return recovered;
  const allowedHosts=new Set(['www.youtube.com','www.youtube-nocookie.com']);
- const parsed=new DOMParser().parseFromString(String(record.content_html||''),'text/html');
+ const parsed=parseSanitizedHTML(record.content_html||'');
  const seen=new Set();
  const embeds=[...parsed.querySelectorAll('iframe[src]')].map(frame=>safeExternalUrl(frame.getAttribute('src'),allowedHosts)).filter(Boolean).filter(src=>{
   const key=new URL(src).origin+new URL(src).pathname;
@@ -757,7 +776,7 @@ function bindChamberDisclosureControls(grid,button){
 }
 function sanitizeTransmissionBody(source){
  const raw=String(source??'');
- const parsed=new DOMParser().parseFromString(raw,'text/html');
+ const parsed=parseSanitizedHTML(raw);
  // Legacy archive fields may contain plain text rather than HTML. Convert their
  // actual newline structure into paragraphs and line breaks before sanitizing.
  if(!parsed.body.children.length&&/[\r\n]/.test(raw)){
@@ -879,7 +898,7 @@ function renderRecordStructureView(record,grid,status,editButton,expandButton,cl
   const source=String(block?.html||'');
   const name=String(block?.name||'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,80);
   if(!name||String(block?.type||'').toLowerCase()==='columns')return source;
-  const parsed=new DOMParser().parseFromString(source,'text/html');
+  const parsed=parseSanitizedHTML(source);
   if(parsed.body.firstElementChild&&!parsed.body.firstElementChild.hasAttribute('data-ha-block-name'))parsed.body.firstElementChild.setAttribute('data-ha-block-name',name);
   return parsed.body.innerHTML;
  }).join(''):
