@@ -459,7 +459,7 @@ test('Human Archive media elements keep browser preloading disabled', () => {
   const image = archiveSource.slice(archiveSource.indexOf('function appendLocalImage'), archiveSource.indexOf('function appendLocalAudio'));
   const audio = archiveSource.slice(archiveSource.indexOf('function appendLocalAudio'), archiveSource.indexOf('function appendLocalVideo'));
   const video = archiveSource.slice(archiveSource.indexOf('function appendLocalVideo'), archiveSource.indexOf('function appendMediaLink'));
-  assert.match(image, /img\\.loading='lazy'/, 'images should be lazy-loaded after their card opens');
-  assert.match(audio, /audio\\.preload='none'/, 'audio should not preload before playback');
-  assert.match(video, /video\\.preload='none'/, 'video should not preload before playback');
+  assert.ok(image.includes("img.loading='lazy'"), 'images should be lazy-loaded after their card opens');
+  assert.ok(audio.includes("audio.preload='none'"), 'audio should not preload before playback');
+  assert.ok(video.includes("video.preload='none'"), 'video should not preload before playback');
 });
