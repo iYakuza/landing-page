@@ -575,11 +575,11 @@ test('the current-record media library marks unrecovered legacy files unavailabl
   const end = archiveSource.indexOf('const cleanupBlockMediaUploads=', start);
   assert.ok(start >= 0 && end > start, 'current-record media library builder must exist');
   const library = archiveSource.slice(start, end);
-  assert.match(library, /getRecordOutputMedia\\(record,archiveStructure,kind\\)/);
+  assert.ok(library.includes('getRecordOutputMedia(record,archiveStructure,kind)'));
   assert.equal(library.includes('records.flatMap('), false,
     'the library labelled THIS RECORD’S MEDIA LIBRARY must not mix unrelated records');
-  assert.match(library, /legacyRemote/);
-  assert.match(library, /available/);
+  assert.ok(library.includes('legacyRemote'));
+  assert.ok(library.includes('available'));
   assert.ok(blockEditorSource.includes('option.disabled=item.available===false'));
   assert.ok(blockEditorSource.includes('NOT RECOVERED'));
 });
