@@ -131,7 +131,7 @@ test('Human Archive sanitizes stored HTML before parsing it into DOM nodes', () 
 test('Transmissions uses the shared DOMPurify sanitizer before parsing stored post HTML', () => {
   const postsHtml = fs.readFileSync(path.join(__dirname, '..', 'transmissions', 'index.html'), 'utf8');
   const postsSource = fs.readFileSync(path.join(__dirname, '..', 'transmissions', 'posts.js'), 'utf8');
-  assert.match(postsSource, /purifier\.sanitize\(String\(html\|\|' '\)\)/);
+  assert.match(postsSource, /purifier\\.sanitize\\(String\\(html\\|\\|''\\)\\)/);
   assert.match(postsSource, /ALLOWED_TAGS:/);
   assert.match(postsSource, /ALLOWED_ATTR:\['href','src','alt','class'\]/);
   assert.match(postsHtml, /shared\/vendor\/dompurify-3\.4\.18\.min\.js[\s\S]*posts\.js/);
