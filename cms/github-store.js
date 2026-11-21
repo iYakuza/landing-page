@@ -125,6 +125,38 @@
     return [...mediaByPath.values(), ...preservedMedia];
   }
 
+  function snapshotPostMetadata(post) {
+    if (!post || typeof post !== 'object') return {};
+    const {
+      content_html, media_items, media_url, media_path, media_type,
+      ...metadata
+    } = post;
+    return metadata;
+  }
+
+  function buildPublishedPost(draft, existingPost, publishedAt = new Date().toISOString()) {
+    const original = draft?.source === 'existing'
+      ? (existingPost || draft.original_post || {})
+      : {};
+    return {
+      ...original,
+      id: draft.post_id,
+      slug: String(draft.metadata.slug || '').trim().toLowerCase(),
+      title: draft.metadata.title,
+      status: 'published',
+      excerpt: draft.metadata.excerpt || '',
+      category: draft.metadata.category,
+      created_at: original.created_at || draft.created_at || publishedAt,
+      updated_at: publishedAt,
+      published_at: original.published_at || draft.published_at || publishedAt,
+      media_width: draft.metadata.media_width || original.media_width || 100,
+      content_html: draft.content.transmission_body || '',
+      media_items: Array.isArray(draft.content.media_items) ? [...draft.content.media_items] : [],
+      archive_record_id: Number(draft.record_id),
+      human_archive_id: original.human_archive_id || 'HA-' + String(draft.record_id)
+    };
+  }
+
   const privatePath = suffix => CONFIG.privateRoot + '/' + suffix;
   const readJson = async (repo, path, fallback, options = {}) => {
     const file = await github().readJson(repo, path, options);
@@ -459,15 +491,8 @@
     const duplicateSlug = transmissions.value.records.find(item => item.slug === slug && item.id !== draft.post_id);
     if (duplicateSlug) throw new Error('That public URL slug is already in use.');
     const pathMap = new Map();
-    const post = {
-      id: draft.post_id, slug, title: draft.metadata.title, status: 'published',
-      excerpt: draft.metadata.excerpt || '', category: draft.metadata.category,
-      created_at: draft.created_at, updated_at: new Date().toISOString(), published_at: new Date().toISOString(),
-      media_width: draft.metadata.media_width || 100,
-      content_html: draft.content.transmission_body || '',
-      media_items: Array.isArray(draft.content.media_items) ? [...draft.content.media_items] : [],
-      archive_record_id: Number(draft.record_id), human_archive_id: 'HA-' + String(draft.record_id)
-    };
+    const existingPost = transmissions.value.records.find(item => item.id === draft.post_id) || null;
+    const post = buildPublishedPost(draft, existingPost);
     const mediaChanges = [];
     const privateMediaPrefix = privatePath('media/drafts/' + id(draftId) + '/');
     const promotePath = async sourcePath => {
@@ -579,7 +604,9 @@
     const draft = {
       schema_version: 1, draft_id: draftId, kind: 'transmission',
       record_id: Number(post.archive_record_id), post_id: post.id, source: 'existing',
-      status: 'draft', created_at: now, updated_at: now, revision: 1,
+      status: 'draft', created_at: post.created_at || now, updated_at: now, revision: 1,
+      published_at: post.published_at || post.created_at || now,
+      original_post: snapshotPostMetadata(post),
       base_public_commit: publicHead,
       metadata: { title: post.title || '', slug: post.slug || '', category: post.category || '', excerpt: post.excerpt || '', media_width: post.media_width || 100 },
       content: {
@@ -606,7 +633,13 @@
       readJson('public', CONFIG.archivePath, null, { atCommit: publicHead })
     ]);
     if (!transmissions?.data?.records || !archive?.data?.editor_structures) throw new Error('The canonical public collections are incomplete.');
-    const postExists = transmissions.data.records.some(item => item.id === draft.post_id);
+    const existingPost = transmissions.data.records.find(item => item.id === draft.post_id) || null;
+    if (existingPost) {
+      draft.original_post = draft.original_post || snapshotPostMetadata(existingPost);
+      draft.created_at = existingPost.created_at || draft.created_at || new Date().toISOString();
+      draft.published_at = existingPost.published_at || draft.published_at || existingPost.created_at || new Date().toISOString();
+    }
+    const postExists = Boolean(existingPost);
     if (!postExists) {
       draft.source = 'existing';
       draft.base_public_commit = publicHead;
@@ -650,7 +683,9 @@
     const draft = {
       schema_version: 1, draft_id: draftId, kind: 'transmission',
       record_id: Number(post.archive_record_id), post_id: post.id, source: 'existing',
-      status: 'draft', created_at: now, updated_at: now, revision: 1,
+      status: 'draft', created_at: post.created_at || now, updated_at: now, revision: 1,
+      published_at: post.published_at || post.created_at || now,
+      original_post: snapshotPostMetadata(post),
       base_public_commit: publicHead,
       metadata: { title: post.title || '', slug: post.slug || '', category: post.category || '', excerpt: post.excerpt || '', media_width: post.media_width || 100 },
       content: {
@@ -679,6 +714,8 @@
     config: CONFIG,
     getPublicMediaReferencesFromHtml,
     buildPublishedMediaItems,
+    snapshotPostMetadata,
+    buildPublishedPost,
     getPublicCollections,
     savePublicJson,
     listDrafts,

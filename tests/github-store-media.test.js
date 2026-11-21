@@ -118,3 +118,84 @@ test('promotes an existing pending reference once its file is verified', () => {
   assert.equal(manifest[0].path, asset);
 });
 
+
+test('editing an existing Transmission preserves original dates and legacy metadata', () => {
+  const original = {
+    id: 'T-0001',
+    slug: 'purtata-corporatristilor',
+    title: 'Original title',
+    status: 'published',
+    created_at: '2024-01-02T03:04:05.000Z',
+    published_at: '2024-02-03T04:05:06.000Z',
+    updated_at: '2024-02-03T04:05:06.000Z',
+    legacy_id: 'legacy-uuid-123',
+    legacy_media_url: 'https://legacy.example/media.mp3',
+    custom_legacy_field: { preserve: true },
+    content_html: '<p>Old content</p>',
+    media_items: [{ path: 'media/transmissions/T-0001/old.mp3' }],
+    media_url: 'old.mp3',
+    media_path: 'media/transmissions/T-0001/old.mp3',
+    media_type: 'audio'
+  };
+  const draft = {
+    source: 'existing',
+    post_id: original.id,
+    record_id: 3008,
+    created_at: '2026-11-21T10:00:00.000Z',
+    metadata: { slug: 'purtata-corporatristilor', title: 'Revised title', category: 'THE AWAKENING', excerpt: 'Updated', media_width: 100 },
+    content: { transmission_body: '<p>Updated content</p>', media_items: [] }
+  };
+  const publishedAt = '2026-11-21T12:00:00.000Z';
+  const result = context.window.VHACMSStore.buildPublishedPost(draft, original, publishedAt);
+
+  assert.equal(result.created_at, original.created_at);
+  assert.equal(result.published_at, original.published_at);
+  assert.equal(result.updated_at, publishedAt);
+  assert.equal(result.legacy_id, original.legacy_id);
+  assert.equal(result.legacy_media_url, original.legacy_media_url);
+  assert.deepEqual(plain(result.custom_legacy_field), original.custom_legacy_field);
+  assert.equal(result.content_html, '<p>Updated content</p>');
+  assert.equal(result.title, 'Revised title');
+});
+
+test('republishing an unpublished edit draft preserves its original post snapshot', () => {
+  const original = {
+    id: 'T-0002',
+    created_at: '2023-05-06T07:08:09.000Z',
+    published_at: '2023-05-07T08:09:10.000Z',
+    legacy_id: 'legacy-uuid-456',
+    legacy_media_url: 'https://legacy.example/cover.jpg',
+    custom_field: 'keep me'
+  };
+  const draft = {
+    source: 'existing',
+    post_id: 'T-0002',
+    record_id: 3006,
+    original_post: original,
+    metadata: { slug: 'sunt-o-culoare', title: 'Sunt o culoare', category: 'THE DESCENT', excerpt: '', media_width: 100 },
+    content: { transmission_body: '<p>Restored</p>', media_items: [] }
+  };
+  const result = context.window.VHACMSStore.buildPublishedPost(draft, null, '2026-11-21T12:00:00.000Z');
+
+  assert.equal(result.created_at, original.created_at);
+  assert.equal(result.published_at, original.published_at);
+  assert.equal(result.legacy_id, original.legacy_id);
+  assert.equal(result.legacy_media_url, original.legacy_media_url);
+  assert.equal(result.custom_field, 'keep me');
+});
+
+test('a new Transmission receives publication time without inheriting legacy metadata', () => {
+  const draft = {
+    source: 'new',
+    post_id: 'T-0007',
+    record_id: 3009,
+    created_at: '2026-11-21T10:00:00.000Z',
+    metadata: { slug: 'new-transmission', title: 'New Transmission', category: 'THE RETURN', excerpt: '', media_width: 100 },
+    content: { transmission_body: '<p>New</p>', media_items: [] }
+  };
+  const result = context.window.VHACMSStore.buildPublishedPost(draft, null, '2026-11-21T12:00:00.000Z');
+
+  assert.equal(result.created_at, draft.created_at);
+  assert.equal(result.published_at, '2026-11-21T12:00:00.000Z');
+  assert.equal(result.legacy_id, undefined);
+});
