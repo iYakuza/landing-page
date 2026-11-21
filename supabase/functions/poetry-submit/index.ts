@@ -227,7 +227,10 @@ Deno.serve(async (request: Request) => {
       const videoEmbed = asUrl(fd["video-embed"]);
       const slugValue = String(fd.slug || item.slug || "");
       const htmlBody = String(fd["words-and-note"] || "");
-      const plainBody = htmlBody.replace(/<br\s*\/?\s*>/gi, "\n").replace(/<\/p>\s*<p[^>]*>/gi, "\n\n").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+      // Keep encoded angle brackets encoded in the plain-text field. Decoding them
+      // after tag stripping can turn user text such as &amp;lt;script&amp;gt; into
+      // raw markup for downstream consumers that interpolate this field as HTML.
+      const plainBody = htmlBody.replace(/<br\s*\/?\s*>/gi, "\n").replace(/<\/p>\s*<p[^>]*>/gi, "\n\n").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&");
       const medium = mediumIds[String(fd.medium || "")] || String(fd.medium || "poem").toLowerCase();
       let attachmentType = attachmentIds[String(fd["attachment-type"] || "")] || String(fd["attachment-type"] || "").toLowerCase();
       if (!["image", "audio", "video"].includes(attachmentType)) {
