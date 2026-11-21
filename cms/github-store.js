@@ -219,12 +219,11 @@
     const commitSha = await currentHead('private');
     if (!commitSha) return [];
     const files = await github().listFiles('private', privatePath('drafts/transmissions'), { atCommit: commitSha });
-    const drafts = [];
-    for (const file of files.filter(item => item.path.endsWith('.json'))) {
+    const drafts = await Promise.all(files.filter(item => item.path.endsWith('.json')).map(async file => {
       const record = await github().readJson('private', file.path, { atCommit: commitSha });
-      if (record?.data) drafts.push({ ...record.data, _path: file.path, _sha: file.sha, _repoCommitSha: commitSha });
-    }
-    return drafts.sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || '')));
+      return record?.data ? { ...record.data, _path: file.path, _sha: file.sha, _repoCommitSha: commitSha } : null;
+    }));
+    return drafts.filter(Boolean).sort((a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || '')));
   }
 
   async function getDraft(draftId) {
@@ -458,9 +457,11 @@
     return { deleted: changes.length, commitSha: result.commitSha };
   }
 
-  async function getDraftMediaFiles(draftId) {
+  async function getDraftMediaFiles(draftId, atCommit) {
     const key = id(draftId);
-    const commitSha = await currentHead('private');
+    // Callers that have already loaded the draft list can pin media reads to
+    // that exact private-repository snapshot and avoid another branch-head API call.
+    const commitSha = atCommit || await currentHead('private');
     if (!commitSha) return [];
     const prefix = privatePath('media/drafts/' + key);
     const files = await github().listFiles('private', prefix, { atCommit: commitSha });
@@ -468,16 +469,17 @@
       const ext = String(name).split('.').pop().toLowerCase();
       return ({ jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', avif: 'image/avif', mp3: 'audio/mpeg', m4a: 'audio/mp4', wav: 'audio/wav', ogg: 'audio/ogg', mp4: 'video/mp4', webm: 'video/webm' })[ext] || 'application/octet-stream';
     };
-    const result = [];
-    for (const item of files) {
+    // GitHub blob reads are independent once the tree/commit is pinned.
+    // Fetch them concurrently so multi-file drafts do not add serial latency.
+    const result = await Promise.all(files.map(async item => {
       const file = await github().readFile('private', item.path, { atCommit: commitSha });
-      if (!file) continue;
+      if (!file) return null;
       const name = item.path.split('/').pop();
       const mime_type = mimeFor(name);
       const blob = new Blob([file.bytes], { type: mime_type });
-      result.push({ path: item.path, name, mime_type, type: mime_type.split('/')[0], url: URL.createObjectURL(blob) });
-    }
-    return result;
+      return { path: item.path, name, mime_type, type: mime_type.split('/')[0], url: URL.createObjectURL(blob) };
+    }));
+    return result.filter(Boolean);
   }
 
   async function getPublicStructure(recordId) {
