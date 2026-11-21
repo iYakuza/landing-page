@@ -137,6 +137,13 @@ test('Transmissions uses the shared DOMPurify sanitizer before parsing stored po
   assert.match(postsHtml, /shared\/vendor\/dompurify-3\.4\.18\.min\.js[\s\S]*posts\.js/);
 });
 
+test('Poetry plain-text conversion encodes any angle brackets remaining after markup stripping', () => {
+  const edgeSource = fs.readFileSync(path.join(__dirname, '..', 'supabase', 'functions', 'poetry-submit', 'index.ts'), 'utf8');
+  assert.ok(edgeSource.includes('.replace(/</g, "&lt;").replace(/>/g, "&gt;")'));
+  assert.ok(!edgeSource.includes('.replace(/&lt;/g, "<")'));
+  assert.ok(!edgeSource.includes('.replace(/&gt;/g, ">")'));
+});
+
 test('Transmission reflection labels are escaped and embed providers use exact hostnames', () => {
   const postsSource = fs.readFileSync(path.join(__dirname, '..', 'transmissions', 'posts.js'), 'utf8');
   assert.match(postsSource, /collapsible\(safe\(section\.label\.replace/);
