@@ -1759,7 +1759,8 @@ function makeEntry(record,index){
  const chamber=makeChamberNode('button','ha-entry-chamber','ENTER THE CHAMBER ↗');chamber.type='button';chamber.addEventListener('click',async()=>{
   chamber.disabled=true;
   try{await hydratePrivateDraftMediaForRecord(record);openArchiveRecordChamber(record,chamber);}
-  catch(error){console.error('Private record media could not be loaded before opening the chamber:',error);chamber.disabled=false;}
+  catch(error){console.error('Private record media could not be loaded before opening the chamber:',error);}
+  finally{chamber.disabled=false;}
  });
  const favorite=makeChamberNode('button','ha-favorite-toggle','☆');favorite.type='button';favorite.dataset.haFavoriteId=String(record.id);favorite.hidden=!archiveAdmin;favorite.setAttribute('aria-pressed',String(favoriteRecordIds.has(String(record.id))));favorite.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();toggleArchiveFavorite(record.id,favorite);});
  quickActions.append(chamber,favorite);
