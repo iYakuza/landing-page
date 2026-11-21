@@ -117,6 +117,17 @@ test('Transmission editor exposes explicit removal for loose attachment manifest
   assert.match(archiveSource, /media still used in the body will remain published/);
 });
 
+test('Human Archive sanitizes stored HTML before parsing it into DOM nodes', () => {
+  assert.match(archiveSource, /function parseSanitizedHTML\(source\)/);
+  assert.match(archiveSource, /purifier\.sanitize\(String\(source\?\?''\)/);
+  assert.match(archiveSource, /RETURN_DOM_FRAGMENT:true/);
+  assert.match(archiveSource, /ADD_TAGS:\['iframe'\]/);
+  assert.match(archiveSource, /Human Archive HTML sanitizer is unavailable; refusing to render untrusted markup/);
+  assert.equal((archiveSource.match(/new DOMParser\(\)\.parseFromString/g) || []).length, 1);
+  assert.match(archiveHtml, /vendor\/dompurify-3\.4\.18\.min\.js\?v=3\.4\.18/);
+  assert.match(archiveHtml, /dompurify-3\.4\.18\.min\.js[\s\S]*archive\.js/);
+});
+
 test('newly promoted media is verified at its public URL before the normal published status', () => {
   assert.match(archiveSource, /async function waitForPublishedMedia/);
   assert.match(archiveSource, /method:'HEAD',cache:'no-store'/);
