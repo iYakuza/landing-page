@@ -123,10 +123,12 @@ jobs:
                   errors.append(f"Runtime dependency audit target is missing: {relative}")
                   continue
               runtime_source = runtime_path.read_text(encoding="utf-8")
-              if relative in ("cv/contact.js", "cv/index.html") and "oeyxsqocldlovhsmzcjw.supabase.co" in runtime_source:
-                  warnings.append("Known exception: CV contact form still uses the Supabase contact-about-role endpoint; replace it before claiming a zero-backend cutover.")
+              if relative in ("cv/contact.js", "cv/index.html") and ("oeyxsqocldlovhsmzcjw.supabase.co" in runtime_source):
+                  if relative == "cv/contact.js":
+                      warnings.append("Known exception: CV contact form still uses the Supabase contact-about-role endpoint; replace it before claiming a zero-backend cutover.")
                   runtime_source = runtime_source.replace("https://oeyxsqocldlovhsmzcjw.supabase.co/functions/v1/contact-about-role", "")
                   runtime_source = runtime_source.replace("https://oeyxsqocldlovhsmzcjw.supabase.co", "")
+                  runtime_source = runtime_source.replace("wss://oeyxsqocldlovhsmzcjw.supabase.co", "")
               for pattern, label in runtime_patterns:
                   if pattern.search(runtime_source):
                       errors.append(f"{label} reference remains in runtime file: {relative}")
