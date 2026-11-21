@@ -109,9 +109,9 @@ jobs:
               "transmissions/the-return/index.html",
           ]
           runtime_patterns = [
-              (re.compile(r"@supabase/supabase-js|supabase\\.createClient|supabase\\.from\\(|supabase\\.auth|supabase\\.storage", re.IGNORECASE), "Supabase SDK/API"),
-              (re.compile(r"https?://[^\\s\\\"']*\\.supabase\\.co|wss?://[^\\s\\\"']*\\.supabase\\.co", re.IGNORECASE), "Supabase endpoint"),
-              (re.compile(r"(?:workers\\.dev|cloudflareworkers\\.com|r2\\.dev|api\\.cloudflare\\.com)", re.IGNORECASE), "Cloudflare service endpoint"),
+              (re.compile(r"@supabase/supabase-js|supabase\.createClient|supabase\.from\(|supabase\.auth|supabase\.storage", re.IGNORECASE), "Supabase SDK/API"),
+              (re.compile(r"https?://[^\s\"']*\.supabase\.co|wss?://[^\s\"']*\.supabase\.co", re.IGNORECASE), "Supabase endpoint"),
+              (re.compile(r"(?:workers\.dev|cloudflareworkers\.com|r2\.dev|api\.cloudflare\.com)", re.IGNORECASE), "Cloudflare service endpoint"),
           ]
           for relative in runtime_paths:
               runtime_path = Path(relative)
