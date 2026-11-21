@@ -479,9 +479,9 @@ test('archive editor sanitizer resolves local media URLs against the document ba
   const end = archiveSource.indexOf('function clearChamberFormattingToolbar()', start);
   assert.ok(start >= 0 && end > start, 'Transmission body sanitizer must exist');
   const sanitizer = archiveSource.slice(start, end);
-  assert.equal((sanitizer.match(/new URL\\(src,document\\.baseURI\\)/g) || []).length, 4,
+  assert.equal(sanitizer.split('new URL(src,document.baseURI)').length - 1, 4,
     'image, audio/video, source, and iframe URL checks must resolve against the document');
-  assert.equal((sanitizer.match(/new URL\\(src\\)/g) || []).length, 0,
+  assert.equal(sanitizer.split('new URL(src)').length - 1, 0,
     'no media URL should be parsed without a base');
   for (const path of [
     '/landing-page-preview/media/transmissions/T-0001/video.mp4',
