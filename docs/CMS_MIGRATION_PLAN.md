@@ -99,7 +99,7 @@ The GitHub-only CMS implementation is integrated on the recovery branch. Product
 - Public source: iYakuza/landing-page, branch recovery/supabase-content-export-20261119.
 - Private companion: iYakuza/iyakuza-cms-private. Its production main branch still needs the one-time sequence seed.
 - Preview: iYakuza/landing-page-preview, with a separate private CMS preview branch. The preview private branch contains test drafts T-0007 and T-0008; do not copy those drafts or its sequence state into production.
-- Pull request #135 remains Draft. It currently contains 171 changed files and 227 commits. The branch is GitHub-mergeable, but the merge state is still unstable while CodeQL is running.
+- Pull request #135 remains Draft. It currently contains 171 changed files and a long commit history. The branch is GitHub-mergeable, but the merge state is still unstable while CodeQL is running.
 
 ### Implemented GitHub-only paths
 
@@ -161,7 +161,7 @@ The latest Preview deployment has not yet been independently verified against th
 3. Complete the Preview acceptance tests above and wait for CodeQL to pass.
 4. Confirm the production private repository and initialize its sequence with the verified last-used values: transmission_number 6 and archive_record_id 3008. Do not copy Preview's test sequence.
 5. Review and retire legacy Supabase/Google Drive recovery workflows according to the agreed backup policy.
-6. Review the complete PR diff and merge only after explicit owner approval. A squash merge is preferable given the branch's 227-commit history.
+6. Review the complete PR diff and merge only after explicit owner approval. A squash merge is preferable given the branch's long commit history.
 7. Verify the production deployment and public read paths after merge.
 
 **Merge recommendation: not ready yet.** The core CMS migration and Human Archive media recovery are materially advanced, and automated checks are green apart from CodeQL still running. The remaining contact-form dependency, eight pending media items, and incomplete end-to-end acceptance tests are release blockers.
