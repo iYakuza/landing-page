@@ -17,6 +17,67 @@
     return clean;
   };
   const json = value => JSON.stringify(value, null, 2) + '\n';
+
+  // Convert a media URL used by the static site into its repository-relative path.
+  // Only same-site media paths are accepted; arbitrary external URLs are never
+  // added to the public media allowlist.
+  function publicMediaPath(value) {
+    const raw = String(value || '').trim();
+    if (!raw || /^(?:blob:|data:|javascript:)/i.test(raw)) return '';
+    let url;
+    try { url = new URL(raw, 'https://local.invalid/landing-page/'); }
+    catch { return ''; }
+    if (url.origin !== 'https://local.invalid' && url.hostname.toLowerCase() !== 'iyakuza.github.io') return '';
+    let path;
+    try { path = decodeURIComponent(url.pathname); }
+    catch { return ''; }
+    path = path.replace(/^\\/(?:landing-page|landing-page-preview)\\//, '');
+    if (!path.startsWith('media/')) return '';
+    const parts = path.split('/');
+    if (parts.some(part => !part || part === '.' || part === '..') || path.includes('\\\\') || path.includes('\\u0000')) return '';
+    return path;
+  }
+
+  function mediaTypeForPath(path, hint = '') {
+    if (['image', 'audio', 'video'].includes(hint)) return hint;
+    const extension = String(path || '').split('.').pop().toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'webp', 'gif', 'avif', 'svg'].includes(extension)) return 'image';
+    if (['mp3', 'm4a', 'm4b', 'aac', 'wav', 'ogg', 'oga', 'opus', 'flac', 'weba'].includes(extension)) return 'audio';
+    if (['mp4', 'm4v', 'webm', 'mov', 'ogv'].includes(extension)) return 'video';
+    return '';
+  }
+
+  function mimeTypeForPath(path, type = '') {
+    const extension = String(path || '').split('.').pop().toLowerCase();
+    const types = {
+      jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp',
+      gif: 'image/gif', avif: 'image/avif', svg: 'image/svg+xml',
+      mp3: 'audio/mpeg', m4a: 'audio/mp4', m4b: 'audio/mp4', aac: 'audio/aac',
+      wav: 'audio/wav', ogg: 'audio/ogg', oga: 'audio/ogg', opus: 'audio/ogg',
+      flac: 'audio/flac', weba: 'audio/webm',
+      mp4: 'video/mp4', m4v: 'video/mp4', webm: 'video/webm', mov: 'video/quicktime', ogv: 'video/ogg'
+    };
+    return types[extension] || (type ? type + '/unknown' : 'application/octet-stream');
+  }
+
+  // Read image/audio/video references from persisted block HTML. The publisher
+  // uses this to put block-only assets into media_items, which is the manifest
+  // consumed by the public Transmissions renderer.
+  function getPublicMediaReferencesFromHtml(html) {
+    const references = new Map();
+    const tags = String(html || '').match(/<(?:img|audio|video|source)\\b[^>]*>/gi) || [];
+    for (const tag of tags) {
+      const tagName = (tag.match(/^<([a-z]+)/i) || [])[1]?.toLowerCase() || '';
+      const attribute = tag.match(/\\bsrc\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))/i);
+      const raw = attribute && (attribute[1] ?? attribute[2] ?? attribute[3]);
+      const path = publicMediaPath(raw);
+      if (!path) continue;
+      const hint = tagName === 'img' ? 'image' : tagName === 'audio' ? 'audio' : tagName === 'video' ? 'video' : '';
+      const type = mediaTypeForPath(path, hint);
+      if (type && !references.has(path)) references.set(path, type);
+    }
+    return [...references].map(([path, type]) => ({ path, type }));
+  }
   const privatePath = suffix => CONFIG.privateRoot + '/' + suffix;
   const readJson = async (repo, path, fallback, options = {}) => {
     const file = await github().readJson(repo, path, options);
@@ -391,13 +452,60 @@
       outputMedia[kind] = await Promise.all((draft.content.output_media?.[kind] || []).map(promote));
     }
     post.content_html = await promoteHtml(post.content_html);
-    post.media_url = post.media_items[0]?.url || '';
-    post.media_path = post.media_items[0]?.path || '';
-    post.media_type = post.media_items[0]?.type || '';
     const blocks = await Promise.all((Array.isArray(draft.content.blocks) ? draft.content.blocks : []).map(async block => ({
       ...block,
       html: await promoteHtml(block.html || '')
     })));
+
+    // Verify local media references against the existing public media tree plus
+    // files staged for this publication. Include block-only media in media_items:
+    // the public renderer intentionally serves local media only from that list.
+    const publicFiles = await github().listFiles('public', 'media', { atCommit: publicHead });
+    const availablePaths = new Set(publicFiles.map(item => item.path));
+    mediaChanges.forEach(change => availablePaths.add(change.path));
+    const mediaByPath = new Map();
+    post.media_items.forEach(item => {
+      const path = publicMediaPath(item?.path || item?.src || item?.url);
+      if (!path || !availablePaths.has(path)) return;
+      const type = mediaTypeForPath(path, item.type || '');
+      const normalized = {
+        ...item,
+        name: item.name || item.title || path.split('/').pop(),
+        type: type || item.type || 'file',
+        mime_type: item.mime_type || mimeTypeForPath(path, type),
+        path,
+        src: path,
+        url: path,
+        storage: 'github-public',
+        status: 'available'
+      };
+      mediaByPath.set(path, normalized);
+    });
+    const blockMediaReferences = [
+      ...getPublicMediaReferencesFromHtml(post.content_html),
+      ...blocks.flatMap(block => getPublicMediaReferencesFromHtml(block.html || ''))
+    ];
+    for (const reference of blockMediaReferences) {
+      if (!availablePaths.has(reference.path)) continue;
+      if (!mediaByPath.has(reference.path)) {
+        const name = reference.path.split('/').pop();
+        mediaByPath.set(reference.path, {
+          name,
+          type: reference.type,
+          mime_type: mimeTypeForPath(reference.path, reference.type),
+          path: reference.path,
+          src: reference.path,
+          url: reference.path,
+          storage: 'github-public',
+          status: 'available'
+        });
+      }
+    }
+    post.media_items = [...mediaByPath.values()];
+    post.media_url = post.media_items[0]?.url || '';
+    post.media_path = post.media_items[0]?.path || '';
+    post.media_type = post.media_items[0]?.type || '';
+
     const oldIndex = transmissions.value.records.findIndex(item => item.id === draft.post_id);
     if (oldIndex >= 0) transmissions.value.records[oldIndex] = post;
     else transmissions.value.records.push(post);
@@ -556,6 +664,7 @@
 
   window.VHACMSStore = Object.freeze({
     config: CONFIG,
+    getPublicMediaReferencesFromHtml,
     getPublicCollections,
     savePublicJson,
     listDrafts,
