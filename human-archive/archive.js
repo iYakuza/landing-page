@@ -720,7 +720,7 @@ function sanitizeTransmissionBody(source){
    if(valid){
     if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
     else{
-     const url=new URL(src);
+     const url=new URL(src,document.baseURI);
      if(url.origin===window.location.origin)valid=(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
      else valid=url.pathname.includes('/wp-content/uploads/');
     }
@@ -737,7 +737,7 @@ function sanitizeTransmissionBody(source){
      if(valid){
       if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
       else{
-       const url=new URL(src);
+       const url=new URL(src,document.baseURI);
        valid=url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
       }
      }
@@ -755,7 +755,7 @@ function sanitizeTransmissionBody(source){
     if(valid){
      if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
      else{
-      const url=new URL(src);
+      const url=new URL(src,document.baseURI);
       valid=url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
      }
     }
@@ -765,7 +765,7 @@ function sanitizeTransmissionBody(source){
   if(node.tagName==='IFRAME'){
    const src=safeExternalUrl(node.getAttribute('src'),new Set(['www.youtube.com','www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com','player.vimeo.com','www.dailymotion.com','www.loom.com']));
    if(!src)return;
-   const url=new URL(src),host=url.hostname.toLowerCase();
+   const url=new URL(src,document.baseURI),host=url.hostname.toLowerCase();
    if((host.includes('youtube')&&!url.pathname.startsWith('/embed/'))||(host==='open.spotify.com'&&!url.pathname.startsWith('/embed/'))||(host==='w.soundcloud.com'&&!url.pathname.startsWith('/player/'))||(host==='player.vimeo.com'&&!url.pathname.startsWith('/video/'))||(host==='www.dailymotion.com'&&!url.pathname.startsWith('/embed/video/'))||(host==='www.loom.com'&&!url.pathname.startsWith('/embed/')))return;
    element.src=src;element.title=String(node.getAttribute('title')||'Embedded media');element.loading='lazy';element.referrerPolicy='strict-origin-when-cross-origin';element.allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';element.allowFullscreen=true;
   }
