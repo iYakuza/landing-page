@@ -95,6 +95,7 @@ function localMediaUrl(item){
   return archiveSiteBasePath+'/media/human-archive/HA-'+recordId.padStart(4,'0')+'/'+encodeURIComponent(filename);
 }
 function getMedia(raw){return mediaMap.get(urlKey(raw))||null;}
+function isPrivateDraftBlobUrl(raw){const value=String(raw||'');return value.startsWith('blob:')&&privateMediaUrlToPath.has(value);}
 function markUsed(item,used){if(item&&used)used.add(String(item.id));}
 function appendMissing(parent,label){
  const notice=document.createElement('span');
@@ -245,7 +246,7 @@ function appendSafeContent(container,source,record,used){
     const src=safeArchiveMediaUrl(raw,new Set(['i0.wp.com','emanuelstefancu.wordpress.com']));
     let valid=Boolean(src);
     if(valid){
-     if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(raw);
+     if(String(src).startsWith('blob:'))valid=isPrivateDraftBlobUrl(raw);
      else{
       const url=new URL(src);
       if(url.origin===window.location.origin)valid=(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
@@ -261,8 +262,12 @@ function appendSafeContent(container,source,record,used){
    const raw=node.getAttribute('src')||'';
    const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){if(tag==='AUDIO')appendLocalAudio(parent,item,record,used);else appendLocalVideo(parent,item,record,used);return;}
-   const src=safeArchiveMediaUrl(raw,new Set());
-   const valid=Boolean(src)&&(()=>{const url=new URL(src);return url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));})();
+   // Private draft blobs are trusted only while mapped to a verified path in this
+   // draft's private repository. The local-origin check below intentionally rejects
+   // arbitrary external/blob sources, but must not reject those mapped upload blobs.
+   const privateDraftBlob=isPrivateDraftBlobUrl(raw);
+   const src=privateDraftBlob?raw:safeArchiveMediaUrl(raw,new Set());
+   const valid=privateDraftBlob||(Boolean(src)&&(()=>{const url=new URL(src);return url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));})());
    const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='none';
    if(valid)mediaNode.src=src;
    if(tag==='VIDEO')mediaNode.playsInline=true;
@@ -273,9 +278,15 @@ function appendSafeContent(container,source,record,used){
   if(tag==='SOURCE'){
    const raw=node.getAttribute('src')||'';
    const item=getMedia(raw);
-   if(item&&(mediaReady||item.storage==='vha-post-media')&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
-    const source=document.createElement('source');source.src=localMediaUrl(item);source.type=item.mime_type;parent.append(source);markUsed(item,used);
-   }else{}
+   const privateDraftBlob=isPrivateDraftBlobUrl(raw);
+   if((privateDraftBlob||(item&&(mediaReady||item.storage==='vha-post-media')))&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
+    const source=document.createElement('source');
+    source.src=privateDraftBlob?raw:localMediaUrl(item);
+    const mime=String(item?.mime_type||node.getAttribute('type')||'').trim();
+    if(mime)source.type=mime;
+    parent.append(source);
+    if(item)markUsed(item,used);
+   }
    return;
   }
   if(tag==='IFRAME'){
