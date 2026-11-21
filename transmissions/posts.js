@@ -236,32 +236,32 @@
     const takeSection=(element,fallback)=>{
       if(!element)return {label:fallback,content:''};
       const label=element.querySelector(':scope > .suno-label');
-      const title=label?.outerHTML||fallback;
+      const title=label?.textContent?.trim()||fallback;
       label?.remove();
       return {label:title,content:element.innerHTML};
     };
     // Keep reflection sections independent even when the imported source nests them inside .suno-notes.
     learned?.remove();
     chatgptLearned?.remove();
-    const textSection=takeSection(textColumn,'<p class="suno-label">01 // THE TEXT</p>');
+    const textSection=takeSection(textColumn,'01 // THE TEXT');
     const lyricsTitle=lyrics?.querySelector(':scope > summary')?.textContent?.trim()||'02 // SUNO STYLE LYRICS';
-    const lyricsLabel='<p class="suno-label">'+safe(lyricsTitle.replace(/\\s+CLICK TO EXPAND$/i,''))+'</p>';
+    const lyricsLabel=lyricsTitle.replace(/\\s+CLICK TO EXPAND$/i,'');
     if(lyrics){
       lyrics.querySelector(':scope > summary')?.remove();
       lyrics.removeAttribute('open');
     }
-    const styleSection=takeSection(style,'<p class="suno-label">03 // SUNO STYLE PROMPT</p>');
-    const learnedSection=takeSection(learned,'<p class="suno-label">WHAT I LEARNED</p>');
-    const chatgptSection=takeSection(chatgptLearned,'<p class="suno-label">WHAT CHATGPT LEARNED</p>');
+    const styleSection=takeSection(style,'03 // SUNO STYLE PROMPT');
+    const learnedSection=takeSection(learned,'WHAT I LEARNED');
+    const chatgptSection=takeSection(chatgptLearned,'WHAT CHATGPT LEARNED');
     const textHtml=textColumn?textSection.content:'<p class="suno-empty-column">No accompanying text added yet.</p>';
     const lyricsContent=lyrics?lyrics.innerHTML:'<p>No lyrics added yet.</p>';
     const styleContent=style?styleSection.content:'<p>No Suno style prompt added yet.</p>';
-    const collapsible=(label,content,classes='')=>'<details class="suno-collapsible '+safe(classes)+'"><summary class="suno-label">'+safe(String(label||'SECTION').replace(/<[^>]*>/g,''))+'</summary><div class="suno-section-content">'+window.DOMPurify.sanitize(String(content||''),{ALLOWED_TAGS:['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','IMG','VIDEO','AUDIO','DIV','SECTION','ASIDE','DETAILS','SUMMARY'],ALLOWED_ATTR:['href','src','alt','class']})+'</div></details>';
-    const reflection=(section)=>section.content?'<section class="suno-reflection">'+collapsible(safe(section.label.replace(/<[^>]*>/g,'')),section.content,'suno-reflection-disclosure')+'</section>':'';
-    const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+collapsible(textSection.label.replace(/^<p[^>]*>|<\/p>$/g,''),textHtml,'suno-text-disclosure')+'</section>';
-    const lyricsHtml='<section class="suno-column suno-column-lyrics">'+collapsible(lyricsLabel.replace(/^<p[^>]*>|<\/p>$/g,''),lyricsContent,'suno-lyrics-disclosure')+'</section>';
-    const styleHtml='<section class="suno-column suno-column-style">'+collapsible(styleSection.label.replace(/^<p[^>]*>|<\/p>$/g,''),styleContent,'suno-style-disclosure')+reflection(learnedSection)+reflection(chatgptSection)+'</section>';
-    return '<div class="suno-three-grid">'+first+styleHtml+lyricsHtml+'</div>';
+    const collapsible=(label,content,classes='')=>'<details class="suno-collapsible '+safe(classes)+'"><summary class="suno-label">'+safe(String(label||'SECTION'))+'</summary><div class="suno-section-content">'+window.DOMPurify.sanitize(String(content||''),{ALLOWED_TAGS:['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','IMG','VIDEO','AUDIO','DIV','SECTION','ASIDE','DETAILS','SUMMARY'],ALLOWED_ATTR:['href','src','alt','class']})+'</div></details>';
+    const reflection=(section)=>section.content?'<section class="suno-reflection">'+collapsible(section.label,section.content,'suno-reflection-disclosure')+'</section>':'';
+    const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+collapsible(textSection.label,textHtml,'suno-text-disclosure')+'</section>';
+    const lyricsHtml='<section class="suno-column suno-column-lyrics">'+collapsible(lyricsLabel,lyricsContent,'suno-lyrics-disclosure')+'</section>';
+    const styleHtml='<section class="suno-column suno-column-style">'+collapsible(styleSection.label,styleContent,'suno-style-disclosure')+reflection(learnedSection)+reflection(chatgptSection)+'</section>';
+    
   }
   function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,titleRow,permalinkBack,shapeClass){
     return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+titleRow+renderSunoGrid(post,media,titleHtml,excerptHtml)+shareActions(post)+permalinkBack+'</article>';
