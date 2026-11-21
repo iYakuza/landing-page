@@ -374,7 +374,7 @@ test('direct archive record URLs hydrate only matching private draft media', () 
   assert.equal(makeContext('?record=3008')(publicRecord), true);
   assert.equal(makeContext('?record=3012')(privateRecord), true);
   assert.equal(makeContext('?slug=purtata-corporatristilor')(publicRecord), true);
-  assert.equal(makeContext('')(privateRecord), true);
+  assert.equal(makeContext('')(privateRecord), false, 'the archive index must not hydrate private draft media');
 });
 
 test('private draft media reads reuse the supplied commit and run concurrently', async () => {
@@ -420,4 +420,32 @@ test('private draft media reads reuse the supplied commit and run concurrently',
   assert.equal(assets.length, 2);
   assert.equal(maxConcurrentReads, 2, 'independent private media blobs should be read concurrently');
   assert.deepEqual(Array.from(assets, asset => asset.mime_type).sort(), ['audio/mpeg', 'image/jpeg']);
+});
+
+
+test('Human Archive record cards defer body and attachment creation until expanded', () => {
+  const entryStart = archiveSource.indexOf('function makeEntry(record,index){');
+  const renderStart = archiveSource.indexOf('function render(){', entryStart);
+  assert.ok(entryStart >= 0 && renderStart > entryStart, 'record card renderer must exist');
+  const entry = archiveSource.slice(entryStart, renderStart);
+  assert.doesNotMatch(entry, /appendSafeContent\\(/, 'initial card creation must not parse or attach media sources');
+  assert.doesNotMatch(entry, /makeAttachmentGallery\\(/, 'initial card creation must not build attachment media nodes');
+  assert.match(entry, /await hydrateArchiveCardContent\\(record,content\\)/, 'opening a card must trigger its one-time content hydration');
+
+  const hydratorStart = archiveSource.indexOf('async function hydrateArchiveCardContent(record,content){');
+  const hydratorEnd = archiveSource.indexOf('async function loadTransmissionRecords(){', hydratorStart);
+  assert.ok(hydratorStart >= 0 && hydratorEnd > hydratorStart, 'deferred card hydrator must exist');
+  const hydrator = archiveSource.slice(hydratorStart, hydratorEnd);
+  assert.match(hydrator, /await hydratePrivateDraftMediaForRecord\\(record\\)/, 'only the opened private draft may hydrate its assets');
+  assert.match(hydrator, /appendSafeContent\\(/, 'record HTML should be parsed after opening');
+  assert.match(hydrator, /makeAttachmentGallery\\(/, 'record attachments should be created after opening');
+});
+
+test('private draft media is not fetched while building the general archive index', () => {
+  const loaderStart = archiveSource.indexOf('function shouldHydratePrivateDraftMedia(draft){');
+  const loaderEnd = archiveSource.indexOf('async function ensureStandaloneTransmissionRecords(){', loaderStart);
+  assert.ok(loaderStart >= 0 && loaderEnd > loaderStart, 'lazy private draft loader must exist');
+  const loader = archiveSource.slice(loaderStart, loaderEnd);
+  assert.match(loader, /if\\(!requestedRecordId&&!requestedSlug\\)return false;/, 'the archive index must not fetch all private draft blobs');
+  assert.match(loader, /if\\(shouldHydratePrivateDraftMedia\\(draft\\)\\)await hydratePrivateDraftMediaForRecord\\(record\\)/, 'direct record URLs may hydrate their matching draft only');
 });
