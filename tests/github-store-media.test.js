@@ -355,3 +355,69 @@ test('Human Archive CSP permits private draft image and media Blob URLs', () => 
   assert.match(directives.get('img-src') || '', /blob:/, 'img-src must allow mapped private image Blob URLs');
   assert.match(directives.get('media-src') || '', /blob:/, 'media-src must allow mapped private audio/video Blob URLs');
 });
+
+
+test('direct archive record URLs hydrate only matching private draft media', () => {
+  const start = archiveSource.indexOf('function shouldHydratePrivateDraftMedia(draft){');
+  const end = archiveSource.indexOf('async function loadTransmissionRecords(){', start);
+  assert.ok(start >= 0 && end > start, 'archive route-aware private-media selector must exist');
+  const helper = archiveSource.slice(start, end);
+  const makeContext = search => {
+    const sandbox = vm.createContext({ URLSearchParams, window: { location: { search } } });
+    vm.runInContext(helper + '\\nthis.shouldHydratePrivateDraftMedia = shouldHydratePrivateDraftMedia;', sandbox);
+    return sandbox.shouldHydratePrivateDraftMedia;
+  };
+  const publicRecord = { record_id: 3008, metadata: { slug: 'purtata-corporatristilor' } };
+  const privateRecord = { record_id: 3012, metadata: { slug: 'test' } };
+
+  assert.equal(makeContext('?record=3008')(privateRecord), false);
+  assert.equal(makeContext('?record=3008')(publicRecord), true);
+  assert.equal(makeContext('?record=3012')(privateRecord), true);
+  assert.equal(makeContext('?slug=purtata-corporatristilor')(publicRecord), true);
+  assert.equal(makeContext('')(privateRecord), true);
+});
+
+test('private draft media reads reuse the supplied commit and run concurrently', async () => {
+  const paths = [
+    'cms-data/v1/media/drafts/test-draft/blocks-image/cover.jpg',
+    'cms-data/v1/media/drafts/test-draft/blocks-audio/song.mp3'
+  ];
+  let branchHeadReads = 0;
+  let activeReads = 0;
+  let maxConcurrentReads = 0;
+  let readCommit;
+  const mockGithub = {
+    getBranchHead: async () => {
+      branchHeadReads += 1;
+      return 'unexpected-head';
+    },
+    listFiles: async (_repo, _prefix, options) => {
+      readCommit = options.atCommit;
+      return paths.map(path => ({ path }));
+    },
+    readFile: async (_repo, path, options) => {
+      assert.equal(options.atCommit, 'pinned-private-head');
+      activeReads += 1;
+      maxConcurrentReads = Math.max(maxConcurrentReads, activeReads);
+      await new Promise(resolve => setTimeout(resolve, 5));
+      activeReads -= 1;
+      return { path, bytes: new Uint8Array([1, 2, 3]) };
+    }
+  };
+  let objectUrlId = 0;
+  const mockURL = { createObjectURL: () => 'blob:private-test-' + (++objectUrlId) };
+  const sandbox = vm.createContext({
+    window: { VHAGitHub: mockGithub },
+    URL: mockURL,
+    Blob,
+    crypto: { randomUUID: () => 'unused' }
+  });
+  vm.runInContext(source, sandbox);
+
+  const assets = await sandbox.window.VHACMSStore.getDraftMediaFiles('test-draft', 'pinned-private-head');
+  assert.equal(branchHeadReads, 0, 'the caller-provided commit should avoid another branch-head request');
+  assert.equal(readCommit, 'pinned-private-head');
+  assert.equal(assets.length, 2);
+  assert.equal(maxConcurrentReads, 2, 'independent private media blobs should be read concurrently');
+  assert.deepEqual(assets.map(asset => asset.mime_type).sort(), ['audio/mpeg', 'image/jpeg']);
+});
