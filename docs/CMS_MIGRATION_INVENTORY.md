@@ -70,7 +70,7 @@ Latest automated checks on the recovery branch:
 
 - Static-site safety checks: passed.
 - JavaScript syntax checks and 13 Node regression tests: passed.
-- Static security posture checks: passed, with one warning for eight pending local media items.
+- Static security posture checks: passed with two documented warnings: eight pending media items and the CV contact-form exception.
 - Secret scanning: passed.
 - CodeQL: in progress at the time of this inventory.
 

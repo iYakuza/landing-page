@@ -133,7 +133,7 @@ The legacy Google Drive backup and Supabase migration/restore workflows remain i
 
 Latest recovery-branch checks:
 - Static-site safety: passed, including JavaScript syntax checks and 13 Node regression tests.
-- Static security posture: passed, including runtime dependency scanning and verification of all 111 Human Archive media files. It reports one warning for the eight pending media items.
+- Static security posture: passed, including runtime dependency scanning and verification of all 111 Human Archive media files. It reports two documented warnings: eight pending media items and the CV contact-form exception.
 - Secret scanning: passed.
 - CodeQL: still in progress at the time of this update.
 
