@@ -973,7 +973,11 @@ const getBlockMediaLibrary=type=>{
    const archiveStructure=getRecordStructure(archiveRecord);
    return [...['image','audio','video'].flatMap(kind=>getRecordOutputMedia(archiveRecord,archiveStructure,kind).map(item=>({...item,type:kind}))),...(Array.isArray(archiveRecord.media_items)?archiveRecord.media_items:[])];
   });
-  const source=[...archiveAssets,...['image','audio','video'].flatMap(kind=>editorMedia[kind].map(item=>({...item,type:kind}))),...attachedPostMedia,...blockMediaUploadedAssets];
+  const currentBlockAssets=(window.VHACMSStore?.getPublicMediaReferencesFromHtml?.(getEditorHTML())||[]).map(item=>({
+   url:archiveSiteBasePath+'/'+item.path.split('/').map(encodeURIComponent).join('/'),
+   path:item.path,name:item.path.split('/').pop(),type:item.type,mime_type:item.type+'/unknown',storage:'github-public'
+  }));
+  const source=[...archiveAssets,...currentBlockAssets,...['image','audio','video'].flatMap(kind=>editorMedia[kind].map(item=>({...item,type:kind}))),...attachedPostMedia,...blockMediaUploadedAssets];
   const seen=new Set();
   return source.filter(item=>{
    const itemType=String(item.type||item.mime_type||'').toLowerCase();
