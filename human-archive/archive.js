@@ -649,7 +649,16 @@ function rewriteTransmissionMediaReferences(html,postId,items){
  });
  return String(html||'').replace(/(\bsrc\s*=\s*)(["'])(.*?)\2/gi,(match,prefix,quote,raw)=>{
   const direct=byReference.get(referenceKey(raw));
-  const byName=byFilename.get(filenameKey(raw));
+  const byName=(()=>{
+   try{
+    const url=new URL(String(raw||''),window.location.href);
+    const trustedArchivePath=url.origin===window.location.origin&&
+     (url.pathname.startsWith(archiveSiteBasePath+'/media/human-archive/HA-')||
+      url.pathname.startsWith('/landing-page/media/human-archive/HA-')||
+      url.pathname.startsWith('/landing-page-preview/media/human-archive/HA-'));
+    return trustedArchivePath?byFilename.get(filenameKey(raw)):undefined;
+   }catch{return undefined;}
+  })();
   const localUrl=direct||byName;
   return localUrl?prefix+quote+localUrl+quote:match;
  });
