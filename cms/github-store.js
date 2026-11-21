@@ -125,6 +125,47 @@
     return [...mediaByPath.values(), ...preservedMedia];
   }
 
+  function normalizePublicationValue(value) {
+    if (Array.isArray(value)) return value.map(normalizePublicationValue);
+    if (value && typeof value === 'object') {
+      return Object.keys(value).sort().reduce((result, key) => {
+        result[key] = normalizePublicationValue(value[key]);
+        return result;
+      }, {});
+    }
+    if (typeof value === 'string') {
+      return value
+        .replace(/https:\/\/iyakuza\.github\.io\/(?:landing-page(?:-preview)?\/)?/gi, '')
+        .replace(/\/(?:landing-page|landing-page-preview)\//g, '/')
+        .replace(/(^|["'(])\/media\//g, '$1media/');
+    }
+    return value;
+  }
+
+  function comparableMediaManifest(items) {
+    return (Array.isArray(items) ? items : []).map(item => {
+      const copy = { ...(item || {}) };
+      // Manifest IDs are display/index metadata; a rebuild may add them without
+      // changing the actual asset. Compare the stable asset contract instead.
+      delete copy.id;
+      return normalizePublicationValue(copy);
+    }).sort((a, b) => String(a.path || a.src || a.url || '').localeCompare(String(b.path || b.src || b.url || '')));
+  }
+
+  function isPublicationUnchanged(post, existingPost, structure, existingStructure) {
+    if (!existingPost || !existingStructure) return false;
+    const snapshot = value => {
+      const copy = { ...(value || {}) };
+      delete copy.updated_at;
+      return normalizePublicationValue(copy);
+    };
+    const nextPost = snapshot(post), currentPost = snapshot(existingPost);
+    nextPost.media_items = comparableMediaManifest(post?.media_items);
+    currentPost.media_items = comparableMediaManifest(existingPost?.media_items);
+    return JSON.stringify(nextPost) === JSON.stringify(currentPost) &&
+      JSON.stringify(snapshot(structure)) === JSON.stringify(snapshot(existingStructure));
+  }
+
   function snapshotStructureMetadata(structure) {
     if (!structure || typeof structure !== 'object') return {};
     const {
@@ -606,25 +647,41 @@
     const structureIndex = structures.findIndex(item => String(item.record_id) === String(draft.record_id));
     if (structureIndex >= 0) structures[structureIndex] = structure; else structures.push(structure);
     if ([post.content_html, JSON.stringify(outputMedia), JSON.stringify(blocks)].some(value => value.includes('cms-data/v1/media/drafts/'))) throw new Error('A private draft media reference could not be promoted safely.');
+    const cleanupPrivateDraft = async () => {
+      let privateCleanupPending = false;
+      try {
+        await deleteDraft(draftId, draft._repoCommitSha);
+      } catch (cleanupError) {
+        const latest = await getDraft(draftId);
+        if (!latest) privateCleanupPending = false;
+        else if (latest.revision === draft.revision && latest.updated_at === draft.updated_at) {
+          try { await deleteDraft(draftId, latest._repoCommitSha); }
+          catch (retryError) { privateCleanupPending = true; }
+        } else privateCleanupPending = true;
+        if (privateCleanupPending) console.warn('Transmission published, but the private draft was retained because it changed during publication.', cleanupError);
+      }
+      return privateCleanupPending;
+    };
+
+    // An unchanged edit should close its private draft without creating a public
+    // commit. Canonical URL aliases and regenerated manifest IDs are ignored,
+    // while real content, metadata, structure or media changes still publish.
+    if (isPublicationUnchanged(post, existingPost, structure, existingStructure)) {
+      const privateCleanupPending = await cleanupPrivateDraft();
+      return { post: existingPost, commitSha: publicHead, privateCleanupPending, unchanged: true, promotedMediaPaths: [] };
+    }
+
     const changes = [
       { path: CONFIG.transmissionsPath, content: json(transmissions.value) },
       { path: CONFIG.archivePath, content: json(archive.value) },
       ...mediaChanges
     ];
     const result = await write('public', changes, 'Publish Transmission ' + draft.post_id, publicHead);
-    let privateCleanupPending = false;
-    try {
-      await deleteDraft(draftId, draft._repoCommitSha);
-    } catch (cleanupError) {
-      const latest = await getDraft(draftId);
-      if (!latest) privateCleanupPending = false;
-      else if (latest.revision === draft.revision && latest.updated_at === draft.updated_at) {
-        try { await deleteDraft(draftId, latest._repoCommitSha); }
-        catch (retryError) { privateCleanupPending = true; }
-      } else privateCleanupPending = true;
-      if (privateCleanupPending) console.warn('Transmission published, but the private draft was retained because it changed during publication.', cleanupError);
-    }
-    return { post, commitSha: result.commitSha, privateCleanupPending };
+    const privateCleanupPending = await cleanupPrivateDraft();
+    return {
+      post, commitSha: result.commitSha, privateCleanupPending, unchanged: false,
+      promotedMediaPaths: mediaChanges.map(change => change.path)
+    };
   }
 
 
@@ -763,6 +820,7 @@
     config: CONFIG,
     getPublicMediaReferencesFromHtml,
     buildPublishedMediaItems,
+    isPublicationUnchanged,
     snapshotPostMetadata,
     buildPublishedPost,
     snapshotStructureMetadata,
