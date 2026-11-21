@@ -431,6 +431,10 @@ test('Human Archive record cards defer body and attachment creation until expand
   assert.doesNotMatch(entry, /appendSafeContent\(/, 'initial card creation must not parse or attach media sources');
   assert.doesNotMatch(entry, /makeAttachmentGallery\(/, 'initial card creation must not build attachment media nodes');
   assert.match(entry, /await hydrateArchiveCardContent\(record,content\)/, 'opening a card must trigger its one-time content hydration');
+  const relatedStart = archiveSource.indexOf('function openRelatedRecord(record){');
+  const relatedEnd = archiveSource.indexOf('function makeRelatedRecordButton', relatedStart);
+  const related = archiveSource.slice(relatedStart, relatedEnd);
+  assert.match(related, /control\\.click\\(\\)/, 'related records must use the same lazy card-open path');
 
   const hydratorStart = archiveSource.indexOf('async function hydrateArchiveCardContent(record,content){');
   const hydratorEnd = archiveSource.indexOf('async function loadTransmissionRecords(){', hydratorStart);
