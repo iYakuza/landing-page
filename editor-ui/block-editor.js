@@ -314,13 +314,22 @@
         if(library.length){
           const libraryLabel=document.createElement('label');libraryLabel.className='ha-media-picker-library-label';libraryLabel.textContent='THIS RECORD’S MEDIA LIBRARY';
           librarySelect=document.createElement('select');librarySelect.multiple=['gallery','slideshow','tiled-gallery','image-compare','playlist'].includes(type);librarySelect.size=Math.min(5,library.length);
-          library.forEach((item,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=(item.name||'Media file')+' · '+(item.mime_type||item.type||'media');librarySelect.append(option);});
+          library.forEach((item,index)=>{
+             const option=document.createElement('option');option.value=String(index);
+             const detail=item.available===false?'NOT RECOVERED · '+(item.mime_type||item.type||'media'):(item.mime_type||item.type||'media');
+             option.textContent=(item.name||'Media file')+' · '+detail;
+             option.disabled=item.available===false;
+             librarySelect.append(option);
+           });
           libraryLabel.append(librarySelect);panel.append(libraryLabel);
         }
         const status=document.createElement('p');status.className='ha-media-picker-status';status.setAttribute('aria-live','polite');panel.append(status);
         const actions=document.createElement('div');actions.className='ha-media-picker-actions';
         const upload=document.createElement('button');upload.type='button';upload.textContent='UPLOAD & INSERT';upload.disabled=true;
-        const reuse=document.createElement('button');reuse.type='button';reuse.textContent='USE SELECTED';reuse.disabled=!librarySelect;
+        const reuse=document.createElement('button');reuse.type='button';reuse.textContent='USE SELECTED';reuse.disabled=!librarySelect||!library.some(item=>item.available!==false);
+         librarySelect?.addEventListener('change',()=>{
+           reuse.disabled=![...librarySelect.selectedOptions].some(option=>!option.disabled);
+         });
         const cancel=document.createElement('button');cancel.type='button';cancel.textContent='CANCEL';actions.append(upload,reuse,cancel);panel.append(actions);dialog.append(panel);shell.append(dialog);
         const close=()=>dialog.remove();
         input.addEventListener('change',()=>{upload.disabled=!input.files?.length;});
