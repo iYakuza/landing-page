@@ -11,6 +11,7 @@ const context = vm.createContext({ window: {}, URL });
 vm.runInContext(source, context, { filename: 'cms/github-store.js' });
 
 const collect = context.window.VHACMSStore.getPublicMediaReferencesFromHtml;
+const buildManifest = context.window.VHACMSStore.buildPublishedMediaItems;
 const plain = value => JSON.parse(JSON.stringify(value));
 
 test('collects local images, audio and video from saved block HTML', () => {
@@ -66,3 +67,54 @@ test('uses the HTML element type when a media extension is ambiguous', () => {
     { path: 'media/transmissions/T-0007/recording.mp4', type: 'audio' }
   ]);
 });
+
+test('adds block-only media to the published manifest when the file exists', () => {
+  // This is the actual T-0001 pattern found in Preview: the MP3 exists in
+  // media/transmissions/T-0001 but the post had an empty media_items array.
+  const asset = 'media/transmissions/T-0001/46e3f478-0e5a-4c6d-9050-bd33f58d9936-Bing-Bong-I-Am-a-Spoon.mp3';
+  const html = '<div class="ha-audio-block"><audio controls src="' + asset + '"></audio></div>';
+  const manifest = buildManifest([], [html], new Set([asset]));
+
+  assert.deepEqual(plain(manifest), [{
+    name: '46e3f478-0e5a-4c6d-9050-bd33f58d9936-Bing-Bong-I-Am-a-Spoon.mp3',
+    type: 'audio',
+    mime_type: 'audio/mpeg',
+    path: asset,
+    src: asset,
+    url: asset,
+    storage: 'github-public',
+    status: 'available'
+  }]);
+});
+
+test('does not mark a missing legacy media file as recovered', () => {
+  const missing = 'media/transmissions/T-0001/audio.mp3';
+  const pending = {
+    name: 'Purtata corporatriștilor - mp3.mp3',
+    type: 'audio',
+    src: missing,
+    url: missing,
+    status: 'pending_recovery'
+  };
+  const manifest = buildManifest([pending], ['<audio src="' + missing + '"></audio>'], new Set());
+
+  assert.deepEqual(plain(manifest), [pending]);
+});
+
+test('promotes an existing pending reference once its file is verified', () => {
+  const asset = 'media/transmissions/T-0006/featured.jpg';
+  const pending = {
+    name: 'featured.jpg',
+    type: 'image',
+    src: asset,
+    url: asset,
+    status: 'pending_recovery'
+  };
+  const manifest = buildManifest([pending], ['<img src="' + asset + '">'], new Set([asset]));
+
+  assert.equal(manifest.length, 1);
+  assert.equal(manifest[0].status, 'available');
+  assert.equal(manifest[0].storage, 'github-public');
+  assert.equal(manifest[0].path, asset);
+});
+
