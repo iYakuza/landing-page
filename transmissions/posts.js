@@ -256,7 +256,7 @@
     const textHtml=textColumn?textSection.content:'<p class="suno-empty-column">No accompanying text added yet.</p>';
     const lyricsContent=lyrics?lyrics.innerHTML:'<p>No lyrics added yet.</p>';
     const styleContent=style?styleSection.content:'<p>No Suno style prompt added yet.</p>';
-    const collapsible=(label,content,classes='')=>'<details class="suno-collapsible '+classes+'"><summary class="suno-label">'+(label||'SECTION')+'</summary><div class="suno-section-content">'+content+'</div></details>';
+    const collapsible=(label,content,classes='')=>'<details class="suno-collapsible '+safe(classes)+'"><summary class="suno-label">'+safe(String(label||'SECTION').replace(/<[^>]*>/g,''))+'</summary><div class="suno-section-content">'+window.DOMPurify.sanitize(String(content||''),{ALLOWED_TAGS:['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','IMG','VIDEO','AUDIO','DIV','SECTION','ASIDE','DETAILS','SUMMARY'],ALLOWED_ATTR:['href','src','alt','class']})+'</div></details>';
     const reflection=(section)=>section.content?'<section class="suno-reflection">'+collapsible(safe(section.label.replace(/<[^>]*>/g,'')),section.content,'suno-reflection-disclosure')+'</section>':'';
     const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+collapsible(textSection.label.replace(/^<p[^>]*>|<\/p>$/g,''),textHtml,'suno-text-disclosure')+'</section>';
     const lyricsHtml='<section class="suno-column suno-column-lyrics">'+collapsible(lyricsLabel.replace(/^<p[^>]*>|<\/p>$/g,''),lyricsContent,'suno-lyrics-disclosure')+'</section>';
