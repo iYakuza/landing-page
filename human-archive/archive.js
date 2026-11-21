@@ -179,9 +179,9 @@ function openRelatedRecord(record){
  render();
  const target=document.getElementById('ha-record-'+record.id);
  if(target){
-  target.hidden=false;
   const control=target.previousElementSibling;
-  if(control){control.setAttribute('aria-expanded','true');const action=control.querySelector('.ha-entry-bottom span');if(action)action.textContent='EXIT NICHE ↑';}
+  if(control?.classList.contains('ha-entry'))control.click();
+  else target.hidden=false;
   target.scrollIntoView({behavior:'smooth',block:'center'});
  }
 }
