@@ -377,21 +377,42 @@
 
 
   async function createDraft(metadata = {}, source = 'new') {
-    const reserved = await reserveSequence();
+    // Read the sequence and use one compare-and-swap commit for both the
+    // identifier reservation and initial draft. The former two-commit flow
+    // made opening the editor wait on a second full Git data API transaction.
+    const head = await currentHead('private') || await github().initializePrivateRepository();
+    const sequence = await readJson('private', privatePath('sequences.json'), null, { atCommit: head });
+    if (!sequence?.data) throw new Error('CMS identifier sequences have not been initialized from the verified content export.');
+    if (!Number.isSafeInteger(Number(sequence.data.transmission_number)) || !Number.isSafeInteger(Number(sequence.data.archive_record_id))) {
+      throw new Error('The CMS identifier sequence file is invalid. Reconcile it before creating records.');
+    }
+    const reserved = {
+      transmission_number: Number(sequence.data.transmission_number) + 1,
+      archive_record_id: Number(sequence.data.archive_record_id) + 1,
+      updated_at: new Date().toISOString()
+    };
     const draftId = crypto.randomUUID ? crypto.randomUUID() : 'draft-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
     const now = new Date().toISOString();
-    const publicHead = await currentHead('public');
+    // New drafts do not depend on the public repository version, so avoid an
+    // unrelated public-branch request during the editor's critical open path.
+    const publicHead = source === 'new' ? null : await currentHead('public');
     const draft = {
       schema_version: 1, draft_id: draftId, kind: 'transmission',
-      record_id: reserved.archive_record_id, post_id: reserved.post_id,
+      record_id: reserved.archive_record_id,
+      post_id: 'T-' + String(reserved.transmission_number).padStart(4, '0'),
       source, status: 'draft', created_at: now, updated_at: now, revision: 1,
       base_public_commit: source === 'new' ? null : publicHead,
       metadata: { title: '', slug: '', category: '', excerpt: '', media_width: 100, ...metadata },
       content: { transmission_body: '', prompt_style: '', lyrics_style: '', output_text: '',
         output_media: { image: [], audio: [], video: [] }, blocks: [], media_items: [] }
     };
-    const saved = await saveDraft(draft);
-    return { ...draft, revision: saved.draft.revision, _repoCommitSha: saved.commitSha, commitSha: saved.commitSha };
+    const draftPath = privatePath('drafts/transmissions/' + draftId + '.json');
+    const savedDraft = { ...draft, revision: Number(draft.revision || 0) + 1, updated_at: new Date().toISOString() };
+    const result = await write('private', [
+      { path: privatePath('sequences.json'), content: json(reserved) },
+      { path: draftPath, content: json(savedDraft) }
+    ], 'Create Transmission draft and reserve identifiers ' + draftId, head);
+    return { ...savedDraft, _repoCommitSha: result.commitSha, commitSha: result.commitSha };
   }
 
   async function uploadDraftMedia(draftId, files, folder = 'attachments', expectedHeadSha) {
