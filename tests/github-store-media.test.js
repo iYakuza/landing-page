@@ -364,7 +364,7 @@ test('direct archive record URLs hydrate only matching private draft media', () 
   const helper = archiveSource.slice(start, end);
   const makeContext = search => {
     const sandbox = vm.createContext({ URLSearchParams, window: { location: { search } } });
-    vm.runInContext(helper + '\\nthis.shouldHydratePrivateDraftMedia = shouldHydratePrivateDraftMedia;', sandbox);
+    vm.runInContext(helper + '; this.shouldHydratePrivateDraftMedia = shouldHydratePrivateDraftMedia;', sandbox);
     return sandbox.shouldHydratePrivateDraftMedia;
   };
   const publicRecord = { record_id: 3008, metadata: { slug: 'purtata-corporatristilor' } };
@@ -419,5 +419,5 @@ test('private draft media reads reuse the supplied commit and run concurrently',
   assert.equal(readCommit, 'pinned-private-head');
   assert.equal(assets.length, 2);
   assert.equal(maxConcurrentReads, 2, 'independent private media blobs should be read concurrently');
-  assert.deepEqual(assets.map(asset => asset.mime_type).sort(), ['audio/mpeg', 'image/jpeg']);
+  assert.deepEqual(Array.from(assets, asset => asset.mime_type).sort(), ['audio/mpeg', 'image/jpeg']);
 });
