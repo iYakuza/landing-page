@@ -8,6 +8,7 @@ const test = require('node:test');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'cms', 'github-store.js'), 'utf8');
 const archiveSource = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'archive.js'), 'utf8');
+const blockEditorSource = fs.readFileSync(path.join(__dirname, '..', 'editor-ui', 'block-editor.js'), 'utf8');
 const archiveHtml = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'index.html'), 'utf8');
 const context = vm.createContext({ window: {}, URL });
 vm.runInContext(source, context, { filename: 'cms/github-store.js' });
@@ -520,6 +521,69 @@ test('Transmission chamber media normalizer refuses pending-recovery and cross-T
   ];
   assert.equal(sandbox.rewriteTransmissionMediaReferences(html, 'T-0001', items), html);
 });
+
+
+test('published Transmissions disable private draft autosave before the Chamber closes', () => {
+  const start = archiveSource.indexOf('function shouldRunTransmissionDraftAutosave(');
+  const end = archiveSource.indexOf('function chamberUploadToken(', start);
+  assert.ok(start >= 0 && end > start, 'draft autosave lifecycle guard must exist');
+  const helper = archiveSource.slice(start, end).trim();
+  const sandbox = vm.createContext({});
+  vm.runInContext(helper + '; this.shouldRunTransmissionDraftAutosave = shouldRunTransmissionDraftAutosave;', sandbox);
+  const canAutosave = sandbox.shouldRunTransmissionDraftAutosave;
+
+  assert.equal(canAutosave({ source_type: 'transmission', draft_id: 'preview-draft-123' }, true, false), true);
+  assert.equal(canAutosave({ source_type: 'transmission', draft_id: null }, true, false), false,
+    'publication removes the private draft ID while the editor instance may still be mounted');
+  assert.equal(canAutosave({ source_type: 'transmission', draft_id: 'preview-draft-123' }, true, true), false);
+  assert.equal(canAutosave({ source_type: 'transmission', draft_id: 'preview-draft-123' }, false, false), false);
+});
+
+test('Transmission private autosave flush and scheduling both re-check the live draft ID', () => {
+  const runStart = archiveSource.indexOf('const runDraftAutosave=async()=>{');
+  const scheduleStart = archiveSource.indexOf('const scheduleDraftAutosave=', runStart);
+  const flushStart = archiveSource.indexOf('const flushDraftAutosave=async()=>{', scheduleStart);
+  const flushEnd = archiveSource.indexOf('if(draftAutosaveEnabled)flushActiveChamberAutosave', flushStart);
+  assert.ok(runStart >= 0 && scheduleStart > runStart && flushStart > scheduleStart && flushEnd > flushStart);
+  const run = archiveSource.slice(runStart, scheduleStart);
+  const schedule = archiveSource.slice(scheduleStart, flushStart);
+  const flush = archiveSource.slice(flushStart, flushEnd);
+  assert.match(run, /shouldRunTransmissionDraftAutosave\\(record,draftAutosaveEnabled,draftAutosaveStopped\\)/);
+  assert.match(schedule, /shouldRunTransmissionDraftAutosave\\(record,draftAutosaveEnabled,draftAutosaveStopped\\)/);
+  assert.match(flush, /shouldRunTransmissionDraftAutosave\\(record,draftAutosaveEnabled,draftAutosaveStopped\\)/);
+  assert.match(archiveSource, /draftAutosaveStopped=true;draftAutosaveQueued=false;/,
+    'successful publication must stop the private draft autosave lifecycle');
+});
+
+test('legacy and incomplete MIME values are inferred from the original media filename', () => {
+  const start = archiveSource.indexOf('function archiveMediaMimeType(');
+  const end = archiveSource.indexOf('function appendMissing(', start);
+  assert.ok(start >= 0 && end > start, 'archive MIME resolver must exist');
+  const helper = archiveSource.slice(start, end).trim();
+  const sandbox = vm.createContext({});
+  vm.runInContext(helper + '; this.archiveMediaMimeType = archiveMediaMimeType;', sandbox);
+  const infer = sandbox.archiveMediaMimeType;
+
+  assert.equal(infer({ mime_type: 'video/unknown', path: 'media/transmissions/T-0001/video.mp4' }, 'video'), 'video/mp4');
+  assert.equal(infer({ mime_type: 'image/unknown', name: 'lyrics.png' }, 'image'), 'image/png');
+  assert.equal(infer({ mime_type: 'audio/unknown', source_url: 'https://legacy.example/audio.mp3' }, 'audio'), 'audio/mpeg');
+  assert.equal(infer({ mime_type: 'image/webp', name: 'cover.jpg' }, 'image'), 'image/webp');
+});
+
+test('the current-record media library marks unrecovered legacy files unavailable', () => {
+  const start = archiveSource.indexOf('const getBlockMediaLibrary=type=>{');
+  const end = archiveSource.indexOf('const cleanupBlockMediaUploads=', start);
+  assert.ok(start >= 0 && end > start, 'current-record media library builder must exist');
+  const library = archiveSource.slice(start, end);
+  assert.match(library, /getRecordOutputMedia\\(record,archiveStructure,kind\\)/);
+  assert.doesNotMatch(library, /records\\.flatMap\\(/,
+    'the library labelled THIS RECORD’S MEDIA LIBRARY must not mix unrelated records');
+  assert.match(library, /legacyRemote/);
+  assert.match(library, /available/);
+  assert.match(blockEditorSource, /option\\.disabled=item\\.available===false/);
+  assert.match(blockEditorSource, /NOT RECOVERED/);
+});
+
 
 test('archive editor sanitizer resolves local media URLs against the document base', () => {
   const start = archiveSource.indexOf('function sanitizeTransmissionBody(source){');
