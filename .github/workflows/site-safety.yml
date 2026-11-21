@@ -27,6 +27,7 @@ jobs:
             echo "Checking $file"
             node --check "$file"
           done < <(find . -type f -name '*.js' -not -path './.git/*' -print0)
+          node --test tests/github-store-media.test.js
 
       - name: Validate owner-only recovery workflow and project helper syntax
         shell: bash
