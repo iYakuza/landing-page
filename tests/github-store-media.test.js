@@ -259,7 +259,7 @@ test('recognizes only private draft blob URLs mapped to a stored draft path', ()
   const mapped = 'blob:https://iyakuza.github.io/landing-page-preview/allowed-upload';
   const unmapped = 'blob:https://iyakuza.github.io/landing-page-preview/not-in-private-store';
   const helperContext = vm.createContext({ privateMediaUrlToPath: new Set([mapped]) });
-  vm.runInContext(helper + '\\nthis.isPrivateDraftBlobUrl = isPrivateDraftBlobUrl;', helperContext);
+  vm.runInContext(helper + '; this.isPrivateDraftBlobUrl = isPrivateDraftBlobUrl;', helperContext);
 
   assert.equal(helperContext.isPrivateDraftBlobUrl(mapped), true);
   assert.equal(helperContext.isPrivateDraftBlobUrl(unmapped), false);
