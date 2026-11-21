@@ -166,3 +166,28 @@ The migration branch's `recovery-data/transmission-media-report.json` and curren
 The Transmission recovery report originally listed 7 pending Transmission files (4 for T-0001 and one each for T-0002/T-0003/T-0004). After the verified T-0001 reconciliation, 4 of those remain. S-0001 adds one further pending Signals asset. Keep these references marked unavailable/pending; do not guess filenames, substitute other files, or mark them available without verifying bytes.
 
 The old Supabase download source returned HTTP 402 (cached egress quota exceeded). T-0002/T-0003/T-0004 matching objects were found in restore metadata but could not be downloaded. T-0001's source files were not present in the available restore project's bucket. This is still a production cutover exception that requires recovery, replacements or explicit owner acceptance.
+
+
+## Security remediation and latest validation — 21 November 2026
+
+The migration branch includes these additional security changes:
+
+- Pinned DOMPurify **3.4.18** locally under `shared/vendor/`, with its upstream license included. The same shared asset is loaded before the Human Archive and Transmissions renderers; no new third-party runtime CDN dependency was introduced.
+- The five CodeQL high-severity DOM-XSS findings previously reported in `human-archive/archive.js` were traced to raw `DOMParser` entry points. The five rendering/cleaning paths now obtain a sanitized DOM fragment through DOMPurify before the allowlist reconstruction. The one search-only parser that reads text content remains a text-only path.
+- Transmission content is also sanitized at the final collapsible-template insertion point. Reflection labels are HTML-escaped; both the original clean-up and final insertion use the shared sanitizer.
+- The embed block classifier now parses URLs and matches exact approved provider hostnames instead of substring regexes.
+- The legacy Poetry submission converter keeps encoded angle brackets from being decoded into raw markup and encodes any residual literal angle brackets in its plain-text output.
+
+CodeQL SARIF from the post-DOMPurify scan on commit `745af8d3e1d5d5f710c6b9013a8c25e245f537ad` confirmed **zero high-severity findings** and no remaining `js/xss-through-dom` or missing-regexp-anchor findings. That report still contained two lower-severity `js/incomplete-multi-character-sanitization` warnings (Poetry plain-text conversion and Transmission section content); the Transmission renderer has since been hardened at the final HTML insertion boundary. The follow-up CodeQL run on the latest branch head `69d7d2731ac2432343f07b27a1143b19f74ff1b8` was still running at 22:03 UTC, so do not report the latest CodeQL gate as green until that run completes and its SARIF/check result is reviewed.
+
+Latest completed validations on the current head:
+- Static-site validation: **37/37 Node tests passed**, including the new DOMPurify final-sink test and Poetry plain-text test.
+- Static security posture: passed.
+- Secret scanning: passed.
+- JavaScript syntax and project-specific static checks: passed.
+
+The short-lived SARIF artifact retention in `.github/workflows/codeql.yml` was added only to inspect the findings because normal GitHub connector endpoints did not expose alert details. After final CodeQL triage, remove the staging/upload steps and rerun checks; do not leave diagnostic-only workflow behavior in the production architecture unless explicitly justified.
+
+## Current release decision
+
+PR #135 remains Draft. Do not merge until the current CodeQL run is complete and triaged, owner-authenticated browser acceptance has covered the new attachment/media/no-op flows, the five missing legacy assets are recovered/replaced/explicitly accepted, and the CV contact-form dependency decision is recorded. Production `main` remains untouched.
