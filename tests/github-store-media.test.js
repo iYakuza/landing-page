@@ -463,3 +463,12 @@ test('Human Archive media elements keep browser preloading disabled', () => {
   assert.ok(audio.includes("audio.preload='none'"), 'audio should not preload before playback');
   assert.ok(video.includes("video.preload='none'"), 'video should not preload before playback');
 });
+
+
+test('standalone Transmission opens hydrate only the selected private draft', () => {
+  const start = archiveSource.indexOf("window.addEventListener('VHA_OPEN_EXISTING_TRANSMISSION'");
+  const end = archiveSource.indexOf("if(hasArchiveIndex){", start);
+  assert.ok(start >= 0 && end > start, 'standalone Transmission event handler must exist');
+  const handler = archiveSource.slice(start, end);
+  assert.ok(handler.includes('await hydratePrivateDraftMediaForRecord(record);'), 'opening one Transmission must hydrate only that record before rendering');
+});
