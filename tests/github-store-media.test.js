@@ -199,3 +199,51 @@ test('a new Transmission receives publication time without inheriting legacy met
   assert.equal(result.published_at, '2026-11-21T12:00:00.000Z');
   assert.equal(result.legacy_id, undefined);
 });
+
+test('editing an existing Transmission preserves Human Archive structure metadata', () => {
+  const original = {
+    record_id: 3008,
+    public_record_id: 'HA-3008',
+    legacy_structure_id: 'structure-uuid-1',
+    created_by: 'legacy-owner',
+    transmission_body: '<p>Original</p>',
+    prompt_style: 'Original prompt',
+    lyrics_style: 'Original lyrics',
+    output_text: 'Original output',
+    output_media: { image: [], audio: [], video: [] },
+    blocks: [{ id: 'old-block', type: 'paragraph', html: '<p>Original</p>' }],
+    updated_at: '2024-01-01T00:00:00.000Z'
+  };
+  const draft = {
+    source: 'existing',
+    record_id: 3008,
+    original_structure: context.window.VHACMSStore.snapshotStructureMetadata(original),
+    content: {
+      transmission_body: '<p>Revised</p>',
+      prompt_style: 'Revised prompt',
+      lyrics_style: 'Revised lyrics',
+      output_text: 'Revised output',
+      output_media: { image: [], audio: [], video: [] },
+      blocks: [{ id: 'new-block', type: 'paragraph', html: '<p>Revised</p>' }]
+    }
+  };
+  const result = context.window.VHACMSStore.buildPublishedStructure(draft, original, '2026-11-21T12:00:00.000Z');
+
+  assert.equal(result.public_record_id, 'HA-3008');
+  assert.equal(result.legacy_structure_id, 'structure-uuid-1');
+  assert.equal(result.created_by, 'legacy-owner');
+  assert.equal(result.transmission_body, '<p>Revised</p>');
+  assert.equal(result.updated_at, '2026-11-21T12:00:00.000Z');
+});
+
+test('republishing an unpublished edit restores structure metadata snapshot', () => {
+  const draft = {
+    source: 'existing',
+    record_id: 3008,
+    original_structure: { record_id: 3008, public_record_id: 'HA-3008', legacy_structure_id: 'structure-uuid-1' },
+    content: { transmission_body: '<p>Restored</p>', blocks: [], output_media: { image: [], audio: [], video: [] } }
+  };
+  const result = context.window.VHACMSStore.buildPublishedStructure(draft, null, '2026-11-21T12:00:00.000Z');
+  assert.equal(result.public_record_id, 'HA-3008');
+  assert.equal(result.legacy_structure_id, 'structure-uuid-1');
+});

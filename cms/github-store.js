@@ -125,6 +125,33 @@
     return [...mediaByPath.values(), ...preservedMedia];
   }
 
+  function snapshotStructureMetadata(structure) {
+    if (!structure || typeof structure !== 'object') return {};
+    const {
+      transmission_body, prompt_style, lyrics_style, output_text,
+      output_media, blocks, updated_at,
+      ...metadata
+    } = structure;
+    return metadata;
+  }
+
+  function buildPublishedStructure(draft, existingStructure, updatedAt = new Date().toISOString()) {
+    const original = draft?.source === 'existing'
+      ? (existingStructure || draft.original_structure || {})
+      : {};
+    return {
+      ...original,
+      record_id: Number(draft.record_id),
+      transmission_body: draft.content.transmission_body || '',
+      prompt_style: draft.content.prompt_style || '',
+      lyrics_style: draft.content.lyrics_style || '',
+      output_text: draft.content.output_text || '',
+      output_media: draft.content.output_media || { image: [], audio: [], video: [] },
+      blocks: Array.isArray(draft.content.blocks) ? [...draft.content.blocks] : [],
+      updated_at: updatedAt
+    };
+  }
+
   function snapshotPostMetadata(post) {
     if (!post || typeof post !== 'object') return {};
     const {
@@ -547,16 +574,11 @@
     const oldIndex = transmissions.value.records.findIndex(item => item.id === draft.post_id);
     if (oldIndex >= 0) transmissions.value.records[oldIndex] = post;
     else transmissions.value.records.push(post);
-    const structure = {
-      record_id: Number(draft.record_id),
-      transmission_body: post.content_html,
-      prompt_style: draft.content.prompt_style || '',
-      lyrics_style: draft.content.lyrics_style || '',
-      output_text: draft.content.output_text || '',
-      output_media: outputMedia,
-      blocks,
-      updated_at: new Date().toISOString()
-    };
+    const existingStructure = archive.value.editor_structures.find(item => String(item.record_id) === String(draft.record_id)) || null;
+    const structure = buildPublishedStructure({
+      ...draft,
+      content: { ...draft.content, transmission_body: post.content_html, output_media: outputMedia, blocks }
+    }, existingStructure);
     const structures = archive.value.editor_structures;
     const structureIndex = structures.findIndex(item => String(item.record_id) === String(draft.record_id));
     if (structureIndex >= 0) structures[structureIndex] = structure; else structures.push(structure);
@@ -604,9 +626,10 @@
     const draft = {
       schema_version: 1, draft_id: draftId, kind: 'transmission',
       record_id: Number(post.archive_record_id), post_id: post.id, source: 'existing',
-      status: 'draft', created_at: post.created_at || now, updated_at: now, revision: 1,
+      status: 'draft', created_at: post.created_at || post.published_at || now, updated_at: now, revision: 1,
       published_at: post.published_at || post.created_at || now,
       original_post: snapshotPostMetadata(post),
+      original_structure: snapshotStructureMetadata(structure),
       base_public_commit: publicHead,
       metadata: { title: post.title || '', slug: post.slug || '', category: post.category || '', excerpt: post.excerpt || '', media_width: post.media_width || 100 },
       content: {
@@ -636,9 +659,11 @@
     const existingPost = transmissions.data.records.find(item => item.id === draft.post_id) || null;
     if (existingPost) {
       draft.original_post = draft.original_post || snapshotPostMetadata(existingPost);
-      draft.created_at = existingPost.created_at || draft.created_at || new Date().toISOString();
-      draft.published_at = existingPost.published_at || draft.published_at || existingPost.created_at || new Date().toISOString();
+      draft.created_at = existingPost.created_at || existingPost.published_at || draft.created_at || new Date().toISOString();
+      draft.published_at = existingPost.published_at || existingPost.created_at || draft.published_at || new Date().toISOString();
     }
+    const existingStructure = archive.data.editor_structures.find(item => String(item.record_id) === String(draft.record_id)) || null;
+    if (existingStructure) draft.original_structure = draft.original_structure || snapshotStructureMetadata(existingStructure);
     const postExists = Boolean(existingPost);
     if (!postExists) {
       draft.source = 'existing';
@@ -683,9 +708,10 @@
     const draft = {
       schema_version: 1, draft_id: draftId, kind: 'transmission',
       record_id: Number(post.archive_record_id), post_id: post.id, source: 'existing',
-      status: 'draft', created_at: post.created_at || now, updated_at: now, revision: 1,
+      status: 'draft', created_at: post.created_at || post.published_at || now, updated_at: now, revision: 1,
       published_at: post.published_at || post.created_at || now,
       original_post: snapshotPostMetadata(post),
+      original_structure: snapshotStructureMetadata(structure),
       base_public_commit: publicHead,
       metadata: { title: post.title || '', slug: post.slug || '', category: post.category || '', excerpt: post.excerpt || '', media_width: post.media_width || 100 },
       content: {
@@ -716,6 +742,8 @@
     buildPublishedMediaItems,
     snapshotPostMetadata,
     buildPublishedPost,
+    snapshotStructureMetadata,
+    buildPublishedStructure,
     getPublicCollections,
     savePublicJson,
     listDrafts,
