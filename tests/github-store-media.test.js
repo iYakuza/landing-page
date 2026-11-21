@@ -343,7 +343,10 @@ test('creates a new Transmission in one atomic sequence-and-draft commit', async
 
 test('Human Archive CSP permits private draft image and media Blob URLs', () => {
   const meta = archiveHtml.match(/<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]*>/i)?.[0] || '';
-  const policy = meta.match(/\\bcontent="([^"]+)"/i)?.[1] || '';
+  const attribute = 'content="';
+  const contentStart = meta.indexOf(attribute);
+  const contentEnd = contentStart < 0 ? -1 : meta.indexOf('"', contentStart + attribute.length);
+  const policy = contentStart < 0 || contentEnd < 0 ? '' : meta.slice(contentStart + attribute.length, contentEnd);
   assert.ok(policy, 'Human Archive must define its content security policy');
   const directives = new Map(policy.split(';').map(item => item.trim()).filter(Boolean).map(item => {
     const space = item.indexOf(' ');
