@@ -548,9 +548,9 @@ test('Transmission private autosave flush and scheduling both re-check the live 
   const run = archiveSource.slice(runStart, scheduleStart);
   const schedule = archiveSource.slice(scheduleStart, flushStart);
   const flush = archiveSource.slice(flushStart, flushEnd);
-  assert.match(run, /shouldRunTransmissionDraftAutosave\\(record,draftAutosaveEnabled,draftAutosaveStopped\\)/);
-  assert.match(schedule, /shouldRunTransmissionDraftAutosave\\(record,draftAutosaveEnabled,draftAutosaveStopped\\)/);
-  assert.match(flush, /shouldRunTransmissionDraftAutosave\\(record,draftAutosaveEnabled,draftAutosaveStopped\\)/);
+  assert.ok(run.includes('shouldRunTransmissionDraftAutosave(record,draftAutosaveEnabled,draftAutosaveStopped)'));
+  assert.ok(schedule.includes('shouldRunTransmissionDraftAutosave(record,draftAutosaveEnabled,draftAutosaveStopped)'));
+  assert.ok(flush.includes('shouldRunTransmissionDraftAutosave(record,draftAutosaveEnabled,draftAutosaveStopped)'));
   assert.match(archiveSource, /draftAutosaveStopped=true;draftAutosaveQueued=false;/,
     'successful publication must stop the private draft autosave lifecycle');
 });
@@ -576,12 +576,12 @@ test('the current-record media library marks unrecovered legacy files unavailabl
   assert.ok(start >= 0 && end > start, 'current-record media library builder must exist');
   const library = archiveSource.slice(start, end);
   assert.match(library, /getRecordOutputMedia\\(record,archiveStructure,kind\\)/);
-  assert.doesNotMatch(library, /records\\.flatMap\\(/,
+  assert.equal(library.includes('records.flatMap('), false,
     'the library labelled THIS RECORD’S MEDIA LIBRARY must not mix unrelated records');
   assert.match(library, /legacyRemote/);
   assert.match(library, /available/);
-  assert.match(blockEditorSource, /option\\.disabled=item\\.available===false/);
-  assert.match(blockEditorSource, /NOT RECOVERED/);
+  assert.ok(blockEditorSource.includes('option.disabled=item.available===false'));
+  assert.ok(blockEditorSource.includes('NOT RECOVERED'));
 });
 
 
