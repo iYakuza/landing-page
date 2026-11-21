@@ -147,7 +147,8 @@ test('Poetry plain-text conversion encodes any angle brackets remaining after ma
 
 test('Transmission reflection labels are escaped and embed providers use exact hostnames', () => {
   const postsSource = fs.readFileSync(path.join(__dirname, '..', 'transmissions', 'posts.js'), 'utf8');
-  assert.match(postsSource, /collapsible\(safe\(section\.label\.replace/);
+  assert.match(postsSource, /const title=label\?\.textContent\?\.trim\(\)\|\|fallback/);
+  assert.match(postsSource, /safe\(String\(label\|\|'SECTION'\)\)/);
   assert.match(blockEditorSource, /new URL\(src, window\.location\.href\)\.hostname\.toLowerCase\(\)/);
   assert.match(blockEditorSource, /host === 'open\.spotify\.com'/);
   assert.match(blockEditorSource, /\['soundcloud\.com','www\.soundcloud\.com','w\.soundcloud\.com'\]\.includes\(host\)/);
