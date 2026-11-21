@@ -107,6 +107,8 @@ jobs:
               "transmissions/the-reconnection/index.html",
               "transmissions/the-transformation/index.html",
               "transmissions/the-return/index.html",
+              "secure-your-soul/secure-your-soul.js",
+              "secure-your-soul/index.html",
           ]
           runtime_patterns = [
               (re.compile(r"@supabase/supabase-js|supabase\.createClient|supabase\.from\(|supabase\.auth|supabase\.storage", re.IGNORECASE), "Supabase SDK/API"),
