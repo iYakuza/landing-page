@@ -474,6 +474,53 @@ test('standalone Transmission opens hydrate only the selected private draft', ()
 });
 
 
+
+test('Transmission chamber HTML resolves attachment aliases to verified public Transmission paths', () => {
+  const start = archiveSource.indexOf('function rewriteTransmissionMediaReferences(');
+  const end = archiveSource.indexOf('function getRecordStructure(record){', start);
+  assert.ok(start >= 0 && end > start, 'Transmission media-reference normalizer must exist');
+  const helper = archiveSource.slice(start, end).trim();
+  const sandbox = vm.createContext({
+    URL,
+    archiveSiteBasePath: '/landing-page-preview',
+    window: { location: { href: 'https://iyakuza.github.io/landing-page-preview/human-archive/' } }
+  });
+  vm.runInContext(helper + '; this.rewriteTransmissionMediaReferences = rewriteTransmissionMediaReferences;', sandbox);
+  const items = [
+    { path: 'media/transmissions/T-0001/video-asset.mp4', url: 'https://iyakuza.github.io/landing-page-preview/media/transmissions/T-0001/video-asset.mp4', type: 'video', status: 'available' },
+    { path: 'media/transmissions/T-0001/lyrics-asset.png', url: 'https://iyakuza.github.io/landing-page-preview/media/transmissions/T-0001/lyrics-asset.png', type: 'image', status: 'available' }
+  ];
+  const html = [
+    '<video src="https://iyakuza.github.io/landing-page-preview/media/human-archive/HA-3008/video-asset.mp4"></video>',
+    '<img src="/landing-page-preview/media/human-archive/HA-3008/lyrics-asset.png">',
+    '<source src="https://legacy.example/video-asset.mp4">'
+  ].join('');
+  const result = sandbox.rewriteTransmissionMediaReferences(html, 'T-0001', items);
+  assert.match(result, /src="\/landing-page-preview\/media\/transmissions\/T-0001\/video-asset\.mp4"/);
+  assert.match(result, /src="\/landing-page-preview\/media\/transmissions\/T-0001\/lyrics-asset\.png"/);
+  assert.doesNotMatch(result, /media\/human-archive\/HA-3008/);
+  assert.match(result, /src="https:\/\/legacy\.example\/video-asset\.mp4"/,
+    'unknown references must remain untouched rather than be guessed');
+});
+
+test('Transmission chamber media normalizer refuses pending-recovery and cross-Transmission files', () => {
+  const start = archiveSource.indexOf('function rewriteTransmissionMediaReferences(');
+  const end = archiveSource.indexOf('function getRecordStructure(record){', start);
+  const helper = archiveSource.slice(start, end).trim();
+  const sandbox = vm.createContext({
+    URL,
+    archiveSiteBasePath: '/landing-page-preview',
+    window: { location: { href: 'https://iyakuza.github.io/landing-page-preview/human-archive/' } }
+  });
+  vm.runInContext(helper + '; this.rewriteTransmissionMediaReferences = rewriteTransmissionMediaReferences;', sandbox);
+  const html = '<img src="https://legacy.example/featured.jpg"><video src="https://legacy.example/clip.mp4"></video>';
+  const items = [
+    { path: 'media/transmissions/T-0006/featured.jpg', status: 'pending_recovery' },
+    { path: 'media/transmissions/T-0002/clip.mp4', status: 'available' }
+  ];
+  assert.equal(sandbox.rewriteTransmissionMediaReferences(html, 'T-0001', items), html);
+});
+
 test('archive editor sanitizer resolves local media URLs against the document base', () => {
   const start = archiveSource.indexOf('function sanitizeTransmissionBody(source){');
   const end = archiveSource.indexOf('function clearChamberFormattingToolbar()', start);
