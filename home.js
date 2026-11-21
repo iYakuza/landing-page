@@ -3,6 +3,7 @@
   if(!root||root.dataset.homeReady==='true')return;
   root.dataset.homeReady='true';
   const safe=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  const siteBasePath=window.location.pathname.startsWith('/landing-page-preview/')?'/landing-page-preview':'/landing-page';
   const movementId=value=>{
     const key=String(value||'').toUpperCase();
     if(key.includes('DESCENT'))return 'descent';
@@ -14,12 +15,15 @@
   function validImageUrl(value){
     try{
       const raw=String(value||'').trim();
-      if(raw.startsWith('/landing-page/posts/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw.replace('/landing-page/posts/imported/','/landing-page/transmissions/imported/');
-      if(raw.startsWith('/landing-page/transmissions/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
-      const url=new URL(raw);
-      const ownStorage=url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&(url.pathname.includes('/storage/v1/object/public/vha-post-media/')||url.pathname.includes('/storage/v1/object/public/poetry-media/'));
+      if(!raw)return '';
+      const relative=raw.replace(/^\/+/, '');
+      if(relative.startsWith('media/')&&!relative.split('/').some(part=>part==='.'||part==='..')&&!raw.includes(String.fromCharCode(92))&&!/[?#]/.test(raw)){
+        return siteBasePath+'/'+relative.split('/').map(encodeURIComponent).join('/');
+      }
+      const url=new URL(raw,window.location.origin);
+      if(url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/media/')||url.pathname.startsWith('/landing-page-preview/media/')))return url.href;
       const wordpress=['emanuelstefancu.wordpress.com','i0.wp.com'].includes(url.hostname)&&url.pathname.includes('/wp-content/uploads/')&&/\.(jpg|jpeg|png|webp|gif|avif)$/i.test(url.pathname);
-      return url.protocol==='https:'&&(ownStorage||wordpress)?url.href:'';
+      return url.protocol==='https:'&&wordpress?url.href:'';
     }catch{return '';}
   }
   function dateLabel(value){
@@ -36,37 +40,31 @@
       return;
     }
     grid.innerHTML=selected.map(post=>{
-      const image=post.media_type==='image'?validImageUrl(post.media_url):'';
+      const imageItem=(Array.isArray(post.media_items)?post.media_items:[]).find(item=>item&&item.status==='available'&&item.type==='image');
+      const image=validImageUrl(imageItem?.url||imageItem?.src||imageItem?.path||(post.media_type==='image'?post.media_url||post.media_path:''));
       const art='<svg class="va-poem-art" viewBox="0 0 280 360" role="img" aria-label="'+safe(post.category||'Green Dream artwork')+' artwork"><use href="/landing-page/green-dream/movements.svg#'+movementId(post.category)+'"></use></svg>';
       const media=image?'<img class="va-poem-image" src="'+safe(image)+'" alt="" loading="lazy">':art;
       const href='/landing-page/transmissions/?post='+encodeURIComponent(post.slug);
       return '<a class="va-poem-card" href="'+href+'">'+media+'<span class="va-poem-copy"><strong>'+safe(post.title)+'</strong><time datetime="'+safe(post.published_at||post.created_at||'')+'">'+dateLabel(post.published_at||post.created_at)+'</time><small>'+safe(post.category||'TRANSMISSION')+'</small></span></a>';
     }).join('');
   }
-  let supabaseSdkPromise=null;
-  function ensureSupabaseSdk(){
-    if(window.supabase?.createClient)return Promise.resolve(true);
-    if(supabaseSdkPromise)return supabaseSdkPromise;
-    supabaseSdkPromise=new Promise(resolve=>{
-      const script=document.createElement('script');
-      script.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';
-      script.async=true;
-      script.crossOrigin='anonymous';
-      script.referrerPolicy='no-referrer';
-      script.onload=()=>resolve(Boolean(window.supabase?.createClient));
-      script.onerror=()=>resolve(false);
-      document.head.appendChild(script);
-    });
-    return supabaseSdkPromise;
-  }
   async function loadPosts(){
     const grid=document.getElementById('latest-poetry');
-    if(!await ensureSupabaseSdk()){if(grid)grid.innerHTML='<p class="va-empty">The poetry archive is temporarily unavailable. <a href="/landing-page/transmissions/">Browse all transmissions ↗</a></p>';return;}
-    const client=window.supabase?.createClient('https://oeyxsqocldlovhsmzcjw.supabase.co','sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h');
-    if(!client){if(grid)grid.innerHTML='<p class="va-empty">The poetry archive is temporarily unavailable. <a href="/landing-page/transmissions/">Browse all transmissions ↗</a></p>';return;}
-    const {data,error}=await client.from('vha_posts').select('title,slug,category,media_url,media_type,published_at,created_at').eq('status','published').order('published_at',{ascending:false,nullsFirst:false}).limit(12);
-    if(error){if(grid)grid.innerHTML='<p class="va-empty">The latest transmissions could not be loaded. <a href="/landing-page/transmissions/">Browse the archive ↗</a></p>';return;}
-    renderPosts(data||[]);
+    try{
+      const response=await fetch(siteBasePath+'/content/transmissions.json',{credentials:'same-origin',cache:'no-store'});
+      if(!response.ok)throw new Error('The Transmissions collection returned HTTP '+response.status+'.');
+      const collection=await response.json();
+      if(!Array.isArray(collection.records))throw new Error('The Transmissions collection has an invalid structure.');
+      const posts=collection.records.filter(post=>post&&post.status==='published').sort((a,b)=>{
+        const dateA=Date.parse(a.published_at||a.created_at||'')||0;
+        const dateB=Date.parse(b.published_at||b.created_at||'')||0;
+        return dateB-dateA;
+      });
+      renderPosts(posts);
+    }catch(error){
+      console.error('The local Transmissions collection could not be loaded:',error);
+      if(grid)grid.innerHTML='<p class="va-empty">The latest transmissions could not be loaded. <a href="/landing-page/transmissions/">Browse the archive ↗</a></p>';
+    }
   }
   const menuButton=document.querySelector('.va-menu-toggle');
   const mobileMenu=document.getElementById('va-mobile-nav');

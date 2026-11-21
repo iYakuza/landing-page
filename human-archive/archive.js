@@ -115,16 +115,9 @@ function safeArchiveMediaUrl(raw,allowedHosts){
  if(/^media\//.test(rawValue)&&!rawValue.split('/').some(part=>part==='..')&&!rawValue.includes('?')&&!rawValue.includes('#')&&!rawValue.includes(String.fromCharCode(92))){
   return new URL(archiveSiteBasePath+'/'+rawValue.split('/').map(encodeURIComponent).join('/'),window.location.origin).href;
  }
- const storageHosts=new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']);
- const remote=safeExternalUrl(rawValue,new Set([...(allowedHosts||[]),...storageHosts]));
- if(remote){
-  const url=new URL(remote);
-  const host=url.hostname.toLowerCase();
-  if(host==='oeyxsqocldlovhsmzcjw.supabase.co'&&!/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media|human-archive-media)\//.test(url.pathname))return null;
-  if(host==='ioguymqdeuuursizifnn.supabase.co'&&!/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname))return null;
-  return remote;
- }
- try{
+ const remote=safeExternalUrl(rawValue,new Set(allowedHosts||[]));
+ if(remote)return remote;
+try{
   const url=new URL(rawValue,document.baseURI);
   if(url.protocol==='https:'&&url.origin===window.location.origin&&
     (url.pathname.startsWith(archiveSiteBasePath+'/media/')||url.pathname.startsWith('/landing-page/media/')||url.pathname.startsWith('/landing-page-preview/media/')))return url.href;
@@ -255,9 +248,7 @@ function appendSafeContent(container,source,record,used){
      if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(raw);
      else{
       const url=new URL(src);
-      if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);
-      else if(url.hostname==='ioguymqdeuuursizifnn.supabase.co')valid=/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname);
-      else if(url.origin===window.location.origin)valid=(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
+      if(url.origin===window.location.origin)valid=(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
       else valid=url.pathname.includes('/wp-content/uploads/');
      }
     }
@@ -271,7 +262,7 @@ function appendSafeContent(container,source,record,used){
    const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){if(tag==='AUDIO')appendLocalAudio(parent,item,record,used);else appendLocalVideo(parent,item,record,used);return;}
    const src=safeArchiveMediaUrl(raw,new Set());
-   const valid=Boolean(src)&&(()=>{const url=new URL(src);return url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'?/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname):url.hostname==='ioguymqdeuuursizifnn.supabase.co'?/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname):url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));})();
+   const valid=Boolean(src)&&(()=>{const url=new URL(src);return url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));})();
    const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='none';
    if(valid)mediaNode.src=src;
    if(tag==='VIDEO')mediaNode.playsInline=true;
@@ -284,12 +275,7 @@ function appendSafeContent(container,source,record,used){
    const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
     const source=document.createElement('source');source.src=localMediaUrl(item);source.type=item.mime_type;parent.append(source);markUsed(item,used);
-   }else{
-    const src=safeExternalUrl(raw,new Set());
-    if(src&&/^\/storage\/v1\/object\/public\/vha-post-media\//.test(new URL(src).pathname)&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
-     const source=document.createElement('source');source.src=src;source.type=node.getAttribute('type')||'';parent.append(source);
-    }
-   }
+   }else{}
    return;
   }
   if(tag==='IFRAME'){
@@ -645,9 +631,7 @@ function sanitizeTransmissionBody(source){
     if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
     else{
      const url=new URL(src);
-     if(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co')valid=/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname);
-     else if(url.hostname==='ioguymqdeuuursizifnn.supabase.co')valid=/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname);
-     else if(url.origin===window.location.origin)valid=(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
+     if(url.origin===window.location.origin)valid=(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
      else valid=url.pathname.includes('/wp-content/uploads/');
     }
    }
@@ -664,9 +648,7 @@ function sanitizeTransmissionBody(source){
       if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
       else{
        const url=new URL(src);
-       valid=url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'?/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname):
-        url.hostname==='ioguymqdeuuursizifnn.supabase.co'?/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname):
-        url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
+       valid=url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
       }
      }
      if(!valid)return;
@@ -684,9 +666,7 @@ function sanitizeTransmissionBody(source){
      if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
      else{
       const url=new URL(src);
-      valid=url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'?/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media)\//.test(url.pathname):
-       url.hostname==='ioguymqdeuuursizifnn.supabase.co'?/^\/storage\/v1\/object\/public\/human-archive-media\//.test(url.pathname):
-       url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
+      valid=url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
      }
     }
     if(!valid)return;
