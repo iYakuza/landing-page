@@ -437,8 +437,8 @@ test('Human Archive record cards defer body and attachment creation until expand
   assert.ok(hydratorStart >= 0 && hydratorEnd > hydratorStart, 'deferred card hydrator must exist');
   const hydrator = archiveSource.slice(hydratorStart, hydratorEnd);
   assert.match(hydrator, /await hydratePrivateDraftMediaForRecord\(record\)/, 'only the opened private draft may hydrate its assets');
-  assert.match(hydrator, /appendSafeContent\\(/, 'record HTML should be parsed after opening');
-  assert.match(hydrator, /makeAttachmentGallery\\(/, 'record attachments should be created after opening');
+  assert.match(hydrator, /appendSafeContent\(/, 'record HTML should be parsed after opening');
+  assert.match(hydrator, /makeAttachmentGallery\(/, 'record attachments should be created after opening');
 });
 
 test('private draft media is not fetched while building the general archive index', () => {
