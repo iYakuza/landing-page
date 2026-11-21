@@ -937,6 +937,26 @@ function chamberUploadToken(){
  try{if(window.crypto?.randomUUID)return window.crypto.randomUUID();}catch{}
  return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
 }
+async function waitForPublishedMedia(paths,commitSha){
+ const targets=[...new Set((Array.isArray(paths)?paths:[]).filter(path=>String(path||'').startsWith('media/')))];
+ if(!targets.length)return true;
+ const deadline=Date.now()+90000;
+ let delay=1500;
+ while(Date.now()<deadline){
+  const ready=await Promise.all(targets.map(async path=>{
+   const url=archiveSiteBasePath+'/'+path.split('/').map(encodeURIComponent).join('/')+'?v='+encodeURIComponent(String(commitSha||Date.now()).slice(0,16));
+   try{
+    const response=await fetch(url,{method:'HEAD',cache:'no-store',credentials:'same-origin'});
+    return response.ok;
+   }catch{return false;}
+  }));
+  if(ready.every(Boolean))return true;
+  if(Date.now()+delay>=deadline)break;
+  await new Promise(resolve=>setTimeout(resolve,delay));
+  delay=Math.min(8000,Math.round(delay*1.5));
+ }
+ return false;
+}
 function renderRecordStructureEditor(record,grid,status,editButton,expandButton,closeButton,readOnly=false){
  record._publicCommitSha=record._publicCommitSha||archivePublicHeadSha;
  grid.classList.add('ha-chamber-grid-editor');
@@ -1025,6 +1045,46 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  metadataDetails.body.append(metadataFields,statusNote);
  grid.append(metadataDetails.details);
  recordMetadataInputs={title:titleInput,slug:slugInput,category:categoryInput,excerpt:excerptInput,mediaWidth:mediaWidthInput,status:statusSelect};
+ if(!readOnly&&record.source_type==='transmission'){
+  const attachments=makeChamberDisclosure('01 // ATTACHED MEDIA','ha-chamber-panel ha-chamber-edit-panel ha-chamber-attachments-panel','ha-chamber-panel-heading');
+  attachments.details.open=attachedPostMedia.length>0;
+  const attachmentList=makeChamberNode('div','ha-chamber-attached-media-list');
+  const renderAttachedPostMedia=()=>{
+   attachmentList.replaceChildren();
+   if(!attachedPostMedia.length){
+    attachmentList.append(makeChamberNode('p','ha-chamber-metadata-note','NO LOOSE ATTACHMENTS. MEDIA USED IN THE TRANSMISSION BODY REMAINS ATTACHED AUTOMATICALLY.'));
+    return;
+   }
+   attachedPostMedia.forEach((item,index)=>{
+    const row=makeChamberNode('div','ha-chamber-attached-media-item');
+    const details=makeChamberNode('div','ha-chamber-attached-media-details');
+    details.append(
+     makeChamberNode('span','ha-chamber-attached-media-name',item.name||item.path||'Untitled media'),
+     makeChamberNode('span','ha-chamber-attached-media-type',String(item.type||'file').toUpperCase()+' // '+String(item.mime_type||'UNKNOWN'))
+    );
+    const remove=makeChamberNode('button','ha-chamber-media-remove','REMOVE');
+    remove.type='button';
+    remove.setAttribute('aria-label','Remove '+String(item.name||'attachment')+' from this Transmission');
+    remove.addEventListener('click',()=>{
+     const name=String(item.name||item.path||'this attachment');
+     if(!window.confirm('Remove '+name+' from this Transmission’s attachment list? The stored file will not be deleted, and media still used in the body will remain published.'))return;
+     attachedPostMedia=attachedPostMedia.filter((candidate,candidateIndex)=>candidateIndex!==index);
+     renderAttachedPostMedia();
+     scheduleDraftAutosave();
+     status.textContent='ATTACHMENT REMOVED — SAVE CHAMBER TO PUBLISH THE CHANGE.';
+    });
+    row.append(details,remove);
+    attachmentList.append(row);
+   });
+  };
+  repaintAttachedPostMedia=renderAttachedPostMedia;
+  renderAttachedPostMedia();
+  attachments.body.append(
+   makeChamberNode('p','ha-chamber-metadata-note','LOOSE ATTACHMENTS APPEAR BELOW YOUR TRANSMISSION. REMOVE UNWANTED FILES HERE; FILES STILL USED IN THE BODY ARE PRESERVED.'),
+   attachmentList
+  );
+  grid.append(attachments.details);
+ }
  if(record.source_type==='transmission'){
   slugInput.addEventListener('input',()=>{slugManuallyEdited=true;});
   titleInput.addEventListener('input',()=>{
@@ -1556,7 +1616,18 @@ if(!readOnly&&typeof window.VHABlockEditor?.mountBlockEditor!=='function'){
       const output=Object.fromEntries(['image','audio','video'].map(kind=>[kind,(publicStructure.output_media?.[kind]||[]).map(item=>({...item,url:makePublicUrl(item.url||item.path)}))]));
       recordStructureOverrides.set(String(record.id),{...publicStructure,transmission_body:rewriteHtml(publicStructure.transmission_body),blocks:(publicStructure.blocks||[]).map(block=>({...block,html:rewriteHtml(block.html)})),output_media:output});
      }
-     status.textContent=published.privateCleanupPending?'PUBLISHED — PRIVATE DRAFT CLEANUP IS PENDING':'TRANSMISSION PUBLISHED // CHANGES COMMITTED';
+     let promotedMediaReady=true;
+     if(!published.unchanged&&published.promotedMediaPaths?.length){
+      status.textContent='WAITING FOR NEW MEDIA TO DEPLOY…';
+      promotedMediaReady=await waitForPublishedMedia(published.promotedMediaPaths,published.commitSha);
+     }
+     status.textContent=published.privateCleanupPending
+      ?'PUBLISHED — PRIVATE DRAFT CLEANUP IS PENDING'
+      :published.unchanged
+       ?'TRANSMISSION ALREADY UP TO DATE // NO PUBLIC COMMIT'
+       :promotedMediaReady
+        ?'TRANSMISSION PUBLISHED // CHANGES COMMITTED'
+        :'TRANSMISSION COMMITTED — NEW MEDIA IS STILL DEPLOYING. PLAYBACK WILL BE AVAILABLE AFTER THE PREVIEW UPDATE.';
     }else{
      if(record._editOfPublished){
       status.textContent='REMOVING PUBLIC VERSION…';
