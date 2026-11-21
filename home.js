@@ -36,15 +36,15 @@
     if(!grid)return;
     const selected=(posts||[]).filter(post=>String(post.category||'').toUpperCase()!=='SITE NOTE').slice(0,4);
     if(!selected.length){
-      grid.innerHTML='<p class="va-empty">No published transmissions are available yet. <a href="/landing-page/transmissions/">Open the archive ↗</a></p>';
+      grid.innerHTML='<p class="va-empty">No published transmissions are available yet. <a href="'+siteBasePath+'/transmissions/">Open the archive ↗</a></p>';
       return;
     }
     grid.innerHTML=selected.map(post=>{
       const imageItem=(Array.isArray(post.media_items)?post.media_items:[]).find(item=>item&&item.status==='available'&&item.type==='image');
       const image=validImageUrl(imageItem?.url||imageItem?.src||imageItem?.path||(post.media_type==='image'?post.media_url||post.media_path:''));
-      const art='<svg class="va-poem-art" viewBox="0 0 280 360" role="img" aria-label="'+safe(post.category||'Green Dream artwork')+' artwork"><use href="/landing-page/green-dream/movements.svg#'+movementId(post.category)+'"></use></svg>';
+      const art='<svg class="va-poem-art" viewBox="0 0 280 360" role="img" aria-label="'+safe(post.category||'Green Dream artwork')+' artwork"><use href="'+siteBasePath+'/green-dream/movements.svg#'+movementId(post.category)+'"></use></svg>';
       const media=image?'<img class="va-poem-image" src="'+safe(image)+'" alt="" loading="lazy">':art;
-      const href='/landing-page/transmissions/?post='+encodeURIComponent(post.slug);
+      const href=siteBasePath+'/transmissions/?post='+encodeURIComponent(post.slug);
       return '<a class="va-poem-card" href="'+href+'">'+media+'<span class="va-poem-copy"><strong>'+safe(post.title)+'</strong><time datetime="'+safe(post.published_at||post.created_at||'')+'">'+dateLabel(post.published_at||post.created_at)+'</time><small>'+safe(post.category||'TRANSMISSION')+'</small></span></a>';
     }).join('');
   }
@@ -63,7 +63,7 @@
       renderPosts(posts);
     }catch(error){
       console.error('The local Transmissions collection could not be loaded:',error);
-      if(grid)grid.innerHTML='<p class="va-empty">The latest transmissions could not be loaded. <a href="/landing-page/transmissions/">Browse the archive ↗</a></p>';
+      if(grid)grid.innerHTML='<p class="va-empty">The latest transmissions could not be loaded. <a href="'+siteBasePath+'/transmissions/">Browse the archive ↗</a></p>';
     }
   }
   const menuButton=document.querySelector('.va-menu-toggle');
