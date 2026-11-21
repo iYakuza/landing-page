@@ -344,9 +344,10 @@ test('creates a new Transmission in one atomic sequence-and-draft commit', async
 test('Human Archive CSP permits private draft image and media Blob URLs', () => {
   const match = archiveHtml.match(/<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]+content=["']([^"']+)["']/i);
   assert.ok(match, 'Human Archive must define its content security policy');
-  const policy = match[1];
-  const imgSrc = policy.match(/(?:^|;)\\s*img-src\\s+([^;]+)/i)?.[1] || '';
-  const mediaSrc = policy.match(/(?:^|;)\\s*media-src\\s+([^;]+)/i)?.[1] || '';
-  assert.match(imgSrc, /(?:^|\\s)blob:(?:\\s|$)/, 'img-src must allow mapped private image Blob URLs');
-  assert.match(mediaSrc, /(?:^|\\s)blob:(?:\\s|$)/, 'media-src must allow mapped private audio/video Blob URLs');
+  const directives = new Map(match[1].split(';').map(item => item.trim()).filter(Boolean).map(item => {
+    const space = item.indexOf(' ');
+    return [item.slice(0, space), item.slice(space + 1)];
+  }));
+  assert.match(directives.get('img-src') || '', /blob:/, 'img-src must allow mapped private image Blob URLs');
+  assert.match(directives.get('media-src') || '', /blob:/, 'media-src must allow mapped private audio/video Blob URLs');
 });
