@@ -6,7 +6,7 @@
 - No Cloudflare services, including Workers, D1, R2, Pages, or tunnels.
 - No additional paid hosting or storage provider.
 - Keep the existing GitHub Pages website, public URLs, editor interface, block model, keyboard behavior, and publishing features.
-- All implementation work stays on \`recovery/supabase-content-export-20261119\`. Do not change \`main\` or deploy until cutover is explicitly approved.
+- All production implementation work stays on \`recovery/supabase-content-export-20261119\`. Preview deployments may be used for acceptance testing; do not merge into \`main\` or deploy production until cutover is explicitly approved.
 
 ## Target architecture
 
@@ -21,7 +21,7 @@ GitHub is both the public publishing platform and the private CMS data store.
 
 ### Private companion repository
 
-A separate private repository (to be created by the owner) stores:
+The private companion repository iYakuza/iyakuza-cms-private has been created. It stores:
 - unpublished Transmission drafts and their revision history;
 - draft media before publication;
 - private Human Archive favourites;
@@ -89,48 +89,79 @@ The data adapter is to be replaced beneath the existing UI. Do not redesign the 
 8. **Validation:** test draft privacy, every editor block type, uploads, autosave, concurrent edits, publish/unpublish, delete, media integrity, favourites, rollback and a clean sign-out.
 9. **Cutover:** only after owner review and explicit approval; keep \`main\` untouched until then.
 
-## Owner setup required before live authentication can be tested
 
-- Create a new **private** GitHub repository for CMS data (suggested name: \`iyakuza-cms-private\`).
-- Create a **fine-grained personal access token** limited to \`iYakuza/landing-page\` and that private repository, with Metadata read and Contents read/write only. Set an expiry and do not paste the token into chat or commit it.
-- Enter the token directly into the CMS login field once that interface is implemented.
+## Current implementation status — 21 November 2026
 
-No Cloudflare setup, Supabase setup, OAuth app, worker, external database, or third-party storage is required.
+The GitHub-only CMS implementation is integrated on the recovery branch. Production main has not been changed.
 
+### Repositories and branches
 
-## Implementation progress — GitHub storage foundation
+- Public source: iYakuza/landing-page, branch recovery/supabase-content-export-20261119.
+- Private companion: iYakuza/iyakuza-cms-private. Its production main branch still needs the one-time sequence seed.
+- Preview: iYakuza/landing-page-preview, with a separate private CMS preview branch. The preview private branch contains test drafts T-0007 and T-0008; do not copy those drafts or its sequence state into production.
+- Pull request #135 remains Draft. It currently contains 171 changed files and 227 commits. The branch is GitHub-mergeable, but the merge state is still unstable while CodeQL is running.
 
-The recovery branch now contains the first GitHub persistence layer:
+### Implemented GitHub-only paths
 
-- `cms/github-client.js` authenticates a fine-grained GitHub token for the owner account, verifies both repositories and their visibility, keeps the token in browser session storage, reads Git trees/blobs, uploads binary blobs, and creates non-force commits on the recovery branch.
-- `cms/github-store.js` provides the first storage adapter for canonical public collections, private Transmission drafts, private draft media, favourites, private overrides, and identifier sequences.
-- `listFiles()` was added to the GitHub client so the adapter can enumerate draft records and media paths.
-- Identifier allocation deliberately refuses to run until the sequence file is initialized from a verified complete export. It does not guess the next archive or post ID.
+- CMS authentication uses an owner-scoped fine-grained GitHub PAT, verifies owner identity and repository access, and keeps the token in session storage.
+- Shared Chamber draft creation, autosave, private media, favourites and private state use the private repository.
+- Publish/edit/unpublish operations use version-checked Git commits to update the public Transmissions JSON, Human Archive structures and promoted media.
+- Existing post metadata is preserved during edit and republish, including original created_at, published_at, legacy identifiers and unknown metadata.
+- Existing Human Archive structure metadata is preserved, including public_record_id and unknown fields.
+- The homepage and Green Dream archive now read content/transmissions.json; the Transmissions and Signals readers use their canonical JSON collections.
+- Human Archive media resolution is local-only. Historical storage URLs are mapped through manifest aliases to local GitHub media rather than fetched remotely.
+- The Secure Your Soul page's obsolete Supabase and Cloudflare Worker CSP allowances have been removed.
 
-### Important integration boundary
+### Media recovery and data integrity
 
-This is persistence infrastructure, not yet a working replacement CMS. The existing Shared Chamber still calls Supabase directly for authentication, draft autosave, record creation, structure/block saves, media upload and cleanup. The existing CMS console also uses Supabase for community moderation. Those UI flows have not been switched over, and the new GitHub token login has not been exposed to visitors or administrators.
+- The canonical Human Archive contains 140 records and 197 editor structures.
+- Its media manifest contains 111 verified assets. All 111 local files are present in the recovery branch.
+- The three external inline-reference assets that were present only in Preview have been reconciled into the recovery branch.
+- The 86 historical Supabase media URLs that correspond to recovered Human Archive assets are now included as aliases to local files.
+- Eight other media items remain pending local recovery: seven Transmission attachments and one Signals audio attachment. The public runtime no longer fetches these from legacy storage. The seven Transmission files are expected to be re-uploaded locally; the Signals audio still needs a recovery decision.
+- Preview and source data were not copied wholesale. Media metadata was reconciled while the source branch's editor structures were preserved.
 
-The next integration stage must replace those calls as one coordinated change while preserving the current editor UI and behavior. It must also preserve the current public archive/Transmissions JSON contracts, media URL behavior, autosave conflict protection, explicit Save/Discard, publish/unpublish, and all existing IDs. Community submission moderation is a separate deferred workflow and must not be represented as migrated until its storage and moderation UI are implemented.
+### Remaining external-service boundary
 
-### Safety and deployment state
+The CV contact form in cv/contact.js still calls the Supabase Edge Function contact-about-role. That function uses Resend for delivery and Supabase-backed rate limiting, including the Cloudflare-provided client IP header. The form currently supports file attachments.
 
-All work remains on `recovery/supabase-content-export-20261119`. The public `main` branch has not been changed and nothing has been deployed. The private repository remains the intended location for unpublished drafts and private media. No Supabase or Cloudflare service is part of the target architecture.
+A completely static, dependency-free replacement is a mailto flow. That preserves message fields but cannot attach files automatically; visitors must attach files in their own email client. A hosted form/email backend would preserve uploads but would reintroduce an external service. This choice must be resolved before claiming the entire website is Supabase/Cloudflare-independent.
 
-## GitHub integration progress — editor and public readers
+The legacy Google Drive backup and Supabase migration/restore workflows remain in the repository as recovery tooling. They are not part of the public website runtime, but the scheduled Drive backup is conditional on BACKUP_ENABLED and still uses Supabase as its source. Retire or replace those workflows before shutting down the old Supabase project. The separate /community/ page retains its Slack call-to-action; it is a link, not a Slack API integration, and remains untouched.
 
-The recovery branch now has the first integrated GitHub-only implementation across the core content paths:
+### Automated checks
 
-- The CMS sign-in uses the owner’s fine-grained GitHub token. The token remains in browser session storage and is cleared on sign-out.
-- The CMS includes an explicit one-time action to initialize the private sequence from the verified export (`T-0006`, Archive record `3008`).
-- The Shared Chamber now reads published Transmissions from the canonical JSON collection, reads private drafts from the private repository, saves draft autosaves and private media to the private repository, and saves Human Archive editor structures and media to the public repository.
-- Publishing promotes private draft media and updates `content/transmissions.json` plus the Human Archive editor structure in one public Git commit. The private draft is removed only after that commit succeeds.
-- Editing a published Transmission starts a private edit draft. Saving as draft unpublishes it; publishing writes the updated record; discarding the edit draft leaves the original published version intact.
-- Public Transmissions and Signals readers now use the canonical JSON collections. The Signals archive remains readable, but new visitor submissions and the legacy moderation queue are paused/deferred while their write and moderation workflow is redesigned for GitHub.
-- The public Human Archive and Transmissions pages no longer load the Supabase JavaScript SDK. Legacy Supabase-hosted media URLs remain in some historical records as source references until their media recovery is completed; these are not used as a CMS database or storage API.
+Latest recovery-branch checks:
+- Static-site safety: passed, including JavaScript syntax checks and 13 Node regression tests.
+- Static security posture: passed, including runtime dependency scanning and verification of all 111 Human Archive media files. It reports one warning for the eight pending media items.
+- Secret scanning: passed.
+- CodeQL: still in progress at the time of this update.
 
-### Validation and remaining boundary
+These checks validate source and data integrity; they do not replace a browser-based acceptance test of the deployed Preview site.
 
-The GitHub store was exercised against a mocked GitHub API using the actual repository exports. The test covered sequence seeding, draft creation and update, publication, editing, unpublishing, draft deletion, and favourites. Private-media promotion was also tested. JavaScript syntax checks pass for the client, store, CMS login, Shared Chamber, Transmissions launcher, and public Transmissions reader.
+## Required acceptance tests before merge
 
-A live test with the owner’s actual GitHub token has not yet been performed. The token must be entered directly in the CMS UI; it must never be pasted into chat. The CMS has not been deployed. The public write branch is still the recovery branch, and must be switched to `main` only as part of a separately approved deployment.
+The available live-token testing covers draft operations, media upload/deletion, favourites and recovery of the HA-3008 editor state. The following still need an explicit end-to-end pass on Preview:
+
+1. Sign in and sign out; verify the token is cleared.
+2. Create a new Transmission, save a draft, reload, and reopen it.
+3. Edit an existing Transmission and verify original dates, legacy metadata and Human Archive structure metadata survive.
+4. Upload, replace and delete media; verify no orphaned files or broken references.
+5. Publish, reload the public page as a visitor, and verify the published content and media.
+6. Unpublish, reload the public page, and republish from the preserved private draft.
+7. Trigger a real concurrent-change conflict and verify the editor refuses to overwrite newer public data.
+8. Verify all existing block types, ordering, media output, favourites and the Signals read-only archive.
+
+The latest Preview deployment has not yet been independently verified against the newest recovery-branch commits.
+
+## Production cutover checklist
+
+1. Resolve the CV contact-form decision and remove the remaining active Supabase endpoint if the zero-backend requirement is retained.
+2. Restore the seven Transmission attachments and the one Signals audio item locally, or explicitly accept that those items remain unavailable.
+3. Complete the Preview acceptance tests above and wait for CodeQL to pass.
+4. Confirm the production private repository and initialize its sequence with the verified last-used values: transmission_number 6 and archive_record_id 3008. Do not copy Preview's test sequence.
+5. Review and retire legacy Supabase/Google Drive recovery workflows according to the agreed backup policy.
+6. Review the complete PR diff and merge only after explicit owner approval. A squash merge is preferable given the branch's 227-commit history.
+7. Verify the production deployment and public read paths after merge.
+
+**Merge recommendation: not ready yet.** The core CMS migration and Human Archive media recovery are materially advanced, and automated checks are green apart from CodeQL still running. The remaining contact-form dependency, eight pending media items, and incomplete end-to-end acceptance tests are release blockers.

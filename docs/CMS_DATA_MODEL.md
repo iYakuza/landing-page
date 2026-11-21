@@ -74,6 +74,9 @@ A draft document stores the complete editor state needed to reopen the Chamber w
   "updated_at": "ISO-8601",
   "revision": 1,
   "base_public_commit": null,
+  "published_at": "ISO-8601",
+  "original_post": {},
+  "original_structure": {},
   "metadata": {
     "title": "",
     "slug": "",
@@ -100,6 +103,8 @@ A draft document stores the complete editor state needed to reopen the Chamber w
 The example IDs above illustrate the field types only; actual sequence values must be seeded from the complete source export and reserved transactionally. Do not assume the next public ID from the visible six published records alone.
 
 For an edit of an existing published Transmission, `source` identifies the existing public record and `base_public_commit` records the public commit from which the draft was opened. This enables a clear conflict if the public record changes while the private draft is being edited.
+
+For an existing-record edit or unpublish draft, original_post stores the public post's non-content metadata and original_structure stores the Human Archive structure's non-content metadata. Content fields are kept in content and are deliberately excluded from these snapshots. This preserves unknown legacy fields such as legacy_id, legacy_media_url, public_record_id and future metadata while the editor updates the body and blocks. The original created_at and published_at values are retained; only updated_at changes on a successful publication. These snapshots are optional for new drafts.
 
 ### Sequences
 

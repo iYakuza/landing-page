@@ -83,28 +83,22 @@ The three collections now have separate canonical JSON files in `content/`. The 
 
 ### HA — Human Archive (historical archive)
 
-**Public page:** `/human-archive/`
+**Public page:** /human-archive/
 
-**Canonical GitHub collection:** `content/human-archive.json` contains all 140 records, the 111-entry media manifest, and all 197 exported editor structures. Canonical IDs use `HA-` plus the original numeric ID; the original number is retained as `legacy_id`.
+**Canonical GitHub collection:** content/human-archive.json contains all 140 records, the 111-entry media manifest, and all 197 exported editor structures. Canonical IDs use HA- plus the original numeric ID; the original number is retained as legacy_id.
 
-**Canonical page loader:** `human-archive/archive.js` loads `content/human-archive.json`, which contains all 140 historical records, the 111-entry media manifest and 197 editor structures. The older `archive-data.json`, `archive-content.json` and `media-manifest.json` files are retained as migration/recovery snapshots, not as the public page's record source.
+**Canonical page loader:** human-archive/archive.js loads the consolidated collection and resolves recovered media to local GitHub files. All 111 media-manifest assets are verified and present locally. The 86 historical Supabase URLs that correspond to those assets are aliases only, not remote fetches. Seven pending Transmission attachments are intentionally unavailable until re-uploaded.
 
-The checked-in snapshots contain 140 historical records. The archive page is implemented by `human-archive/index.html`, `human-archive/archive.js` and the archive CSS files. The page loader has not yet been switched to the consolidated canonical JSON.
-
-Supabase remains connected for administrator authentication, favourites, saved editor overrides and the existing Transmission chamber workflow. Canonical editor structures are loaded first, with saved Supabase overrides taking precedence. The archive's media files are not all stored in the GitHub repository yet.
-
+The older archive-data.json, archive-content.json and media-manifest.json files are retained as migration/recovery snapshots, not as the public page's record source.
 ### S — Signals (visitor submissions)
 
-**Public page:** `/signals/`
+**Public page:** /signals/
 
-**Current source of truth:** Supabase table `public.poetry_submissions`.
+**Canonical GitHub collection:** content/signals.json contains the one published submission with confirmed rights, assigned ID S-0001. The source export is preserved at recovery-data/poetry-submissions.json.
 
-**Canonical GitHub collection:** `content/signals.json` contains the one published submission with confirmed rights, assigned ID `S-0001`. The source export is also preserved at `recovery-data/poetry-submissions.json`.
+The /signals/ page reads the canonical static JSON through the shared Transmissions reader. New visitor submissions and the moderation queue are paused/deferred. The published Signal's audio attachment is still pending local recovery and is not fetched from legacy storage.
 
-**How it currently works:** The existing page has moved to `/signals/` and still uses the shared `transmissions/posts.js` renderer in community mode. That script currently queries Supabase; the canonical static Signals JSON has not yet been connected.
-
-The separate `/community/` page is a Green Dream community landing page. It is not the same page as `/signals/`, which is the Signals archive.
-
+The separate /community/ page is a Green Dream community landing page with a Slack call-to-action. It is not the Signals archive; the Slack link is not an API integration.
 ## 4. How a content record is stored
 
 A post record is the information describing one post. It can contain:
@@ -121,16 +115,16 @@ The JSON record stores the text and the *addresses* of its media. The actual ima
 
 | Collection | Current content storage | Current page loader | Recovery status |
 |---|---|---|---|
-| T — Transmissions | Canonical `content/transmissions.json`, with optional live published-row overlay from Supabase | Canonical JSON first; optional Supabase overlay in `transmissions/posts.js` | Six published records connected; WFH image copied to central media; other pending media can be uploaded through the editor |
-| HA — Human Archive | Canonical `content/human-archive.json`; legacy snapshots retained for recovery | `human-archive/archive.js` loads the canonical collection; Supabase remains for interactive/editor features | 140 records, 111 media references and 197 editor structures connected; actual media recovery remains incomplete |
-| S — Signals | Canonical `content/signals.json`, with optional live published-submission overlay from Supabase | Canonical JSON first; optional Supabase overlay in shared `transmissions/posts.js` | One published, rights-confirmed submission connected; visitor submissions and moderation remain on Supabase |
+| T — Transmissions | Canonical content/transmissions.json | Homepage, Green Dream and Transmissions readers use the static collection | Six published records; seven media items pending local recovery |
+| HA — Human Archive | Canonical content/human-archive.json; legacy snapshots retained for recovery | human-archive/archive.js loads canonical JSON and local media only | 140 records, 111 verified local media assets and 197 editor structures |
+| S — Signals | Canonical content/signals.json | Shared transmissions/posts.js reads static JSON | One published, rights-confirmed submission; visitor submissions/moderation paused; one audio item pending local recovery |
 
-The intended direction is for the public pages to read published content and media from GitHub, so visitors do not need Supabase to view existing posts. Supabase can remain available for administrative actions and new submissions until those workflows have a verified replacement.
-
+Public content readers no longer require Supabase for Transmissions, Green Dream, Signals or Human Archive. The CV contact form remains a separate Supabase-backed exception pending a decision about a dependency-free mailto replacement.
 ## 6. Branches: which one is live?
 
-- `main` is the existing website branch.
-- `recovery/supabase-content-export-20261119` is a separate recovery workspace. It is not the live website.
-- Recovery changes should be tested here first. They should reach `main` only after the content, media and page behaviour have been verified.
+- main is the existing production website branch.
+- recovery/supabase-content-export-20261119 is the current migration workspace and the source for PR #135.
+- iYakuza/landing-page-preview is a separate Preview deployment. It must be browser-verified against the latest recovery-branch commits before merge.
+- Recovery changes should reach main only after content, media and page behaviour have been verified and cutover is explicitly approved.
 
 This document describes the repository contents inspected on the recovery branch. It is not a claim that every recovery task is complete.

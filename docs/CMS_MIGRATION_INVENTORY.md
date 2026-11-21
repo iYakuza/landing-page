@@ -1,123 +1,88 @@
-# CMS migration inventory
+# CMS migration inventory — current state
 
-This document records the existing data and behavior that must be preserved while replacing Supabase with the GitHub-only architecture in `CMS_MIGRATION_PLAN.md`.
+This document describes the implementation on recovery/supabase-content-export-20261119 and the remaining work before PR #135 can be merged.
 
-## Current integration map
+## Current architecture
 
-### 1. CMS console — `cms/index.html` and `cms/cms.js`
-
-Current responsibilities:
-- Email/password sign-in, password reset and persisted Supabase session.
-- Admin allowlist check against `vha_cms_admins`.
-- Community review queue backed by `poetry_submissions`.
-- Approve/decline updates to community submissions.
-- Recovery-centre links currently mention Supabase and Cloudflare workflows.
-
-Migration treatment:
-- Replace sign-in with the owner-scoped fine-grained GitHub token flow described in the migration plan.
-- Keep the admin console layout and recovery/navigation elements where still relevant, but remove obsolete Supabase/Cloudflare operations only after checking their workflow dependencies.
-- Community moderation is explicitly deferred. It must not be accidentally exposed as a GitHub CMS feature or silently dropped from the public Signals rendering path.
-
-### 2. Shared Chamber — `human-archive/archive.js`
-
-This is the critical editor integration. It is not a simple form submission. It currently uses:
-
-| Supabase resource | Existing behavior | GitHub-only destination |
+| Area | Current implementation | Remaining boundary |
 |---|---|---|
-| `vha_cms_admins` | Confirms editor/admin access | Verified GitHub token identity, fixed owner allowlist and repository-scoped permissions |
-| `vha_posts` | Transmission metadata, body, publication status, timestamps and media references | Public `content/transmissions.json` for published records; private companion-repo JSON for drafts |
-| `human_archive_favorites` | Author favourites on Human Archive records | Private companion-repo favourites JSON |
-| `human_archive_record_structures` | Legacy Human Archive structure/output overrides and block data | Public canonical Human Archive collection for public structures; private companion data only for genuinely private overrides |
-| `vha-post-media` | Uploads and deletion of attachments and block output media | Private repository assets while draft; public `media/` paths only during explicit publication |
-| `save_human_archive_transmission_v5` | Creates/updates Transmission metadata, body, media, status and optimistic concurrency | One version-checked Git commit that updates the relevant JSON and media |
-| `create_human_archive_transmission_v3` | Creates a draft Transmission and its linked Archive record | Create a private draft record with a stable ID; allocate/publish public IDs and paths transactionally |
-| `save_human_archive_record_structure_v1` | Saves legacy record structure and output fields | Version-checked update to the appropriate canonical/private JSON record |
-| `save_human_archive_record_blocks_v1` | Saves ordered block stream with concurrency check | Persist the complete ordered block stream in the relevant JSON document |
-| `delete_human_archive_transmission_draft_v1` | Deletes a draft and returns owned storage paths | Delete private draft data and unreferenced private assets; never delete a published record implicitly |
+| CMS console and authentication | GitHub fine-grained PAT; owner verification; session-only token | Complete Preview acceptance tests |
+| Shared Chamber | GitHub client/store; private drafts and media; atomic public commits | Complete publish/unpublish and concurrency tests |
+| New Transmission launcher | Uses shared GitHub session and store | No known Supabase runtime call |
+| Homepage | Reads published records from content/transmissions.json | Verify deployed Preview behavior |
+| Green Dream archive | Reads Transmissions JSON and local audio media | Audio tracks appear as their assets are restored |
+| Transmissions page | Reads content/transmissions.json; local media paths | Seven media items pending local recovery |
+| Signals page | Reads content/signals.json; new submission/moderation workflow paused | One audio asset pending local recovery |
+| Human Archive | Reads content/human-archive.json; local media manifest and local-only media resolution | 111 recovered assets verified; no remote fallback |
+| CV contact form | Still calls Supabase Edge Function contact-about-role | Must choose mailto or retain a hosted backend |
+| /community/ | Existing Green Dream community landing page and Slack CTA | Intentionally untouched; no Slack API integration |
+| Secure Your Soul | Local page scripts; stale Supabase/Worker CSP allowances removed | No active Supabase/Worker call found in its page code |
 
-Important editor contracts observed in the current implementation:
-- The Shared Chamber is loaded by `creator-posting.js` and is shared by Human Archive and Transmissions.
-- New Transmission creation starts as a draft. The editor has explicit Discard and Save Chamber actions.
-- Draft autosave is enabled for draft Transmissions and tracks a last-saved signature.
-- The editor checks expected update timestamps and presents an edit-conflict state instead of silently overwriting a newer version.
-- Publishing and unpublishing are explicit status changes, with confirmation.
-- A Transmission stores metadata, sanitized body HTML, ordered blocks, output text, output media, attached post media, media width and timestamps.
-- Block media and attached media are currently uploaded to paths rooted at `human-archive/{record-id}/...`.
-- The 30 MB per-file limit is enforced in the editor.
-- Deletion and rollback paths attempt to clean up newly uploaded or no-longer-referenced media.
-- Existing Human Archive records can have structure overrides and output media without becoming Transmissions. These must remain distinct from new Transmission drafts.
+## CMS transaction and data contracts
 
-### 3. New Transmission launcher — `creator-posting.js`
+The Shared Chamber uses one shared editor and the GitHub storage adapter beneath it.
 
-Current responsibilities:
-- Loads the Shared Chamber CSS and editor scripts on demand.
-- Checks the Supabase session and admin table before showing the global New Transmission button.
-- Opens the existing Shared Chamber through `VHA_OPEN_NEW_TRANSMISSION` and `VHA_OPEN_EXISTING_TRANSMISSION` events.
+- New drafts and unpublished edits are stored in iYakuza/iyakuza-cms-private.
+- Draft media is private until publication.
+- Publishing promotes media and updates the public Transmissions collection and linked Human Archive structure in one Git commit.
+- The private draft is removed only after the public commit succeeds.
+- Unpublishing preserves a private edit draft before removing the public record.
+- Existing record timestamps, legacy IDs, unknown metadata and Human Archive public_record_id values are preserved across edit/unpublish/republish.
+- Writes use expected branch-head checks; stale data must be reconciled, not overwritten.
 
-Migration treatment:
-- Keep the lazy-loading behavior and event contract.
-- Replace only its authorization dependency with the shared GitHub session/client.
-- Do not duplicate the Chamber UI or create a second editor.
+Legacy Supabase resources (vha_posts, human_archive_record_structures, human_archive_favorites, vha-post-media, and the old RPCs) are retained only as migration context and recovery references. They are not used by the audited public content readers or the GitHub CMS store.
 
-### 4. Public Transmissions and Signals — `transmissions/posts.js`
+## Canonical content and media integrity
 
-Current responsibilities:
-- Loads public Transmissions from `content/transmissions.json`.
-- Loads public Signals from `content/signals.json`.
-- May overlay additional live Supabase rows for Signals/community content.
-- Checks Supabase admin status to show edit/favourite controls.
-- Reads and writes Human Archive favourites.
-- Community submission uploads and writes use `poetry-media` and `poetry_submissions`.
+| Collection | Current state |
+|---|---|
+| content/transmissions.json | Six published records; seven media items remain pending local recovery |
+| content/human-archive.json | 140 records; 197 editor structures; 111 verified media-manifest items |
+| content/signals.json | One published record; one audio item remains pending local recovery |
 
-Migration treatment:
-- Keep canonical JSON as the public read source.
-- Remove the live Supabase overlay only as part of the agreed Signals/community deferral; do not alter the existing Signals URL or public JSON records in this Chamber migration.
-- Reuse the shared GitHub session for owner-only edit/favourite controls.
-- Move favourites to private companion JSON.
-- Community visitor submission and moderation are a separate deferred workflow, not part of the private owner CMS store.
+Human Archive media reconciliation:
 
-### 5. Block editor — `editor-ui/block-editor.js`
+- All 111 manifest items are marked verified and have corresponding local files in the recovery branch.
+- 109 files were already common to source and Preview with matching Git blob hashes.
+- Three additional external inline-reference assets from Preview were copied into the recovery branch.
+- 86 historical Supabase media URLs are preserved as aliases to their corresponding local assets.
+- Preview's editor structures were not copied wholesale. The source branch remains authoritative for the two structures that differed during comparison.
 
-The block editor itself has no Supabase database client. It receives media upload and media-library callbacks from the Shared Chamber. Preserve the block model, supported block types, ordering, names, columns, rich-text integration, keyboard behavior, and media insertion contract. Replace the callbacks/data provider beneath it rather than redesigning the editor.
+The seven Transmission attachments are expected to be re-uploaded from the owner's local copies. The Signals audio file still needs to be located or explicitly accepted as unavailable. The public runtime rejects legacy storage URLs rather than depending on the old storage service.
 
-## Existing local data sources inspected
+## Remaining external services and legacy tooling
 
-| Path | Current observation | Intended use |
-|---|---|---|
-| `content/transmissions.json` | Valid collection object with `schema_version`, `collection` and `records`; six records observed | Canonical published Transmissions |
-| `content/signals.json` | Existing public collection | Public Signals rendering; moderation deferred |
-| `content/human-archive.json` | Valid canonical collection (1,143,614 bytes; 140 records), with embedded `media_manifest` and 197 `editor_structures` entries. The large-file `fetch_file` response was empty, but the Git blob endpoint returned and parsed the complete JSON. | Existing canonical Human Archive source; preserve and validate its schema and references |
-| `human-archive/archive-content.json` | Captured source collection with 140 records | Source material for rebuilding the canonical Human Archive collection |
-| `human-archive/archive-data.json` | 140-record index array | Supporting source/index data |
-| `human-archive/media-manifest.json` | Existing media inventory | Local media reference mapping |
-| `recovery-data/human-archive-favorites.json` | Export containing two favourite records | Seed for private favourites |
-| `recovery-data/human-archive-structures.json` | Export containing 197 structure records | Seed for structure overrides and block streams |
-| `transmissions/posts.json` | Legacy array with six Transmission records observed | Legacy/reference data; canonical public collection remains `content/transmissions.json` |
+### Public runtime
 
-`content/human-archive.json` is present and structurally complete. The earlier apparent empty result was a limitation of the large-file fetch response, not an empty repository file. Before cutover, still compare its 140 records, embedded media manifest and 197 editor-structure entries against the captured source/export files and any newer backups; validate IDs, media references and block streams. Do not rewrite the canonical collection without a verified reason.
+The CV contact form is the remaining active Supabase endpoint. It calls contact-about-role, which sends mail through Resend and uses Supabase-backed rate limiting plus the Cloudflare-provided client IP header. A dependency-free mailto replacement cannot attach files automatically; visitors would need to add attachments in their own email client.
 
-## Security and integration requirements
+### Recovery and backup workflows
 
-- The browser token is session-only and must never be serialized into repository files, URLs, localStorage, console output, audit records or error messages.
-- The GitHub client must validate owner identity and the expected repository names before enabling writes.
-- Private draft writes go only to `iYakuza/iyakuza-cms-private`; public writes go only to `iYakuza/landing-page`.
-- All multi-file public publishing must create blobs/tree/commit and update the branch ref with an expected-head check. A failed ref update must leave the previous public state intact.
-- The editor must surface API errors and version conflicts; it must not report a save or publish as successful until GitHub confirms the ref update.
-- No GitHub Actions, Supabase, Cloudflare, OAuth secret, external database or third-party object storage is required for the core migration.
+The repository still contains legacy Supabase migration/restore workflows and Google Drive backup automation. These are not part of the public website runtime, but the scheduled Drive backup is conditional on BACKUP_ENABLED and uses Supabase as its source. They must be retired or replaced before the old Supabase project is shut down. Do not delete recovery tooling until the replacement backup strategy is confirmed.
 
-## Implementation order after inventory
+### Community page
 
-1. Restore and validate the Human Archive canonical collection as a separate data-integrity task.
-2. Add and test a small GitHub API/session client against both selected repositories.
-3. Replace CMS sign-in and share one verified session across the console, creator launcher, Transmissions controls and Shared Chamber.
-4. Implement private draft, favourites and private override repositories/data formats.
-5. Migrate media uploads to private draft assets and publish-time public copies.
-6. Replace the Chamber's Supabase RPC calls with version-checked GitHub commits while preserving the current UI.
-7. Remove Supabase SDK/configuration and obsolete CSP permissions only after every caller has been migrated.
-8. Validate all existing records and workflows on the recovery branch before any cutover.
+The separate /community/ page contains a Slack call-to-action link. It does not call the Slack API or use a webhook. The page remains untouched.
 
-## Follow-up integration status
+## Automated and manual validation
 
-The recovery branch now replaces the Supabase client in the core Shared Chamber, CMS authentication, Transmission launcher, and public Transmissions reader with the GitHub client/store. The public Transmissions and Signals pages read the canonical JSON collections. The Shared Chamber writes private Transmission drafts/media to the private repository and public Archive structures/media to the public repository.
+Latest automated checks on the recovery branch:
 
-Community visitor submission and moderation are explicitly deferred: the existing published Signals collection remains available, while the submission form and moderation queue are paused. Historical media source URLs may still point to the former Supabase storage host until media recovery is complete; they are content references, not active database/API dependencies.
+- Static-site safety checks: passed.
+- JavaScript syntax checks and 13 Node regression tests: passed.
+- Static security posture checks: passed, with one warning for eight pending local media items.
+- Secret scanning: passed.
+- CodeQL: in progress at the time of this inventory.
+
+Live-token testing has covered draft operations, media upload/deletion, favourites and recovery of HA-3008. Still required: complete publish/unpublish, visitor reload, edit metadata preservation, concurrent-change conflict, all block types, and sign-out/token clearing. The latest deployed Preview site still needs browser verification against the newest recovery-branch commits.
+
+## Release blockers
+
+1. Decide how to replace the CV contact form's Supabase/Cloudflare-backed email workflow.
+2. Recover the seven Transmission media items and the one Signals audio item, or explicitly accept their temporary unavailability.
+3. Complete the Preview end-to-end acceptance suite.
+4. Wait for CodeQL to pass.
+5. Initialize the production private sequence with last-used values 6 and 3008; do not copy Preview's test sequence or drafts.
+6. Review and retire legacy Supabase/Google Drive backup tooling before decommissioning the old services.
+
+PR #135 remains Draft. It must not be merged into main until these release blockers are resolved and the owner approves cutover.
