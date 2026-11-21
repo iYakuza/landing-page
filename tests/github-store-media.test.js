@@ -472,3 +472,23 @@ test('standalone Transmission opens hydrate only the selected private draft', ()
   const handler = archiveSource.slice(start, end);
   assert.ok(handler.includes('await hydratePrivateDraftMediaForRecord(record);'), 'opening one Transmission must hydrate only that record before rendering');
 });
+
+
+test('archive editor sanitizer resolves local media URLs against the document base', () => {
+  const start = archiveSource.indexOf('function sanitizeTransmissionBody(source){');
+  const end = archiveSource.indexOf('function clearChamberFormattingToolbar()', start);
+  assert.ok(start >= 0 && end > start, 'Transmission body sanitizer must exist');
+  const sanitizer = archiveSource.slice(start, end);
+  assert.equal((sanitizer.match(/new URL\\(src,document\\.baseURI\\)/g) || []).length, 4,
+    'image, audio/video, source, and iframe URL checks must resolve against the document');
+  assert.equal((sanitizer.match(/new URL\\(src\\)/g) || []).length, 0,
+    'no media URL should be parsed without a base');
+  for (const path of [
+    '/landing-page-preview/media/transmissions/T-0001/video.mp4',
+    '/landing-page-preview/media/transmissions/T-0001/lyrics.png',
+    '/landing-page-preview/media/transmissions/T-0001/audio.mp3'
+  ]) {
+    assert.equal(new URL(path, 'https://iyakuza.github.io/landing-page-preview/human-archive/').origin,
+      'https://iyakuza.github.io');
+  }
+});
