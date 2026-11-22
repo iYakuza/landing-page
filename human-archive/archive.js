@@ -100,6 +100,11 @@ function isKnownPrivateDraftMediaPath(raw){
  const value=String(raw||'');
  return value.startsWith('cms-data/v1/media/drafts/')&&[...privateMediaUrlToPath.values()].includes(value);
 }
+function privateDraftBlobUrlForPath(raw){
+ const value=String(raw||'');
+ for(const [url,path] of privateMediaUrlToPath)if(path===value)return url;
+ return '';
+}
 function serializePrivateDraftMediaReferences(value){
  let output=String(value||'');
  for(const [url,path] of privateMediaUrlToPath)output=output.split(url).join(path);
@@ -136,7 +141,7 @@ function safeExternalUrl(raw,allowedHosts){
 }
 function safeArchiveMediaUrl(raw,allowedHosts){
  const rawValue=String(raw||'').trim();
- if(isKnownPrivateDraftMediaPath(rawValue))return rawValue;
+ if(isKnownPrivateDraftMediaPath(rawValue))return privateDraftBlobUrlForPath(rawValue);
  if(rawValue.startsWith('blob:')&&privateMediaUrlToPath.has(rawValue))return rawValue;
  if(/^media\//.test(rawValue)&&!rawValue.split('/').some(part=>part==='..')&&!rawValue.includes('?')&&!rawValue.includes('#')&&!rawValue.includes(String.fromCharCode(92))){
   return new URL(archiveSiteBasePath+'/'+rawValue.split('/').map(encodeURIComponent).join('/'),window.location.origin).href;
