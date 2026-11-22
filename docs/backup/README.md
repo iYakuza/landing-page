@@ -1,14 +1,10 @@
-# Backup and recovery — deferred
+# Backup and recovery
 
-**Status:** Backup and recovery are outside the current production migration scope.
+Backup and recovery are currently **not automated**.
 
-As of 22 November 2026, the migration candidate withdraws the old automated backup, restore, media-recovery and temporary recovery-hosting workflows from GitHub Actions. The CMS no longer exposes those controls. The former Supabase Functions and Cloudflare Pages recovery deployment code are removed from the active project candidate.
+- GitHub is the live source of truth for the website, published content and public media.
+- The private GitHub companion repository stores unpublished drafts, private draft media and CMS metadata.
+- Google Drive is a secondary destination for a future backup/recovery process.
+- No backup job is currently running. Do not treat old scripts or old workflow runs as a recovery procedure.
 
-This is a pause, not a data-deletion operation:
-
-- Existing files in the owner's Google Drive are untouched.
-- No external Google Drive, Supabase or Cloudflare account or project has been deleted by these repository changes.
-- No backup archives or recovered website content have been deleted.
-- Previous implementation code remains available in Git history, but must not be run as a current procedure.
-
-A new backup and recovery design will be considered after the production migration. Until then, do not use older instructions, workflows, or restore scripts from historical commits as an operational recovery process.
+When backup and recovery are implemented, keep GitHub primary and use Google Drive for a separate copy. Do not introduce another database, hosting provider or storage service.
