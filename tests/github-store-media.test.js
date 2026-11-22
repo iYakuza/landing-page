@@ -422,10 +422,12 @@ test('audio, video and source elements accept mapped private draft blobs', () =>
 
   const mediaBranch = archiveSource.slice(audioStart, sourceStart);
   const sourceBranch = archiveSource.slice(sourceStart, iframeStart);
-  assert.ok(mediaBranch.includes('const privateDraftBlob=isPrivateDraftBlobUrl(raw);'));
-  assert.ok(mediaBranch.includes('privateDraftBlob||'));
-  assert.ok(sourceBranch.includes('const privateDraftBlob=isPrivateDraftBlobUrl(raw);'));
-  assert.ok(sourceBranch.includes('source.src=privateDraftBlob?raw:localMediaUrl(item)'));
+  assert.ok(mediaBranch.includes('const privateDraftUrl=resolvePrivateDraftMediaUrl(raw);'));
+  assert.ok(mediaBranch.includes('Boolean(privateDraftUrl)'),
+    'audio/video elements must accept a repository path only when it maps to this editor session');
+  assert.ok(sourceBranch.includes('const privateDraftUrl=resolvePrivateDraftMediaUrl(raw);'));
+  assert.ok(sourceBranch.includes('source.src=privateDraftUrl||localMediaUrl(item)'),
+    'source elements must use the verified session Blob URL');
 });
 
 test('creates a new Transmission in one atomic sequence-and-draft commit', async () => {
