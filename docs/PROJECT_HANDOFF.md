@@ -8,7 +8,7 @@
 | Repository | Responsibility | Current state |
 |---|---|---|
 | `iYakuza/landing-page` | Website source, production GitHub Pages target, canonical production content and public media | GitHub-only CMS migration merged to `main` on 22 November 2026; production Pages deployment succeeded |
-| `iYakuza/landing-page-preview` | Isolated Preview website build plus Preview-only canonical JSON and media | `main` contains Preview data/media and its deployment workflow; do not merge this repository into production |
+| `iYakuza/landing-page-preview` | Isolated Preview website build plus Preview-only canonical JSON and media | `main` contains Preview data/media and its deployment workflow; the workflow now tracks production `landing-page/main` for website source; do not merge this repository into production |
 | `iYakuza/iyakuza-cms-private` | Private CMS drafts, draft media, favourites, private overrides and sequence state | Must remain private |
 
 **Production website:** https://iyakuza.github.io/landing-page/  
@@ -28,10 +28,10 @@
 The Preview workflow is `iYakuza/landing-page-preview/.github/workflows/preview.yml`.
 
 - It checks out Preview `main` for content and media.
-- It clones the website source from `landing-page` branch `recovery/supabase-content-export-20261119`.
+- It clones the current website source from `landing-page` branch `main`.
 - It rewrites the CMS client configuration to target `landing-page-preview` and its Preview-only private branch.
 - It builds and deploys to GitHub Pages.
-- It polls the recovery source hourly and also runs on Preview content/media pushes or manual dispatch.
+- It polls production `main` hourly and also runs on Preview content/media pushes or manual dispatch.
 - A successful Preview deployment validates the Preview pipeline, not production readiness.
 
 CMS writes made in Preview do not automatically transfer back to the migration branch or production. Reconcile only verified owner-approved content and assets; never copy Preview test drafts or Preview sequence state into production.
@@ -134,7 +134,7 @@ The GitHub Pages deployment workflow is verified successful. A separate interact
 - PR #135 was squash-merged into `landing-page/main` on 22 November 2026. The production branch now points to `9da058ae62aa7cc594d756bf17182cd821342273`.
 - The GitHub Pages production build and deployment completed successfully. All post-merge static-site safety, static security, secret-scanning and CodeQL workflows passed.
 - Preview remains an isolated content/media fixture and deployment harness. Its private test drafts/media and sequence values are not production content; do not import them.
-- The Preview workflow currently builds its website source from `recovery/supabase-content-export-20261119`. At cutover that branch contained the exact code merged to `main`; future production changes will not automatically flow into Preview unless its source ref is updated or the recovery branch is kept synchronized.
+- The Preview workflow now clones `iYakuza/landing-page:main` as its website source. Production source changes are picked up by the hourly Preview schedule; Preview content/media pushes and manual dispatch still trigger independent builds. The build continues to rewrite CMS endpoints/configuration to Preview repositories, so Preview edits remain isolated.
 
 ### Post-merger product focus
 
