@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T16:58:25.540484Z",
-  "last_processed_sha": "9da058ae62aa7cc594d756bf17182cd821342273",
+  "updated_at": "2026-11-22T17:01:06.382963Z",
+  "last_processed_sha": "62a8ed978b4c3f6d454e3ab890470fc32dd7b9a9",
   "entries": [
+    {
+      "id": "62a8ed978b4c3f6d454e3ab890470fc32dd7b9a9",
+      "timestamp": "2026-11-22T18:00:51+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together docs: record completed GitHub CMS production cutover. It updates PROJECT_HANDOFF.md.",
+      "commit_count": 1,
+      "files": [
+        "docs/PROJECT_HANDOFF.md"
+      ],
+      "commits": [
+        {
+          "message": "docs: record completed GitHub CMS production cutover",
+          "url": "https://github.com/iYakuza/landing-page/commit/62a8ed978b4c3f6d454e3ab890470fc32dd7b9a9",
+          "files": [
+            "docs/PROJECT_HANDOFF.md"
+          ]
+        }
+      ]
+    },
     {
       "id": "9da058ae62aa7cc594d756bf17182cd821342273",
       "timestamp": "2026-11-22T17:58:07+01:00",
@@ -1279,27 +1300,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/60adda92892cd5977dbe4e784876184b92ba629c",
           "files": [
             "human-archive/archive.css"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "17163df9b476a41409cb6916aa34e03395381768",
-      "timestamp": "2026-11-18T18:21:09+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Harden nested column block interactions. It updates block-editor.js.",
-      "commit_count": 1,
-      "files": [
-        "editor-ui/block-editor.js"
-      ],
-      "commits": [
-        {
-          "message": "Harden nested column block interactions",
-          "url": "https://github.com/iYakuza/landing-page/commit/17163df9b476a41409cb6916aa34e03395381768",
-          "files": [
-            "editor-ui/block-editor.js"
           ]
         }
       ]
