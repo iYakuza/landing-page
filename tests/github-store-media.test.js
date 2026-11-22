@@ -145,7 +145,7 @@ test('published Transmission media replaces the live archive attachment index wi
     content_html: '<audio src="' + bodyAsset + '" controls></audio>',
     media_items: [{ name: 'body-audio.mp3', type: 'audio', mime_type: 'audio/mpeg', path: bodyAsset, src: bodyAsset, url: bodyAsset, status: 'available' }]
   };
-  sandbox.syncPublishedTransmissionMedia(record, post, value => '/landing-page-preview/' + String(value).replace(/^\\/+/, ''));
+  sandbox.syncPublishedTransmissionMedia(record, post, value => '/landing-page-preview/' + String(value).replace(/^\/+/, ''));
 
   assert.equal(sandbox.mediaItems.some(item => item.id === oldAttachment.id), false, 'removed attachment must disappear immediately');
   assert.equal(sandbox.mediaItems.includes(otherRecordAttachment), true, 'another Transmission attachment must remain untouched');
@@ -157,7 +157,7 @@ test('published Transmission media replaces the live archive attachment index wi
   assert.deepEqual(Array.from(sandbox.mediaByPost.get(3009), item => item.id), [otherRecordAttachment.id]);
   assert.equal(record.media_items.length, 1);
   assert.equal(record.media_items[0].storage, 'github-public');
-  assert.match(post.content_html, /body-audio\\.mp3/, 'publication must not rewrite or discard body media');
+  assert.match(post.content_html, /body-audio\.mp3/, 'publication must not rewrite or discard body media');
 });
 
 test('Transmission editor exposes explicit removal for loose attachment manifest entries', () => {
