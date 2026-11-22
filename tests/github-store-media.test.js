@@ -147,7 +147,7 @@ test('published Transmission media replaces the live archive attachment index wi
   };
   sandbox.syncPublishedTransmissionMedia(record, post, value => '/landing-page-preview/' + String(value).replace(/^\/+/, ''));
 
-  assert.equal(sandbox.getMediaItems().some(item => item.id === oldAttachment.id), false, 'removed attachment must disappear immediately');
+  assert.equal(sandbox.getMediaItems().some(item => item.url === oldAttachment.url), false, 'removed attachment URL must disappear immediately even when the replacement reuses its manifest index');
   assert.equal(sandbox.getMediaItems().includes(otherRecordAttachment), true, 'another Transmission attachment must remain untouched');
   assert.equal(sandbox.getMediaItems().includes(baseArchiveMedia), true, 'non-Transmission archive media for this record must remain untouched');
   assert.equal(sandbox.getMediaItems().some(item => item.path === bodyAsset), true, 'media still referenced by the published body must remain indexed');
