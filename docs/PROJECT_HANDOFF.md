@@ -1,4 +1,4 @@
-# Project handoff — landing-page GitHub CMS migration
+# Project handoff — landing-page GitHub CMS production cutover
 
 **Last reviewed:** 22 November 2026  
 **Purpose:** Persistent operational context for future contributors and ChatGPT conversations. This file is the project's working source of truth; chat history is not.
@@ -7,7 +7,7 @@
 
 | Repository | Responsibility | Current state |
 |---|---|---|
-| `iYakuza/landing-page` | Website source, production GitHub Pages target, canonical production content and public media | Production branch is `main`; migration work is isolated on `recovery/supabase-content-export-20261119` |
+| `iYakuza/landing-page` | Website source, production GitHub Pages target, canonical production content and public media | GitHub-only CMS migration merged to `main` on 22 November 2026; production Pages deployment succeeded |
 | `iYakuza/landing-page-preview` | Isolated Preview website build plus Preview-only canonical JSON and media | `main` contains Preview data/media and its deployment workflow; do not merge this repository into production |
 | `iYakuza/iyakuza-cms-private` | Private CMS drafts, draft media, favourites, private overrides and sequence state | Must remain private |
 
@@ -17,11 +17,11 @@
 ## Branch and pull request
 
 - Production branch: `iYakuza/landing-page:main`.
-- Migration branch: `iYakuza/landing-page:recovery/supabase-content-export-20261119`.
-- Main migration PR: [#135 — Migrate Shared Chamber CMS to GitHub-only storage](https://github.com/iYakuza/landing-page/pull/135).
-- PR #135 is intentionally **Draft** until all release gates below pass and the owner explicitly authorizes the cutover.
-- Production `main` must not be changed directly during migration work.
-- Once approved, squash-merge PR #135 into `landing-page/main`. Do not merge `landing-page-preview` into `landing-page`.
+- Migration branch: `iYakuza/landing-page:recovery/supabase-content-export-20261119` (the source branch used for the completed migration).
+- Main migration PR: [#135 — Migrate Shared Chamber CMS to GitHub-only storage](https://github.com/iYakuza/landing-page/pull/135) — **merged** on 22 November 2026 at 16:58:07 UTC.
+- Squash commit now at production `main`: `9da058ae62aa7cc594d756bf17182cd821342273`.
+- Production Pages build and deployment completed successfully; post-merge static-site safety, static security, secret scanning and CodeQL all passed.
+- The migration is complete. Use scoped branches and pull requests for subsequent changes. Do not merge `landing-page-preview` into `landing-page`.
 
 ## How Preview works
 
@@ -77,7 +77,7 @@ Evidence:
 - After promoting newly uploaded draft media, the editor now checks the public media URLs with same-origin HEAD requests. It waits up to 90 seconds; if assets are still not live, the status explicitly says media is still deploying instead of claiming normal publication readiness.
 - Added regression tests for no-op publication comparisons, attachment removal wiring and the new public-media readiness check.
 
-These changes are on `recovery/supabase-content-export-20261119` and are not yet production-deployed. Browser acceptance is still required.
+These findings and fixes were included in PR #135 and are now part of production `main`. The owner subsequently accepted the Preview publication lifecycle, private media playback/save/close flow, and no-change Save optimization. This historical investigation is retained for context, not as an outstanding release blocker.
 
 ## Current migration status / release notes
 
@@ -108,22 +108,33 @@ The Transmissions public reader now clears top-level `media_url` / `media_path` 
 
 ### Disconnected / deferred integrations
 
-- CV contact: retain the existing form UI, but the submit button is disabled and no submission request is sent. No mailto fallback or replacement service is introduced. Revisit the integration after the merger.
+- CV contact: retain the existing form UI, but the submit button is disabled and no submission request is sent. No mailto fallback or replacement service is introduced. Revisit the integration as a separate post-cutover task.
 - Supabase Functions/config/migrations and Cloudflare recovery hosting code are removed from the active candidate. Historical `source_url` values on pending media remain inert provenance/recovery metadata; public readers must not render or request those pending assets.
-- Backup, restore, emergency hosting and legacy media recovery automation are out of scope after the merger. Their old workflows and operational UI have been removed. Existing Google Drive archives and external accounts/projects have not been deleted or modified.
-- The visitor Signal form will be redesigned after the merger.
+- Backup, restore, emergency hosting and legacy media recovery automation remain deferred. Their old workflows and operational UI have been removed. Existing Google Drive archives and external accounts/projects have not been deleted or modified.
+- The visitor Signal form will be redesigned as a separate post-cutover task.
 
 ### CI and security
 
-The latest validated migration revision before this update, `3b9bc4ec9678c267a182016cd523178fe5e0108b`, passed static-site safety (**46/46 Node tests**), JavaScript syntax checks, static security posture, secret scanning and CodeQL. Re-run all checks on the current head after the final media-reader/contact adjustments.
+Post-merge verification for `9da058ae62aa7cc594d756bf17182cd821342273`:
+
+- Static-site safety: passed (47/47 Node regression tests and JavaScript syntax checks) — [run #45046751652](https://github.com/iYakuza/landing-page/actions/runs/45046751652).
+- Static security posture: passed — [run #45046751641](https://github.com/iYakuza/landing-page/actions/runs/45046751641).
+- Secret scanning: passed — [run #45046751582](https://github.com/iYakuza/landing-page/actions/runs/45046751582).
+- CodeQL: passed — [run #45046751653](https://github.com/iYakuza/landing-page/actions/runs/45046751653).
+- GitHub Pages build and deployment: passed — [run #45046777616](https://github.com/iYakuza/landing-page/actions/runs/45046777616).
+- Visitor-friendly changelog workflow: passed — [run #45046751625](https://github.com/iYakuza/landing-page/actions/runs/45046751625).
+
+The GitHub Pages deployment workflow is verified successful. A separate interactive browser smoke test against the live production URL was not performed during this cutover.
 
 ### Production cutover
 
 - The private production identifier sequence is seeded with last-used Transmission 6 and archive record 3008. The next production IDs are T-0007 and 3009.
 - Preview's separate private branch contains test drafts and sequence values 10 / 3012; do not copy them into production.
 - `landing-page-preview` is a content/deployment harness, not a branch of the source repository. Do not merge it wholesale.
-- The production source candidate is PR #135 from `recovery/supabase-content-export-20261119` into `landing-page/main`. Production `main` remains unchanged.
-- The preview deployment and production migration branch use the same website source branch. Preview-only private test drafts/media are not production content.
+- PR #135 was squash-merged into `landing-page/main` on 22 November 2026. The production branch now points to `9da058ae62aa7cc594d756bf17182cd821342273`.
+- The GitHub Pages production build and deployment completed successfully. All post-merge static-site safety, static security, secret-scanning and CodeQL workflows passed.
+- Preview remains an isolated content/media fixture and deployment harness. Its private test drafts/media and sequence values are not production content; do not import them.
+- The Preview workflow currently builds its website source from `recovery/supabase-content-export-20261119`. At cutover that branch contained the exact code merged to `main`; future production changes will not automatically flow into Preview unless its source ref is updated or the recovery branch is kept synchronized.
 
 ### Post-merger product focus
 
