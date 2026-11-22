@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T17:31:49.679990Z",
-  "last_processed_sha": "87aded5f264d562f9ee48ceb9cb7da5ecc475f30",
+  "updated_at": "2026-11-22T17:35:13.144509Z",
+  "last_processed_sha": "ca0d43b33c6c726f36f0732926f9eebb8f534550",
   "entries": [
+    {
+      "id": "ca0d43b33c6c726f36f0732926f9eebb8f534550",
+      "timestamp": "2026-11-22T18:35:00+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together cleanup: use GitHub-local media on homepage; cleanup: remove legacy hosted media fallbacks; cleanup: remove Preview path from Green Dream. It updates archive.js, home.js and related project files.",
+      "commit_count": 3,
+      "files": [
+        "green-dream/archive.js",
+        "home.js",
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "cleanup: use GitHub-local media on homepage",
+          "url": "https://github.com/iYakuza/landing-page/commit/2e23a4046179a4ed77c2d1315fa718306c24636c",
+          "files": [
+            "home.js"
+          ]
+        },
+        {
+          "message": "cleanup: remove legacy hosted media fallbacks",
+          "url": "https://github.com/iYakuza/landing-page/commit/7c74dcbb293bd46a53dc0c25b60e0ccba975f86d",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "cleanup: remove Preview path from Green Dream",
+          "url": "https://github.com/iYakuza/landing-page/commit/ca0d43b33c6c726f36f0732926f9eebb8f534550",
+          "files": [
+            "green-dream/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "0d4c603ff501356ad74e62dd329b0f00e1d6f593",
       "timestamp": "2026-11-22T18:31:43+01:00",
@@ -1279,27 +1316,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/97be1cc6606b544bd0bfb423dbf003a79686bbb7",
           "files": [
             "creator-posting.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "b8f71d751ac15832c1f7f7883efcc47fb07f012d",
-      "timestamp": "2026-11-18T18:23:34+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Experience",
-      "title": "A refined Website Experience",
-      "description": "This update brings together Refresh editor assets after final refinements. It updates index.html.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Refresh editor assets after final refinements",
-          "url": "https://github.com/iYakuza/landing-page/commit/b8f71d751ac15832c1f7f7883efcc47fb07f012d",
-          "files": [
-            "human-archive/index.html"
           ]
         }
       ]
