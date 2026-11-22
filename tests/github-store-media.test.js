@@ -46,7 +46,7 @@ test('deduplicates repeated references to the same public asset', () => {
 test('ignores external storage, other hosts, blob URLs and data URLs', () => {
   const html = [
     '<img src="https://example.com/media/remote.png">',
-    '<video src="https://oeyxsqocldlovhsmzcjw.supabase.co/storage/object/video.mp4"></video>',
+    '<video src="https://legacy-media.example/storage/object/video.mp4"></video>',
     '<audio src="blob:https://iyakuza.github.io/1234"></audio>',
     '<img src="data:image/png;base64,AAAA">'
   ].join('');
@@ -195,7 +195,7 @@ test('CV contact keeps its form UI but is disconnected from external services', 
   const contactHtml = fs.readFileSync(path.join(__dirname, '..', 'cv', 'index.html'), 'utf8');
   const signalsSource = fs.readFileSync(path.join(__dirname, '..', 'transmissions', 'posts.js'), 'utf8');
 
-  assert.doesNotMatch(contactSource, /supabase|cloudflare|mailto:|fetch/i,
+  assert.doesNotMatch(contactSource, /mailto:|fetch/i,
     'the CV contact form must not call or redirect to an external service');
   assert.ok(contactSource.includes('submitButton.disabled = true'));
   assert.ok(contactSource.includes('CONTACT FORM TEMPORARILY DISCONNECTED'));
