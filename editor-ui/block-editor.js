@@ -2,8 +2,8 @@
   'use strict';
 
   const EMBED_HOSTS = new Set(['www.youtube.com','www.youtube-nocookie.com','youtu.be','youtube.com','open.spotify.com','w.soundcloud.com','soundcloud.com','player.vimeo.com','vimeo.com','www.tiktok.com','www.instagram.com','www.facebook.com','www.dailymotion.com','www.loom.com','www.ted.com','codepen.io','www.redditmedia.com','www.slideshare.net','www.mixcloud.com','audiomack.com','www.pinterest.com']);
-  const IMAGE_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co','i0.wp.com','emanuelstefancu.wordpress.com']);
-  const MEDIA_HOSTS = new Set(['oeyxsqocldlovhsmzcjw.supabase.co','ioguymqdeuuursizifnn.supabase.co']);
+  const IMAGE_HOSTS = new Set();
+  const MEDIA_HOSTS = new Set();
   const TYPES = [
     ['paragraph','Paragraph','Text'],['heading','Heading','Text'],['unordered-list','List','Text'],['ordered-list','Numbered list','Text'],['quote','Quote','Text'],['pullquote','Pullquote','Text'],['verse','Verse','Text'],['preformatted','Preformatted','Text'],['code','Code','Text'],['table','Table','Text'],['details','Details / Accordion','Text'],['markdown','Markdown','Text'],['html','Custom HTML','Text'],['classic','Classic content','Text'],['separator','Separator','Text'],['page-break','Page break','Text'],['more','More / Read more','Text'],
     ['image','Image','Media'],['gallery','Gallery','Media'],['slideshow','Slideshow','Media'],['tiled-gallery','Tiled gallery','Media'],['cover','Cover','Media'],['media-text','Media & text','Media'],['image-compare','Image compare','Media'],['audio','Audio','Media'],['video','Video','Media'],['file','File download','Media'],['playlist','Audio playlist','Media'],['podcast','Podcast player','Media'],['embed','Embed','Media'],['youtube','YouTube','Media'],['spotify','Spotify','Media'],['soundcloud','SoundCloud','Media'],
@@ -15,8 +15,6 @@
     try {
       const url = new URL(String(value || '').trim());
       if (url.protocol !== 'https:' || !url.hostname || url.username || url.password || !hosts.has(url.hostname.toLowerCase())) return '';
-      if (url.hostname.toLowerCase() === 'oeyxsqocldlovhsmzcjw.supabase.co' &&
-          !/^\/storage\/v1\/object\/public\/(vha-post-media|poetry-media|human-archive-media)\//.test(url.pathname)) return '';
       return url.href;
     } catch { return ''; }
   }
@@ -24,7 +22,7 @@
 
   function safeEditorMediaURL(value, hosts, mediaBasePath) {
     const raw = String(value || '').trim();
-    const basePathValue = String(mediaBasePath || (window.location.pathname.startsWith('/landing-page-preview/') ? '/landing-page-preview' : '/landing-page')); const basePath = basePathValue.endsWith('/') ? basePathValue.slice(0, -1) : basePathValue;
+    const basePathValue = String(mediaBasePath || '/landing-page'); const basePath = basePathValue.endsWith('/') ? basePathValue.slice(0, -1) : basePathValue;
     try {
       if (raw.startsWith('media/') && !raw.includes('..') && !raw.includes('?') && !raw.includes('#') && !raw.includes(String.fromCharCode(92))) return new URL(basePath + '/' + raw, window.location.origin).href;
       const url = new URL(raw, window.location.href);
@@ -616,7 +614,7 @@
                    let valid=Boolean(safe);
                    if(valid&&['AUDIO','VIDEO','SOURCE'].includes(node.tagName)){
                      const url=new URL(safe,window.location.href);
-                     const mediaBaseValue=String(mediaBasePath || (window.location.pathname.startsWith('/landing-page-preview/') ? '/landing-page-preview' : '/landing-page')); const normalizedMediaBase=mediaBaseValue.endsWith('/') ? mediaBaseValue.slice(0,-1) : mediaBaseValue; valid=(url.protocol==='blob:'&&url.origin===window.location.origin)||(url.origin===window.location.origin&&url.pathname.startsWith(normalizedMediaBase+'/media/'))||(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.startsWith('/storage/v1/object/public/vha-post-media/'));
+                     const mediaBaseValue=String(mediaBasePath || '/landing-page'); const normalizedMediaBase=mediaBaseValue.endsWith('/') ? mediaBaseValue.slice(0,-1) : mediaBaseValue; valid=(url.protocol==='blob:'&&url.origin===window.location.origin)||(url.origin===window.location.origin&&url.pathname.startsWith(normalizedMediaBase+'/media/'));
                    }
                    if(valid)node.setAttribute('src',safe);else node.removeAttribute(attribute.name);
                  }
