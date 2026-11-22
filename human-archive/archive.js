@@ -1721,6 +1721,10 @@ if(!readOnly&&typeof window.VHABlockEditor?.mountBlockEditor!=='function'){
       blocks:state.editorBlocks,updated_at:record.updated_at
      });
      status.textContent='DRAFT SAVED PRIVATELY';
+     // Save has returned the Chamber to read-only mode. Stop this editor
+     // instance's autosave lifecycle; a later Redesign action creates a new one.
+     draftAutosaveStopped=true;draftAutosaveQueued=false;
+     if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}
     }
     if(!categoryOrder.includes(metadata.category))categoryOrder.push(metadata.category);
     if(category&&![...category.options].some(option=>option.value===metadata.category)){
