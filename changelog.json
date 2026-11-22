@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T17:18:46.527746Z",
-  "last_processed_sha": "ea96640e9d5cfff3fba7d1abe680586eaaf75a11",
+  "updated_at": "2026-11-22T17:31:49.679990Z",
+  "last_processed_sha": "0d4c603ff501356ad74e62dd329b0f00e1d6f593",
   "entries": [
+    {
+      "id": "0d4c603ff501356ad74e62dd329b0f00e1d6f593",
+      "timestamp": "2026-11-22T18:31:43+01:00",
+      "category": "CONTENT",
+      "component": "Website",
+      "title": "Fresh additions to Website",
+      "description": "This update brings together content: make Human Archive media references GitHub-local; content: remove legacy remote media URLs from transmissions; content: remove legacy remote media URL from signals. It updates human-archive.json, signals.json, transmissions.json.",
+      "commit_count": 3,
+      "files": [
+        "content/human-archive.json",
+        "content/signals.json",
+        "content/transmissions.json"
+      ],
+      "commits": [
+        {
+          "message": "content: make Human Archive media references GitHub-local",
+          "url": "https://github.com/iYakuza/landing-page/commit/19cf63d1dd2d205170f94f6533cdb438037d62a0",
+          "files": [
+            "content/human-archive.json"
+          ]
+        },
+        {
+          "message": "content: remove legacy remote media URLs from transmissions",
+          "url": "https://github.com/iYakuza/landing-page/commit/c8ce9d1cb5d9411a983cab3c8d881fc32af3c71f",
+          "files": [
+            "content/transmissions.json"
+          ]
+        },
+        {
+          "message": "content: remove legacy remote media URL from signals",
+          "url": "https://github.com/iYakuza/landing-page/commit/0d4c603ff501356ad74e62dd329b0f00e1d6f593",
+          "files": [
+            "content/signals.json"
+          ]
+        }
+      ]
+    },
     {
       "id": "ea96640e9d5cfff3fba7d1abe680586eaaf75a11",
       "timestamp": "2026-11-22T18:18:29+01:00",
@@ -1263,35 +1300,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/b8f71d751ac15832c1f7f7883efcc47fb07f012d",
           "files": [
             "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "45d723180e621e7c35191e0a1fe6698ad6641020",
-      "timestamp": "2026-11-18T18:23:31+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Refresh editor assets after final refinements. It updates index.html and related project files.",
-      "commit_count": 2,
-      "files": [
-        "index.html",
-        "posts/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Refresh editor assets after final refinements",
-          "url": "https://github.com/iYakuza/landing-page/commit/ef2d28986ee606dc0e76660195cb51a5ba1fef3c",
-          "files": [
-            "index.html"
-          ]
-        },
-        {
-          "message": "Refresh editor assets after final refinements",
-          "url": "https://github.com/iYakuza/landing-page/commit/45d723180e621e7c35191e0a1fe6698ad6641020",
-          "files": [
-            "posts/index.html"
           ]
         }
       ]
