@@ -833,9 +833,9 @@ test('explicit draft saves become the autosave baseline and do not save again on
   assert.ok(autosaveStart >= 0 && autosaveEnd > autosaveStart);
   assert.ok(archiveSource.slice(autosaveStart, autosaveEnd).includes('signature=transmissionDraftAutosaveSignature(state)'),
     'automatic saves must use the shared signature');
-  const manualSave = archiveSource.indexOf('const saved=await window.VHACMSStore.saveDraft(draftToSave');
+  const manualSave = archiveSource.indexOf('const draftUnchanged=isTransmissionDraftSnapshotUnchanged(current,draftToSave.metadata,draftToSave.content);');
   assert.ok(manualSave >= 0);
-  assert.ok(archiveSource.slice(manualSave, manualSave + 650).includes('draftAutosaveLastSignature=transmissionDraftAutosaveSignature(state)'),
+  assert.ok(archiveSource.slice(manualSave, manualSave + 900).includes('draftAutosaveLastSignature=transmissionDraftAutosaveSignature(state)'),
     'the explicit Save Chamber path must update the baseline before the Chamber closes');
 });
 
@@ -909,10 +909,10 @@ test('unchanged private Transmission snapshots skip redundant draft commits', ()
   assert.equal(sandbox.isUnchanged(current, metadata, { ...content, transmission_body: '<p>Changed</p>' }), false,
     'a real content change must still be saved');
 
+  const staleHeadGuard = archiveSource.indexOf('if(record._repoCommitSha&&current._repoCommitSha!==record._repoCommitSha)');
   const manualSave = archiveSource.indexOf('const draftUnchanged=isTransmissionDraftSnapshotUnchanged(current,draftToSave.metadata,draftToSave.content);');
-  const staleHeadGuard = archiveSource.indexOf('if(record._repoCommitSha&&current._repoCommitSha!==record._repoCommitSha)', manualSave);
   const conditionalWrite = archiveSource.indexOf(':await window.VHACMSStore.saveDraft(draftToSave,expectedDraftHead);', manualSave);
-  assert.ok(manualSave >= 0 && staleHeadGuard > manualSave && conditionalWrite > staleHeadGuard,
+  assert.ok(staleHeadGuard >= 0 && manualSave > staleHeadGuard && conditionalWrite > manualSave,
     'manual Save must preserve branch conflict detection and write only when the draft payload changed');
 });
 
