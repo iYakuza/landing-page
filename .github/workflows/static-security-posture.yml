@@ -146,7 +146,7 @@ jobs:
               for field in ("Contact:", "Canonical:", "Policy:", "Expires:"):
                   if not re.search(r"^" + re.escape(field), security_txt, re.MULTILINE):
                       errors.append(f"security.txt is missing {field}")
-              expiry = re.search(r"^Expires:\\s*(.+)$", security_txt, re.MULTILINE)
+              expiry = re.search(r"^Expires:\s*(.+)$", security_txt, re.MULTILINE)
               if expiry:
                   try:
                       expiry_date = datetime.fromisoformat(expiry.group(1).replace("Z", "+00:00"))
