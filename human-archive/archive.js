@@ -502,8 +502,8 @@ function syncPublishedTransmissionMedia(record,post,makePublicUrl){
  const sourceItems=Array.isArray(post.media_items)?post.media_items:(post.media_url?[{url:post.media_url,path:post.media_path,type:post.media_type||'audio',name:post.title}]:[]);
  const indexed=sourceItems.filter(item=>item&&item.status!=='pending_recovery'&&typeof(item.src||item.url)==='string'&&['image','audio','video'].includes(item.type)).map((item,index)=>{
   const relative=String(item.src||item.url||item.path||'');
-  const storedPath=String(item.path||item.src||item.url||'').replace(/^\\/+/, '');
-  const publicUrl=/^https?:\\/\\//i.test(relative)?relative:makePublicUrl(relative);
+  const storedPath=String(item.path||item.src||item.url||'').replace(/^\/+/, '');
+  const publicUrl=/^https?:\/\//i.test(relative)?relative:makePublicUrl(relative);
   return {id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
    mime_type:archiveMediaMimeType(item,item.type),storage_path:storedPath,path:storedPath,
    source_url:item.source_url||publicUrl,url:publicUrl,type:item.type,status:item.status||'available',
