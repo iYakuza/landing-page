@@ -198,7 +198,7 @@ test('Poetry plain-text conversion applies a final complete HTML-escaping pass',
   assert.ok(!edgeSource.includes('.replace(/&gt;/g, ">")'));
 
   const escapeStart = edgeSource.indexOf('function htmlEscape(s: string) {');
-  const escapeEnd = edgeSource.indexOf('\\nfunction richText', escapeStart);
+  const escapeEnd = edgeSource.indexOf('function richText', escapeStart);
   assert.ok(escapeStart >= 0 && escapeEnd > escapeStart, 'the shared HTML escaper must exist');
   const escapeFunction = edgeSource.slice(escapeStart, escapeEnd).replace('s: string', 's');
   const sandbox = vm.createContext({});
