@@ -188,6 +188,30 @@ Latest completed validations on the current head:
 
 The short-lived SARIF artifact retention in `.github/workflows/codeql.yml` was added only to inspect the findings because normal GitHub connector endpoints did not expose alert details. After final CodeQL triage, remove the staging/upload steps and rerun checks; do not leave diagnostic-only workflow behavior in the production architecture unless explicitly justified.
 
+## Preview acceptance retest — private draft media and Chamber lifecycle (22 November 2026)
+
+The owner's authenticated browser retest of **record 3010 / T-0008** exposed three distinct behaviours:
+- A newly uploaded `You Are Water.mp3` played inside Design mode and was successfully written to the Preview private repository and draft HTML, but disappeared from the archive card after save/reopen.
+- Cancelling the native file picker unexpectedly exited the entire Chamber.
+- Closing after an explicit Save displayed `SAVING PRIVATE DRAFT…` and performed a redundant second save.
+
+Repository evidence from `iYakuza/iyakuza-cms-private:preview` confirmed that the audio bytes were present and the saved HTML contained their exact private path. The earlier `The_Microwave_in_My_Kitchen_demo.mp3` block is a caption-only orphan with no source URL and cannot be played; it must be removed and re-uploaded from the owner's local copy.
+
+Corrective changes on this recovery branch:
+- The archive-card renderer now converts only session-mapped private Blob URLs to verified private repository paths before DOMPurify sanitization, then resolves those paths back to the session Blob URL during safe element reconstruction. Image, audio/video and nested source elements all use the same verified resolver.
+- A native file-picker cancellation or Escape now dismisses the nested media picker without closing the Human Archive Chamber.
+- A successful explicit draft save updates the autosave signature baseline, so the subsequent Chamber close does not write the same draft again.
+- Added regression coverage for the archive-card sanitization path, mapped/unmapped private-media URL resolution, nested file-picker cancellation and explicit-save/autosave signature parity.
+- Bumped Human Archive and block-editor asset cache versions.
+
+Validation:
+- Preview workflow [#45024858887](https://github.com/iYakuza/landing-page-preview/actions/runs/45024858887): **build and deploy succeeded**.
+- Preview validation: JavaScript syntax checks passed; **42/42 Node regression tests passed**.
+- Recovery-branch workflows on commit `319ba41cd225531f34a915c9d290a33ab74d2525`: Static-site safety, static security posture, secret scanning and CodeQL all completed successfully.
+- This is code/CI and repository-level verification only. The owner must still repeat the browser acceptance on record 3010 after deployment. Confirm (1) You Are Water player displays and plays from the archive card and Chamber after reopening and hard refresh, (2) cancelling file selection leaves Chamber open, and (3) Close no longer triggers a redundant private autosave after Save Chamber.
+
+No production `main` change was made. PR #135 remains Draft and unmerged.
+ 
 ## Current release decision
 
 PR #135 remains Draft. Do not merge until the current CodeQL run is complete and triaged, owner-authenticated browser acceptance has covered the new attachment/media/no-op flows, the five missing legacy assets are recovered/replaced/explicitly accepted, and the CV contact-form dependency decision is recorded. Production `main` remains untouched.
