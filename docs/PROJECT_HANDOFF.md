@@ -1,6 +1,6 @@
 # Project handoff — landing-page GitHub CMS migration
 
-**Last reviewed:** 21 November 2026  
+**Last reviewed:** 22 November 2026  
 **Purpose:** Persistent operational context for future contributors and ChatGPT conversations. This file is the project's working source of truth; chat history is not.
 
 ## Repositories and responsibilities
@@ -269,6 +269,32 @@ Validation:
 - Preview workflow [#45036781216](https://github.com/iYakuza/landing-page-preview/actions/runs/45036781216): build and Pages deployment succeeded.
 - JavaScript syntax checks passed; **46/46 Node regression tests passed**.
 - The build again logged unrelated HTTP 402 errors from the legacy Supabase media recovery source; these are existing recovery exceptions, not failures of the private-draft save optimization.
-- The user has not yet browser-retested the newly deployed no-op save optimization. Existing media rendering, card video sizing, Chamber navigation and save/close round-trip are browser-confirmed on the preceding deployment.
+- The owner subsequently repeated the no-edit Save test on Preview and confirmed that the optimization worked: Save completed without the redundant second `SAVING PRIVATE DRAFT…` cycle. This closes the record 3010 no-op Save browser-acceptance item.
 
 No production main change was made. PR #135 remains Draft and unmerged. The private Preview draft and its embedded audio/video files were not modified by this code deployment.
+
+
+## Final migration-readiness check — 22 November 2026
+
+The owner confirmed the latest no-edit Save browser test on Preview works without a redundant second private-draft save. The record 3010 media/card sizing and Chamber round-trip remain browser-accepted.
+
+Latest automated evidence on recovery commit `bc1593feec3d8cb8d26f542338855d4f2edfcd6f`:
+- CodeQL workflow [#45038493473](https://github.com/iYakuza/landing-page/actions/runs/45038493473) completed successfully. Its retained SARIF contains 26 diagnostic results, **zero security-tagged findings**, and no remaining incomplete-multi-character-sanitization alert.
+- Static-site safety [#45038493439](https://github.com/iYakuza/landing-page/actions/runs/45038493439), static security posture [#45038493450](https://github.com/iYakuza/landing-page/actions/runs/45038493450), and secret scanning [#45038493471](https://github.com/iYakuza/landing-page/actions/runs/45038493471) completed successfully.
+- Preview build/deployment [#45038501561](https://github.com/iYakuza/landing-page-preview/actions/runs/45038501561) completed successfully; JavaScript syntax checks passed and **46/46 Node regression tests passed**.
+- The Poetry plain-text transformation no longer regex-strips arbitrary tags or decodes `&amp;` into a potentially dangerous sequence. It extracts text with a bounded character scanner and preserves valid entity references while escaping raw angle brackets and ampersands.
+
+## Cutover safeguards and remaining release decisions
+
+**Do not merge the Preview repository into production.** The Preview workflow builds the website from this recovery branch and uses the separate Preview repository only for isolated Preview content/media plus deployment workflow. Directly importing Preview data is unsafe:
+- Preview T-0001 / record 3008 has Preview-era `created_at`/`published_at` timestamps (20 November 2026) and Preview-prefixed media URLs; the recovery branch retains the original production timestamps (16 November 2026) and production-relative paths.
+- Preview's public media tree still contains the obsolete `Bing-Bong-I-Am-a-Spoon.mp3` file, while the recovery branch intentionally excludes it from the reconciled T-0001 manifest/body.
+- The private Preview branch contains test drafts and test sequence values 10 / 3012. Production private `main` contains only the verified sequence seed 6 / 3008 and must not receive Preview drafts or test identifiers.
+
+The correct code cutover remains a squash merge of PR #135 from `recovery/supabase-content-export-20261119` into `landing-page/main`, only after the following are closed or explicitly accepted:
+1. **Five pending legacy media assets:** T-0001 `cover.jpeg`; T-0002 `featured.jpeg`; T-0003 `video.mp4`; T-0004 `featured.jpeg`; and S-0001 `audio.mp3`. Recover them, supply replacements, or explicitly accept their unavailability.
+2. **CV contact form:** `cv/contact.js` still calls the Supabase `contact-about-role` Edge Function. Record the owner's decision to retain that service for launch or replace it, accounting for attachment delivery.
+3. **Publication lifecycle browser acceptance:** verify new Transmission create/publish/visitor reload, edit and no-change publish behaviour, unpublish/republish, media promotion/readiness, conflict and concurrent-editor handling, and sign-out/token clearing. Record 3010 draft media/Save acceptance does not exercise these public publication paths.
+4. **Backup and restore:** complete the Google Drive backup and legacy Supabase recovery review before decommissioning the old project or removing recovery tooling.
+
+PR #135 remains Draft and unmerged. Production `main` remains untouched.
