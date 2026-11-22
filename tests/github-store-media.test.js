@@ -190,18 +190,28 @@ test('Transmissions uses the shared DOMPurify sanitizer before parsing stored po
   assert.match(postsHtml, /shared\/vendor\/dompurify-3\.4\.18\.min\.js[\s\S]*posts\.js/);
 });
 
-test('Poetry plain-text conversion preserves entities and escapes raw HTML characters', () => {
+test('Poetry plain-text conversion extracts text safely and preserves HTML entities', () => {
   const edgeSource = fs.readFileSync(path.join(__dirname, '..', 'supabase', 'functions', 'poetry-submit', 'index.ts'), 'utf8');
-  assert.ok(edgeSource.includes('const plainBodyText = htmlBody'));
+  assert.ok(edgeSource.includes('const plainBodyText = extractPlainTextFromRichHtml(htmlBody);'));
   assert.ok(edgeSource.includes('const plainBody = htmlEscapePreservingEntities(plainBodyText);'));
+  assert.ok(!edgeSource.includes('.replace(/<[^>]*>/g, "")'));
   assert.ok(!edgeSource.includes('.replace(/&amp;/g, "&")'));
 
+  const helperStart = edgeSource.indexOf('function extractPlainTextFromRichHtml(source: string) {');
   const escapeStart = edgeSource.indexOf('function htmlEscapePreservingEntities(s: string) {');
+  const helperEnd = edgeSource.indexOf('function htmlEscapePreservingEntities', helperStart);
   const escapeEnd = edgeSource.indexOf('function slugify', escapeStart);
+  assert.ok(helperStart >= 0 && helperEnd > helperStart, 'plain-text extractor must exist');
   assert.ok(escapeStart >= 0 && escapeEnd > escapeStart, 'entity-preserving HTML escaper must exist');
-  const escapeFunction = edgeSource.slice(escapeStart, escapeEnd).trim().replace('s: string', 's');
+
+  const helpers = (edgeSource.slice(helperStart, helperEnd) + edgeSource.slice(escapeStart, escapeEnd))
+    .replaceAll('source: string', 'source').replaceAll('s: string', 's');
   const sandbox = vm.createContext({});
-  vm.runInContext(escapeFunction + '; this.escape = htmlEscapePreservingEntities;', sandbox);
+  vm.runInContext(helpers + '; this.extract = extractPlainTextFromRichHtml; this.escape = htmlEscapePreservingEntities;', sandbox);
+  assert.equal(sandbox.extract('<p>One</p><p>Two<br>Line</p>'), 'One\n\nTwo\nLine');
+  assert.equal(sandbox.extract('<script>unsafe()</script><p>Safe</p>'), 'unsafe()Safe',
+    'markup tags are removed while their contents remain plain text');
+  assert.equal(sandbox.extract('<script'), '<script', 'malformed markup remains text for the final escaper');
   assert.equal(sandbox.escape('Tom & Jerry'), 'Tom &amp; Jerry');
   assert.equal(sandbox.escape('&amp;'), '&amp;', 'valid ampersand entities should remain intact');
   assert.equal(sandbox.escape('&lt;script&gt;'), '&lt;script&gt;', 'encoded markup must remain text');
