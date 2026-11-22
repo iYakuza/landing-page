@@ -492,11 +492,11 @@ async function hydrateArchiveCardContent(record,content){
 
 function syncPublishedTransmissionMedia(record,post,makePublicUrl){
  const recordId=Number(record.id);
- const previous=new Set(mediaItems.filter(item=>item.storage==='github-transmission'&&(item.post_ids||[]).some(id=>String(id)===String(recordId))));
- mediaItems=mediaItems.filter(item=>!previous.has(item));
- for(const [key,item] of mediaMap){if(previous.has(item))mediaMap.delete(key);}
+ const previousIds=new Set(mediaItems.filter(item=>item.storage==='github-transmission'&&(item.post_ids||[]).some(id=>String(id)===String(recordId))).map(item=>String(item.id)));
+ mediaItems=mediaItems.filter(item=>!previousIds.has(String(item.id)));
+ for(const [key,item] of mediaMap){if(previousIds.has(String(item.id)))mediaMap.delete(key);}
  for(const [id,items] of mediaByPost){
-  const remaining=items.filter(item=>!previous.has(item));
+  const remaining=items.filter(item=>!previousIds.has(String(item.id)));
   if(remaining.length)mediaByPost.set(id,remaining);else mediaByPost.delete(id);
  }
  const sourceItems=Array.isArray(post.media_items)?post.media_items:(post.media_url?[{url:post.media_url,path:post.media_path,type:post.media_type||'audio',name:post.title}]:[]);
