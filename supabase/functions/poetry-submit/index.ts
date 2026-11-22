@@ -227,10 +227,11 @@ Deno.serve(async (request: Request) => {
       const videoEmbed = asUrl(fd["video-embed"]);
       const slugValue = String(fd.slug || item.slug || "");
       const htmlBody = String(fd["words-and-note"] || "");
-      // Keep encoded angle brackets encoded in the plain-text field. Decoding them
-      // after tag stripping can turn user text such as &amp;lt;script&amp;gt; into
-      // raw markup for downstream consumers that interpolate this field as HTML.
-      const plainBody = htmlBody.replace(/<br\s*\/?\s*>/gi, "\n").replace(/<\/p>\s*<p[^>]*>/gi, "\n\n").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      // Convert the stored rich-text markup to text, then escape the complete
+      // result as HTML in one final pass. This preserves ordinary entity display
+      // while preventing nested entities such as &amp;lt;script from becoming markup.
+      const plainBodyText = htmlBody.replace(/<br\s*\/?\s*>/gi, "\n").replace(/<\/p>\s*<p[^>]*>/gi, "\n\n").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&");
+      const plainBody = htmlEscape(plainBodyText);
       const medium = mediumIds[String(fd.medium || "")] || String(fd.medium || "poem").toLowerCase();
       let attachmentType = attachmentIds[String(fd["attachment-type"] || "")] || String(fd["attachment-type"] || "").toLowerCase();
       if (!["image", "audio", "video"].includes(attachmentType)) {
