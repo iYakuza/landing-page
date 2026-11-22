@@ -7,7 +7,7 @@ useDefault = true
 id = "generic-api-key"
 
   [[rules.allowlists]]
-  description = "Supabase publishable API keys are designed for public browser clients; database access is constrained by RLS."
+  description = "A legacy public browser identifier in retained Git history is not a privileged credential; the integration is no longer active."
   regexTarget = "line"
   regexes = ['''sb_publishable_[A-Za-z0-9_-]+''']
 
