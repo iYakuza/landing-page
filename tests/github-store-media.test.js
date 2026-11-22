@@ -109,6 +109,57 @@ test('recognizes unchanged publications despite site-prefix normalization and ge
   assert.equal(context.window.VHACMSStore.isPublicationUnchanged({ ...nextPost, content_html: '<audio src="media/transmissions/T-0001/other.mp3"></audio>' }, originalPost, nextStructure, originalStructure), false);
 });
 
+
+test('published Transmission media replaces the live archive attachment index without disturbing other records', () => {
+  const start = archiveSource.indexOf('function syncPublishedTransmissionMedia(record,post,makePublicUrl){');
+  const end = archiveSource.indexOf('async function loadTransmissionRecords(){', start);
+  assert.ok(start >= 0 && end > start, 'publish flow must expose a focused media-index reconciliation helper');
+  const helper = archiveSource.slice(start, end).trim();
+  const oldAttachment = {
+    id: 'transmission-T-0001-0', storage: 'github-transmission', post_ids: [3008],
+    url: '/landing-page-preview/media/transmissions/T-0001/removed.mp3',
+    source_url: 'https://iyakuza.github.io/landing-page-preview/media/transmissions/T-0001/removed.mp3'
+  };
+  const otherRecordAttachment = {
+    id: 'transmission-T-0002-0', storage: 'github-transmission', post_ids: [3009],
+    url: '/landing-page-preview/media/transmissions/T-0002/keep.mp3'
+  };
+  const baseArchiveMedia = { id: 'archive-3008', storage: 'github-public', post_ids: [3008], url: '/landing-page-preview/media/human-archive/HA-3008/keep.png' };
+  const mediaItems = [oldAttachment, otherRecordAttachment, baseArchiveMedia];
+  const mediaMap = new Map([
+    ['/removed.mp3', oldAttachment],
+    ['/keep.mp3', otherRecordAttachment]
+  ]);
+  const mediaByPost = new Map([[3008, [oldAttachment, baseArchiveMedia]], [3009, [otherRecordAttachment]]]);
+  const sandbox = vm.createContext({
+    mediaItems, mediaMap, mediaByPost,
+    archiveMediaMimeType: item => item.mime_type || 'audio/mpeg',
+    urlKey: raw => { try { return new URL(String(raw || ''), 'https://iyakuza.github.io').pathname; } catch { return ''; } }
+  });
+  vm.runInContext(helper + '; this.syncPublishedTransmissionMedia = syncPublishedTransmissionMedia;', sandbox);
+
+  const record = { id: 3008, media_items: [] };
+  const bodyAsset = 'media/transmissions/T-0001/body-audio.mp3';
+  const post = {
+    id: 'T-0001', title: 'Updated Transmission',
+    content_html: '<audio src="' + bodyAsset + '" controls></audio>',
+    media_items: [{ name: 'body-audio.mp3', type: 'audio', mime_type: 'audio/mpeg', path: bodyAsset, src: bodyAsset, url: bodyAsset, status: 'available' }]
+  };
+  sandbox.syncPublishedTransmissionMedia(record, post, value => '/landing-page-preview/' + String(value).replace(/^\\/+/, ''));
+
+  assert.equal(sandbox.mediaItems.some(item => item.id === oldAttachment.id), false, 'removed attachment must disappear immediately');
+  assert.equal(sandbox.mediaItems.includes(otherRecordAttachment), true, 'another Transmission attachment must remain untouched');
+  assert.equal(sandbox.mediaItems.includes(baseArchiveMedia), true, 'non-Transmission archive media for this record must remain untouched');
+  assert.equal(sandbox.mediaItems.some(item => item.path === bodyAsset), true, 'media still referenced by the published body must remain indexed');
+  assert.equal(sandbox.mediaMap.has('/removed.mp3'), false, 'removed media URL aliases must be cleared');
+  assert.equal(sandbox.mediaMap.has('/keep.mp3'), true, 'other-record URL aliases must remain');
+  assert.equal(sandbox.mediaMap.has('/landing-page-preview/' + bodyAsset), true, 'newly published body media must be indexed');
+  assert.deepEqual(Array.from(sandbox.mediaByPost.get(3009), item => item.id), [otherRecordAttachment.id]);
+  assert.equal(record.media_items.length, 1);
+  assert.equal(record.media_items[0].storage, 'github-public');
+  assert.match(post.content_html, /body-audio\\.mp3/, 'publication must not rewrite or discard body media');
+});
+
 test('Transmission editor exposes explicit removal for loose attachment manifest entries', () => {
   assert.match(archiveSource, /01 \/\/ ATTACHED MEDIA/);
   assert.match(archiveSource, /const renderAttachedPostMedia/);
