@@ -108,6 +108,10 @@ function htmlEscape(s: string) {
 function richText(s: string) {
   return s.split(/\n\s*\n/).map(p => "<p>" + htmlEscape(p).replaceAll("\n", "<br>") + "</p>").join("");
 }
+function htmlEscapePreservingEntities(s: string) {
+  return s.replace(/&(?!(?:[a-z][a-z0-9]*|#\d+|#x[0-9a-f]+);)/gi, "&amp;")
+    .replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
 function slugify(s: string) {
   const base = s.normalize("NFKD").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 68);
   return (base || "archive-piece") + "-" + crypto.randomUUID().slice(0, 8);
@@ -227,11 +231,10 @@ Deno.serve(async (request: Request) => {
       const videoEmbed = asUrl(fd["video-embed"]);
       const slugValue = String(fd.slug || item.slug || "");
       const htmlBody = String(fd["words-and-note"] || "");
-      // Convert the stored rich-text markup to text, then escape the complete
-      // result as HTML in one final pass. This preserves ordinary entity display
-      // while preventing nested entities such as &amp;lt;script from becoming markup.
-      const plainBodyText = htmlBody.replace(/<br\s*\/?\s*>/gi, "\n").replace(/<\/p>\s*<p[^>]*>/gi, "\n\n").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&");
-      const plainBody = htmlEscape(plainBodyText);
+      // Strip rich-text markup but preserve valid character references; only
+      // escape raw ampersands and angle brackets. Do not decode &amp; first.
+      const plainBodyText = htmlBody.replace(/<br\s*\/?\s*>/gi, "\n").replace(/<\/p>\s*<p[^>]*>/gi, "\n\n").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ");
+      const plainBody = htmlEscapePreservingEntities(plainBodyText);
       const medium = mediumIds[String(fd.medium || "")] || String(fd.medium || "poem").toLowerCase();
       let attachmentType = attachmentIds[String(fd["attachment-type"] || "")] || String(fd["attachment-type"] || "").toLowerCase();
       if (!["image", "audio", "video"].includes(attachmentType)) {
