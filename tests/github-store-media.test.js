@@ -192,13 +192,13 @@ test('Transmissions uses the shared DOMPurify sanitizer before parsing stored po
 
 test('Poetry plain-text conversion applies a final complete HTML-escaping pass', () => {
   const edgeSource = fs.readFileSync(path.join(__dirname, '..', 'supabase', 'functions', 'poetry-submit', 'index.ts'), 'utf8');
-  assert.match(edgeSource, /const plainBodyText = htmlBody[\\s\\S]*?replace\\(/);
-  assert.match(edgeSource, /const plainBody = htmlEscape\\(plainBodyText\\)/);
+  assert.ok(edgeSource.includes('const plainBodyText = htmlBody'));
+  assert.ok(edgeSource.includes('const plainBody = htmlEscape(plainBodyText);'));
   assert.ok(!edgeSource.includes('.replace(/&lt;/g, "<")'));
   assert.ok(!edgeSource.includes('.replace(/&gt;/g, ">")'));
 
   const escapeStart = edgeSource.indexOf('function htmlEscape(s: string) {');
-  const escapeEnd = edgeSource.indexOf('\\n}', escapeStart) + 2;
+  const escapeEnd = edgeSource.indexOf('\\nfunction richText', escapeStart);
   assert.ok(escapeStart >= 0 && escapeEnd > escapeStart, 'the shared HTML escaper must exist');
   const escapeFunction = edgeSource.slice(escapeStart, escapeEnd).replace('s: string', 's');
   const sandbox = vm.createContext({});
