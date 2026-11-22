@@ -334,7 +334,12 @@
          });
         const cancel=document.createElement('button');cancel.type='button';cancel.textContent='CANCEL';actions.append(upload,reuse,cancel);panel.append(actions);dialog.append(panel);shell.append(dialog);
         const close=()=>dialog.remove();
-        input.addEventListener('change',()=>{upload.disabled=!input.files?.length;});
+        input.addEventListener('change',()=>{upload.disabled=!input.files?.length;status.textContent='';});
+        input.addEventListener('cancel',event=>{
+         event.stopPropagation();
+         upload.disabled=!input.files?.length;
+         status.textContent='FILE SELECTION UNCHANGED — THE CHAMBER REMAINS OPEN.';
+        });
         cancel.addEventListener('click',close);
         dialog.addEventListener('click',event=>{if(event.target===dialog)close();});
         const build=(assets)=>{
