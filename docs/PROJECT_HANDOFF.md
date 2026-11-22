@@ -212,6 +212,35 @@ Validation:
 
 No production `main` change was made. PR #135 remains Draft and unmerged.
  
+## Follow-up — explicit Save lifecycle and responsive inline video (22 November 2026)
+
+The owner's latest authenticated Preview retest confirmed:
+- `You Are Water.mp3` renders and plays in the archive card, Chamber and Redesign view.
+- The filename-only `The_Microwave_in_My_Kitchen_demo.mp3` block was removed.
+- `Water, Take Me.mp4` uploaded, played in Design mode, persisted in the private draft, and remained playable in the Chamber and archive card after refresh.
+- The archive-card video rendered too wide for the card.
+- Clicking Close after a successful explicit Save still displayed `SAVING PRIVATE DRAFT…`.
+
+Repository evidence from the private Preview draft confirms the video and audio references remain in `transmission_body` and `blocks` under their matching private `cms-data/v1/media/drafts/<draft-id>/...` paths. Both files are still private and have not been promoted to production/public storage.
+
+Corrective changes:
+- On successful explicit `DRAFT SAVED PRIVATELY`, stop the current editor instance's autosave lifecycle and clear any queued timer before returning to the read-only Chamber view. A subsequent `Redesign Chamber` creates a fresh autosave lifecycle. This avoids a second save caused by the previous editor instance's teardown/re-render.
+- Add `.ha-entry-body video` responsive sizing (`width:100%`, `max-width:100%`, `height:auto`, `object-fit:contain`) and constrain saved column sections so inline video cannot exceed an archive card's content width.
+- Add regression tests for the explicit-save lifecycle shutdown and archive-card inline-video sizing.
+- Bump the Human Archive CSS and JavaScript cache versions.
+
+Validation on recovery commit `1b18ba116382e027d413310ac605cb5075d244f6`:
+- Preview workflow [#45030890392](https://github.com/iYakuza/landing-page-preview/actions/runs/45030890392): build and deployment succeeded.
+- Preview JavaScript syntax checks passed; **44/44 Node regression tests passed**.
+- Static-site safety, static security posture and secret scanning completed successfully.
+- CodeQL analysis was still running at the time of this handoff update; inspect its final result before release.
+
+Owner browser acceptance remains outstanding for (1) the inline video fitting within the card on desktop and mobile, and (2) Save Chamber followed by Close without any second `SAVING PRIVATE DRAFT…` cycle. Confirm the saved video still plays after closing, reopening and hard refresh.
+
+The `NO LOOSE ATTACHMENTS` message is expected while media is embedded in the Transmission body; body-referenced media remains attached automatically and does not appear as a loose attachment entry. The old caption-only block was removed and has no remaining source to recover.
+
+No production `main` change was made. PR #135 remains Draft and unmerged.
+ 
 ## Current release decision
 
 PR #135 remains Draft. Do not merge until the current CodeQL run is complete and triaged, owner-authenticated browser acceptance has covered the new attachment/media/no-op flows, the five missing legacy assets are recovered/replaced/explicitly accepted, and the CV contact-form dependency decision is recorded. Production `main` remains untouched.
