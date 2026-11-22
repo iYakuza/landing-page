@@ -1,8 +1,53 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T17:49:23.566389Z",
-  "last_processed_sha": "5d251250d50e8bc456ee720c4ac5fa442507f214",
+  "updated_at": "2026-11-22T17:49:47.912019Z",
+  "last_processed_sha": "bb08605a35e9996f038f2814fa1275af9fc004bf",
   "entries": [
+    {
+      "id": "bb08605a35e9996f038f2814fa1275af9fc004bf",
+      "timestamp": "2026-11-22T18:49:41+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together security: remove external font dependency; docs: remove obsolete platform references; test: use provider-neutral legacy media fixture; and 1 more related changes. It updates .gitleaks.toml, index.html, terms-of-service.html, github-store-media.test.js.",
+      "commit_count": 4,
+      "files": [
+        ".gitleaks.toml",
+        "human-archive/index.html",
+        "terms-of-service.html",
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "security: remove external font dependency",
+          "url": "https://github.com/iYakuza/landing-page/commit/cc26c3d454ea020d3889360de669acf12650d7cc",
+          "files": [
+            "human-archive/index.html"
+          ]
+        },
+        {
+          "message": "docs: remove obsolete platform references",
+          "url": "https://github.com/iYakuza/landing-page/commit/39a2b7ba27b5d380667d9c376d70c9d03e4cc958",
+          "files": [
+            "terms-of-service.html"
+          ]
+        },
+        {
+          "message": "test: use provider-neutral legacy media fixture",
+          "url": "https://github.com/iYakuza/landing-page/commit/f79ea54fcc465419e2d954666787337913e989f4",
+          "files": [
+            "tests/github-store-media.test.js"
+          ]
+        },
+        {
+          "message": "security: clarify historical public-key allowlist",
+          "url": "https://github.com/iYakuza/landing-page/commit/e4a26524788f2fbfdf92cc0b8fa0931d4ff730e7",
+          "files": [
+            ".gitleaks.toml"
+          ]
+        }
+      ]
+    },
     {
       "id": "5d251250d50e8bc456ee720c4ac5fa442507f214",
       "timestamp": "2026-11-22T18:49:17+01:00",
@@ -1346,75 +1391,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/c4babef8ca22f8dc93ecb5cfacec398397b8f00a",
           "files": [
             "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "93397e9a089280bf2abf1e780abd889517d1ba5f",
-      "timestamp": "2026-11-18T20:12:04+01:00",
-      "category": "FIX",
-      "component": "Website Updates",
-      "title": "More reliable Website Updates",
-      "description": "This update brings together Fix shared Human Archive chamber edit actions; Place Human Archive editor actions in header; Place shared chamber editor actions in header; and 4 more related changes. It updates creator-posting.js, block-editor.css, block-editor.js, archive.css and related project files.",
-      "commit_count": 7,
-      "files": [
-        "creator-posting.js",
-        "editor-ui/block-editor.css",
-        "editor-ui/block-editor.js",
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "human-archive/chamber.css",
-        "index.html"
-      ],
-      "commits": [
-        {
-          "message": "Fix shared Human Archive chamber edit actions",
-          "url": "https://github.com/iYakuza/landing-page/commit/6a645b35304eb9f8fbac0b4a4d47cd1811d36888",
-          "files": [
-            "human-archive/archive.js"
-          ]
-        },
-        {
-          "message": "Place Human Archive editor actions in header",
-          "url": "https://github.com/iYakuza/landing-page/commit/ef3b9b448a37bea0ee46257a6dabe3a97844df0a",
-          "files": [
-            "human-archive/archive.css"
-          ]
-        },
-        {
-          "message": "Place shared chamber editor actions in header",
-          "url": "https://github.com/iYakuza/landing-page/commit/5b30e635e32041264bcb449357b4db245d1322b0",
-          "files": [
-            "human-archive/chamber.css"
-          ]
-        },
-        {
-          "message": "Make between-column insertion reliable",
-          "url": "https://github.com/iYakuza/landing-page/commit/03eadf108aed7dc3e3fb5058d3f1918b18ab7519",
-          "files": [
-            "editor-ui/block-editor.js"
-          ]
-        },
-        {
-          "message": "Refine block category and column inserters",
-          "url": "https://github.com/iYakuza/landing-page/commit/644a978775db6c520d59e9ecdc3bba1e0088137c",
-          "files": [
-            "editor-ui/block-editor.css"
-          ]
-        },
-        {
-          "message": "Bump shared editor asset version",
-          "url": "https://github.com/iYakuza/landing-page/commit/5eb533e34c36ef8e18bc57b3608a94b5df631fec",
-          "files": [
-            "creator-posting.js"
-          ]
-        },
-        {
-          "message": "Refresh shared Human Archive editor assets",
-          "url": "https://github.com/iYakuza/landing-page/commit/93397e9a089280bf2abf1e780abd889517d1ba5f",
-          "files": [
-            "index.html"
           ]
         }
       ]
