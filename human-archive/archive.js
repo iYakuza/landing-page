@@ -105,6 +105,12 @@ function privateDraftBlobUrlForPath(raw){
  for(const [url,path] of privateMediaUrlToPath)if(path===value)return url;
  return '';
 }
+function resolvePrivateDraftMediaUrl(raw){
+ const value=String(raw||'');
+ if(isPrivateDraftBlobUrl(value))return value;
+ if(isKnownPrivateDraftMediaPath(value))return privateDraftBlobUrlForPath(value);
+ return '';
+}
 function serializePrivateDraftMediaReferences(value){
  let output=String(value||'');
  for(const [url,path] of privateMediaUrlToPath)output=output.split(url).join(path);
@@ -141,8 +147,8 @@ function safeExternalUrl(raw,allowedHosts){
 }
 function safeArchiveMediaUrl(raw,allowedHosts){
  const rawValue=String(raw||'').trim();
- if(isKnownPrivateDraftMediaPath(rawValue))return privateDraftBlobUrlForPath(rawValue);
- if(rawValue.startsWith('blob:')&&privateMediaUrlToPath.has(rawValue))return rawValue;
+ const privateDraftUrl=resolvePrivateDraftMediaUrl(rawValue);
+ if(privateDraftUrl)return privateDraftUrl;
  if(/^media\//.test(rawValue)&&!rawValue.split('/').some(part=>part==='..')&&!rawValue.includes('?')&&!rawValue.includes('#')&&!rawValue.includes(String.fromCharCode(92))){
   return new URL(archiveSiteBasePath+'/'+rawValue.split('/').map(encodeURIComponent).join('/'),window.location.origin).href;
  }
@@ -270,7 +276,9 @@ function parseSanitizedHTML(source){
  return {body};
 }
 function appendSafeContent(container,source,record,used){
- const doc=parseSanitizedHTML(source);
+ // DOMPurify removes transient blob: URLs. Serialize only verified private
+ // draft blobs first, then resolve them back to their session URLs below.
+ const doc=parseSanitizedHTML(serializePrivateDraftMediaReferences(String(source??'')));
  const allowed=new Set(['P','BR','STRONG','B','EM','I','U','S','STRIKE','DEL','H1','H2','H3','H4','UL','OL','LI','BLOCKQUOTE','HR','PRE','CODE','A','FIGURE','FIGCAPTION','DIV','SECTION','ASIDE','DETAILS','SUMMARY','SPAN','SMALL','SUP','SUB','TABLE','THEAD','TBODY','TR','TH','TD','NAV','ARTICLE','MARK']);
  const blocked=new Set(['SCRIPT','STYLE','OBJECT','EMBED','SVG','MATH','FORM','INPUT','BUTTON','TEXTAREA','SELECT','OPTION','LINK','META']);
  const iframeHosts=new Set(['www.youtube.com','www.youtube-nocookie.com','open.spotify.com','w.soundcloud.com','player.vimeo.com','www.dailymotion.com','www.loom.com']);
@@ -292,10 +300,12 @@ function appendSafeContent(container,source,record,used){
    const item=getMedia(raw);
    if(item&&(mediaReady||item.storage==='vha-post-media')){appendLocalImage(parent,item,record,used);}
    else{
-    const src=safeArchiveMediaUrl(raw,new Set(['i0.wp.com','emanuelstefancu.wordpress.com']));
+    const privateDraftUrl=resolvePrivateDraftMediaUrl(raw);
+    const src=privateDraftUrl||safeArchiveMediaUrl(raw,new Set(['i0.wp.com','emanuelstefancu.wordpress.com']));
     let valid=Boolean(src);
     if(valid){
-     if(String(src).startsWith('blob:'))valid=isPrivateDraftBlobUrl(raw);
+     if(privateDraftUrl)valid=true;
+     else if(String(src).startsWith('blob:'))valid=false;
      else{
       const url=new URL(src);
       if(url.origin===window.location.origin)valid=(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
@@ -314,9 +324,9 @@ function appendSafeContent(container,source,record,used){
    // Private draft blobs are trusted only while mapped to a verified path in this
    // draft's private repository. The local-origin check below intentionally rejects
    // arbitrary external/blob sources, but must not reject those mapped upload blobs.
-   const privateDraftBlob=isPrivateDraftBlobUrl(raw);
-   const src=privateDraftBlob?raw:safeArchiveMediaUrl(raw,new Set());
-   const valid=privateDraftBlob||(Boolean(src)&&(()=>{const url=new URL(src);return url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));})());
+   const privateDraftUrl=resolvePrivateDraftMediaUrl(raw);
+   const src=privateDraftUrl||safeArchiveMediaUrl(raw,new Set());
+   const valid=Boolean(privateDraftUrl)||(Boolean(src)&&(()=>{const url=new URL(src);return url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));})());
    const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='none';
    if(valid)mediaNode.src=src;
    if(tag==='VIDEO')mediaNode.playsInline=true;
@@ -327,10 +337,10 @@ function appendSafeContent(container,source,record,used){
   if(tag==='SOURCE'){
    const raw=node.getAttribute('src')||'';
    const item=getMedia(raw);
-   const privateDraftBlob=isPrivateDraftBlobUrl(raw);
-   if((privateDraftBlob||(item&&(mediaReady||item.storage==='vha-post-media')))&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
+   const privateDraftUrl=resolvePrivateDraftMediaUrl(raw);
+   if((privateDraftUrl||(item&&(mediaReady||item.storage==='vha-post-media')))&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
     const source=document.createElement('source');
-    source.src=privateDraftBlob?raw:localMediaUrl(item);
+    source.src=privateDraftUrl||localMediaUrl(item);
     const mime=String(item?.mime_type||node.getAttribute('type')||'').trim();
     if(mime)source.type=mime;
     parent.append(source);
@@ -998,6 +1008,9 @@ function renderRecordStructureView(record,grid,status,editButton,expandButton,cl
 function shouldRunTransmissionDraftAutosave(record,enabled,stopped=false){
  return Boolean(enabled&&!stopped&&record?.source_type==='transmission'&&record?.draft_id);
 }
+function transmissionDraftAutosaveSignature(state){
+ return JSON.stringify({metadata:state.metadata,row:{...state.row,updated_at:null},mediaItems:state.mediaItems,blocks:state.blocks});
+}
 function chamberUploadToken(){
  try{if(window.crypto?.randomUUID)return window.crypto.randomUUID();}catch{}
  return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
@@ -1411,7 +1424,7 @@ if(!readOnly&&typeof window.VHABlockEditor?.mountBlockEditor!=='function'){
   try{
    uploadedPaths=await uploadPendingDraftMedia();
    state=buildDraftAutosaveState();
-   signature=JSON.stringify({metadata:state.metadata,row:{...state.row,updated_at:null},mediaItems:state.mediaItems,blocks:state.blocks});
+   signature=transmissionDraftAutosaveSignature(state);
    if(signature===draftAutosaveLastSignature)return true;
    status.textContent='SAVING PRIVATE DRAFT…';
    const current=await window.VHACMSStore.getDraft(record.draft_id);
@@ -1646,6 +1659,9 @@ if(!readOnly&&typeof window.VHABlockEditor?.mountBlockEditor!=='function'){
     };
     const saved=await window.VHACMSStore.saveDraft(draftToSave,record._repoCommitSha||current._repoCommitSha);
     record._repoCommitSha=saved.commitSha;record._draftData=saved.draft;record.updated_at=saved.draft.updated_at;
+    // Treat this explicit save as the latest autosaved snapshot. Closing the
+    // Chamber must not immediately write the same draft a second time.
+    if(metadata.status!=='published')draftAutosaveLastSignature=transmissionDraftAutosaveSignature(state);
     if(metadata.status==='published'){
      status.textContent='PUBLISHING TRANSMISSION TO THE PUBLIC REPOSITORY…';
      const published=await window.VHACMSStore.publishDraft(record.draft_id);
@@ -1841,7 +1857,14 @@ function ensureRecordChamber(){
  if(recordChamber)return recordChamber;
  recordChamber=makeChamberNode('dialog','ha-record-chamber');
  recordChamber.setAttribute('aria-label','Human Archive record chamber');
- recordChamber.addEventListener('cancel',event=>{event.preventDefault();closeRecordChamberSafely();});
+ recordChamber.addEventListener('cancel',event=>{
+   event.preventDefault();
+   // The media picker is a nested interaction. Escape/cancel should dismiss
+   // that picker first, never close the entire archive Chamber.
+   const mediaPicker=recordChamber.querySelector('.ha-media-picker');
+   if(mediaPicker){mediaPicker.remove();return;}
+   closeRecordChamberSafely();
+  });
  let backdropPointerStart=null;
  recordChamber.addEventListener('pointerdown',event=>{
   backdropPointerStart=event.isPrimary&&event.target===recordChamber
