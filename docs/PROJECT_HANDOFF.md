@@ -8,11 +8,11 @@
 | Repository | Responsibility | Current state |
 |---|---|---|
 | `iYakuza/landing-page` | Website source, production GitHub Pages target, canonical production content and public media | GitHub-only CMS migration merged to `main` on 22 November 2026; production Pages deployment succeeded |
-| `iYakuza/landing-page-preview` | Isolated Preview website build plus Preview-only canonical JSON and media | `main` contains Preview data/media and its deployment workflow; the workflow now tracks production `landing-page/main` for website source; do not merge this repository into production |
+| `iYakuza/landing-page-preview` | Retired historical repository | Its old Pages URL is replaced by a redirect to production; no staging site or test CMS remains. Do not use this repository for development or publishing |
 | `iYakuza/iyakuza-cms-private` | Private CMS drafts, draft media, favourites, private overrides and sequence state | Must remain private |
 
 **Production website:** https://iyakuza.github.io/landing-page/  
-**Preview website:** https://iyakuza.github.io/landing-page-preview/
+**Former Preview URL:** https://iyakuza.github.io/landing-page-preview/ (redirects to production; no separate site remains)
 
 ## Branch and pull request
 
@@ -23,18 +23,13 @@
 - Production Pages build and deployment completed successfully; post-merge static-site safety, static security, secret scanning and CodeQL all passed.
 - The migration is complete. Use scoped branches and pull requests for subsequent changes. Do not merge `landing-page-preview` into `landing-page`.
 
-## How Preview works
+## Single live website and direct publishing
 
-The Preview workflow is `iYakuza/landing-page-preview/.github/workflows/preview.yml`.
+There is one website: `https://iyakuza.github.io/landing-page/`, sourced from `iYakuza/landing-page:main`. Changes to the project are made against the live canonical repository; published ideas and conversations belong on the live site, not in a separate preview/test copy.
 
-- It checks out Preview `main` for content and media.
-- It clones the current website source from `landing-page` branch `main`.
-- It rewrites the CMS client configuration to target `landing-page-preview` and its Preview-only private branch.
-- It builds and deploys to GitHub Pages.
-- It polls production `main` hourly and also runs on Preview content/media pushes or manual dispatch.
-- A successful Preview deployment validates the Preview pipeline, not production readiness.
+The former `landing-page-preview` Pages URL is retired and redirects to the corresponding production route. Its scheduled testing/deployment pipeline has been replaced with a redirect-only deployment. The repository is retained as historical Git data, not as an active development, CMS, or publishing environment.
 
-CMS writes made in Preview do not automatically transfer back to the migration branch or production. Reconcile only verified owner-approved content and assets; never copy Preview test drafts or Preview sequence state into production.
+Do not recreate a staging copy or route CMS writes to the retired repository. Validate changes through scoped production commits and direct live-site verification.
 
 ## Target production architecture
 
@@ -134,7 +129,7 @@ The GitHub Pages deployment workflow is verified successful. A separate interact
 - PR #135 was squash-merged into `landing-page/main` on 22 November 2026. The production branch now points to `9da058ae62aa7cc594d756bf17182cd821342273`.
 - The GitHub Pages production build and deployment completed successfully. All post-merge static-site safety, static security, secret-scanning and CodeQL workflows passed.
 - Preview remains an isolated content/media fixture and deployment harness. Its private test drafts/media and sequence values are not production content; do not import them.
-- The Preview workflow now clones `iYakuza/landing-page:main` as its website source. Production source changes are picked up by the hourly Preview schedule; Preview content/media pushes and manual dispatch still trigger independent builds. The build continues to rewrite CMS endpoints/configuration to Preview repositories, so Preview edits remain isolated.
+- The former Preview environment has been retired. Its URL redirects to production; only `landing-page/main` is authoritative. The repository remains for historical traceability only.
 
 ### Post-merger product focus
 
