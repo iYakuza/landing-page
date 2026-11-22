@@ -739,13 +739,15 @@ test('private draft blob media references are converted to verified repository p
   const blobUrl = 'blob:https://iyakuza.github.io/preview-audio-blob';
   const privatePath = 'cms-data/v1/media/drafts/draft-3010/blocks-audio/audio.mp3';
   const sandbox = vm.createContext({ privateMediaUrlToPath: new Map([[blobUrl, privatePath]]) });
-  vm.runInContext(helper + '; this.serialize = serializePrivateDraftMediaReferences; this.isKnown = isKnownPrivateDraftMediaPath;', sandbox);
+  vm.runInContext(helper + '; this.serialize = serializePrivateDraftMediaReferences; this.isKnown = isKnownPrivateDraftMediaPath; this.resolvePath = privateDraftBlobUrlForPath;', sandbox);
 
   const html = '<div class="ha-audio-block"><figure><audio controls src="' + blobUrl + '"></audio><figcaption>audio.mp3</figcaption></figure></div>';
   const serialized = sandbox.serialize(html);
   assert.ok(serialized.includes(privatePath), 'the uploaded private path must replace the transient blob URL');
   assert.doesNotMatch(serialized, /blob:/, 'DOMPurify must never receive the transient blob URL');
   assert.equal(sandbox.isKnown(privatePath), true, 'only a path mapped from an uploaded blob is trusted');
+  assert.equal(sandbox.resolvePath(privatePath), blobUrl, 'verified paths must resolve back to their live blob URL for rendering');
+  assert.equal(sandbox.resolvePath('cms-data/v1/media/drafts/other-draft/blocks-audio/audio.mp3'), '', 'unmapped private paths must not resolve to a playable URL');
   assert.equal(sandbox.isKnown('cms-data/v1/media/drafts/other-draft/blocks-audio/audio.mp3'), false,
     'a guessed path from another draft must not be trusted');
 
