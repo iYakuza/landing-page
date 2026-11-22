@@ -9,7 +9,7 @@
   const archive = document.getElementById('movement-archive');
   const playlist = document.getElementById('gd-media-playlist');
   const player = document.getElementById('gd-archive-player');
-  const siteBasePath = window.location.pathname.startsWith('/landing-page-preview/') ? '/landing-page-preview' : '/landing-page';
+  const siteBasePath = '/landing-page';
   if (!archive) return;
   const safe = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   function safeMediaUrl(value) {
@@ -23,7 +23,7 @@
     try {
       const url = new URL(raw, window.location.origin);
       return url.origin === window.location.origin &&
-        (url.pathname.startsWith('/landing-page/media/') || url.pathname.startsWith('/landing-page-preview/media/')) ? url.href : '';
+        url.pathname.startsWith('/landing-page/media/') ? url.href : '';
     } catch { return ''; }
   }
   function audioTitle(url, fallback) {
