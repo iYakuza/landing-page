@@ -130,7 +130,7 @@ function extractPlainTextFromRichHtml(source: string) {
     else if (name === "p" && closing) output += "\n\n";
     cursor = close + 1;
   }
-  while (output.endsWith("\\n")) output = output.slice(0, -1);
+  while (output.length && output.charCodeAt(output.length - 1) === 10) output = output.slice(0, -1);
   return output;
 }
 function htmlEscapePreservingEntities(s: string) {
