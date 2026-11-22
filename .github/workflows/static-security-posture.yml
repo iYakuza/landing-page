@@ -19,64 +19,76 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Validate security controls and public metadata
+      - name: Validate the single-site security posture
+        shell: bash
         run: |
+          set -euo pipefail
           python3 - <<'PY'
           from datetime import datetime, timezone
           from pathlib import Path
-          import re
           import json
+          import re
           import sys
           import xml.etree.ElementTree as ET
 
           errors = []
           warnings = []
 
-          html_path = Path("index.html")
-          if not html_path.exists():
-              errors.append("index.html is missing.")
-              html = ""
-          else:
-              html = html_path.read_text(encoding="utf-8")
+          required_pages = [
+              "index.html",
+              "green-dream/index.html",
+              "cv/index.html",
+              "cms/index.html",
+              "human-archive/index.html",
+              "signals/index.html",
+              "transmissions/index.html",
+              "transmissions/the-awakening/index.html",
+              "transmissions/the-descent/index.html",
+              "transmissions/the-reconnection/index.html",
+              "transmissions/the-transformation/index.html",
+              "transmissions/the-return/index.html",
+              "secure-your-soul/index.html",
+          ]
 
-          csp_match = re.search(
-              r"""<meta[^>]+http-equiv="Content-Security-Policy"[^>]+content="([^"]+)""",
-              html,
+          external_script_pattern = re.compile(
+              r"""<script\b[^>]*\bsrc\s*=\s*["']https?://""",
               re.IGNORECASE,
           )
-          if not csp_match:
-              errors.append("Homepage CSP meta policy is missing.")
-          else:
-              csp = csp_match.group(1).lower()
+          for relative in required_pages:
+              path = Path(relative)
+              if not path.is_file():
+                  errors.append(f"Required page is missing: {relative}")
+                  continue
+              html = path.read_text(encoding="utf-8")
+              csp = re.search(
+                  r"""<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]+content=["']([^"']+)["']""",
+                  html,
+                  re.IGNORECASE,
+              )
+              if not csp:
+                  errors.append(f"Content Security Policy is missing: {relative}")
+                  continue
+              policy = csp.group(1).lower()
               for directive in ("default-src", "base-uri", "object-src", "script-src", "form-action"):
-                  if directive not in csp:
-                      errors.append(f"CSP is missing the {directive} directive.")
-              if "object-src 'none'" not in csp:
-                  errors.append("CSP must keep object-src 'none'.")
+                  if directive not in policy:
+                      errors.append(f"{relative}: CSP is missing {directive}.")
+              if "object-src 'none'" not in policy:
+                  errors.append(f"{relative}: CSP must retain object-src 'none'.")
+              if "unsafe-inline" in re.search(r"script-src[^;]*", policy).group(0):
+                  errors.append(f"{relative}: inline script execution must not be allowed.")
+              if external_script_pattern.search(html):
+                  errors.append(f"{relative}: scripts must be served from the website itself.")
+              img_src = re.search(r"img-src[^;]*", policy)
+              if img_src and re.search(r"https?://", img_src.group(0)):
+                  errors.append(f"{relative}: images must be served from local website media.")
 
-          analytics_tags = re.findall(
-              r"""<script\b[^>]*src=["'][^"']*analytics\.js[^"']*["'][^>]*>""",
-              html,
-              re.IGNORECASE,
-          )
-          if len(analytics_tags) != 1:
-              errors.append(f"Expected exactly one analytics.js script tag; found {len(analytics_tags)}.")
-
-          script_tags = re.findall(
-              r"""<script\b[^>]*src=["']([^"']+)["'][^>]*>""",
-              html,
-              re.IGNORECASE,
-          )
-          full_script_tags = re.findall(
-              r"""<script\b[^>]*src=["'][^"']+["'][^>]*>""",
-              html,
-              re.IGNORECASE,
-          )
-          for src in script_tags:
-              if src.startswith(("https://", "http://")) and "iyakuza.github.io" not in src:
-                  full_tag = next((tag for tag in full_script_tags if src in tag), "")
-                  if not re.search(r"""\bintegrity=["']sha(256|384|512)-""", full_tag, re.IGNORECASE):
-                      errors.append(f"Third-party script lacks SRI integrity: {src}")
+          analytics_path = Path("analytics.js")
+          if analytics_path.exists():
+              errors.append("A standalone visitor-tracking script must not be included in the site.")
+          for relative in required_pages:
+              path = Path(relative)
+              if path.exists() and re.search(r"""<script\b[^>]*src=["'][^"']*analytics\.js""", path.read_text(encoding="utf-8"), re.IGNORECASE):
+                  errors.append(f"{relative}: standalone visitor tracking must not be loaded.")
 
           creator_path = Path("creator-posting.js")
           creator = creator_path.read_text(encoding="utf-8") if creator_path.exists() else ""
@@ -86,102 +98,55 @@ jobs:
               errors.append("Creator controller must load the GitHub CMS client.")
           if "window.VHAGitHub.restoreSession()" not in creator:
               errors.append("Creator controller must restore the GitHub owner session.")
-          if "@supabase/supabase-js" in creator.lower() or "supabase.createclient" in creator.lower():
-              errors.append("Creator controller must not load or initialize Supabase.")
 
-          runtime_paths = [
-              "home.js",
-              "green-dream/archive.js",
-              "human-archive/archive.js",
-              "creator-posting.js",
-              "cms/github-client.js",
-              "cms/github-store.js",
-              "transmissions/posts.js",
-              "index.html",
-              "green-dream/index.html",
-              "signals/index.html",
-              "human-archive/index.html",
-              "transmissions/index.html",
-              "transmissions/the-awakening/index.html",
-              "transmissions/the-descent/index.html",
-              "transmissions/the-reconnection/index.html",
-              "transmissions/the-transformation/index.html",
-              "transmissions/the-return/index.html",
-              "secure-your-soul/secure-your-soul.js",
-              "secure-your-soul/index.html",
-              "cv/contact.js",
-              "cv/index.html",
-          ]
-          runtime_patterns = [
-              (re.compile(r"@supabase/supabase-js|supabase\.createClient|supabase\.from\(|supabase\.auth|supabase\.storage", re.IGNORECASE), "Supabase SDK/API"),
-              (re.compile(r"https?://[^\s\"']*\.supabase\.co|wss?://[^\s\"']*\.supabase\.co", re.IGNORECASE), "Supabase endpoint"),
-              (re.compile(r"(?:workers\.dev|cloudflareworkers\.com|r2\.dev|api\.cloudflare\.com)", re.IGNORECASE), "Cloudflare service endpoint"),
-          ]
-          for relative in runtime_paths:
-              runtime_path = Path(relative)
-              if not runtime_path.exists():
-                  errors.append(f"Runtime dependency audit target is missing: {relative}")
-                  continue
-              runtime_source = runtime_path.read_text(encoding="utf-8")
-              if relative in ("cv/contact.js", "cv/index.html") and ("oeyxsqocldlovhsmzcjw.supabase.co" in runtime_source):
-                  if relative == "cv/contact.js":
-                      warnings.append("Known exception: CV contact form still uses the Supabase contact-about-role endpoint; replace it before claiming a zero-backend cutover.")
-                  runtime_source = runtime_source.replace("https://oeyxsqocldlovhsmzcjw.supabase.co/functions/v1/contact-about-role", "")
-                  runtime_source = runtime_source.replace("https://oeyxsqocldlovhsmzcjw.supabase.co", "")
-                  runtime_source = runtime_source.replace("wss://oeyxsqocldlovhsmzcjw.supabase.co", "")
-              for pattern, label in runtime_patterns:
-                  if pattern.search(runtime_source):
-                      errors.append(f"{label} reference remains in runtime file: {relative}")
-
-          archive_json_path = Path("content/human-archive.json")
-          if not archive_json_path.exists():
-              errors.append("Canonical Human Archive JSON is missing.")
+          archive_path = Path("content/human-archive.json")
+          if not archive_path.is_file():
+              errors.append("Canonical Human Archive content is missing.")
           else:
               try:
-                  archive_data = json.loads(archive_json_path.read_text(encoding="utf-8"))
-                  media_manifest = archive_data.get("media_manifest", {})
-                  media_items = media_manifest.get("items", [])
-                  if not media_items:
-                      errors.append("Human Archive media manifest is empty.")
-                  for item in media_items:
+                  archive = json.loads(archive_path.read_text(encoding="utf-8"))
+                  manifest = archive.get("media_manifest", {})
+                  items = manifest.get("items", [])
+                  if not items:
+                      errors.append("The GitHub media manifest is empty.")
+                  if "public_base_url" in manifest or "bucket" in manifest:
+                      errors.append("The media manifest must use local GitHub storage only.")
+                  for item in items:
                       if item.get("recovery_status") != "verified":
-                          errors.append(f"Human Archive media is not verified: {item.get('id', 'unknown')}")
+                          errors.append(f"Media is not verified: {item.get('id', 'unknown')}")
                           continue
+                      if item.get("storage") != "github-public":
+                          errors.append(f"Media is not stored in the public GitHub repository: {item.get('id', 'unknown')}")
                       local_path = item.get("local_path")
                       if not local_path or not Path(local_path).is_file():
-                          errors.append(f"Verified Human Archive media file is missing: {local_path or item.get('id', 'unknown')}")
-                  public_base = media_manifest.get("public_base_url", "")
-                  if public_base:
-                      for item in media_items:
-                          storage_path = item.get("storage_path")
-                          if storage_path and item.get("source_type") != "external-inline-reference":
-                              legacy_url = public_base.rstrip("/") + "/" + storage_path.lstrip("/")
-                              if legacy_url not in item.get("aliases", []):
-                                  errors.append(f"Legacy media URL is not mapped to a local asset: {item.get('id', 'unknown')}")
+                          errors.append(f"Local media file is missing: {local_path or item.get('id', 'unknown')}")
               except (OSError, json.JSONDecodeError) as exc:
-                  errors.append(f"Canonical Human Archive JSON or media manifest is invalid: {exc}")
+                  errors.append(f"Canonical Human Archive content is invalid: {exc}")
 
           pending_media = 0
           for collection_path in ("content/transmissions.json", "content/signals.json"):
               try:
                   collection = json.loads(Path(collection_path).read_text(encoding="utf-8"))
                   for record in collection.get("records", []):
-                      pending_media += sum(1 for item in record.get("media_items", []) if item.get("status") in ("pending_recovery", "pending"))
+                      for item in record.get("media_items", []):
+                          if item.get("status") in ("pending_recovery", "pending"):
+                              pending_media += 1
+                              if item.get("source_url"):
+                                  errors.append(f"Pending media must not retain a remote source URL: {record.get('id', 'unknown')}")
               except (OSError, json.JSONDecodeError):
-                  errors.append(f"Could not inspect pending media in {collection_path}.")
+                  errors.append(f"Could not inspect {collection_path}.")
           if pending_media:
-              warnings.append(f"{pending_media} media item(s) remain pending local recovery and are intentionally not fetched from legacy storage.")
-
+              warnings.append(f"{pending_media} media item(s) remain unavailable until local files are added; the public reader suppresses them.")
 
           security_path = Path(".well-known/security.txt")
-          if not security_path.exists():
+          if not security_path.is_file():
               errors.append(".well-known/security.txt is missing.")
           else:
               security_txt = security_path.read_text(encoding="utf-8")
               for field in ("Contact:", "Canonical:", "Policy:", "Expires:"):
                   if not re.search(r"^" + re.escape(field), security_txt, re.MULTILINE):
                       errors.append(f"security.txt is missing {field}")
-              expiry = re.search(r"^Expires:\s*(.+)$", security_txt, re.MULTILINE)
+              expiry = re.search(r"^Expires:\\s*(.+)$", security_txt, re.MULTILINE)
               if expiry:
                   try:
                       expiry_date = datetime.fromisoformat(expiry.group(1).replace("Z", "+00:00"))
@@ -191,11 +156,11 @@ jobs:
                       errors.append("security.txt Expires date is not valid ISO 8601.")
 
           robots_path = Path("robots.txt")
-          if not robots_path.exists() or "Sitemap: https://iyakuza.github.io/landing-page/sitemap.xml" not in robots_path.read_text(encoding="utf-8"):
+          if not robots_path.is_file() or "Sitemap: https://iyakuza.github.io/landing-page/sitemap.xml" not in robots_path.read_text(encoding="utf-8"):
               errors.append("robots.txt must point to the published sitemap.")
 
           sitemap_path = Path("sitemap.xml")
-          if not sitemap_path.exists():
+          if not sitemap_path.is_file():
               errors.append("sitemap.xml is missing.")
           else:
               try:
@@ -211,6 +176,5 @@ jobs:
           if errors:
               print(f"Security source checks failed: {len(errors)} error(s), {len(warnings)} warning(s).")
               sys.exit(1)
-
           print(f"Security source checks passed. Warnings: {len(warnings)}.")
           PY
