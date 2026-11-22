@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T17:51:22.255780Z",
-  "last_processed_sha": "f1113b7fccbdc5a20fc1a25100b938400a022251",
+  "updated_at": "2026-11-22T17:52:33.994035Z",
+  "last_processed_sha": "e998d192d0057adcfb827215e63760e165796038",
   "entries": [
+    {
+      "id": "e998d192d0057adcfb827215e63760e165796038",
+      "timestamp": "2026-11-22T18:52:17+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together ci: handle absent CSP script directive safely. It updates static-security-posture.yml.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/static-security-posture.yml"
+      ],
+      "commits": [
+        {
+          "message": "ci: handle absent CSP script directive safely",
+          "url": "https://github.com/iYakuza/landing-page/commit/e998d192d0057adcfb827215e63760e165796038",
+          "files": [
+            ".github/workflows/static-security-posture.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "f1113b7fccbdc5a20fc1a25100b938400a022251",
       "timestamp": "2026-11-22T18:51:06+01:00",
