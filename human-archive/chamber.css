@@ -1,5 +1,5 @@
 /* Scoped Human Archive chamber styles. Loaded only when the shared editor is needed. */
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap');
+500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap');
 .ha-record-chamber{--bg:#07090c;--panel:#0c1116;--ink:#e5e8e7;--muted:#89969a;--line:rgba(133,164,171,.22);--acid:#b9d77a;--jade:#83b96a;color-scheme:dark}
 .ha-image-viewer{color-scheme:dark}
 .ha-image-viewer{
@@ -14,12 +14,12 @@
  border-bottom:1px solid rgba(145,171,171,.2);background:#0b1115;
 }
 .ha-image-viewer-caption{
- flex:1;min-width:0;color:#c7d1cc;font:9px/1.6 'DM Mono',monospace;letter-spacing:.06em;overflow-wrap:anywhere;
+ flex:1;min-width:0;color:#c7d1cc;font:9px/1.6 ui-monospace,monospace;letter-spacing:.06em;overflow-wrap:anywhere;
 }
 .ha-image-viewer-control{
  display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:7px 10px;
  border:1px solid rgba(184,166,126,.32);background:rgba(184,166,126,.06);color:#c8bd9a;
- font:8px 'DM Mono',monospace;letter-spacing:.06em;text-decoration:none;white-space:nowrap;cursor:pointer;
+ font:8px ui-monospace,monospace;letter-spacing:.06em;text-decoration:none;white-space:nowrap;cursor:pointer;
 }
 .ha-image-viewer-control:hover,.ha-image-viewer-control:focus-visible{
  border-color:rgba(184,166,126,.75);background:rgba(184,166,126,.13);outline:none;
@@ -45,7 +45,7 @@
 }
 .ha-favorite-toggle:disabled{opacity:.55;cursor:wait}
 .ha-favorite-mark{
-  min-height:28px;max-width:170px;padding:6px 8px;font:8px/1.2 'DM Mono',monospace;
+  min-height:28px;max-width:170px;padding:6px 8px;font:8px/1.2 ui-monospace,monospace;
   letter-spacing:.08em;white-space:nowrap;pointer-events:none;
 }
 .ha-favorite-toggle[hidden],.ha-favorite-mark[hidden]{display:none!important}
@@ -56,7 +56,7 @@
 .ha-entry-edit,.ha-entry-chamber{
   display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:8px 12px;
   border:1px solid rgba(185,215,122,.38);background:rgba(185,215,122,.055);
-  color:#c3d58d!important;text-decoration:none!important;font:9px/1.2 'DM Mono',monospace;
+  color:#c3d58d!important;text-decoration:none!important;font:9px/1.2 ui-monospace,monospace;
   letter-spacing:.08em;cursor:pointer
 }
 .ha-entry-chamber{border-color:rgba(143,190,188,.4);color:#c1d5d1!important}
@@ -72,34 +72,34 @@
   radial-gradient(ellipse at 50% 0%,rgba(34,74,47,.32),transparent 44%),#050a08}
 .ha-chamber-header{position:relative;z-index:2;flex:0 0 auto;border-bottom:1px solid rgba(185,215,122,.2);background:rgba(5,10,8,.96)}
 .ha-chamber-topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:48px;padding:6px clamp(14px,3vw,38px);border-bottom:1px solid rgba(145,171,171,.12)}
-.ha-chamber-mark,.ha-chamber-meta{color:#98aa9b;font:9px/1.6 'DM Mono',monospace;letter-spacing:.13em}
+.ha-chamber-mark,.ha-chamber-meta{color:#98aa9b;font:9px/1.6 ui-monospace,monospace;letter-spacing:.13em}
 .ha-chamber-close{
   min-height:34px;padding:7px 11px;border:1px solid rgba(185,215,122,.4);background:transparent;
-  color:#d8e4d8;font:9px 'DM Mono',monospace;letter-spacing:.1em;cursor:pointer
+  color:#d8e4d8;font:9px ui-monospace,monospace;letter-spacing:.1em;cursor:pointer
 }
 .ha-chamber-close:hover,.ha-chamber-close:focus-visible{background:#b9d77a;color:#071009;outline:2px solid #b9d77a;outline-offset:2px}
 .ha-chamber-heading{width:min(1500px,94vw);margin:0 auto;padding:16px 0 19px}
 .ha-chamber-meta{margin:0 0 9px;color:#afc18e}
-.ha-chamber-heading h2{margin:0;color:#edf4e8;font:500 clamp(27px,4.2vw,46px)/1.08 'Playfair Display',Georgia,serif;letter-spacing:-.035em}
+.ha-chamber-heading h2{margin:0;color:#edf4e8;font:500 clamp(27px,4.2vw,46px)/1.08 Georgia,Georgia,serif;letter-spacing:-.035em}
 .ha-chamber-main{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 clamp(14px,3vw,38px) 42px}
 .ha-chamber-share-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;width:min(1500px,100%);margin:0 auto;padding:13px 0 17px;border-bottom:1px solid rgba(145,171,171,.16)}
 .ha-chamber-share{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
 .ha-chamber-share-action{
   display:inline-flex;align-items:center;justify-content:center;min-height:32px;padding:7px 10px;
   border:1px solid rgba(143,171,170,.28);background:rgba(15,25,19,.7);color:#c7d5c9;
-  font:8px/1.2 'DM Mono',monospace;letter-spacing:.07em;text-decoration:none;white-space:nowrap;cursor:pointer
+  font:8px/1.2 ui-monospace,monospace;letter-spacing:.07em;text-decoration:none;white-space:nowrap;cursor:pointer
 }
 .ha-chamber-share-action:hover,.ha-chamber-share-action:focus-visible{
   border-color:#b9d77a;background:rgba(185,215,122,.1);color:#d8ff3e;outline:1px solid #b9d77a;outline-offset:1px
 }
-.ha-chamber-share-status{min-height:1.2em;color:#9fb38d;font:8px/1.5 'DM Mono',monospace;letter-spacing:.08em}
+.ha-chamber-share-status{min-height:1.2em;color:#9fb38d;font:8px/1.5 ui-monospace,monospace;letter-spacing:.08em}
 .ha-chamber-grid{
   display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,.9fr) minmax(0,1.55fr);
   align-items:start;gap:12px;width:min(1500px,100%);margin:22px auto 0
 }
 .ha-chamber-panel{min-width:0;padding:17px;border:1px solid rgba(143,171,170,.22);background:linear-gradient(145deg,rgba(15,29,22,.9),rgba(7,13,10,.96))}
 .ha-chamber-panel-heading,.ha-chamber-output-label{
-  margin:0 0 13px;color:#b9d77a;font:9px/1.5 'DM Mono',monospace;letter-spacing:.13em
+  margin:0 0 13px;color:#b9d77a;font:9px/1.5 ui-monospace,monospace;letter-spacing:.13em
 }
 .ha-chamber-note{margin:0;color:#a7b7ad;font:12px/1.8 Georgia,'Times New Roman',serif;overflow-wrap:anywhere}
 .ha-chamber-output{border-color:rgba(185,215,122,.32);background:linear-gradient(145deg,rgba(20,35,24,.94),rgba(6,12,8,.98))}
@@ -115,9 +115,9 @@
 .ha-chamber-audio-list{grid-template-columns:1fr}
 .ha-chamber-audio-list .ha-local-media audio{width:100%;max-width:100%}
 .ha-chamber-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;width:min(1500px,100%);margin:24px auto 0;padding-top:14px;border-top:1px solid rgba(145,171,171,.15)}
-.ha-chamber-source{color:#b9d77a;font:8px 'DM Mono',monospace;letter-spacing:.1em;text-decoration:none}
+.ha-chamber-source{color:#b9d77a;font:8px ui-monospace,monospace;letter-spacing:.1em;text-decoration:none}
 .ha-chamber-source:hover{text-decoration:underline}
-.ha-chamber-footer-note{color:#74877c;font:8px 'DM Mono',monospace;letter-spacing:.1em}
+.ha-chamber-footer-note{color:#74877c;font:8px ui-monospace,monospace;letter-spacing:.1em}
 @media(max-width:1050px){
   .ha-chamber-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .ha-chamber-output{grid-column:1/-1}
@@ -140,7 +140,7 @@
 .ha-chamber-layout-label{
   width:min(1500px,100%);margin:20px auto 0;padding:0 0 8px;
   border-bottom:1px solid rgba(185,215,122,.18);color:#a8bf98;
-  font:9px/1.5 'DM Mono',monospace;letter-spacing:.13em
+  font:9px/1.5 ui-monospace,monospace;letter-spacing:.13em
 }
 
 
@@ -154,7 +154,7 @@
 }
 .ha-entry-quick-actions .ha-entry-chamber{
   min-height:32px;padding:7px 10px;border:1px solid rgba(143,190,188,.4);
-  background:rgba(143,190,188,.06);color:#c1d5d1;font:8px/1.2 'DM Mono',monospace;
+  background:rgba(143,190,188,.06);color:#c1d5d1;font:8px/1.2 ui-monospace,monospace;
   letter-spacing:.08em;cursor:pointer
 }
 .ha-entry-quick-actions .ha-entry-chamber:hover,.ha-entry-quick-actions .ha-entry-chamber:focus-visible{
@@ -176,7 +176,7 @@
 .ha-chamber-topbar-actions{display:flex;align-items:center;gap:8px}
 .ha-chamber-edit,.ha-chamber-close{
   min-height:34px;padding:7px 11px;border:1px solid rgba(185,215,122,.4);
-  background:transparent;color:#d8e4d8;font:9px 'DM Mono',monospace;letter-spacing:.1em;cursor:pointer
+  background:transparent;color:#d8e4d8;font:9px ui-monospace,monospace;letter-spacing:.1em;cursor:pointer
 }
 .ha-chamber-edit{border-color:rgba(143,190,188,.48);color:#c1d5d1}
 .ha-chamber-edit:hover,.ha-chamber-edit:focus-visible,.ha-chamber-close:hover,.ha-chamber-close:focus-visible{
@@ -194,10 +194,10 @@
 .ha-chamber-editor-actions{display:flex;align-items:center;gap:8px;grid-column:1/-1;flex-wrap:wrap}
 .ha-chamber-save,.ha-chamber-cancel{
   min-height:36px;padding:8px 13px;border:1px solid rgba(185,215,122,.48);
-  background:rgba(185,215,122,.08);color:#d8e4d8;font:9px 'DM Mono',monospace;letter-spacing:.08em;cursor:pointer
+  background:rgba(185,215,122,.08);color:#d8e4d8;font:9px ui-monospace,monospace;letter-spacing:.08em;cursor:pointer
 }
 .ha-chamber-save{border-color:#b9d77a;background:rgba(185,215,122,.16);color:#e3f2c7}
-.ha-chamber-delete-draft{min-height:36px;padding:8px 13px;border:1px solid rgba(220,112,112,.55);background:rgba(220,112,112,.08);color:#efb0b0;font:9px 'DM Mono',monospace;letter-spacing:.08em;cursor:pointer}
+.ha-chamber-delete-draft{min-height:36px;padding:8px 13px;border:1px solid rgba(220,112,112,.55);background:rgba(220,112,112,.08);color:#efb0b0;font:9px ui-monospace,monospace;letter-spacing:.08em;cursor:pointer}
 .ha-chamber-delete-draft:hover,.ha-chamber-delete-draft:focus-visible{background:#a33b3b;color:#fff;outline:2px solid #d66;outline-offset:2px}
 .ha-chamber-delete-draft:disabled{opacity:.55;cursor:wait}
 .ha-chamber-save:hover,.ha-chamber-cancel:hover,.ha-chamber-save:focus-visible,.ha-chamber-cancel:focus-visible{
@@ -300,7 +300,7 @@
 /* Original WordPress source link at the foot of each archive record card. */
 .ha-record-source{
  align-self:flex-start;margin:0;padding:10px 12px;border:1px solid rgba(145,171,171,.2);border-top:0;
- color:#b9d77a;font:8px/1.4 'DM Mono',monospace;letter-spacing:.1em;text-decoration:none;
+ color:#b9d77a;font:8px/1.4 ui-monospace,monospace;letter-spacing:.1em;text-decoration:none;
 }
 .ha-record-source:hover,.ha-record-source:focus-visible{
  border-color:rgba(185,215,122,.6);background:rgba(185,215,122,.06);color:#d8ff3e;outline:1px solid #b9d77a;outline-offset:1px;
@@ -317,10 +317,10 @@
  display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0
 }
 .ha-chamber-title-row{width:min(1500px,100%);margin:20px auto 0;padding:0 0 13px;border-bottom:1px solid rgba(185,215,122,.18)}
-.ha-chamber-title-row h2{min-width:0;flex:1 1 auto;margin:0;color:#edf4e8;font:500 clamp(27px,4.2vw,46px)/1.08 'Playfair Display',Georgia,serif;letter-spacing:-.035em;overflow-wrap:anywhere}
+.ha-chamber-title-row h2{min-width:0;flex:1 1 auto;margin:0;color:#edf4e8;font:500 clamp(27px,4.2vw,46px)/1.08 Georgia,Georgia,serif;letter-spacing:-.035em;overflow-wrap:anywhere}
 .ha-chamber-expand-all{
  flex:0 0 auto;min-height:34px;padding:8px 11px;border:1px solid rgba(185,215,122,.4);
- background:rgba(185,215,122,.06);color:#cfe2aa;font:8px/1.2 'DM Mono',monospace;
+ background:rgba(185,215,122,.06);color:#cfe2aa;font:8px/1.2 ui-monospace,monospace;
  letter-spacing:.1em;white-space:nowrap;cursor:pointer
 }
 .ha-chamber-expand-all:hover,.ha-chamber-expand-all:focus-visible{
@@ -334,7 +334,7 @@
 .ha-chamber-disclosure>summary::-webkit-details-marker{display:none}
 .ha-chamber-disclosure>summary::before{
  content:'+';display:inline-grid;place-items:center;flex:0 0 18px;width:18px;height:18px;
- border:1px solid rgba(185,215,122,.3);color:#b9d77a;font:12px/1 'DM Mono',monospace
+ border:1px solid rgba(185,215,122,.3);color:#b9d77a;font:12px/1 ui-monospace,monospace
 }
 .ha-chamber-disclosure[open]>summary::before{content:'−';background:rgba(185,215,122,.08)}
 .ha-chamber-disclosure>summary:hover,.ha-chamber-disclosure>summary:focus-visible{
@@ -365,15 +365,15 @@
  padding:9px;border:1px solid rgba(143,171,170,.18);background:rgba(2,8,5,.45)
 }
 .ha-chamber-media-editor-name{
- min-width:0;color:#d5e2d7;font:10px/1.5 'DM Mono',monospace;overflow-wrap:anywhere
+ min-width:0;color:#d5e2d7;font:10px/1.5 ui-monospace,monospace;overflow-wrap:anywhere
 }
 .ha-chamber-media-editor-state{
- color:#91a891;font:8px/1.4 'DM Mono',monospace;letter-spacing:.06em;text-align:right
+ color:#91a891;font:8px/1.4 ui-monospace,monospace;letter-spacing:.06em;text-align:right
 }
 .ha-chamber-media-remove,.ha-chamber-upload-label{
  display:inline-flex;align-items:center;justify-content:center;min-height:31px;padding:7px 9px;
  border:1px solid rgba(143,190,188,.34);background:rgba(143,190,188,.055);color:#c1d5d1;
- font:8px/1.2 'DM Mono',monospace;letter-spacing:.08em;cursor:pointer
+ font:8px/1.2 ui-monospace,monospace;letter-spacing:.08em;cursor:pointer
 }
 .ha-chamber-media-remove:hover,.ha-chamber-media-remove:focus-visible,
 .ha-chamber-upload-label:hover,.ha-chamber-upload-label:focus-within{
@@ -401,16 +401,16 @@
 
 /* Shared rich-text editor in the Human Archive chamber. */
 .ha-rich-editor-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.ha-rich-editor-hint{color:#8fa99a;font:8px/1.5 'DM Mono',monospace;letter-spacing:.1em}
+.ha-rich-editor-hint{color:#8fa99a;font:8px/1.5 ui-monospace,monospace;letter-spacing:.1em}
 .ha-chamber-focus-toggle{
  min-width:36px;min-height:32px;padding:6px 10px;border:1px solid rgba(185,215,122,.48);
- background:rgba(185,215,122,.07);color:#d8ff3e;font:700 12px/1 'DM Mono',monospace;cursor:pointer
+ background:rgba(185,215,122,.07);color:#d8ff3e;font:700 12px/1 ui-monospace,monospace;cursor:pointer
 }
 .ha-chamber-focus-toggle[aria-pressed="true"]{background:#b9d77a;color:#071009}
 .ha-rich-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:5px;padding:8px;border:1px solid rgba(185,215,122,.2);background:#09130c}
 .ha-rich-toolbar button{
  min-width:34px;min-height:31px;padding:6px 9px;border:1px solid rgba(185,215,122,.24);
- background:#0b170e;color:#d3e2d3;font:9px 'DM Mono',monospace;cursor:pointer
+ background:#0b170e;color:#d3e2d3;font:9px ui-monospace,monospace;cursor:pointer
 }
 .ha-rich-toolbar button:hover,.ha-rich-toolbar button:focus-visible{border-color:#b9d77a;color:#eaff9b;outline:1px solid #b9d77a;outline-offset:1px}
 .ha-rich-content{
@@ -510,19 +510,19 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
 /* Transmission metadata editor — title, public slug, category and excerpt. */
 .ha-chamber-metadata-panel{grid-column:1/-1}
 .ha-chamber-metadata-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.ha-chamber-metadata-field{display:flex;flex-direction:column;gap:6px;min-width:0;color:#aebfae;font:8px/1.5 'DM Mono',monospace;letter-spacing:.1em}
+.ha-chamber-metadata-field{display:flex;flex-direction:column;gap:6px;min-width:0;color:#aebfae;font:8px/1.5 ui-monospace,monospace;letter-spacing:.1em}
 .ha-chamber-metadata-field:last-child{grid-column:1/-1}
 .ha-chamber-meta-input{min-height:42px;padding:10px;font-size:11px;letter-spacing:normal}
 .ha-chamber-metadata-field textarea.ha-chamber-meta-input{min-height:86px;resize:vertical}
-.ha-chamber-metadata-note{margin:12px 0 0;color:#8f9f91;font:8px/1.6 'DM Mono',monospace;letter-spacing:.08em}
+.ha-chamber-metadata-note{margin:12px 0 0;color:#8f9f91;font:8px/1.6 ui-monospace,monospace;letter-spacing:.08em}
 @media(max-width:700px){.ha-chamber-metadata-grid{grid-template-columns:1fr}.ha-chamber-metadata-field:last-child{grid-column:auto}}
 /* Publication control in the Transmission record details panel. */
 .ha-chamber-metadata-field select.ha-chamber-meta-input{appearance:auto;cursor:pointer}
 
 /* Admin entry point for creating a new Human Archive-backed Transmission. */
-.ha-new-transmission{min-height:42px;padding:0 14px;font:9px 'DM Mono',monospace;letter-spacing:1px;white-space:nowrap}
+.ha-new-transmission{min-height:42px;padding:0 14px;font:9px ui-monospace,monospace;letter-spacing:1px;white-space:nowrap}
 .ha-new-transmission:disabled{opacity:.55;cursor:wait}
-.ha-create-status{color:var(--muted);font:9px 'DM Mono',monospace;letter-spacing:.6px;min-width:0}
+.ha-create-status{color:var(--muted);font:9px ui-monospace,monospace;letter-spacing:.6px;min-width:0}
 
 /* Keep the editor overlay independent of the host page's box model. */
 .ha-record-chamber,.ha-record-chamber *,.ha-image-viewer,.ha-image-viewer *{box-sizing:border-box}
@@ -540,7 +540,7 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
 .ha-record-chamber[open] .ha-rich-toolbar button{width:100%;min-width:0;min-height:30px;padding:5px 3px;text-align:center;white-space:normal;font-size:8px}
 .ha-record-chamber[open] .ha-rich-toolbar .ha-rich-toolbar-category{
  grid-column:1/-1;padding:7px 2px 2px;border-bottom:1px solid rgba(185,215,122,.2);
- color:#a8bf98;font:7px/1.2 'DM Mono',monospace;letter-spacing:.14em;text-align:left
+ color:#a8bf98;font:7px/1.2 ui-monospace,monospace;letter-spacing:.14em;text-align:left
 }
 .ha-record-chamber[open] .ha-rich-toolbar .ha-rich-toolbar-category:not(:first-child){margin-top:3px}
 .ha-record-chamber[open] .ha-rich-toolbar .ha-chamber-focus-toggle{
@@ -601,7 +601,7 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
  max-width:none!important;margin:0!important;padding:8px 12px!important;
  visibility:visible!important;opacity:1!important;white-space:nowrap!important;
  color:#d8e4d8!important;background:#07100b!important;border:1px solid rgba(185,215,122,.55)!important;
- font:9px/1.2 'DM Mono',monospace!important;letter-spacing:.08em!important;
+ font:9px/1.2 ui-monospace,monospace!important;letter-spacing:.08em!important;
 }
 .ha-chamber-share-row>.ha-chamber-topbar-actions>.ha-chamber-edit{color:#c1d5d1!important;border-color:rgba(143,190,188,.65)!important}
 .ha-chamber-share-row>.ha-chamber-topbar-actions>.ha-chamber-save{border-color:#b9d77a!important;background:rgba(185,215,122,.16)!important;color:#e3f2c7!important}
@@ -690,7 +690,7 @@ body.ha-writing-focus .ha-chamber-editor-actions{position:fixed;right:18px;botto
  align-items:center!important;justify-content:center!important;min-width:max-content!important;
  min-height:36px!important;margin:0!important;padding:8px 12px!important;
  color:#d8e4d8!important;background:#07100b!important;border:1px solid rgba(185,215,122,.55)!important;
- font:9px/1.2 'DM Mono',monospace!important;letter-spacing:.08em!important;
+ font:9px/1.2 ui-monospace,monospace!important;letter-spacing:.08em!important;
  visibility:visible!important;opacity:1!important;white-space:nowrap!important
 }
 .ha-chamber-share-row>.ha-chamber-topbar-actions>.ha-chamber-edit{
