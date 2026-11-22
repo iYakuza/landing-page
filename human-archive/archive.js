@@ -1011,6 +1011,11 @@ function shouldRunTransmissionDraftAutosave(record,enabled,stopped=false){
 function transmissionDraftAutosaveSignature(state){
  return JSON.stringify({metadata:state.metadata,row:{...state.row,updated_at:null},mediaItems:state.mediaItems,blocks:state.blocks});
 }
+function isTransmissionDraftSnapshotUnchanged(draft,metadata,content){
+ if(!draft||typeof draft!=='object')return false;
+ return JSON.stringify(draft.metadata||{})===JSON.stringify(metadata||{})&&
+  JSON.stringify(draft.content||{})===JSON.stringify(content||{});
+}
 function chamberUploadToken(){
  try{if(window.crypto?.randomUUID)return window.crypto.randomUUID();}catch{}
  return Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
@@ -1372,6 +1377,7 @@ if(!readOnly&&typeof window.VHABlockEditor?.mountBlockEditor!=='function'){
    slug:String(recordMetadataInputs.slug.value).trim().toLowerCase(),
    category:String(recordMetadataInputs.category.value).trim().toUpperCase(),
    excerpt:String(recordMetadataInputs.excerpt.value).trim(),
+   status:String(recordMetadataInputs.status.value||'draft').trim().toLowerCase(),
    media_width:Math.max(20,Math.min(100,Number(recordMetadataInputs.mediaWidth.value)||100))
   };
   if(metadata.title.length>180)throw new Error('Title must contain 180 characters or fewer.');
@@ -1491,6 +1497,12 @@ if(!readOnly&&typeof window.VHABlockEditor?.mountBlockEditor!=='function'){
  if(!readOnly&&record.source_type==='transmission'){
   grid.addEventListener('input',scheduleDraftAutosave);
   grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});
+ }
+ // Treat the editor's initial state as the baseline. Opening Redesign alone must
+ // not create a private commit when the owner immediately chooses Save.
+ if(draftAutosaveEnabled&&!readOnly){
+  try{draftAutosaveLastSignature=transmissionDraftAutosaveSignature(buildDraftAutosaveState());}
+  catch(error){console.warn('Initial private Transmission autosave baseline could not be initialized:',error);}
  }
  const flushDraftAutosave=async()=>{
   if(draftAutosaveConflict)return false;
@@ -1635,11 +1647,7 @@ if(!readOnly&&typeof window.VHABlockEditor?.mountBlockEditor!=='function'){
     const flushed=await flushDraftAutosave();
     if(flushed===false||draftAutosaveConflict||chamberSaveConflict)throw new Error('The private draft changed in another session. Reload before continuing.');
     const state=buildDraftAutosaveState();
-    const metadata={
-     title:state.metadata.title,slug:state.metadata.slug,category:state.metadata.category,
-     excerpt:state.metadata.excerpt,status:String(recordMetadataInputs.status.value).trim().toLowerCase(),
-     media_width:state.metadata.media_width
-    };
+    const metadata={...state.metadata};
      if(!['draft','published'].includes(metadata.status))throw new Error('Choose a valid publication status.');
      if(metadata.status==='published'){
       if(!metadata.title)throw new Error('Add a title before publishing.');
@@ -1657,7 +1665,12 @@ if(!readOnly&&typeof window.VHABlockEditor?.mountBlockEditor!=='function'){
       output_media:state.row.output_media,blocks:state.blocks,media_items:state.mediaItems
      }
     };
-    const saved=await window.VHACMSStore.saveDraft(draftToSave,record._repoCommitSha||current._repoCommitSha);
+    const expectedDraftHead=record._repoCommitSha||current._repoCommitSha;
+    if(record._repoCommitSha&&current._repoCommitSha!==record._repoCommitSha)throw new Error('The private CMS repository changed. Reload before saving.');
+    const draftUnchanged=isTransmissionDraftSnapshotUnchanged(current,draftToSave.metadata,draftToSave.content);
+    const saved=draftUnchanged
+     ?{draft:current,commitSha:current._repoCommitSha}
+     :await window.VHACMSStore.saveDraft(draftToSave,expectedDraftHead);
     record._repoCommitSha=saved.commitSha;record._draftData=saved.draft;record.updated_at=saved.draft.updated_at;
     // Treat this explicit save as the latest autosaved snapshot. Closing the
     // Chamber must not immediately write the same draft a second time.
