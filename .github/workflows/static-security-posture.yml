@@ -25,6 +25,7 @@ jobs:
           from datetime import datetime, timezone
           from pathlib import Path
           import re
+          import json
           import sys
           import xml.etree.ElementTree as ET
 
@@ -79,12 +80,98 @@ jobs:
 
           creator_path = Path("creator-posting.js")
           creator = creator_path.read_text(encoding="utf-8") if creator_path.exists() else ""
-          if "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" not in creator:
-              errors.append("Creator SDK must remain pinned to an explicit Supabase JS version.")
-          if "crossOrigin='anonymous'" not in creator or "referrerPolicy='no-referrer'" not in creator:
-              errors.append("Creator SDK loader must set anonymous CORS and no-referrer policy.")
-          if "integrity=" not in creator:
-              warnings.append("Creator SDK is dynamically loaded from a pinned CDN version but still lacks a verified SRI hash.")
+          if not creator:
+              errors.append("Creator posting controller is missing.")
+          if "/landing-page/cms/github-client.js" not in creator:
+              errors.append("Creator controller must load the GitHub CMS client.")
+          if "window.VHAGitHub.restoreSession()" not in creator:
+              errors.append("Creator controller must restore the GitHub owner session.")
+          if "@supabase/supabase-js" in creator.lower() or "supabase.createclient" in creator.lower():
+              errors.append("Creator controller must not load or initialize Supabase.")
+
+          runtime_paths = [
+              "home.js",
+              "green-dream/archive.js",
+              "human-archive/archive.js",
+              "creator-posting.js",
+              "cms/github-client.js",
+              "cms/github-store.js",
+              "transmissions/posts.js",
+              "index.html",
+              "green-dream/index.html",
+              "signals/index.html",
+              "human-archive/index.html",
+              "transmissions/index.html",
+              "transmissions/the-awakening/index.html",
+              "transmissions/the-descent/index.html",
+              "transmissions/the-reconnection/index.html",
+              "transmissions/the-transformation/index.html",
+              "transmissions/the-return/index.html",
+              "secure-your-soul/secure-your-soul.js",
+              "secure-your-soul/index.html",
+              "cv/contact.js",
+              "cv/index.html",
+          ]
+          runtime_patterns = [
+              (re.compile(r"@supabase/supabase-js|supabase\.createClient|supabase\.from\(|supabase\.auth|supabase\.storage", re.IGNORECASE), "Supabase SDK/API"),
+              (re.compile(r"https?://[^\s\"']*\.supabase\.co|wss?://[^\s\"']*\.supabase\.co", re.IGNORECASE), "Supabase endpoint"),
+              (re.compile(r"(?:workers\.dev|cloudflareworkers\.com|r2\.dev|api\.cloudflare\.com)", re.IGNORECASE), "Cloudflare service endpoint"),
+          ]
+          for relative in runtime_paths:
+              runtime_path = Path(relative)
+              if not runtime_path.exists():
+                  errors.append(f"Runtime dependency audit target is missing: {relative}")
+                  continue
+              runtime_source = runtime_path.read_text(encoding="utf-8")
+              if relative in ("cv/contact.js", "cv/index.html") and ("oeyxsqocldlovhsmzcjw.supabase.co" in runtime_source):
+                  if relative == "cv/contact.js":
+                      warnings.append("Known exception: CV contact form still uses the Supabase contact-about-role endpoint; replace it before claiming a zero-backend cutover.")
+                  runtime_source = runtime_source.replace("https://oeyxsqocldlovhsmzcjw.supabase.co/functions/v1/contact-about-role", "")
+                  runtime_source = runtime_source.replace("https://oeyxsqocldlovhsmzcjw.supabase.co", "")
+                  runtime_source = runtime_source.replace("wss://oeyxsqocldlovhsmzcjw.supabase.co", "")
+              for pattern, label in runtime_patterns:
+                  if pattern.search(runtime_source):
+                      errors.append(f"{label} reference remains in runtime file: {relative}")
+
+          archive_json_path = Path("content/human-archive.json")
+          if not archive_json_path.exists():
+              errors.append("Canonical Human Archive JSON is missing.")
+          else:
+              try:
+                  archive_data = json.loads(archive_json_path.read_text(encoding="utf-8"))
+                  media_manifest = archive_data.get("media_manifest", {})
+                  media_items = media_manifest.get("items", [])
+                  if not media_items:
+                      errors.append("Human Archive media manifest is empty.")
+                  for item in media_items:
+                      if item.get("recovery_status") != "verified":
+                          errors.append(f"Human Archive media is not verified: {item.get('id', 'unknown')}")
+                          continue
+                      local_path = item.get("local_path")
+                      if not local_path or not Path(local_path).is_file():
+                          errors.append(f"Verified Human Archive media file is missing: {local_path or item.get('id', 'unknown')}")
+                  public_base = media_manifest.get("public_base_url", "")
+                  if public_base:
+                      for item in media_items:
+                          storage_path = item.get("storage_path")
+                          if storage_path and item.get("source_type") != "external-inline-reference":
+                              legacy_url = public_base.rstrip("/") + "/" + storage_path.lstrip("/")
+                              if legacy_url not in item.get("aliases", []):
+                                  errors.append(f"Legacy media URL is not mapped to a local asset: {item.get('id', 'unknown')}")
+              except (OSError, json.JSONDecodeError) as exc:
+                  errors.append(f"Canonical Human Archive JSON or media manifest is invalid: {exc}")
+
+          pending_media = 0
+          for collection_path in ("content/transmissions.json", "content/signals.json"):
+              try:
+                  collection = json.loads(Path(collection_path).read_text(encoding="utf-8"))
+                  for record in collection.get("records", []):
+                      pending_media += sum(1 for item in record.get("media_items", []) if item.get("status") in ("pending_recovery", "pending"))
+              except (OSError, json.JSONDecodeError):
+                  errors.append(f"Could not inspect pending media in {collection_path}.")
+          if pending_media:
+              warnings.append(f"{pending_media} media item(s) remain pending local recovery and are intentionally not fetched from legacy storage.")
+
 
           security_path = Path(".well-known/security.txt")
           if not security_path.exists():

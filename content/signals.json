@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "collection": "signals",
+  "description": "Published Signals with confirmed rights. Private, rejected and draft submissions are intentionally excluded.",
+  "records": [
+    {
+      "id": "S-0001",
+      "body": "Ce bine e să stai în pat.",
+      "slug": "o-noapte-instelata-mvyap4ba",
+      "title": "O noapte înstelată",
+      "byline": "Asherah Uncia",
+      "medium": "music",
+      "status": "published",
+      "media_url": "media/signals/S-0001/audio.mp3",
+      "created_at": "2026-11-01T20:41:20.558511+00:00",
+      "published_at": "2026-11-01T20:42:15.705+00:00",
+      "storage_path": "media/signals/S-0001/audio.mp3",
+      "error_message": null,
+      "webflow_item_id": null,
+      "rights_confirmed": true,
+      "legacy_id": "702080c9-3cd7-42a7-8305-84fe30431bd1",
+      "source_media_url": "https://oeyxsqocldlovhsmzcjw.supabase.co/storage/v1/object/public/poetry-media/submissions/c0f29b96-468f-426e-abf1-acfefe13bb51.mp3",
+      "media_items": [
+        {
+          "type": "audio",
+          "name": "audio.mp3",
+          "src": "media/signals/S-0001/audio.mp3",
+          "url": "media/signals/S-0001/audio.mp3",
+          "source_url": "https://oeyxsqocldlovhsmzcjw.supabase.co/storage/v1/object/public/poetry-media/submissions/c0f29b96-468f-426e-abf1-acfefe13bb51.mp3",
+          "status": "pending_recovery"
+        }
+      ]
+    }
+  ]
+}

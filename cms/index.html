@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#050906">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://s3.amazonaws.com https://oeyxsqocldlovhsmzcjw.supabase.co; media-src 'self' blob: https://oeyxsqocldlovhsmzcjw.supabase.co; connect-src 'self' https://api.github.com https://oeyxsqocldlovhsmzcjw.supabase.co wss://oeyxsqocldlovhsmzcjw.supabase.co ; frame-src https://www.youtube-nocookie.com; upgrade-insecure-requests">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' https://api.github.com; frame-src https://www.youtube-nocookie.com; upgrade-insecure-requests">
   <meta name="robots" content="noindex,nofollow">
   <title>TRANSMISSION CONSOLE — Verse After Hours</title>
   <link rel="stylesheet" href="../green-dream/style.css?v=20261102-palette-3">
@@ -25,12 +25,12 @@
 <a href="/landing-page/#gd-radio">V/A RADIO</a>
 <a href="/landing-page/cv/">CV</a>
 <details class="vha-nav-dropdown"><summary>TRANSMISSIONS <span aria-hidden="true">⌄</span></summary><div class="vha-nav-menu" aria-label="Transmissions archive and five movements">
-<a href="/landing-page/posts/">ALL TRANSMISSIONS</a>
-<a href="/landing-page/posts/the-awakening/">01 / THE AWAKENING</a>
-<a href="/landing-page/posts/the-descent/">02 / THE DESCENT</a>
-<a href="/landing-page/posts/the-reconnection/">03 / THE RECONNECTION</a>
-<a href="/landing-page/posts/the-transformation/">04 / THE TRANSFORMATION</a>
-<a href="/landing-page/posts/the-return/">05 / THE RETURN</a>
+<a href="/landing-page/transmissions/">ALL TRANSMISSIONS</a>
+<a href="/landing-page/transmissions/the-awakening/">01 / THE AWAKENING</a>
+<a href="/landing-page/transmissions/the-descent/">02 / THE DESCENT</a>
+<a href="/landing-page/transmissions/the-reconnection/">03 / THE RECONNECTION</a>
+<a href="/landing-page/transmissions/the-transformation/">04 / THE TRANSFORMATION</a>
+<a href="/landing-page/transmissions/the-return/">05 / THE RETURN</a>
 </div></details>
 
 </nav>
@@ -40,18 +40,17 @@
     <section class="cms-hero">
       <p class="gd-kicker">VERSE AFTER HOURS // OWNER STUDIO</p>
       <h1>ADMIN<br><em>CONSOLE.</em></h1>
-      <p>Administrative access, recovery operations and community-submission review. Post creation and editing happen through the shared Human Archive chamber.</p>
+      <p>Owner authentication and GitHub-backed content administration. Post creation and editing happen through the shared Human Archive chamber.</p>
     </section>
     <section id="login-panel" class="cms-login cms-panel">
       <p class="gd-kicker">AUTHENTICATION REQUIRED</p>
       <h2>OPEN <em>CHANNEL</em></h2>
       <form id="login-form">
-        <label for="login-email">EMAIL ADDRESS</label><input id="login-email" type="email" autocomplete="username" required>
-        <label for="login-password">PASSWORD</label><input id="login-password" type="password" autocomplete="current-password" required>
-        <button class="cms-button primary vha-editor-action" data-action-variant="primary" type="submit">SIGN IN ↗</button>
+        <label for="github-token">GITHUB FINE-GRAINED TOKEN</label><input id="github-token" type="password" autocomplete="off" spellcheck="false" required>
+        <button class="cms-button primary vha-editor-action" data-action-variant="primary" type="submit">CONNECT GITHUB ↗</button>
       </form>
-      <p class="cms-help">Forgot your password? <button type="button" id="forgot-password" class="cms-text-button">EMAIL ME A RESET LINK ↗</button></p>
-      <p class="cms-help">This console has no public sign-up. Your account must be created and granted the CMS admin role by the site owner in Supabase.</p>
+      <p class="cms-help">Use a fine-grained token belonging to the iYakuza GitHub account. Grant Contents read/write access to both <code>iYakuza/landing-page</code> and the private <code>iYakuza/iyakuza-cms-private</code> repository. Metadata read access is required by GitHub automatically.</p>
+      <p class="cms-help">The token is kept in this browser tab’s session storage. It is not sent to a separate CMS server. Sign out when finished, and revoke the token in GitHub if it is no longer needed.</p>
       <p id="login-message" class="cms-message" role="status"></p>
     </section>
     <section id="password-reset-panel" class="cms-login cms-panel" hidden>
@@ -73,63 +72,24 @@
         <div class="cms-recovery-head">
           <div>
             <p class="gd-kicker">GREEN DREAM // OPERATIONS</p>
-            <h2 id="recovery-centre-title">RECOVERY <em>CENTRE</em></h2>
-            <p class="cms-help">A single launchpad for backup, validation and restoration. Each link opens GitHub Actions; GitHub remains responsible for authentication and run confirmation.</p>
+            <h2 id="recovery-centre-title">BACKUP &amp; RECOVERY <em>PAUSED</em></h2>
+            <p class="cms-help">Backup and recovery controls are temporarily withdrawn while the GitHub-only publishing setup is consolidated.</p>
           </div>
-          <span class="cms-recovery-mode">MANUAL ONLY</span>
+          <span class="cms-recovery-mode">DEFERRED</span>
         </div>
         <div class="cms-recovery-notice">
-          <strong>RUN THE CORRECT BRANCH</strong>
-          <span>While PR #20 remains unmerged, select <code>backup/apps-script-transfer-redesign</code> in GitHub Actions. Do not use <code>main</code> for the actual restore implementation.</span>
+          <strong>DO NOT RUN LEGACY WORKFLOWS</strong>
+          <span>Automated backup, restore and recovery workflows are out of scope for this release. They will be redesigned after the production migration.</span>
         </div>
-        <div class="cms-recovery-grid">
-          <article class="cms-recovery-card">
-            <p class="gd-kicker">01 // PROTECT</p>
-            <h3>FULL SYSTEM BACKUP</h3>
-            <p>Encrypt and upload a complete Supabase and repository snapshot to the existing private Google Drive backup location.</p>
-            <a class="cms-button primary" href="https://github.com/iYakuza/landing-page/actions/workflows/google-drive-backup.yml" target="_blank" rel="noopener noreferrer">OPEN BACKUP WORKFLOW ↗</a>
-          </article>
-          <article class="cms-recovery-card">
-            <p class="gd-kicker">02 // PRESERVE</p>
-            <h3>CONTENT &amp; MEDIA BACKUP</h3>
-            <p>Run the separate content and media snapshot workflow. This is distinct from the full-system backup.</p>
-            <a class="cms-button" href="https://github.com/iYakuza/landing-page/actions/workflows/google-drive-content-backup.yml" target="_blank" rel="noopener noreferrer">OPEN CONTENT WORKFLOW ↗</a>
-          </article>
-          <article class="cms-recovery-card">
-            <p class="gd-kicker">03 // VERIFY</p>
-            <h3>VALIDATE A BACKUP</h3>
-            <p>Restore a selected system backup into a temporary local Supabase instance on the GitHub runner and verify it.</p>
-            <a class="cms-button" href="https://github.com/iYakuza/landing-page/actions/workflows/validate-supabase-restore.yml" target="_blank" rel="noopener noreferrer">OPEN VALIDATION ↗</a>
-          </article>
-          <article class="cms-recovery-card cms-recovery-card-warning">
-            <p class="gd-kicker">04 // RECOVER</p>
-            <h3>RESTORE TO A NEW PROJECT</h3>
-            <p>Use only with a NEW, EMPTY Supabase project and its destination-specific credentials. The existing drill project is already populated; never rerun the restore against it.</p>
-            <a class="cms-button" href="https://github.com/iYakuza/landing-page/actions/workflows/restore-supabase-backup.yml" target="_blank" rel="noopener noreferrer">OPEN RESTORE WORKFLOW ↗</a>
-          </article>
-          <article class="cms-recovery-card cms-recovery-card-warning">
-            <p class="gd-kicker">05 // ON DEMAND</p>
-            <h3>CREATE / REMOVE RECOVERY WEBSITE</h3>
-            <p>No recovery website is hosted by default. Only the repository owner can launch this manual workflow. Choose DEPLOY or REMOVE, tick the confirmation box, then click Run workflow in GitHub. Repository pushes and schedules cannot create a recovery website.</p>
-            <a class="cms-button primary" href="https://github.com/iYakuza/landing-page/actions/workflows/manual-recovery-preview.yml" target="_blank" rel="noopener noreferrer">OPEN OWNER-ONLY RECOVERY CONTROL ↗</a>
-            <small class="cms-help">One-time setup required: GitHub Actions secret <code>CLOUDFLARE_API_TOKEN</code> with Pages Read and Pages Write permissions.</small>
-          </article>
-          <article class="cms-recovery-card">
-            <p class="gd-kicker">06 // DOCUMENT</p>
-            <h3>RECOVERY RUNBOOK</h3>
-            <p>Read the backup operating guide and the recorded hosted recovery drill, including limitations and manual steps.</p>
-            <a class="cms-button" href="https://github.com/iYakuza/landing-page/blob/backup/apps-script-transfer-redesign/docs/backup/README.md" target="_blank" rel="noopener noreferrer">OPEN RUNBOOK ↗</a>
-            <a class="cms-text-link" href="https://github.com/iYakuza/landing-page/blob/recovery-drill-preview/docs/backup/HOSTED-RECOVERY-DRILL-2026-11-14.md" target="_blank" rel="noopener noreferrer">VIEW HOSTED DRILL REPORT ↗</a>
-          </article>
-          <article class="cms-recovery-card">
-            <p class="gd-kicker">07 // MAINTAIN</p>
-            <h3>REPOSITORY HOUSEKEEPING</h3>
-            <p>Optionally remove only branches whose pull requests have already been merged into main. The workflow checks merge status again before deleting.</p>
-            <a class="cms-button" href="https://github.com/iYakuza/landing-page/actions/workflows/cleanup-merged-branches.yml" target="_blank" rel="noopener noreferrer">REVIEW CLEANUP WORKFLOW ↗</a>
-          </article>
-        </div>
-        <p class="cms-recovery-foot">THE RECOVERY WEBSITE IS OFFLINE BY DEFAULT. ONLY AN EXPLICIT OWNER-INITIATED CMS WORKFLOW CAN CREATE IT. RESTORE IS ALWAYS MANUAL. BACKUP SCHEDULING REMAINS DISABLED. The known successful drill used <code>system-20261113T000000Z-428ddefb</code> and destination <code>green-dream-restore-drill-2</code>.</p>
+        <p class="cms-recovery-foot">PUBLISHED CONTENT REMAINS IN THE PUBLIC GITHUB REPOSITORY. UNPUBLISHED DRAFTS AND PRIVATE MEDIA REMAIN IN THE PRIVATE COMPANION REPOSITORY. EXISTING GOOGLE DRIVE ARCHIVES HAVE NOT BEEN MODIFIED.</p>
       </section>
+    </section>
+    <section id="github-sequence-setup" class="cms-panel" hidden>
+      <p class="gd-kicker">ONE-TIME CONTENT INITIALIZATION</p>
+      <h2>INITIALIZE <em>IDENTIFIERS</em></h2>
+      <p class="cms-help">The verified export contains six Transmissions and the highest Human Archive record ID is 3008. This one-time action seeds the private sequence at T-0006 / 3008 so the next new record receives T-0007 / 3009.</p>
+      <button type="button" id="initialize-sequences" class="cms-button primary vha-editor-action" data-action-variant="primary">INITIALIZE VERIFIED SEQUENCES</button>
+      <p id="sequence-message" class="cms-message" role="status"></p>
     </section>
     <section id="community-review" class="cms-panel community-review" hidden>
       <div class="cms-list-head"><div><p class="gd-kicker">INCOMING FROM THE COMMUNITY</p><h2>REVIEW <em>QUEUE</em></h2></div><button type="button" id="refresh-submissions" class="cms-text-button">REFRESH ↻</button></div>
@@ -144,8 +104,9 @@
   </main>
   <footer class="gd-footer"><span>THE CITY IS LOUD. LEAVE A TRACE.</span></footer>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
-<script src="cms.js?v=20261117-admin-console-2"></script>
+<script src="github-client.js?v=20261120-github-cms-4"></script>
+<script src="github-store.js?v=20261121-private-media-perf-5"></script>
+<script src="cms.js?v=20261120-github-cms-4"></script>
   <script src="/landing-page/tools.js?v=20261105-crystal-shared-9"></script>
 
   <script src="/landing-page/game-ui.js?v=20261119-mood-accessibility-regression-1" defer></script>

@@ -1,6 +1,4 @@
 (() => {
-  const SUPABASE_URL = 'https://oeyxsqocldlovhsmzcjw.supabase.co';
-  const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kuUFxaClmROwgZpGIw6bzg_ddvb521h';
   const MOVEMENTS = [
     'THE AWAKENING',
     'THE DESCENT',
@@ -11,13 +9,21 @@
   const archive = document.getElementById('movement-archive');
   const playlist = document.getElementById('gd-media-playlist');
   const player = document.getElementById('gd-archive-player');
+  const siteBasePath = window.location.pathname.startsWith('/landing-page-preview/') ? '/landing-page-preview' : '/landing-page';
   if (!archive) return;
   const safe = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   function safeMediaUrl(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    const relative = raw.replace(/^\/+/, '');
+    if (relative.startsWith('media/') && !relative.split('/').some(part => part === '.' || part === '..') &&
+        !raw.includes(String.fromCharCode(92)) && !/[?#]/.test(raw)) {
+      return siteBasePath + '/' + relative.split('/').map(encodeURIComponent).join('/');
+    }
     try {
-      const url = new URL(String(value || ''));
-      return url.protocol === 'https:' && url.hostname === 'oeyxsqocldlovhsmzcjw.supabase.co' &&
-        url.pathname.includes('/storage/v1/object/public/vha-post-media/') ? url.href : '';
+      const url = new URL(raw, window.location.origin);
+      return url.origin === window.location.origin &&
+        (url.pathname.startsWith('/landing-page/media/') || url.pathname.startsWith('/landing-page-preview/media/')) ? url.href : '';
     } catch { return ''; }
   }
   function audioTitle(url, fallback) {
@@ -29,27 +35,31 @@
     return fallback || 'Untitled audio';
   }
   function openPost(post) {
-    window.location.href = '../posts/?post=' + encodeURIComponent(post.slug);
+    window.location.href = '../transmissions/?post=' + encodeURIComponent(post.slug);
   }
   function render(posts) {
     archive.innerHTML = MOVEMENTS.map((movement, index) => {
       const items = posts.filter(post => String(post.category || '').trim().toUpperCase() === movement);
       const content = items.length ? items.map(post =>
-        '<a href="../posts/?post=' + encodeURIComponent(post.slug) + '">' + safe(post.title) +
+        '<a href="../transmissions/?post=' + encodeURIComponent(post.slug) + '">' + safe(post.title) +
         '<small>' + safe(movement) + ' // ' + safe(post.title) + '</small></a>'
       ).join('') : '<p class="gd-smallprint">No posts assigned to this movement yet.</p>';
       return '<details><summary><span>0' + (index + 1) + ' / ' + safe(movement) + '</span><span>' + items.length + '</span></summary><div class="gd-movement-posts">' + content + '</div></details>';
     }).join('');
     if (!playlist || !player) return;
-    const tracks = posts.filter(post => post.media_type === 'audio' && safeMediaUrl(post.media_url))
-      .map(post => ({...post, url:safeMediaUrl(post.media_url)}));
+    const tracks = posts.flatMap(post => (Array.isArray(post.media_items) ? post.media_items : [])
+      .filter(item => item && item.status === 'available' && item.type === 'audio')
+      .map(item => {
+        const url = safeMediaUrl(item.url || item.src || item.path);
+        return url ? {...post, media_url:url, media_title:item.name || post.title, url} : null;
+      }).filter(Boolean));
     const sunoRow = '<a class="gd-media-row gd-suno-row" href="https://suno.com/s/0RJNUsklNXtOiRzv" target="_blank" rel="noopener noreferrer"><span class="gd-media-number">01</span><div class="gd-media-track"><strong>GREEN DREAM // ORIGINAL TRANSMISSION</strong><small>SUNO // OPEN TRACK PLAYER ↗</small></div><span class="gd-suno-open" aria-hidden="true">↗</span></a>';
     if (!tracks.length) {
       playlist.innerHTML = sunoRow + '<p class="gd-archive-empty">This track is hosted on Suno and opens there for playback. Upload audio files to published posts to add tracks that play directly in this library.</p>';
       return;
     }
     playlist.innerHTML = sunoRow + tracks.map((post, index) => {
-      const title = audioTitle(post.media_url, post.title);
+      const title = audioTitle(post.media_url, post.media_title || post.title);
       return '<article class="gd-media-row" data-track-index="' + index + '">' +
         '<span class="gd-media-number">' + String(index + 1).padStart(2, '0') + '</span>' +
         '<div class="gd-media-track"><strong>' + safe(title) + '</strong><small>' + safe(post.category || 'UNASSIGNED') + ' // ' + safe(post.title) + '</small></div>' +
@@ -121,22 +131,22 @@
   }
 
   async function init() {
-    const client = window.supabase?.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-    if (!client) {
-      archive.innerHTML = '<p class="gd-smallprint">The poetry archive is temporarily unavailable.</p>';
-      if (playlist) playlist.innerHTML = '<p class="gd-archive-empty">The audio library is temporarily unavailable.</p>';
-      return;
-    }
-    const {data, error} = await client.from('vha_posts')
-      .select('title,slug,category,media_url,media_type,published_at,created_at')
-      .eq('status','published')
-      .order('published_at',{ascending:false,nullsFirst:false});
-    if (error) {
+    try {
+      const response = await fetch(siteBasePath + '/content/transmissions.json', {credentials:'same-origin', cache:'no-store'});
+      if (!response.ok) throw new Error('The Transmissions collection returned HTTP ' + response.status + '.');
+      const collection = await response.json();
+      if (!Array.isArray(collection.records)) throw new Error('The Transmissions collection has an invalid structure.');
+      const posts = collection.records.filter(post => post && post.status === 'published').sort((a, b) => {
+        const dateA = Date.parse(a.published_at || a.created_at || '') || 0;
+        const dateB = Date.parse(b.published_at || b.created_at || '') || 0;
+        return dateB - dateA;
+      });
+      render(posts);
+    } catch (error) {
+      console.error('The local Transmissions collection could not be loaded:', error);
       archive.innerHTML = '<p class="gd-smallprint">Could not load the poetry archive. Please try again later.</p>';
       if (playlist) playlist.innerHTML = '<p class="gd-archive-empty">Could not load the audio library. Please try again later.</p>';
-      return;
     }
-    render(data || []);
   }
   init();
 })();

@@ -21,6 +21,20 @@
     } catch { return ''; }
   }
 
+
+  function safeEditorMediaURL(value, hosts, mediaBasePath) {
+    const raw = String(value || '').trim();
+    const basePathValue = String(mediaBasePath || (window.location.pathname.startsWith('/landing-page-preview/') ? '/landing-page-preview' : '/landing-page')); const basePath = basePathValue.endsWith('/') ? basePathValue.slice(0, -1) : basePathValue;
+    try {
+      if (raw.startsWith('media/') && !raw.includes('..') && !raw.includes('?') && !raw.includes('#') && !raw.includes(String.fromCharCode(92))) return new URL(basePath + '/' + raw, window.location.origin).href;
+      const url = new URL(raw, window.location.href);
+      if (url.protocol === 'blob:' && url.origin === window.location.origin) return url.href;
+      if (url.origin === window.location.origin && url.pathname.startsWith(basePath + '/media/') &&
+          !url.pathname.includes('..') && !url.search && !url.hash) return url.href;
+    } catch {}
+    return safeURL(raw, hosts);
+  }
+
   function blockType(node) {
     if (!node || node.nodeType !== Node.ELEMENT_NODE) return 'paragraph';
     const tag = node.tagName;
@@ -46,9 +60,11 @@
     if (tag === 'IFRAME' || node.querySelector?.('iframe')) {
       const frame = tag === 'IFRAME' ? node : node.querySelector('iframe');
       const src = frame?.getAttribute('src') || '';
-      if (/spotify\.com/i.test(src)) return 'spotify';
-      if (/soundcloud\.com/i.test(src)) return 'soundcloud';
-      if (/youtube(?:-nocookie)?\.com|youtu\.be/i.test(src)) return 'youtube';
+      let host = '';
+      try { host = new URL(src, window.location.href).hostname.toLowerCase(); } catch {}
+      if (host === 'open.spotify.com') return 'spotify';
+      if (['soundcloud.com','www.soundcloud.com','w.soundcloud.com'].includes(host)) return 'soundcloud';
+      if (['youtube.com','www.youtube.com','youtube-nocookie.com','www.youtube-nocookie.com','youtu.be'].includes(host)) return 'youtube';
       return 'embed';
     }
     if (tag === 'DIV' || tag === 'SECTION' || tag === 'ASIDE' || tag === 'NAV' || tag === 'ARTICLE') return 'classic';
@@ -113,7 +129,7 @@
     return templates[type] || '<p><br></p>';
   }
 
-  function mountBlockEditor({ editor, onChange = () => {}, onUpload = null, getMediaLibrary = () => [], readOnly = false, showTopbar = true } = {}) {
+  function mountBlockEditor({ editor, onChange = () => {}, onUpload = null, getMediaLibrary = () => [], readOnly = false, showTopbar = true, mediaBasePath = '' } = {}) {
     if (!(editor instanceof HTMLElement)) throw new TypeError('A block editor canvas is required.');
     if (editor.dataset.haBlockEditorMounted === 'true') return editor.__haBlockEditor || null;
     editor.dataset.haBlockEditorMounted = 'true';
@@ -127,16 +143,27 @@
     shell.className = 'ha-block-editor-shell';
     let topbar = null;
     let addTop = null;
+    let addMediaTop = null;
+    let addColumnTop = null;
     if(showTopbar){
       topbar = document.createElement('div');
       topbar.className = 'ha-block-editor-topbar';
+      const actions = document.createElement('div');
+      actions.className = 'ha-block-editor-topbar-actions';
       addTop = document.createElement('button');
       addTop.type = 'button'; addTop.className = 'ha-editor-inserter';
       addTop.innerHTML = '<span aria-hidden="true">＋</span> Add block';
+      addMediaTop = document.createElement('button');
+      addMediaTop.type = 'button'; addMediaTop.className = 'ha-editor-inserter ha-editor-inserter-media';
+      addMediaTop.innerHTML = '<span aria-hidden="true">▧</span> Add media';
+      addColumnTop = document.createElement('button');
+      addColumnTop.type = 'button'; addColumnTop.className = 'ha-editor-inserter ha-editor-inserter-columns';
+      addColumnTop.innerHTML = '<span aria-hidden="true">▥</span> Add columns';
       const hint = document.createElement('span');
       hint.className = 'ha-block-editor-hint';
-      hint.textContent = 'Type / to insert a block';
-      topbar.append(addTop,hint);
+      hint.textContent = 'Every piece of content is a block';
+      actions.append(addTop,addMediaTop,addColumnTop);
+      topbar.append(actions,hint);
     }
     editor.parentNode.insertBefore(shell,editor);
     if(topbar)shell.append(topbar,editor);else shell.append(editor);
@@ -289,16 +316,30 @@
         if(library.length){
           const libraryLabel=document.createElement('label');libraryLabel.className='ha-media-picker-library-label';libraryLabel.textContent='THIS RECORD’S MEDIA LIBRARY';
           librarySelect=document.createElement('select');librarySelect.multiple=['gallery','slideshow','tiled-gallery','image-compare','playlist'].includes(type);librarySelect.size=Math.min(5,library.length);
-          library.forEach((item,index)=>{const option=document.createElement('option');option.value=String(index);option.textContent=(item.name||'Media file')+' · '+(item.mime_type||item.type||'media');librarySelect.append(option);});
+          library.forEach((item,index)=>{
+             const option=document.createElement('option');option.value=String(index);
+             const detail=item.available===false?'NOT RECOVERED · '+(item.mime_type||item.type||'media'):(item.mime_type||item.type||'media');
+             option.textContent=(item.name||'Media file')+' · '+detail;
+             option.disabled=item.available===false;
+             librarySelect.append(option);
+           });
           libraryLabel.append(librarySelect);panel.append(libraryLabel);
         }
         const status=document.createElement('p');status.className='ha-media-picker-status';status.setAttribute('aria-live','polite');panel.append(status);
         const actions=document.createElement('div');actions.className='ha-media-picker-actions';
         const upload=document.createElement('button');upload.type='button';upload.textContent='UPLOAD & INSERT';upload.disabled=true;
-        const reuse=document.createElement('button');reuse.type='button';reuse.textContent='USE SELECTED';reuse.disabled=!librarySelect;
+        const reuse=document.createElement('button');reuse.type='button';reuse.textContent='USE SELECTED';reuse.disabled=!librarySelect||!library.some(item=>item.available!==false);
+         librarySelect?.addEventListener('change',()=>{
+           reuse.disabled=![...librarySelect.selectedOptions].some(option=>!option.disabled);
+         });
         const cancel=document.createElement('button');cancel.type='button';cancel.textContent='CANCEL';actions.append(upload,reuse,cancel);panel.append(actions);dialog.append(panel);shell.append(dialog);
         const close=()=>dialog.remove();
-        input.addEventListener('change',()=>{upload.disabled=!input.files?.length;});
+        input.addEventListener('change',()=>{upload.disabled=!input.files?.length;status.textContent='';});
+        input.addEventListener('cancel',event=>{
+         event.stopPropagation();
+         upload.disabled=!input.files?.length;
+         status.textContent='FILE SELECTION UNCHANGED — THE CHAMBER REMAINS OPEN.';
+        });
         cancel.addEventListener('click',close);
         dialog.addEventListener('click',event=>{if(event.target===dialog)close();});
         const build=(assets)=>{
@@ -376,7 +417,7 @@
       selection.removeAllRanges(); selection.addRange(range);
     }
 
-    function createMenu(anchor, block, pointer = null) {
+    function createMenu(anchor, block, pointer = null, initialFilter = '') {
       closeMenu();
       menu = document.createElement('div'); menu.className = 'ha-block-inserter-menu'; menu.setAttribute('role','dialog'); menu.setAttribute('aria-label','Choose a block');
       const search = document.createElement('input'); search.type='search'; search.className='ha-block-search'; search.placeholder='Search all blocks…'; search.setAttribute('aria-label','Search blocks'); menu.append(search);
@@ -418,7 +459,9 @@
         }
         if(!count){const empty=document.createElement('p');empty.className='ha-block-empty';empty.textContent='No matching blocks';results.append(empty);}
       }
-      search.addEventListener('input',()=>render(search.value)); render();
+      search.addEventListener('input',()=>render(search.value));
+      search.value=String(initialFilter||'');
+      render(search.value);
       const anchorRect=anchor.getBoundingClientRect(),shellRect=shell.getBoundingClientRect();
       const usePointer=pointer?.valid!==false&&Number.isFinite(pointer?.x)&&Number.isFinite(pointer?.y);
       const x=usePointer?pointer.x:anchorRect.left;
@@ -568,7 +611,15 @@
                 try{const url=new URL(value);if(!((url.protocol==='https:'&&url.hostname&&!url.username&&!url.password)||(url.protocol==='mailto:'&&url.pathname)))node.removeAttribute(attribute.name);}catch{node.removeAttribute(attribute.name);}
               }else if(name==='src'){
                 const hosts=node.tagName==='IMG'?IMAGE_HOSTS:['AUDIO','VIDEO','SOURCE'].includes(node.tagName)?MEDIA_HOSTS:node.tagName==='IFRAME'?EMBED_HOSTS:null;
-                if(hosts){const safe=safeURL(value,hosts);const valid=safe&&(!['AUDIO','VIDEO','SOURCE'].includes(node.tagName)||new URL(safe).pathname.startsWith('/storage/v1/object/public/vha-post-media/'));if(valid)node.setAttribute('src',safe);else node.removeAttribute(attribute.name);}
+                 if(hosts){
+                   const safe=safeEditorMediaURL(value,hosts,mediaBasePath);
+                   let valid=Boolean(safe);
+                   if(valid&&['AUDIO','VIDEO','SOURCE'].includes(node.tagName)){
+                     const url=new URL(safe,window.location.href);
+                     const mediaBaseValue=String(mediaBasePath || (window.location.pathname.startsWith('/landing-page-preview/') ? '/landing-page-preview' : '/landing-page')); const normalizedMediaBase=mediaBaseValue.endsWith('/') ? mediaBaseValue.slice(0,-1) : mediaBaseValue; valid=(url.protocol==='blob:'&&url.origin===window.location.origin)||(url.origin===window.location.origin&&url.pathname.startsWith(normalizedMediaBase+'/media/'))||(url.hostname==='oeyxsqocldlovhsmzcjw.supabase.co'&&url.pathname.startsWith('/storage/v1/object/public/vha-post-media/'));
+                   }
+                   if(valid)node.setAttribute('src',safe);else node.removeAttribute(attribute.name);
+                 }
                 else node.removeAttribute(attribute.name);
               }
             });
@@ -630,6 +681,8 @@
     });
 
     addTop?.addEventListener('click',event=>createMenu(addTop,null,{x:event.clientX,y:event.clientY,valid:event.detail!==0}));
+    addMediaTop?.addEventListener('click',event=>createMenu(addMediaTop,null,{x:event.clientX,y:event.clientY,valid:event.detail!==0},'Media'));
+    addColumnTop?.addEventListener('click',addCanvasColumn);
     shell.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu){event.preventDefault();closeMenu();(addTop||editor).focus();}});
     document.addEventListener('pointerdown',event=>{if(menu&&!shell.contains(event.target))closeMenu();},{signal:listeners.signal});
     editor.addEventListener('focusin',event=>{
@@ -767,7 +820,7 @@
           return text.trim()||(parsed.querySelector('img,audio,video,iframe')?'media':'');
         }).filter(Boolean).join('\\n\\n');
       },
-      replaceHTML(html) { this.destroy(); editor.innerHTML=String(html||'<p><br></p>'); return mountBlockEditor({editor,onChange,onUpload,getMediaLibrary,readOnly,showTopbar}); },
+      replaceHTML(html) { this.destroy(); editor.innerHTML=String(html||'<p><br></p>'); return mountBlockEditor({editor,onChange,onUpload,getMediaLibrary,readOnly,showTopbar,mediaBasePath}); },
       focus() { focusBlock(selected||blocks()[0]); },
       destroy() {
         listeners.abort();closeMenu();
