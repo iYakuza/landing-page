@@ -244,3 +244,31 @@ No production `main` change was made. PR #135 remains Draft and unmerged.
 ## Current release decision
 
 PR #135 remains Draft. Do not merge until the current CodeQL run is complete and triaged, owner-authenticated browser acceptance has covered the new attachment/media/no-op flows, the five missing legacy assets are recovered/replaced/explicitly accepted, and the CV contact-form dependency decision is recorded. Production `main` remains untouched.
+
+
+## Owner Preview retest — record 3010 and no-op draft-save optimization (22 November 2026)
+
+The owner-authenticated browser retest of **record 3010 / T-0008** confirmed:
+- **Water, Take Me.mp4** renders, plays and now fits the archive card correctly.
+- The media remains available through the archive card, Chamber and Redesign flow.
+- **Save changes → Chamber → Close → archive** completed successfully.
+- The 01 // Attached media panel showed only the explanatory note and **NO LOOSE ATTACHMENTS**. This is correct: the current audio/video files are embedded in the Transmission body, while the draft's loose media_items collection is empty. Body media is preserved automatically and does not appear as removable loose attachments.
+- The archive card displayed LOADING RECORD CONTENT… for approximately 3–5 seconds. Code tracing confirms this is the record-scoped private-media hydration path: it retrieves the selected draft's private media blobs from the private CMS repository and creates browser Blob URLs before rendering. This is not a missing-media state. It is a visible latency/performance item; no speculative timeout or missing-file fallback was added.
+
+The owner reported 5–10 seconds after clicking **Save changes**. Source inspection found that a newly opened Redesign editor initialized its autosave signature as empty. An immediate Save could therefore write the unchanged initial draft during autosave flush, then fetch and write the same content again in the explicit-save path.
+
+Corrective optimization committed to the recovery branch:
+- Initialize the autosave signature from the editor's actual initial state when Redesign opens; opening and immediately saving without edits no longer schedules an unnecessary initial private commit.
+- Include the draft publication status in the same metadata snapshot used by autosave, so status changes remain detectable and persist correctly.
+- Compare the current private draft's metadata/content against the explicit-save payload. When they are identical, skip the redundant Git commit; when any payload field changes, perform the normal save.
+- Preserve the private-branch head comparison before treating a save as a no-op, so concurrent private-repository changes still block stale writes.
+- Bump the Human Archive script cache key to archive.js?v=20261122-noop-draft-save-1.
+- Added regression tests for no-op snapshot comparison, status/content changes, conflict-guard retention and initial autosave baseline setup.
+
+Validation:
+- Preview workflow [#45036781216](https://github.com/iYakuza/landing-page-preview/actions/runs/45036781216): build and Pages deployment succeeded.
+- JavaScript syntax checks passed; **46/46 Node regression tests passed**.
+- The build again logged unrelated HTTP 402 errors from the legacy Supabase media recovery source; these are existing recovery exceptions, not failures of the private-draft save optimization.
+- The user has not yet browser-retested the newly deployed no-op save optimization. Existing media rendering, card video sizing, Chamber navigation and save/close round-trip are browser-confirmed on the preceding deployment.
+
+No production main change was made. PR #135 remains Draft and unmerged. The private Preview draft and its embedded audio/video files were not modified by this code deployment.
