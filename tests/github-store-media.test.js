@@ -190,11 +190,23 @@ test('Transmissions uses the shared DOMPurify sanitizer before parsing stored po
   assert.match(postsHtml, /shared\/vendor\/dompurify-3\.4\.18\.min\.js[\s\S]*posts\.js/);
 });
 
-test('Poetry plain-text conversion encodes any angle brackets remaining after markup stripping', () => {
+test('Poetry plain-text conversion applies a final complete HTML-escaping pass', () => {
   const edgeSource = fs.readFileSync(path.join(__dirname, '..', 'supabase', 'functions', 'poetry-submit', 'index.ts'), 'utf8');
-  assert.ok(edgeSource.includes('.replace(/</g, "&lt;").replace(/>/g, "&gt;")'));
+  assert.match(edgeSource, /const plainBodyText = htmlBody[\\s\\S]*?replace\\(/);
+  assert.match(edgeSource, /const plainBody = htmlEscape\\(plainBodyText\\)/);
   assert.ok(!edgeSource.includes('.replace(/&lt;/g, "<")'));
   assert.ok(!edgeSource.includes('.replace(/&gt;/g, ">")'));
+
+  const escapeStart = edgeSource.indexOf('function htmlEscape(s: string) {');
+  const escapeEnd = edgeSource.indexOf('\\n}', escapeStart) + 2;
+  assert.ok(escapeStart >= 0 && escapeEnd > escapeStart, 'the shared HTML escaper must exist');
+  const escapeFunction = edgeSource.slice(escapeStart, escapeEnd).replace('s: string', 's');
+  const sandbox = vm.createContext({});
+  vm.runInContext(escapeFunction + '; this.escape = htmlEscape;', sandbox);
+  assert.equal(sandbox.escape('&lt;script&gt;'), '&amp;lt;script&amp;gt;',
+    'nested encoded markup must remain text after the final escaping pass');
+  assert.equal(sandbox.escape('Tom & Jerry'), 'Tom &amp; Jerry',
+    'ordinary ampersands must remain correctly encoded for HTML rendering');
 });
 
 test('Transmission reflection labels are escaped and embed providers use exact hostnames', () => {
