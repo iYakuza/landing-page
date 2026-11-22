@@ -26,7 +26,6 @@
           "name": "audio.mp3",
           "src": "media/signals/S-0001/audio.mp3",
           "url": "media/signals/S-0001/audio.mp3",
-          "source_url": "https://oeyxsqocldlovhsmzcjw.supabase.co/storage/v1/object/public/poetry-media/submissions/c0f29b96-468f-426e-abf1-acfefe13bb51.mp3",
           "status": "pending_recovery"
         }
       ]
