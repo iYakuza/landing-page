@@ -3,7 +3,7 @@
   if(!root||root.dataset.homeReady==='true')return;
   root.dataset.homeReady='true';
   const safe=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-  const siteBasePath=window.location.pathname.startsWith('/landing-page-preview/')?'/landing-page-preview':'/landing-page';
+  const siteBasePath='/landing-page';
   const movementId=value=>{
     const key=String(value||'').toUpperCase();
     if(key.includes('DESCENT'))return 'descent';
@@ -21,9 +21,8 @@
         return siteBasePath+'/'+relative.split('/').map(encodeURIComponent).join('/');
       }
       const url=new URL(raw,window.location.origin);
-      if(url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/media/')||url.pathname.startsWith('/landing-page-preview/media/')))return url.href;
-      const wordpress=['emanuelstefancu.wordpress.com','i0.wp.com'].includes(url.hostname)&&url.pathname.includes('/wp-content/uploads/')&&/\.(jpg|jpeg|png|webp|gif|avif)$/i.test(url.pathname);
-      return url.protocol==='https:'&&wordpress?url.href:'';
+      if(url.origin===window.location.origin&&url.pathname.startsWith('/landing-page/media/'))return url.href;
+      return '';
     }catch{return '';}
   }
   function dateLabel(value){
