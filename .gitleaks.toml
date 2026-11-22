@@ -1,5 +1,6 @@
-# Keep Gitleaks' full default ruleset and scope these two known false positives
-# to the generic-api-key rule only. All other secret checks remain enabled.
+# Gitleaks default rules stay enabled.
+# A public browser identifier remains only in the retired analytics.js file's
+# immutable commit history. This file is not part of the live website.
 [extend]
 useDefault = true
 
@@ -7,9 +8,8 @@ useDefault = true
 id = "generic-api-key"
 
   [[rules.allowlists]]
-  description = "A legacy public browser identifier in retained Git history is not a privileged credential; the integration is no longer active."
-  regexTarget = "line"
-  regexes = ['''sb_publishable_[A-Za-z0-9_-]+''']
+  description = "Retired analytics source retained only in Git history; its public identifier is not used by the live website."
+  paths = ['''(^|/)analytics\.js$''']
 
   [[rules.allowlists]]
   description = "This is a browser localStorage namespace, not a credential."
