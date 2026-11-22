@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T17:39:29.190582Z",
-  "last_processed_sha": "2c52ec9405d834d41d3bcd3de362ebf6b82683f4",
+  "updated_at": "2026-11-22T17:39:55.779675Z",
+  "last_processed_sha": "e34fc2b41faecb63eef52d971ce562463e7721e1",
   "entries": [
+    {
+      "id": "e34fc2b41faecb63eef52d971ce562463e7721e1",
+      "timestamp": "2026-11-22T18:39:43+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together ci: keep the offline contact check provider-neutral. It updates site-safety.yml.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/site-safety.yml"
+      ],
+      "commits": [
+        {
+          "message": "ci: keep the offline contact check provider-neutral",
+          "url": "https://github.com/iYakuza/landing-page/commit/e34fc2b41faecb63eef52d971ce562463e7721e1",
+          "files": [
+            ".github/workflows/site-safety.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "2c52ec9405d834d41d3bcd3de362ebf6b82683f4",
       "timestamp": "2026-11-22T18:39:14+01:00",
@@ -1359,27 +1380,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/12ef8da52798c98c9a067730afd8365c1f6daebd",
           "files": [
             "human-archive/archive.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "7b51c2c486e255abaed1159863eb404744314bbb",
-      "timestamp": "2026-11-18T18:32:49+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Experience",
-      "title": "A refined Website Experience",
-      "description": "This update brings together Refresh shared action visibility assets. It updates index.html.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Refresh shared action visibility assets",
-          "url": "https://github.com/iYakuza/landing-page/commit/7b51c2c486e255abaed1159863eb404744314bbb",
-          "files": [
-            "human-archive/index.html"
           ]
         }
       ]
