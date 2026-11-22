@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T17:36:18.590727Z",
-  "last_processed_sha": "608b8838599c41b7a5cf9143709cee366202cda6",
+  "updated_at": "2026-11-22T17:36:49.086160Z",
+  "last_processed_sha": "a6c3f3b1ad312ab9ed3c044e6852220e47111811",
   "entries": [
+    {
+      "id": "a6c3f3b1ad312ab9ed3c044e6852220e47111811",
+      "timestamp": "2026-11-22T18:36:45+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Experience",
+      "title": "A refined Website Experience",
+      "description": "This update brings together cleanup: remove analytics and stale external host policy. It updates index.html.",
+      "commit_count": 1,
+      "files": [
+        "transmissions/the-reconnection/index.html"
+      ],
+      "commits": [
+        {
+          "message": "cleanup: remove analytics and stale external host policy",
+          "url": "https://github.com/iYakuza/landing-page/commit/a6c3f3b1ad312ab9ed3c044e6852220e47111811",
+          "files": [
+            "transmissions/the-reconnection/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "608b8838599c41b7a5cf9143709cee366202cda6",
       "timestamp": "2026-11-22T18:36:15+01:00",
@@ -1343,27 +1364,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/65762b11d9a8feae2acee03fa9e7d20870d5acad",
           "files": [
             "creator-posting.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "e0ece34b98838d947860d9882649a70c31b8c2ab",
-      "timestamp": "2026-11-18T18:31:27+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Restore signed-in chamber controls and show Enter Chamber directly. It updates archive.js.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.js"
-      ],
-      "commits": [
-        {
-          "message": "Restore signed-in chamber controls and show Enter Chamber directly",
-          "url": "https://github.com/iYakuza/landing-page/commit/e0ece34b98838d947860d9882649a70c31b8c2ab",
-          "files": [
-            "human-archive/archive.js"
           ]
         }
       ]
