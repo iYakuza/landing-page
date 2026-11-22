@@ -36,7 +36,6 @@
 
     <h2>Backup limitations</h2>
     <p>Backups are provided on a best-effort basis. A successful upload and checksum verification do not, by themselves, prove that every component of the original website or its infrastructure can be fully restored.</p>
-    <p>The content backup is not a complete Supabase project backup. It does not include PostgreSQL roles, Supabase Auth, Vault, project settings, runtime secrets, or every database permission. Recovery may require a compatible environment, additional configuration, and separate restoration steps. The operator should perform independent recovery tests and keep any other copies needed for their purposes.</p>
 
     <h2>Security and responsibilities</h2>
     <p>The backup archive is encrypted using GPG symmetric AES-256 before it is uploaded to Google Drive. The operator is responsible for securely storing the encryption passphrase, protecting Google and GitHub accounts, maintaining OAuth credentials and workflow secrets, and ensuring that backup content may lawfully be processed and stored.</p>
