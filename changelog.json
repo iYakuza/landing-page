@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T17:41:29.954178Z",
-  "last_processed_sha": "393d5d3de9cdf51fda09a015c2a63314ec737505",
+  "updated_at": "2026-11-22T17:42:01.110034Z",
+  "last_processed_sha": "6e30d73d634089d2b9077c8174990a0ed910b814",
   "entries": [
+    {
+      "id": "6e30d73d634089d2b9077c8174990a0ed910b814",
+      "timestamp": "2026-11-22T18:41:49+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together docs: simplify privacy notice; docs: define GitHub-first backup policy; docs: simplify project handoff. It updates PROJECT_HANDOFF.md, README.md, privacy-policy.html.",
+      "commit_count": 3,
+      "files": [
+        "docs/PROJECT_HANDOFF.md",
+        "docs/backup/README.md",
+        "privacy-policy.html"
+      ],
+      "commits": [
+        {
+          "message": "docs: simplify privacy notice",
+          "url": "https://github.com/iYakuza/landing-page/commit/a60a0830588e0471b9fa322ec904406ad4409617",
+          "files": [
+            "privacy-policy.html"
+          ]
+        },
+        {
+          "message": "docs: define GitHub-first backup policy",
+          "url": "https://github.com/iYakuza/landing-page/commit/a36690cddca0e2c4c26f2c0de4a067a266889ab1",
+          "files": [
+            "docs/backup/README.md"
+          ]
+        },
+        {
+          "message": "docs: simplify project handoff",
+          "url": "https://github.com/iYakuza/landing-page/commit/6e30d73d634089d2b9077c8174990a0ed910b814",
+          "files": [
+            "docs/PROJECT_HANDOFF.md"
+          ]
+        }
+      ]
+    },
     {
       "id": "393d5d3de9cdf51fda09a015c2a63314ec737505",
       "timestamp": "2026-11-22T18:41:17+01:00",
@@ -1343,43 +1380,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/839c48b3daafb613e3f14cb2976b71a65f482f8f",
           "files": [
             "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "3877f9f64edb2c482981fc5f68088b534af6c86c",
-      "timestamp": "2026-11-18T18:56:15+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Restore original launcher permission visibility; Force chamber action buttons visible in the action row; Force shared chamber action buttons visible in the action row. It updates creator-posting.js, archive.css, chamber.css.",
-      "commit_count": 3,
-      "files": [
-        "creator-posting.js",
-        "human-archive/archive.css",
-        "human-archive/chamber.css"
-      ],
-      "commits": [
-        {
-          "message": "Restore original launcher permission visibility",
-          "url": "https://github.com/iYakuza/landing-page/commit/8a12beb865c8a94021679480d724ef03ba82a13f",
-          "files": [
-            "creator-posting.js"
-          ]
-        },
-        {
-          "message": "Force chamber action buttons visible in the action row",
-          "url": "https://github.com/iYakuza/landing-page/commit/ec4ca7d37ddbe23c3709a211421a72985bad4f31",
-          "files": [
-            "human-archive/archive.css"
-          ]
-        },
-        {
-          "message": "Force shared chamber action buttons visible in the action row",
-          "url": "https://github.com/iYakuza/landing-page/commit/3877f9f64edb2c482981fc5f68088b534af6c86c",
-          "files": [
-            "human-archive/chamber.css"
           ]
         }
       ]
