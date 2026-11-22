@@ -882,3 +882,48 @@ test('archive editor sanitizer resolves local media URLs against the document ba
       'https://iyakuza.github.io');
   }
 });
+
+
+test('unchanged private Transmission snapshots skip redundant draft commits', () => {
+  const start = archiveSource.indexOf('function isTransmissionDraftSnapshotUnchanged(');
+  const end = archiveSource.indexOf('function chamberUploadToken()', start);
+  assert.ok(start >= 0 && end > start, 'private draft snapshot comparison helper must exist');
+  const helper = archiveSource.slice(start, end);
+  const sandbox = vm.createContext({});
+  vm.runInContext(helper + '; this.isUnchanged = isTransmissionDraftSnapshotUnchanged;', sandbox);
+
+  const metadata = {
+    title: 'Test', slug: 'test', category: 'THE TRANSFORMATION',
+    excerpt: '', status: 'draft', media_width: 100
+  };
+  const content = {
+    transmission_body: '<p>Saved</p>', prompt_style: '', lyrics_style: '', output_text: '',
+    output_media: { image: [], audio: [], video: [] }, blocks: [], media_items: []
+  };
+  const current = { metadata, content, revision: 12, updated_at: '2026-11-22T14:00:00.000Z' };
+
+  assert.equal(sandbox.isUnchanged(current, metadata, content), true,
+    'revision and timestamps must not make identical payloads look changed');
+  assert.equal(sandbox.isUnchanged(current, { ...metadata, status: 'published' }, content), false,
+    'a publication-status change must still be saved');
+  assert.equal(sandbox.isUnchanged(current, metadata, { ...content, transmission_body: '<p>Changed</p>' }), false,
+    'a real content change must still be saved');
+
+  const manualSave = archiveSource.indexOf('const draftUnchanged=isTransmissionDraftSnapshotUnchanged(current,draftToSave.metadata,draftToSave.content);');
+  const staleHeadGuard = archiveSource.indexOf('if(record._repoCommitSha&&current._repoCommitSha!==record._repoCommitSha)', manualSave);
+  const conditionalWrite = archiveSource.indexOf(':await window.VHACMSStore.saveDraft(draftToSave,expectedDraftHead);', manualSave);
+  assert.ok(manualSave >= 0 && staleHeadGuard > manualSave && conditionalWrite > staleHeadGuard,
+    'manual Save must preserve branch conflict detection and write only when the draft payload changed');
+});
+
+test('opening Redesign initializes the private autosave baseline without changing draft data', () => {
+  const baseline = archiveSource.indexOf('draftAutosaveLastSignature=transmissionDraftAutosaveSignature(buildDraftAutosaveState())');
+  const listeners = archiveSource.indexOf("grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});");
+  const flush = archiveSource.indexOf('const flushDraftAutosave=async()=>{', listeners);
+  const metadataStart = archiveSource.indexOf('const metadata={', archiveSource.indexOf('const buildDraftAutosaveState=()=>{'));
+  const metadataEnd = archiveSource.indexOf('};', metadataStart);
+  assert.ok(listeners >= 0 && baseline > listeners && flush > baseline,
+    'the initial editor state must be captured after editor listeners are wired and before autosave can flush');
+  assert.match(archiveSource.slice(metadataStart, metadataEnd), /status:String\(recordMetadataInputs\.status\.value\|\|'draft'\)/,
+    'publication status must be part of the autosave baseline and persisted draft metadata');
+});
