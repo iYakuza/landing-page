@@ -96,6 +96,15 @@ function localMediaUrl(item){
 }
 function getMedia(raw){return mediaMap.get(urlKey(raw))||null;}
 function isPrivateDraftBlobUrl(raw){const value=String(raw||'');return value.startsWith('blob:')&&privateMediaUrlToPath.has(value);}
+function isKnownPrivateDraftMediaPath(raw){
+ const value=String(raw||'');
+ return value.startsWith('cms-data/v1/media/drafts/')&&[...privateMediaUrlToPath.values()].includes(value);
+}
+function serializePrivateDraftMediaReferences(value){
+ let output=String(value||'');
+ for(const [url,path] of privateMediaUrlToPath)output=output.split(url).join(path);
+ return output;
+}
 function markUsed(item,used){if(item&&used)used.add(String(item.id));}
 function archiveMediaMimeType(item,typeHint=''){
  const declared=String(item?.mime_type||'').trim().toLowerCase();
@@ -127,6 +136,7 @@ function safeExternalUrl(raw,allowedHosts){
 }
 function safeArchiveMediaUrl(raw,allowedHosts){
  const rawValue=String(raw||'').trim();
+ if(isKnownPrivateDraftMediaPath(rawValue))return rawValue;
  if(rawValue.startsWith('blob:')&&privateMediaUrlToPath.has(rawValue))return rawValue;
  if(/^media\//.test(rawValue)&&!rawValue.split('/').some(part=>part==='..')&&!rawValue.includes('?')&&!rawValue.includes('#')&&!rawValue.includes(String.fromCharCode(92))){
   return new URL(archiveSiteBasePath+'/'+rawValue.split('/').map(encodeURIComponent).join('/'),window.location.origin).href;
@@ -801,7 +811,9 @@ function bindChamberDisclosureControls(grid,button){
  syncChamberExpandButton(grid,button);
 }
 function sanitizeTransmissionBody(source){
- const raw=String(source??'');
+ // DOMPurify rejects blob: media URLs. Convert only this editor session's
+ // verified private uploads to repository-relative references before sanitizing.
+ const raw=serializePrivateDraftMediaReferences(String(source??''));
  const parsed=parseSanitizedHTML(raw);
  // Legacy archive fields may contain plain text rather than HTML. Convert their
  // actual newline structure into paragraphs and line breaks before sanitizing.
@@ -836,7 +848,8 @@ function sanitizeTransmissionBody(source){
    const src=media&&mediaReady?localMediaUrl(media):safeArchiveMediaUrl(rawSrc,new Set(['i0.wp.com','emanuelstefancu.wordpress.com']));
    let valid=Boolean(src);
    if(valid){
-    if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
+    if(isKnownPrivateDraftMediaPath(rawSrc))valid=true;
+    else if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
     else{
      const url=new URL(src,document.baseURI);
      if(url.origin===window.location.origin)valid=(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
@@ -853,7 +866,8 @@ function sanitizeTransmissionBody(source){
     const src=media&&mediaReady?localMediaUrl(media):safeArchiveMediaUrl(rawSrc,new Set());
      let valid=Boolean(src);
      if(valid){
-      if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
+      if(isKnownPrivateDraftMediaPath(rawSrc))valid=true;
+      else if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
       else{
        const url=new URL(src,document.baseURI);
        valid=url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
@@ -871,7 +885,8 @@ function sanitizeTransmissionBody(source){
    const src=media&&mediaReady?localMediaUrl(media):safeArchiveMediaUrl(rawSrc,new Set());
     let valid=Boolean(src);
     if(valid){
-     if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
+     if(isKnownPrivateDraftMediaPath(rawSrc))valid=true;
+     else if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
      else{
       const url=new URL(src,document.baseURI);
       valid=url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
@@ -1318,11 +1333,7 @@ if(!readOnly&&typeof window.VHABlockEditor?.mountBlockEditor!=='function'){
   deleteDraft.type='button';
   recordChamber?.querySelector('.ha-chamber-topbar-actions')?.append(deleteDraft);
  }
- const serializePrivateMediaRefs=value=>{
-  let output=String(value||'');
-  for(const [url,path] of privateMediaUrlToPath)output=output.split(url).join(path);
-  return output;
- };
+ const serializePrivateMediaRefs=value=>serializePrivateDraftMediaReferences(value);
  const persistMediaItem=item=>{
   const uploaded=item.uploadedDraft||{};
   const path=String(uploaded.path||item.path||privateMediaUrlToPath.get(item.url)||'');
