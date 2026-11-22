@@ -74,7 +74,10 @@ jobs:
                       errors.append(f"{relative}: CSP is missing {directive}.")
               if "object-src 'none'" not in policy:
                   errors.append(f"{relative}: CSP must retain object-src 'none'.")
-              if "unsafe-inline" in re.search(r"script-src[^;]*", policy).group(0):
+              script_src = re.search(r"(?:^|;)\\s*script-src[^;]*", policy)
+              if not script_src:
+                  errors.append(f"{relative}: CSP is missing script-src.")
+              elif "unsafe-inline" in script_src.group(0):
                   errors.append(f"{relative}: inline script execution must not be allowed.")
               if external_script_pattern.search(html):
                   errors.append(f"{relative}: scripts must be served from the website itself.")
