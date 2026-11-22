@@ -1,8 +1,77 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T17:35:13.144509Z",
-  "last_processed_sha": "d43fe232da93b55cb5a766398f700fbe3fd4537a",
+  "updated_at": "2026-11-22T17:36:18.590727Z",
+  "last_processed_sha": "608b8838599c41b7a5cf9143709cee366202cda6",
   "entries": [
+    {
+      "id": "608b8838599c41b7a5cf9143709cee366202cda6",
+      "timestamp": "2026-11-22T18:36:15+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together cleanup: remove analytics and stale external host policy. It updates index.html and related project files.",
+      "commit_count": 7,
+      "files": [
+        "cv/index.html",
+        "green-dream/index.html",
+        "index.html",
+        "signals/index.html",
+        "transmissions/index.html",
+        "transmissions/the-awakening/index.html",
+        "transmissions/the-descent/index.html"
+      ],
+      "commits": [
+        {
+          "message": "cleanup: remove analytics and stale external host policy",
+          "url": "https://github.com/iYakuza/landing-page/commit/246925cd1be032874082ff2f9625c59b73b30e7f",
+          "files": [
+            "index.html"
+          ]
+        },
+        {
+          "message": "cleanup: remove analytics and stale external host policy",
+          "url": "https://github.com/iYakuza/landing-page/commit/0818d8d967b9279030a6161d79b283ecc462832e",
+          "files": [
+            "green-dream/index.html"
+          ]
+        },
+        {
+          "message": "cleanup: remove analytics and stale external host policy",
+          "url": "https://github.com/iYakuza/landing-page/commit/38a8ec2b63706f7c2bc11d7d5514b8cb9b484f87",
+          "files": [
+            "cv/index.html"
+          ]
+        },
+        {
+          "message": "cleanup: remove analytics and stale external host policy",
+          "url": "https://github.com/iYakuza/landing-page/commit/745c63bdcf93bcb75cac261ce8e46c7af0c4930c",
+          "files": [
+            "transmissions/index.html"
+          ]
+        },
+        {
+          "message": "cleanup: remove analytics and stale external host policy",
+          "url": "https://github.com/iYakuza/landing-page/commit/77ed954f6accc2c65c960fce6a7ba6ec83af08e7",
+          "files": [
+            "signals/index.html"
+          ]
+        },
+        {
+          "message": "cleanup: remove analytics and stale external host policy",
+          "url": "https://github.com/iYakuza/landing-page/commit/8a001c60e6fc88892c8511962f228a0a0185bd35",
+          "files": [
+            "transmissions/the-awakening/index.html"
+          ]
+        },
+        {
+          "message": "cleanup: remove analytics and stale external host policy",
+          "url": "https://github.com/iYakuza/landing-page/commit/608b8838599c41b7a5cf9143709cee366202cda6",
+          "files": [
+            "transmissions/the-descent/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "ca0d43b33c6c726f36f0732926f9eebb8f534550",
       "timestamp": "2026-11-22T18:35:00+01:00",
@@ -1295,27 +1364,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/e0ece34b98838d947860d9882649a70c31b8c2ab",
           "files": [
             "human-archive/archive.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "97be1cc6606b544bd0bfb423dbf003a79686bbb7",
-      "timestamp": "2026-11-18T18:30:39+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Keep signed-in Transmission controls visible when admin access needs attention. It updates creator-posting.js.",
-      "commit_count": 1,
-      "files": [
-        "creator-posting.js"
-      ],
-      "commits": [
-        {
-          "message": "Keep signed-in Transmission controls visible when admin access needs attention",
-          "url": "https://github.com/iYakuza/landing-page/commit/97be1cc6606b544bd0bfb423dbf003a79686bbb7",
-          "files": [
-            "creator-posting.js"
           ]
         }
       ]
