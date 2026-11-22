@@ -190,23 +190,54 @@ test('Transmissions uses the shared DOMPurify sanitizer before parsing stored po
   assert.match(postsHtml, /shared\/vendor\/dompurify-3\.4\.18\.min\.js[\s\S]*posts\.js/);
 });
 
-test('CV contact is mailto-only and public Signal submissions remain paused', () => {
+test('CV contact keeps its form UI but is disconnected from external services', () => {
   const contactSource = fs.readFileSync(path.join(__dirname, '..', 'cv', 'contact.js'), 'utf8');
   const contactHtml = fs.readFileSync(path.join(__dirname, '..', 'cv', 'index.html'), 'utf8');
   const signalsSource = fs.readFileSync(path.join(__dirname, '..', 'transmissions', 'posts.js'), 'utf8');
 
-  assert.ok(contactSource.includes('mailto:stefancu.emanuel@gmail.com'));
-  assert.ok(contactSource.includes('encodeURIComponent(subject)'));
-  assert.ok(contactSource.includes('encodeURIComponent(body)'));
-  assert.doesNotMatch(contactSource, /supabase|cloudflare|fetch/i,
-    'the CV contact form must not call a hosted service');
-  assert.ok(contactHtml.includes('Attachments are added in your email application'));
-  assert.doesNotMatch(contactHtml, /type="file"/,
-    'attachments are added manually after the visitor opens their email application');
+  assert.doesNotMatch(contactSource, /supabase|cloudflare|mailto:|fetch\\s*\\(/i,
+    'the CV contact form must not call or redirect to an external service');
+  assert.ok(contactSource.includes('submitButton.disabled = true'));
+  assert.ok(contactSource.includes('CONTACT FORM TEMPORARILY DISCONNECTED'));
+  assert.ok(contactHtml.includes('id="cv-contact-files"'),
+    'retain the contact form attachment control for the later implementation');
+  assert.ok(contactHtml.includes('<button type="submit" disabled>SEND MESSAGE'));
+  assert.ok(contactHtml.includes('CONTACT FORM TEMPORARILY DISCONNECTED'));
 
   assert.ok(signalsSource.includes('COMMUNITY SUBMISSIONS ARE CURRENTLY PAUSED'));
   assert.ok(signalsSource.includes('submissionButton.disabled=true'));
   assert.ok(signalsSource.includes("submissionForm.querySelectorAll('input,textarea,select').forEach(control=>{control.disabled=true;});"));
+});
+
+test('pending legacy Transmission media is suppressed instead of using its stale fallback URL', () => {
+  const postsSource = fs.readFileSync(path.join(__dirname, '..', 'transmissions', 'posts.js'), 'utf8');
+  const helperStart = postsSource.indexOf('function normalizePublicTransmissionMedia(item) {');
+  const helperEnd = postsSource.indexOf('function renderPostMedia(post)', helperStart);
+  assert.ok(helperStart >= 0 && helperEnd > helperStart, 'the public media normalizer must exist');
+
+  const sandbox = vm.createContext({});
+  vm.runInContext(postsSource.slice(helperStart, helperEnd) + '; this.normalize = normalizePublicTransmissionMedia;', sandbox);
+
+  const pending = plain(sandbox.normalize({
+    media_url: 'media/transmissions/T-0002/featured.jpeg',
+    media_path: 'media/transmissions/T-0002/featured.jpeg',
+    media_items: [{ type: 'image', src: 'media/transmissions/T-0002/featured.jpeg', status: 'pending_recovery' }]
+  }));
+  assert.equal(pending.media_url, '');
+  assert.equal(pending.media_path, '');
+  assert.deepEqual(pending.media_items, []);
+
+  const available = plain(sandbox.normalize({
+    media_url: 'legacy-stale-url',
+    media_items: [{ type: 'video', src: 'media/transmissions/T-0001/video.mp4', path: 'media/transmissions/T-0001/video.mp4', status: 'available' }]
+  }));
+  assert.equal(available.media_url, 'media/transmissions/T-0001/video.mp4');
+  assert.equal(available.media_path, 'media/transmissions/T-0001/video.mp4');
+  assert.equal(available.media_items.length, 1);
+
+  const legacyWithoutManifest = plain(sandbox.normalize({ media_url: 'media/transmissions/legacy/audio.mp3' }));
+  assert.equal(legacyWithoutManifest.media_url, 'media/transmissions/legacy/audio.mp3',
+    'records with no media_items array retain their legacy fallback');
 });
 
 test('Transmission reflection labels are escaped and embed providers use exact hostnames', () => {

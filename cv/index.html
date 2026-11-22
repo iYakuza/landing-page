@@ -157,19 +157,20 @@
     <button class="cv-contact-close" type="button" aria-label="Close contact form">×</button>
     <p class="cv-kicker">INCOMING TRANSMISSION /// CONTACT</p>
     <h2 id="cv-contact-title">LET'S TALK ABOUT <em>THE ROLE.</em></h2>
-    <p>Share a few details and your email application will open with a prepared message. Add your CV, job description, or other attachments in the email before sending.</p>
+    <p>Share a few details about the opportunity. Contact submission is temporarily disconnected while this part of the site is rebuilt.</p>
     <form class="cv-contact-form" id="cv-contact-form">
       <div class="cv-contact-field"><label for="cv-contact-name">YOUR NAME *</label><input id="cv-contact-name" name="name" autocomplete="name" maxlength="120" required></div>
       <div class="cv-contact-field"><label for="cv-contact-email">YOUR EMAIL *</label><input id="cv-contact-email" name="email" type="email" autocomplete="email" maxlength="254" required></div>
       <div class="cv-contact-field full"><label for="cv-contact-subject">ROLE / SUBJECT</label><input id="cv-contact-subject" name="subject" maxlength="180" placeholder="e.g. HR Business Analyst opportunity"></div>
       <div class="cv-contact-field full"><label for="cv-contact-url">URL <span class="cv-contact-hint">(OPTIONAL)</span></label><input id="cv-contact-url" name="url" type="url" inputmode="url" maxlength="2048" placeholder="https://…"></div>
       <div class="cv-contact-field full"><label for="cv-contact-message">MESSAGE *</label><textarea id="cv-contact-message" name="message" maxlength="10000" required placeholder="Tell me a little about the opportunity…"></textarea></div>
-      <div class="cv-contact-field full"><p class="cv-contact-hint">Attachments are added in your email application after it opens. Nothing is uploaded to this website.</p></div>
-      <div class="cv-contact-submit"><button type="submit">OPEN EMAIL ↗</button><p class="cv-contact-status" id="cv-contact-status" role="status" aria-live="polite"></p></div>
+      <div class="cv-contact-field full"><label for="cv-contact-files">ATTACHMENTS (OPTIONAL)</label><input id="cv-contact-files" name="attachments" type="file" multiple><p class="cv-contact-hint">File attachment handling will return when contact submissions are restored.</p></div>
+      <div class="cv-contact-honeypot" aria-hidden="true"><label for="cv-contact-website">Leave this empty</label><input id="cv-contact-website" name="website" tabindex="-1" autocomplete="off"></div>
+      <div class="cv-contact-submit"><button type="submit" disabled>SEND MESSAGE ↗</button><p class="cv-contact-status" id="cv-contact-status" role="status" aria-live="polite">CONTACT FORM TEMPORARILY DISCONNECTED. NO INFORMATION IS SUBMITTED.</p></div>
     </form>
   </div>
 </div>
-<script src="contact.js?v=20261122-mailto-1" defer></script>
+<script src="contact.js?v=20261122-offline-2" defer></script>
 <footer class="gd-footer"><span>PERSONNEL FILE // END OF RECORD</span></footer></div>
 <script src="embed.js?v=20261027-security-1" defer></script>
 <script src="/landing-page/tools.js?v=20261105-crystal-shared-9"></script>

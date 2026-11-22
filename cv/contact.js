@@ -115,26 +115,14 @@
   dialog.addEventListener("click",e=>{if(e.target===dialog)closeDialog();});
   // Escape is handled only while focus is inside this dialog; no page-wide keystroke listener.
   dialog.addEventListener("keydown",e=>{if(e.key==="Escape"&&dialog.classList.contains("is-open"))closeDialog();});
+  const submitButton = form.querySelector('button[type="submit"]');
+  const offlineMessage = "CONTACT FORM TEMPORARILY DISCONNECTED. NO INFORMATION IS SUBMITTED. THIS FORM WILL RETURN IN A FUTURE UPDATE.";
+
+  if (submitButton) submitButton.disabled = true;
+  status.textContent = offlineMessage;
   form.addEventListener("submit", event => {
     event.preventDefault();
-    status.textContent = "";
-
-    const name = form.elements.name.value.trim();
-    const email = form.elements.email.value.trim();
-    const subject = form.elements.subject.value.trim() || form.dataset.defaultSubject || "Contact about a role";
-    const referenceUrl = form.elements.url?.value.trim() || "";
-    const message = form.elements.message.value.trim();
-    const body = [
-      `Name: ${name}`,
-      `Email: ${email}`,
-      referenceUrl ? `Reference URL: ${referenceUrl}` : null,
-      "",
-      message
-    ].filter(part => part !== null).join("\n");
-
-    status.textContent = "Your email application should open with a prepared message. Add any attachments there before sending.";
-    const mailto = `mailto:stefancu.emanuel@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    hostDoc.defaultView.location.href = mailto;
+    status.textContent = offlineMessage;
   });
 
 })();

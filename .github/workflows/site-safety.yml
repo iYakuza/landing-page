@@ -29,20 +29,21 @@ jobs:
           done < <(find . -type f -name '*.js' -not -path './.git/*' -print0)
           node --test tests/github-store-media.test.js
 
-      - name: Enforce backend-free public contact and paused Signal intake
+      - name: Enforce disconnected CV contact and paused Signal intake
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fq 'mailto:stefancu.emanuel@gmail.com' cv/contact.js
-          if grep -Eiq 'supabase|cloudflare|fetch[[:space:]]*[(]' cv/contact.js; then
-            echo "The CV contact form must not call a hosted backend."
+          grep -Fq 'CONTACT FORM TEMPORARILY DISCONNECTED' cv/contact.js
+          if grep -Eiq 'supabase|cloudflare|mailto:|fetch[[:space:]]*[(]' cv/contact.js; then
+            echo "The CV contact form must remain disconnected from hosted services."
             exit 1
           fi
-          grep -Fq 'Attachments are added in your email application' cv/index.html
+          grep -Fq 'id="cv-contact-files"' cv/index.html
+          grep -Fq '<button type="submit" disabled>SEND MESSAGE' cv/index.html
           grep -Fq 'COMMUNITY SUBMISSIONS ARE CURRENTLY PAUSED.' transmissions/posts.js
           grep -Fq "submissionForm.querySelectorAll('input,textarea,select').forEach(control=>{control.disabled=true;});" transmissions/posts.js
           grep -Fq 'submissionButton.disabled=true' transmissions/posts.js
-          echo "CV contact uses mailto; visitor Signal submissions remain disabled."
+          echo "CV contact UI is retained but offline; viewer Signal submissions remain disabled."
 
       - name: Prevent radio controls from regressing
         shell: bash

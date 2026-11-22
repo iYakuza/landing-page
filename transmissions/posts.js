@@ -100,6 +100,19 @@
     yearFilter.innerHTML='<option value="">ALL YEARS</option>'+years.map(value=>'<option value="'+safe(value)+'">'+safe(value)+'</option>').join('');
     yearFilter.value=years.includes(selected)?selected:'';
   }
+  function normalizePublicTransmissionMedia(item) {
+    if (!Array.isArray(item?.media_items)) return { ...item };
+    const mediaItems = item.media_items
+      .filter(media => media && media.status === 'available')
+      .map(media => ({ ...media, url: media.src || media.url }));
+    const primary = mediaItems[0] || null;
+    return {
+      ...item,
+      media_url: primary?.src || primary?.url || '',
+      media_path: primary?.path || '',
+      media_items: mediaItems
+    };
+  }
   function renderPostMedia(post){
     const items=Array.isArray(post.media_items)&&post.media_items.length?post.media_items.filter(item=>item&&typeof item.url==='string'):(post.media_url?[{url:post.media_url,type:post.media_type||'audio'}]:[]);
     if(!items.length)return '';
@@ -377,8 +390,7 @@
           created_at:item.created_at,published_at:item.published_at||item.created_at,community:true
         }))
         : collection.records.filter(item=>item&&item.status==='published').map(item=>({
-          ...item,
-          media_items:(item.media_items||[]).filter(media=>media?.status==='available').map(media=>({...media,url:media.src||media.url})),
+          ...normalizePublicTransmissionMedia(item),
           archive_record_id:item.archive_record_id||Number(String(item.human_archive_id||'').replace(/^HA-/,'')||0),
           community:false
         }));

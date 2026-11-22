@@ -79,49 +79,52 @@ Evidence:
 
 These changes are on `recovery/supabase-content-export-20261119` and are not yet production-deployed. Browser acceptance is still required.
 
-## Current migration status / release gates
+## Current migration status / release notes
 
 **Last updated: 22 November 2026.**
 
-Do not merge PR #135 until the five outstanding legacy media assets below are restored or the owner explicitly accepts their unavailability. The owner has confirmed that the publication lifecycle works in the Preview environment; the public Signal submission form is the one known exception and remains intentionally paused until after the merger.
+The owner has accepted the remaining legacy-media disposition. Those five files are no longer a release gate. The owner has confirmed the Preview publication lifecycle, record 3010 media playback/save/close flow, and no-change Save optimization. The public Signal submission form remains intentionally paused for post-merger redesign.
 
-### Confirmed
+### Owner-confirmed media disposition
 
-- Record 3010's private video/audio media hydration and Chamber/Redesign Chamber viewing were accepted in the owner's browser test.
+| Record | Title | Owner decision | Cutover treatment |
+|---|---|---|---|
+| T-0001 | Purtata corporatriștilor | Missing `cover.jpeg` is not wanted | Remove the stale cover entry; retain the verified video, MP3 and lyrics image |
+| T-0002 | Sunt o culoare | Add the missing JPEG manually later as a block | Keep unavailable legacy media suppressed until updated |
+| T-0003 | The God Beneath the Noise | Add the missing MP4 manually later as a block | Keep unavailable legacy media suppressed until updated |
+| T-0004 | Negocieri pe timp de pace | Add the missing JPEG manually later as a block | Keep unavailable legacy media suppressed until updated |
+| S-0001 | O noapte înstelată | Audio was from the first Signal publishing test; no recovery required | Keep the published text entry; do not recover the test audio |
+
+The Transmissions public reader now clears top-level `media_url` / `media_path` fallback values when a record has a media manifest but none of its items are available. This prevents pending T-0002–T-0004 files from being rendered as broken players/images. Records without a media manifest retain their legacy fallback behavior.
+
+### Confirmed browser acceptance
+
+- Record 3010's private audio/video media hydration and Chamber/Redesign Chamber playback were accepted by the owner.
+- Responsive inline video sizing was accepted.
 - Save → Chamber → Close → archive was accepted.
 - The no-change Save optimization was accepted; it avoids a redundant private-draft commit.
 - The owner confirms the create/edit/publish/unpublish/republish lifecycle works as expected in Preview.
-- The public Signal intake form remains disabled. Published Signals remain readable; visitor submissions will be revisited after the production migration.
-- The GitHub-only CMS uses the public website repository for published content and the private companion repository for drafts and private media.
-- CodeQL on the validated code revision `bc1593feec3d8cb8d26f542338855d4f2edfcd6f` completed successfully with zero security-tagged SARIF findings. Its static-site safety, static security posture, and secret-scanning checks also passed. Re-run CI against the latest migration commit before merge.
+- Viewer Signal submissions stay disabled. Published Signals remain readable; submission intake will be revisited after production cutover.
 
-### Remaining pre-merge decision: five legacy media assets
+### Disconnected / deferred integrations
 
-The old source media could not be downloaded during recovery. The owner is checking their local files for:
+- CV contact: retain the existing form UI, but the submit button is disabled and no submission request is sent. No mailto fallback or replacement service is introduced. Revisit the integration after the merger.
+- Supabase Functions/config/migrations and Cloudflare recovery hosting code are removed from the active candidate. Historical `source_url` values on pending media remain inert provenance/recovery metadata; public readers must not render or request those pending assets.
+- Backup, restore, emergency hosting and legacy media recovery automation are out of scope after the merger. Their old workflows and operational UI have been removed. Existing Google Drive archives and external accounts/projects have not been deleted or modified.
+- The visitor Signal form will be redesigned after the merger.
 
-| Record | Title | Missing asset |
-|---|---|---|
-| T-0001 | Purtata corporatriștilor | `cover.jpeg` |
-| T-0002 | Sunt o culoare | `featured.jpeg` |
-| T-0003 | The God Beneath the Noise | `video.mp4` |
-| T-0004 | Negocieri pe timp de pace | `featured.jpeg` |
-| S-0001 | O noapte înstelată | `audio.mp3` |
+### CI and security
 
-Restore the original files where available. For any file that cannot be found, obtain the owner's explicit acceptance before cutover. Keep the historical source URLs in the content data until the corresponding record is resolved; they are inert provenance/recovery references, not active requests.
+The latest validated migration revision before this update, `3b9bc4ec9678c267a182016cd523178fe5e0108b`, passed static-site safety (**46/46 Node tests**), JavaScript syntax checks, static security posture, secret scanning and CodeQL. Re-run all checks on the current head after the final media-reader/contact adjustments.
 
-### Completed migration safeguards
+### Production cutover
 
-- T-0001 / Human Archive record 3008 content reconciliation is in the recovery branch. Do not import Preview-only drafts or test media into production.
-- The production private sequence was initialized from the verified production values: last-used Transmission 6 and archive record 3008. Preview's test sequence must not be copied.
-- The Preview repository remains a deployment/content harness and must not be merged into the production source repository.
-- Production `main` has not been modified. PR #135 remains the sole migration path and is still Draft/open/unmerged.
+- The private production identifier sequence is seeded with last-used Transmission 6 and archive record 3008. The next production IDs are T-0007 and 3009.
+- Preview's separate private branch contains test drafts and sequence values 10 / 3012; do not copy them into production.
+- `landing-page-preview` is a content/deployment harness, not a branch of the source repository. Do not merge it wholesale.
+- The production source candidate is PR #135 from `recovery/supabase-content-export-20261119` into `landing-page/main`. Production `main` remains unchanged.
+- The preview deployment and production migration branch use the same website source branch. Preview-only private test drafts/media are not production content.
 
-### Explicitly deferred by the owner
+### Post-merger product focus
 
-- The visitor Signal submission workflow will be redesigned after the merger. It must remain disabled for now.
-- Backup, restore, legacy media recovery and emergency hosting are outside the current release scope. Their old GitHub Actions workflows and active Supabase / Cloudflare integration code have been withdrawn from the candidate. The old procedures are not an operational recovery process.
-- Existing Google Drive archives and external provider accounts/projects have not been deleted or modified. Repository code removal does not decommission external services or erase externally stored data. Revisit a replacement backup/recovery architecture after the merger.
-
-### CV contact
-
-The CV contact form is being replaced with a browser-only `mailto:` handoff to the public contact address. It opens a prefilled email in the visitor's email application; visitors must manually add any attachments there. The website will not upload or transmit CV attachments.
+Return to the project's central goals: transparency, in-real-time updates, and human/AI conversations turned into a visible display of ideas. Signal intake, contact, backup/recovery redesign and other nonessential integrations can be handled after the core website is live.
