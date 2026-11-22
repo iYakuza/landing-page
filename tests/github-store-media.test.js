@@ -738,8 +738,12 @@ test('private draft blob media references are converted to verified repository p
   const helper = archiveSource.slice(start, end).trim();
   const blobUrl = 'blob:https://iyakuza.github.io/preview-audio-blob';
   const privatePath = 'cms-data/v1/media/drafts/draft-3010/blocks-audio/audio.mp3';
-  const sandbox = vm.createContext({ privateMediaUrlToPath: new Map([[blobUrl, privatePath]]) });
-  vm.runInContext(helper + '; this.serialize = serializePrivateDraftMediaReferences; this.isKnown = isKnownPrivateDraftMediaPath; this.resolvePath = privateDraftBlobUrlForPath;', sandbox);
+  const privateMediaUrlToPath = new Map([[blobUrl, privatePath]]);
+  const sandbox = vm.createContext({
+    privateMediaUrlToPath,
+    isPrivateDraftBlobUrl: raw => String(raw || '').startsWith('blob:') && privateMediaUrlToPath.has(raw)
+  });
+  vm.runInContext(helper + '; this.serialize = serializePrivateDraftMediaReferences; this.isKnown = isKnownPrivateDraftMediaPath; this.resolvePath = privateDraftBlobUrlForPath; this.resolveMediaUrl = resolvePrivateDraftMediaUrl;', sandbox);
 
   const html = '<div class="ha-audio-block"><figure><audio controls src="' + blobUrl + '"></audio><figcaption>audio.mp3</figcaption></figure></div>';
   const serialized = sandbox.serialize(html);
@@ -748,6 +752,10 @@ test('private draft blob media references are converted to verified repository p
   assert.equal(sandbox.isKnown(privatePath), true, 'only a path mapped from an uploaded blob is trusted');
   assert.equal(sandbox.resolvePath(privatePath), blobUrl, 'verified paths must resolve back to their live blob URL for rendering');
   assert.equal(sandbox.resolvePath('cms-data/v1/media/drafts/other-draft/blocks-audio/audio.mp3'), '', 'unmapped private paths must not resolve to a playable URL');
+  assert.equal(sandbox.resolveMediaUrl(privatePath), blobUrl, 'a verified repository path must resolve to its session Blob URL');
+  assert.equal(sandbox.resolveMediaUrl(blobUrl), blobUrl, 'a currently mapped Blob URL must remain usable in the current session');
+  assert.equal(sandbox.resolveMediaUrl('blob:https://iyakuza.github.io/unmapped'), '', 'an arbitrary Blob URL must never be accepted');
+  assert.equal(sandbox.resolveMediaUrl('cms-data/v1/media/drafts/other-draft/blocks-audio/audio.mp3'), '', 'an unmapped repository path must never be accepted');
   assert.equal(sandbox.isKnown('cms-data/v1/media/drafts/other-draft/blocks-audio/audio.mp3'), false,
     'a guessed path from another draft must not be trusted');
 
@@ -763,6 +771,69 @@ test('private draft blob media references are converted to verified repository p
   const cleanup = archiveSource.slice(cleanupStart, cleanupEnd);
   assert.ok(cleanup.includes("String(keepContent||'').includes(item.path)"),
     'a path preserved in sanitized draft content must protect its uploaded file from cleanup');
+});
+
+
+test('archive card rendering preserves verified private draft audio and image sources through DOMPurify', () => {
+  const rendererStart = archiveSource.indexOf('function appendSafeContent(container,source,record,used){');
+  const rendererEnd = archiveSource.indexOf('\nfunction ', rendererStart + 1);
+  assert.ok(rendererStart >= 0 && rendererEnd > rendererStart, 'archive card media renderer must exist');
+  const renderer = archiveSource.slice(rendererStart, rendererEnd);
+  assert.ok(
+    renderer.includes("parseSanitizedHTML(serializePrivateDraftMediaReferences(String(source??'')))"),
+    'verified session Blob URLs must be converted to private paths before DOMPurify sanitizes the card body'
+  );
+  assert.equal(
+    (renderer.match(/resolvePrivateDraftMediaUrl\(raw\)/g) || []).length,
+    3,
+    'image, audio/video, and source elements must resolve only mapped private draft media'
+  );
+  assert.ok(renderer.includes('if(privateDraftUrl)valid=true'), 'mapped private image media must pass validation');
+  assert.ok(renderer.includes('Boolean(privateDraftUrl)'), 'mapped private audio/video media must pass validation');
+  assert.ok(renderer.includes('source.src=privateDraftUrl||localMediaUrl(item)'),
+    'a verified private source element must be restored as its session Blob URL');
+});
+
+test('cancelling a nested media picker cannot close the Human Archive Chamber', () => {
+  const cancelStart = archiveSource.indexOf("recordChamber.addEventListener('cancel'");
+  const cancelEnd = archiveSource.indexOf('let backdropPointerStart', cancelStart);
+  assert.ok(cancelStart >= 0 && cancelEnd > cancelStart, 'Chamber cancel handling must exist');
+  const handler = archiveSource.slice(cancelStart, cancelEnd);
+  assert.ok(handler.includes("recordChamber.querySelector('.ha-media-picker')"),
+    'the Chamber must detect an open nested media picker');
+  assert.ok(handler.includes('mediaPicker.remove();return;'),
+    'Escape/cancel must dismiss the media picker before the Chamber');
+  assert.match(blockEditorSource, /input\.addEventListener\('cancel'/,
+    'the file input must handle native file-picker cancellation without losing the editor');
+});
+
+test('explicit draft saves become the autosave baseline and do not save again on close', () => {
+  const start = archiveSource.indexOf('function transmissionDraftAutosaveSignature(state){');
+  const end = archiveSource.indexOf('\nfunction chamberUploadToken()', start);
+  assert.ok(start >= 0 && end > start, 'shared draft autosave signature helper must exist');
+  const helper = archiveSource.slice(start, end);
+  const sandbox = vm.createContext({});
+  vm.runInContext(helper + '; this.signature = transmissionDraftAutosaveSignature;', sandbox);
+  const state = {
+    metadata: { title: 'Test', category: 'THE TRANSFORMATION' },
+    row: { transmission_body: '<audio src="private.mp3"></audio>', updated_at: 'now' },
+    mediaItems: [{ path: 'private.mp3' }],
+    blocks: [{ id: 'block-001', html: '<audio src="private.mp3"></audio>' }]
+  };
+  assert.equal(sandbox.signature(state), sandbox.signature({ ...state, row: { ...state.row, updated_at: 'later' } }),
+    'server timestamps must not cause a duplicate autosave');
+  assert.notEqual(sandbox.signature(state), sandbox.signature({ ...state, blocks: [] }),
+    'a real content change must still produce a different signature');
+
+  const autosaveStart = archiveSource.indexOf('const runDraftAutosave=async()=>{');
+  const autosaveEnd = archiveSource.indexOf('const scheduleDraftAutosave=', autosaveStart);
+  assert.ok(autosaveStart >= 0 && autosaveEnd > autosaveStart);
+  assert.ok(archiveSource.slice(autosaveStart, autosaveEnd).includes('signature=transmissionDraftAutosaveSignature(state)'),
+    'automatic saves must use the shared signature');
+  const manualSave = archiveSource.indexOf('const saved=await window.VHACMSStore.saveDraft(draftToSave');
+  assert.ok(manualSave >= 0);
+  assert.ok(archiveSource.slice(manualSave, manualSave + 650).includes('draftAutosaveLastSignature=transmissionDraftAutosaveSignature(state)'),
+    'the explicit Save Chamber path must update the baseline before the Chamber closes');
 });
 
 test('archive editor sanitizer resolves local media URLs against the document base', () => {
