@@ -761,7 +761,7 @@ test('legacy and incomplete MIME values are inferred from the original media fil
   assert.equal(infer({ mime_type: 'image/webp', name: 'cover.jpg' }, 'image'), 'image/webp');
 });
 
-test('the current-record media library marks unrecovered legacy files unavailable', () => {
+test('the current-record media library exposes only verified local media', () => {
   const start = archiveSource.indexOf('const getBlockMediaLibrary=type=>{');
   const end = archiveSource.indexOf('const cleanupBlockMediaUploads=', start);
   assert.ok(start >= 0 && end > start, 'current-record media library builder must exist');
@@ -769,8 +769,11 @@ test('the current-record media library marks unrecovered legacy files unavailabl
   assert.ok(library.includes('getRecordOutputMedia(record,archiveStructure,kind)'));
   assert.equal(library.includes('records.flatMap('), false,
     'the library labelled THIS RECORD’S MEDIA LIBRARY must not mix unrelated records');
-  assert.ok(library.includes('legacyRemote'));
   assert.ok(library.includes('available'));
+  assert.ok(library.includes('(mediaReady&&resolvedLocal)'),
+    'public items must resolve to a verified local GitHub media path');
+  assert.equal(library.includes('legacyRemote'), false,
+    'the media library must not make remote legacy storage available');
   assert.ok(blockEditorSource.includes('option.disabled=item.available===false'));
   assert.ok(blockEditorSource.includes('NOT RECOVERED'));
 });
