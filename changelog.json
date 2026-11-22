@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T17:38:59.131241Z",
-  "last_processed_sha": "39c6490ca137677c5a8fb7cce627436fe6931880",
+  "updated_at": "2026-11-22T17:39:29.190582Z",
+  "last_processed_sha": "2c52ec9405d834d41d3bcd3de362ebf6b82683f4",
   "entries": [
+    {
+      "id": "2c52ec9405d834d41d3bcd3de362ebf6b82683f4",
+      "timestamp": "2026-11-22T18:39:14+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together security: simplify checks around GitHub-local site media. It updates static-security-posture.yml.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/static-security-posture.yml"
+      ],
+      "commits": [
+        {
+          "message": "security: simplify checks around GitHub-local site media",
+          "url": "https://github.com/iYakuza/landing-page/commit/2c52ec9405d834d41d3bcd3de362ebf6b82683f4",
+          "files": [
+            ".github/workflows/static-security-posture.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "39c6490ca137677c5a8fb7cce627436fe6931880",
       "timestamp": "2026-11-22T18:38:47+01:00",
@@ -1359,43 +1380,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/7b51c2c486e255abaed1159863eb404744314bbb",
           "files": [
             "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "104ffe162cc40edaeaeb15fc602601859531d50a",
-      "timestamp": "2026-11-18T18:32:39+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Refresh shared action visibility assets. It updates creator-posting.js, index.html and related project files.",
-      "commit_count": 3,
-      "files": [
-        "creator-posting.js",
-        "index.html",
-        "posts/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Refresh shared action visibility assets",
-          "url": "https://github.com/iYakuza/landing-page/commit/be52715f22be55be2bb62d8aa35c67f81bc2447c",
-          "files": [
-            "creator-posting.js"
-          ]
-        },
-        {
-          "message": "Refresh shared action visibility assets",
-          "url": "https://github.com/iYakuza/landing-page/commit/08149bd92380e15cae9e4241bb4e83cef391151d",
-          "files": [
-            "index.html"
-          ]
-        },
-        {
-          "message": "Refresh shared action visibility assets",
-          "url": "https://github.com/iYakuza/landing-page/commit/104ffe162cc40edaeaeb15fc602601859531d50a",
-          "files": [
-            "posts/index.html"
           ]
         }
       ]
