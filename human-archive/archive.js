@@ -25,7 +25,7 @@ ensureArchiveLayout();
 const search=document.getElementById('ha-search'),year=document.getElementById('ha-year'),category=document.getElementById('ha-category'),list=document.getElementById('ha-list'),count=document.getElementById('ha-count'),mediaStatus=document.getElementById('ha-media-status');
 const newTransmissionButton=document.getElementById('ha-new-transmission'),createTransmissionStatus=document.getElementById('ha-create-status');
 const hasArchiveIndex=Boolean(search&&year&&category&&list&&count);
-const archiveSiteBasePath=window.location.pathname.startsWith('/landing-page-preview/')?'/landing-page-preview':'/landing-page';
+const archiveSiteBasePath='/landing-page';
 const archiveHomeUrl=new URL(archiveSiteBasePath+'/human-archive/',window.location.origin);
 let chamberSaveConflict=false;
 let flushActiveChamberAutosave=async()=>true;
@@ -157,7 +157,7 @@ function safeArchiveMediaUrl(raw,allowedHosts){
 try{
   const url=new URL(rawValue,document.baseURI);
   if(url.protocol==='https:'&&url.origin===window.location.origin&&
-    (url.pathname.startsWith(archiveSiteBasePath+'/media/')||url.pathname.startsWith('/landing-page/media/')||url.pathname.startsWith('/landing-page-preview/media/')))return url.href;
+    (url.pathname.startsWith(archiveSiteBasePath+'/media/')||url.pathname.startsWith('/landing-page/media/')))return url.href;
  }catch{}
  return null;
 }
@@ -298,17 +298,17 @@ function appendSafeContent(container,source,record,used){
   if(tag==='IMG'){
    const raw=node.getAttribute('src')||node.getAttribute('data-src')||'';
    const item=getMedia(raw);
-   if(item&&(mediaReady||item.storage==='vha-post-media')){appendLocalImage(parent,item,record,used);}
+   if(item&&mediaReady){appendLocalImage(parent,item,record,used);}
    else{
     const privateDraftUrl=resolvePrivateDraftMediaUrl(raw);
-    const src=privateDraftUrl||safeArchiveMediaUrl(raw,new Set(['i0.wp.com','emanuelstefancu.wordpress.com']));
+    const src=privateDraftUrl||safeArchiveMediaUrl(raw,new Set());
     let valid=Boolean(src);
     if(valid){
      if(privateDraftUrl)valid=true;
      else if(String(src).startsWith('blob:'))valid=false;
      else{
       const url=new URL(src);
-      if(url.origin===window.location.origin)valid=(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
+      if(url.origin===window.location.origin)valid=(url.pathname.startsWith('/landing-page/'));
       else valid=url.pathname.includes('/wp-content/uploads/');
      }
     }
@@ -320,13 +320,13 @@ function appendSafeContent(container,source,record,used){
   if(tag==='AUDIO'||tag==='VIDEO'){
    const raw=node.getAttribute('src')||'';
    const item=getMedia(raw);
-   if(item&&(mediaReady||item.storage==='vha-post-media')){if(tag==='AUDIO')appendLocalAudio(parent,item,record,used);else appendLocalVideo(parent,item,record,used);return;}
+   if(item&&mediaReady){if(tag==='AUDIO')appendLocalAudio(parent,item,record,used);else appendLocalVideo(parent,item,record,used);return;}
    // Private draft blobs are trusted only while mapped to a verified path in this
    // draft's private repository. The local-origin check below intentionally rejects
    // arbitrary external/blob sources, but must not reject those mapped upload blobs.
    const privateDraftUrl=resolvePrivateDraftMediaUrl(raw);
    const src=privateDraftUrl||safeArchiveMediaUrl(raw,new Set());
-   const valid=Boolean(privateDraftUrl)||(Boolean(src)&&(()=>{const url=new URL(src);return url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));})());
+   const valid=Boolean(privateDraftUrl)||(Boolean(src)&&(()=>{const url=new URL(src);return url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/'));})());
    const mediaNode=document.createElement(tag.toLowerCase());mediaNode.controls=true;mediaNode.preload='none';
    if(valid)mediaNode.src=src;
    if(tag==='VIDEO')mediaNode.playsInline=true;
@@ -338,7 +338,7 @@ function appendSafeContent(container,source,record,used){
    const raw=node.getAttribute('src')||'';
    const item=getMedia(raw);
    const privateDraftUrl=resolvePrivateDraftMediaUrl(raw);
-   if((privateDraftUrl||(item&&(mediaReady||item.storage==='vha-post-media')))&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
+   if((privateDraftUrl||(item&&mediaReady))&&(parent.tagName==='AUDIO'||parent.tagName==='VIDEO')){
     const source=document.createElement('source');
     source.src=privateDraftUrl||localMediaUrl(item);
     const mime=String(item?.mime_type||node.getAttribute('type')||'').trim();
@@ -370,7 +370,7 @@ function appendSafeContent(container,source,record,used){
   if(tag==='A'){
    const href=node.getAttribute('href')||'';
    const media=getMedia(href);
-   if(media&&(mediaReady||media.storage==='vha-post-media')){el.href=localMediaUrl(media);el.target='_blank';el.rel='noopener noreferrer';markUsed(media,used);}
+   if(media&&mediaReady){el.href=localMediaUrl(media);el.target='_blank';el.rel='noopener noreferrer';markUsed(media,used);}
    else{
     try{
      const url=new URL(href,document.baseURI);
@@ -740,7 +740,7 @@ function rewriteTransmissionMediaReferences(html,postId,items){
     const trustedArchivePath=url.origin===window.location.origin&&
      (url.pathname.startsWith(archiveSiteBasePath+'/media/human-archive/HA-')||
       url.pathname.startsWith('/landing-page/media/human-archive/HA-')||
-      url.pathname.startsWith('/landing-page-preview/media/human-archive/HA-'));
+      false);
     return trustedArchivePath?byFilename.get(filenameKey(raw)):undefined;
    }catch{return undefined;}
   })();
@@ -779,7 +779,7 @@ function mediaName(item,record){
 }
 function defaultChamberOutputMedia(record,type){
  const prefix=type==='image'?'image/':type==='audio'?'audio/':'video/';
- const recovered=uniqueRecordMedia(record,prefix).filter(item=>mediaReady||item.storage==='vha-post-media').map(item=>({
+ const recovered=uniqueRecordMedia(record,prefix).filter(item=>mediaReady).map(item=>({
   id:'recovered-'+String(item.id),
   name:mediaTitle(item,record),
   url:localMediaUrl(item),
@@ -860,14 +860,14 @@ function sanitizeTransmissionBody(source){
   if(node.tagName==='IMG'){
    const rawSrc=node.getAttribute('src')||'';
    const media=getMedia(rawSrc);
-   const src=media&&mediaReady?localMediaUrl(media):safeArchiveMediaUrl(rawSrc,new Set(['i0.wp.com','emanuelstefancu.wordpress.com']));
+   const src=media&&mediaReady?localMediaUrl(media):safeArchiveMediaUrl(rawSrc,new Set());
    let valid=Boolean(src);
    if(valid){
     if(isKnownPrivateDraftMediaPath(rawSrc))valid=true;
     else if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
     else{
      const url=new URL(src,document.baseURI);
-     if(url.origin===window.location.origin)valid=(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
+     if(url.origin===window.location.origin)valid=(url.pathname.startsWith('/landing-page/'));
      else valid=url.pathname.includes('/wp-content/uploads/');
     }
    }
@@ -885,7 +885,7 @@ function sanitizeTransmissionBody(source){
       else if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
       else{
        const url=new URL(src,document.baseURI);
-       valid=url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
+       valid=url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/'));
       }
      }
      if(!valid)return;
@@ -904,7 +904,7 @@ function sanitizeTransmissionBody(source){
      else if(String(src).startsWith('blob:'))valid=privateMediaUrlToPath.has(rawSrc);
      else{
       const url=new URL(src,document.baseURI);
-      valid=url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/')||url.pathname.startsWith('/landing-page-preview/'));
+      valid=url.origin===window.location.origin&&(url.pathname.startsWith('/landing-page/'));
      }
     }
     if(!valid)return;
@@ -1058,7 +1058,7 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  let attachedPostMedia=(Array.isArray(record.media_items)?record.media_items:[]).map((item,index)=>{
   const mime=String(item.mime_type||'').toLowerCase();
   const type=['image','audio','video'].includes(item.type)?item.type:(mime.startsWith('image/')?'image':mime.startsWith('video/')?'video':'audio');
-  return {id:String(item.id||'attached-'+index),name:String(item.title||item.name||record.title),url:String(item.url||item.src||item.source_url||''),path:String(item.local_path||item.storage_path||item.path||item.src||''),type,mime_type:mime,storage:String(item.storage||'vha-post-media')};
+  return {id:String(item.id||'attached-'+index),name:String(item.title||item.name||record.title),url:String(item.url||item.src||item.source_url||''),path:String(item.local_path||item.storage_path||item.path||item.src||''),type,mime_type:mime,storage:String(item.storage||'github-public')};
  }).filter(item=>item.url);
  const blockMediaUploadedPaths=[];
  const blockMediaUploadedAssets=[];
@@ -1275,10 +1275,9 @@ const getBlockMediaLibrary=type=>{
    const resolved=getMedia(rawUrl);
    const resolvedPath=String(resolved?.path||resolved?.storage_path||'');
    const resolvedLocal=Boolean(resolved&&['github-public','github-transmission'].includes(String(resolved.storage||''))&&resolvedPath.startsWith('media/'));
-   const legacyRemote=item.storage==='vha-post-media'||/\.supabase\.co\/storage\//i.test(rawUrl);
    const privateLocal=isPrivateDraftBlobUrl(rawUrl)||String(rawPath).startsWith('cms-data/v1/media/drafts/');
    const publicLocal=['github-public','github-transmission'].includes(String(item.storage||''))&&String(rawPath).startsWith('media/');
-   const available=Boolean(item.uploadedDraft||item.file||privateLocal||publicLocal||(legacyRemote&&mediaReady&&resolvedLocal)||(!legacyRemote&&mediaReady&&resolvedLocal));
+   const available=Boolean(item.uploadedDraft||item.file||privateLocal||publicLocal||(mediaReady&&resolvedLocal));
    return {
     ...item,
     url:resolvedLocal?localMediaUrl(resolved):rawUrl,
