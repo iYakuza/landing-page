@@ -490,6 +490,32 @@ async function hydrateArchiveCardContent(record,content){
  delete content.dataset.hydrating;
 }
 
+function syncPublishedTransmissionMedia(record,post,makePublicUrl){
+ const recordId=Number(record.id);
+ const previous=new Set(mediaItems.filter(item=>item.storage==='github-transmission'&&(item.post_ids||[]).some(id=>String(id)===String(recordId))));
+ mediaItems=mediaItems.filter(item=>!previous.has(item));
+ for(const [key,item] of mediaMap){if(previous.has(item))mediaMap.delete(key);}
+ for(const [id,items] of mediaByPost){
+  const remaining=items.filter(item=>!previous.has(item));
+  if(remaining.length)mediaByPost.set(id,remaining);else mediaByPost.delete(id);
+ }
+ const sourceItems=Array.isArray(post.media_items)?post.media_items:(post.media_url?[{url:post.media_url,path:post.media_path,type:post.media_type||'audio',name:post.title}]:[]);
+ const indexed=sourceItems.filter(item=>item&&item.status!=='pending_recovery'&&typeof(item.src||item.url)==='string'&&['image','audio','video'].includes(item.type)).map((item,index)=>{
+  const relative=String(item.src||item.url||item.path||'');
+  const storedPath=String(item.path||item.src||item.url||'').replace(/^\\/+/, '');
+  const publicUrl=/^https?:\\/\\//i.test(relative)?relative:makePublicUrl(relative);
+  return {id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
+   mime_type:archiveMediaMimeType(item,item.type),storage_path:storedPath,path:storedPath,
+   source_url:item.source_url||publicUrl,url:publicUrl,type:item.type,status:item.status||'available',
+   storage:'github-transmission',post_ids:[recordId]};
+ });
+ record.media_items=indexed.map(item=>({...item,storage:'github-public'}));
+ mediaItems.push(...indexed);
+ indexed.forEach(item=>{
+  [item.url,item.source_url,...(item.aliases||[])].map(urlKey).filter(Boolean).forEach(key=>mediaMap.set(key,item));
+ });
+ if(indexed.length)mediaByPost.set(recordId,indexed);
+}
 async function loadTransmissionRecords(){
  const collection=await fetchArchiveJson('../content/transmissions.json',true);
  if(!collection||!Array.isArray(collection.records))throw new Error('The canonical Transmissions collection is unavailable.');
@@ -1615,12 +1641,7 @@ if(!readOnly&&typeof window.VHABlockEditor?.mountBlockEditor!=='function'){
      };
       const rewriteHtml=html=>String(html||'').replace(/(["'])((?:media\/transmissions)\/[^"']+)\1/g,(match,quote,path)=>quote+archiveSiteBasePath+'/'+path.replace(/^\/+/, '')+quote);
      record.content_html=rewriteHtml(post.content_html);
-     record.media_items=(post.media_items||[]).map((item,index)=>({
-      id:'transmission-'+post.id+'-'+index,title:item.name||post.title,alt_text:item.name||post.title,
-      mime_type:archiveMediaMimeType(item,item.type),
-      storage_path:item.path||item.src||item.url||'',source_url:item.source_url||makePublicUrl(item.url||item.src||item.path),
-      url:makePublicUrl(item.url||item.src||item.path),storage:'github-public',post_ids:[Number(record.id)]
-     }));
+     syncPublishedTransmissionMedia(record,post,makePublicUrl);
      record.status='published';record.published_at=post.published_at;record.updated_at=post.updated_at;
      record.media_width=post.media_width||100;record._publicCommitSha=published.commitSha;
      record.isNew=false;record._editOfPublished=Boolean(published.privateCleanupPending);
