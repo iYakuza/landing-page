@@ -730,6 +730,39 @@ test('the current-record media library marks unrecovered legacy files unavailabl
 });
 
 
+
+test('private draft blob media references are converted to verified repository paths before sanitization', () => {
+  const start = archiveSource.indexOf('function isKnownPrivateDraftMediaPath(');
+  const end = archiveSource.indexOf('function markUsed(', start);
+  assert.ok(start >= 0 && end > start, 'private draft path validation and serialization helpers must exist');
+  const helper = archiveSource.slice(start, end).trim();
+  const blobUrl = 'blob:https://iyakuza.github.io/preview-audio-blob';
+  const privatePath = 'cms-data/v1/media/drafts/draft-3010/blocks-audio/audio.mp3';
+  const sandbox = vm.createContext({ privateMediaUrlToPath: new Map([[blobUrl, privatePath]]) });
+  vm.runInContext(helper + '; this.serialize = serializePrivateDraftMediaReferences; this.isKnown = isKnownPrivateDraftMediaPath;', sandbox);
+
+  const html = '<div class="ha-audio-block"><figure><audio controls src="' + blobUrl + '"></audio><figcaption>audio.mp3</figcaption></figure></div>';
+  const serialized = sandbox.serialize(html);
+  assert.match(serialized, new RegExp(privatePath.replace(/[.*+?^${}()|[\]\\]/g, '\\test('archive editor sanitizer resolves local media URLs against the document base', () => {')));
+  assert.doesNotMatch(serialized, /blob:/, 'DOMPurify must never receive the transient blob URL');
+  assert.equal(sandbox.isKnown(privatePath), true, 'only a path mapped from an uploaded blob is trusted');
+  assert.equal(sandbox.isKnown('cms-data/v1/media/drafts/other-draft/blocks-audio/audio.mp3'), false,
+    'a guessed path from another draft must not be trusted');
+
+  const sanitizerStart = archiveSource.indexOf('function sanitizeTransmissionBody(source){');
+  const sanitizerEnd = archiveSource.indexOf('function clearChamberFormattingToolbar()', sanitizerStart);
+  const sanitizer = archiveSource.slice(sanitizerStart, sanitizerEnd);
+  assert.ok(sanitizer.indexOf('serializePrivateDraftMediaReferences(String(source??\'\'))') <
+    sanitizer.indexOf('parseSanitizedHTML(raw)'), 'private references must be serialized before DOMPurify sanitization');
+  assert.ok(sanitizer.includes('isKnownPrivateDraftMediaPath(rawSrc)'),
+    'sanitizer URL validation must accept only verified private draft paths');
+  const cleanupStart = archiveSource.indexOf('const cleanupBlockMediaUploads=');
+  const cleanupEnd = archiveSource.indexOf('if(!readOnly&&typeof window.VHABlockEditor', cleanupStart);
+  const cleanup = archiveSource.slice(cleanupStart, cleanupEnd);
+  assert.ok(cleanup.includes('String(keepContent||\'\').includes(item.path)'),
+    'a path preserved in sanitized draft content must protect its uploaded file from cleanup');
+});
+
 test('archive editor sanitizer resolves local media URLs against the document base', () => {
   const start = archiveSource.indexOf('function sanitizeTransmissionBody(source){');
   const end = archiveSource.indexOf('function clearChamberFormattingToolbar()', start);
