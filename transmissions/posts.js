@@ -630,11 +630,11 @@
     };
     submissionForm.addEventListener('submit',event=>{
       event.preventDefault();
-      setSubmissionStatus('COMMUNITY SUBMISSIONS ARE TEMPORARILY PAUSED DURING THE GITHUB MIGRATION. THE EXISTING SIGNALS ARCHIVE REMAINS AVAILABLE.','error');
+      setSubmissionStatus('COMMUNITY SUBMISSIONS ARE CURRENTLY PAUSED. THE EXISTING SIGNALS ARCHIVE REMAINS AVAILABLE. THE FORM WILL RETURN IN A FUTURE UPDATE.');
     });
     if(submissionButton)submissionButton.disabled=true;
     submissionForm.querySelectorAll('input,textarea,select').forEach(control=>{control.disabled=true;});
-    setSubmissionStatus('COMMUNITY SUBMISSIONS ARE TEMPORARILY PAUSED DURING THE GITHUB MIGRATION. THE EXISTING SIGNALS ARCHIVE REMAINS AVAILABLE.','error');
+    setSubmissionStatus('COMMUNITY SUBMISSIONS ARE CURRENTLY PAUSED. THE EXISTING SIGNALS ARCHIVE REMAINS AVAILABLE. THE FORM WILL RETURN IN A FUTURE UPDATE.');
   }
   search.addEventListener('input',render);categoryFilter?.addEventListener('change',render);yearFilter?.addEventListener('change',render);loadMoreButton?.addEventListener('click',loadMorePosts);load();
 })();

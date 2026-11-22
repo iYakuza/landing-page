@@ -79,222 +79,49 @@ Evidence:
 
 These changes are on `recovery/supabase-content-export-20261119` and are not yet production-deployed. Browser acceptance is still required.
 
-## Current migration blockers / release gates
+## Current migration status / release gates
 
-Do not merge PR #135 until each item is resolved or explicitly accepted by the owner.
+**Last updated: 22 November 2026.**
 
-1. **Preview browser acceptance:** verify record 3008's obsolete Bing Bong attachment can be removed, then confirm it disappears from the archive card and public `media_items` manifest without breaking retained body media.
-2. **Media readiness:** upload a uniquely named audio/video/image asset; verify private draft playback, publish, the explicit waiting status, successful public URL HEAD verification, immediate playback, reload and reopen. Also test timeout messaging.
-3. **No-change publish:** open a published Transmission, make no edits, save, and verify no new public commit/deployment is created; private draft cleanup must still complete.
-4. **Save/close lifecycle:** verify Save → published read-only Chamber → Close succeeds without stale-draft autosave errors.
-5. **Publication lifecycle:** verify new Transmission, edit, publish, reload, unpublish, republish, conflict detection, concurrent editor protection, sign-out and token clearing.
-6. **CodeQL:** the PR head observed on 21 November had a GitHub Advanced Security CodeQL check reporting 12 new alerts, including 5 high-severity alerts. Inspect and resolve every genuine new high-severity issue; distinguish pre-existing/large-diff noise rather than suppressing findings.
-7. **CV contact form:** `cv/contact.js` still calls the Supabase `contact-about-role` Edge Function. Decide whether to retain this dependency or replace it with a clearly accepted alternative that accounts for file attachments.
-8. **Legacy media:** the old Supabase media source returned HTTP 402 during recovery. Restore access and recover outstanding original media, provide replacements, or record explicit owner acceptance of each unavailable asset.
-9. **Production content reconciliation:** T-0001 / record 3008 updates and the uploaded MP3/video/lyrics image in Preview must be reconciled into the migration branch before production cutover. Do not import test-only content, attachments or identifiers unintentionally.
-10. **Production sequence:** initialize the production private sequence from verified production values (the migration record identifies last-used `transmission_number: 6` and `archive_record_id: 3008`). Never copy Preview's sequence/test drafts.
-11. **Backups and recovery:** review Google Drive backup and legacy Supabase migration/restore tooling. Do not shut down the old Supabase project or delete recovery tooling until a verified replacement backup/restore process exists.
+Do not merge PR #135 until the five outstanding legacy media assets below are restored or the owner explicitly accepts their unavailability. The owner has confirmed that the publication lifecycle works in the Preview environment; the public Signal submission form is the one known exception and remains intentionally paused until after the merger.
 
-## Working rules
+### Confirmed
 
-- Investigate before changing files; make scoped changes on the recovery branch.
-- Preserve existing site URLs, pages, content and media unless a change is explicitly part of the approved architecture.
-- Use repository state, PRs, CI and this handoff as the durable record; do not rely on chat memory.
-- After each change: inspect the diff, run syntax/regression/security checks, inspect workflow results, and update this handoff/PR status.
-- Separate verified evidence from hypotheses. Never claim browser acceptance based only on CI or repository inspection.
-- Keep PR #135 Draft until every release gate has an evidence-backed disposition.
+- Record 3010's private video/audio media hydration and Chamber/Redesign Chamber viewing were accepted in the owner's browser test.
+- Save → Chamber → Close → archive was accepted.
+- The no-change Save optimization was accepted; it avoids a redundant private-draft commit.
+- The owner confirms the create/edit/publish/unpublish/republish lifecycle works as expected in Preview.
+- The public Signal intake form remains disabled. Published Signals remain readable; visitor submissions will be revisited after the production migration.
+- The GitHub-only CMS uses the public website repository for published content and the private companion repository for drafts and private media.
+- CodeQL on the validated code revision `bc1593feec3d8cb8d26f542338855d4f2edfcd6f` completed successfully with zero security-tagged SARIF findings. Its static-site safety, static security posture, and secret-scanning checks also passed. Re-run CI against the latest migration commit before merge.
 
+### Remaining pre-merge decision: five legacy media assets
 
-## Preview T-0001 reconciliation into the migration branch — 21 November 2026
+The old source media could not be downloaded during recovery. The owner is checking their local files for:
 
-**Status: reconciled at repository level; browser acceptance still required.**
-
-A one-time checksum-verified GitHub Actions transfer copied these Preview files into the recovery branch:
-
-| File | Bytes | Git blob SHA |
-|---|---:|---|
-| `media/transmissions/T-0001/3bf2c4f2-7a59-4a4e-a71e-6c7956c23234-Purtata-corporatris-tilor-video.mp4` | 12,981,931 | `8b5191309fb8275a983e0a8fda676b9c593027b4` |
-| `media/transmissions/T-0001/ae2ae42b-1f30-4ae3-bdbb-3884857ee3a9-Purtata-corporatris-tilor-lyrics.png` | 3,487,332 | `21587a36e6e803cf02928f4f38ba1ab00ee1ea48` |
-| `media/transmissions/T-0001/b793521b-5bb5-404b-82ba-598a64cc46f3-Purtata-corporatris-tilor-mp3.mp3` | 2,722,328 | `3d829c8ed53a2e13aec10f8993eadf115b2bfc4b` |
-
-The Actions job checked each downloaded file's exact byte count and Git blob SHA before committing any data. Transfer run: [#44952369034](https://github.com/iYakuza/landing-page/actions/runs/44952369034). Data commit: [`f1d83c4`](https://github.com/iYakuza/landing-page/commit/f1d83c46de4b6f38f6f3cfbbfb15e3ae1885ddc2).
-
-The reconciliation updated only T-0001 and its linked Human Archive structure:
-
-- The Transmission body and saved block HTML now reference the uploaded MP3, video and lyrics image using production-relative `media/transmissions/T-0001/...` paths.
-- The Transmission's public `media_items` manifest contains exactly those three available local assets.
-- The Human Archive `editor_structures` entry for `record_id: 3008` retains `public_record_id: HA-3008`; its body, block stream and output-media lists now use the same three local files.
-- The obsolete Bing Bong attachment is absent from the reconciled public manifest and body. Its physical file was not copied to production.
-- Production `created_at` and `published_at` remain unchanged. `updated_at` records the latest Preview save.
-- The 111-item Human Archive media manifest was not broadly replaced or rewritten.
-- The temporary `.github/workflows/reconcile-preview-t1.yml` transfer workflow was removed immediately after the successful transfer.
-
-Repository-level verification confirmed the three paths exist with the expected sizes and blob SHAs, the T-0001 body and structure contain no obsolete Bing Bong reference, the linked structure has no Preview-specific URL prefixes, and no Preview sequence or test drafts were copied.
-
-**Remaining:** owner-authenticated Preview browser acceptance of the reconciled editor changes, and the other release gates above. This reconciliation is on the recovery branch only; production `main` has not been changed.
-
-
-## Production private sequence initialization — 21 November 2026
-
-The production private repository `iYakuza/iyakuza-cms-private` now has `cms-data/v1/sequences.json` on its `main` branch:
-
-```json
-{
-  "transmission_number": 6,
-  "archive_record_id": 3008,
-  "updated_at": "2026-11-21T21:38:00.000Z"
-}
-```
-
-Commit: [`25c424d`](https://github.com/iYakuza/iyakuza-cms-private/commit/25c424d9bda757c017fc9845bb9d3eff006d08e7).
-
-This produces the next production identifiers **T-0007** and **3009**. The seed was created only because the production `main` branch had no sequence file; the production export's last-used identifiers were verified from the migration inventory and data. The private Preview branch remains unchanged and retains its test sequence (`10`, `3012`) and test drafts. Do not copy those Preview values or drafts into production.
-
-
-## Remaining legacy media after T-0001 reconciliation — 21 November 2026
-
-The migration branch's `recovery-data/transmission-media-report.json` and current canonical collections identify these remaining pending assets:
-
-| Record | Missing/pending asset | Evidence / disposition |
+| Record | Title | Missing asset |
 |---|---|---|
-| T-0001 | Original `cover.jpeg` | The source object was absent from the available restore bucket. The new uploaded audio, video and lyrics image are already verified and reconciled as replacements. |
-| T-0002 | `featured.jpeg` | Matching object exists in restore metadata; download was blocked by HTTP 402. |
-| T-0003 | `video.mp4` | Matching object exists in restore metadata; download was blocked by HTTP 402. |
-| T-0004 | `featured.jpeg` | Matching object exists in restore metadata; download was blocked by HTTP 402. |
-| S-0001 | `audio.mp3` | Remains `pending_recovery`; no local asset is present in the recovery or Preview media directories. |
+| T-0001 | Purtata corporatriștilor | `cover.jpeg` |
+| T-0002 | Sunt o culoare | `featured.jpeg` |
+| T-0003 | The God Beneath the Noise | `video.mp4` |
+| T-0004 | Negocieri pe timp de pace | `featured.jpeg` |
+| S-0001 | O noapte înstelată | `audio.mp3` |
 
-The Transmission recovery report originally listed 7 pending Transmission files (4 for T-0001 and one each for T-0002/T-0003/T-0004). After the verified T-0001 reconciliation, 4 of those remain. S-0001 adds one further pending Signals asset. Keep these references marked unavailable/pending; do not guess filenames, substitute other files, or mark them available without verifying bytes.
+Restore the original files where available. For any file that cannot be found, obtain the owner's explicit acceptance before cutover. Keep the historical source URLs in the content data until the corresponding record is resolved; they are inert provenance/recovery references, not active requests.
 
-The old Supabase download source returned HTTP 402 (cached egress quota exceeded). T-0002/T-0003/T-0004 matching objects were found in restore metadata but could not be downloaded. T-0001's source files were not present in the available restore project's bucket. This is still a production cutover exception that requires recovery, replacements or explicit owner acceptance.
+### Completed migration safeguards
 
+- T-0001 / Human Archive record 3008 content reconciliation is in the recovery branch. Do not import Preview-only drafts or test media into production.
+- The production private sequence was initialized from the verified production values: last-used Transmission 6 and archive record 3008. Preview's test sequence must not be copied.
+- The Preview repository remains a deployment/content harness and must not be merged into the production source repository.
+- Production `main` has not been modified. PR #135 remains the sole migration path and is still Draft/open/unmerged.
 
-## Security remediation and latest validation — 21 November 2026
+### Explicitly deferred by the owner
 
-The migration branch includes these additional security changes:
+- The visitor Signal submission workflow will be redesigned after the merger. It must remain disabled for now.
+- Backup, restore, legacy media recovery and emergency hosting are outside the current release scope. Their old GitHub Actions workflows and active Supabase / Cloudflare integration code have been withdrawn from the candidate. The old procedures are not an operational recovery process.
+- Existing Google Drive archives and external provider accounts/projects have not been deleted or modified. Repository code removal does not decommission external services or erase externally stored data. Revisit a replacement backup/recovery architecture after the merger.
 
-- Pinned DOMPurify **3.4.18** locally under `shared/vendor/`, with its upstream license included. The same shared asset is loaded before the Human Archive and Transmissions renderers; no new third-party runtime CDN dependency was introduced.
-- The five CodeQL high-severity DOM-XSS findings previously reported in `human-archive/archive.js` were traced to raw `DOMParser` entry points. The five rendering/cleaning paths now obtain a sanitized DOM fragment through DOMPurify before the allowlist reconstruction. The one search-only parser that reads text content remains a text-only path.
-- Transmission content is also sanitized at the final collapsible-template insertion point. Reflection labels are HTML-escaped; both the original clean-up and final insertion use the shared sanitizer.
-- The embed block classifier now parses URLs and matches exact approved provider hostnames instead of substring regexes.
-- The legacy Poetry submission converter keeps encoded angle brackets from being decoded into raw markup and encodes any residual literal angle brackets in its plain-text output.
+### CV contact
 
-CodeQL SARIF from the post-DOMPurify scan on commit `745af8d3e1d5d5f710c6b9013a8c25e245f537ad` confirmed **zero high-severity findings** and no remaining `js/xss-through-dom` or missing-regexp-anchor findings. That report still contained two lower-severity `js/incomplete-multi-character-sanitization` warnings (Poetry plain-text conversion and Transmission section content); the Transmission renderer has since been hardened at the final HTML insertion boundary. The follow-up CodeQL run on the latest branch head `69d7d2731ac2432343f07b27a1143b19f74ff1b8` was still running at 22:03 UTC, so do not report the latest CodeQL gate as green until that run completes and its SARIF/check result is reviewed.
-
-Latest completed validations on the current head:
-- Static-site validation: **37/37 Node tests passed**, including the new DOMPurify final-sink test and Poetry plain-text test.
-- Static security posture: passed.
-- Secret scanning: passed.
-- JavaScript syntax and project-specific static checks: passed.
-
-The short-lived SARIF artifact retention in `.github/workflows/codeql.yml` was added only to inspect the findings because normal GitHub connector endpoints did not expose alert details. After final CodeQL triage, remove the staging/upload steps and rerun checks; do not leave diagnostic-only workflow behavior in the production architecture unless explicitly justified.
-
-## Preview acceptance retest — private draft media and Chamber lifecycle (22 November 2026)
-
-The owner's authenticated browser retest of **record 3010 / T-0008** exposed three distinct behaviours:
-- A newly uploaded `You Are Water.mp3` played inside Design mode and was successfully written to the Preview private repository and draft HTML, but disappeared from the archive card after save/reopen.
-- Cancelling the native file picker unexpectedly exited the entire Chamber.
-- Closing after an explicit Save displayed `SAVING PRIVATE DRAFT…` and performed a redundant second save.
-
-Repository evidence from `iYakuza/iyakuza-cms-private:preview` confirmed that the audio bytes were present and the saved HTML contained their exact private path. The earlier `The_Microwave_in_My_Kitchen_demo.mp3` block is a caption-only orphan with no source URL and cannot be played; it must be removed and re-uploaded from the owner's local copy.
-
-Corrective changes on this recovery branch:
-- The archive-card renderer now converts only session-mapped private Blob URLs to verified private repository paths before DOMPurify sanitization, then resolves those paths back to the session Blob URL during safe element reconstruction. Image, audio/video and nested source elements all use the same verified resolver.
-- A native file-picker cancellation or Escape now dismisses the nested media picker without closing the Human Archive Chamber.
-- A successful explicit draft save updates the autosave signature baseline, so the subsequent Chamber close does not write the same draft again.
-- Added regression coverage for the archive-card sanitization path, mapped/unmapped private-media URL resolution, nested file-picker cancellation and explicit-save/autosave signature parity.
-- Bumped Human Archive and block-editor asset cache versions.
-
-Validation:
-- Preview workflow [#45024858887](https://github.com/iYakuza/landing-page-preview/actions/runs/45024858887): **build and deploy succeeded**.
-- Preview validation: JavaScript syntax checks passed; **42/42 Node regression tests passed**.
-- Recovery-branch workflows on commit `319ba41cd225531f34a915c9d290a33ab74d2525`: Static-site safety, static security posture, secret scanning and CodeQL all completed successfully.
-- This is code/CI and repository-level verification only. The owner must still repeat the browser acceptance on record 3010 after deployment. Confirm (1) You Are Water player displays and plays from the archive card and Chamber after reopening and hard refresh, (2) cancelling file selection leaves Chamber open, and (3) Close no longer triggers a redundant private autosave after Save Chamber.
-
-No production `main` change was made. PR #135 remains Draft and unmerged.
- 
-## Follow-up — explicit Save lifecycle and responsive inline video (22 November 2026)
-
-The owner's latest authenticated Preview retest confirmed:
-- `You Are Water.mp3` renders and plays in the archive card, Chamber and Redesign view.
-- The filename-only `The_Microwave_in_My_Kitchen_demo.mp3` block was removed.
-- `Water, Take Me.mp4` uploaded, played in Design mode, persisted in the private draft, and remained playable in the Chamber and archive card after refresh.
-- The archive-card video rendered too wide for the card.
-- Clicking Close after a successful explicit Save still displayed `SAVING PRIVATE DRAFT…`.
-
-Repository evidence from the private Preview draft confirms the video and audio references remain in `transmission_body` and `blocks` under their matching private `cms-data/v1/media/drafts/<draft-id>/...` paths. Both files are still private and have not been promoted to production/public storage.
-
-Corrective changes:
-- On successful explicit `DRAFT SAVED PRIVATELY`, stop the current editor instance's autosave lifecycle and clear any queued timer before returning to the read-only Chamber view. A subsequent `Redesign Chamber` creates a fresh autosave lifecycle. This avoids a second save caused by the previous editor instance's teardown/re-render.
-- Add `.ha-entry-body video` responsive sizing (`width:100%`, `max-width:100%`, `height:auto`, `object-fit:contain`) and constrain saved column sections so inline video cannot exceed an archive card's content width.
-- Add regression tests for the explicit-save lifecycle shutdown and archive-card inline-video sizing.
-- Bump the Human Archive CSS and JavaScript cache versions.
-
-Validation on recovery commit `1b18ba116382e027d413310ac605cb5075d244f6`:
-- Preview workflow [#45030890392](https://github.com/iYakuza/landing-page-preview/actions/runs/45030890392): build and deployment succeeded.
-- Preview JavaScript syntax checks passed; **44/44 Node regression tests passed**.
-- Static-site safety, static security posture and secret scanning completed successfully.
-- CodeQL analysis was still running at the time of this handoff update; inspect its final result before release.
-
-Owner browser acceptance remains outstanding for (1) the inline video fitting within the card on desktop and mobile, and (2) Save Chamber followed by Close without any second `SAVING PRIVATE DRAFT…` cycle. Confirm the saved video still plays after closing, reopening and hard refresh.
-
-The `NO LOOSE ATTACHMENTS` message is expected while media is embedded in the Transmission body; body-referenced media remains attached automatically and does not appear as a loose attachment entry. The old caption-only block was removed and has no remaining source to recover.
-
-No production `main` change was made. PR #135 remains Draft and unmerged.
- 
-## Current release decision
-
-PR #135 remains Draft. Do not merge until the current CodeQL run is complete and triaged, owner-authenticated browser acceptance has covered the new attachment/media/no-op flows, the five missing legacy assets are recovered/replaced/explicitly accepted, and the CV contact-form dependency decision is recorded. Production `main` remains untouched.
-
-
-## Owner Preview retest — record 3010 and no-op draft-save optimization (22 November 2026)
-
-The owner-authenticated browser retest of **record 3010 / T-0008** confirmed:
-- **Water, Take Me.mp4** renders, plays and now fits the archive card correctly.
-- The media remains available through the archive card, Chamber and Redesign flow.
-- **Save changes → Chamber → Close → archive** completed successfully.
-- The 01 // Attached media panel showed only the explanatory note and **NO LOOSE ATTACHMENTS**. This is correct: the current audio/video files are embedded in the Transmission body, while the draft's loose media_items collection is empty. Body media is preserved automatically and does not appear as removable loose attachments.
-- The archive card displayed LOADING RECORD CONTENT… for approximately 3–5 seconds. Code tracing confirms this is the record-scoped private-media hydration path: it retrieves the selected draft's private media blobs from the private CMS repository and creates browser Blob URLs before rendering. This is not a missing-media state. It is a visible latency/performance item; no speculative timeout or missing-file fallback was added.
-
-The owner reported 5–10 seconds after clicking **Save changes**. Source inspection found that a newly opened Redesign editor initialized its autosave signature as empty. An immediate Save could therefore write the unchanged initial draft during autosave flush, then fetch and write the same content again in the explicit-save path.
-
-Corrective optimization committed to the recovery branch:
-- Initialize the autosave signature from the editor's actual initial state when Redesign opens; opening and immediately saving without edits no longer schedules an unnecessary initial private commit.
-- Include the draft publication status in the same metadata snapshot used by autosave, so status changes remain detectable and persist correctly.
-- Compare the current private draft's metadata/content against the explicit-save payload. When they are identical, skip the redundant Git commit; when any payload field changes, perform the normal save.
-- Preserve the private-branch head comparison before treating a save as a no-op, so concurrent private-repository changes still block stale writes.
-- Bump the Human Archive script cache key to archive.js?v=20261122-noop-draft-save-1.
-- Added regression tests for no-op snapshot comparison, status/content changes, conflict-guard retention and initial autosave baseline setup.
-
-Validation:
-- Preview workflow [#45036781216](https://github.com/iYakuza/landing-page-preview/actions/runs/45036781216): build and Pages deployment succeeded.
-- JavaScript syntax checks passed; **46/46 Node regression tests passed**.
-- The build again logged unrelated HTTP 402 errors from the legacy Supabase media recovery source; these are existing recovery exceptions, not failures of the private-draft save optimization.
-- The owner subsequently repeated the no-edit Save test on Preview and confirmed that the optimization worked: Save completed without the redundant second `SAVING PRIVATE DRAFT…` cycle. This closes the record 3010 no-op Save browser-acceptance item.
-
-No production main change was made. PR #135 remains Draft and unmerged. The private Preview draft and its embedded audio/video files were not modified by this code deployment.
-
-
-## Final migration-readiness check — 22 November 2026
-
-The owner confirmed the latest no-edit Save browser test on Preview works without a redundant second private-draft save. The record 3010 media/card sizing and Chamber round-trip remain browser-accepted.
-
-Latest automated evidence on recovery commit `bc1593feec3d8cb8d26f542338855d4f2edfcd6f`:
-- CodeQL workflow [#45038493473](https://github.com/iYakuza/landing-page/actions/runs/45038493473) completed successfully. Its retained SARIF contains 26 diagnostic results, **zero security-tagged findings**, and no remaining incomplete-multi-character-sanitization alert.
-- Static-site safety [#45038493439](https://github.com/iYakuza/landing-page/actions/runs/45038493439), static security posture [#45038493450](https://github.com/iYakuza/landing-page/actions/runs/45038493450), and secret scanning [#45038493471](https://github.com/iYakuza/landing-page/actions/runs/45038493471) completed successfully.
-- Preview build/deployment [#45038501561](https://github.com/iYakuza/landing-page-preview/actions/runs/45038501561) completed successfully; JavaScript syntax checks passed and **46/46 Node regression tests passed**.
-- The Poetry plain-text transformation no longer regex-strips arbitrary tags or decodes `&amp;` into a potentially dangerous sequence. It extracts text with a bounded character scanner and preserves valid entity references while escaping raw angle brackets and ampersands.
-
-## Cutover safeguards and remaining release decisions
-
-**Do not merge the Preview repository into production.** The Preview workflow builds the website from this recovery branch and uses the separate Preview repository only for isolated Preview content/media plus deployment workflow. Directly importing Preview data is unsafe:
-- Preview T-0001 / record 3008 has Preview-era `created_at`/`published_at` timestamps (20 November 2026) and Preview-prefixed media URLs; the recovery branch retains the original production timestamps (16 November 2026) and production-relative paths.
-- Preview's public media tree still contains the obsolete `Bing-Bong-I-Am-a-Spoon.mp3` file, while the recovery branch intentionally excludes it from the reconciled T-0001 manifest/body.
-- The private Preview branch contains test drafts and test sequence values 10 / 3012. Production private `main` contains only the verified sequence seed 6 / 3008 and must not receive Preview drafts or test identifiers.
-
-The correct code cutover remains a squash merge of PR #135 from `recovery/supabase-content-export-20261119` into `landing-page/main`, only after the following are closed or explicitly accepted:
-1. **Five pending legacy media assets:** T-0001 `cover.jpeg`; T-0002 `featured.jpeg`; T-0003 `video.mp4`; T-0004 `featured.jpeg`; and S-0001 `audio.mp3`. Recover them, supply replacements, or explicitly accept their unavailability.
-2. **CV contact form:** `cv/contact.js` still calls the Supabase `contact-about-role` Edge Function. Record the owner's decision to retain that service for launch or replace it, accounting for attachment delivery.
-3. **Publication lifecycle browser acceptance:** verify new Transmission create/publish/visitor reload, edit and no-change publish behaviour, unpublish/republish, media promotion/readiness, conflict and concurrent-editor handling, and sign-out/token clearing. Record 3010 draft media/Save acceptance does not exercise these public publication paths.
-4. **Backup and restore:** complete the Google Drive backup and legacy Supabase recovery review before decommissioning the old project or removing recovery tooling.
-
-PR #135 remains Draft and unmerged. Production `main` remains untouched.
+The CV contact form is being replaced with a browser-only `mailto:` handoff to the public contact address. It opens a prefilled email in the visitor's email application; visitors must manually add any attachments there. The website will not upload or transmit CV attachments.

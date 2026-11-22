@@ -29,12 +29,20 @@ jobs:
           done < <(find . -type f -name '*.js' -not -path './.git/*' -print0)
           node --test tests/github-store-media.test.js
 
-      - name: Validate owner-only recovery workflow and project helper syntax
+      - name: Enforce backend-free public contact and paused Signal intake
         shell: bash
         run: |
           set -euo pipefail
-          node --check scripts/manage_recovery_pages_project.mjs
-          ruby -e 'require "yaml"; YAML.load_file(".github/workflows/manual-recovery-preview.yml", aliases: true); puts "Manual recovery workflow YAML is valid."'
+          grep -Fq 'mailto:stefancu.emanuel@gmail.com' cv/contact.js
+          if grep -Eiq 'supabase|cloudflare|fetch[[:space:]]*[(]' cv/contact.js; then
+            echo "The CV contact form must not call a hosted backend."
+            exit 1
+          fi
+          grep -Fq 'Attachments are added in your email application' cv/index.html
+          grep -Fq 'COMMUNITY SUBMISSIONS ARE CURRENTLY PAUSED.' transmissions/posts.js
+          grep -Fq "submissionForm.querySelectorAll('input,textarea,select').forEach(control=>{control.disabled=true;});" transmissions/posts.js
+          grep -Fq 'submissionButton.disabled=true' transmissions/posts.js
+          echo "CV contact uses mailto; visitor Signal submissions remain disabled."
 
       - name: Prevent radio controls from regressing
         shell: bash

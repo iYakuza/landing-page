@@ -72,42 +72,16 @@
         <div class="cms-recovery-head">
           <div>
             <p class="gd-kicker">GREEN DREAM // OPERATIONS</p>
-            <h2 id="recovery-centre-title">RECOVERY <em>CENTRE</em></h2>
-            <p class="cms-help">A single launchpad for backup, validation and restoration. Each link opens GitHub Actions; GitHub remains responsible for authentication and run confirmation.</p>
+            <h2 id="recovery-centre-title">BACKUP &amp; RECOVERY <em>PAUSED</em></h2>
+            <p class="cms-help">Backup and recovery controls are temporarily withdrawn while the GitHub-only publishing setup is consolidated.</p>
           </div>
-          <span class="cms-recovery-mode">MANUAL ONLY</span>
+          <span class="cms-recovery-mode">DEFERRED</span>
         </div>
         <div class="cms-recovery-notice">
-          <strong>RUN THE CORRECT BRANCH</strong>
-          <span>While PR #20 remains unmerged, select <code>backup/apps-script-transfer-redesign</code> in GitHub Actions. Do not use <code>main</code> for the actual restore implementation.</span>
+          <strong>DO NOT RUN LEGACY WORKFLOWS</strong>
+          <span>Automated backup, restore and recovery workflows are out of scope for this release. They will be redesigned after the production migration.</span>
         </div>
-        <div class="cms-recovery-grid">
-          <article class="cms-recovery-card">
-            <p class="gd-kicker">01 // PUBLIC</p>
-            <h3>PUBLISHED WEBSITE REPOSITORY</h3>
-            <p>The public repository contains the website, published Transmissions, Human Archive records and recovered public media.</p>
-            <a class="cms-button primary" href="https://github.com/iYakuza/landing-page/tree/recovery/supabase-content-export-20261119" target="_blank" rel="noopener noreferrer">OPEN RECOVERY BRANCH ↗</a>
-          </article>
-          <article class="cms-recovery-card">
-            <p class="gd-kicker">02 // PRIVATE</p>
-            <h3>PRIVATE CMS REPOSITORY</h3>
-            <p>Unpublished drafts, private media, favourites and CMS metadata belong in the private companion repository.</p>
-            <a class="cms-button" href="https://github.com/iYakuza/iyakuza-cms-private" target="_blank" rel="noopener noreferrer">OPEN PRIVATE REPOSITORY ↗</a>
-          </article>
-          <article class="cms-recovery-card">
-            <p class="gd-kicker">03 // ARCHITECTURE</p>
-            <h3>MIGRATION PLAN</h3>
-            <p>Review the GitHub-only architecture, transaction model, security boundaries and remaining integration work.</p>
-            <a class="cms-button" href="https://github.com/iYakuza/landing-page/blob/recovery/supabase-content-export-20261119/docs/CMS_MIGRATION_PLAN.md" target="_blank" rel="noopener noreferrer">OPEN MIGRATION PLAN ↗</a>
-          </article>
-          <article class="cms-recovery-card">
-            <p class="gd-kicker">04 // DATA</p>
-            <h3>CONTENT DATA MODEL</h3>
-            <p>Inspect the private draft format, identifier sequence, media lifecycle and publish/unpublish transactions.</p>
-            <a class="cms-button" href="https://github.com/iYakuza/landing-page/blob/recovery/supabase-content-export-20261119/docs/CMS_DATA_MODEL.md" target="_blank" rel="noopener noreferrer">OPEN DATA MODEL ↗</a>
-          </article>
-        </div>
-        <p class="cms-recovery-foot">PUBLISHED CONTENT IS KEPT IN THE PUBLIC GITHUB REPOSITORY. UNPUBLISHED DRAFTS AND PRIVATE MEDIA ARE KEPT IN THE PRIVATE COMPANION REPOSITORY. THE TARGET CMS ARCHITECTURE DOES NOT USE SUPABASE OR CLOUDFLARE.</p>
+        <p class="cms-recovery-foot">PUBLISHED CONTENT REMAINS IN THE PUBLIC GITHUB REPOSITORY. UNPUBLISHED DRAFTS AND PRIVATE MEDIA REMAIN IN THE PRIVATE COMPANION REPOSITORY. EXISTING GOOGLE DRIVE ARCHIVES HAVE NOT BEEN MODIFIED.</p>
       </section>
     </section>
     <section id="github-sequence-setup" class="cms-panel" hidden>

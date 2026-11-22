@@ -5,10 +5,6 @@
   const openButton = document.querySelector(".cv-contact-open");
   const closeButton = dialog.querySelector(".cv-contact-close");
   const status = document.getElementById("cv-contact-status");
-  const submit = form.querySelector('button[type="submit"]');
-  const fileInput = document.getElementById("cv-contact-files");
-  const endpoint = "https://oeyxsqocldlovhsmzcjw.supabase.co/functions/v1/contact-about-role";
-  const allowed = new Set(["application/pdf","application/msword","application/vnd.openxmlformats-officedocument.wordprocessingml.document","text/plain","image/png","image/jpeg","application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]);
   const embedded = window.parent !== window;
   const hostDoc = embedded ? window.parent.document : document;
   let previousFocus = null;
@@ -119,24 +115,26 @@
   dialog.addEventListener("click",e=>{if(e.target===dialog)closeDialog();});
   // Escape is handled only while focus is inside this dialog; no page-wide keystroke listener.
   dialog.addEventListener("keydown",e=>{if(e.key==="Escape"&&dialog.classList.contains("is-open"))closeDialog();});
-  fileInput?.addEventListener("change",()=>{
-    const files=[...(fileInput.files||[])],total=files.reduce((s,f)=>s+f.size,0);
-    const invalid=files.find(f=>!allowed.has(f.type)||f.size>5*1024*1024);
-    if(files.length>5||total>10*1024*1024||invalid){fileInput.value="";status.textContent=invalid?"Unsupported file type or file over 5 MB. Use PDF, DOC/DOCX, TXT, PNG/JPG, or XLS/XLSX.":"Choose up to 5 files, 10 MB total.";}else status.textContent="";
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+    status.textContent = "";
+
+    const name = form.elements.name.value.trim();
+    const email = form.elements.email.value.trim();
+    const subject = form.elements.subject.value.trim() || form.dataset.defaultSubject || "Contact about a role";
+    const referenceUrl = form.elements.url?.value.trim() || "";
+    const message = form.elements.message.value.trim();
+    const body = [
+      `Name: ${name}`,
+      `Email: ${email}`,
+      referenceUrl ? `Reference URL: ${referenceUrl}` : null,
+      "",
+      message
+    ].filter(part => part !== null).join("\n");
+
+    status.textContent = "Your email application should open with a prepared message. Add any attachments there before sending.";
+    const mailto = `mailto:stefancu.emanuel@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    hostDoc.defaultView.location.href = mailto;
   });
-  function encodeFile(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve({filename:file.name,type:file.type,content:String(reader.result).split(",")[1]});reader.onerror=()=>reject(new Error("Could not read an attachment."));reader.readAsDataURL(file);});}
-  form.addEventListener("submit",async event=>{
-    event.preventDefault();status.textContent="";
-    const files=[...(fileInput.files||[])],total=files.reduce((s,f)=>s+f.size,0);
-    if(files.length>5||total>10*1024*1024||files.some(f=>!allowed.has(f.type)||f.size>5*1024*1024)){status.textContent="Please check attachment types and size limits.";return;}
-    submit.disabled=true;submit.textContent="SENDING…";
-    try{
-      const messageParts=[form.elements.message.value.trim()];const referenceUrl=form.elements.url?.value.trim();if(referenceUrl)messageParts.push("Reference URL: "+referenceUrl);const payload={name:form.elements.name.value.trim(),email:form.elements.email.value.trim(),subject:form.elements.subject.value.trim()||form.dataset.defaultSubject||"Contact about a role",message:messageParts.filter(Boolean).join("\n\n"),website:form.elements.website.value.trim(),attachments:await Promise.all(files.map(encodeFile))};
-      const response=await fetch(endpoint,{method:"POST",mode:"cors",credentials:"omit",redirect:"error",referrerPolicy:"no-referrer",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-      const result=await response.json().catch(()=>({}));
-      if(!response.ok||!result.ok)throw new Error("SEND_FAILED");
-      form.reset();status.textContent="Message sent. Thank you — I’ll be in touch.";
-    }catch{status.textContent="The message could not be sent. Please check your connection and try again.";}
-    finally{submit.disabled=false;submit.textContent="SEND MESSAGE ↗";}
-  });
+
 })();
