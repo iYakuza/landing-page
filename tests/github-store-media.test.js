@@ -190,35 +190,23 @@ test('Transmissions uses the shared DOMPurify sanitizer before parsing stored po
   assert.match(postsHtml, /shared\/vendor\/dompurify-3\.4\.18\.min\.js[\s\S]*posts\.js/);
 });
 
-test('Poetry plain-text conversion extracts text safely and preserves HTML entities', () => {
-  const edgeSource = fs.readFileSync(path.join(__dirname, '..', 'supabase', 'functions', 'poetry-submit', 'index.ts'), 'utf8');
-  assert.ok(edgeSource.includes('const plainBodyText = extractPlainTextFromRichHtml(htmlBody);'));
-  assert.ok(edgeSource.includes('const plainBody = htmlEscapePreservingEntities(plainBodyText);'));
-  assert.ok(!edgeSource.includes('.replace(/<[^>]*>/g, "")'));
-  assert.ok(!edgeSource.includes('.replace(/&amp;/g, "&")'));
+test('CV contact is mailto-only and public Signal submissions remain paused', () => {
+  const contactSource = fs.readFileSync(path.join(__dirname, '..', 'cv', 'contact.js'), 'utf8');
+  const contactHtml = fs.readFileSync(path.join(__dirname, '..', 'cv', 'index.html'), 'utf8');
+  const signalsSource = fs.readFileSync(path.join(__dirname, '..', 'transmissions', 'posts.js'), 'utf8');
 
-  const helperStart = edgeSource.indexOf('function extractPlainTextFromRichHtml(source: string) {');
-  const escapeStart = edgeSource.indexOf('function htmlEscapePreservingEntities(s: string) {');
-  const helperEnd = edgeSource.indexOf('function htmlEscapePreservingEntities', helperStart);
-  const escapeEnd = edgeSource.indexOf('function slugify', escapeStart);
-  assert.ok(helperStart >= 0 && helperEnd > helperStart, 'plain-text extractor must exist');
-  assert.ok(escapeStart >= 0 && escapeEnd > escapeStart, 'entity-preserving HTML escaper must exist');
+  assert.ok(contactSource.includes('mailto:stefancu.emanuel@gmail.com'));
+  assert.ok(contactSource.includes('encodeURIComponent(subject)'));
+  assert.ok(contactSource.includes('encodeURIComponent(body)'));
+  assert.doesNotMatch(contactSource, /supabase|cloudflare|fetch/i,
+    'the CV contact form must not call a hosted service');
+  assert.ok(contactHtml.includes('Attachments are added in your email application'));
+  assert.doesNotMatch(contactHtml, /type="file"/,
+    'attachments are added manually after the visitor opens their email application');
 
-  const helpers = (edgeSource.slice(helperStart, helperEnd) + edgeSource.slice(escapeStart, escapeEnd))
-    .replaceAll('source: string', 'source').replaceAll('s: string', 's');
-  const sandbox = vm.createContext({});
-  vm.runInContext(helpers + '; this.extract = extractPlainTextFromRichHtml; this.escape = htmlEscapePreservingEntities;', sandbox);
-  assert.equal(sandbox.extract('<p>One</p><p>Two<br>Line</p>'), 'One\n\nTwo\nLine');
-  assert.equal(sandbox.extract('<script>unsafe()</script><p>Safe</p>'), 'unsafe()Safe',
-    'markup tags are removed while their contents remain plain text');
-  assert.equal(sandbox.extract('<script'), '<script', 'malformed markup remains text for the final escaper');
-  assert.equal(sandbox.escape('Tom & Jerry'), 'Tom &amp; Jerry');
-  assert.equal(sandbox.escape('&amp;'), '&amp;', 'valid ampersand entities should remain intact');
-  assert.equal(sandbox.escape('&lt;script&gt;'), '&lt;script&gt;', 'encoded markup must remain text');
-  assert.equal(sandbox.escape('&amp;lt;script&amp;gt;'), '&amp;lt;script&amp;gt;',
-    'nested encoded markup must not be decoded into an HTML tag');
-  assert.equal(sandbox.escape('<b>plain text</b>'), '&lt;b&gt;plain text&lt;/b&gt;',
-    'raw angle brackets must be escaped');
+  assert.ok(signalsSource.includes('COMMUNITY SUBMISSIONS ARE CURRENTLY PAUSED'));
+  assert.ok(signalsSource.includes('submissionButton.disabled=true'));
+  assert.ok(signalsSource.includes("submissionForm.querySelectorAll('input,textarea,select').forEach(control=>{control.disabled=true;});"));
 });
 
 test('Transmission reflection labels are escaped and embed providers use exact hostnames', () => {
