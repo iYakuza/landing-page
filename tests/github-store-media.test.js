@@ -132,11 +132,11 @@ test('published Transmission media replaces the live archive attachment index wi
   ]);
   const mediaByPost = new Map([[3008, [oldAttachment, baseArchiveMedia]], [3009, [otherRecordAttachment]]]);
   const sandbox = vm.createContext({
-    mediaItems, mediaMap, mediaByPost,
+    initialMediaItems: mediaItems, mediaMap, mediaByPost,
     archiveMediaMimeType: item => item.mime_type || 'audio/mpeg',
     urlKey: raw => { try { return new URL(String(raw || ''), 'https://iyakuza.github.io').pathname; } catch { return ''; } }
   });
-  vm.runInContext(helper + '; this.syncPublishedTransmissionMedia = syncPublishedTransmissionMedia; this.getMediaItems = () => mediaItems;', sandbox);
+  vm.runInContext('let mediaItems = initialMediaItems; ' + helper + '; this.syncPublishedTransmissionMedia = syncPublishedTransmissionMedia; this.getMediaItems = () => mediaItems;', sandbox);
 
   const record = { id: 3008, media_items: [] };
   const bodyAsset = 'media/transmissions/T-0001/body-audio.mp3';
