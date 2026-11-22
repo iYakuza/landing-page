@@ -136,7 +136,7 @@ test('published Transmission media replaces the live archive attachment index wi
     archiveMediaMimeType: item => item.mime_type || 'audio/mpeg',
     urlKey: raw => { try { return new URL(String(raw || ''), 'https://iyakuza.github.io').pathname; } catch { return ''; } }
   });
-  vm.runInContext(helper + '; this.syncPublishedTransmissionMedia = syncPublishedTransmissionMedia;', sandbox);
+  vm.runInContext(helper + '; this.syncPublishedTransmissionMedia = syncPublishedTransmissionMedia; this.getMediaItems = () => mediaItems;', sandbox);
 
   const record = { id: 3008, media_items: [] };
   const bodyAsset = 'media/transmissions/T-0001/body-audio.mp3';
@@ -147,10 +147,10 @@ test('published Transmission media replaces the live archive attachment index wi
   };
   sandbox.syncPublishedTransmissionMedia(record, post, value => '/landing-page-preview/' + String(value).replace(/^\/+/, ''));
 
-  assert.equal(sandbox.mediaItems.some(item => item.id === oldAttachment.id), false, 'removed attachment must disappear immediately');
-  assert.equal(sandbox.mediaItems.includes(otherRecordAttachment), true, 'another Transmission attachment must remain untouched');
-  assert.equal(sandbox.mediaItems.includes(baseArchiveMedia), true, 'non-Transmission archive media for this record must remain untouched');
-  assert.equal(sandbox.mediaItems.some(item => item.path === bodyAsset), true, 'media still referenced by the published body must remain indexed');
+  assert.equal(sandbox.getMediaItems().some(item => item.id === oldAttachment.id), false, 'removed attachment must disappear immediately');
+  assert.equal(sandbox.getMediaItems().includes(otherRecordAttachment), true, 'another Transmission attachment must remain untouched');
+  assert.equal(sandbox.getMediaItems().includes(baseArchiveMedia), true, 'non-Transmission archive media for this record must remain untouched');
+  assert.equal(sandbox.getMediaItems().some(item => item.path === bodyAsset), true, 'media still referenced by the published body must remain indexed');
   assert.equal(sandbox.mediaMap.has('/removed.mp3'), false, 'removed media URL aliases must be cleared');
   assert.equal(sandbox.mediaMap.has('/keep.mp3'), true, 'other-record URL aliases must remain');
   assert.equal(sandbox.mediaMap.has('/landing-page-preview/' + bodyAsset), true, 'newly published body media must be indexed');
