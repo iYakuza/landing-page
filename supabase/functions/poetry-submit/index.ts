@@ -108,6 +108,30 @@ function htmlEscape(s: string) {
 function richText(s: string) {
   return s.split(/\n\s*\n/).map(p => "<p>" + htmlEscape(p).replaceAll("\n", "<br>") + "</p>").join("");
 }
+function extractPlainTextFromRichHtml(source: string) {
+  let output = "";
+  let cursor = 0;
+  while (cursor < source.length) {
+    const open = source.indexOf("<", cursor);
+    if (open < 0) {
+      output += source.slice(cursor);
+      break;
+    }
+    output += source.slice(cursor, open);
+    const close = source.indexOf(">", open + 1);
+    if (close < 0) {
+      output += source.slice(open);
+      break;
+    }
+    const tag = source.slice(open + 1, close).trim().toLowerCase();
+    const closing = tag.startsWith("/");
+    const name = tag.match(/^\/?([a-z][a-z0-9-]*)/)?.[1] || "";
+    if (name === "br" && !closing) output += "\n";
+    else if (name === "p" && closing) output += "\n\n";
+    cursor = close + 1;
+  }
+  return output;
+}
 function htmlEscapePreservingEntities(s: string) {
   return s.replace(/&(?!(?:[a-z][a-z0-9]*|#\d+|#x[0-9a-f]+);)/gi, "&amp;")
     .replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -231,9 +255,9 @@ Deno.serve(async (request: Request) => {
       const videoEmbed = asUrl(fd["video-embed"]);
       const slugValue = String(fd.slug || item.slug || "");
       const htmlBody = String(fd["words-and-note"] || "");
-      // Strip rich-text markup but preserve valid character references; only
-      // escape raw ampersands and angle brackets. Do not decode &amp; first.
-      const plainBodyText = htmlBody.replace(/<br\s*\/?\s*>/gi, "\n").replace(/<\/p>\s*<p[^>]*>/gi, "\n\n").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ");
+      // Extract text without regex-based markup stripping, then HTML-escape it.
+      // Valid entity references stay intact and are never decoded into markup.
+      const plainBodyText = extractPlainTextFromRichHtml(htmlBody);
       const plainBody = htmlEscapePreservingEntities(plainBodyText);
       const medium = mediumIds[String(fd.medium || "")] || String(fd.medium || "poem").toLowerCase();
       let attachmentType = attachmentIds[String(fd["attachment-type"] || "")] || String(fd["attachment-type"] || "").toLowerCase();
