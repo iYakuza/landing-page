@@ -1,8 +1,61 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T17:43:52.010837Z",
-  "last_processed_sha": "9ea64a78248c855ae05b0d41fcea23f992258d44",
+  "updated_at": "2026-11-22T17:45:56.099292Z",
+  "last_processed_sha": "872950f8b1f4b929a5f3b5fc411fe96418d45eaf",
   "entries": [
+    {
+      "id": "872950f8b1f4b929a5f3b5fc411fe96418d45eaf",
+      "timestamp": "2026-11-22T18:45:53+01:00",
+      "category": "CONTENT",
+      "component": "Website Updates",
+      "title": "Fresh additions to Website Updates",
+      "description": "This update brings together content: keep Signal text without retired test audio; docs: update CMS setup for GitHub access; docs: simplify GitHub CMS data model; and 2 more related changes. It updates SETUP.md, signals.json, CMS_DATA_MODEL.md, CONTENT_ARCHITECTURE.md and related project files.",
+      "commit_count": 5,
+      "files": [
+        "cms/SETUP.md",
+        "content/signals.json",
+        "docs/CMS_DATA_MODEL.md",
+        "docs/CONTENT_ARCHITECTURE.md",
+        "docs/WEBSITE_AND_CONTENT_STRUCTURE.md"
+      ],
+      "commits": [
+        {
+          "message": "content: keep Signal text without retired test audio",
+          "url": "https://github.com/iYakuza/landing-page/commit/c8fdf101685d36704c09ed0e0fbba15087c7ccea",
+          "files": [
+            "content/signals.json"
+          ]
+        },
+        {
+          "message": "docs: update CMS setup for GitHub access",
+          "url": "https://github.com/iYakuza/landing-page/commit/9be8157648d82faba796376d5b5c17a9242d8b87",
+          "files": [
+            "cms/SETUP.md"
+          ]
+        },
+        {
+          "message": "docs: simplify GitHub CMS data model",
+          "url": "https://github.com/iYakuza/landing-page/commit/4d794cf4f4fd3dc23ce44f6ba863fdff71fffde0",
+          "files": [
+            "docs/CMS_DATA_MODEL.md"
+          ]
+        },
+        {
+          "message": "docs: simplify content architecture",
+          "url": "https://github.com/iYakuza/landing-page/commit/c256b9750d434d2c4ed718842984810ac58c27f3",
+          "files": [
+            "docs/CONTENT_ARCHITECTURE.md"
+          ]
+        },
+        {
+          "message": "docs: simplify website structure",
+          "url": "https://github.com/iYakuza/landing-page/commit/872950f8b1f4b929a5f3b5fc411fe96418d45eaf",
+          "files": [
+            "docs/WEBSITE_AND_CONTENT_STRUCTURE.md"
+          ]
+        }
+      ]
+    },
     {
       "id": "9ea64a78248c855ae05b0d41fcea23f992258d44",
       "timestamp": "2026-11-22T18:43:30+01:00",
@@ -1370,27 +1423,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/51abaceff90f82db56eb47bfc4d6d668157daf37",
           "files": [
             "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "661ec1da437ae059c3b960bf2e1e8e3301563dfa",
-      "timestamp": "2026-11-18T19:53:37+01:00",
-      "category": "FEATURE",
-      "component": "Website",
-      "title": "New capabilities for Website",
-      "description": "This update brings together Open new Transmissions directly in editor mode. It updates archive.js.",
-      "commit_count": 1,
-      "files": [
-        "human-archive/archive.js"
-      ],
-      "commits": [
-        {
-          "message": "Open new Transmissions directly in editor mode",
-          "url": "https://github.com/iYakuza/landing-page/commit/661ec1da437ae059c3b960bf2e1e8e3301563dfa",
-          "files": [
-            "human-archive/archive.js"
           ]
         }
       ]
