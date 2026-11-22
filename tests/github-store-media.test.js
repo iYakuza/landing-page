@@ -195,7 +195,7 @@ test('CV contact keeps its form UI but is disconnected from external services', 
   const contactHtml = fs.readFileSync(path.join(__dirname, '..', 'cv', 'index.html'), 'utf8');
   const signalsSource = fs.readFileSync(path.join(__dirname, '..', 'transmissions', 'posts.js'), 'utf8');
 
-  assert.doesNotMatch(contactSource, /supabase|cloudflare|mailto:|fetch\\s*\\(/i,
+  assert.doesNotMatch(contactSource, /supabase|cloudflare|mailto:|fetch/i,
     'the CV contact form must not call or redirect to an external service');
   assert.ok(contactSource.includes('submitButton.disabled = true'));
   assert.ok(contactSource.includes('CONTACT FORM TEMPORARILY DISCONNECTED'));
