@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T17:45:56.099292Z",
-  "last_processed_sha": "20294bf38d70e121e2058769e5c4dbe2f8152fdc",
+  "updated_at": "2026-11-22T17:49:23.566389Z",
+  "last_processed_sha": "5d251250d50e8bc456ee720c4ac5fa442507f214",
   "entries": [
+    {
+      "id": "5d251250d50e8bc456ee720c4ac5fa442507f214",
+      "timestamp": "2026-11-22T18:49:17+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together cleanup: accept only GitHub-local editor media; style: use system fonts without external requests. It updates block-editor.js, archive.css, chamber.css.",
+      "commit_count": 3,
+      "files": [
+        "editor-ui/block-editor.js",
+        "human-archive/archive.css",
+        "human-archive/chamber.css"
+      ],
+      "commits": [
+        {
+          "message": "cleanup: accept only GitHub-local editor media",
+          "url": "https://github.com/iYakuza/landing-page/commit/ebb4abc714810b0fd31bd6a31e3c05f27357effd",
+          "files": [
+            "editor-ui/block-editor.js"
+          ]
+        },
+        {
+          "message": "style: use system fonts without external requests",
+          "url": "https://github.com/iYakuza/landing-page/commit/1bcf8d1db4b12505599b63e7b73ff041c3541725",
+          "files": [
+            "human-archive/archive.css"
+          ]
+        },
+        {
+          "message": "style: use system fonts without external requests",
+          "url": "https://github.com/iYakuza/landing-page/commit/5d251250d50e8bc456ee720c4ac5fa442507f214",
+          "files": [
+            "human-archive/chamber.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "872950f8b1f4b929a5f3b5fc411fe96418d45eaf",
       "timestamp": "2026-11-22T18:45:53+01:00",
@@ -1378,51 +1415,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/93397e9a089280bf2abf1e780abd889517d1ba5f",
           "files": [
             "index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "51abaceff90f82db56eb47bfc4d6d668157daf37",
-      "timestamp": "2026-11-18T19:53:58+01:00",
-      "category": "FEATURE",
-      "component": "Website Updates",
-      "title": "New capabilities for Website Updates",
-      "description": "This update brings together Refresh conditional new Transmission action assets. It updates creator-posting.js, index.html and related project files.",
-      "commit_count": 4,
-      "files": [
-        "creator-posting.js",
-        "human-archive/index.html",
-        "index.html",
-        "posts/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Refresh conditional new Transmission action assets",
-          "url": "https://github.com/iYakuza/landing-page/commit/fab881e72acea803c1a1502b6d260b063eb895d6",
-          "files": [
-            "creator-posting.js"
-          ]
-        },
-        {
-          "message": "Refresh conditional new Transmission action assets",
-          "url": "https://github.com/iYakuza/landing-page/commit/4f097421e039fb1e40c110a9e99f1dacf7cc6cfb",
-          "files": [
-            "index.html"
-          ]
-        },
-        {
-          "message": "Refresh conditional new Transmission action assets",
-          "url": "https://github.com/iYakuza/landing-page/commit/1ebf9294df2d2851086ba777cca81e6b93c22510",
-          "files": [
-            "posts/index.html"
-          ]
-        },
-        {
-          "message": "Refresh conditional new Transmission action assets",
-          "url": "https://github.com/iYakuza/landing-page/commit/51abaceff90f82db56eb47bfc4d6d668157daf37",
-          "files": [
-            "human-archive/index.html"
           ]
         }
       ]
