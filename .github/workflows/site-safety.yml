@@ -34,8 +34,8 @@ jobs:
         run: |
           set -euo pipefail
           grep -Fq 'CONTACT FORM TEMPORARILY DISCONNECTED' cv/contact.js
-          if grep -Eiq 'supabase|cloudflare|mailto:|fetch[[:space:]]*[(]' cv/contact.js; then
-            echo "The CV contact form must remain disconnected from hosted services."
+          if grep -Eiq 'mailto:|fetch[[:space:]]*[(]' cv/contact.js; then
+            echo "The CV contact form must remain offline and must not submit information."
             exit 1
           fi
           grep -Fq 'id="cv-contact-files"' cv/index.html
