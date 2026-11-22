@@ -10,6 +10,7 @@ const source = fs.readFileSync(path.join(__dirname, '..', 'cms', 'github-store.j
 const archiveSource = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'archive.js'), 'utf8');
 const blockEditorSource = fs.readFileSync(path.join(__dirname, '..', 'editor-ui', 'block-editor.js'), 'utf8');
 const archiveHtml = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'index.html'), 'utf8');
+const archiveCssSource = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'archive.css'), 'utf8');
 const context = vm.createContext({ window: {}, URL });
 vm.runInContext(source, context, { filename: 'cms/github-store.js' });
 
@@ -836,6 +837,31 @@ test('explicit draft saves become the autosave baseline and do not save again on
   assert.ok(manualSave >= 0);
   assert.ok(archiveSource.slice(manualSave, manualSave + 650).includes('draftAutosaveLastSignature=transmissionDraftAutosaveSignature(state)'),
     'the explicit Save Chamber path must update the baseline before the Chamber closes');
+});
+
+
+test('explicit draft Save stops the obsolete autosave lifecycle before read-only rendering', () => {
+  const saved = archiveSource.indexOf("status.textContent='DRAFT SAVED PRIVATELY';");
+  const categoryUpdate = archiveSource.indexOf('if(!categoryOrder.includes(metadata.category))', saved);
+  assert.ok(saved >= 0 && categoryUpdate > saved, 'explicit draft save success path must exist');
+  const stop = archiveSource.indexOf('draftAutosaveStopped=true;draftAutosaveQueued=false;', saved);
+  const clearTimer = archiveSource.indexOf('if(draftAutosaveTimer){clearTimeout(draftAutosaveTimer);draftAutosaveTimer=null;}', stop);
+  assert.ok(stop > saved && stop < categoryUpdate,
+    'after a successful private draft save, the editor instance must stop autosave before returning to read-only view');
+  assert.ok(clearTimer > stop && clearTimer < categoryUpdate,
+    'any queued autosave timer must be cleared before the saved Chamber becomes read-only');
+  assert.match(archiveSource, /if\(!shouldRunTransmissionDraftAutosave\(record,draftAutosaveEnabled,draftAutosaveStopped\)\)/,
+    'close-time autosave must honour the stopped lifecycle flag');
+});
+
+test('inline videos in Human Archive cards are constrained to the card content width', () => {
+  const rule = archiveCssSource.match(/\.ha-entry-body video\{([^}]*)\}/);
+  assert.ok(rule, 'archive card video rule must exist');
+  assert.match(rule[1], /display:block/);
+  assert.match(rule[1], /width:100%/);
+  assert.match(rule[1], /max-width:100%/);
+  assert.match(rule[1], /height:auto/);
+  assert.match(rule[1], /object-fit:contain/);
 });
 
 test('archive editor sanitizer resolves local media URLs against the document base', () => {
