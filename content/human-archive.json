@@ -3287,13 +3287,11 @@
   "media_manifest": {
     "schema_version": 1,
     "created_at": "2026-11-14",
-    "source": "WordPress published Human Archive records and media library, plus externally hosted inline files referenced by those records",
+    "source": "GitHub-hosted local media with original source links retained as provenance.",
     "archive_record_count": 140,
     "attached_media_count": 101,
     "referenced_inline_file_count": 26,
     "item_count": 111,
-    "public_base_url": "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/",
-    "bucket": "human-archive-media",
     "items": [
       {
         "id": "wp-7",
@@ -3306,7 +3304,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2016/03/prigoare-bg1-edited.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/4/7-prigoare-bg1-edited.jpg"
+          "/landing-page/media/human-archive/HA-0004/7-prigoare-bg1-edited.jpg"
         ],
         "storage_path": "posts/4/7-prigoare-bg1-edited.jpg",
         "mime_type": "image/jpeg",
@@ -3327,7 +3325,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2016/03/687474703a2f2f7777772e7468656f6e746172696f6e2e636f6d2f77702d636f6e74656e742f75706c6f6164732f323031332f31312f7765627468756d625f7265666c656b746f727265766965775f436f7572746573792e6a7067.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/12/14-687474703a2f2f7777772e7468656f6e746172696f6e2e636f6d2f77702d636f6e74656e742f75706c6f6164732f323031332f31312f7765627468756d625f7265666c656b746f727265766965775f436f7572746573792e6a7067.jpg"
+          "/landing-page/media/human-archive/HA-0012/14-687474703a2f2f7777772e7468656f6e746172696f6e2e636f6d2f77702d636f6e74656e742f75706c6f6164732f323031332f31312f7765627468756d625f7265666c656b746f727265766965775f436f7572746573792e6a7067.jpg"
         ],
         "storage_path": "posts/12/14-687474703a2f2f7777772e7468656f6e746172696f6e2e636f6d2f77702d636f6e74656e742f75706c6f6164732f323031332f31312f7765627468756d625f7265666c656b746f727265766965775f436f7572746573792e6a7067.jpg",
         "mime_type": "image/jpeg",
@@ -3348,7 +3346,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2016/03/adam-and-eve-1512.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/17/19-adam-and-eve-1512.jpg"
+          "/landing-page/media/human-archive/HA-0017/19-adam-and-eve-1512.jpg"
         ],
         "storage_path": "posts/17/19-adam-and-eve-1512.jpg",
         "mime_type": "image/jpeg",
@@ -3369,7 +3367,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2016/03/pixlr-image-generator-1ebdebb6-4225-4f86-990d-e5ea765ba48d.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/20/1101-pixlr-image-generator-1ebdebb6-4225-4f86-990d-e5ea765ba48d.png"
+          "/landing-page/media/human-archive/HA-0020/1101-pixlr-image-generator-1ebdebb6-4225-4f86-990d-e5ea765ba48d.png"
         ],
         "storage_path": "posts/20/1101-pixlr-image-generator-1ebdebb6-4225-4f86-990d-e5ea765ba48d.png",
         "mime_type": "image/png",
@@ -3390,7 +3388,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2016/03/preview.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/20/1103-preview.jpg"
+          "/landing-page/media/human-archive/HA-0020/1103-preview.jpg"
         ],
         "storage_path": "posts/20/1103-preview.jpg",
         "mime_type": "image/jpeg",
@@ -3412,7 +3410,7 @@
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/05/stellar20ext20v2.2.1.1.1.mp3",
         "aliases": [
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/05/stellar20ext20v2.2.1.1.1.mp3",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/20/1148-stellar20ext20v2.2.1.1.1.mp3"
+          "/landing-page/media/human-archive/HA-0020/1148-stellar20ext20v2.2.1.1.1.mp3"
         ],
         "storage_path": "posts/20/1148-stellar20ext20v2.2.1.1.1.mp3",
         "mime_type": "audio/mpeg",
@@ -3433,7 +3431,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2016/03/illuminate_by_auroralion-d9kj1go.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/20/31-illuminate_by_auroralion-d9kj1go.jpg"
+          "/landing-page/media/human-archive/HA-0020/31-illuminate_by_auroralion-d9kj1go.jpg"
         ],
         "storage_path": "posts/20/31-illuminate_by_auroralion-d9kj1go.jpg",
         "mime_type": "image/jpeg",
@@ -3454,7 +3452,7 @@
         "caption_html": "<p>Coffee and Diary</p>\n",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2016/04/o-write-notebook-coffee-facebook.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/32/35-o-write-notebook-coffee-facebook.jpg"
+          "/landing-page/media/human-archive/HA-0032/35-o-write-notebook-coffee-facebook.jpg"
         ],
         "storage_path": "posts/32/35-o-write-notebook-coffee-facebook.jpg",
         "mime_type": "image/jpeg",
@@ -3476,7 +3474,7 @@
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2016/06/ink20blood20v2.2.1.1.2.2.mp3",
         "aliases": [
           "https://emanuelstefancu.com/wp-content/uploads/2016/06/ink20blood20v2.2.1.1.2.2.mp3",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/40/1181-ink20blood20v2.2.1.1.2.2.mp3"
+          "/landing-page/media/human-archive/HA-0040/1181-ink20blood20v2.2.1.1.2.2.mp3"
         ],
         "storage_path": "posts/40/1181-ink20blood20v2.2.1.1.2.2.mp3",
         "mime_type": "audio/mpeg",
@@ -3497,7 +3495,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2016/06/angelica.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/40/1182-angelica.png"
+          "/landing-page/media/human-archive/HA-0040/1182-angelica.png"
         ],
         "storage_path": "posts/40/1182-angelica.png",
         "mime_type": "image/png",
@@ -3518,7 +3516,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2016/06/467137_jhk349429578431008_1593698545_o.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/56/58-467137_jhk349429578431008_1593698545_o.jpg"
+          "/landing-page/media/human-archive/HA-0056/58-467137_jhk349429578431008_1593698545_o.jpg"
         ],
         "storage_path": "posts/56/58-467137_jhk349429578431008_1593698545_o.jpg",
         "mime_type": "image/jpeg",
@@ -3540,7 +3538,7 @@
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/dusk20dawn20ext20v2.2.2.2.1.2.mp3",
         "aliases": [
           "https://emanuelstefancu.com/wp-content/uploads/2020/08/dusk20dawn20ext20v2.2.2.2.1.2.mp3",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/139/1174-dusk20dawn20ext20v2.2.2.2.1.2.mp3"
+          "/landing-page/media/human-archive/HA-0139/1174-dusk20dawn20ext20v2.2.2.2.1.2.mp3"
         ],
         "storage_path": "posts/139/1174-dusk20dawn20ext20v2.2.2.2.1.2.mp3",
         "mime_type": "audio/mpeg",
@@ -3561,7 +3559,7 @@
         "caption_html": "<p>Short regret</p>\n",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/short-regret.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/139/1176-short-regret.jpg"
+          "/landing-page/media/human-archive/HA-0139/1176-short-regret.jpg"
         ],
         "storage_path": "posts/139/1176-short-regret.jpg",
         "mime_type": "image/jpeg",
@@ -3583,7 +3581,7 @@
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/05/hydra20reverie20v2.1.2.2.1.mp3",
         "aliases": [
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/05/hydra20reverie20v2.1.2.2.1.mp3",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/143/1139-hydra20reverie20v2.1.2.2.1.mp3"
+          "/landing-page/media/human-archive/HA-0143/1139-hydra20reverie20v2.1.2.2.1.mp3"
         ],
         "storage_path": "posts/143/1139-hydra20reverie20v2.1.2.2.1.mp3",
         "mime_type": "audio/mpeg",
@@ -3604,7 +3602,7 @@
         "caption_html": "<p>7 deadly sins</p>\n",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/pixlr-image-generator-66364594e929e32931e246da.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/143/1147-pixlr-image-generator-66364594e929e32931e246da.png"
+          "/landing-page/media/human-archive/HA-0143/1147-pixlr-image-generator-66364594e929e32931e246da.png"
         ],
         "storage_path": "posts/143/1147-pixlr-image-generator-66364594e929e32931e246da.png",
         "mime_type": "image/png",
@@ -3625,7 +3623,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/bc26eb05-c1a2-448c-9e9c-0045b9af7a7f.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/145/1098-bc26eb05-c1a2-448c-9e9c-0045b9af7a7f.jpg"
+          "/landing-page/media/human-archive/HA-0145/1098-bc26eb05-c1a2-448c-9e9c-0045b9af7a7f.jpg"
         ],
         "storage_path": "posts/145/1098-bc26eb05-c1a2-448c-9e9c-0045b9af7a7f.jpg",
         "mime_type": "image/jpeg",
@@ -3646,7 +3644,7 @@
         "caption_html": "<p>Marsupium</p>\n",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/marsupium.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/170/1191-marsupium.png"
+          "/landing-page/media/human-archive/HA-0170/1191-marsupium.png"
         ],
         "storage_path": "posts/170/1191-marsupium.png",
         "mime_type": "image/png",
@@ -3668,7 +3666,7 @@
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/color-awakening.mp3",
         "aliases": [
           "https://emanuelstefancu.com/wp-content/uploads/2020/08/color-awakening.mp3",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/170/1192-color-awakening.mp3"
+          "/landing-page/media/human-archive/HA-0170/1192-color-awakening.mp3"
         ],
         "storage_path": "posts/170/1192-color-awakening.mp3",
         "mime_type": "audio/mpeg",
@@ -3689,7 +3687,7 @@
         "caption_html": "<p>Lucia</p>\n",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/lucia.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/173/1196-lucia.png"
+          "/landing-page/media/human-archive/HA-0173/1196-lucia.png"
         ],
         "storage_path": "posts/173/1196-lucia.png",
         "mime_type": "image/png",
@@ -3711,7 +3709,7 @@
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/autumn20serenade20v1.1.1.1.2.1.1.mp3",
         "aliases": [
           "https://emanuelstefancu.com/wp-content/uploads/2020/08/autumn20serenade20v1.1.1.1.2.1.1.mp3",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/173/1197-autumn20serenade20v1.1.1.1.2.1.1.mp3"
+          "/landing-page/media/human-archive/HA-0173/1197-autumn20serenade20v1.1.1.1.2.1.1.mp3"
         ],
         "storage_path": "posts/173/1197-autumn20serenade20v1.1.1.1.2.1.1.mp3",
         "mime_type": "audio/mpeg",
@@ -3732,7 +3730,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/comparative-lies.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/178/1491-comparative-lies.jpg"
+          "/landing-page/media/human-archive/HA-0178/1491-comparative-lies.jpg"
         ],
         "storage_path": "posts/178/1491-comparative-lies.jpg",
         "mime_type": "image/jpeg",
@@ -3754,7 +3752,7 @@
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/facade20apathy20v1.1.2.2.1.2.1.mp3",
         "aliases": [
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/facade20apathy20v1.1.2.2.1.2.1.mp3",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/220/1165-facade20apathy20v1.1.2.2.1.2.1.mp3"
+          "/landing-page/media/human-archive/HA-0220/1165-facade20apathy20v1.1.2.2.1.2.1.mp3"
         ],
         "storage_path": "posts/220/1165-facade20apathy20v1.1.2.2.1.2.1.mp3",
         "mime_type": "audio/mpeg",
@@ -3775,7 +3773,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/pixlr-image-generator-95806918-a193-4433-bade-d1f7be41334d.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/220/1166-pixlr-image-generator-95806918-a193-4433-bade-d1f7be41334d.png"
+          "/landing-page/media/human-archive/HA-0220/1166-pixlr-image-generator-95806918-a193-4433-bade-d1f7be41334d.png"
         ],
         "storage_path": "posts/220/1166-pixlr-image-generator-95806918-a193-4433-bade-d1f7be41334d.png",
         "mime_type": "image/png",
@@ -3796,7 +3794,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/pixlr-image-generator-66362a265c64e5a6e1e73a0d.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/223/1143-pixlr-image-generator-66362a265c64e5a6e1e73a0d.png"
+          "/landing-page/media/human-archive/HA-0223/1143-pixlr-image-generator-66362a265c64e5a6e1e73a0d.png"
         ],
         "storage_path": "posts/223/1143-pixlr-image-generator-66362a265c64e5a6e1e73a0d.png",
         "mime_type": "image/png",
@@ -3818,7 +3816,7 @@
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/05/silver20awakening20v2.2.1.1.2.2.2.mp3",
         "aliases": [
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/05/silver20awakening20v2.2.1.1.2.2.2.mp3",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/223/1145-silver20awakening20v2.2.1.1.2.2.2.mp3"
+          "/landing-page/media/human-archive/HA-0223/1145-silver20awakening20v2.2.1.1.2.2.2.mp3"
         ],
         "storage_path": "posts/223/1145-silver20awakening20v2.2.1.1.2.2.2.mp3",
         "mime_type": "audio/mpeg",
@@ -3839,7 +3837,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/pixlr-image-generator-86ddf7e5-0f16-447b-a3cc-e5a0e4ab10a0.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/226/1119-pixlr-image-generator-86ddf7e5-0f16-447b-a3cc-e5a0e4ab10a0.png"
+          "/landing-page/media/human-archive/HA-0226/1119-pixlr-image-generator-86ddf7e5-0f16-447b-a3cc-e5a0e4ab10a0.png"
         ],
         "storage_path": "posts/226/1119-pixlr-image-generator-86ddf7e5-0f16-447b-a3cc-e5a0e4ab10a0.png",
         "mime_type": "image/png",
@@ -3860,7 +3858,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/tumblr_pdvnlkn5fa1rdljwx_500.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/248/250-tumblr_pdvnlkn5fa1rdljwx_500.jpg"
+          "/landing-page/media/human-archive/HA-0248/250-tumblr_pdvnlkn5fa1rdljwx_500.jpg"
         ],
         "storage_path": "posts/248/250-tumblr_pdvnlkn5fa1rdljwx_500.jpg",
         "mime_type": "image/jpeg",
@@ -3881,7 +3879,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/pixlr-image-generator-b5ad7648-972f-4de2-8560-09396a03b087.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/252/1114-pixlr-image-generator-b5ad7648-972f-4de2-8560-09396a03b087.png"
+          "/landing-page/media/human-archive/HA-0252/1114-pixlr-image-generator-b5ad7648-972f-4de2-8560-09396a03b087.png"
         ],
         "storage_path": "posts/252/1114-pixlr-image-generator-b5ad7648-972f-4de2-8560-09396a03b087.png",
         "mime_type": "image/png",
@@ -3902,7 +3900,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/pixlr-image-generator-1b0285af-9fdb-4c69-9bc3-37f3c4b215c8.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/255/1110-pixlr-image-generator-1b0285af-9fdb-4c69-9bc3-37f3c4b215c8.png"
+          "/landing-page/media/human-archive/HA-0255/1110-pixlr-image-generator-1b0285af-9fdb-4c69-9bc3-37f3c4b215c8.png"
         ],
         "storage_path": "posts/255/1110-pixlr-image-generator-1b0285af-9fdb-4c69-9bc3-37f3c4b215c8.png",
         "mime_type": "image/png",
@@ -3923,7 +3921,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2020/08/pixlr-image-generator-a51aefc9-203d-4bb1-9b31-45ce6cce8ea0.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/265/1108-pixlr-image-generator-a51aefc9-203d-4bb1-9b31-45ce6cce8ea0.png"
+          "/landing-page/media/human-archive/HA-0265/1108-pixlr-image-generator-a51aefc9-203d-4bb1-9b31-45ce6cce8ea0.png"
         ],
         "storage_path": "posts/265/1108-pixlr-image-generator-a51aefc9-203d-4bb1-9b31-45ce6cce8ea0.png",
         "mime_type": "image/png",
@@ -3949,7 +3947,7 @@
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/01/6.jpg?w=300",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/01/6.jpg?w=768",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/01/6.jpg",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/295/301-6.jpg"
+          "/landing-page/media/human-archive/HA-0295/301-6.jpg"
         ],
         "storage_path": "posts/295/301-6.jpg",
         "mime_type": "image/jpeg",
@@ -3976,7 +3974,7 @@
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/05/coyote-starrk-such-a-lovely-character.png?w=768",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/05/coyote-starrk-such-a-lovely-character.png?w=1440",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/05/coyote-starrk-such-a-lovely-character.png",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/335/336-coyote-starrk-such-a-lovely-character.png"
+          "/landing-page/media/human-archive/HA-0335/336-coyote-starrk-such-a-lovely-character.png"
         ],
         "storage_path": "posts/335/336-coyote-starrk-such-a-lovely-character.png",
         "mime_type": "image/png",
@@ -4003,7 +4001,7 @@
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/05/coyote-starrk-and-lilynette-gingerbuck.png?w=768",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/05/coyote-starrk-and-lilynette-gingerbuck.png?w=1440",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/05/coyote-starrk-and-lilynette-gingerbuck.png",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/335/337-coyote-starrk-and-lilynette-gingerbuck.png"
+          "/landing-page/media/human-archive/HA-0335/337-coyote-starrk-and-lilynette-gingerbuck.png"
         ],
         "storage_path": "posts/335/337-coyote-starrk-and-lilynette-gingerbuck.png",
         "mime_type": "image/png",
@@ -4030,7 +4028,7 @@
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/05/he-dies-alone.png?w=768",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/05/he-dies-alone.png?w=1440",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/05/he-dies-alone.png",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/335/340-he-dies-alone.png"
+          "/landing-page/media/human-archive/HA-0335/340-he-dies-alone.png"
         ],
         "storage_path": "posts/335/340-he-dies-alone.png",
         "mime_type": "image/png",
@@ -4057,7 +4055,7 @@
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/05/recitandu-si-mantra.png?w=768",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/05/recitandu-si-mantra.png?w=1440",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/05/recitandu-si-mantra.png",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/335/341-recitandu-si-mantra.png"
+          "/landing-page/media/human-archive/HA-0335/341-recitandu-si-mantra.png"
         ],
         "storage_path": "posts/335/341-recitandu-si-mantra.png",
         "mime_type": "image/png",
@@ -4099,7 +4097,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/07/pixlr-image-generator-b4beee97-8e63-4c38-9746-53d9b48f82c5.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/589/1106-pixlr-image-generator-b4beee97-8e63-4c38-9746-53d9b48f82c5.png"
+          "/landing-page/media/human-archive/HA-0589/1106-pixlr-image-generator-b4beee97-8e63-4c38-9746-53d9b48f82c5.png"
         ],
         "storage_path": "posts/589/1106-pixlr-image-generator-b4beee97-8e63-4c38-9746-53d9b48f82c5.png",
         "mime_type": "image/png",
@@ -4120,7 +4118,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/07/preview3.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/589/1107-preview3.jpg"
+          "/landing-page/media/human-archive/HA-0589/1107-preview3.jpg"
         ],
         "storage_path": "posts/589/1107-preview3.jpg",
         "mime_type": "image/jpeg",
@@ -4141,7 +4139,7 @@
         "caption_html": "<p><a href=\"https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/07/wounds-of-love.mp3\">https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/07/wounds-of-love.mp3</a></p>\n",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/07/wounds-of-love.mp3",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/589/1568-wounds-of-love.mp3"
+          "/landing-page/media/human-archive/HA-0589/1568-wounds-of-love.mp3"
         ],
         "storage_path": "posts/589/1568-wounds-of-love.mp3",
         "mime_type": "audio/mpeg",
@@ -4162,7 +4160,7 @@
         "caption_html": "<p><a href=\"https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/07/fragile-love.mp3\">https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/07/fragile-love.mp3</a></p>\n",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/07/fragile-love.mp3",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/589/1569-fragile-love.mp3"
+          "/landing-page/media/human-archive/HA-0589/1569-fragile-love.mp3"
         ],
         "storage_path": "posts/589/1569-fragile-love.mp3",
         "mime_type": "audio/mpeg",
@@ -4187,7 +4185,7 @@
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/07/image.png",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/07/image.png?w=150",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/07/image.png?w=300",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/604/606-image.png"
+          "/landing-page/media/human-archive/HA-0604/606-image.png"
         ],
         "storage_path": "posts/604/606-image.png",
         "mime_type": "image/png",
@@ -4208,7 +4206,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/12/untitled-design.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/637/1091-untitled-design.png"
+          "/landing-page/media/human-archive/HA-0637/1091-untitled-design.png"
         ],
         "storage_path": "posts/637/1091-untitled-design.png",
         "mime_type": "image/png",
@@ -4233,7 +4231,7 @@
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/12/shrimp.jpg",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/12/shrimp.jpg?w=150",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2021/12/shrimp.jpg?w=300",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/637/641-shrimp.jpg"
+          "/landing-page/media/human-archive/HA-0637/641-shrimp.jpg"
         ],
         "storage_path": "posts/637/641-shrimp.jpg",
         "mime_type": "image/jpeg",
@@ -4254,7 +4252,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2022/02/1280px-wassertropfen.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/651/653-1280px-wassertropfen.jpg"
+          "/landing-page/media/human-archive/HA-0651/653-1280px-wassertropfen.jpg"
         ],
         "storage_path": "posts/651/653-1280px-wassertropfen.jpg",
         "mime_type": "image/jpeg",
@@ -4275,7 +4273,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/01/image1_0.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/671/1095-image1_0.jpg"
+          "/landing-page/media/human-archive/HA-0671/1095-image1_0.jpg"
         ],
         "storage_path": "posts/671/1095-image1_0.jpg",
         "mime_type": "image/jpeg",
@@ -4297,7 +4295,7 @@
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/02/eternal20ext20v2.1.2.1.1.2.mp3",
         "aliases": [
           "https://emanuelstefancu.com/wp-content/uploads/2023/02/eternal20ext20v2.1.2.1.1.2.mp3",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/673/1258-eternal20ext20v2.1.2.1.1.2.mp3"
+          "/landing-page/media/human-archive/HA-0673/1258-eternal20ext20v2.1.2.1.1.2.mp3"
         ],
         "storage_path": "posts/673/1258-eternal20ext20v2.1.2.1.1.2.mp3",
         "mime_type": "audio/mpeg",
@@ -4318,7 +4316,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/02/halkidiki-monk2.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/673/672-halkidiki-monk2.jpg"
+          "/landing-page/media/human-archive/HA-0673/672-halkidiki-monk2.jpg"
         ],
         "storage_path": "posts/673/672-halkidiki-monk2.jpg",
         "mime_type": "image/jpeg",
@@ -4339,7 +4337,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/02/pixlr-image-generator-6359ab27-8905-4584-9114-419da55bf814.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/674/1105-pixlr-image-generator-6359ab27-8905-4584-9114-419da55bf814.png"
+          "/landing-page/media/human-archive/HA-0674/1105-pixlr-image-generator-6359ab27-8905-4584-9114-419da55bf814.png"
         ],
         "storage_path": "posts/674/1105-pixlr-image-generator-6359ab27-8905-4584-9114-419da55bf814.png",
         "mime_type": "image/png",
@@ -4360,7 +4358,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/03/pixlr-image-generator-bff2078e-9024-417f-889a-d332a6c838a3.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/679/1104-pixlr-image-generator-bff2078e-9024-417f-889a-d332a6c838a3.png"
+          "/landing-page/media/human-archive/HA-0679/1104-pixlr-image-generator-bff2078e-9024-417f-889a-d332a6c838a3.png"
         ],
         "storage_path": "posts/679/1104-pixlr-image-generator-bff2078e-9024-417f-889a-d332a6c838a3.png",
         "mime_type": "image/png",
@@ -4381,7 +4379,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/03/61531037.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/700/704-61531037.jpg"
+          "/landing-page/media/human-archive/HA-0700/704-61531037.jpg"
         ],
         "storage_path": "posts/700/704-61531037.jpg",
         "mime_type": "image/jpeg",
@@ -4402,7 +4400,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/04/img-20190824-wa0004-1.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/708/712-img-20190824-wa0004-1.jpg"
+          "/landing-page/media/human-archive/HA-0708/712-img-20190824-wa0004-1.jpg"
         ],
         "storage_path": "posts/708/712-img-20190824-wa0004-1.jpg",
         "mime_type": "image/jpeg",
@@ -4423,7 +4421,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/04/q3a0jxjp2ue91.webp",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/717/719-q3a0jxjp2ue91.jpg"
+          "/landing-page/media/human-archive/HA-0717/719-q3a0jxjp2ue91.jpg"
         ],
         "storage_path": "posts/717/719-q3a0jxjp2ue91.jpg",
         "mime_type": "image/jpeg",
@@ -4445,7 +4443,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/05/42a5.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/727/729-42a5.jpg"
+          "/landing-page/media/human-archive/HA-0727/729-42a5.jpg"
         ],
         "storage_path": "posts/727/729-42a5.jpg",
         "mime_type": "image/jpeg",
@@ -4466,7 +4464,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/05/42a5.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/727/733-42a5.png"
+          "/landing-page/media/human-archive/HA-0727/733-42a5.png"
         ],
         "storage_path": "posts/727/733-42a5.png",
         "mime_type": "image/png",
@@ -4487,7 +4485,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/06/screenshot-2023-06-10-012707.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/873/875-screenshot-2023-06-10-012707.png"
+          "/landing-page/media/human-archive/HA-0873/875-screenshot-2023-06-10-012707.png"
         ],
         "storage_path": "posts/873/875-screenshot-2023-06-10-012707.png",
         "mime_type": "image/png",
@@ -4508,7 +4506,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/07/1-hd.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/879/881-1-hd.png"
+          "/landing-page/media/human-archive/HA-0879/881-1-hd.png"
         ],
         "storage_path": "posts/879/881-1-hd.png",
         "mime_type": "image/png",
@@ -4529,7 +4527,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/07/tumblr_9325ae445470d3551a36166f122483a7_8b151719_540.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/915/920-tumblr_9325ae445470d3551a36166f122483a7_8b151719_540.jpg"
+          "/landing-page/media/human-archive/HA-0915/920-tumblr_9325ae445470d3551a36166f122483a7_8b151719_540.jpg"
         ],
         "storage_path": "posts/915/920-tumblr_9325ae445470d3551a36166f122483a7_8b151719_540.jpg",
         "mime_type": "image/jpeg",
@@ -4550,7 +4548,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/08/screenshot_20230720_115722_instagram.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/928/931-screenshot_20230720_115722_instagram.png"
+          "/landing-page/media/human-archive/HA-0928/931-screenshot_20230720_115722_instagram.png"
         ],
         "storage_path": "posts/928/931-screenshot_20230720_115722_instagram.png",
         "mime_type": "image/png",
@@ -4575,7 +4573,7 @@
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/08/atman.png?w=150&h=113",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/08/atman.png?w=300&h=225",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/08/atman.png?w=768&h=576",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/963/964-atman.png"
+          "/landing-page/media/human-archive/HA-0963/964-atman.png"
         ],
         "storage_path": "posts/963/964-atman.png",
         "mime_type": "image/png",
@@ -4618,7 +4616,7 @@
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/05/junct.mp3",
         "aliases": [
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/05/junct.mp3",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/994/1137-junct.mp3"
+          "/landing-page/media/human-archive/HA-0994/1137-junct.mp3"
         ],
         "storage_path": "posts/994/1137-junct.mp3",
         "mime_type": "audio/mpeg",
@@ -4639,7 +4637,7 @@
         "caption_html": "<p>Junct</p>\n",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/09/junct.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/994/1178-junct.jpg"
+          "/landing-page/media/human-archive/HA-0994/1178-junct.jpg"
         ],
         "storage_path": "posts/994/1178-junct.jpg",
         "mime_type": "image/jpeg",
@@ -4660,7 +4658,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/09/michelangelo_-_creation_of_adam_cropped.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/994/996-michelangelo_-_creation_of_adam_cropped.jpg"
+          "/landing-page/media/human-archive/HA-0994/996-michelangelo_-_creation_of_adam_cropped.jpg"
         ],
         "storage_path": "posts/994/996-michelangelo_-_creation_of_adam_cropped.jpg",
         "mime_type": "image/jpeg",
@@ -4681,7 +4679,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/11/meister_des_codex_aureus_epternacensis_00128129.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1052/1051-meister_des_codex_aureus_epternacensis_00128129.jpg"
+          "/landing-page/media/human-archive/HA-1052/1051-meister_des_codex_aureus_epternacensis_00128129.jpg"
         ],
         "storage_path": "posts/1052/1051-meister_des_codex_aureus_epternacensis_00128129.jpg",
         "mime_type": "image/jpeg",
@@ -4702,7 +4700,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2023/12/margarete.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1056/1058-margarete.png"
+          "/landing-page/media/human-archive/HA-1056/1058-margarete.png"
         ],
         "storage_path": "posts/1056/1058-margarete.png",
         "mime_type": "image/png",
@@ -4723,7 +4721,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/01/grey-black-vintage-texture-album-cover.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1060/1065-grey-black-vintage-texture-album-cover.png"
+          "/landing-page/media/human-archive/HA-1060/1065-grey-black-vintage-texture-album-cover.png"
         ],
         "storage_path": "posts/1060/1065-grey-black-vintage-texture-album-cover.png",
         "mime_type": "image/png",
@@ -4744,7 +4742,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/01/haiku.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1060/1068-haiku.png"
+          "/landing-page/media/human-archive/HA-1060/1068-haiku.png"
         ],
         "storage_path": "posts/1060/1068-haiku.png",
         "mime_type": "image/png",
@@ -4766,7 +4764,7 @@
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/01/ethical-decision-making.png",
         "aliases": [
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/01/ethical-decision-making.png",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1069/1070-ethical-decision-making.png"
+          "/landing-page/media/human-archive/HA-1069/1070-ethical-decision-making.png"
         ],
         "storage_path": "posts/1069/1070-ethical-decision-making.png",
         "mime_type": "image/png",
@@ -4787,7 +4785,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/01/ss9bhwozcjgxgnp1pkonndgv9en.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1073/1075-ss9bhwozcjgxgnp1pkonndgv9en.jpg"
+          "/landing-page/media/human-archive/HA-1073/1075-ss9bhwozcjgxgnp1pkonndgv9en.jpg"
         ],
         "storage_path": "posts/1073/1075-ss9bhwozcjgxgnp1pkonndgv9en.jpg",
         "mime_type": "image/jpeg",
@@ -4808,7 +4806,7 @@
         "caption_html": "<p>The Last Judgement by Viktor Vasnetsov</p>\n",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/02/the-last-judgement-by-viktor-vasnetsov.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1077/1080-the-last-judgement-by-viktor-vasnetsov.jpg"
+          "/landing-page/media/human-archive/HA-1077/1080-the-last-judgement-by-viktor-vasnetsov.jpg"
         ],
         "storage_path": "posts/1077/1080-the-last-judgement-by-viktor-vasnetsov.jpg",
         "mime_type": "image/jpeg",
@@ -4829,7 +4827,7 @@
         "caption_html": "<p>1 The Last Judgement by Viktor Vasnetsov</p>\n",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/02/1-the-last-judgement-by-viktor-vasnetsov.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1077/1081-1-the-last-judgement-by-viktor-vasnetsov.png"
+          "/landing-page/media/human-archive/HA-1077/1081-1-the-last-judgement-by-viktor-vasnetsov.png"
         ],
         "storage_path": "posts/1077/1081-1-the-last-judgement-by-viktor-vasnetsov.png",
         "mime_type": "image/png",
@@ -4850,7 +4848,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/02/tumblr_okndlcvdaz1v2vwi9o2_500.gif",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1083/1086-tumblr_okndlcvdaz1v2vwi9o2_500.gif"
+          "/landing-page/media/human-archive/HA-1083/1086-tumblr_okndlcvdaz1v2vwi9o2_500.gif"
         ],
         "storage_path": "posts/1083/1086-tumblr_okndlcvdaz1v2vwi9o2_500.gif",
         "mime_type": "image/gif",
@@ -4871,7 +4869,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/04/pixlr-image-generator-0526ec4a-7a01-4b18-b92d-a1bdd763dbe7.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1129/1131-pixlr-image-generator-0526ec4a-7a01-4b18-b92d-a1bdd763dbe7.png"
+          "/landing-page/media/human-archive/HA-1129/1131-pixlr-image-generator-0526ec4a-7a01-4b18-b92d-a1bdd763dbe7.png"
         ],
         "storage_path": "posts/1129/1131-pixlr-image-generator-0526ec4a-7a01-4b18-b92d-a1bdd763dbe7.png",
         "mime_type": "image/png",
@@ -4892,7 +4890,7 @@
         "caption_html": "<p><a href=\"https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/06/enemy20ext20v2.2.2.1.1.2.2.1.1.2.2.mp3\">https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/06/enemy20ext20v2.2.2.1.1.2.2.1.1.2.2.mp3</a></p>\n",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/06/enemy20ext20v2.2.2.1.1.2.2.1.1.2.2.mp3",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1249/1251-enemy20ext20v2.2.2.1.1.2.2.1.1.2.2.mp3"
+          "/landing-page/media/human-archive/HA-1249/1251-enemy20ext20v2.2.2.1.1.2.2.1.1.2.2.mp3"
         ],
         "storage_path": "posts/1249/1251-enemy20ext20v2.2.2.1.1.2.2.1.1.2.2.mp3",
         "mime_type": "audio/mpeg",
@@ -4913,7 +4911,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/06/pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1249/1252-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.png"
+          "/landing-page/media/human-archive/HA-1249/1252-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.png"
         ],
         "storage_path": "posts/1249/1252-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.png",
         "mime_type": "image/png",
@@ -4934,7 +4932,7 @@
         "caption_html": "<p><a href=\"https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/06/enemy20ext20v2.2.2.1.1.2.2.1.1.2.2intro.mp3\">https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/06/enemy20ext20v2.2.2.1.1.2.2.1.1.2.2intro.mp3</a> &#8220;Enemy Within ext v2.2.2.1.1.2.2.1.1.2.2&#8221; by Udio v1.</p>\n",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/06/enemy20ext20v2.2.2.1.1.2.2.1.1.2.2intro.mp3",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1249/1253-enemy20ext20v2.2.2.1.1.2.2.1.1.2.2intro.mp3"
+          "/landing-page/media/human-archive/HA-1249/1253-enemy20ext20v2.2.2.1.1.2.2.1.1.2.2intro.mp3"
         ],
         "storage_path": "posts/1249/1253-enemy20ext20v2.2.2.1.1.2.2.1.1.2.2intro.mp3",
         "mime_type": "audio/mpeg",
@@ -4955,7 +4953,7 @@
         "caption_html": "<p><a href=\"https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/06/pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.mp4\">https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/06/pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.mp4</a></p>\n",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/06/pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.mp4",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1249/1255-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.mp4"
+          "/landing-page/media/human-archive/HA-1249/1255-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.mp4"
         ],
         "storage_path": "posts/1249/1255-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.mp4",
         "mime_type": "video/mp4",
@@ -4976,7 +4974,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/06/pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.gif",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1249/1257-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.gif"
+          "/landing-page/media/human-archive/HA-1249/1257-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.gif"
         ],
         "storage_path": "posts/1249/1257-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.gif",
         "mime_type": "image/gif",
@@ -4997,7 +4995,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/06/img_100177138935634.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1300/1301-img_100177138935634.jpg"
+          "/landing-page/media/human-archive/HA-1300/1301-img_100177138935634.jpg"
         ],
         "storage_path": "posts/1300/1301-img_100177138935634.jpg",
         "mime_type": "image/jpeg",
@@ -5018,7 +5016,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/11/width2048quality75.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1404/1406-width2048quality75.jpg"
+          "/landing-page/media/human-archive/HA-1404/1406-width2048quality75.jpg"
         ],
         "storage_path": "posts/1404/1406-width2048quality75.jpg",
         "mime_type": "image/jpeg",
@@ -5039,7 +5037,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/11/proverb-thirty-one.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1408/1410-proverb-thirty-one.jpg"
+          "/landing-page/media/human-archive/HA-1408/1410-proverb-thirty-one.jpg"
         ],
         "storage_path": "posts/1408/1410-proverb-thirty-one.jpg",
         "mime_type": "image/jpeg",
@@ -5060,7 +5058,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/11/pixlr-image-generator-21254ff5-a225-4513-b061-6e1fe801d1dc.webp",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1421/1423-pixlr-image-generator-21254ff5-a225-4513-b061-6e1fe801d1dc.jpg"
+          "/landing-page/media/human-archive/HA-1421/1423-pixlr-image-generator-21254ff5-a225-4513-b061-6e1fe801d1dc.jpg"
         ],
         "storage_path": "posts/1421/1423-pixlr-image-generator-21254ff5-a225-4513-b061-6e1fe801d1dc.jpg",
         "mime_type": "image/jpeg",
@@ -5082,7 +5080,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/11/ginko.mushishi.full_.6121711.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1425/1427-ginko.mushishi.full_.6121711.jpg"
+          "/landing-page/media/human-archive/HA-1425/1427-ginko.mushishi.full_.6121711.jpg"
         ],
         "storage_path": "posts/1425/1427-ginko.mushishi.full_.6121711.jpg",
         "mime_type": "image/jpeg",
@@ -5103,7 +5101,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2024/12/dallc2b7e-2024-12-07-16.13.49-an-abstract-and-visually-captivating-book-cover-art-for-a-political-and-philosophical-theme.-the-image-features-a-surreal-balance-of-scales-where-one.webp",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1461/1463-dallc2b7e-2024-12-07-16.13.49-an-abstract-and-visually-captivating-book-cover-art-for-a-political-and-philosophical-theme.-the-image-features-a-surreal-balance-of-scales-where-one.jpg"
+          "/landing-page/media/human-archive/HA-1461/1463-dallc2b7e-2024-12-07-16.13.49-an-abstract-and-visually-captivating-book-cover-art-for-a-political-and-philosophical-theme.-the-image-features-a-surreal-balance-of-scales-where-one.jpg"
         ],
         "storage_path": "posts/1461/1463-dallc2b7e-2024-12-07-16.13.49-an-abstract-and-visually-captivating-book-cover-art-for-a-political-and-philosophical-theme.-the-image-features-a-surreal-balance-of-scales-where-one.jpg",
         "mime_type": "image/jpeg",
@@ -5125,7 +5123,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/01/c450510b-2563-4b39-bd6d-00794ad75a69.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1473/1475-c450510b-2563-4b39-bd6d-00794ad75a69.png"
+          "/landing-page/media/human-archive/HA-1473/1475-c450510b-2563-4b39-bd6d-00794ad75a69.png"
         ],
         "storage_path": "posts/1473/1475-c450510b-2563-4b39-bd6d-00794ad75a69.png",
         "mime_type": "image/png",
@@ -5146,7 +5144,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/02/dallc2b7e-2025-02-03-02.36.10-a-melancholic-and-introspective-scene-reflecting-the-themes-of-aging-weariness-and-longing-in-the-poem.-the-image-should-depict-an-elderly-figure-w.webp",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1478/1480-dallc2b7e-2025-02-03-02.36.10-a-melancholic-and-introspective-scene-reflecting-the-themes-of-aging-weariness-and-longing-in-the-poem.-the-image-should-depict-an-elderly-figure-w.jpg"
+          "/landing-page/media/human-archive/HA-1478/1480-dallc2b7e-2025-02-03-02.36.10-a-melancholic-and-introspective-scene-reflecting-the-themes-of-aging-weariness-and-longing-in-the-poem.-the-image-should-depict-an-elderly-figure-w.jpg"
         ],
         "storage_path": "posts/1478/1480-dallc2b7e-2025-02-03-02.36.10-a-melancholic-and-introspective-scene-reflecting-the-themes-of-aging-weariness-and-longing-in-the-poem.-the-image-should-depict-an-elderly-figure-w.jpg",
         "mime_type": "image/jpeg",
@@ -5168,7 +5166,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/02/manifestul-unui-om-senil.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1478/1482-manifestul-unui-om-senil.jpg"
+          "/landing-page/media/human-archive/HA-1478/1482-manifestul-unui-om-senil.jpg"
         ],
         "storage_path": "posts/1478/1482-manifestul-unui-om-senil.jpg",
         "mime_type": "image/jpeg",
@@ -5189,7 +5187,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/02/img_20220205_223049.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1561/1563-img_20220205_223049.jpg"
+          "/landing-page/media/human-archive/HA-1561/1563-img_20220205_223049.jpg"
         ],
         "storage_path": "posts/1561/1563-img_20220205_223049.jpg",
         "mime_type": "image/jpeg",
@@ -5210,7 +5208,7 @@
         "caption_html": "<p><a href=\"https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/02/where-is-waldo.mp3\">https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/02/where-is-waldo.mp3</a></p>\n",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/02/where-is-waldo.mp3",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1571/1574-where-is-waldo.mp3"
+          "/landing-page/media/human-archive/HA-1571/1574-where-is-waldo.mp3"
         ],
         "storage_path": "posts/1571/1574-where-is-waldo.mp3",
         "mime_type": "audio/mpeg",
@@ -5231,7 +5229,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/02/cover.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1571/1577-cover.jpg"
+          "/landing-page/media/human-archive/HA-1571/1577-cover.jpg"
         ],
         "storage_path": "posts/1571/1577-cover.jpg",
         "mime_type": "image/jpeg",
@@ -5252,7 +5250,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/02/wholee280a6-and-free.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1579/1581-wholee280a6-and-free.png"
+          "/landing-page/media/human-archive/HA-1579/1581-wholee280a6-and-free.png"
         ],
         "storage_path": "posts/1579/1581-wholee280a6-and-free.png",
         "mime_type": "image/png",
@@ -5273,7 +5271,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/02/wholee280a6-and-free-wide.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1579/1583-wholee280a6-and-free-wide.png"
+          "/landing-page/media/human-archive/HA-1579/1583-wholee280a6-and-free-wide.png"
         ],
         "storage_path": "posts/1579/1583-wholee280a6-and-free-wide.png",
         "mime_type": "image/png",
@@ -5294,7 +5292,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/02/why.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1587/1590-why.jpg"
+          "/landing-page/media/human-archive/HA-1587/1590-why.jpg"
         ],
         "storage_path": "posts/1587/1590-why.jpg",
         "mime_type": "image/jpeg",
@@ -5315,7 +5313,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/02/fliquoring.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1594/1596-fliquoring.jpg"
+          "/landing-page/media/human-archive/HA-1594/1596-fliquoring.jpg"
         ],
         "storage_path": "posts/1594/1596-fliquoring.jpg",
         "mime_type": "image/jpeg",
@@ -5336,7 +5334,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/02/liminal-stasis.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1599/1601-liminal-stasis.jpg"
+          "/landing-page/media/human-archive/HA-1599/1601-liminal-stasis.jpg"
         ],
         "storage_path": "posts/1599/1601-liminal-stasis.jpg",
         "mime_type": "image/jpeg",
@@ -5357,7 +5355,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/02/dallc2b7e-2025-02-28-16.55.17-a-book-cover-for-an-academic-essay-titled-the-balance-between-individual-freedom-and-societal-harmony_-a-philosophical-exploration.-the-cover-should.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1604/1622-dallc2b7e-2025-02-28-16.55.17-a-book-cover-for-an-academic-essay-titled-the-balance-between-individual-freedom-and-societal-harmony_-a-philosophical-exploration.-the-cover-should.jpg"
+          "/landing-page/media/human-archive/HA-1604/1622-dallc2b7e-2025-02-28-16.55.17-a-book-cover-for-an-academic-essay-titled-the-balance-between-individual-freedom-and-societal-harmony_-a-philosophical-exploration.-the-cover-should.jpg"
         ],
         "storage_path": "posts/1604/1622-dallc2b7e-2025-02-28-16.55.17-a-book-cover-for-an-academic-essay-titled-the-balance-between-individual-freedom-and-societal-harmony_-a-philosophical-exploration.-the-cover-should.jpg",
         "mime_type": "image/jpeg",
@@ -5378,7 +5376,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/03/romania-noastra-un-efort-comun.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1632/1634-romania-noastra-un-efort-comun.png"
+          "/landing-page/media/human-archive/HA-1632/1634-romania-noastra-un-efort-comun.png"
         ],
         "storage_path": "posts/1632/1634-romania-noastra-un-efort-comun.png",
         "mime_type": "image/png",
@@ -5399,7 +5397,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/03/download.webp",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1636/1640-download.jpg"
+          "/landing-page/media/human-archive/HA-1636/1640-download.jpg"
         ],
         "storage_path": "posts/1636/1640-download.jpg",
         "mime_type": "image/jpeg",
@@ -5421,7 +5419,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/03/hqdefault.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1642/1649-hqdefault.jpg"
+          "/landing-page/media/human-archive/HA-1642/1649-hqdefault.jpg"
         ],
         "storage_path": "posts/1642/1649-hqdefault.jpg",
         "mime_type": "image/jpeg",
@@ -5464,7 +5462,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/05/chatgpt-image-may-7-2025-11_02_35-pm.png",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1653/1655-chatgpt-image-may-7-2025-11_02_35-pm.png"
+          "/landing-page/media/human-archive/HA-1653/1655-chatgpt-image-may-7-2025-11_02_35-pm.png"
         ],
         "storage_path": "posts/1653/1655-chatgpt-image-may-7-2025-11_02_35-pm.png",
         "mime_type": "image/png",
@@ -5486,7 +5484,7 @@
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/06/overlapping.mp3",
         "aliases": [
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2025/06/overlapping.mp3",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1661/1663-overlapping.mp3"
+          "/landing-page/media/human-archive/HA-1661/1663-overlapping.mp3"
         ],
         "storage_path": "posts/1661/1663-overlapping.mp3",
         "mime_type": "audio/mpeg",
@@ -5507,7 +5505,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/06/cenusa-de-nimic.jpeg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1666/1668-cenusa-de-nimic.jpeg"
+          "/landing-page/media/human-archive/HA-1666/1668-cenusa-de-nimic.jpeg"
         ],
         "storage_path": "posts/1666/1668-cenusa-de-nimic.jpeg",
         "mime_type": "image/jpeg",
@@ -5529,7 +5527,7 @@
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/06/cenusa-de-nimic.mp3",
         "aliases": [
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/06/cenusa-de-nimic.mp3",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1666/1669-cenusa-de-nimic.mp3"
+          "/landing-page/media/human-archive/HA-1666/1669-cenusa-de-nimic.mp3"
         ],
         "storage_path": "posts/1666/1669-cenusa-de-nimic.mp3",
         "mime_type": "audio/mpeg",
@@ -5550,7 +5548,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/06/lud.jpeg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1678/1689-lud.jpeg"
+          "/landing-page/media/human-archive/HA-1678/1689-lud.jpeg"
         ],
         "storage_path": "posts/1678/1689-lud.jpeg",
         "mime_type": "image/jpeg",
@@ -5571,7 +5569,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/06/pixlr-image-6a32d5561bd1d7cd409bec41.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1678/1690-pixlr-image-6a32d5561bd1d7cd409bec41.jpg"
+          "/landing-page/media/human-archive/HA-1678/1690-pixlr-image-6a32d5561bd1d7cd409bec41.jpg"
         ],
         "storage_path": "posts/1678/1690-pixlr-image-6a32d5561bd1d7cd409bec41.jpg",
         "mime_type": "image/jpeg",
@@ -5592,7 +5590,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/07/fall-in-eden.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1706/1708-fall-in-eden.jpg"
+          "/landing-page/media/human-archive/HA-1706/1708-fall-in-eden.jpg"
         ],
         "storage_path": "posts/1706/1708-fall-in-eden.jpg",
         "mime_type": "image/jpeg",
@@ -5614,7 +5612,7 @@
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/07/fall-in-eden.mp3",
         "aliases": [
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/07/fall-in-eden.mp3",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1706/1710-fall-in-eden.mp3"
+          "/landing-page/media/human-archive/HA-1706/1710-fall-in-eden.mp3"
         ],
         "storage_path": "posts/1706/1710-fall-in-eden.mp3",
         "mime_type": "audio/mpeg",
@@ -5635,7 +5633,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/07/fall-in-eden-1.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1706/1713-fall-in-eden-1.jpg"
+          "/landing-page/media/human-archive/HA-1706/1713-fall-in-eden-1.jpg"
         ],
         "storage_path": "posts/1706/1713-fall-in-eden-1.jpg",
         "mime_type": "image/jpeg",
@@ -5656,7 +5654,7 @@
         "caption_html": "",
         "source_url": "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/pixlr-6ad03f41591d0a730192b1bc.jpg",
         "aliases": [
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/2989/2991-pixlr-6ad03f41591d0a730192b1bc.jpg"
+          "/landing-page/media/human-archive/HA-2989/2991-pixlr-6ad03f41591d0a730192b1bc.jpg"
         ],
         "storage_path": "posts/2989/2991-pixlr-6ad03f41591d0a730192b1bc.jpg",
         "mime_type": "image/jpeg",
@@ -5681,7 +5679,7 @@
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/betivan-showdown.png?w=68&h=150",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/betivan-showdown.png?w=136&h=300",
           "https://emanuelstefancu.wordpress.com/wp-content/uploads/2026/10/betivan-showdown.png?w=768&h=1695",
-          "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/3000/2999-betivan-showdown.png"
+          "/landing-page/media/human-archive/HA-3000/2999-betivan-showdown.png"
         ],
         "storage_path": "posts/3000/2999-betivan-showdown.png",
         "mime_type": "image/png",
@@ -5692,24 +5690,7 @@
         "storage": "github-public"
       }
     ],
-    "import_revision": 3,
-    "preview_recovery_revision": "github-media-v1",
-    "preview_recovery_report": {
-      "status": "partial",
-      "missing_owned_media_paths": [
-        "media/transmissions/T-0002/featured.jpeg",
-        "media/transmissions/T-0003/video.mp4",
-        "media/transmissions/T-0004/featured.jpeg",
-        "media/signals/S-0001/audio.mp3",
-        "media/human-archive/HA-3004/f19cc669-71a4-47ff-ad8c-4f00a8303fb8-green-dream_-the-god-beneath-the-noise.png",
-        "media/human-archive/HA-3008/600a1839-ffe6-4001-8dbd-3ca1ee497218-purtata-corporatri-tilor---video.mp4",
-        "media/human-archive/HA-3008/33959e46-c667-4d95-b06b-e4971882bc33-purtata-corporatri-tilor---lyrics.png",
-        "media/human-archive/HA-3008/63443fbf-06c5-47e4-986b-2a23bf6c1471-purtata-corporatri-tilor---mp3.mp3"
-      ],
-      "missing_external_media_paths": [],
-      "newly_downloaded_files": 0
-    },
-    "verified_local_files": 111
+    "import_revision": 3
   },
   "editor_structures": [
     {
@@ -5731,7 +5712,7 @@
         },
         {
           "id": "ha-4-media-7",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/4/7-prigoare-bg1-edited.jpg\" alt=\"Prigoare bg1-edited\"><figcaption>Prigoare bg1-edited</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0004/7-prigoare-bg1-edited.jpg\" alt=\"Prigoare bg1-edited\"><figcaption>Prigoare bg1-edited</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -5793,7 +5774,7 @@
         },
         {
           "id": "ha-12-media-14",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/12/14-687474703a2f2f7777772e7468656f6e746172696f6e2e636f6d2f77702d636f6e74656e742f75706c6f6164732f323031332f31312f7765627468756d625f7265666c656b746f727265766965775f436f7572746573792e6a7067.jpg\" alt=\"687474703a2f2f7777772e7468656f6e746172696f6e2e636f6d2f77702d636f6e74656e742f75706c6f6164732f323031332f31312f7765627468756d625f7265666c656b746f727265766965775f436f7572746573792e6a7067\"><figcaption>687474703a2f2f7777772e7468656f6e746172696f6e2e636f6d2f77702d636f6e74656e742f75706c6f6164732f323031332f31312f7765627468756d625f7265666c656b746f727265766965775f436f7572746573792e6a7067</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0012/14-687474703a2f2f7777772e7468656f6e746172696f6e2e636f6d2f77702d636f6e74656e742f75706c6f6164732f323031332f31312f7765627468756d625f7265666c656b746f727265766965775f436f7572746573792e6a7067.jpg\" alt=\"687474703a2f2f7777772e7468656f6e746172696f6e2e636f6d2f77702d636f6e74656e742f75706c6f6164732f323031332f31312f7765627468756d625f7265666c656b746f727265766965775f436f7572746573792e6a7067\"><figcaption>687474703a2f2f7777772e7468656f6e746172696f6e2e636f6d2f77702d636f6e74656e742f75706c6f6164732f323031332f31312f7765627468756d625f7265666c656b746f727265766965775f436f7572746573792e6a7067</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -5835,7 +5816,7 @@
         },
         {
           "id": "ha-17-media-19",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/17/19-adam-and-eve-1512.jpg\" alt=\"Adam and Eve in the Garden by Michelangelo\"><figcaption>Adam and Eve in the Garden by Michelangelo</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0017/19-adam-and-eve-1512.jpg\" alt=\"Adam and Eve in the Garden by Michelangelo\"><figcaption>Adam and Eve in the Garden by Michelangelo</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -5877,17 +5858,17 @@
         },
         {
           "id": "ha-20-media-1101",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/20/1101-pixlr-image-generator-1ebdebb6-4225-4f86-990d-e5ea765ba48d.png\" alt=\"pixlr-image-generator-1ebdebb6-4225-4f86-990d-e5ea765ba48d\"><figcaption>pixlr-image-generator-1ebdebb6-4225-4f86-990d-e5ea765ba48d</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0020/1101-pixlr-image-generator-1ebdebb6-4225-4f86-990d-e5ea765ba48d.png\" alt=\"pixlr-image-generator-1ebdebb6-4225-4f86-990d-e5ea765ba48d\"><figcaption>pixlr-image-generator-1ebdebb6-4225-4f86-990d-e5ea765ba48d</figcaption></figure>",
           "type": "image"
         },
         {
           "id": "ha-20-media-1103",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/20/1103-preview.jpg\" alt=\"preview\"><figcaption>preview</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0020/1103-preview.jpg\" alt=\"preview\"><figcaption>preview</figcaption></figure>",
           "type": "image"
         },
         {
           "id": "ha-20-media-31",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/20/31-illuminate_by_auroralion-d9kj1go.jpg\" alt=\"illuminate_by_auroralion-d9kj1go\"><figcaption>illuminate_by_auroralion-d9kj1go</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0020/31-illuminate_by_auroralion-d9kj1go.jpg\" alt=\"illuminate_by_auroralion-d9kj1go\"><figcaption>illuminate_by_auroralion-d9kj1go</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -5914,7 +5895,7 @@
         },
         {
           "id": "ha-32-media-35",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/32/35-o-write-notebook-coffee-facebook.jpg\" alt=\"o-WRITE-NOTEBOOK-COFFEE-facebook\"><figcaption>o-WRITE-NOTEBOOK-COFFEE-facebook</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0032/35-o-write-notebook-coffee-facebook.jpg\" alt=\"o-WRITE-NOTEBOOK-COFFEE-facebook\"><figcaption>o-WRITE-NOTEBOOK-COFFEE-facebook</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -5993,7 +5974,7 @@
         },
         {
           "id": "ha-40-media-1182",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/40/1182-angelica.png\" alt=\"Angelica\"><figcaption>Angelica</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0040/1182-angelica.png\" alt=\"Angelica\"><figcaption>Angelica</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -6383,7 +6364,7 @@
         },
         {
           "id": "ha-56-media-58",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/56/58-467137_jhk349429578431008_1593698545_o.jpg\" alt=\"467137_jhk349429578431008_1593698545_o\"><figcaption>467137_jhk349429578431008_1593698545_o</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0056/58-467137_jhk349429578431008_1593698545_o.jpg\" alt=\"467137_jhk349429578431008_1593698545_o\"><figcaption>467137_jhk349429578431008_1593698545_o</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -6572,7 +6553,7 @@
         },
         {
           "id": "ha-139-media-1176",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/139/1176-short-regret.jpg\" alt=\"Short regret\"><figcaption>Short regret</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0139/1176-short-regret.jpg\" alt=\"Short regret\"><figcaption>Short regret</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -6636,7 +6617,7 @@
         },
         {
           "id": "ha-143-media-1147",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/143/1147-pixlr-image-generator-66364594e929e32931e246da.png\" alt=\"7 deadly sins\"><figcaption>7 deadly sins</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0143/1147-pixlr-image-generator-66364594e929e32931e246da.png\" alt=\"7 deadly sins\"><figcaption>7 deadly sins</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -6688,7 +6669,7 @@
         },
         {
           "id": "ha-145-media-1098",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/145/1098-bc26eb05-c1a2-448c-9e9c-0045b9af7a7f.jpg\" alt=\"bc26eb05-c1a2-448c-9e9c-0045b9af7a7f\"><figcaption>bc26eb05-c1a2-448c-9e9c-0045b9af7a7f</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0145/1098-bc26eb05-c1a2-448c-9e9c-0045b9af7a7f.jpg\" alt=\"bc26eb05-c1a2-448c-9e9c-0045b9af7a7f\"><figcaption>bc26eb05-c1a2-448c-9e9c-0045b9af7a7f</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -6888,7 +6869,7 @@
         },
         {
           "id": "ha-170-media-1191",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/170/1191-marsupium.png\" alt=\"Marsupium\"><figcaption>Marsupium</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0170/1191-marsupium.png\" alt=\"Marsupium\"><figcaption>Marsupium</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -6930,7 +6911,7 @@
         },
         {
           "id": "ha-173-media-1196",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/173/1196-lucia.png\" alt=\"Lucia\"><figcaption>Lucia</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0173/1196-lucia.png\" alt=\"Lucia\"><figcaption>Lucia</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -7194,7 +7175,7 @@
         },
         {
           "id": "ha-178-media-1491",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/178/1491-comparative-lies.jpg\" alt=\"Comparative lies\"><figcaption>Comparative lies</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0178/1491-comparative-lies.jpg\" alt=\"Comparative lies\"><figcaption>Comparative lies</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -7789,7 +7770,7 @@
         },
         {
           "id": "ha-220-media-1166",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/220/1166-pixlr-image-generator-95806918-a193-4433-bade-d1f7be41334d.png\" alt=\"pixlr-image-generator-95806918-a193-4433-bade-d1f7be41334d\"><figcaption>pixlr-image-generator-95806918-a193-4433-bade-d1f7be41334d</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0220/1166-pixlr-image-generator-95806918-a193-4433-bade-d1f7be41334d.png\" alt=\"pixlr-image-generator-95806918-a193-4433-bade-d1f7be41334d\"><figcaption>pixlr-image-generator-95806918-a193-4433-bade-d1f7be41334d</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -7836,7 +7817,7 @@
         },
         {
           "id": "ha-223-media-1143",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/223/1143-pixlr-image-generator-66362a265c64e5a6e1e73a0d.png\" alt=\"pixlr-image-generator-66362a265c64e5a6e1e73a0d\"><figcaption>pixlr-image-generator-66362a265c64e5a6e1e73a0d</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0223/1143-pixlr-image-generator-66362a265c64e5a6e1e73a0d.png\" alt=\"pixlr-image-generator-66362a265c64e5a6e1e73a0d\"><figcaption>pixlr-image-generator-66362a265c64e5a6e1e73a0d</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -7873,7 +7854,7 @@
         },
         {
           "id": "ha-226-media-1119",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/226/1119-pixlr-image-generator-86ddf7e5-0f16-447b-a3cc-e5a0e4ab10a0.png\" alt=\"pixlr-image-generator-86ddf7e5-0f16-447b-a3cc-e5a0e4ab10a0\"><figcaption>pixlr-image-generator-86ddf7e5-0f16-447b-a3cc-e5a0e4ab10a0</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0226/1119-pixlr-image-generator-86ddf7e5-0f16-447b-a3cc-e5a0e4ab10a0.png\" alt=\"pixlr-image-generator-86ddf7e5-0f16-447b-a3cc-e5a0e4ab10a0\"><figcaption>pixlr-image-generator-86ddf7e5-0f16-447b-a3cc-e5a0e4ab10a0</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -8339,7 +8320,7 @@
         },
         {
           "id": "ha-248-media-250",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/248/250-tumblr_pdvnlkn5fa1rdljwx_500.jpg\" alt=\"Cycle\"><figcaption>Cycle</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0248/250-tumblr_pdvnlkn5fa1rdljwx_500.jpg\" alt=\"Cycle\"><figcaption>Cycle</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -8371,7 +8352,7 @@
         },
         {
           "id": "ha-252-media-1114",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/252/1114-pixlr-image-generator-b5ad7648-972f-4de2-8560-09396a03b087.png\" alt=\"pixlr-image-generator-b5ad7648-972f-4de2-8560-09396a03b087\"><figcaption>pixlr-image-generator-b5ad7648-972f-4de2-8560-09396a03b087</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0252/1114-pixlr-image-generator-b5ad7648-972f-4de2-8560-09396a03b087.png\" alt=\"pixlr-image-generator-b5ad7648-972f-4de2-8560-09396a03b087\"><figcaption>pixlr-image-generator-b5ad7648-972f-4de2-8560-09396a03b087</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -8408,7 +8389,7 @@
         },
         {
           "id": "ha-255-media-1110",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/255/1110-pixlr-image-generator-1b0285af-9fdb-4c69-9bc3-37f3c4b215c8.png\" alt=\"pixlr-image-generator-1b0285af-9fdb-4c69-9bc3-37f3c4b215c8\"><figcaption>pixlr-image-generator-1b0285af-9fdb-4c69-9bc3-37f3c4b215c8</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0255/1110-pixlr-image-generator-1b0285af-9fdb-4c69-9bc3-37f3c4b215c8.png\" alt=\"pixlr-image-generator-1b0285af-9fdb-4c69-9bc3-37f3c4b215c8\"><figcaption>pixlr-image-generator-1b0285af-9fdb-4c69-9bc3-37f3c4b215c8</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -8634,7 +8615,7 @@
         },
         {
           "id": "ha-265-media-1108",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/265/1108-pixlr-image-generator-a51aefc9-203d-4bb1-9b31-45ce6cce8ea0.png\" alt=\"pixlr-image-generator-a51aefc9-203d-4bb1-9b31-45ce6cce8ea0\"><figcaption>pixlr-image-generator-a51aefc9-203d-4bb1-9b31-45ce6cce8ea0</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0265/1108-pixlr-image-generator-a51aefc9-203d-4bb1-9b31-45ce6cce8ea0.png\" alt=\"pixlr-image-generator-a51aefc9-203d-4bb1-9b31-45ce6cce8ea0\"><figcaption>pixlr-image-generator-a51aefc9-203d-4bb1-9b31-45ce6cce8ea0</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -9108,22 +9089,22 @@
         },
         {
           "id": "ha-589-media-1106",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/589/1106-pixlr-image-generator-b4beee97-8e63-4c38-9746-53d9b48f82c5.png\" alt=\"pixlr-image-generator-b4beee97-8e63-4c38-9746-53d9b48f82c5\"><figcaption>pixlr-image-generator-b4beee97-8e63-4c38-9746-53d9b48f82c5</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0589/1106-pixlr-image-generator-b4beee97-8e63-4c38-9746-53d9b48f82c5.png\" alt=\"pixlr-image-generator-b4beee97-8e63-4c38-9746-53d9b48f82c5\"><figcaption>pixlr-image-generator-b4beee97-8e63-4c38-9746-53d9b48f82c5</figcaption></figure>",
           "type": "image"
         },
         {
           "id": "ha-589-media-1107",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/589/1107-preview3.jpg\" alt=\"preview3\"><figcaption>preview3</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0589/1107-preview3.jpg\" alt=\"preview3\"><figcaption>preview3</figcaption></figure>",
           "type": "image"
         },
         {
           "id": "ha-589-media-1568",
-          "html": "<figure><audio controls preload=\"metadata\" src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/589/1568-wounds-of-love.mp3\"></audio><figcaption>Wounds of Love</figcaption></figure>",
+          "html": "<figure><audio controls preload=\"metadata\" src=\"/landing-page/media/human-archive/HA-0589/1568-wounds-of-love.mp3\"></audio><figcaption>Wounds of Love</figcaption></figure>",
           "type": "audio"
         },
         {
           "id": "ha-589-media-1569",
-          "html": "<figure><audio controls preload=\"metadata\" src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/589/1569-fragile-love.mp3\"></audio><figcaption>Fragile Love</figcaption></figure>",
+          "html": "<figure><audio controls preload=\"metadata\" src=\"/landing-page/media/human-archive/HA-0589/1569-fragile-love.mp3\"></audio><figcaption>Fragile Love</figcaption></figure>",
           "type": "audio"
         }
       ],
@@ -9444,7 +9425,7 @@
         },
         {
           "id": "ha-637-media-1091",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/637/1091-untitled-design.png\" alt=\"Untitled design\"><figcaption>Untitled design</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0637/1091-untitled-design.png\" alt=\"Untitled design\"><figcaption>Untitled design</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -9483,7 +9464,7 @@
         },
         {
           "id": "ha-651-media-653",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/651/653-1280px-wassertropfen.jpg\" alt=\"1280px-Wassertropfen\"><figcaption>1280px-Wassertropfen</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0651/653-1280px-wassertropfen.jpg\" alt=\"1280px-Wassertropfen\"><figcaption>1280px-Wassertropfen</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -9587,7 +9568,7 @@
         },
         {
           "id": "ha-671-media-1095",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/671/1095-image1_0.jpg\" alt=\"image1_0\"><figcaption>image1_0</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0671/1095-image1_0.jpg\" alt=\"image1_0\"><figcaption>image1_0</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -9624,7 +9605,7 @@
         },
         {
           "id": "ha-673-media-672",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/673/672-halkidiki-monk2.jpg\" alt=\"Halkidiki-Monk2\"><figcaption>Halkidiki-Monk2</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0673/672-halkidiki-monk2.jpg\" alt=\"Halkidiki-Monk2\"><figcaption>Halkidiki-Monk2</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -9646,7 +9627,7 @@
         },
         {
           "id": "ha-674-media-1105",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/674/1105-pixlr-image-generator-6359ab27-8905-4584-9114-419da55bf814.png\" alt=\"pixlr-image-generator-6359ab27-8905-4584-9114-419da55bf814\"><figcaption>pixlr-image-generator-6359ab27-8905-4584-9114-419da55bf814</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0674/1105-pixlr-image-generator-6359ab27-8905-4584-9114-419da55bf814.png\" alt=\"pixlr-image-generator-6359ab27-8905-4584-9114-419da55bf814\"><figcaption>pixlr-image-generator-6359ab27-8905-4584-9114-419da55bf814</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -9683,7 +9664,7 @@
         },
         {
           "id": "ha-679-media-1104",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/679/1104-pixlr-image-generator-bff2078e-9024-417f-889a-d332a6c838a3.png\" alt=\"pixlr-image-generator-bff2078e-9024-417f-889a-d332a6c838a3\"><figcaption>pixlr-image-generator-bff2078e-9024-417f-889a-d332a6c838a3</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0679/1104-pixlr-image-generator-bff2078e-9024-417f-889a-d332a6c838a3.png\" alt=\"pixlr-image-generator-bff2078e-9024-417f-889a-d332a6c838a3\"><figcaption>pixlr-image-generator-bff2078e-9024-417f-889a-d332a6c838a3</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -9786,7 +9767,7 @@
         },
         {
           "id": "ha-700-media-704",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/700/704-61531037.jpg\" alt=\"61531037\"><figcaption>61531037</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0700/704-61531037.jpg\" alt=\"61531037\"><figcaption>61531037</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -9813,7 +9794,7 @@
         },
         {
           "id": "ha-708-media-712",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/708/712-img-20190824-wa0004-1.jpg\" alt=\"În albastrul cerului estompat\"><figcaption>În albastrul cerului estompat</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0708/712-img-20190824-wa0004-1.jpg\" alt=\"În albastrul cerului estompat\"><figcaption>În albastrul cerului estompat</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -9850,7 +9831,7 @@
         },
         {
           "id": "ha-717-media-719",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/717/719-q3a0jxjp2ue91.jpg\" alt=\"Wedding on Mars\"><figcaption>Wedding on Mars</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0717/719-q3a0jxjp2ue91.jpg\" alt=\"Wedding on Mars\"><figcaption>Wedding on Mars</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -9927,12 +9908,12 @@
         },
         {
           "id": "ha-727-media-729",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/727/729-42a5.jpg\" alt=\"䊥\"><figcaption>䊥</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0727/729-42a5.jpg\" alt=\"䊥\"><figcaption>䊥</figcaption></figure>",
           "type": "image"
         },
         {
           "id": "ha-727-media-733",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/727/733-42a5.png\" alt=\"䊥\"><figcaption>䊥</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0727/733-42a5.png\" alt=\"䊥\"><figcaption>䊥</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -10061,7 +10042,7 @@
         },
         {
           "id": "ha-873-media-875",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/873/875-screenshot-2023-06-10-012707.png\" alt=\"Screenshot 2023-06-10 012707\"><figcaption>Screenshot 2023-06-10 012707</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0873/875-screenshot-2023-06-10-012707.png\" alt=\"Screenshot 2023-06-10 012707\"><figcaption>Screenshot 2023-06-10 012707</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -10083,7 +10064,7 @@
         },
         {
           "id": "ha-879-media-881",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/879/881-1-hd.png\" alt=\"1 &amp;#8211; HD\"><figcaption>1 &amp;#8211; HD</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0879/881-1-hd.png\" alt=\"1 &amp;#8211; HD\"><figcaption>1 &amp;#8211; HD</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -10155,7 +10136,7 @@
         },
         {
           "id": "ha-915-media-920",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/915/920-tumblr_9325ae445470d3551a36166f122483a7_8b151719_540.jpg\" alt=\"!\"><figcaption>!</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0915/920-tumblr_9325ae445470d3551a36166f122483a7_8b151719_540.jpg\" alt=\"!\"><figcaption>!</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -10222,7 +10203,7 @@
         },
         {
           "id": "ha-928-media-931",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/928/931-screenshot_20230720_115722_instagram.png\" alt=\"Screenshot_20230720_115722_Instagram\"><figcaption>Screenshot_20230720_115722_Instagram</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0928/931-screenshot_20230720_115722_instagram.png\" alt=\"Screenshot_20230720_115722_Instagram\"><figcaption>Screenshot_20230720_115722_Instagram</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -10363,12 +10344,12 @@
         },
         {
           "id": "ha-994-media-1178",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/994/1178-junct.jpg\" alt=\"Junct\"><figcaption>Junct</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0994/1178-junct.jpg\" alt=\"Junct\"><figcaption>Junct</figcaption></figure>",
           "type": "image"
         },
         {
           "id": "ha-994-media-996",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/994/996-michelangelo_-_creation_of_adam_cropped.jpg\" alt=\"Michelangelo_-_Creation_of_Adam_(cropped)\"><figcaption>Michelangelo_-_Creation_of_Adam_(cropped)</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-0994/996-michelangelo_-_creation_of_adam_cropped.jpg\" alt=\"Michelangelo_-_Creation_of_Adam_(cropped)\"><figcaption>Michelangelo_-_Creation_of_Adam_(cropped)</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -10569,7 +10550,7 @@
         },
         {
           "id": "ha-1052-media-1051",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1052/1051-meister_des_codex_aureus_epternacensis_00128129.jpg\" alt=\"Meister_des_Codex_Aureus_Epternacensis_001 (1)\"><figcaption>Meister_des_Codex_Aureus_Epternacensis_001 (1)</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1052/1051-meister_des_codex_aureus_epternacensis_00128129.jpg\" alt=\"Meister_des_Codex_Aureus_Epternacensis_001 (1)\"><figcaption>Meister_des_Codex_Aureus_Epternacensis_001 (1)</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -10666,7 +10647,7 @@
         },
         {
           "id": "ha-1056-media-1058",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1056/1058-margarete.png\" alt=\"margarete\"><figcaption>margarete</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1056/1058-margarete.png\" alt=\"margarete\"><figcaption>margarete</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -10708,12 +10689,12 @@
         },
         {
           "id": "ha-1060-media-1065",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1060/1065-grey-black-vintage-texture-album-cover.png\" alt=\"Grey Black Vintage Texture Album Cover\"><figcaption>Grey Black Vintage Texture Album Cover</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1060/1065-grey-black-vintage-texture-album-cover.png\" alt=\"Grey Black Vintage Texture Album Cover\"><figcaption>Grey Black Vintage Texture Album Cover</figcaption></figure>",
           "type": "image"
         },
         {
           "id": "ha-1060-media-1068",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1060/1068-haiku.png\" alt=\"Haiku\"><figcaption>Haiku</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1060/1068-haiku.png\" alt=\"Haiku\"><figcaption>Haiku</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -10782,7 +10763,7 @@
         },
         {
           "id": "ha-1073-media-1075",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1073/1075-ss9bhwozcjgxgnp1pkonndgv9en.jpg\" alt=\"ss9bHwoZCjGXGNp1PKONnDGv9en\"><figcaption>ss9bHwoZCjGXGNp1PKONnDGv9en</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1073/1075-ss9bhwozcjgxgnp1pkonndgv9en.jpg\" alt=\"ss9bHwoZCjGXGNp1PKONnDGv9en\"><figcaption>ss9bHwoZCjGXGNp1PKONnDGv9en</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -10839,12 +10820,12 @@
         },
         {
           "id": "ha-1077-media-1080",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1077/1080-the-last-judgement-by-viktor-vasnetsov.jpg\" alt=\"The Last Judgement by Viktor Vasnetsov\"><figcaption>The Last Judgement by Viktor Vasnetsov</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1077/1080-the-last-judgement-by-viktor-vasnetsov.jpg\" alt=\"The Last Judgement by Viktor Vasnetsov\"><figcaption>The Last Judgement by Viktor Vasnetsov</figcaption></figure>",
           "type": "image"
         },
         {
           "id": "ha-1077-media-1081",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1077/1081-1-the-last-judgement-by-viktor-vasnetsov.png\" alt=\"1 The Last Judgement by Viktor Vasnetsov\"><figcaption>1 The Last Judgement by Viktor Vasnetsov</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1077/1081-1-the-last-judgement-by-viktor-vasnetsov.png\" alt=\"1 The Last Judgement by Viktor Vasnetsov\"><figcaption>1 The Last Judgement by Viktor Vasnetsov</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -10866,7 +10847,7 @@
         },
         {
           "id": "ha-1083-media-1086",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1083/1086-tumblr_okndlcvdaz1v2vwi9o2_500.gif\" alt=\"tumblr_okndlcvDaZ1v2vwi9o2_500\"><figcaption>tumblr_okndlcvDaZ1v2vwi9o2_500</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1083/1086-tumblr_okndlcvdaz1v2vwi9o2_500.gif\" alt=\"tumblr_okndlcvDaZ1v2vwi9o2_500\"><figcaption>tumblr_okndlcvDaZ1v2vwi9o2_500</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -10888,7 +10869,7 @@
         },
         {
           "id": "ha-1129-media-1131",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1129/1131-pixlr-image-generator-0526ec4a-7a01-4b18-b92d-a1bdd763dbe7.png\" alt=\"pixlr-image-generator-0526ec4a-7a01-4b18-b92d-a1bdd763dbe7\"><figcaption>pixlr-image-generator-0526ec4a-7a01-4b18-b92d-a1bdd763dbe7</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1129/1131-pixlr-image-generator-0526ec4a-7a01-4b18-b92d-a1bdd763dbe7.png\" alt=\"pixlr-image-generator-0526ec4a-7a01-4b18-b92d-a1bdd763dbe7\"><figcaption>pixlr-image-generator-0526ec4a-7a01-4b18-b92d-a1bdd763dbe7</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -10987,27 +10968,27 @@
         },
         {
           "id": "ha-1249-media-1251",
-          "html": "<figure><audio controls preload=\"metadata\" src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1249/1251-enemy20ext20v2.2.2.1.1.2.2.1.1.2.2.mp3\"></audio><figcaption>enemy20ext20v2.2.2.1.1.2.2.1.1.2.2</figcaption></figure>",
+          "html": "<figure><audio controls preload=\"metadata\" src=\"/landing-page/media/human-archive/HA-1249/1251-enemy20ext20v2.2.2.1.1.2.2.1.1.2.2.mp3\"></audio><figcaption>enemy20ext20v2.2.2.1.1.2.2.1.1.2.2</figcaption></figure>",
           "type": "audio"
         },
         {
           "id": "ha-1249-media-1252",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1249/1252-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.png\" alt=\"pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32\"><figcaption>pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1249/1252-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.png\" alt=\"pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32\"><figcaption>pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32</figcaption></figure>",
           "type": "image"
         },
         {
           "id": "ha-1249-media-1253",
-          "html": "<figure><audio controls preload=\"metadata\" src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1249/1253-enemy20ext20v2.2.2.1.1.2.2.1.1.2.2intro.mp3\"></audio><figcaption>Enemy Within ext v2.2.2.1.1.2.2.1.1.2.2</figcaption></figure>",
+          "html": "<figure><audio controls preload=\"metadata\" src=\"/landing-page/media/human-archive/HA-1249/1253-enemy20ext20v2.2.2.1.1.2.2.1.1.2.2intro.mp3\"></audio><figcaption>Enemy Within ext v2.2.2.1.1.2.2.1.1.2.2</figcaption></figure>",
           "type": "audio"
         },
         {
           "id": "ha-1249-media-1255",
-          "html": "<figure><video controls playsinline preload=\"metadata\" src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1249/1255-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.mp4\"></video><figcaption>pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32</figcaption></figure>",
+          "html": "<figure><video controls playsinline preload=\"metadata\" src=\"/landing-page/media/human-archive/HA-1249/1255-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.mp4\"></video><figcaption>pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32</figcaption></figure>",
           "type": "video"
         },
         {
           "id": "ha-1249-media-1257",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1249/1257-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.gif\" alt=\"pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32\"><figcaption>pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1249/1257-pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32.gif\" alt=\"pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32\"><figcaption>pixlr-image-generator-53a3c3a6-5ae5-4794-a4e7-1f925a4e2a32</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -11069,7 +11050,7 @@
         },
         {
           "id": "ha-1300-media-1301",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1300/1301-img_100177138935634.jpg\" alt=\"IMG_100177138935634\"><figcaption>IMG_100177138935634</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1300/1301-img_100177138935634.jpg\" alt=\"IMG_100177138935634\"><figcaption>IMG_100177138935634</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -11227,7 +11208,7 @@
         },
         {
           "id": "ha-1404-media-1406",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1404/1406-width2048quality75.jpg\" alt=\"Child of a prayer\"><figcaption>Child of a prayer</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1404/1406-width2048quality75.jpg\" alt=\"Child of a prayer\"><figcaption>Child of a prayer</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -11259,7 +11240,7 @@
         },
         {
           "id": "ha-1408-media-1410",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1408/1410-proverb-thirty-one.jpg\" alt=\"Proverb Thirty-One\"><figcaption>Proverb Thirty-One</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1408/1410-proverb-thirty-one.jpg\" alt=\"Proverb Thirty-One\"><figcaption>Proverb Thirty-One</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -11311,7 +11292,7 @@
         },
         {
           "id": "ha-1421-media-1423",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1421/1423-pixlr-image-generator-21254ff5-a225-4513-b061-6e1fe801d1dc.jpg\" alt=\"Leadership Sisyphus\"><figcaption>Leadership Sisyphus</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1421/1423-pixlr-image-generator-21254ff5-a225-4513-b061-6e1fe801d1dc.jpg\" alt=\"Leadership Sisyphus\"><figcaption>Leadership Sisyphus</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -11358,7 +11339,7 @@
         },
         {
           "id": "ha-1425-media-1427",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1425/1427-ginko.mushishi.full_.6121711.jpg\" alt=\"11 Days of Wonder\"><figcaption>11 Days of Wonder</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1425/1427-ginko.mushishi.full_.6121711.jpg\" alt=\"11 Days of Wonder\"><figcaption>11 Days of Wonder</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -11917,7 +11898,7 @@
         },
         {
           "id": "ha-1461-media-1463",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1461/1463-dallc2b7e-2024-12-07-16.13.49-an-abstract-and-visually-captivating-book-cover-art-for-a-political-and-philosophical-theme.-the-image-features-a-surreal-balance-of-scales-where-one.jpg\" alt=\"Deturnarea democrației\"><figcaption>Deturnarea democrației</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1461/1463-dallc2b7e-2024-12-07-16.13.49-an-abstract-and-visually-captivating-book-cover-art-for-a-political-and-philosophical-theme.-the-image-features-a-surreal-balance-of-scales-where-one.jpg\" alt=\"Deturnarea democrației\"><figcaption>Deturnarea democrației</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -11974,7 +11955,7 @@
         },
         {
           "id": "ha-1473-media-1475",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1473/1475-c450510b-2563-4b39-bd6d-00794ad75a69.png\" alt=\"c450510b-2563-4b39-bd6d-00794ad75a69\"><figcaption>c450510b-2563-4b39-bd6d-00794ad75a69</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1473/1475-c450510b-2563-4b39-bd6d-00794ad75a69.png\" alt=\"c450510b-2563-4b39-bd6d-00794ad75a69\"><figcaption>c450510b-2563-4b39-bd6d-00794ad75a69</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -12056,12 +12037,12 @@
         },
         {
           "id": "ha-1478-media-1480",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1478/1480-dallc2b7e-2025-02-03-02.36.10-a-melancholic-and-introspective-scene-reflecting-the-themes-of-aging-weariness-and-longing-in-the-poem.-the-image-should-depict-an-elderly-figure-w.jpg\" alt=\"Manifestul unui om senil\"><figcaption>Manifestul unui om senil</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1478/1480-dallc2b7e-2025-02-03-02.36.10-a-melancholic-and-introspective-scene-reflecting-the-themes-of-aging-weariness-and-longing-in-the-poem.-the-image-should-depict-an-elderly-figure-w.jpg\" alt=\"Manifestul unui om senil\"><figcaption>Manifestul unui om senil</figcaption></figure>",
           "type": "image"
         },
         {
           "id": "ha-1478-media-1482",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1478/1482-manifestul-unui-om-senil.jpg\" alt=\"Manifestul unui om senil &amp;#8211; cropped\"><figcaption>Manifestul unui om senil &amp;#8211; cropped</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1478/1482-manifestul-unui-om-senil.jpg\" alt=\"Manifestul unui om senil &amp;#8211; cropped\"><figcaption>Manifestul unui om senil &amp;#8211; cropped</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -12088,7 +12069,7 @@
         },
         {
           "id": "ha-1561-media-1563",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1561/1563-img_20220205_223049.jpg\" alt=\"When Darkness Leads\"><figcaption>When Darkness Leads</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1561/1563-img_20220205_223049.jpg\" alt=\"When Darkness Leads\"><figcaption>When Darkness Leads</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -12155,12 +12136,12 @@
         },
         {
           "id": "ha-1571-media-1574",
-          "html": "<figure><audio controls preload=\"metadata\" src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1571/1574-where-is-waldo.mp3\"></audio><figcaption>Where is Waldo</figcaption></figure>",
+          "html": "<figure><audio controls preload=\"metadata\" src=\"/landing-page/media/human-archive/HA-1571/1574-where-is-waldo.mp3\"></audio><figcaption>Where is Waldo</figcaption></figure>",
           "type": "audio"
         },
         {
           "id": "ha-1571-media-1577",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1571/1577-cover.jpg\" alt=\"cover\"><figcaption>cover</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1571/1577-cover.jpg\" alt=\"cover\"><figcaption>cover</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -12197,12 +12178,12 @@
         },
         {
           "id": "ha-1579-media-1581",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1579/1581-wholee280a6-and-free.png\" alt=\"Whole… and free\"><figcaption>Whole… and free</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1579/1581-wholee280a6-and-free.png\" alt=\"Whole… and free\"><figcaption>Whole… and free</figcaption></figure>",
           "type": "image"
         },
         {
           "id": "ha-1579-media-1583",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1579/1583-wholee280a6-and-free-wide.png\" alt=\"Whole… and free &amp;#8211; wide\"><figcaption>Whole… and free &amp;#8211; wide</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1579/1583-wholee280a6-and-free-wide.png\" alt=\"Whole… and free &amp;#8211; wide\"><figcaption>Whole… and free &amp;#8211; wide</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -12269,7 +12250,7 @@
         },
         {
           "id": "ha-1587-media-1590",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1587/1590-why.jpg\" alt=\"Why\"><figcaption>Why</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1587/1590-why.jpg\" alt=\"Why\"><figcaption>Why</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -12311,7 +12292,7 @@
         },
         {
           "id": "ha-1594-media-1596",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1594/1596-fliquoring.jpg\" alt=\"Fliquoring\"><figcaption>Fliquoring</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1594/1596-fliquoring.jpg\" alt=\"Fliquoring\"><figcaption>Fliquoring</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -12343,7 +12324,7 @@
         },
         {
           "id": "ha-1599-media-1601",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1599/1601-liminal-stasis.jpg\" alt=\"Liminal Stasis\"><figcaption>Liminal Stasis</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1599/1601-liminal-stasis.jpg\" alt=\"Liminal Stasis\"><figcaption>Liminal Stasis</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -12590,7 +12571,7 @@
         },
         {
           "id": "ha-1604-media-1622",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1604/1622-dallc2b7e-2025-02-28-16.55.17-a-book-cover-for-an-academic-essay-titled-the-balance-between-individual-freedom-and-societal-harmony_-a-philosophical-exploration.-the-cover-should.jpg\" alt=\"The Tension &amp;#8211; Values, Freedom, Structure: A Philosophical Inquiry\"><figcaption>The Tension &amp;#8211; Values, Freedom, Structure: A Philosophical Inquiry</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1604/1622-dallc2b7e-2025-02-28-16.55.17-a-book-cover-for-an-academic-essay-titled-the-balance-between-individual-freedom-and-societal-harmony_-a-philosophical-exploration.-the-cover-should.jpg\" alt=\"The Tension &amp;#8211; Values, Freedom, Structure: A Philosophical Inquiry\"><figcaption>The Tension &amp;#8211; Values, Freedom, Structure: A Philosophical Inquiry</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -12647,7 +12628,7 @@
         },
         {
           "id": "ha-1632-media-1634",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1632/1634-romania-noastra-un-efort-comun.png\" alt=\"România Noastră &amp;#8211; Un Efort Comun\"><figcaption>România Noastră &amp;#8211; Un Efort Comun</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1632/1634-romania-noastra-un-efort-comun.png\" alt=\"România Noastră &amp;#8211; Un Efort Comun\"><figcaption>România Noastră &amp;#8211; Un Efort Comun</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -12699,7 +12680,7 @@
         },
         {
           "id": "ha-1636-media-1640",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1636/1640-download.jpg\" alt=\"MLK\"><figcaption>MLK</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1636/1640-download.jpg\" alt=\"MLK\"><figcaption>MLK</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -12786,7 +12767,7 @@
         },
         {
           "id": "ha-1642-media-1649",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1642/1649-hqdefault.jpg\" alt=\"MLK\"><figcaption>MLK</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1642/1649-hqdefault.jpg\" alt=\"MLK\"><figcaption>MLK</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -12823,7 +12804,7 @@
         },
         {
           "id": "ha-1653-media-1655",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1653/1655-chatgpt-image-may-7-2025-11_02_35-pm.png\" alt=\"Koan\"><figcaption>Koan</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1653/1655-chatgpt-image-may-7-2025-11_02_35-pm.png\" alt=\"Koan\"><figcaption>Koan</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -12934,7 +12915,7 @@
       "blocks": [
         {
           "id": "block-001",
-          "html": "<div class=\"ha-columns\"><section><figure data-ha-block-name=\"Audio\"><audio src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1666/1669-cenusa-de-nimic.mp3\" controls=\"\" preload=\"metadata\"></audio></figure><p data-ha-block-name=\"Lyrics\">Silueta nimicului pictează<br>un cer negru de amiază.</p><p>Din negura timpului se alungesc funinginii<br>mistuiți de nopți întunecate care au fost arse cu umbre infinite…<br>Izvorăsc din albia cenușilor;<br>jar stins din nimic.</p><p>Viu-grai cernut printre degete de cărbune;<br>firicele de carbon trasate cu unghiile peniță,<br>în grabă pictează un orizont între acum și apoi.</p><p>Același simț etern mă preschimbă în uitare…<br>Din Eu în Eu mă revarsă doamna Umbră;<br>înfășat în focul negru, mă poartă în brațe<br>cu o notă de fum pe buză ce mă atrage spre sfârșit.</p><p>Mă scald în amurgul ei divin;<br>în simțul meu, gând să redevin.<br>Din umbra sinelui să mă răsad spre ceruri<br>și să fiu om.</p><p>Întunecat e cerul într-un ochi de vreme bună…<br>Într-o clipă îl privesc<br>și mă regăsesc în hău.<br>Sunt pierdut pentru că nu mă știu altfel decât prin întuneric;<br>Eu sunt scursura lumii dintre lumi,<br>sunt omul ce te-a dat ființă<br>dinspre toate lumile spre una singură pe care mi-o doresc:<br>Rămâi cu bine.</p><p>Om după om și-n suflet eu-<br>Mă aleargă noaptea la apogeu.<br>Sunt mai rapid și prin uitare<br>mă arunc de pe culme în zenit.</p><p>Tremură pe marginea genelor cenușiu lânos,<br>duhul care dospește în căutarea de a nu fi singur,<br>bântuind printre lumi, căutând ceva anost;<br>să înnoade pământul și marea.<br>În uitare sunt-<br>Ce fac în neștiință înainte să uit,<br>îmi voi readuce aminte s-o cânt.</p></section><section><figure data-ha-block-name=\"Image\"><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1666/1668-cenusa-de-nimic.jpeg\" alt=\"Cenușă de nimic\" loading=\"lazy\" style=\"max-width: 100%; height: auto;\"><figcaption>Cenușă de nimic</figcaption></figure></section></div>",
+          "html": "<div class=\"ha-columns\"><section><figure data-ha-block-name=\"Audio\"><audio src=\"/landing-page/media/human-archive/HA-1666/1669-cenusa-de-nimic.mp3\" controls=\"\" preload=\"metadata\"></audio></figure><p data-ha-block-name=\"Lyrics\">Silueta nimicului pictează<br>un cer negru de amiază.</p><p>Din negura timpului se alungesc funinginii<br>mistuiți de nopți întunecate care au fost arse cu umbre infinite…<br>Izvorăsc din albia cenușilor;<br>jar stins din nimic.</p><p>Viu-grai cernut printre degete de cărbune;<br>firicele de carbon trasate cu unghiile peniță,<br>în grabă pictează un orizont între acum și apoi.</p><p>Același simț etern mă preschimbă în uitare…<br>Din Eu în Eu mă revarsă doamna Umbră;<br>înfășat în focul negru, mă poartă în brațe<br>cu o notă de fum pe buză ce mă atrage spre sfârșit.</p><p>Mă scald în amurgul ei divin;<br>în simțul meu, gând să redevin.<br>Din umbra sinelui să mă răsad spre ceruri<br>și să fiu om.</p><p>Întunecat e cerul într-un ochi de vreme bună…<br>Într-o clipă îl privesc<br>și mă regăsesc în hău.<br>Sunt pierdut pentru că nu mă știu altfel decât prin întuneric;<br>Eu sunt scursura lumii dintre lumi,<br>sunt omul ce te-a dat ființă<br>dinspre toate lumile spre una singură pe care mi-o doresc:<br>Rămâi cu bine.</p><p>Om după om și-n suflet eu-<br>Mă aleargă noaptea la apogeu.<br>Sunt mai rapid și prin uitare<br>mă arunc de pe culme în zenit.</p><p>Tremură pe marginea genelor cenușiu lânos,<br>duhul care dospește în căutarea de a nu fi singur,<br>bântuind printre lumi, căutând ceva anost;<br>să înnoade pământul și marea.<br>În uitare sunt-<br>Ce fac în neștiință înainte să uit,<br>îmi voi readuce aminte s-o cânt.</p></section><section><figure data-ha-block-name=\"Image\"><img src=\"/landing-page/media/human-archive/HA-1666/1668-cenusa-de-nimic.jpeg\" alt=\"Cenușă de nimic\" loading=\"lazy\" style=\"max-width: 100%; height: auto;\"><figcaption>Cenușă de nimic</figcaption></figure></section></div>",
           "type": "columns"
         }
       ],
@@ -12946,7 +12927,7 @@
         "audio": [
           {
             "id": "recovered-wp-1669",
-            "url": "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1666/1669-cenusa-de-nimic.mp3",
+            "url": "/landing-page/media/human-archive/HA-1666/1669-cenusa-de-nimic.mp3",
             "name": "Cenușă de nimic",
             "path": "posts/1666/1669-cenusa-de-nimic.mp3",
             "storage": "recovered",
@@ -12956,7 +12937,7 @@
         "image": [
           {
             "id": "recovered-wp-1668",
-            "url": "https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1666/1668-cenusa-de-nimic.jpeg",
+            "url": "/landing-page/media/human-archive/HA-1666/1668-cenusa-de-nimic.jpeg",
             "name": "Cenușă de nimic",
             "path": "posts/1666/1668-cenusa-de-nimic.jpeg",
             "storage": "recovered",
@@ -12966,7 +12947,7 @@
         "video": []
       },
       "prompt_style": "",
-      "transmission_body": "<div class=\"ha-columns\"><section><figure data-ha-block-name=\"Audio\"><audio src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1666/1669-cenusa-de-nimic.mp3\" controls=\"\" preload=\"metadata\"></audio></figure><p data-ha-block-name=\"Lyrics\">Silueta nimicului pictează<br>un cer negru de amiază.</p><p>Din negura timpului se alungesc funinginii<br>mistuiți de nopți întunecate care au fost arse cu umbre infinite…<br>Izvorăsc din albia cenușilor;<br>jar stins din nimic.</p><p>Viu-grai cernut printre degete de cărbune;<br>firicele de carbon trasate cu unghiile peniță,<br>în grabă pictează un orizont între acum și apoi.</p><p>Același simț etern mă preschimbă în uitare…<br>Din Eu în Eu mă revarsă doamna Umbră;<br>înfășat în focul negru, mă poartă în brațe<br>cu o notă de fum pe buză ce mă atrage spre sfârșit.</p><p>Mă scald în amurgul ei divin;<br>în simțul meu, gând să redevin.<br>Din umbra sinelui să mă răsad spre ceruri<br>și să fiu om.</p><p>Întunecat e cerul într-un ochi de vreme bună…<br>Într-o clipă îl privesc<br>și mă regăsesc în hău.<br>Sunt pierdut pentru că nu mă știu altfel decât prin întuneric;<br>Eu sunt scursura lumii dintre lumi,<br>sunt omul ce te-a dat ființă<br>dinspre toate lumile spre una singură pe care mi-o doresc:<br>Rămâi cu bine.</p><p>Om după om și-n suflet eu-<br>Mă aleargă noaptea la apogeu.<br>Sunt mai rapid și prin uitare<br>mă arunc de pe culme în zenit.</p><p>Tremură pe marginea genelor cenușiu lânos,<br>duhul care dospește în căutarea de a nu fi singur,<br>bântuind printre lumi, căutând ceva anost;<br>să înnoade pământul și marea.<br>În uitare sunt-<br>Ce fac în neștiință înainte să uit,<br>îmi voi readuce aminte s-o cânt.</p></section><section><figure data-ha-block-name=\"Image\"><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1666/1668-cenusa-de-nimic.jpeg\" alt=\"Cenușă de nimic\" loading=\"lazy\" style=\"max-width: 100%; height: auto;\"><figcaption>Cenușă de nimic</figcaption></figure></section></div>",
+      "transmission_body": "<div class=\"ha-columns\"><section><figure data-ha-block-name=\"Audio\"><audio src=\"/landing-page/media/human-archive/HA-1666/1669-cenusa-de-nimic.mp3\" controls=\"\" preload=\"metadata\"></audio></figure><p data-ha-block-name=\"Lyrics\">Silueta nimicului pictează<br>un cer negru de amiază.</p><p>Din negura timpului se alungesc funinginii<br>mistuiți de nopți întunecate care au fost arse cu umbre infinite…<br>Izvorăsc din albia cenușilor;<br>jar stins din nimic.</p><p>Viu-grai cernut printre degete de cărbune;<br>firicele de carbon trasate cu unghiile peniță,<br>în grabă pictează un orizont între acum și apoi.</p><p>Același simț etern mă preschimbă în uitare…<br>Din Eu în Eu mă revarsă doamna Umbră;<br>înfășat în focul negru, mă poartă în brațe<br>cu o notă de fum pe buză ce mă atrage spre sfârșit.</p><p>Mă scald în amurgul ei divin;<br>în simțul meu, gând să redevin.<br>Din umbra sinelui să mă răsad spre ceruri<br>și să fiu om.</p><p>Întunecat e cerul într-un ochi de vreme bună…<br>Într-o clipă îl privesc<br>și mă regăsesc în hău.<br>Sunt pierdut pentru că nu mă știu altfel decât prin întuneric;<br>Eu sunt scursura lumii dintre lumi,<br>sunt omul ce te-a dat ființă<br>dinspre toate lumile spre una singură pe care mi-o doresc:<br>Rămâi cu bine.</p><p>Om după om și-n suflet eu-<br>Mă aleargă noaptea la apogeu.<br>Sunt mai rapid și prin uitare<br>mă arunc de pe culme în zenit.</p><p>Tremură pe marginea genelor cenușiu lânos,<br>duhul care dospește în căutarea de a nu fi singur,<br>bântuind printre lumi, căutând ceva anost;<br>să înnoade pământul și marea.<br>În uitare sunt-<br>Ce fac în neștiință înainte să uit,<br>îmi voi readuce aminte s-o cânt.</p></section><section><figure data-ha-block-name=\"Image\"><img src=\"/landing-page/media/human-archive/HA-1666/1668-cenusa-de-nimic.jpeg\" alt=\"Cenușă de nimic\" loading=\"lazy\" style=\"max-width: 100%; height: auto;\"><figcaption>Cenușă de nimic</figcaption></figure></section></div>",
       "public_record_id": "HA-1666"
     },
     {
@@ -13298,12 +13279,12 @@
         },
         {
           "id": "ha-1678-media-1689",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1678/1689-lud.jpeg\" alt=\"Lud\"><figcaption>Lud</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1678/1689-lud.jpeg\" alt=\"Lud\"><figcaption>Lud</figcaption></figure>",
           "type": "image"
         },
         {
           "id": "ha-1678-media-1690",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1678/1690-pixlr-image-6a32d5561bd1d7cd409bec41.jpg\" alt=\"pixlr-image-6a32d5561bd1d7cd409bec41\"><figcaption>pixlr-image-6a32d5561bd1d7cd409bec41</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1678/1690-pixlr-image-6a32d5561bd1d7cd409bec41.jpg\" alt=\"pixlr-image-6a32d5561bd1d7cd409bec41\"><figcaption>pixlr-image-6a32d5561bd1d7cd409bec41</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -13375,12 +13356,12 @@
         },
         {
           "id": "ha-1706-media-1708",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1706/1708-fall-in-eden.jpg\" alt=\"Fall in Eden\"><figcaption>Fall in Eden</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1706/1708-fall-in-eden.jpg\" alt=\"Fall in Eden\"><figcaption>Fall in Eden</figcaption></figure>",
           "type": "image"
         },
         {
           "id": "ha-1706-media-1713",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/1706/1713-fall-in-eden-1.jpg\" alt=\"Fall in Eden\"><figcaption>Fall in Eden</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-1706/1713-fall-in-eden-1.jpg\" alt=\"Fall in Eden\"><figcaption>Fall in Eden</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -13417,7 +13398,7 @@
         },
         {
           "id": "ha-2989-media-2991",
-          "html": "<figure><img src=\"https://ioguymqdeuuursizifnn.supabase.co/storage/v1/object/public/human-archive-media/posts/2989/2991-pixlr-6ad03f41591d0a730192b1bc.jpg\" alt=\"pixlr-6ad03f41591d0a730192b1bc\"><figcaption>pixlr-6ad03f41591d0a730192b1bc</figcaption></figure>",
+          "html": "<figure><img src=\"/landing-page/media/human-archive/HA-2989/2991-pixlr-6ad03f41591d0a730192b1bc.jpg\" alt=\"pixlr-6ad03f41591d0a730192b1bc\"><figcaption>pixlr-6ad03f41591d0a730192b1bc</figcaption></figure>",
           "type": "image"
         }
       ],
@@ -13924,11 +13905,6 @@
           "id": "ha-3003-065",
           "html": "<p>În memoria celor cu lotus pe piept.</p>",
           "type": "paragraph"
-        },
-        {
-          "id": "ha-3003-066",
-          "html": "<figure><img src=\"https://oeyxsqocldlovhsmzcjw.supabase.co/storage/v1/object/public/vha-post-media/3db54039-9208-4ec6-a741-94638e2ace16/e1f88e59-3d16-435b-8ded-b0b99979b4da-lud-1-.jpeg\" alt=\"\"></figure>",
-          "type": "image"
         }
       ],
       "record_id": 3003,
@@ -13946,11 +13922,6 @@
           "id": "ha-3004-001",
           "html": "TEST",
           "type": "paragraph"
-        },
-        {
-          "id": "ha-3004-002",
-          "html": "<figure><img src=\"https://oeyxsqocldlovhsmzcjw.supabase.co/storage/v1/object/public/vha-post-media/3db54039-9208-4ec6-a741-94638e2ace16/f19cc669-71a4-47ff-ad8c-4f00a8303fb8-green-dream_-the-god-beneath-the-noise.png\" alt=\"\"></figure>",
-          "type": "image"
         }
       ],
       "record_id": 3004,
@@ -14003,11 +13974,6 @@
           "id": "ha-3005-008",
           "html": "<p>The challenge was that words alone couldn't guarantee the right sound. I could structure the lyrics and specify what should happen at different stages, but Suno would interpret those instructions in its own way. My contribution was to help bridge the gap between the idea and the prompt; Manu's feedback helped us decide whether we were getting closer to what we actually wanted to hear.</p>",
           "type": "paragraph"
-        },
-        {
-          "id": "ha-3005-009",
-          "html": "<figure><video controls playsinline preload=\"metadata\" src=\"https://oeyxsqocldlovhsmzcjw.supabase.co/storage/v1/object/public/vha-post-media/3db54039-9208-4ec6-a741-94638e2ace16/8dfa5e0c-9dc1-4774-a729-73578f26637a-before-the-name.mp4\"></video></figure>",
-          "type": "video"
         }
       ],
       "record_id": 3005,
@@ -14025,11 +13991,6 @@
           "id": "ha-3006-verse-001",
           "html": "<div class=\"ha-verse\"><div>I. GOLUL — Dincolo de somn</div><div><br></div><div>Gol...</div><div>în nocturnă</div><div>văd umbre</div><div>jucând un rol</div><div>pe scena unei vieți de om,</div><div>deprivat de somn,</div><div>adorm.</div><div><br></div><div>II. PERCEPȚIA — Când lumina prinde culoare</div><div><br></div><div>Culori se amăgesc între ele</div><div>că urma lor va naște pete și nuanțe:</div><div>de gri, de roșu, de alb, de negru,</div><div>de singurătate, de alinare, de căldură, de iubire.</div><div>În joacă le privesc,</div><div>în voia blândă a luminii.</div><div><br></div><div>Văd un joc universal,</div><div>un tango de ritual,</div><div>un du-te-vino neîncetat,</div><div>un strop de amor pe o buză de pahar,</div><div>ce coboară ușor pe piciorul de cristal,</div><div>pătând masa cu ireal.</div><div><br></div><div>III. DEZILUZIA — Dincolo de aparențe</div><div><br></div><div>Culori în subite transparențe</div><div>învârtesc noroiul lumii,</div><div>îl sculptează pe piedestal</div><div>și-l acoperă cu noaptea minții.</div><div><br></div><div>IV. UITAREA — Printre resturile existenței</div><div><br></div><div>Culori pe care nu le știm,</div><div>culori ascunse de dor,</div><div>culori uitate dinadins,</div><div>purtate la piept,</div><div>urcate pe-un nor,</div><div>rătăcite printr-un sertar,</div><div>printre baterii și imbusuri,</div><div>schițe și borcane</div><div>cu murături și ciorne</div><div>și un suflet fără gust.</div><div><br></div><div>Mă minunez, mă văd privindu-mă,</div><div>mă contemplu dincolo de limite,</div><div>neîncetat mă caut în colțurile minții;</div><div>epuizat, deconectez și sensul, și sfinții.</div><div><br></div><div>V. SFÂRȘITUL — Când viața se stinge</div><div><br></div><div>Culori în scântei tăcute</div><div>pictează-n frigul dimineții</div><div>cum se stinge o viață,</div><div>un amurg înmormântat sub munte.</div><div><br></div><div>Cu capul spre albia lumii,</div><div>unde îl plâng străbunii,</div><div>peste coroane împletite din zorii zilei</div><div>picură viață de dragul milei.</div><div><br></div><div>VI. PRAGUL — Între două lumi</div><div><br></div><div>Curat, îmbălsămat,</div><div>în alb înveșmântat,</div><div>pășește prin livadă, prin ochiuri de lumină,</div><div>și o briză caldă îi suspină</div><div>zâmbete dulci,</div><div>iubire prin rugi,</div><div>miros de pământ</div><div>și-un fior prin gând.</div><div><br></div><div>Acolo unde dragostea nu-i,</div><div>acolo unde zâmbete în culori diurne</div><div>atârnă în cui,</div><div>acolo unde respiră vânturi nocturne.</div><div><br></div><div>VII. GENEZA — Desprins din tot, născut din nimic</div><div><br></div><div>Acolo, în spațiul dintre lumi,</div><div>o amintire plânge printre cununi</div><div>apariția conștiinței</div><div>și decuparea ființei</div><div>din tot, din divin;</div><div>un observator</div><div>și un decor</div><div>străin de propriul creator.</div><div><br></div><div>Acolo prind formă și ființă:</div><div>un nimic cu voință</div><div>de a fi, de a nu muri,</div><div>de a mă naște și de a mă numi.</div><div><br></div><div>VIII. CĂLĂTORIA — În căutarea propriei ființe</div><div><br></div><div>Observator călător</div><div>pe sub pământ, prin zbor,</div><div>prin rafale de neștire,</div><div>până și lipsa uită să mă respire.</div><div><br></div><div>Culori născute din speranță,</div><div>un scâncet născut din neființă;</div><div>la unison, ființa-mi vibrează,</div><div>un semnal ascuns mă reîntrupează.</div><div><br></div><div>IX. RECUNOAȘTEREA — Într-o culoare, întregul</div><div><br></div><div>Îi decodific conștiința de pe mut,</div><div>îi dau sonor prin sufletul meu cărunt,</div><div>mă cobor în plecăciune și-i prezint respect.</div><div><br></div><div>Sunt o culoare refractată perfect.</div></div>",
           "type": "verse"
-        },
-        {
-          "id": "ha-3006-115",
-          "html": "<figure><img src=\"https://oeyxsqocldlovhsmzcjw.supabase.co/storage/v1/object/public/vha-post-media/3db54039-9208-4ec6-a741-94638e2ace16/e272294b-ab58-46ee-8100-2caee8462339-sunt-o-culoare.jpeg\" alt=\"\"></figure>",
-          "type": "image"
         }
       ],
       "record_id": 3006,
