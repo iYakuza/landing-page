@@ -1,8 +1,56 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T17:42:01.110034Z",
-  "last_processed_sha": "cef6cf76fe1a44a7f98a478f02fb236f45ffdf9a",
+  "updated_at": "2026-11-22T17:43:52.010837Z",
+  "last_processed_sha": "9ea64a78248c855ae05b0d41fcea23f992258d44",
   "entries": [
+    {
+      "id": "9ea64a78248c855ae05b0d41fcea23f992258d44",
+      "timestamp": "2026-11-22T18:43:30+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together cleanup: remove obsolete integrations and migration snapshots. It updates import-wp-post.yml, _headers, _redirects, CMS_MIGRATION_INVENTORY.md and related project files.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/import-wp-post.yml",
+        "_headers",
+        "_redirects",
+        "docs/CMS_MIGRATION_INVENTORY.md",
+        "docs/CMS_MIGRATION_PLAN.md",
+        "docs/DEVELOPMENT_TRACKER.md",
+        "docs/IMPLEMENTATION_LOG_2026-11-02.md",
+        "docs/SIGNAL_INTAKE_TEST_PLAN.md",
+        "human-archive/archive-content.json",
+        "human-archive/archive-data.json",
+        "human-archive/media-import-report.json",
+        "human-archive/media-manifest.json",
+        "recovery-data/human-archive-favorites.json",
+        "recovery-data/human-archive-structures.json",
+        "recovery-data/poetry-submissions.json",
+        "recovery-data/transmission-media-report.json",
+        "recovery-data/vha-posts.json"
+      ],
+      "commits": [
+        {
+          "message": "cleanup: remove obsolete integrations and migration snapshots",
+          "url": "https://github.com/iYakuza/landing-page/commit/9ea64a78248c855ae05b0d41fcea23f992258d44",
+          "files": [
+            ".github/workflows/import-wp-post.yml",
+            "_headers",
+            "_redirects",
+            "docs/CMS_MIGRATION_INVENTORY.md",
+            "docs/CMS_MIGRATION_PLAN.md",
+            "docs/DEVELOPMENT_TRACKER.md",
+            "docs/IMPLEMENTATION_LOG_2026-11-02.md",
+            "docs/SIGNAL_INTAKE_TEST_PLAN.md",
+            "human-archive/archive-content.json",
+            "human-archive/archive-data.json",
+            "human-archive/media-import-report.json",
+            "human-archive/media-manifest.json"
+          ]
+        }
+      ]
+    },
     {
       "id": "6e30d73d634089d2b9077c8174990a0ed910b814",
       "timestamp": "2026-11-22T18:41:49+01:00",
@@ -1343,43 +1391,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/661ec1da437ae059c3b960bf2e1e8e3301563dfa",
           "files": [
             "human-archive/archive.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "839c48b3daafb613e3f14cb2976b71a65f482f8f",
-      "timestamp": "2026-11-18T18:56:29+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Refresh chamber action layout assets. It updates index.html and related project files.",
-      "commit_count": 3,
-      "files": [
-        "human-archive/index.html",
-        "index.html",
-        "posts/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Refresh chamber action layout assets",
-          "url": "https://github.com/iYakuza/landing-page/commit/3103dc70b4f6f1973dc26e00cba6e69a06f917e8",
-          "files": [
-            "index.html"
-          ]
-        },
-        {
-          "message": "Refresh chamber action layout assets",
-          "url": "https://github.com/iYakuza/landing-page/commit/680cac065b5f7b1c3312e29a98c8f4a868696675",
-          "files": [
-            "posts/index.html"
-          ]
-        },
-        {
-          "message": "Refresh chamber action layout assets",
-          "url": "https://github.com/iYakuza/landing-page/commit/839c48b3daafb613e3f14cb2976b71a65f482f8f",
-          "files": [
-            "human-archive/index.html"
           ]
         }
       ]
