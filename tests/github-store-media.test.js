@@ -190,23 +190,25 @@ test('Transmissions uses the shared DOMPurify sanitizer before parsing stored po
   assert.match(postsHtml, /shared\/vendor\/dompurify-3\.4\.18\.min\.js[\s\S]*posts\.js/);
 });
 
-test('Poetry plain-text conversion applies a final complete HTML-escaping pass', () => {
+test('Poetry plain-text conversion preserves entities and escapes raw HTML characters', () => {
   const edgeSource = fs.readFileSync(path.join(__dirname, '..', 'supabase', 'functions', 'poetry-submit', 'index.ts'), 'utf8');
   assert.ok(edgeSource.includes('const plainBodyText = htmlBody'));
-  assert.ok(edgeSource.includes('const plainBody = htmlEscape(plainBodyText);'));
-  assert.ok(!edgeSource.includes('.replace(/&lt;/g, "<")'));
-  assert.ok(!edgeSource.includes('.replace(/&gt;/g, ">")'));
+  assert.ok(edgeSource.includes('const plainBody = htmlEscapePreservingEntities(plainBodyText);'));
+  assert.ok(!edgeSource.includes('.replace(/&amp;/g, "&")'));
 
-  const escapeStart = edgeSource.indexOf('function htmlEscape(s: string) {');
-  const escapeEnd = edgeSource.indexOf('function richText', escapeStart);
-  assert.ok(escapeStart >= 0 && escapeEnd > escapeStart, 'the shared HTML escaper must exist');
-  const escapeFunction = edgeSource.slice(escapeStart, escapeEnd).replace('s: string', 's');
+  const escapeStart = edgeSource.indexOf('function htmlEscapePreservingEntities(s: string) {');
+  const escapeEnd = edgeSource.indexOf('function slugify', escapeStart);
+  assert.ok(escapeStart >= 0 && escapeEnd > escapeStart, 'entity-preserving HTML escaper must exist');
+  const escapeFunction = edgeSource.slice(escapeStart, escapeEnd).trim().replace('s: string', 's');
   const sandbox = vm.createContext({});
-  vm.runInContext(escapeFunction + '; this.escape = htmlEscape;', sandbox);
-  assert.equal(sandbox.escape('&lt;script&gt;'), '&amp;lt;script&amp;gt;',
-    'nested encoded markup must remain text after the final escaping pass');
-  assert.equal(sandbox.escape('Tom & Jerry'), 'Tom &amp; Jerry',
-    'ordinary ampersands must remain correctly encoded for HTML rendering');
+  vm.runInContext(escapeFunction + '; this.escape = htmlEscapePreservingEntities;', sandbox);
+  assert.equal(sandbox.escape('Tom & Jerry'), 'Tom &amp; Jerry');
+  assert.equal(sandbox.escape('&amp;'), '&amp;', 'valid ampersand entities should remain intact');
+  assert.equal(sandbox.escape('&lt;script&gt;'), '&lt;script&gt;', 'encoded markup must remain text');
+  assert.equal(sandbox.escape('&amp;lt;script&amp;gt;'), '&amp;lt;script&amp;gt;',
+    'nested encoded markup must not be decoded into an HTML tag');
+  assert.equal(sandbox.escape('<b>plain text</b>'), '&lt;b&gt;plain text&lt;/b&gt;',
+    'raw angle brackets must be escaped');
 });
 
 test('Transmission reflection labels are escaped and embed providers use exact hostnames', () => {
