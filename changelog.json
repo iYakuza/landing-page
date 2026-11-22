@@ -1,8 +1,33 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T18:55:00+01:00",
-  "last_processed_sha": "f6d72e1790ab33b5cb96269daeca3f6e82489f7e",
+  "updated_at": "2026-11-22T17:51:22.255780Z",
+  "last_processed_sha": "f1113b7fccbdc5a20fc1a25100b938400a022251",
   "entries": [
+    {
+      "id": "f1113b7fccbdc5a20fc1a25100b938400a022251",
+      "timestamp": "2026-11-22T18:51:06+01:00",
+      "category": "CONTENT",
+      "component": "Website Updates",
+      "title": "Fresh additions to Website Updates",
+      "description": "This update brings together cleanup: reset public changelog and remove legacy post snapshot. It updates .gitleaks.toml, changelog.json, posts.json.",
+      "commit_count": 1,
+      "files": [
+        ".gitleaks.toml",
+        "changelog.json",
+        "transmissions/posts.json"
+      ],
+      "commits": [
+        {
+          "message": "cleanup: reset public changelog and remove legacy post snapshot",
+          "url": "https://github.com/iYakuza/landing-page/commit/f1113b7fccbdc5a20fc1a25100b938400a022251",
+          "files": [
+            ".gitleaks.toml",
+            "changelog.json",
+            "transmissions/posts.json"
+          ]
+        }
+      ]
+    },
     {
       "id": "f6d72e1790ab33b5cb96269daeca3f6e82489f7e",
       "timestamp": "2026-11-22T18:55:00+01:00",
