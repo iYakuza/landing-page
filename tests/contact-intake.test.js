@@ -165,7 +165,7 @@ test('contact form is enabled only with a valid Google Apps Script deployment UR
   assert.ok(clientSource.includes('endpointUrl: "https://script.google.com/macros/s/'));
   assert.ok(clientSource.includes('/exec",'));
   assert.ok(clientSource.includes('const endpointReady ='));
-  assert.match(clientSource, /submitButton\.disabled = !endpointReady \\|\\| !uploadFrameReady/);
+  assert.ok(clientSource.includes("submitButton.disabled = !endpointReady || !uploadFrameReady"));
   assert.match(clientSource, /name="requestId"/);
   assert.match(clientSource, /name="startedAt"/);
   assert.match(clientSource, /name="website"/);
