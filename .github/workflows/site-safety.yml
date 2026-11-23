@@ -49,7 +49,7 @@ jobs:
           fi
           grep -Fq 'id="cv-floating-nav"' cv/index.html
           grep -Fq 'window.parent.document' cv/navigation.js
-          grep -Fq "document.querySelector('.cv-contact-open')?.click();" home.js
+          grep -Fq "new CustomEvent('vha-contact-open',{detail:{context:'subscription'}})" home.js
           grep -Fq 'COMMUNITY SUBMISSIONS ARE CURRENTLY PAUSED.' transmissions/posts.js
           grep -Fq "submissionForm.querySelectorAll('input,textarea,select').forEach(control=>{control.disabled=true;});" transmissions/posts.js
           grep -Fq 'submissionButton.disabled=true' transmissions/posts.js
