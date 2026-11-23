@@ -1,8 +1,59 @@
 {
   "version": 1,
-  "updated_at": "2026-11-23T10:47:09.258085Z",
-  "last_processed_sha": "aa65b2b7722825fe780700a28bf9f0d191ddae9c",
+  "updated_at": "2026-11-23T16:49:38.468005Z",
+  "last_processed_sha": "4f434de3704f4e0dff2d9d38eb66c258e15054c9",
   "entries": [
+    {
+      "id": "4f434de3704f4e0dff2d9d38eb66c258e15054c9",
+      "timestamp": "2026-11-23T17:49:18+01:00",
+      "category": "FIX",
+      "component": "Website Experience",
+      "title": "More reliable Website Experience",
+      "description": "This update brings together Fix Crystal canonical navigation routes. It updates site-safety.yml, 404.html, index.html and related project files.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/site-safety.yml",
+        "404.html",
+        "cms/index.html",
+        "cv/index.html",
+        "game-ui.js",
+        "green-dream/index.html",
+        "human-archive/index.html",
+        "index.html",
+        "secure-your-soul/index.html",
+        "shared/crystal/crystal-loader.js",
+        "shared/crystal/crystal.js",
+        "shared/crystal/tools/constellation.js",
+        "shared/crystal/tools/presentation.js",
+        "signals/index.html",
+        "transmissions/index.html",
+        "transmissions/the-awakening/index.html",
+        "transmissions/the-descent/index.html",
+        "transmissions/the-reconnection/index.html",
+        "transmissions/the-return/index.html",
+        "transmissions/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Fix Crystal canonical navigation routes",
+          "url": "https://github.com/iYakuza/landing-page/commit/4f434de3704f4e0dff2d9d38eb66c258e15054c9",
+          "files": [
+            ".github/workflows/site-safety.yml",
+            "404.html",
+            "cms/index.html",
+            "cv/index.html",
+            "game-ui.js",
+            "green-dream/index.html",
+            "human-archive/index.html",
+            "index.html",
+            "secure-your-soul/index.html",
+            "shared/crystal/crystal-loader.js",
+            "shared/crystal/crystal.js",
+            "shared/crystal/tools/constellation.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "aa65b2b7722825fe780700a28bf9f0d191ddae9c",
       "timestamp": "2026-11-23T11:46:53+01:00",
