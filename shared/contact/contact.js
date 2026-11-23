@@ -133,7 +133,6 @@
   uploadFrame.title = "Choose optional contact attachments";
   uploadFrame.className = "cv-contact-upload-frame";
   uploadFrame.referrerPolicy = "no-referrer";
-  uploadFrame.src = endpointReady ? CONFIG.endpointUrl + "?mode=upload" : "about:blank";
   form.querySelector(".cv-contact-upload-host").appendChild(uploadFrame);
 
   let previousFocus = null;
@@ -207,6 +206,9 @@
 
     if (data.success === true) {
       form.reset();
+      contextField.value = activeContext;
+      startedAtField.value = String(Date.now());
+      subjectField.value = CONFIG.subjects[activeContext] || CONFIG.defaultSubject;
       resetUploadFrame();
       status.textContent = "Your message has been sent. Thank you.";
     } else {
@@ -215,6 +217,7 @@
   }
 
   hostWindow.addEventListener("message", handleEndpointMessage);
+  if (endpointReady) uploadFrame.src = CONFIG.endpointUrl + "?mode=upload";
 
   function openDialog(context) {
     previousFocus = hostDocument.activeElement;
