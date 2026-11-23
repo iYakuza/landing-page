@@ -27,25 +27,33 @@ jobs:
             echo "Checking $file"
             node --check "$file"
           done < <(find . -type f -name '*.js' -not -path './.git/*' -print0)
-          node --test tests/github-store-media.test.js
+          node --test tests/*.test.js
 
-      - name: Enforce shared native contact and paused Signal intake
+      - name: Enforce shared Google Apps Script contact intake and paused Signal submissions
         shell: bash
         run: |
           set -euo pipefail
-          # Both entry points use the same standalone contact component.
-          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-submit-inactive-1' index.html
-          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-submit-inactive-1' cv/index.html
-          grep -Fq 'data-contact-context="website"' index.html
-          grep -Fq 'data-contact-context="career"' cv/index.html
-          # Until a trusted server-side intake exists, the static form must never
-          # send email drafts or transmit visitor data to an arbitrary endpoint.
-          grep -Fq 'type="submit" disabled>SUBMISSION UNAVAILABLE' shared/contact/contact.js
-          grep -Fq 'No message will be sent or stored' shared/contact/contact.js
-          if grep -Eiq 'mailto:|fetch[[:space:]]*[(]|XMLHttpRequest' shared/contact/contact.js || grep -Fq 'emanuel.stefancu@gmail.com' shared/contact/contact.js; then
-            echo "The static contact component must not send visitor data or open a mail client."
+          # Homepage and CV retain the same shared form component.
+          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-1' index.html
+          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-1' cv/index.html
+          grep -Fq "data-contact-context=\"website\"" index.html
+          grep -Fq "data-contact-context=\"career\"" cv/index.html
+          # The endpoint may be unconfigured (disabled) or a valid Google Apps Script deployment URL only.
+          grep -Eq 'endpointUrl: ""|endpointUrl: "https://script\.google\.com/macros/s/[A-Za-z0-9_-]+/exec"' shared/contact/contact.js
+          grep -Fq 'function doPost(e)' google-apps-script/Code.gs
+          grep -Fq 'MailApp.sendEmail' google-apps-script/Code.gs
+          grep -Fq 'CONTACT_RECIPIENT' google-apps-script/Code.gs
+          grep -Fq "form-action 'self' https://script.google.com https://script.googleusercontent.com" index.html
+          grep -Fq "form-action 'self' https://script.google.com https://script.googleusercontent.com" cv/index.html
+          grep -Fq "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://script.google.com https://script.googleusercontent.com" index.html
+          grep -Fq "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://script.google.com https://script.googleusercontent.com" cv/index.html
+          # Public browser code must not contain recipient credentials, mail-client handoffs, or direct network calls.
+          if grep -Eiq 'mailto:|fetch[[:space:]]*[(]|XMLHttpRequest' shared/contact/contact.js || grep -R -Fqi '@gmail' shared/contact/contact.js google-apps-script tests/contact-intake.test.js; then
+            echo "The public contact code must not expose the recipient address or use a mail-client/network handoff."
             exit 1
           fi
+          grep -Fq 'GOOGLE SETUP REQUIRED' shared/contact/contact.js
+          grep -Fq 'Online submission is not enabled yet. No information is sent or stored.' shared/contact/contact.js
           if grep -En 'cv-contact-dialog|CONTACT FORM TEMPORARILY DISCONNECTED|cv/contact.js' index.html cv/index.html; then
             echo "Legacy page-local contact dialogs or offline handlers must not return."
             exit 1
@@ -56,7 +64,7 @@ jobs:
           grep -Fq 'COMMUNITY SUBMISSIONS ARE CURRENTLY PAUSED.' transmissions/posts.js
           grep -Fq "submissionForm.querySelectorAll('input,textarea,select').forEach(control=>{control.disabled=true;});" transmissions/posts.js
           grep -Fq 'submissionButton.disabled=true' transmissions/posts.js
-          echo "Homepage and CV share one native email contact component; viewer Signal submissions remain disabled."
+          echo "Homepage and CV share one Google Apps Script contact form; viewer Signal submissions remain disabled."
 
       - name: Prevent radio controls from regressing
         shell: bash

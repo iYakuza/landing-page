@@ -190,7 +190,7 @@ test('Transmissions uses the shared DOMPurify sanitizer before parsing stored po
   assert.match(postsHtml, /shared\/vendor\/dompurify-3\.4\.18\.min\.js[\s\S]*posts\.js/);
 });
 
-test('homepage and CV share one contact form without a mail-client handoff or unsafe browser submission', () => {
+test('homepage and CV share one Google Apps Script contact form without exposing the recipient or using unsafe browser requests', () => {
   const contactSource = fs.readFileSync(path.join(__dirname, '..', 'shared', 'contact', 'contact.js'), 'utf8');
   const homeHtml = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
   const contactHtml = fs.readFileSync(path.join(__dirname, '..', 'cv', 'index.html'), 'utf8');
@@ -202,13 +202,17 @@ test('homepage and CV share one contact form without a mail-client handoff or un
     'the static contact component must not open a mail client or post to an untrusted endpoint');
   assert.equal(contactSource.includes("emanuel.stefancu@gmail.com"), false,
     'the destination address must not be embedded in a browser-only sender');
-  assert.match(contactSource, /type="submit" disabled>SUBMISSION UNAVAILABLE/,
-    'the form must not pretend that an unconfigured static form can submit');
-  assert.match(contactSource, /No message will be sent or stored/,
-    'the visitor must receive an honest status until a secure submission endpoint exists');
+  assert.match(contactSource, /endpointUrl:\s*""/,
+    'the Google endpoint must stay unconfigured until the owner creates the deployment');
+  assert.match(contactSource, /GOOGLE SETUP REQUIRED/,
+    'the submit action must remain disabled until a valid Google deployment URL exists');
+  assert.match(contactSource, /No information is sent or stored/,
+    'the visitor must receive an honest status before Google setup is complete');
+  assert.match(contactSource, /responseFrame\.name = "vha-contact-response-frame"/,
+    'the form must use the isolated Google response frame');
 
-  assert.ok(homeHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-submit-inactive-1'));
-  assert.ok(contactHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-submit-inactive-1'));
+  assert.ok(homeHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-1'));
+  assert.ok(contactHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-1'));
   assert.ok(homeHtml.includes('data-contact-context="website"'));
   assert.ok(contactHtml.includes('data-contact-context="career"'));
   assert.ok(homeSource.includes("new CustomEvent('vha-contact-open',{detail:{context:'subscription'}})"),
