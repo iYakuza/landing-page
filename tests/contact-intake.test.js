@@ -174,7 +174,7 @@ test('contact form is enabled only with a valid Google Apps Script deployment UR
 
 test('public contact code contains no mail-client handoff, direct network request, or recipient address', () => {
   assert.doesNotMatch(clientSource, /mailto:|XMLHttpRequest|fetch\s*\(/i);
-  assert.match(clientSource, /uploadFrame\.src = endpointReady/);
+  assert.ok(clientSource.includes('if (endpointReady) uploadFrame.src = CONFIG.endpointUrl + "?mode=upload"'));
   assert.ok(clientSource.includes("event.source !== uploadFrame.contentWindow"));
   assert.ok(clientSource.includes("[a-z0-9-]+-script"));
   assert.match(uploadSource, /window\.top\.postMessage/);
