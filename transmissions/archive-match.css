@@ -4,10 +4,11 @@ main.posts-main[data-vha-layout-root]{
   outline:0!important;
   box-shadow:none!important;
   background:transparent!important;
+  min-height:0!important;
 }
 .ha-transmissions-hero .ha-ego-copy h1{
   max-width:100%;
-  font-size:clamp(46px,6.1vw,78px)!important;
+  font-size:clamp(42px,5.2vw,64px)!important;
   line-height:.9!important;
   letter-spacing:-.075em!important;
   overflow-wrap:anywhere;
@@ -37,6 +38,5 @@ main.posts-main[data-vha-layout-root]{
 @media(max-width:760px){
   main.posts-main[data-vha-layout-root]{border:0!important}
   .ha-transmissions-art{min-height:0;aspect-ratio:16/9;padding:16px}
-  .ha-transmissions-hero .ha-ego-copy h1{font-size:clamp(42px,11vw,68px)!important}
-  .ha-header-status{white-space:normal}
+  .ha-transmissions-hero .ha-ego-copy h1{font-size:clamp(34px,10vw,58px)!important}
 }
