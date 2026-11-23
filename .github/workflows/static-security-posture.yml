@@ -25,6 +25,7 @@ jobs:
           set -euo pipefail
           python3 - <<'PY'
           from datetime import datetime, timezone
+          from html.parser import HTMLParser
           from pathlib import Path
           import json
           import re
@@ -50,6 +51,18 @@ jobs:
               "secure-your-soul/index.html",
           ]
 
+          class CSPMetaParser(HTMLParser):
+              def __init__(self):
+                  super().__init__(convert_charrefs=True)
+                  self.policies = []
+
+              def handle_starttag(self, tag, attrs):
+                  if tag.lower() != "meta":
+                      return
+                  values = {key.lower(): (value or "") for key, value in attrs}
+                  if values.get("http-equiv", "").lower() == "content-security-policy":
+                      self.policies.append(values.get("content", ""))
+
           external_script_pattern = re.compile(
               r"""<script\b[^>]*\bsrc\s*=\s*["']https?://""",
               re.IGNORECASE,
@@ -60,30 +73,30 @@ jobs:
                   errors.append(f"Required page is missing: {relative}")
                   continue
               html = path.read_text(encoding="utf-8")
-              csp = re.search(
-                  r"""<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]+content=["']([^"']+)["']""",
-                  html,
-                  re.IGNORECASE,
-              )
-              if not csp:
+              parser = CSPMetaParser()
+              parser.feed(html)
+              if not parser.policies:
                   errors.append(f"Content Security Policy is missing: {relative}")
                   continue
-              policy = csp.group(1).lower()
-              for directive in ("default-src", "base-uri", "object-src", "script-src", "form-action"):
-                  if directive not in policy:
-                      errors.append(f"{relative}: CSP is missing {directive}.")
-              if "object-src 'none'" not in policy:
-                  errors.append(f"{relative}: CSP must retain object-src 'none'.")
-              script_src = re.search(r"(?:^|;)\\s*script-src[^;]*", policy)
-              if not script_src:
-                  errors.append(f"{relative}: CSP is missing script-src.")
-              elif "unsafe-inline" in script_src.group(0):
-                  errors.append(f"{relative}: inline script execution must not be allowed.")
-              if external_script_pattern.search(html):
-                  errors.append(f"{relative}: scripts must be served from the website itself.")
-              img_src = re.search(r"img-src[^;]*", policy)
-              if img_src and re.search(r"https?://", img_src.group(0)):
-                  errors.append(f"{relative}: images must be served from local website media.")
+              for policy_text in parser.policies:
+                  directives = {}
+                  for raw_directive in policy_text.lower().split(";"):
+                      tokens = raw_directive.strip().split()
+                      if tokens:
+                          directives[tokens[0]] = tokens[1:]
+                  for directive in ("default-src", "base-uri", "object-src", "script-src", "form-action"):
+                      if directive not in directives:
+                          errors.append(f"{relative}: CSP is missing {directive}.")
+                  if "'none'" not in directives.get("object-src", []):
+                      errors.append(f"{relative}: CSP must retain object-src 'none'.")
+                  script_src = directives.get("script-src", [])
+                  if "'unsafe-inline'" in script_src:
+                      errors.append(f"{relative}: inline script execution must not be allowed.")
+                  if external_script_pattern.search(html):
+                      errors.append(f"{relative}: scripts must be served from the website itself.")
+                  img_src = " ".join(directives.get("img-src", []))
+                  if re.search(r"https?://", img_src):
+                      errors.append(f"{relative}: images must be served from local website media.")
 
           analytics_path = Path("analytics.js")
           if analytics_path.exists():
