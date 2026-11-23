@@ -151,7 +151,15 @@
     if (hostWindow.crypto && typeof hostWindow.crypto.randomUUID === "function") {
       return hostWindow.crypto.randomUUID();
     }
-    return Date.now().toString(16) + "-" + Math.random().toString(16).slice(2) + "-" + Math.random().toString(16).slice(2);
+    const bytes = new Uint8Array(16);
+    if (hostWindow.crypto && typeof hostWindow.crypto.getRandomValues === "function") {
+      hostWindow.crypto.getRandomValues(bytes);
+    } else {
+      for (let index = 0; index < bytes.length; index += 1) {
+        bytes[index] = Math.floor(Math.random() * 256);
+      }
+    }
+    return Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join("");
   }
 
   function isGoogleResponseOrigin(origin) {
