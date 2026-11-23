@@ -8,7 +8,7 @@
   <style>
     :root { color-scheme: dark; }
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; overflow: hidden; background: transparent; }
+    html, body { margin: 0; min-height: 0; height: auto; overflow: hidden; background: transparent; }
     body { padding: 8px 10px; color: #e9f2e8; font: 11px/1.5 Arial, Helvetica, sans-serif; }
     .picker-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
     .pick-button {
@@ -27,7 +27,7 @@
     #file-status { margin: 8px 0 0; color: #c1d5a0; font: 10px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
     #file-status.error { color: #ffb2a8; }
     #file-list {
-      display: flex; flex-wrap: wrap; gap: 5px; max-height: 40px; overflow: auto;
+      display: flex; flex-wrap: wrap; gap: 5px; max-height: none; overflow: visible;
       margin: 5px 0 0; padding: 0; list-style: none;
     }
     #file-list li {
@@ -96,7 +96,9 @@
       let busy = false;
 
       function sendToSite(data) {
-        window.top.postMessage(data, SITE_ORIGIN);
+        // Messages contain only readiness, layout dimensions, attachment counts, or submission results.
+        // The parent validates both this iframe's Window reference and its Google origin.
+        window.top.postMessage(data, "*");
       }
 
       function formatSize(bytes) {
@@ -145,6 +147,10 @@
           count: result.files.length,
           totalBytes: result.totalBytes,
           valid: result.errors.length === 0
+        });
+        sendToSite({
+          type: "vha-contact-upload-height",
+          height: Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)
         });
       }
 
