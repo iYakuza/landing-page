@@ -34,8 +34,8 @@ jobs:
         run: |
           set -euo pipefail
           # Homepage and CV retain the same shared form component.
-          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-attachments-1' index.html
-          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-attachments-1' cv/index.html
+          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-contact-iframe-autosize-2' index.html
+          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-contact-iframe-autosize-2' cv/index.html
           grep -Fq "data-contact-context=\"website\"" index.html
           grep -Fq "data-contact-context=\"career\"" cv/index.html
           # The endpoint may be unconfigured (disabled) or a valid Google Apps Script deployment URL only.
