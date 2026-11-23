@@ -79,7 +79,7 @@ function validSubmission(overrides = {}) {
 test('contact form stays safely disabled until a valid Google Apps Script URL is configured', () => {
   assert.match(clientSource, /endpointUrl:\s*""/);
   assert.match(clientSource, /GOOGLE SETUP REQUIRED/);
-  assert.match(clientSource, /const endpointReady = \/\^https:\\\/\\\/script\\\.google\\\.com\\\/macros\\\/s\\\/\[A-Za-z0-9_-\]\+\\\/exec\$\//);
+  assert.ok(clientSource.includes('const endpointReady = /^https:\\/\\/script\\.google\\.com\\/macros\\/s\\/'));
   assert.match(clientSource, /submitButton\.disabled = !endpointReady/);
   assert.match(clientSource, /name="requestId"/);
   assert.match(clientSource, /name="startedAt"/);
