@@ -162,20 +162,9 @@
     return Array.from(bytes, byte => byte.toString(16).padStart(2, "0")).join("");
   }
 
-  function isGoogleResponseOrigin(origin) {
-    try {
-      const parsed = new URL(origin);
-      return parsed.protocol === "https:" &&
-        (parsed.hostname === "script.google.com" ||
-         parsed.hostname === "script.googleusercontent.com" ||
-         parsed.hostname.endsWith(".script.googleusercontent.com"));
-    } catch (_) {
-      return false;
-    }
-  }
-
   function handleEndpointMessage(event) {
-    if (!isGoogleResponseOrigin(event.origin)) return;
+    if (event.origin !== "https://script.google.com" &&
+        event.origin !== "https://script.googleusercontent.com") return;
     const data = event.data;
     if (!data || data.type !== "vha-contact-result" || data.requestId !== pendingRequestId) return;
 
