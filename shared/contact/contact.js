@@ -125,6 +125,8 @@
   function openDialog(context) {
     previousFocus = hostDocument.activeElement;
     if (context === "subscription") {
+      nameField.value = "";
+      urlField.value = "";
       if (!subjectField.value.trim()) subjectField.value = CONFIG.subjects.subscription;
     } else {
       form.reset();
