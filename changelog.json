@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-22T17:52:33.994035Z",
-  "last_processed_sha": "e998d192d0057adcfb827215e63760e165796038",
+  "updated_at": "2026-11-23T10:15:58.756335Z",
+  "last_processed_sha": "651fb96a5fc0848781db63d5f801a22021a50e6e",
   "entries": [
+    {
+      "id": "651fb96a5fc0848781db63d5f801a22021a50e6e",
+      "timestamp": "2026-11-23T11:15:42+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Fix CSP security posture validation. It updates static-security-posture.yml, index.html.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/static-security-posture.yml",
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Fix CSP security posture validation",
+          "url": "https://github.com/iYakuza/landing-page/commit/651fb96a5fc0848781db63d5f801a22021a50e6e",
+          "files": [
+            ".github/workflows/static-security-posture.yml",
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "e998d192d0057adcfb827215e63760e165796038",
       "timestamp": "2026-11-22T18:52:17+01:00",
