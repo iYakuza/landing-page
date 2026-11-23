@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-23T18:28:38.048596Z",
-  "last_processed_sha": "a68db71e8ecbf4a94d4212374a79bc60ba433a73",
+  "updated_at": "2026-11-23T18:39:27.342255Z",
+  "last_processed_sha": "d1acffb34c944ef6ee5fb865b8d50338cf87a975",
   "entries": [
+    {
+      "id": "d1acffb34c944ef6ee5fb865b8d50338cf87a975",
+      "timestamp": "2026-11-23T19:39:12+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Fix Google Apps Script contact response origin. It updates site-safety.yml, index.html, contact.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/site-safety.yml",
+        "cv/index.html",
+        "index.html",
+        "shared/contact/contact.js",
+        "tests/contact-intake.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Fix Google Apps Script contact response origin",
+          "url": "https://github.com/iYakuza/landing-page/commit/d1acffb34c944ef6ee5fb865b8d50338cf87a975",
+          "files": [
+            ".github/workflows/site-safety.yml",
+            "cv/index.html",
+            "index.html",
+            "shared/contact/contact.js",
+            "tests/contact-intake.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "a68db71e8ecbf4a94d4212374a79bc60ba433a73",
       "timestamp": "2026-11-23T19:28:18+01:00",
