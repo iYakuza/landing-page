@@ -1,8 +1,43 @@
 {
   "version": 1,
-  "updated_at": "2026-11-23T17:33:14.110929Z",
-  "last_processed_sha": "9b91dc01b829e33b9b4e3c881b0a41c7d2d275ef",
+  "updated_at": "2026-11-23T18:15:33.016075Z",
+  "last_processed_sha": "ae036ab130c54cf484bed135ff2732dc911b5717",
   "entries": [
+    {
+      "id": "ae036ab130c54cf484bed135ff2732dc911b5717",
+      "timestamp": "2026-11-23T19:15:17+01:00",
+      "category": "FEATURE",
+      "component": "Website Updates",
+      "title": "New capabilities for Website Updates",
+      "description": "This update brings together Add Google Apps Script contact intake. It updates site-safety.yml, index.html, Code.gs, README.md and related project files.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/site-safety.yml",
+        "cv/index.html",
+        "google-apps-script/Code.gs",
+        "google-apps-script/README.md",
+        "index.html",
+        "shared/contact/contact.js",
+        "tests/contact-intake.test.js",
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Add Google Apps Script contact intake",
+          "url": "https://github.com/iYakuza/landing-page/commit/ae036ab130c54cf484bed135ff2732dc911b5717",
+          "files": [
+            ".github/workflows/site-safety.yml",
+            "cv/index.html",
+            "google-apps-script/Code.gs",
+            "google-apps-script/README.md",
+            "index.html",
+            "shared/contact/contact.js",
+            "tests/contact-intake.test.js",
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "9b91dc01b829e33b9b4e3c881b0a41c7d2d275ef",
       "timestamp": "2026-11-23T18:32:51+01:00",
