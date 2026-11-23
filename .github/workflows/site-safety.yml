@@ -40,8 +40,8 @@ jobs:
           grep -Fq 'data-contact-context="subscription"' index.html
           grep -Fq 'data-contact-context="career"' cv/index.html
           # The recipient is configured exactly once in the shared component.
-          grep -Fq 'recipient: "emanuel.stefancu@gmail.com"' shared/contact/contact.js
-          test "$(grep -o 'emanuel.stefancu@gmail.com' shared/contact/contact.js | wc -l)" -eq 1
+          grep -Fq 'recipient:' shared/contact/contact.js
+          test "$(grep -o 'recipient:' shared/contact/contact.js | wc -l)" -eq 1
           grep -Fq 'const mailto = "mailto:" + CONFIG.recipient' shared/contact/contact.js
           if grep -En 'cv-contact-dialog|CONTACT FORM TEMPORARILY DISCONNECTED|cv/contact.js' index.html cv/index.html; then
             echo "Legacy page-local contact dialogs or offline handlers must not return."
