@@ -198,9 +198,9 @@ test('homepage and CV share one contact form without a mail-client handoff or un
   const navigationSource = fs.readFileSync(path.join(__dirname, '..', 'cv', 'navigation.js'), 'utf8');
   const signalsSource = fs.readFileSync(path.join(__dirname, '..', 'transmissions', 'posts.js'), 'utf8');
 
-  assert.doesNotMatch(contactSource, /mailto:|fetch\\s*\\(|XMLHttpRequest/,
+  assert.doesNotMatch(contactSource, /mailto:|fetch\s*\(|XMLHttpRequest/,
     'the static contact component must not open a mail client or post to an untrusted endpoint');
-  assert.doesNotMatch(contactSource, /emanuel\\.stefancu@gmail\\.com/,
+  assert.equal(contactSource.includes("emanuel.stefancu@gmail.com"), false,
     'the destination address must not be embedded in a browser-only sender');
   assert.match(contactSource, /type="submit" disabled>SUBMISSION UNAVAILABLE/,
     'the form must not pretend that an unconfigured static form can submit');
