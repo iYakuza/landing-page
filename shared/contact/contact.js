@@ -8,7 +8,7 @@
   // Add the deployed Google Apps Script /exec URL here after it has been
   // created and tested. Until then the form remains safely disabled.
   const CONFIG = Object.freeze({
-    endpointUrl: "",
+    endpointUrl: "https://script.google.com/macros/s/AKfycbxvWmMr0yZR2EBJ3kj7xknUeB70UsMxCzKJOuECQCeKa52d1rmjVs95O14blfX5NkQ1/exec",
     siteOrigin: "https://iyakuza.github.io",
     responseTimeoutMs: 20000,
     defaultSubject: "Website contact — Verse After Hours",
