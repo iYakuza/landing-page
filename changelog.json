@@ -1,8 +1,43 @@
 {
   "version": 1,
-  "updated_at": "2026-11-23T17:08:35.857291Z",
-  "last_processed_sha": "30ca8d1bc2c79b4cb91f211f2a97ce068c46e424",
+  "updated_at": "2026-11-23T17:23:58.377117Z",
+  "last_processed_sha": "f9e997e5b817e1df608cca92c06093606c9c4521",
   "entries": [
+    {
+      "id": "f9e997e5b817e1df608cca92c06093606c9c4521",
+      "timestamp": "2026-11-23T18:23:43+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Unify homepage and CV contact through one native email form. It updates site-safety.yml, contact.js, index.html, navigation.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/site-safety.yml",
+        "cv/contact.js",
+        "cv/index.html",
+        "cv/navigation.js",
+        "home.js",
+        "index.html",
+        "shared/contact/contact.js",
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Unify homepage and CV contact through one native email form",
+          "url": "https://github.com/iYakuza/landing-page/commit/f9e997e5b817e1df608cca92c06093606c9c4521",
+          "files": [
+            ".github/workflows/site-safety.yml",
+            "cv/contact.js",
+            "cv/index.html",
+            "cv/navigation.js",
+            "home.js",
+            "index.html",
+            "shared/contact/contact.js",
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "30ca8d1bc2c79b4cb91f211f2a97ce068c46e424",
       "timestamp": "2026-11-23T18:08:20+01:00",
