@@ -90,14 +90,14 @@ test('public contact code contains no mail-client handoff, direct network reques
   assert.doesNotMatch(clientSource, /mailto:|XMLHttpRequest|fetch\s*\(/i);
   assert.match(clientSource, /responseFrame\.name = "vha-contact-response-frame"/);
   assert.ok(clientSource.includes("event.source !== responseFrame.contentWindow"));
-  assert.ok(clientSource.includes("event.origin !=="));
+  assert.match(clientSource, /[a-z0-9-]+-script\\.googleusercontent\\.com/);
   assert.match(serverSource, /window\.top\.postMessage/);
 });
 
 test('homepage and CV both allow only the required Google Apps Script form and response origins', () => {
   for (const html of [homeSource, cvSource]) {
-    assert.ok(html.includes("form-action 'self' https://script.google.com https://script.googleusercontent.com"));
-    assert.ok(html.includes("frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://script.google.com https://script.googleusercontent.com"));
+    assert.ok(html.includes("form-action 'self' https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com"));
+    assert.ok(html.includes("frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com"));
     assert.match(html, /shared\/contact\/contact\.js\?v=20261123-google-apps-script-1/);
   }
 });
