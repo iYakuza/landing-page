@@ -34,13 +34,18 @@ jobs:
         run: |
           set -euo pipefail
           # Homepage and CV retain the same shared form component.
-          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-1' index.html
-          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-1' cv/index.html
+          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-attachments-1' index.html
+          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-attachments-1' cv/index.html
           grep -Fq "data-contact-context=\"website\"" index.html
           grep -Fq "data-contact-context=\"career\"" cv/index.html
           # The endpoint may be unconfigured (disabled) or a valid Google Apps Script deployment URL only.
           grep -Eq 'endpointUrl: ""|endpointUrl: "https://script\.google\.com/macros/s/[A-Za-z0-9_-]+/exec"' shared/contact/contact.js
           grep -Fq 'function doPost(e)' google-apps-script/Code.gs
+          grep -Fq 'function submitContactForm(formObject)' google-apps-script/Code.gs
+          grep -Fq 'createHtmlOutputFromFile("Upload")' google-apps-script/Code.gs
+          grep -Fq 'google.script.run' google-apps-script/Upload.html
+          grep -Fq 'name="attachment5"' google-apps-script/Upload.html
+          grep -Fq 'MAX_TOTAL_ATTACHMENT_BYTES: 10 * 1024 * 1024' google-apps-script/Code.gs
           grep -Fq 'MailApp.sendEmail' google-apps-script/Code.gs
           grep -Fq 'CONTACT_RECIPIENT' google-apps-script/Code.gs
           grep -Fq "form-action 'self' https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com" index.html
