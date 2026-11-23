@@ -103,10 +103,10 @@ test('Apps Script serves the attachment picker as a framed HTML Service page', (
   assert.equal(result.title, 'Verse After Hours — Attachments');
   assert.equal(result.frameMode, 'ALLOWALL');
   assert.equal(result.content, 'HTML_FILE:Upload');
-  assert.match(uploadSource, /google\\.script\\.run/);
+  assert.match(uploadSource, /google\.script\.run/);
   assert.match(uploadSource, /name="attachment5"/);
   assert.match(uploadSource, /multiple/);
-  assert.match(uploadSource, /SITE_ORIGIN = "https:\\/\\/iyakuza\\.github\\.io"/);
+  assert.ok(uploadSource.includes('const SITE_ORIGIN = "https://iyakuza.github.io"'));
 });
 
 test('Apps Script emails approved attachment Blobs without storing them', () => {
@@ -122,7 +122,7 @@ test('Apps Script emails approved attachment Blobs without storing them', () => 
   assert.equal(harness.sent.length, 1);
   assert.equal(harness.sent[0].advanced.attachments.length, 1);
   assert.equal(harness.sent[0].advanced.attachments[0].getName(), 'CV.pdf');
-  assert.match(harness.sent[0].body, /Attachments:\\nCV\\.pdf \\(2\\.0 KB\\)/);
+  assert.ok(harness.sent[0].body.includes("Attachments:\nCV.pdf (2.0 KB)"));
   assert.equal(harness.cacheValues.size, 1);
 });
 
@@ -154,11 +154,11 @@ test('Apps Script enforces the combined attachment size limit', () => {
 
 test('Google-hosted upload bridge exposes only the approved file type and size limits', () => {
   assert.match(uploadSource, /MAX_FILES = 5/);
-  assert.match(uploadSource, /MAX_FILE_BYTES = 5 \\* 1024 \\* 1024/);
-  assert.match(uploadSource, /MAX_TOTAL_BYTES = 10 \\* 1024 \\* 1024/);
+  assert.ok(uploadSource.includes("MAX_FILE_BYTES = 5 * 1024 * 1024"));
+  assert.ok(uploadSource.includes("MAX_TOTAL_BYTES = 10 * 1024 * 1024"));
   assert.match(serverSource, /MAX_ATTACHMENTS: 5/);
-  assert.match(serverSource, /MAX_FILE_BYTES: 5 \\* 1024 \\* 1024/);
-  assert.match(serverSource, /MAX_TOTAL_ATTACHMENT_BYTES: 10 \\* 1024 \\* 1024/);
+  assert.ok(serverSource.includes("MAX_FILE_BYTES: 5 * 1024 * 1024"));
+  assert.ok(serverSource.includes("MAX_TOTAL_ATTACHMENT_BYTES: 10 * 1024 * 1024"));
 });
 
 test('contact form is enabled only with a valid Google Apps Script deployment URL', () => {
