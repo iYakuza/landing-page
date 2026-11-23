@@ -163,6 +163,7 @@
   }
 
   function handleEndpointMessage(event) {
+    if (event.source !== responseFrame.contentWindow) return;
     if (event.origin !== "https://script.google.com" &&
         event.origin !== "https://script.googleusercontent.com") return;
     const data = event.data;
