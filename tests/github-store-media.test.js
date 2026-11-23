@@ -190,19 +190,35 @@ test('Transmissions uses the shared DOMPurify sanitizer before parsing stored po
   assert.match(postsHtml, /shared\/vendor\/dompurify-3\.4\.18\.min\.js[\s\S]*posts\.js/);
 });
 
-test('CV contact keeps its form UI but is disconnected from external services', () => {
-  const contactSource = fs.readFileSync(path.join(__dirname, '..', 'cv', 'contact.js'), 'utf8');
+test('homepage and CV use one shared native email contact component', () => {
+  const contactSource = fs.readFileSync(path.join(__dirname, '..', 'shared', 'contact', 'contact.js'), 'utf8');
+  const homeHtml = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
   const contactHtml = fs.readFileSync(path.join(__dirname, '..', 'cv', 'index.html'), 'utf8');
+  const homeSource = fs.readFileSync(path.join(__dirname, '..', 'home.js'), 'utf8');
+  const navigationSource = fs.readFileSync(path.join(__dirname, '..', 'cv', 'navigation.js'), 'utf8');
   const signalsSource = fs.readFileSync(path.join(__dirname, '..', 'transmissions', 'posts.js'), 'utf8');
 
-  assert.doesNotMatch(contactSource, /mailto:|fetch/i,
-    'the CV contact form must not call or redirect to an external service');
-  assert.ok(contactSource.includes('submitButton.disabled = true'));
-  assert.ok(contactSource.includes('CONTACT FORM TEMPORARILY DISCONNECTED'));
-  assert.ok(contactHtml.includes('id="cv-contact-files"'),
-    'retain the contact form attachment control for the later implementation');
-  assert.ok(contactHtml.includes('<button type="submit" disabled>SEND MESSAGE'));
-  assert.ok(contactHtml.includes('CONTACT FORM TEMPORARILY DISCONNECTED'));
+  assert.equal((contactSource.match(/recipient:/g) || []).length, 1,
+    'the recipient must have one configuration entry');
+  assert.match(contactSource, /mailto:" \+ CONFIG\.recipient/,
+    'the shared form must use the configured recipient through the native mailto handler');
+  assert.doesNotMatch(contactSource, /fetch\s*\(|XMLHttpRequest/,
+    'the contact component must not call a remote form endpoint');
+  assert.match(contactSource, /OPEN EMAIL DRAFT/,
+    'the form must make the email-client handoff clear to visitors');
+
+  assert.ok(homeHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-native-mailto-1'));
+  assert.ok(contactHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-native-mailto-1'));
+  assert.ok(homeHtml.includes('data-contact-context="website"'));
+  assert.ok(contactHtml.includes('data-contact-context="career"'));
+  assert.ok(homeSource.includes("new CustomEvent('vha-contact-open',{detail:{context:'subscription'}})"),
+    'the homepage subscription flow must use the shared dialog event');
+  assert.doesNotMatch(homeHtml + contactHtml, /id="cv-contact-dialog"|CONTACT FORM TEMPORARILY DISCONNECTED/,
+    'page-local disabled contact dialogs must not return');
+
+  assert.ok(contactHtml.includes('id="cv-floating-nav"'));
+  assert.ok(navigationSource.includes('cv-floating-nav'),
+    'the CV floating navigation must remain functional outside the contact component');
 
   assert.ok(signalsSource.includes('COMMUNITY SUBMISSIONS ARE CURRENTLY PAUSED'));
   assert.ok(signalsSource.includes('submissionButton.disabled=true'));
