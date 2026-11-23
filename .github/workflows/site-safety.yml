@@ -34,14 +34,18 @@ jobs:
         run: |
           set -euo pipefail
           # Both entry points use the same standalone contact component.
-          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-native-mailto-1' index.html
-          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-native-mailto-1' cv/index.html
+          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-submit-inactive-1' index.html
+          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-submit-inactive-1' cv/index.html
           grep -Fq 'data-contact-context="website"' index.html
           grep -Fq 'data-contact-context="career"' cv/index.html
-          # The recipient is configured exactly once in the shared component.
-          grep -Fq 'recipient:' shared/contact/contact.js
-          test "$(grep -o 'recipient:' shared/contact/contact.js | wc -l)" -eq 1
-          grep -Fq 'const mailto = "mailto:" + CONFIG.recipient' shared/contact/contact.js
+          # Until a trusted server-side intake exists, the static form must never
+          # send email drafts or transmit visitor data to an arbitrary endpoint.
+          grep -Fq 'type="submit" disabled>SUBMISSION UNAVAILABLE' shared/contact/contact.js
+          grep -Fq 'No message will be sent or stored' shared/contact/contact.js
+          if grep -Eiq 'mailto:|emanuel\\.stefancu@gmail\\.com|fetch[[:space:]]*[(]|XMLHttpRequest' shared/contact/contact.js; then
+            echo "The static contact component must not send visitor data or open a mail client."
+            exit 1
+          fi
           if grep -En 'cv-contact-dialog|CONTACT FORM TEMPORARILY DISCONNECTED|cv/contact.js' index.html cv/index.html; then
             echo "Legacy page-local contact dialogs or offline handlers must not return."
             exit 1
