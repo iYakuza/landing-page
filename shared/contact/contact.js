@@ -1,14 +1,16 @@
-/* Verse After Hours — standalone contact form shell.
-   GitHub Pages is static hosting. No form data is transmitted or stored until
-   a secure server-side submission endpoint is deliberately configured. */
+/* Verse After Hours — shared Google Apps Script contact form. */
 (() => {
   "use strict";
 
   if (window.__vhaContactComponentLoaded) return;
   window.__vhaContactComponentLoaded = true;
 
-  // Contact copy and defaults are centralized here. Delivery is intentionally inactive.
+  // Add the deployed Google Apps Script /exec URL here after it has been
+  // created and tested. Until then the form remains safely disabled.
   const CONFIG = Object.freeze({
+    endpointUrl: "",
+    siteOrigin: "https://iyakuza.github.io",
+    responseTimeoutMs: 20000,
     defaultSubject: "Website contact — Verse After Hours",
     subjects: {
       website: "Website contact — Verse After Hours",
@@ -16,6 +18,8 @@
       subscription: "Subscribe to Verse After Hours updates"
     }
   });
+
+  const endpointReady = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(CONFIG.endpointUrl);
 
   let hostWindow = window;
   let hostDocument = document;
@@ -54,9 +58,11 @@
       ".cv-contact-field textarea{min-height:125px;resize:vertical}",
       ".cv-contact-field input:focus,.cv-contact-field textarea:focus{outline:0;border-color:#d8ff3e;box-shadow:0 0 0 2px rgba(216,255,62,.13)}",
       ".cv-contact-hint{margin:0;color:#91a18e;font:10px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}",
+      ".cv-contact-honeypot{position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important}",
       ".cv-contact-submit{grid-column:1/-1;display:flex;align-items:center;flex-wrap:wrap;gap:12px}",
       ".cv-contact-submit button{min-height:42px;padding:12px 16px;border:1px solid #b6e833;background:#b6e833;color:#071007;font:800 9px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.1em;cursor:pointer}",
       ".cv-contact-submit button:hover,.cv-contact-submit button:focus-visible{border-color:#d8ff3e;background:#d8ff3e;outline:2px solid #d8ff3e;outline-offset:2px}",
+      ".cv-contact-submit button:disabled{border-color:#58644a;background:#58644a;color:#d1d9c8;cursor:not-allowed;opacity:.8}",
       ".cv-contact-status{flex:1 1 220px;margin:0;color:#c1d5a0;font:10px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}",
       "@media(max-width:560px){.cv-contact-form{grid-template-columns:1fr;gap:11px}.cv-contact-field.full,.cv-contact-submit{grid-column:1}.cv-contact-panel{padding:22px 17px}.cv-contact-panel .gd-kicker{font-size:8px;gap:6px;margin-right:36px}.cv-contact-panel h2{font-size:clamp(26px,8vw,36px);margin-right:38px}.cv-contact-panel>p:not(.gd-kicker){font-size:11px}.cv-contact-panel textarea{min-height:110px}.cv-contact-close{right:13px;top:13px;width:32px;height:32px}}",
       "@media(prefers-reduced-motion:reduce){.cv-contact-dialog{backdrop-filter:none}}"
@@ -72,14 +78,18 @@
           '<button class="cv-contact-close" type="button" aria-label="Close contact form">×</button>' +
           '<p class="gd-kicker">INCOMING TRANSMISSION // CONTACT</p>' +
           '<h2 id="cv-contact-title">SEND A <em>MESSAGE.</em></h2>' +
-          '<p id="cv-contact-description">Complete the form below. Online message submission is not connected yet.</p>' +
-          '<form class="cv-contact-form" id="cv-contact-form">' +
+          '<p id="cv-contact-description">Send a message directly to Emanuel. It will be delivered by email and will not be published on this website.</p>' +
+          '<form class="cv-contact-form" id="cv-contact-form" method="post" accept-charset="UTF-8">' +
+            '<input type="hidden" name="contactContext" value="website">' +
+            '<input type="hidden" name="requestId" value="">' +
+            '<input type="hidden" name="startedAt" value="">' +
+            '<div class="cv-contact-honeypot" aria-hidden="true"><label for="cv-contact-website">Leave this field empty</label><input id="cv-contact-website" name="website" tabindex="-1" autocomplete="off"></div>' +
             '<div class="cv-contact-field"><label for="cv-contact-name">YOUR NAME *</label><input id="cv-contact-name" name="name" autocomplete="name" maxlength="120" required></div>' +
             '<div class="cv-contact-field"><label for="cv-contact-email">YOUR EMAIL *</label><input id="cv-contact-email" name="email" type="email" autocomplete="email" maxlength="254" required></div>' +
             '<div class="cv-contact-field full"><label for="cv-contact-subject">SUBJECT</label><input id="cv-contact-subject" name="subject" maxlength="180" placeholder="What would you like to talk about?"></div>' +
             '<div class="cv-contact-field full"><label for="cv-contact-url">LINK (OPTIONAL)</label><input id="cv-contact-url" name="url" type="url" inputmode="url" maxlength="2048" placeholder="https://…"></div>' +
-            '<div class="cv-contact-field full"><label for="cv-contact-message">MESSAGE *</label><textarea id="cv-contact-message" name="message" maxlength="5000" required placeholder="Write your message…"></textarea><p class="cv-contact-hint">Need to attach a file? Add it in your email application after the draft opens.</p></div>' +
-            '<div class="cv-contact-submit"><button type="submit" disabled>SUBMISSION UNAVAILABLE</button><p class="cv-contact-status" id="cv-contact-status" role="status" aria-live="polite">Online submission is not connected. No message will be sent or stored.</p></div>' +
+            '<div class="cv-contact-field full"><label for="cv-contact-message">MESSAGE *</label><textarea id="cv-contact-message" name="message" maxlength="5000" required placeholder="Write your message…"></textarea><p class="cv-contact-hint">File attachments are not supported. Include a link to relevant material instead.</p></div>' +
+            '<div class="cv-contact-submit"><button type="submit" disabled>GOOGLE SETUP REQUIRED</button><p class="cv-contact-status" id="cv-contact-status" role="status" aria-live="polite">Online submission is not enabled yet. No information is sent or stored.</p></div>' +
           '</form>' +
         '</div>' +
       '</div>'
@@ -89,7 +99,6 @@
 
   if (!dialog) return;
   if (dialog.dataset.vhaInitialized === "true") {
-    // When this page is embedded, reuse the parent page's already-mounted form.
     if (hostDocument !== document) {
       document.addEventListener("click", event => {
         const trigger = event.target.closest?.(".va-cv-contact-trigger, .cv-contact-open, [data-vha-contact-open]");
@@ -108,32 +117,95 @@
   const closeButton = dialog.querySelector(".cv-contact-close");
   const status = hostDocument.getElementById("cv-contact-status");
   const nameField = hostDocument.getElementById("cv-contact-name");
-  const emailField = hostDocument.getElementById("cv-contact-email");
   const subjectField = hostDocument.getElementById("cv-contact-subject");
   const urlField = hostDocument.getElementById("cv-contact-url");
-  const messageField = hostDocument.getElementById("cv-contact-message");
   const title = hostDocument.getElementById("cv-contact-title");
   const description = hostDocument.getElementById("cv-contact-description");
+  const submitButton = form.querySelector('button[type="submit"]');
+  const requestIdField = form.querySelector('[name="requestId"]');
+  const startedAtField = form.querySelector('[name="startedAt"]');
+  const contextField = form.querySelector('[name="contactContext"]');
+  const responseFrame = hostDocument.createElement("iframe");
+  responseFrame.name = "vha-contact-response-frame";
+  responseFrame.title = "Contact form response";
+  responseFrame.setAttribute("aria-hidden", "true");
+  responseFrame.tabIndex = -1;
+  responseFrame.referrerPolicy = "no-referrer";
+  responseFrame.style.display = "none";
+  hostDocument.body.appendChild(responseFrame);
+
   let previousFocus = null;
   let previousOverflow = "";
+  let activeContext = "website";
+  let pendingRequestId = "";
+  let pendingTimer = null;
+
+  submitButton.disabled = !endpointReady;
+  submitButton.textContent = endpointReady ? "SEND MESSAGE" : "GOOGLE SETUP REQUIRED";
+  if (endpointReady) {
+    form.action = CONFIG.endpointUrl;
+    form.target = responseFrame.name;
+  }
+
+  function createRequestId() {
+    if (hostWindow.crypto && typeof hostWindow.crypto.randomUUID === "function") {
+      return hostWindow.crypto.randomUUID();
+    }
+    return Date.now().toString(16) + "-" + Math.random().toString(16).slice(2) + "-" + Math.random().toString(16).slice(2);
+  }
+
+  function isGoogleResponseOrigin(origin) {
+    try {
+      const parsed = new URL(origin);
+      return parsed.protocol === "https:" &&
+        (parsed.hostname === "script.google.com" ||
+         parsed.hostname === "script.googleusercontent.com" ||
+         parsed.hostname.endsWith(".script.googleusercontent.com"));
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function handleEndpointMessage(event) {
+    if (!isGoogleResponseOrigin(event.origin)) return;
+    const data = event.data;
+    if (!data || data.type !== "vha-contact-result" || data.requestId !== pendingRequestId) return;
+
+    if (pendingTimer !== null) {
+      hostWindow.clearTimeout(pendingTimer);
+      pendingTimer = null;
+    }
+    pendingRequestId = "";
+    submitButton.disabled = false;
+
+    if (data.success === true) {
+      form.reset();
+      status.textContent = "Your message has been sent. Thank you.";
+    } else {
+      status.textContent = "We couldn't send your message. Please check the details and try again.";
+    }
+  }
+
+  hostWindow.addEventListener("message", handleEndpointMessage);
 
   function openDialog(context) {
     previousFocus = hostDocument.activeElement;
-    if (context === "subscription") {
-      nameField.value = "";
-      urlField.value = "";
-      if (!subjectField.value.trim()) subjectField.value = CONFIG.subjects.subscription;
-    } else {
-      form.reset();
-      subjectField.value = CONFIG.subjects[context] || CONFIG.defaultSubject;
-    }
-    title.innerHTML = context === "career" ? "LET'S TALK ABOUT <em>THE ROLE.</em>" : "SEND A <em>MESSAGE.</em>";
-    description.textContent = context === "career"
-      ? "Share a few details about the opportunity. Online submission is not connected yet."
-      : context === "subscription"
-        ? "Complete the subscription request below. Online submission is not connected yet."
-        : "Have a thought, a question, or something you would like to share? Complete the form below.";
-    status.textContent = "Online submission is not connected. No message will be sent or stored.";
+    activeContext = Object.prototype.hasOwnProperty.call(CONFIG.subjects, context) ? context : "website";
+    form.reset();
+    subjectField.value = CONFIG.subjects[activeContext] || CONFIG.defaultSubject;
+    contextField.value = activeContext;
+    startedAtField.value = String(Date.now());
+    title.innerHTML = activeContext === "career" ? "LET'S TALK ABOUT <em>THE ROLE.</em>" : "SEND A <em>MESSAGE.</em>";
+    description.textContent = activeContext === "career"
+      ? "Share a few details about the opportunity. Your message will be delivered directly by email."
+      : activeContext === "subscription"
+        ? "Send a subscription request. Your message will be delivered directly by email."
+        : "Have a thought, a question, or something you would like to share? Send a message directly by email.";
+    status.textContent = endpointReady
+      ? "Your message will be emailed directly and will not be published on this website."
+      : "Online submission is not enabled yet. No information is sent or stored.";
+    submitButton.disabled = !endpointReady;
+    submitButton.textContent = endpointReady ? "SEND MESSAGE" : "GOOGLE SETUP REQUIRED";
     dialog.hidden = false;
     dialog.classList.add("is-open");
     previousOverflow = hostDocument.body.style.overflow;
@@ -179,7 +251,40 @@
 
   form.addEventListener("submit", event => {
     event.preventDefault();
-    status.textContent = "Not sent. Online submission is not connected yet; no information has been transmitted or stored.";
+    if (!endpointReady) {
+      status.textContent = "Google Apps Script is not configured yet. Your message has not been sent.";
+      return;
+    }
+    if (pendingRequestId) return;
+
+    const requestAge = Date.now() - Number(startedAtField.value);
+    if (!Number.isFinite(requestAge) || requestAge < 1800) {
+      status.textContent = "Please take a moment to complete the form before sending.";
+      return;
+    }
+
+    pendingRequestId = createRequestId();
+    requestIdField.value = pendingRequestId;
+    contextField.value = activeContext;
+    submitButton.disabled = true;
+    status.textContent = "Sending your message securely through Google…";
+
+    pendingTimer = hostWindow.setTimeout(() => {
+      pendingTimer = null;
+      pendingRequestId = "";
+      submitButton.disabled = false;
+      status.textContent = "We couldn't confirm whether Google completed the submission. Please wait briefly before trying again.";
+    }, CONFIG.responseTimeoutMs);
+
+    try {
+      form.submit();
+    } catch (_) {
+      hostWindow.clearTimeout(pendingTimer);
+      pendingTimer = null;
+      pendingRequestId = "";
+      submitButton.disabled = false;
+      status.textContent = "The message could not be submitted. Please try again.";
+    }
   });
 
   // Event delegation lets every Contact button open the same shared dialog.
