@@ -195,7 +195,7 @@ test('homepage and CV both allow only the required Google Apps Script form and r
   for (const html of [homeSource, cvSource]) {
     assert.ok(html.includes("form-action 'self' https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com"));
     assert.ok(html.includes("frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com"));
-    assert.match(html, /shared\/contact\/contact\.js\?v=20261123-contact-iframe-autosize-2/);
+    assert.match(html, /shared\/contact\/contact\.js\?v=20261123-contact-nested-iframe-1/);
   }
 });
 
