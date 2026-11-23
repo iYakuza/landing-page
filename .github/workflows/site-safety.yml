@@ -29,21 +29,31 @@ jobs:
           done < <(find . -type f -name '*.js' -not -path './.git/*' -print0)
           node --test tests/github-store-media.test.js
 
-      - name: Enforce disconnected CV contact and paused Signal intake
+      - name: Enforce shared native contact and paused Signal intake
         shell: bash
         run: |
           set -euo pipefail
-          grep -Fq 'CONTACT FORM TEMPORARILY DISCONNECTED' cv/contact.js
-          if grep -Eiq 'mailto:|fetch[[:space:]]*[(]' cv/contact.js; then
-            echo "The CV contact form must remain offline and must not submit information."
+          # Both entry points use the same standalone contact component.
+          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-native-mailto-1' index.html
+          grep -Fq '/landing-page/shared/contact/contact.js?v=20261123-native-mailto-1' cv/index.html
+          grep -Fq 'data-contact-context="website"' index.html
+          grep -Fq 'data-contact-context="subscription"' index.html
+          grep -Fq 'data-contact-context="career"' cv/index.html
+          # The recipient is configured exactly once in the shared component.
+          grep -Fq 'recipient: "emanuel.stefancu@gmail.com"' shared/contact/contact.js
+          test "$(grep -o 'emanuel.stefancu@gmail.com' shared/contact/contact.js | wc -l)" -eq 1
+          grep -Fq 'const mailto = "mailto:" + CONFIG.recipient' shared/contact/contact.js
+          if grep -En 'cv-contact-dialog|CONTACT FORM TEMPORARILY DISCONNECTED|cv/contact.js' index.html cv/index.html; then
+            echo "Legacy page-local contact dialogs or offline handlers must not return."
             exit 1
           fi
-          grep -Fq 'id="cv-contact-files"' cv/index.html
-          grep -Fq '<button type="submit" disabled>SEND MESSAGE' cv/index.html
+          grep -Fq 'id="cv-floating-nav"' cv/index.html
+          grep -Fq 'window.parent.document' cv/navigation.js
+          grep -Fq "document.querySelector('.cv-contact-open')?.click();" home.js
           grep -Fq 'COMMUNITY SUBMISSIONS ARE CURRENTLY PAUSED.' transmissions/posts.js
           grep -Fq "submissionForm.querySelectorAll('input,textarea,select').forEach(control=>{control.disabled=true;});" transmissions/posts.js
           grep -Fq 'submissionButton.disabled=true' transmissions/posts.js
-          echo "CV contact UI is retained but offline; viewer Signal submissions remain disabled."
+          echo "Homepage and CV share one native email contact component; viewer Signal submissions remain disabled."
 
       - name: Prevent radio controls from regressing
         shell: bash
