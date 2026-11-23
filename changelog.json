@@ -1,8 +1,39 @@
 {
   "version": 1,
-  "updated_at": "2026-11-23T19:31:30.847018Z",
-  "last_processed_sha": "c7733dc766e0037bc27299b7d131c2861dd3c22c",
+  "updated_at": "2026-11-23T20:07:17.395288Z",
+  "last_processed_sha": "3e5753b6a2e6a8ee8a6feda57368d1d197db16b8",
   "entries": [
+    {
+      "id": "3e5753b6a2e6a8ee8a6feda57368d1d197db16b8",
+      "timestamp": "2026-11-23T21:06:45+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Fix nested Google Apps Script contact iframe messaging (#145). It updates site-safety.yml, index.html, contact.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/site-safety.yml",
+        "cv/index.html",
+        "index.html",
+        "shared/contact/contact.js",
+        "tests/contact-intake.test.js",
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Fix nested Google Apps Script contact iframe messaging (#145)",
+          "url": "https://github.com/iYakuza/landing-page/commit/3e5753b6a2e6a8ee8a6feda57368d1d197db16b8",
+          "files": [
+            ".github/workflows/site-safety.yml",
+            "cv/index.html",
+            "index.html",
+            "shared/contact/contact.js",
+            "tests/contact-intake.test.js",
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "c7733dc766e0037bc27299b7d131c2861dd3c22c",
       "timestamp": "2026-11-23T20:31:10+01:00",
