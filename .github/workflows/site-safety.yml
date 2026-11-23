@@ -43,10 +43,10 @@ jobs:
           grep -Fq 'function doPost(e)' google-apps-script/Code.gs
           grep -Fq 'MailApp.sendEmail' google-apps-script/Code.gs
           grep -Fq 'CONTACT_RECIPIENT' google-apps-script/Code.gs
-          grep -Fq "form-action 'self' https://script.google.com https://script.googleusercontent.com" index.html
-          grep -Fq "form-action 'self' https://script.google.com https://script.googleusercontent.com" cv/index.html
-          grep -Fq "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://script.google.com https://script.googleusercontent.com" index.html
-          grep -Fq "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://script.google.com https://script.googleusercontent.com" cv/index.html
+          grep -Fq "form-action 'self' https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com" index.html
+          grep -Fq "form-action 'self' https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com" cv/index.html
+          grep -Fq "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com" index.html
+          grep -Fq "frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com" cv/index.html
           # Public browser code must not contain recipient credentials, mail-client handoffs, or direct network calls.
           if grep -Eiq 'mailto:|fetch[[:space:]]*[(]|XMLHttpRequest' shared/contact/contact.js || grep -R -Fqi '@gmail' shared/contact/contact.js google-apps-script tests/contact-intake.test.js; then
             echo "The public contact code must not expose the recipient address or use a mail-client/network handoff."
