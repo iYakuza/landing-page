@@ -92,6 +92,7 @@
       const status = document.getElementById("file-status");
       const list = document.getElementById("file-list");
       const slots = Array.from(form.querySelectorAll('input[type="file"][name^="attachment"]'));
+      let selectedFiles = [];
       let busy = false;
 
       function sendToSite(data) {
@@ -105,7 +106,7 @@
       }
 
       function inspectFiles() {
-        const files = Array.from(picker.files || []);
+        const files = selectedFiles.slice();
         let totalBytes = 0;
         const errors = [];
 
@@ -206,6 +207,7 @@
               response.requestId === data.requestId);
             if (success) {
               form.reset();
+              selectedFiles = [];
               picker.value = "";
               renderSelection();
             } else {
@@ -223,7 +225,53 @@
           .submitContactForm(form);
       }
 
-      picker.addEventListener("change", renderSelection);
+      picker.addEventListener("change", () => {
+        const additions = Array.from(picker.files || []);
+        picker.value = "";
+        if (!additions.length) return;
+
+        const combined = selectedFiles.slice();
+        const errors = [];
+        additions.forEach(file => {
+          const extension = (file.name.split(".").pop() || "").toLowerCase();
+          const duplicate = combined.some(existing =>
+            existing.name === file.name &&
+            existing.size === file.size &&
+            existing.lastModified === file.lastModified
+          );
+          if (duplicate) return;
+          if (!ALLOWED_EXTENSIONS.has(extension)) {
+            errors.push(file.name + " has an unsupported file type.");
+            return;
+          }
+          if (file.size > MAX_FILE_BYTES) {
+            errors.push(file.name + " exceeds 5 MB.");
+            return;
+          }
+          if (combined.length >= MAX_FILES) {
+            errors.push("Choose no more than " + MAX_FILES + " files in total.");
+            return;
+          }
+          const nextTotal = combined.reduce((sum, item) => sum + item.size, 0) + file.size;
+          if (nextTotal > MAX_TOTAL_BYTES) {
+            errors.push("The combined attachment size would exceed 10 MB.");
+            return;
+          }
+          combined.push(file);
+        });
+
+        if (errors.length) {
+          status.classList.add("error");
+          status.textContent = errors[0];
+        } else {
+          selectedFiles = combined;
+        }
+        renderSelection();
+        if (errors.length) {
+          status.classList.add("error");
+          status.textContent = errors[0];
+        }
+      });
       window.addEventListener("message", event => {
         if (event.source !== window.top || event.origin !== SITE_ORIGIN) return;
         const data = event.data;
@@ -231,6 +279,7 @@
 
         if (data.type === "vha-contact-reset" && !busy) {
           form.reset();
+          selectedFiles = [];
           picker.value = "";
           renderSelection();
           return;
