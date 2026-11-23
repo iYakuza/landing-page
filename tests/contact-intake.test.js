@@ -9,6 +9,7 @@ const test = require('node:test');
 const root = path.join(__dirname, '..');
 const clientSource = fs.readFileSync(path.join(root, 'shared/contact/contact.js'), 'utf8');
 const serverSource = fs.readFileSync(path.join(root, 'google-apps-script/Code.gs'), 'utf8');
+const uploadSource = fs.readFileSync(path.join(root, 'google-apps-script/Upload.html'), 'utf8');
 const homeSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const cvSource = fs.readFileSync(path.join(root, 'cv/index.html'), 'utf8');
 
@@ -24,6 +25,15 @@ function createServerHarness(options = {}) {
       createHtmlOutput(content) {
         return {
           content,
+          title: '',
+          frameMode: '',
+          setTitle(value) { this.title = value; return this; },
+          setXFrameOptionsMode(value) { this.frameMode = value; return this; }
+        };
+      },
+      createHtmlOutputFromFile(name) {
+        return {
+          content: 'HTML_FILE:' + name,
           title: '',
           frameMode: '',
           setTitle(value) { this.title = value; return this; },
@@ -80,7 +90,7 @@ test('contact form is enabled only with a valid Google Apps Script deployment UR
   assert.ok(clientSource.includes('endpointUrl: "https://script.google.com/macros/s/'));
   assert.ok(clientSource.includes('/exec",'));
   assert.ok(clientSource.includes('const endpointReady ='));
-  assert.match(clientSource, /submitButton\.disabled = !endpointReady/);
+  assert.match(clientSource, /submitButton\.disabled = !endpointReady \\|\\| !uploadFrameReady/);
   assert.match(clientSource, /name="requestId"/);
   assert.match(clientSource, /name="startedAt"/);
   assert.match(clientSource, /name="website"/);
@@ -88,17 +98,17 @@ test('contact form is enabled only with a valid Google Apps Script deployment UR
 
 test('public contact code contains no mail-client handoff, direct network request, or recipient address', () => {
   assert.doesNotMatch(clientSource, /mailto:|XMLHttpRequest|fetch\s*\(/i);
-  assert.match(clientSource, /responseFrame\.name = "vha-contact-response-frame"/);
+  assert.match(clientSource, /uploadFrame\.src = endpointReady/);
   assert.ok(clientSource.includes("event.source !== responseFrame.contentWindow"));
   assert.ok(clientSource.includes("[a-z0-9-]+-script"));
-  assert.match(serverSource, /window\.top\.postMessage/);
+  assert.match(uploadSource, /window\.top\.postMessage/);
 });
 
 test('homepage and CV both allow only the required Google Apps Script form and response origins', () => {
   for (const html of [homeSource, cvSource]) {
     assert.ok(html.includes("form-action 'self' https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com"));
     assert.ok(html.includes("frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com"));
-    assert.match(html, /shared\/contact\/contact\.js\?v=20261123-google-apps-script-1/);
+    assert.match(html, /shared\/contact\/contact\.js\?v=20261123-google-apps-script-attachments-1/);
   }
 });
 
