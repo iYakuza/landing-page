@@ -182,7 +182,7 @@
           "name": "featured.jpg",
           "src": "media/transmissions/T-0006/featured.jpg",
           "url": "media/transmissions/T-0006/featured.jpg",
-          "source_url": "/landing-page/posts/imported/wfh/media/featured.jpg",
+          "source_url": "/landing-page/transmissions/imported/wfh/media/featured.jpg",
           "status": "available"
         }
       ],
@@ -191,7 +191,7 @@
       "published_at": "2026-10-15T12:00:00+00:00",
       "archive_record_id": 3001,
       "legacy_id": "05aced40-34c6-4d31-b4ac-ab253ec4ba7c",
-      "legacy_media_url": "/landing-page/posts/imported/wfh/media/featured.jpg",
+      "legacy_media_url": "/landing-page/transmissions/imported/wfh/media/featured.jpg",
       "human_archive_id": "HA-3001"
     }
   ]

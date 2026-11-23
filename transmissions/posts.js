@@ -65,7 +65,6 @@
       const raw=String(value||'').trim();
       if(raw.startsWith('media/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return availableMediaPaths.has(raw)?'/landing-page/'+raw:'';
       if(raw.startsWith('/landing-page/media/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return availableMediaPaths.has(raw.slice('/landing-page/'.length))?raw:'';
-      if(raw.startsWith('/landing-page/posts/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw.replace('/landing-page/posts/imported/','/landing-page/transmissions/imported/');
       if(raw.startsWith('/landing-page/transmissions/imported/')&&!raw.includes('..')&&!raw.includes('?')&&!raw.includes('#')&&!raw.includes(String.fromCharCode(92)))return raw;
       const url=new URL(raw);
       const wordpressHost=['emanuelstefancu.wordpress.com','i0.wp.com'].includes(url.hostname);
