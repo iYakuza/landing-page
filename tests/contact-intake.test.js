@@ -145,8 +145,9 @@ test('Apps Script rejects unsupported and oversized attachments before sending',
 test('Apps Script enforces the combined attachment size limit', () => {
   const harness = createServerHarness();
   const result = harness.context.submitContactForm(validSubmission({
-    attachment1: createAttachment('one.pdf', 'application/pdf', 5 * 1024 * 1024),
-    attachment2: createAttachment('two.pdf', 'application/pdf', 5 * 1024 * 1024 + 1)
+    attachment1: createAttachment('one.pdf', 'application/pdf', 4 * 1024 * 1024),
+    attachment2: createAttachment('two.pdf', 'application/pdf', 4 * 1024 * 1024),
+    attachment3: createAttachment('three.pdf', 'application/pdf', 4 * 1024 * 1024)
   }));
   assert.equal(result.success, false);
   assert.equal(harness.sent.length, 0);
