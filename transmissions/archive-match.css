@@ -1,0 +1,42 @@
+/* Transmissions page-specific layer on top of the shared Human Archive design. */
+main.posts-main[data-vha-layout-root]{
+  border:0!important;
+  outline:0!important;
+  box-shadow:none!important;
+  background:transparent!important;
+}
+.ha-transmissions-hero .ha-ego-copy h1{
+  max-width:100%;
+  font-size:clamp(46px,6.1vw,78px)!important;
+  line-height:.9!important;
+  letter-spacing:-.075em!important;
+  overflow-wrap:anywhere;
+}
+.ha-transmissions-art{
+  display:grid;
+  place-items:center;
+  aspect-ratio:1.48/1;
+  min-height:220px;
+  padding:clamp(18px,3vw,40px);
+}
+.ha-transmissions-art svg{
+  display:block;
+  width:min(100%,380px);
+  max-height:100%;
+  height:auto;
+  filter:saturate(.72) contrast(1.02);
+  image-rendering:pixelated;
+}
+.ha-header-status{
+  flex:0 0 auto;
+  color:#78888b;
+  font:8px/1.5 var(--va-font-mono,ui-monospace,monospace);
+  letter-spacing:.16em;
+  white-space:nowrap;
+}
+@media(max-width:760px){
+  main.posts-main[data-vha-layout-root]{border:0!important}
+  .ha-transmissions-art{min-height:0;aspect-ratio:16/9;padding:16px}
+  .ha-transmissions-hero .ha-ego-copy h1{font-size:clamp(42px,11vw,68px)!important}
+  .ha-header-status{white-space:normal}
+}
