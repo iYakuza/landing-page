@@ -5,11 +5,9 @@
   if (window.__vhaContactComponentLoaded) return;
   window.__vhaContactComponentLoaded = true;
 
-  // Add the deployed Google Apps Script /exec URL here after it has been
-  // created and tested. Until then the form remains safely disabled.
+  // Public Apps Script deployment URL. The recipient stays private in Script Properties.
   const CONFIG = Object.freeze({
     endpointUrl: "https://script.google.com/macros/s/AKfycbxvWmMr0yZR2EBJ3kj7xknUeB70UsMxCzKJOuECQCeKa52d1rmjVs95O14blfX5NkQ1/exec",
-    siteOrigin: "https://iyakuza.github.io",
     responseTimeoutMs: 90000,
     defaultSubject: "Website contact — Verse After Hours",
     subjects: {
@@ -120,7 +118,6 @@
   const status = hostDocument.getElementById("cv-contact-status");
   const nameField = hostDocument.getElementById("cv-contact-name");
   const subjectField = hostDocument.getElementById("cv-contact-subject");
-  const urlField = hostDocument.getElementById("cv-contact-url");
   const title = hostDocument.getElementById("cv-contact-title");
   const description = hostDocument.getElementById("cv-contact-description");
   const submitButton = form.querySelector('button[type="submit"]');
@@ -139,6 +136,7 @@
   let previousOverflow = "";
   let activeContext = "website";
   let pendingRequestId = "";
+  let timedOutRequestId = "";
   let pendingTimer = null;
   let uploadFrameOrigin = "";
   let uploadFrameReady = false;
@@ -148,7 +146,7 @@
   }
 
   function updateSubmitButton() {
-    submitButton.disabled = !endpointReady || !uploadFrameReady || Boolean(pendingRequestId);
+    submitButton.disabled = !endpointReady || !uploadFrameReady || Boolean(pendingRequestId || timedOutRequestId);
     submitButton.textContent = !endpointReady
       ? "GOOGLE SETUP REQUIRED"
       : !uploadFrameReady
@@ -196,12 +194,14 @@
       return;
     }
 
-    if (data.type !== "vha-contact-result" || data.requestId !== pendingRequestId) return;
+    if (data.type !== "vha-contact-result" ||
+        (data.requestId !== pendingRequestId && data.requestId !== timedOutRequestId)) return;
     if (pendingTimer !== null) {
       hostWindow.clearTimeout(pendingTimer);
       pendingTimer = null;
     }
     pendingRequestId = "";
+    timedOutRequestId = "";
     updateSubmitButton();
 
     if (data.success === true) {
@@ -313,9 +313,10 @@
 
     pendingTimer = hostWindow.setTimeout(() => {
       pendingTimer = null;
+      timedOutRequestId = pendingRequestId;
       pendingRequestId = "";
       updateSubmitButton();
-      status.textContent = "We couldn't confirm whether Google completed the submission. Please check your inbox before trying again.";
+      status.textContent = "Google is still processing this submission. Do not send it again yet; check your inbox. If no email arrives, reload the page before retrying."
     }, CONFIG.responseTimeoutMs);
 
     try {
