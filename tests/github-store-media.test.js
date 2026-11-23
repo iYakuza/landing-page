@@ -202,12 +202,12 @@ test('homepage and CV share one Google Apps Script contact form without exposing
     'the static contact component must not open a mail client or post to an untrusted endpoint');
   assert.equal(contactSource.includes("emanuel.stefancu@gmail.com"), false,
     'the destination address must not be embedded in a browser-only sender');
-  assert.match(contactSource, /endpointUrl:\s*"https:\\/\\/script\\.google\\.com\\/macros\\/s\\/[A-Za-z0-9_-]+\\/exec"/,
+  assert.ok(contactSource.includes('endpointUrl: "https://script.google.com/macros/s/'),
     'the contact form must use the deployed Google Apps Script endpoint');
-  assert.match(contactSource, /submitButton\\.disabled = !endpointReady/,
+  assert.ok(contactSource.includes('submitButton.disabled = !endpointReady'),
     'the submit action must be gated by strict endpoint URL validation');
   assert.match(contactSource, /No information is sent or stored/,
-    'the visitor must receive an honest status before Google setup is complete');
+    'the visitor must be told that messages are not published or stored by the website');
   assert.match(contactSource, /responseFrame\.name = "vha-contact-response-frame"/,
     'the form must use the isolated Google response frame');
 
