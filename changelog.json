@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-23T18:39:27.342255Z",
-  "last_processed_sha": "d1acffb34c944ef6ee5fb865b8d50338cf87a975",
+  "updated_at": "2026-11-23T19:15:28.128172Z",
+  "last_processed_sha": "c9cc5ba4e86e402d3b4a9358fa74181be4e96fd5",
   "entries": [
+    {
+      "id": "c9cc5ba4e86e402d3b4a9358fa74181be4e96fd5",
+      "timestamp": "2026-11-23T20:15:07+01:00",
+      "category": "FEATURE",
+      "component": "Website Updates",
+      "title": "New capabilities for Website Updates",
+      "description": "This update brings together Add private email attachments to contact form (#143). It updates site-safety.yml, index.html, Code.gs, README.md and related project files.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/site-safety.yml",
+        "cv/index.html",
+        "google-apps-script/Code.gs",
+        "google-apps-script/README.md",
+        "google-apps-script/Upload.html",
+        "index.html",
+        "shared/contact/contact.js",
+        "tests/contact-intake.test.js",
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Add private email attachments to contact form (#143)",
+          "url": "https://github.com/iYakuza/landing-page/commit/c9cc5ba4e86e402d3b4a9358fa74181be4e96fd5",
+          "files": [
+            ".github/workflows/site-safety.yml",
+            "cv/index.html",
+            "google-apps-script/Code.gs",
+            "google-apps-script/README.md",
+            "google-apps-script/Upload.html",
+            "index.html",
+            "shared/contact/contact.js",
+            "tests/contact-intake.test.js",
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "d1acffb34c944ef6ee5fb865b8d50338cf87a975",
       "timestamp": "2026-11-23T19:39:12+01:00",
