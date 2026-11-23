@@ -90,7 +90,21 @@
     dialog = hostDocument.getElementById("vha-contact-dialog");
   }
 
-  if (!dialog || dialog.dataset.vhaInitialized === "true") return;
+  if (!dialog) return;
+  if (dialog.dataset.vhaInitialized === "true") {
+    // When this page is embedded, reuse the parent page's already-mounted form.
+    if (hostDocument !== document) {
+      document.addEventListener("click", event => {
+        const trigger = event.target.closest?.(".va-cv-contact-trigger, .cv-contact-open, [data-vha-contact-open]");
+        if (!trigger) return;
+        event.preventDefault();
+        hostDocument.dispatchEvent(new hostWindow.CustomEvent("vha-contact-open", {
+          detail: { context: trigger.dataset.contactContext || "website" }
+        }));
+      });
+    }
+    return;
+  }
   dialog.dataset.vhaInitialized = "true";
 
   const form = hostDocument.getElementById("cv-contact-form");
@@ -162,6 +176,10 @@
     }
   });
 
+  hostDocument.addEventListener("vha-contact-open", event => {
+    openDialog(event.detail?.context || "website");
+  });
+
   form.addEventListener("submit", event => {
     event.preventDefault();
     if (!form.reportValidity()) return;
@@ -201,6 +219,8 @@
     const trigger = event.target.closest?.(".va-cv-contact-trigger, .cv-contact-open, [data-vha-contact-open]");
     if (!trigger) return;
     event.preventDefault();
-    openDialog(trigger.dataset.contactContext || "website");
+    hostDocument.dispatchEvent(new hostWindow.CustomEvent("vha-contact-open", {
+      detail: { context: trigger.dataset.contactContext || "website" }
+    }));
   });
 })();
