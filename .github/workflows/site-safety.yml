@@ -90,6 +90,16 @@ jobs:
             grep -Fq "/landing-page/transmissions/$movement/" shared/crystal/tools/constellation.js
             grep -Fq "/landing-page/transmissions/$movement/" shared/crystal/tools/presentation.js
           done
+          # Transmissions shares Human Archive's archive-card skin and local record reader.
+          grep -Fq '../human-archive/archive.css?v=20261122-responsive-card-video-1' transmissions/index.html
+          grep -Fq 'archive-match.css?v=20261123-ha-archive-fidelity-1' transmissions/index.html
+          grep -Fq 'data-vha-classes="ha-hero ha-ego-hero ha-transmissions-hero"' transmissions/index.html
+          grep -Fq 'data-vha-kind="records" data-vha-classes="ha-records"' transmissions/index.html
+          grep -Fq 'border:0!important' transmissions/archive-match.css
+          grep -Fq '.ha-category-entries' human-archive/archive.css
+          grep -Fq 'data-post-toggle=' transmissions/posts.js
+          grep -Fq "const toggleButton=event.target.closest('[data-post-toggle]');" transmissions/posts.js
+          grep -Fq 'ha-entry-body post-body' transmissions/posts.js
           # Star Patterns must use the native dropdown, preserve visitor layouts,
           # and apply Ursa Major as the first-visit default.
           for pattern in orion ursa-major cassiopeia cygnus scorpius; do

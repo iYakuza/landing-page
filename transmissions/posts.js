@@ -130,7 +130,7 @@
     const movementSlugs={'THE AWAKENING':'the-awakening','THE DESCENT':'the-descent','THE RECONNECTION':'the-reconnection','THE TRANSFORMATION':'the-transformation','THE RETURN':'the-return'};
     const href='/landing-page/transmissions/'+(movementSlugs[category]||'')+'/';
     const categoryLink=movementSlugs[category]?'<a class="post-category" href="'+href+'" aria-label="Browse '+safe(category)+'">'+safe(category)+'</a>':'<span class="post-category">'+safe(category)+'</span>';
-    const media=renderPostMedia(post),body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
+    const media=renderPostMedia(post),body=post.content_html?'<div class="ha-entry-body post-body">'+cleanHtml(post.content_html)+'</div>':'';
     const isSuno=/class=["']suno-post-layout["']/.test(post.content_html||'');
     const sections=(isSuno||/<details\b/i.test(post.content_html||''))?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
     const date=postDate(post),year=postYear(post),archiveId=Number(post.archive_record_id),hasId=Number.isSafeInteger(archiveId)&&archiveId>0;
@@ -153,7 +153,7 @@
     const back='<p class="post-back"><a href="./">← BACK TO THE ARCHIVE</a></p>';
     const media=renderPostMedia(post);
     const mediaItems=Array.isArray(post.media_items)&&post.media_items.length?post.media_items.filter(item=>item&&typeof item.url==='string'):(post.media_url?[{url:post.media_url,type:post.media_type||'audio'}]:[]);
-    const body=post.content_html?'<div class="post-body">'+cleanHtml(post.content_html)+'</div>':'';
+    const body=post.content_html?'<div class="ha-entry-body post-body">'+cleanHtml(post.content_html)+'</div>':'';
     const chamber=!post.community?'<div class="post-chamber-actions"><button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button><button type="button" class="post-chamber-button post-redesign-button" data-vha-edit-transmission="'+safe(post.slug)+'" aria-label="Redesign '+safe(post.title)+'"'+(canRedesignPosts?'':' hidden')+'>REDESIGN CHAMBER ↗</button></div>':'';
     if(/class=["']suno-post-layout["']/.test(post.content_html||'')){
       const excerpt=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
