@@ -204,15 +204,15 @@ test('homepage and CV share one Google Apps Script contact form without exposing
     'the destination address must not be embedded in a browser-only sender');
   assert.ok(contactSource.includes('endpointUrl: "https://script.google.com/macros/s/'),
     'the contact form must use the deployed Google Apps Script endpoint');
-  assert.ok(contactSource.includes('submitButton.disabled = !endpointReady'),
+  assert.ok(contactSource.includes('submitButton.disabled = !endpointReady || !uploadFrameReady'),
     'the submit action must be gated by strict endpoint URL validation');
   assert.match(contactSource, /No information is sent or stored/,
     'the visitor must be told that messages are not published or stored by the website');
-  assert.match(contactSource, /responseFrame\.name = "vha-contact-response-frame"/,
+  assert.match(contactSource, /uploadFrame\.id = "cv-contact-upload-frame"/,
     'the form must use the isolated Google response frame');
 
-  assert.ok(homeHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-1'));
-  assert.ok(contactHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-1'));
+  assert.ok(homeHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-attachments-1'));
+  assert.ok(contactHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-attachments-1'));
   assert.ok(homeHtml.includes('data-contact-context="website"'));
   assert.ok(contactHtml.includes('data-contact-context="career"'));
   assert.ok(homeSource.includes("new CustomEvent('vha-contact-open',{detail:{context:'subscription'}})"),

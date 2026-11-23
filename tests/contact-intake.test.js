@@ -9,6 +9,7 @@ const test = require('node:test');
 const root = path.join(__dirname, '..');
 const clientSource = fs.readFileSync(path.join(root, 'shared/contact/contact.js'), 'utf8');
 const serverSource = fs.readFileSync(path.join(root, 'google-apps-script/Code.gs'), 'utf8');
+const uploadSource = fs.readFileSync(path.join(root, 'google-apps-script/Upload.html'), 'utf8');
 const homeSource = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const cvSource = fs.readFileSync(path.join(root, 'cv/index.html'), 'utf8');
 
@@ -24,6 +25,15 @@ function createServerHarness(options = {}) {
       createHtmlOutput(content) {
         return {
           content,
+          title: '',
+          frameMode: '',
+          setTitle(value) { this.title = value; return this; },
+          setXFrameOptionsMode(value) { this.frameMode = value; return this; }
+        };
+      },
+      createHtmlOutputFromFile(name) {
+        return {
+          content: 'HTML_FILE:' + name,
           title: '',
           frameMode: '',
           setTitle(value) { this.title = value; return this; },
@@ -76,11 +86,95 @@ function validSubmission(overrides = {}) {
   };
 }
 
+function createAttachment(name, contentType, byteLength) {
+  return {
+    name,
+    contentType,
+    getName() { return this.name; },
+    getContentType() { return this.contentType; },
+    getBytes() { return { length: byteLength }; },
+    setName(value) { this.name = value; return this; }
+  };
+}
+
+test('Apps Script serves the attachment picker as a framed HTML Service page', () => {
+  const harness = createServerHarness();
+  const result = harness.context.doGet({ parameter: { mode: 'upload' } });
+  assert.equal(result.title, 'Verse After Hours — Attachments');
+  assert.equal(result.frameMode, 'ALLOWALL');
+  assert.equal(result.content, 'HTML_FILE:Upload');
+  assert.match(uploadSource, /google\.script\.run/);
+  assert.match(uploadSource, /name="attachment5"/);
+  assert.match(uploadSource, /multiple/);
+  assert.ok(uploadSource.includes('const SITE_ORIGIN = "https://iyakuza.github.io"'));
+});
+
+test('Apps Script emails approved attachment Blobs without storing them', () => {
+  const harness = createServerHarness();
+  const attachment = createAttachment('CV.pdf', 'application/pdf', 2048);
+  const result = harness.context.submitContactForm(validSubmission({
+    contactContext: 'career',
+    attachment1: attachment
+  }));
+
+  assert.equal(result.success, true);
+  assert.equal(result.requestId, '00000000-0000-4000-8000-000000000001');
+  assert.equal(harness.sent.length, 1);
+  assert.equal(harness.sent[0].advanced.attachments.length, 1);
+  assert.equal(harness.sent[0].advanced.attachments[0].getName(), 'CV.pdf');
+  assert.ok(harness.sent[0].body.includes("Attachments:\nCV.pdf (2.0 KB)"));
+  assert.equal(harness.cacheValues.size, 1);
+});
+
+test('Apps Script rejects unsupported and oversized attachments before sending', () => {
+  const unsupported = createServerHarness();
+  const unsupportedResult = unsupported.context.submitContactForm(validSubmission({
+    attachment1: createAttachment('script.exe', 'application/octet-stream', 1024)
+  }));
+  assert.equal(unsupportedResult.success, false);
+  assert.equal(unsupported.sent.length, 0);
+
+  const oversized = createServerHarness();
+  const oversizedResult = oversized.context.submitContactForm(validSubmission({
+    attachment1: createAttachment('large.pdf', 'application/pdf', 5 * 1024 * 1024 + 1)
+  }));
+  assert.equal(oversizedResult.success, false);
+  assert.equal(oversized.sent.length, 0);
+});
+
+test('Apps Script enforces the combined attachment size limit', () => {
+  const harness = createServerHarness();
+  const result = harness.context.submitContactForm(validSubmission({
+    attachment1: createAttachment('one.pdf', 'application/pdf', 4 * 1024 * 1024),
+    attachment2: createAttachment('two.pdf', 'application/pdf', 4 * 1024 * 1024),
+    attachment3: createAttachment('three.pdf', 'application/pdf', 4 * 1024 * 1024)
+  }));
+  assert.equal(result.success, false);
+  assert.equal(harness.sent.length, 0);
+});
+
+test('Google-hosted upload bridge exposes only the approved file type and size limits', () => {
+  assert.match(uploadSource, /MAX_FILES = 5/);
+  assert.ok(uploadSource.includes("MAX_FILE_BYTES = 5 * 1024 * 1024"));
+  assert.ok(uploadSource.includes("MAX_TOTAL_BYTES = 10 * 1024 * 1024"));
+  assert.match(serverSource, /MAX_ATTACHMENTS: 5/);
+  assert.ok(serverSource.includes("MAX_FILE_BYTES: 5 * 1024 * 1024"));
+  assert.ok(serverSource.includes("MAX_TOTAL_ATTACHMENT_BYTES: 10 * 1024 * 1024"));
+});
+
+test('Google-hosted picker appends later file selections instead of replacing earlier files', () => {
+  assert.match(uploadSource, /let selectedFiles = \[\]/);
+  assert.match(uploadSource, /const additions = Array\.from\(picker\.files \|\| \[\]\)/);
+  assert.match(uploadSource, /const combined = selectedFiles\.slice\(\)/);
+  assert.match(uploadSource, /selectedFiles = combined/);
+  assert.match(uploadSource, /clearFileSlots\(result\.files\)/);
+});
+
 test('contact form is enabled only with a valid Google Apps Script deployment URL', () => {
   assert.ok(clientSource.includes('endpointUrl: "https://script.google.com/macros/s/'));
   assert.ok(clientSource.includes('/exec",'));
   assert.ok(clientSource.includes('const endpointReady ='));
-  assert.match(clientSource, /submitButton\.disabled = !endpointReady/);
+  assert.ok(clientSource.includes("submitButton.disabled = !endpointReady || !uploadFrameReady"));
   assert.match(clientSource, /name="requestId"/);
   assert.match(clientSource, /name="startedAt"/);
   assert.match(clientSource, /name="website"/);
@@ -88,17 +182,17 @@ test('contact form is enabled only with a valid Google Apps Script deployment UR
 
 test('public contact code contains no mail-client handoff, direct network request, or recipient address', () => {
   assert.doesNotMatch(clientSource, /mailto:|XMLHttpRequest|fetch\s*\(/i);
-  assert.match(clientSource, /responseFrame\.name = "vha-contact-response-frame"/);
-  assert.ok(clientSource.includes("event.source !== responseFrame.contentWindow"));
+  assert.ok(clientSource.includes('if (endpointReady) uploadFrame.src = CONFIG.endpointUrl + "?mode=upload"'));
+  assert.ok(clientSource.includes("event.source !== uploadFrame.contentWindow"));
   assert.ok(clientSource.includes("[a-z0-9-]+-script"));
-  assert.match(serverSource, /window\.top\.postMessage/);
+  assert.match(uploadSource, /window\.top\.postMessage/);
 });
 
 test('homepage and CV both allow only the required Google Apps Script form and response origins', () => {
   for (const html of [homeSource, cvSource]) {
     assert.ok(html.includes("form-action 'self' https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com"));
     assert.ok(html.includes("frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com"));
-    assert.match(html, /shared\/contact\/contact\.js\?v=20261123-google-apps-script-1/);
+    assert.match(html, /shared\/contact\/contact\.js\?v=20261123-google-apps-script-attachments-1/);
   }
 });
 

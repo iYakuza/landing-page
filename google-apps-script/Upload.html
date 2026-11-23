@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Verse After Hours — Contact attachments</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; overflow: hidden; background: transparent; }
+    body { padding: 8px 10px; color: #e9f2e8; font: 11px/1.5 Arial, Helvetica, sans-serif; }
+    .picker-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .pick-button {
+      position: relative; display: inline-flex; align-items: center; justify-content: center;
+      min-height: 34px; padding: 8px 12px; overflow: hidden;
+      border: 1px solid #b6e833; background: #b6e833; color: #071007;
+      font: 800 9px/1.2 ui-monospace, SFMono-Regular, Consolas, monospace;
+      letter-spacing: .08em; cursor: pointer;
+    }
+    .pick-button input {
+      position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
+    }
+    .limits {
+      color: #91a18e; font: 9px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+    }
+    #file-status { margin: 8px 0 0; color: #c1d5a0; font: 10px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
+    #file-status.error { color: #ffb2a8; }
+    #file-list {
+      display: flex; flex-wrap: wrap; gap: 5px; max-height: 40px; overflow: auto;
+      margin: 5px 0 0; padding: 0; list-style: none;
+    }
+    #file-list li {
+      max-width: 100%; overflow: hidden; padding: 3px 6px;
+      border: 1px solid rgba(182,232,51,.22); color: #d2dfca;
+      font: 9px/1.4 ui-monospace, SFMono-Regular, Consolas, monospace;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    @media (max-width: 480px) {
+      body { padding: 7px 8px; }
+      .limits { flex-basis: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <form id="upload-form">
+    <input type="hidden" name="requestId">
+    <input type="hidden" name="startedAt">
+    <input type="hidden" name="contactContext">
+    <input type="hidden" name="name">
+    <input type="hidden" name="email">
+    <input type="hidden" name="subject">
+    <input type="hidden" name="url">
+    <input type="hidden" name="message">
+    <input type="hidden" name="website">
+    <div id="attachment-slots" class="sr-only" aria-hidden="true">
+      <input type="file" name="attachment1" tabindex="-1">
+      <input type="file" name="attachment2" tabindex="-1">
+      <input type="file" name="attachment3" tabindex="-1">
+      <input type="file" name="attachment4" tabindex="-1">
+      <input type="file" name="attachment5" tabindex="-1">
+    </div>
+  </form>
+
+  <div class="picker-row">
+    <label class="pick-button">
+      ADD FILES
+      <input id="attachment-picker" type="file" multiple
+        accept=".pdf,.txt,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.gif,.webp"
+        aria-label="Choose up to five files to attach">
+    </label>
+    <span class="limits">PDF, Office, text, CSV or images · up to 5 files · 10 MB total</span>
+  </div>
+  <p id="file-status" role="status" aria-live="polite">Attachments are optional. No files selected.</p>
+  <ul id="file-list" aria-label="Selected attachments"></ul>
+
+  <script>
+    (function () {
+      "use strict";
+
+      const SITE_ORIGIN = "https://iyakuza.github.io";
+      const MAX_FILES = 5;
+      const MAX_FILE_BYTES = 5 * 1024 * 1024;
+      const MAX_TOTAL_BYTES = 10 * 1024 * 1024;
+      const ALLOWED_EXTENSIONS = new Set([
+        "pdf", "txt", "csv", "doc", "docx", "xls", "xlsx",
+        "ppt", "pptx", "png", "jpg", "jpeg", "gif", "webp"
+      ]);
+      const form = document.getElementById("upload-form");
+      const picker = document.getElementById("attachment-picker");
+      const status = document.getElementById("file-status");
+      const list = document.getElementById("file-list");
+      const slots = Array.from(form.querySelectorAll('input[type="file"][name^="attachment"]'));
+      let selectedFiles = [];
+      let busy = false;
+
+      function sendToSite(data) {
+        window.top.postMessage(data, SITE_ORIGIN);
+      }
+
+      function formatSize(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+      }
+
+      function inspectFiles() {
+        const files = selectedFiles.slice();
+        let totalBytes = 0;
+        const errors = [];
+
+        if (files.length > MAX_FILES) errors.push("Choose no more than " + MAX_FILES + " files.");
+        files.forEach(file => {
+          totalBytes += file.size;
+          const extension = (file.name.split(".").pop() || "").toLowerCase();
+          if (!ALLOWED_EXTENSIONS.has(extension)) errors.push(file.name + " has an unsupported file type.");
+          if (file.size > MAX_FILE_BYTES) errors.push(file.name + " exceeds 5 MB.");
+        });
+        if (totalBytes > MAX_TOTAL_BYTES) errors.push("The combined attachment size exceeds 10 MB.");
+
+        return { files, totalBytes, errors };
+      }
+
+      function renderSelection() {
+        const result = inspectFiles();
+        list.textContent = "";
+        result.files.forEach(file => {
+          const item = document.createElement("li");
+          item.textContent = file.name + " · " + formatSize(file.size);
+          list.appendChild(item);
+        });
+
+        status.classList.toggle("error", result.errors.length > 0);
+        if (result.errors.length) {
+          status.textContent = result.errors[0];
+        } else if (result.files.length) {
+          status.textContent = result.files.length + " file(s) selected · " + formatSize(result.totalBytes) + " total";
+        } else {
+          status.textContent = "Attachments are optional. No files selected.";
+        }
+
+        sendToSite({
+          type: "vha-contact-attachment-state",
+          count: result.files.length,
+          totalBytes: result.totalBytes,
+          valid: result.errors.length === 0
+        });
+      }
+
+      function clearFileSlots(files) {
+        if (typeof DataTransfer !== "function") return false;
+        try {
+          slots.forEach((slot, index) => {
+            const transfer = new DataTransfer();
+            if (files[index]) transfer.items.add(files[index]);
+            slot.files = transfer.files;
+          });
+          return true;
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function setField(name, value) {
+        const field = form.elements.namedItem(name);
+        if (field) field.value = String(value == null ? "" : value);
+      }
+
+      function publishResult(requestId, success) {
+        sendToSite({
+          type: "vha-contact-result",
+          requestId: requestId,
+          success: success === true
+        });
+      }
+
+      function handleSubmit(data) {
+        if (busy) return;
+        const result = inspectFiles();
+        if (result.errors.length) {
+          status.classList.add("error");
+          status.textContent = result.errors[0];
+          publishResult(data.requestId, false);
+          return;
+        }
+        if (!clearFileSlots(result.files)) {
+          status.classList.add("error");
+          status.textContent = "This browser could not prepare the selected files. Please try another browser.";
+          publishResult(data.requestId, false);
+          return;
+        }
+
+        ["requestId", "startedAt", "contactContext", "name", "email", "subject", "url", "message", "website"]
+          .forEach(name => setField(name, data.fields && data.fields[name]));
+
+        busy = true;
+        status.classList.remove("error");
+        status.textContent = result.files.length
+          ? "Sending your message and attachments through Google…"
+          : "Sending your message through Google…";
+
+        google.script.run
+          .withSuccessHandler(response => {
+            busy = false;
+            const success = Boolean(response && response.success === true &&
+              response.requestId === data.requestId);
+            if (success) {
+              form.reset();
+              selectedFiles = [];
+              picker.value = "";
+              renderSelection();
+            } else {
+              status.classList.add("error");
+              status.textContent = "Google could not send this message. Check the fields and attachments, then try again.";
+            }
+            publishResult(data.requestId, success);
+          })
+          .withFailureHandler(() => {
+            busy = false;
+            status.classList.add("error");
+            status.textContent = "Google could not complete the upload. Please try again.";
+            publishResult(data.requestId, false);
+          })
+          .submitContactForm(form);
+      }
+
+      picker.addEventListener("change", () => {
+        const additions = Array.from(picker.files || []);
+        picker.value = "";
+        if (!additions.length) return;
+
+        const combined = selectedFiles.slice();
+        const errors = [];
+        additions.forEach(file => {
+          const extension = (file.name.split(".").pop() || "").toLowerCase();
+          const duplicate = combined.some(existing =>
+            existing.name === file.name &&
+            existing.size === file.size &&
+            existing.lastModified === file.lastModified
+          );
+          if (duplicate) return;
+          if (!ALLOWED_EXTENSIONS.has(extension)) {
+            errors.push(file.name + " has an unsupported file type.");
+            return;
+          }
+          if (file.size > MAX_FILE_BYTES) {
+            errors.push(file.name + " exceeds 5 MB.");
+            return;
+          }
+          if (combined.length >= MAX_FILES) {
+            errors.push("Choose no more than " + MAX_FILES + " files in total.");
+            return;
+          }
+          const nextTotal = combined.reduce((sum, item) => sum + item.size, 0) + file.size;
+          if (nextTotal > MAX_TOTAL_BYTES) {
+            errors.push("The combined attachment size would exceed 10 MB.");
+            return;
+          }
+          combined.push(file);
+        });
+
+        if (errors.length) {
+          status.classList.add("error");
+          status.textContent = errors[0];
+        } else {
+          selectedFiles = combined;
+        }
+        renderSelection();
+        if (errors.length) {
+          status.classList.add("error");
+          status.textContent = errors[0];
+        }
+      });
+      window.addEventListener("message", event => {
+        if (event.source !== window.top || event.origin !== SITE_ORIGIN) return;
+        const data = event.data;
+        if (!data || typeof data !== "object") return;
+
+        if (data.type === "vha-contact-reset" && !busy) {
+          form.reset();
+          selectedFiles = [];
+          picker.value = "";
+          renderSelection();
+          return;
+        }
+
+        if (data.type === "vha-contact-submit" && typeof data.requestId === "string") {
+          handleSubmit(data);
+        }
+      });
+
+      renderSelection();
+      sendToSite({ type: "vha-contact-upload-ready" });
+    })();
+  </script>
+</body>
+</html>
