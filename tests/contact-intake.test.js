@@ -192,7 +192,7 @@ test('homepage and CV both allow only the required Google Apps Script form and r
   for (const html of [homeSource, cvSource]) {
     assert.ok(html.includes("form-action 'self' https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com"));
     assert.ok(html.includes("frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com"));
-    assert.match(html, /shared\/contact\/contact\.js\?v=20261123-google-apps-script-attachments-1/);
+    assert.match(html, /shared\/contact\/contact\.js\?v=20261123-contact-iframe-autosize-2/);
   }
 });
 
@@ -258,4 +258,13 @@ test('Apps Script source does not hard-code the recipient or use message storage
   assert.match(serverSource, /MailApp\.sendEmail/);
   assert.doesNotMatch(serverSource, /\b(DriveApp|SpreadsheetApp|GmailApp)\b/);
   assert.doesNotMatch(serverSource, /Logger\.log|console\.log/);
+});
+
+
+test('attachment list grows without an internal scrollbar and reports its iframe height', () => {
+  assert.match(uploadSource, /max-height: none; overflow: visible/);
+  assert.match(uploadSource, /vha-contact-upload-height/);
+  assert.match(uploadSource, /window\.top\.postMessage\(data, "\*"\)/);
+  assert.match(clientSource, /vha-contact-upload-height/);
+  assert.match(clientSource, /Math\.min\(420, Math\.ceil\(requestedHeight\)\)/);
 });
