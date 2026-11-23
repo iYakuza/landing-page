@@ -67,7 +67,7 @@ body.vha-entry-intro .va-shell>header{display:none!important}
       </div>
       <div class="va-cv-actions">
         <a class="primary" href="/landing-page/cv/">EXPLORE MY CV ↗</a>
-        <button type="button" class="va-cv-contact va-cv-contact-trigger">CONTACT ↗</button>
+        <button type="button" class="va-cv-contact va-cv-contact-trigger" aria-haspopup="dialog" aria-controls="vha-contact-dialog" data-contact-context="website">CONTACT ↗</button>
       </div>
     </div>
     <div class="va-cv-experience">
@@ -106,21 +106,12 @@ body.vha-entry-intro .va-shell>header{display:none!important}
 <div class="va-footer-tag">THE CITY IS LOUD. LEAVE A TRACE.</div>
 <nav class="va-footer-nav" aria-label="Footer navigation"><a href="/landing-page/">HOME</a><a href="/landing-page/transmissions/">POETRY &amp; MEDIA</a><a href="/landing-page/#gd-radio">V/A RADIO</a><a href="#green-dream">GREEN DREAM</a><a href="/landing-page/human-archive/">ABOUT</a></nav>
 <div class="va-footer-credit">CREATED BY CHATGPT — AI COLLABORATOR<br>CREATIVE DIRECTION / DESIGN SYSTEM / FRONT-END CODE</div><div class="va-footer-motto">FEELINGS<br>ARE NOT<br>BUGS.</div>
-<button class="cv-contact-open" type="button" aria-haspopup="dialog" aria-controls="cv-contact-dialog" hidden>CONTACT</button></footer></div>
+</footer></div>
 <button class="va-back-top" type="button" aria-label="Back to top">↑</button>
-<div class="cv-contact-dialog" id="cv-contact-dialog" role="dialog" aria-modal="true" aria-labelledby="cv-contact-title"><div class="cv-contact-panel">
-<button class="cv-contact-close" type="button" aria-label="Close contact form">×</button><p class="gd-kicker">INCOMING TRANSMISSION /// CONTACT</p><h2 id="cv-contact-title">SEND A <em>TRANSMISSION.</em></h2><p>Have a thought, a question, or something you would like to share? Send me a message. Attachments are optional.</p>
-<form class="cv-contact-form" id="cv-contact-form" data-default-subject="Website contact — Verse After Hours">
-<div class="cv-contact-field"><label for="cv-contact-name">YOUR NAME *</label><input id="cv-contact-name" name="name" autocomplete="name" maxlength="120" required></div>
-<div class="cv-contact-field"><label for="cv-contact-email">YOUR EMAIL *</label><input id="cv-contact-email" name="email" type="email" autocomplete="email" maxlength="254" required></div>
-<div class="cv-contact-field full"><label for="cv-contact-subject">SUBJECT</label><input id="cv-contact-subject" name="subject" maxlength="180" placeholder="What would you like to talk about?"></div>
-<div class="cv-contact-field full"><label for="cv-contact-message">MESSAGE *</label><textarea id="cv-contact-message" name="message" maxlength="10000" required placeholder="Write your message…"></textarea></div>
-<div class="cv-contact-field full"><label for="cv-contact-files">ATTACHMENTS (OPTIONAL)</label><input id="cv-contact-files" name="attachments" type="file" multiple><p class="cv-contact-hint">Up to 5 files · 5 MB each · 10 MB total. PDF, DOC/DOCX, TXT, PNG, JPG, XLS/XLSX accepted.</p></div>
-<div class="cv-contact-honeypot" aria-hidden="true"><label for="cv-contact-website">Leave this empty</label><input id="cv-contact-website" name="website" tabindex="-1" autocomplete="off"></div>
-<div class="cv-contact-submit"><button type="submit">SEND MESSAGE ↗</button><p class="cv-contact-status" id="cv-contact-status" role="status" aria-live="polite"></p></div></form></div></div>
+
 
 <script src="/landing-page/home.js?v=20261121-github-content-1"></script>
-<script src="/landing-page/cv/contact.js?v=20261105-contact-condensed-5" defer></script>
+<script src="/landing-page/shared/contact/contact.js?v=20261123-native-mailto-1" defer></script>
 <script src="/landing-page/tools.js?v=20261105-crystal-shared-9"></script>
 <script src="/landing-page/creator-posting.js?v=20261118-ha-transmission-actions-14" defer></script>
 <script src="/landing-page/game-ui.js?v=20261123-crystal-canonical-routes-1" defer></script>

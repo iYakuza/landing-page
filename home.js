@@ -88,7 +88,7 @@
     if(message)message.value='Please add this email address to the Verse After Hours updates list. I would like to receive new poems, project updates and occasional signals from the night.';
     const status=document.getElementById('va-subscribe-status');
     if(status)status.textContent='One more step: confirm your request in the contact window.';
-    document.querySelector('.cv-contact-open')?.click();
+    document.dispatchEvent(new CustomEvent('vha-contact-open',{detail:{context:'subscription'}}));
   });
   loadPosts();
 })();
