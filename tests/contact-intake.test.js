@@ -99,8 +99,8 @@ test('public contact code contains no mail-client handoff, direct network reques
 
 test('homepage and CV both allow only the required Google Apps Script form and response origins', () => {
   for (const html of [homeSource, cvSource]) {
-    assert.match(html, /form-action 'self' https:\/\/script\.google\.com https:\/\/script\.googleusercontent\.com/);
-    assert.match(html, /frame-src[^"]*https:\/\/script\.google\.com https:\/\/script\.googleusercontent\.com/);
+    assert.ok(html.includes("form-action 'self' https://script.google.com https://script.googleusercontent.com"));
+    assert.ok(html.includes("frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://script.google.com https://script.googleusercontent.com"));
     assert.match(html, /shared\/contact\/contact\.js\?v=20261123-google-apps-script-1/);
   }
 });
