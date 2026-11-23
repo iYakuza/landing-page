@@ -183,8 +183,11 @@ test('contact form is enabled only with a valid Google Apps Script deployment UR
 test('public contact code contains no mail-client handoff, direct network request, or recipient address', () => {
   assert.doesNotMatch(clientSource, /mailto:|XMLHttpRequest|fetch\s*\(/i);
   assert.ok(clientSource.includes('if (endpointReady) uploadFrame.src = CONFIG.endpointUrl + "?mode=upload"'));
-  assert.ok(clientSource.includes("event.source !== uploadFrame.contentWindow"));
-  assert.ok(clientSource.includes("[a-z0-9-]+-script"));
+  assert.ok(clientSource.includes("function isUploadFrameSource(source)"));
+  assert.ok(clientSource.includes("current.frames[index]"));
+  assert.ok(clientSource.includes("isUploadFrameSource(event.source)"));
+  assert.ok(clientSource.includes("uploadFrameWindow.postMessage(data, uploadFrameOrigin)"));
+  assert.ok(clientSource.includes("event.source !== uploadFrameWindow"));
   assert.match(uploadSource, /window\.top\.postMessage/);
 });
 
@@ -192,7 +195,7 @@ test('homepage and CV both allow only the required Google Apps Script form and r
   for (const html of [homeSource, cvSource]) {
     assert.ok(html.includes("form-action 'self' https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com"));
     assert.ok(html.includes("frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://script.google.com https://script.googleusercontent.com https://*.googleusercontent.com"));
-    assert.match(html, /shared\/contact\/contact\.js\?v=20261123-contact-iframe-autosize-2/);
+    assert.match(html, /shared\/contact\/contact\.js\?v=20261123-contact-nested-iframe-1/);
   }
 });
 
@@ -267,4 +270,13 @@ test('attachment list grows without an internal scrollbar and reports its iframe
   assert.match(uploadSource, /window\.top\.postMessage\(data, "\*"\)/);
   assert.match(clientSource, /vha-contact-upload-height/);
   assert.match(clientSource, /Math\.min\(420, Math\.ceil\(requestedHeight\)\)/);
+});
+
+test('contact bridge discovers the nested Apps Script HTML Service frame and replies to that frame', () => {
+  assert.match(clientSource, /function isUploadFrameSource\(source\)/);
+  assert.match(clientSource, /const pending = \[uploadFrame\.contentWindow\]/);
+  assert.match(clientSource, /current\.frames\[index\]/);
+  assert.match(clientSource, /uploadFrameWindow = event\.source/);
+  assert.match(clientSource, /uploadFrameWindow\.postMessage\(data, uploadFrameOrigin\)/);
+  assert.doesNotMatch(clientSource, /event\.source !== uploadFrame\.contentWindow/);
 });

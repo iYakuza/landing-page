@@ -139,10 +139,44 @@
   let timedOutRequestId = "";
   let pendingTimer = null;
   let uploadFrameOrigin = "";
+  let uploadFrameWindow = null;
   let uploadFrameReady = false;
 
   function isTrustedAppsScriptOrigin(origin) {
-    return /^https:\/\/(?:script\.google\.com|script\.googleusercontent\.com|[a-z0-9-]+-script\.googleusercontent\.com)$/.test(origin);
+    return origin === "https://script.google.com" ||
+      /^https:\/\/(?:[a-z0-9-]+\.)*googleusercontent\.com$/.test(origin);
+  }
+
+  // Apps Script HTML Service runs user HTML inside nested sandbox frames.
+  // Resolve the actual userHtmlFrame that sends the readiness message.
+  function isUploadFrameSource(source) {
+    if (!source) return false;
+    const pending = [uploadFrame.contentWindow];
+    const visited = new Set();
+
+    while (pending.length && visited.size < 16) {
+      const current = pending.shift();
+      if (!current || visited.has(current)) continue;
+      if (current === source) return true;
+      visited.add(current);
+
+      let frameCount = 0;
+      try {
+        frameCount = Math.min(Number(current.length) || 0, 8);
+      } catch (_) {
+        continue;
+      }
+
+      for (let index = 0; index < frameCount; index += 1) {
+        try {
+          const child = current.frames[index];
+          if (child && !visited.has(child)) pending.push(child);
+        } catch (_) {
+          // Cross-origin frame references may be unavailable in some browsers.
+        }
+      }
+    }
+    return false;
   }
 
   function updateSubmitButton() {
@@ -155,8 +189,8 @@
   }
 
   function postUploadMessage(data) {
-    if (!uploadFrameReady || !uploadFrameOrigin) return false;
-    uploadFrame.contentWindow.postMessage(data, uploadFrameOrigin);
+    if (!uploadFrameReady || !uploadFrameOrigin || !uploadFrameWindow) return false;
+    uploadFrameWindow.postMessage(data, uploadFrameOrigin);
     return true;
   }
 
@@ -182,11 +216,12 @@
   }
 
   function handleEndpointMessage(event) {
-    if (event.source !== uploadFrame.contentWindow || !isTrustedAppsScriptOrigin(event.origin)) return;
+    if (!isTrustedAppsScriptOrigin(event.origin) || !isUploadFrameSource(event.source)) return;
     const data = event.data;
     if (!data || typeof data !== "object") return;
 
     if (data.type === "vha-contact-upload-height") {
+      if (!uploadFrameWindow || event.source !== uploadFrameWindow) return;
       const requestedHeight = Number(data.height);
       if (Number.isFinite(requestedHeight)) {
         uploadFrame.style.height = Math.max(80, Math.min(420, Math.ceil(requestedHeight))) + "px";
@@ -195,6 +230,7 @@
     }
 
     if (data.type === "vha-contact-upload-ready") {
+      uploadFrameWindow = event.source;
       uploadFrameOrigin = event.origin;
       uploadFrameReady = true;
       updateSubmitButton();
@@ -202,7 +238,7 @@
       return;
     }
 
-    if (data.type !== "vha-contact-result" ||
+    if (event.source !== uploadFrameWindow || data.type !== "vha-contact-result" ||
         (data.requestId !== pendingRequestId && data.requestId !== timedOutRequestId)) return;
     if (pendingTimer !== null) {
       hostWindow.clearTimeout(pendingTimer);
@@ -328,11 +364,11 @@
     }, CONFIG.responseTimeoutMs);
 
     try {
-      uploadFrame.contentWindow.postMessage({
+      if (!postUploadMessage({
         type: "vha-contact-submit",
         requestId: pendingRequestId,
         fields
-      }, uploadFrameOrigin);
+      })) throw new Error("The Google attachment frame is not ready.");
     } catch (_) {
       hostWindow.clearTimeout(pendingTimer);
       pendingTimer = null;
