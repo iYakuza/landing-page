@@ -61,7 +61,7 @@
       ".cv-contact-submit button{min-height:42px;padding:12px 16px;border:1px solid #b6e833;background:#b6e833;color:#071007;font:800 9px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.1em;cursor:pointer}",
       ".cv-contact-submit button:hover,.cv-contact-submit button:focus-visible{border-color:#d8ff3e;background:#d8ff3e;outline:2px solid #d8ff3e;outline-offset:2px}",
       ".cv-contact-submit button:disabled{border-color:#58644a;background:#58644a;color:#d1d9c8;cursor:not-allowed;opacity:.8}",
-      ".cv-contact-upload-frame{display:block;width:100%;height:112px;border:1px solid rgba(182,232,51,.28);background:rgba(1,8,5,.72)}",
+      ".cv-contact-upload-frame{display:block;width:100%;height:100px;border:1px solid rgba(182,232,51,.28);background:rgba(1,8,5,.72);transition:height .12s ease}",
       ".cv-contact-status{flex:1 1 220px;margin:0;color:#c1d5a0;font:10px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}",
       "@media(max-width:560px){.cv-contact-form{grid-template-columns:1fr;gap:11px}.cv-contact-field.full,.cv-contact-submit{grid-column:1}.cv-contact-panel{padding:22px 17px}.cv-contact-panel .gd-kicker{font-size:8px;gap:6px;margin-right:36px}.cv-contact-panel h2{font-size:clamp(26px,8vw,36px);margin-right:38px}.cv-contact-panel>p:not(.gd-kicker){font-size:11px}.cv-contact-panel textarea{min-height:110px}.cv-contact-close{right:13px;top:13px;width:32px;height:32px}}",
       "@media(prefers-reduced-motion:reduce){.cv-contact-dialog{backdrop-filter:none}}"
@@ -185,6 +185,14 @@
     if (event.source !== uploadFrame.contentWindow || !isTrustedAppsScriptOrigin(event.origin)) return;
     const data = event.data;
     if (!data || typeof data !== "object") return;
+
+    if (data.type === "vha-contact-upload-height") {
+      const requestedHeight = Number(data.height);
+      if (Number.isFinite(requestedHeight)) {
+        uploadFrame.style.height = Math.max(80, Math.min(420, Math.ceil(requestedHeight))) + "px";
+      }
+      return;
+    }
 
     if (data.type === "vha-contact-upload-ready") {
       uploadFrameOrigin = event.origin;

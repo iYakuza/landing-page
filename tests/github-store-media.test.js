@@ -211,8 +211,8 @@ test('homepage and CV share one Google Apps Script contact form without exposing
   assert.match(contactSource, /uploadFrame\.id = "cv-contact-upload-frame"/,
     'the form must use the isolated Google response frame');
 
-  assert.ok(homeHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-attachments-1'));
-  assert.ok(contactHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-google-apps-script-attachments-1'));
+  assert.ok(homeHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-contact-iframe-autosize-2'));
+  assert.ok(contactHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-contact-iframe-autosize-2'));
   assert.ok(homeHtml.includes('data-contact-context="website"'));
   assert.ok(contactHtml.includes('data-contact-context="career"'));
   assert.ok(homeSource.includes("new CustomEvent('vha-contact-open',{detail:{context:'subscription'}})"),
