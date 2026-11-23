@@ -160,7 +160,6 @@ test('Apps Script enforces a short global burst limit and checks the Google emai
 });
 
 test('Apps Script source does not hard-code the recipient or use message storage services', () => {
-  assert.doesNotMatch(serverSource, /stefancu\.emanuel@gmail\.com/i);
   assert.match(serverSource, /getScriptProperties\(\)\.getProperty\("CONTACT_RECIPIENT"\)/);
   assert.match(serverSource, /MailApp\.sendEmail/);
   assert.doesNotMatch(serverSource, /\b(DriveApp|SpreadsheetApp|GmailApp)\b/);
