@@ -28,13 +28,6 @@ main.posts-main[data-vha-layout-root]{
   filter:saturate(.72) contrast(1.02);
   image-rendering:pixelated;
 }
-.ha-header-status{
-  flex:0 0 auto;
-  color:#78888b;
-  font:8px/1.5 var(--va-font-mono,ui-monospace,monospace);
-  letter-spacing:.16em;
-  white-space:nowrap;
-}
 @media(max-width:760px){
   main.posts-main[data-vha-layout-root]{border:0!important}
   .ha-transmissions-art{min-height:0;aspect-ratio:16/9;padding:16px}
