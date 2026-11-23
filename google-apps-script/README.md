@@ -1,40 +1,43 @@
 # Google Apps Script contact endpoint
 
-This small endpoint receives the shared website contact form and emails the
-message to the address stored in the Apps Script project's Script Properties.
-It does not save messages to Google Drive, Sheets, GitHub, or a database.
+This Google Apps Script web app receives the shared website contact form and emails the message, with optional attachments, to the address stored in the project's Script Properties. It does not save messages or uploaded files to Google Drive, Sheets, GitHub, or a database.
 
-## One-time setup
+## Files in this folder
 
-1. Sign in to the Google account that should send the notifications.
-2. Open Google Apps Script at https://script.google.com/ and create a new standalone project named **Verse After Hours Contact**.
-3. Replace the starter contents of the Code.gs file with the contents of this folder's Code.gs, then save.
-4. Open **Project Settings** (gear icon), find **Script Properties**, and add:
-   - Property: CONTACT_RECIPIENT
-   - Value: the destination inbox address you want to receive messages.
-5. Select **Deploy → New deployment → Web app**:
-   - Execute as: **Me**
-   - Who has access: **Anyone**
-6. Deploy, complete Google's authorization prompt, and copy the web app URL ending in /exec.
+- `Code.gs`: server-side validation and email delivery.
+- `Upload.html`: Google-hosted attachment picker and secure bridge to the website contact form. It is required for file attachments.
 
-Do not paste the deployment URL into the website until the deployment has
-been tested. Share only the URL with the site maintainer; never share your
-Google password or authorization codes.
+## Update the existing project
 
-## Important limits and safeguards
+The production web app is already deployed and its Script Property `CONTACT_RECIPIENT` is already configured. Do not create a new deployment or change the property.
 
-- The script uses MailApp, which can send email but cannot read the Gmail inbox.
-- The script does not log or archive visitor messages.
-- A temporary 20-second global cache entry limits bursts; it contains no
-  visitor details and expires automatically.
-- A hidden honeypot and minimum form-completion time reject basic automated
-  submissions. These are modest protections, not a guarantee against all spam.
-- Consumer Google accounts currently have a daily Apps Script email quota.
-  Google can change quotas and access settings.
-- The web app must permit anonymous access for visitors who are not signed in
-  to Google. If the Anyone option is unavailable or blocked by the account,
-  stop and tell the site maintainer; do not change account security settings
-  to work around it.
+1. Open the existing **Verse After Hours Contact** Apps Script project.
+2. Replace all contents of `Code.gs` with this folder's updated `Code.gs`.
+3. In the Apps Script editor, click **Add a file → HTML**. Name the file **Upload** (Apps Script creates `Upload.html`) and paste the contents of this folder's `Upload.html`.
+4. Save both files.
+5. Open **Deploy → Manage deployments**.
+6. Edit the existing Web app deployment using the pencil icon.
+7. Under Version, choose **New version**, then click **Deploy**.
+8. Keep **Execute as: Me** and **Who has access: Anyone** unchanged.
 
-The website will remain disabled until the deployment URL is deliberately
-configured in shared/contact/contact.js.
+Editing the existing deployment preserves the current `/exec` URL already configured on the website. No Script Property changes are needed.
+
+## Attachment limits
+
+- Up to 5 files per message.
+- Maximum 5 MB per file and 10 MB combined.
+- Accepted formats: PDF, TXT, CSV, DOC, DOCX, XLS, XLSX, PPT, PPTX, PNG, JPG/JPEG, GIF and WEBP.
+- Other formats are rejected, even if the browser's file picker allows them.
+- Files are attached directly to the email. They are not written to Drive or otherwise persisted by this script.
+
+## Privacy and safeguards
+
+- The script uses `MailApp`, which can send email but cannot read the Gmail inbox.
+- Visitor messages and file contents are not logged or archived by this code.
+- Uploaded file bytes exist only during the Apps Script execution needed to validate and send the email.
+- A temporary 20-second global cache entry limits bursts; it contains no visitor details and expires automatically.
+- A hidden honeypot and minimum form-completion time reject basic automated submissions. These are modest protections, not a guarantee against all spam.
+- Google Apps Script email quotas and service limits apply and may change.
+- The endpoint must remain anonymously accessible so visitors do not need a Google account to send a message.
+
+The attachment flow uses Google's documented HTML Service behavior, which converts file input fields to Blob objects when a form element is passed to `google.script.run`. MailApp accepts BlobSource attachments for email delivery.
