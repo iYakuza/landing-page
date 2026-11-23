@@ -88,7 +88,8 @@ test('contact form stays safely disabled until a valid Google Apps Script URL is
 
 test('public contact code contains no mail-client handoff, direct network request, or recipient address', () => {
   assert.doesNotMatch(clientSource, /mailto:|XMLHttpRequest|fetch\s*\(/i);
-  assert.doesNotMatch(clientSource, /stefancu\.emanuel@gmail\.com/i);
+  assert.equal(clientSource.includes("@gmail.com"), false,
+    'the destination Gmail address must not be embedded in browser code');
   assert.match(clientSource, /responseFrame\.name = "vha-contact-response-frame"/);
   assert.ok(clientSource.includes("event.source !== responseFrame.contentWindow"));
   assert.ok(clientSource.includes("event.origin !=="));
