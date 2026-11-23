@@ -162,6 +162,14 @@ test('Google-hosted upload bridge exposes only the approved file type and size l
   assert.ok(serverSource.includes("MAX_TOTAL_ATTACHMENT_BYTES: 10 * 1024 * 1024"));
 });
 
+test('Google-hosted picker appends later file selections instead of replacing earlier files', () => {
+  assert.match(uploadSource, /let selectedFiles = \[\]/);
+  assert.match(uploadSource, /const additions = Array\.from\(picker\.files \|\| \[\]\)/);
+  assert.match(uploadSource, /const combined = selectedFiles\.slice\(\)/);
+  assert.match(uploadSource, /selectedFiles = combined/);
+  assert.match(uploadSource, /clearFileSlots\(result\.files\)/);
+});
+
 test('contact form is enabled only with a valid Google Apps Script deployment URL', () => {
   assert.ok(clientSource.includes('endpointUrl: "https://script.google.com/macros/s/'));
   assert.ok(clientSource.includes('/exec",'));
