@@ -190,7 +190,7 @@ test('Transmissions uses the shared DOMPurify sanitizer before parsing stored po
   assert.match(postsHtml, /shared\/vendor\/dompurify-3\.4\.18\.min\.js[\s\S]*posts\.js/);
 });
 
-test('homepage and CV use one shared native email contact component', () => {
+test('homepage and CV share one contact form without a mail-client handoff or unsafe browser submission', () => {
   const contactSource = fs.readFileSync(path.join(__dirname, '..', 'shared', 'contact', 'contact.js'), 'utf8');
   const homeHtml = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
   const contactHtml = fs.readFileSync(path.join(__dirname, '..', 'cv', 'index.html'), 'utf8');
@@ -198,17 +198,17 @@ test('homepage and CV use one shared native email contact component', () => {
   const navigationSource = fs.readFileSync(path.join(__dirname, '..', 'cv', 'navigation.js'), 'utf8');
   const signalsSource = fs.readFileSync(path.join(__dirname, '..', 'transmissions', 'posts.js'), 'utf8');
 
-  assert.equal((contactSource.match(/recipient:/g) || []).length, 1,
-    'the recipient must have one configuration entry');
-  assert.match(contactSource, /mailto:" \+ CONFIG\.recipient/,
-    'the shared form must use the configured recipient through the native mailto handler');
-  assert.doesNotMatch(contactSource, /fetch\s*\(|XMLHttpRequest/,
-    'the contact component must not call a remote form endpoint');
-  assert.match(contactSource, /OPEN EMAIL DRAFT/,
-    'the form must make the email-client handoff clear to visitors');
+  assert.doesNotMatch(contactSource, /mailto:|fetch\s*\(|XMLHttpRequest/,
+    'the static contact component must not open a mail client or post to an untrusted endpoint');
+  assert.equal(contactSource.includes("emanuel.stefancu@gmail.com"), false,
+    'the destination address must not be embedded in a browser-only sender');
+  assert.match(contactSource, /type="submit" disabled>SUBMISSION UNAVAILABLE/,
+    'the form must not pretend that an unconfigured static form can submit');
+  assert.match(contactSource, /No message will be sent or stored/,
+    'the visitor must receive an honest status until a secure submission endpoint exists');
 
-  assert.ok(homeHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-native-mailto-1'));
-  assert.ok(contactHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-native-mailto-1'));
+  assert.ok(homeHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-submit-inactive-1'));
+  assert.ok(contactHtml.includes('/landing-page/shared/contact/contact.js?v=20261123-submit-inactive-1'));
   assert.ok(homeHtml.includes('data-contact-context="website"'));
   assert.ok(contactHtml.includes('data-contact-context="career"'));
   assert.ok(homeSource.includes("new CustomEvent('vha-contact-open',{detail:{context:'subscription'}})"),

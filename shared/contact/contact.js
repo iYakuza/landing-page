@@ -1,15 +1,14 @@
-/* Verse After Hours — standalone, no-service contact composer.
-   GitHub Pages cannot send email server-side. This component opens the visitor's
-   own email application with a message addressed to the configured recipient. */
+/* Verse After Hours — standalone contact form shell.
+   GitHub Pages is static hosting. No form data is transmitted or stored until
+   a secure server-side submission endpoint is deliberately configured. */
 (() => {
   "use strict";
 
   if (window.__vhaContactComponentLoaded) return;
   window.__vhaContactComponentLoaded = true;
 
-  // The only place where the recipient and contact defaults are configured.
+  // Contact copy and defaults are centralized here. Delivery is intentionally inactive.
   const CONFIG = Object.freeze({
-    recipient: "emanuel.stefancu@gmail.com",
     defaultSubject: "Website contact — Verse After Hours",
     subjects: {
       website: "Website contact — Verse After Hours",
@@ -59,8 +58,6 @@
       ".cv-contact-submit button{min-height:42px;padding:12px 16px;border:1px solid #b6e833;background:#b6e833;color:#071007;font:800 9px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.1em;cursor:pointer}",
       ".cv-contact-submit button:hover,.cv-contact-submit button:focus-visible{border-color:#d8ff3e;background:#d8ff3e;outline:2px solid #d8ff3e;outline-offset:2px}",
       ".cv-contact-status{flex:1 1 220px;margin:0;color:#c1d5a0;font:10px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}",
-      ".cv-contact-fallback{grid-column:1/-1;display:inline-block;color:#d8ff3e;font:10px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;text-decoration:underline;text-underline-offset:3px}",
-      ".cv-contact-fallback[hidden]{display:none!important}",
       "@media(max-width:560px){.cv-contact-form{grid-template-columns:1fr;gap:11px}.cv-contact-field.full,.cv-contact-submit{grid-column:1}.cv-contact-panel{padding:22px 17px}.cv-contact-panel .gd-kicker{font-size:8px;gap:6px;margin-right:36px}.cv-contact-panel h2{font-size:clamp(26px,8vw,36px);margin-right:38px}.cv-contact-panel>p:not(.gd-kicker){font-size:11px}.cv-contact-panel textarea{min-height:110px}.cv-contact-close{right:13px;top:13px;width:32px;height:32px}}",
       "@media(prefers-reduced-motion:reduce){.cv-contact-dialog{backdrop-filter:none}}"
     ].join("\n");
@@ -75,15 +72,14 @@
           '<button class="cv-contact-close" type="button" aria-label="Close contact form">×</button>' +
           '<p class="gd-kicker">INCOMING TRANSMISSION // CONTACT</p>' +
           '<h2 id="cv-contact-title">SEND A <em>MESSAGE.</em></h2>' +
-          '<p id="cv-contact-description">Write your message below. Your email application will open with the message addressed to Emanuel.</p>' +
+          '<p id="cv-contact-description">Complete the form below. Online message submission is not connected yet.</p>' +
           '<form class="cv-contact-form" id="cv-contact-form">' +
             '<div class="cv-contact-field"><label for="cv-contact-name">YOUR NAME *</label><input id="cv-contact-name" name="name" autocomplete="name" maxlength="120" required></div>' +
             '<div class="cv-contact-field"><label for="cv-contact-email">YOUR EMAIL *</label><input id="cv-contact-email" name="email" type="email" autocomplete="email" maxlength="254" required></div>' +
             '<div class="cv-contact-field full"><label for="cv-contact-subject">SUBJECT</label><input id="cv-contact-subject" name="subject" maxlength="180" placeholder="What would you like to talk about?"></div>' +
             '<div class="cv-contact-field full"><label for="cv-contact-url">LINK (OPTIONAL)</label><input id="cv-contact-url" name="url" type="url" inputmode="url" maxlength="2048" placeholder="https://…"></div>' +
             '<div class="cv-contact-field full"><label for="cv-contact-message">MESSAGE *</label><textarea id="cv-contact-message" name="message" maxlength="5000" required placeholder="Write your message…"></textarea><p class="cv-contact-hint">Need to attach a file? Add it in your email application after the draft opens.</p></div>' +
-            '<div class="cv-contact-submit"><button type="submit">OPEN EMAIL DRAFT ↗</button><p class="cv-contact-status" id="cv-contact-status" role="status" aria-live="polite">No third-party form service is used. Your email application sends the message from your account.</p></div>' +
-            '<a class="cv-contact-fallback" id="cv-contact-fallback" href="#" hidden>OPEN EMAIL DRAFT AGAIN ↗</a>' +
+            '<div class="cv-contact-submit"><button type="submit" disabled>SUBMISSION UNAVAILABLE</button><p class="cv-contact-status" id="cv-contact-status" role="status" aria-live="polite">Online submission is not connected. No message will be sent or stored.</p></div>' +
           '</form>' +
         '</div>' +
       '</div>'
@@ -111,7 +107,6 @@
   const form = hostDocument.getElementById("cv-contact-form");
   const closeButton = dialog.querySelector(".cv-contact-close");
   const status = hostDocument.getElementById("cv-contact-status");
-  const fallback = hostDocument.getElementById("cv-contact-fallback");
   const nameField = hostDocument.getElementById("cv-contact-name");
   const emailField = hostDocument.getElementById("cv-contact-email");
   const subjectField = hostDocument.getElementById("cv-contact-subject");
@@ -134,12 +129,11 @@
     }
     title.innerHTML = context === "career" ? "LET'S TALK ABOUT <em>THE ROLE.</em>" : "SEND A <em>MESSAGE.</em>";
     description.textContent = context === "career"
-      ? "Share a few details about the opportunity. Your email application will open with the message addressed to Emanuel."
+      ? "Share a few details about the opportunity. Online submission is not connected yet."
       : context === "subscription"
-        ? "Confirm your subscription request in your email application. The message will be addressed to Emanuel."
-        : "Have a thought, a question, or something you would like to share? Write it below and continue in your email application.";
-    status.textContent = "Your email application will open with a draft addressed to " + CONFIG.recipient + ". Review it there and press Send.";
-    fallback.hidden = true;
+        ? "Complete the subscription request below. Online submission is not connected yet."
+        : "Have a thought, a question, or something you would like to share? Complete the form below.";
+    status.textContent = "Online submission is not connected. No message will be sent or stored.";
     dialog.hidden = false;
     dialog.classList.add("is-open");
     previousOverflow = hostDocument.body.style.overflow;
@@ -185,36 +179,7 @@
 
   form.addEventListener("submit", event => {
     event.preventDefault();
-    if (!form.reportValidity()) return;
-
-    const name = nameField.value.trim();
-    const sender = emailField.value.trim();
-    const subject = subjectField.value.trim() || CONFIG.defaultSubject;
-    const reference = urlField.value.trim();
-    const message = messageField.value.trim();
-    const body = [
-      "Name: " + name,
-      "Email: " + sender,
-      reference ? "Link: " + reference : "",
-      "",
-      "Message:",
-      message,
-      "",
-      "Sent via Verse After Hours: https://iyakuza.github.io/landing-page/"
-    ].join("\n");
-    const mailto = "mailto:" + CONFIG.recipient +
-      "?subject=" + encodeURIComponent(subject) +
-      "&body=" + encodeURIComponent(body);
-
-    status.textContent = "Your email application should open with this draft addressed to " + CONFIG.recipient + ". Review it there and press Send. This website does not send or store your message.";
-    fallback.href = mailto;
-    fallback.hidden = false;
-
-    try {
-      hostWindow.location.href = mailto;
-    } catch (error) {
-      status.textContent = "Your browser could not open the email application. Use the link below to try again.";
-    }
+    status.textContent = "Not sent. Online submission is not connected yet; no information has been transmitted or stored.";
   });
 
   // Event delegation lets every Contact button open the same shared dialog.
