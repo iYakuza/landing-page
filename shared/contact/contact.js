@@ -164,8 +164,10 @@
 
   function handleEndpointMessage(event) {
     if (event.source !== responseFrame.contentWindow) return;
-    if (event.origin !== "https://script.google.com" &&
-        event.origin !== "https://script.googleusercontent.com") return;
+    // Apps Script redirects HtmlService responses to a generated
+    // <region>-script.googleusercontent.com host. Accept only HTTPS origins
+    // belonging to the known Apps Script response hosts.
+    if (!/^https:\/\/(?:script\.google\.com|script\.googleusercontent\.com|[a-z0-9-]+-script\.googleusercontent\.com)$/.test(event.origin)) return;
     const data = event.data;
     if (!data || data.type !== "vha-contact-result" || data.requestId !== pendingRequestId) return;
 
