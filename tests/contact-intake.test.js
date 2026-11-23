@@ -90,6 +90,9 @@ test('public contact code contains no mail-client handoff, direct network reques
   assert.doesNotMatch(clientSource, /mailto:|XMLHttpRequest|fetch\s*\(/i);
   assert.doesNotMatch(clientSource, /stefancu\.emanuel@gmail\.com/i);
   assert.match(clientSource, /responseFrame\.name = "vha-contact-response-frame"/);
+  assert.match(clientSource, /event\.source !== responseFrame\.contentWindow/);
+  assert.match(clientSource, /event\.origin !== "https:\/\/script\.google\.com"/);
+  assert.match(clientSource, /event\.origin !== "https:\/\/script\.googleusercontent\.com"/);
   assert.match(serverSource, /window\.top\.postMessage/);
   assert.match(clientSource, /script\.googleusercontent\.com/);
 });
