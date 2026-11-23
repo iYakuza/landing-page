@@ -15,7 +15,7 @@ const cvSource = fs.readFileSync(path.join(root, 'cv/index.html'), 'utf8');
 function createServerHarness(options = {}) {
   const sent = [];
   const cacheValues = new Map();
-  const recipient = options.recipient || 'stefancu.emanuel@gmail.com';
+  const recipient = options.recipient || 'owner@example.com';
   const quota = options.quota === undefined ? 100 : options.quota;
 
   const context = vm.createContext({
@@ -107,7 +107,7 @@ test('Apps Script sends one private email to the Script Property recipient and s
   const result = harness.context.doPost({ parameter: validSubmission() });
 
   assert.equal(harness.sent.length, 1);
-  assert.equal(harness.sent[0].to, 'stefancu.emanuel@gmail.com');
+  assert.equal(harness.sent[0].to, 'owner@example.com');
   assert.equal(harness.sent[0].advanced.replyTo, 'alex@example.com');
   assert.match(harness.sent[0].subject, /CV \/ career enquiry/);
   assert.match(harness.sent[0].body, /Alex Example/);
