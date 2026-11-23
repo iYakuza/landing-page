@@ -3,7 +3,7 @@
   if (window.__vhaCrystalLoaderStarted) return;
   window.__vhaCrystalLoaderStarted = true;
   const base = "/landing-page/shared/crystal/";
-  const sharedVersion = "20261114-crystal-first-paint-1";
+  const sharedVersion = "20261123-crystal-canonical-routes-1";
   const moodVersion = "20261119-mood-accessibility-regression-1";
   const load = (src, version = sharedVersion) => new Promise((resolve, reject) => {
     const script = document.createElement("script");
