@@ -42,7 +42,7 @@ jobs:
           # send email drafts or transmit visitor data to an arbitrary endpoint.
           grep -Fq 'type="submit" disabled>SUBMISSION UNAVAILABLE' shared/contact/contact.js
           grep -Fq 'No message will be sent or stored' shared/contact/contact.js
-          if grep -Eiq 'mailto:|emanuel\\.stefancu@gmail\\.com|fetch[[:space:]]*[(]|XMLHttpRequest' shared/contact/contact.js; then
+          if grep -Eiq 'mailto:|fetch[[:space:]]*[(]|XMLHttpRequest' shared/contact/contact.js || grep -Fq 'emanuel.stefancu@gmail.com' shared/contact/contact.js; then
             echo "The static contact component must not send visitor data or open a mail client."
             exit 1
           fi
