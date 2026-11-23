@@ -10,7 +10,7 @@
   const CONFIG = Object.freeze({
     endpointUrl: "https://script.google.com/macros/s/AKfycbxvWmMr0yZR2EBJ3kj7xknUeB70UsMxCzKJOuECQCeKa52d1rmjVs95O14blfX5NkQ1/exec",
     siteOrigin: "https://iyakuza.github.io",
-    responseTimeoutMs: 20000,
+    responseTimeoutMs: 90000,
     defaultSubject: "Website contact — Verse After Hours",
     subjects: {
       website: "Website contact — Verse After Hours",
@@ -63,6 +63,7 @@
       ".cv-contact-submit button{min-height:42px;padding:12px 16px;border:1px solid #b6e833;background:#b6e833;color:#071007;font:800 9px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.1em;cursor:pointer}",
       ".cv-contact-submit button:hover,.cv-contact-submit button:focus-visible{border-color:#d8ff3e;background:#d8ff3e;outline:2px solid #d8ff3e;outline-offset:2px}",
       ".cv-contact-submit button:disabled{border-color:#58644a;background:#58644a;color:#d1d9c8;cursor:not-allowed;opacity:.8}",
+      ".cv-contact-upload-frame{display:block;width:100%;height:112px;border:1px solid rgba(182,232,51,.28);background:rgba(1,8,5,.72)}",
       ".cv-contact-status{flex:1 1 220px;margin:0;color:#c1d5a0;font:10px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}",
       "@media(max-width:560px){.cv-contact-form{grid-template-columns:1fr;gap:11px}.cv-contact-field.full,.cv-contact-submit{grid-column:1}.cv-contact-panel{padding:22px 17px}.cv-contact-panel .gd-kicker{font-size:8px;gap:6px;margin-right:36px}.cv-contact-panel h2{font-size:clamp(26px,8vw,36px);margin-right:38px}.cv-contact-panel>p:not(.gd-kicker){font-size:11px}.cv-contact-panel textarea{min-height:110px}.cv-contact-close{right:13px;top:13px;width:32px;height:32px}}",
       "@media(prefers-reduced-motion:reduce){.cv-contact-dialog{backdrop-filter:none}}"
@@ -79,7 +80,7 @@
           '<p class="gd-kicker">INCOMING TRANSMISSION // CONTACT</p>' +
           '<h2 id="cv-contact-title">SEND A <em>MESSAGE.</em></h2>' +
           '<p id="cv-contact-description">Send a message directly to Emanuel. It will be delivered by email and will not be published on this website.</p>' +
-          '<form class="cv-contact-form" id="cv-contact-form" method="post" accept-charset="UTF-8">' +
+          '<form class="cv-contact-form" id="cv-contact-form" accept-charset="UTF-8">' +
             '<input type="hidden" name="contactContext" value="website">' +
             '<input type="hidden" name="requestId" value="">' +
             '<input type="hidden" name="startedAt" value="">' +
@@ -88,7 +89,8 @@
             '<div class="cv-contact-field"><label for="cv-contact-email">YOUR EMAIL *</label><input id="cv-contact-email" name="email" type="email" autocomplete="email" maxlength="254" required></div>' +
             '<div class="cv-contact-field full"><label for="cv-contact-subject">SUBJECT</label><input id="cv-contact-subject" name="subject" maxlength="180" placeholder="What would you like to talk about?"></div>' +
             '<div class="cv-contact-field full"><label for="cv-contact-url">LINK (OPTIONAL)</label><input id="cv-contact-url" name="url" type="url" inputmode="url" maxlength="2048" placeholder="https://…"></div>' +
-            '<div class="cv-contact-field full"><label for="cv-contact-message">MESSAGE *</label><textarea id="cv-contact-message" name="message" maxlength="5000" required placeholder="Write your message…"></textarea><p class="cv-contact-hint">File attachments are not supported. Include a link to relevant material instead.</p></div>' +
+            '<div class="cv-contact-field full"><label for="cv-contact-upload-frame">ATTACHMENTS (OPTIONAL)</label><div class="cv-contact-upload-host"></div><p class="cv-contact-hint">Up to five files · 5 MB each · 10 MB total. PDF, Office documents, text, CSV and common images. Files are emailed directly and are not stored online.</p></div>' +
+            '<div class="cv-contact-field full"><label for="cv-contact-message">MESSAGE *</label><textarea id="cv-contact-message" name="message" maxlength="5000" required placeholder="Write your message…"></textarea></div>' +
             '<div class="cv-contact-submit"><button type="submit" disabled>GOOGLE SETUP REQUIRED</button><p class="cv-contact-status" id="cv-contact-status" role="status" aria-live="polite">Online submission is not enabled yet. No information is sent or stored.</p></div>' +
           '</form>' +
         '</div>' +
@@ -125,27 +127,47 @@
   const requestIdField = form.querySelector('[name="requestId"]');
   const startedAtField = form.querySelector('[name="startedAt"]');
   const contextField = form.querySelector('[name="contactContext"]');
-  const responseFrame = hostDocument.createElement("iframe");
-  responseFrame.name = "vha-contact-response-frame";
-  responseFrame.title = "Contact form response";
-  responseFrame.setAttribute("aria-hidden", "true");
-  responseFrame.tabIndex = -1;
-  responseFrame.referrerPolicy = "no-referrer";
-  responseFrame.style.display = "none";
-  hostDocument.body.appendChild(responseFrame);
+  const uploadFrame = hostDocument.createElement("iframe");
+  uploadFrame.id = "cv-contact-upload-frame";
+  uploadFrame.name = "vha-contact-upload-frame";
+  uploadFrame.title = "Choose optional contact attachments";
+  uploadFrame.className = "cv-contact-upload-frame";
+  uploadFrame.referrerPolicy = "no-referrer";
+  uploadFrame.src = endpointReady ? CONFIG.endpointUrl + "?mode=upload" : "about:blank";
+  form.querySelector(".cv-contact-upload-host").appendChild(uploadFrame);
 
   let previousFocus = null;
   let previousOverflow = "";
   let activeContext = "website";
   let pendingRequestId = "";
   let pendingTimer = null;
+  let uploadFrameOrigin = "";
+  let uploadFrameReady = false;
 
-  submitButton.disabled = !endpointReady;
-  submitButton.textContent = endpointReady ? "SEND MESSAGE" : "GOOGLE SETUP REQUIRED";
-  if (endpointReady) {
-    form.action = CONFIG.endpointUrl;
-    form.target = responseFrame.name;
+  function isTrustedAppsScriptOrigin(origin) {
+    return /^https:\/\/(?:script\.google\.com|script\.googleusercontent\.com|[a-z0-9-]+-script\.googleusercontent\.com)$/.test(origin);
   }
+
+  function updateSubmitButton() {
+    submitButton.disabled = !endpointReady || !uploadFrameReady || Boolean(pendingRequestId);
+    submitButton.textContent = !endpointReady
+      ? "GOOGLE SETUP REQUIRED"
+      : !uploadFrameReady
+        ? "CONNECTING TO GOOGLE…"
+        : "SEND MESSAGE";
+  }
+
+  function postUploadMessage(data) {
+    if (!uploadFrameReady || !uploadFrameOrigin) return false;
+    uploadFrame.contentWindow.postMessage(data, uploadFrameOrigin);
+    return true;
+  }
+
+  function resetUploadFrame() {
+    postUploadMessage({ type: "vha-contact-reset" });
+  }
+
+  updateSubmitButton();
 
   function createRequestId() {
     if (hostWindow.crypto && typeof hostWindow.crypto.randomUUID === "function") {
@@ -163,26 +185,32 @@
   }
 
   function handleEndpointMessage(event) {
-    if (event.source !== responseFrame.contentWindow) return;
-    // Apps Script redirects HtmlService responses to a generated
-    // <region>-script.googleusercontent.com host. Accept only HTTPS origins
-    // belonging to the known Apps Script response hosts.
-    if (!/^https:\/\/(?:script\.google\.com|script\.googleusercontent\.com|[a-z0-9-]+-script\.googleusercontent\.com)$/.test(event.origin)) return;
+    if (event.source !== uploadFrame.contentWindow || !isTrustedAppsScriptOrigin(event.origin)) return;
     const data = event.data;
-    if (!data || data.type !== "vha-contact-result" || data.requestId !== pendingRequestId) return;
+    if (!data || typeof data !== "object") return;
 
+    if (data.type === "vha-contact-upload-ready") {
+      uploadFrameOrigin = event.origin;
+      uploadFrameReady = true;
+      updateSubmitButton();
+      resetUploadFrame();
+      return;
+    }
+
+    if (data.type !== "vha-contact-result" || data.requestId !== pendingRequestId) return;
     if (pendingTimer !== null) {
       hostWindow.clearTimeout(pendingTimer);
       pendingTimer = null;
     }
     pendingRequestId = "";
-    submitButton.disabled = false;
+    updateSubmitButton();
 
     if (data.success === true) {
       form.reset();
+      resetUploadFrame();
       status.textContent = "Your message has been sent. Thank you.";
     } else {
-      status.textContent = "We couldn't send your message. Please check the details and try again.";
+      status.textContent = "We couldn't send your message. Check the fields and attachments, then try again.";
     }
   }
 
@@ -192,6 +220,7 @@
     previousFocus = hostDocument.activeElement;
     activeContext = Object.prototype.hasOwnProperty.call(CONFIG.subjects, context) ? context : "website";
     form.reset();
+    resetUploadFrame();
     subjectField.value = CONFIG.subjects[activeContext] || CONFIG.defaultSubject;
     contextField.value = activeContext;
     startedAtField.value = String(Date.now());
@@ -204,8 +233,7 @@
     status.textContent = endpointReady
       ? "Your message will be emailed directly and will not be published on this website."
       : "Online submission is not enabled yet. No information is sent or stored.";
-    submitButton.disabled = !endpointReady;
-    submitButton.textContent = endpointReady ? "SEND MESSAGE" : "GOOGLE SETUP REQUIRED";
+    updateSubmitButton();
     dialog.hidden = false;
     dialog.classList.add("is-open");
     previousOverflow = hostDocument.body.style.overflow;
@@ -231,7 +259,7 @@
       return;
     }
     if (event.key !== "Tab") return;
-    const focusable = [...dialog.querySelectorAll('button:not([disabled]),input:not([disabled]),textarea:not([disabled]),a[href]:not([hidden])')]
+    const focusable = [...dialog.querySelectorAll('button:not([disabled]),input:not([disabled]),textarea:not([disabled]),iframe:not([hidden]),a[href]:not([hidden])')]
       .filter(element => element.offsetParent !== null);
     if (!focusable.length) return;
     const first = focusable[0];
@@ -255,6 +283,10 @@
       status.textContent = "Google Apps Script is not configured yet. Your message has not been sent.";
       return;
     }
+    if (!uploadFrameReady || !uploadFrameOrigin) {
+      status.textContent = "Google's secure attachment service is still loading. Please try again in a moment.";
+      return;
+    }
     if (pendingRequestId) return;
 
     const requestAge = Date.now() - Number(startedAtField.value);
@@ -266,23 +298,34 @@
     pendingRequestId = createRequestId();
     requestIdField.value = pendingRequestId;
     contextField.value = activeContext;
-    submitButton.disabled = true;
+    updateSubmitButton();
     status.textContent = "Sending your message securely through Google…";
+
+    const fields = {};
+    ["requestId", "startedAt", "contactContext", "website", "name", "email", "subject", "url", "message"]
+      .forEach(name => {
+        const field = form.elements.namedItem(name);
+        fields[name] = field ? field.value : "";
+      });
 
     pendingTimer = hostWindow.setTimeout(() => {
       pendingTimer = null;
       pendingRequestId = "";
-      submitButton.disabled = false;
-      status.textContent = "We couldn't confirm whether Google completed the submission. Please wait briefly before trying again.";
+      updateSubmitButton();
+      status.textContent = "We couldn't confirm whether Google completed the submission. Please check your inbox before trying again.";
     }, CONFIG.responseTimeoutMs);
 
     try {
-      form.submit();
+      uploadFrame.contentWindow.postMessage({
+        type: "vha-contact-submit",
+        requestId: pendingRequestId,
+        fields
+      }, uploadFrameOrigin);
     } catch (_) {
       hostWindow.clearTimeout(pendingTimer);
       pendingTimer = null;
       pendingRequestId = "";
-      submitButton.disabled = false;
+      updateSubmitButton();
       status.textContent = "The message could not be submitted. Please try again.";
     }
   });
