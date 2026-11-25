@@ -3,7 +3,7 @@
   if (window.__vhaUnifiedNewTransmissionLoaded) return;
   window.__vhaUnifiedNewTransmissionLoaded = true;
 
-  const EDITOR_VERSION = '20261120-github-cms-4';
+  const EDITOR_VERSION = '20261125-ha-standard-2';
   let isCreator = false;
   let refreshing = false;
   let authBound = false;
@@ -136,6 +136,25 @@
       if (trigger) trigger.title = String(error?.message || 'The chamber could not be opened. Please try again.');
     }
   }
+
+  function openAddressedTransmission(){
+    if(document.body.dataset.archive==='community')return;
+    const params=new URLSearchParams(window.location.search);
+    const recordId=params.get('record');
+    const legacySlug=params.get('post');
+    const index=Array.isArray(window.__vhaTransmissionIndex)?window.__vhaTransmissionIndex:[];
+    const record=recordId?index.find(item=>String(item.id)===recordId):index.find(item=>item.slug===legacySlug);
+    if(!record||window.__vhaAddressedTransmissionOpened===String(record.id))return;
+    window.__vhaAddressedTransmissionOpened=String(record.id);
+    if(!recordId){
+      const url=new URL(window.location.href);
+      url.searchParams.delete('post');url.searchParams.set('record',String(record.id));
+      history.replaceState(history.state,'',url.pathname+url.search+url.hash);
+    }
+    openExistingTransmission({detail:{slug:record.slug,trigger:null}});
+  }
+  window.addEventListener('VHA_TRANSMISSIONS_READY',openAddressedTransmission);
+  openAddressedTransmission();
 
   button.addEventListener('click', () => openNewTransmission());
   window.addEventListener('VHA_REQUEST_OPEN_TRANSMISSION', openExistingTransmission);

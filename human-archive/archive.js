@@ -643,6 +643,11 @@ async function toggleArchiveFavorite(recordId,button){
 }
 
 function chamberShareUrl(record){
+ if(record?.source_type==='transmission'){
+  const url=new URL(archiveSiteBasePath+'/transmissions/',window.location.origin);
+  url.searchParams.set('record',String(record.id));
+  return url.href;
+ }
  return new URL(encodeURIComponent(record.slug),archiveHomeUrl).href;
 }
 function makeChamberNode(tag,className,text){
@@ -1900,6 +1905,11 @@ function ensureRecordChamber(){
   if(chamberCloseRequestedByUser&&window.parent!==window)window.parent.postMessage({type:'VHA_TRANSMISSION_EDITOR_CLOSED'},window.location.origin);
   chamberCloseRequestedByUser=false;
   if(hasArchiveIndex)history.replaceState(history.state,'',archiveHomeUrl.pathname+archiveHomeUrl.hash);
+  else{
+   const url=new URL(window.location.href);
+   url.searchParams.delete('record');url.searchParams.delete('post');
+   history.replaceState(history.state,'',url.pathname+url.search+url.hash);
+  }
   if(recordChamberReturnFocus?.isConnected)recordChamberReturnFocus.focus();
   recordChamberReturnFocus=null;
  });
@@ -1914,7 +1924,12 @@ function openArchiveRecordChamber(record,trigger,openInEditor=false){
  chamberSaveConflict=false;
  const dialog=ensureRecordChamber();if(dialog.open)dialog.close();
  dialog.replaceChildren(buildRecordChamber(record));chamberRecordId=String(record.id);recordChamberReturnFocus=trigger||null;
- if(hasArchiveIndex&&!record.isNew){const url=new URL(archiveHomeUrl.href);url.searchParams.set('record',String(record.id));history.replaceState(history.state,'',url.pathname+url.search+url.hash);}document.body.classList.add('ha-chamber-open');
+ if(!record.isNew){
+  const url=hasArchiveIndex?new URL(archiveHomeUrl.href):new URL(window.location.href);
+  url.searchParams.set('record',String(record.id));url.searchParams.delete('post');
+  history.replaceState(history.state,'',url.pathname+url.search+url.hash);
+ }
+ document.body.classList.add('ha-chamber-open');
  try{
   dialog.showModal();
   if(openInEditor){

@@ -130,7 +130,7 @@
     const items=Array.isArray(post.media_items)?post.media_items:(post.media_url?[{url:post.media_url,type:post.media_type||'audio'}]:[]);
     return items.map(item=>validMediaUrl(item?.src||item?.url||item?.path||'')).filter(Boolean);
   }
-  function renderPostRecordCard(post){
+  function renderCommunityRecordCard(post){
     const category=displayCategory(post.category);
     const movementSlugs={'THE AWAKENING':'the-awakening','THE DESCENT':'the-descent','THE RECONNECTION':'the-reconnection','THE TRANSFORMATION':'the-transformation','THE RETURN':'the-return'};
     const href='/landing-page/transmissions/'+(movementSlugs[category]||'')+'/';
@@ -154,6 +154,36 @@
     const content='<div class="ha-entry-content post-collapsible post-record-content'+(isSuno?' suno-three-column':'')+'" id="post-content-'+safe(post.slug)+'" hidden><div class="post-record-content-meta">'+categoryLink+sections+'</div>'+excerpt+expanded+empty+'</div>';
     return '<article class="ha-record-card post-record-card" id="post-'+safe(post.slug)+'" data-record="'+safe(code)+'">'+entry+actions+content+'</article>';
   }
+  function renderTransmissionRecordCard(post){
+    const category=displayCategory(post.category);
+    const movementSlugs={'THE AWAKENING':'the-awakening','THE DESCENT':'the-descent','THE RECONNECTION':'the-reconnection','THE TRANSFORMATION':'the-transformation','THE RETURN':'the-return'};
+    const href='/landing-page/transmissions/'+(movementSlugs[category]||'')+'/';
+    const categoryLink=movementSlugs[category]?'<a class="post-category" href="'+href+'" aria-label="Browse '+safe(category)+'">'+safe(category)+'</a>':'<span class="post-category">'+safe(category)+'</span>';
+    const date=postDate(post),year=postYear(post),archiveId=Number(post.archive_record_id),hasId=Number.isSafeInteger(archiveId)&&archiveId>0;
+    const recordId=hasId?String(archiveId):String(post.id||'UNKNOWN');
+    const code=hasId?'HA-'+year+'-'+String(archiveId).padStart(4,'0'):'HA-'+year+'-'+String(post.slug||'record').trim();
+    const favoriteId=hasId?String(archiveId):'',isFavorite=favoriteId&&favoriteRecordIds.has(favoriteId);
+    const mark=hasId?'<span class="ha-favorite-mark" data-ha-favorite-mark="'+favoriteId+'"'+(isFavorite?'':' hidden')+' aria-hidden="true"><svg viewBox="0 0 40 40" focusable="false"><path d="M20 1 24.8 14.2 39 15.2 28 24.1 31.5 38 20 30.4 8.5 38 12 24.1 1 15.2 15.2 14.2Z"></path></svg></span>':'';
+    const kind='TRANSMISSION'+(post.status==='draft'?' // DRAFT':'');
+    const entry='<button type="button" class="ha-entry" data-post-toggle="'+safe(post.slug)+'" aria-expanded="false" aria-controls="post-content-'+safe(post.slug)+'" aria-label="Read local archive record: '+safe(post.title)+', '+safe(date)+'"><span class="ha-entry-top"><small class="ha-entry-code">'+safe(code)+'</small><small class="ha-entry-id">ID // '+safe(recordId)+'</small></span><strong>'+safe(post.title)+'</strong><span class="ha-entry-bottom"><small>'+safe(date)+' // '+safe(kind)+'</small><span data-post-read-label>ACCESS NICHE ↓</span></span>'+mark+'</button>';
+    const chamber='<button type="button" class="ha-entry-chamber" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button>';
+    const redesign='<button type="button" class="ha-entry-edit" data-vha-edit-transmission="'+safe(post.slug)+'" aria-label="Redesign '+safe(post.title)+'"'+(canRedesignPosts?'':' hidden')+'>REDESIGN CHAMBER ↗</button>';
+    const chamberActions='<div class="ha-entry-actions">'+chamber+redesign+'</div>';
+    const favorite=hasId?'<button type="button" class="ha-favorite-toggle" data-ha-favorite-id="'+favoriteId+'" aria-pressed="'+String(Boolean(isFavorite))+'" aria-label="'+(isFavorite?'Remove author favourite':'Mark as favourite')+'" title="'+(favoriteSaveError?'SAVE FAILED — ACTIVATE TO RETRY':(isFavorite?'REMOVE AUTHOR FAVOURITE':'MARK AS FAVOURITE'))+'"'+(canRedesignPosts?'':' hidden')+'>'+(isFavorite?'★':'☆')+'</button>':'';
+    const quickActions='<div class="ha-entry-quick-actions" hidden>'+chamberActions+favorite+shareActions(post)+'</div>';
+    const excerpt=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
+    const bodyHtml=post.content_html?cleanHtml(post.content_html,attachedMediaUrls(post)):'';
+    const isSuno=/class=["']suno-post-layout["']/.test(post.content_html||'');
+    const sectionsButton=(isSuno||/<details\\b/i.test(post.content_html||''))?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
+    const media=renderPostMedia(post);
+    const expanded=isSuno?renderSunoGrid(post,media,'',excerpt,bodyHtml):(excerpt+media+(bodyHtml?'<div class="post-body">'+bodyHtml+'</div>':''));
+    const empty=!post.content_html&&!media?'<p class="ha-empty-record">No local text was captured for this entry.</p>':'';
+    const content='<div class="ha-entry-content" id="post-content-'+safe(post.slug)+'" hidden><div class="ha-entry-body">'+categoryLink+sectionsButton+expanded+empty+'</div></div>';
+    return '<article class="ha-record-card" id="post-'+safe(post.slug)+'" data-ha-record-id="'+(hasId?safe(archiveId):safe(recordId))+'" data-record="'+safe(code)+'">'+entry+quickActions+content+'</article>';
+  }
+  function renderPostRecordCard(post){
+    return post.community?renderCommunityRecordCard(post):renderTransmissionRecordCard(post);
+  }
   function renderPostPermalink(post){
     const back='<p class="post-back"><a href="./">← BACK TO THE ARCHIVE</a></p>';
     const media=renderPostMedia(post);
@@ -173,7 +203,8 @@
   }
   function shareActions(post){
     const postUrl=new URL(window.location.pathname,window.location.origin);
-    postUrl.searchParams.set('post',post.slug);
+    if(!post.community&&Number.isSafeInteger(Number(post.archive_record_id))&&Number(post.archive_record_id)>0)postUrl.searchParams.set('record',String(post.archive_record_id));
+    else postUrl.searchParams.set('post',post.slug);
     const url=postUrl.href, encodedUrl=encodeURIComponent(url), encodedTitle=encodeURIComponent(post.title||'Verse After Hours');
     return '<div class="post-share" aria-label="Share this post">'+
       '<button type="button" class="post-share-action" data-share-url="'+safe(url)+'" data-share-title="'+safe(post.title||'Verse After Hours')+'">↗ SHARE</button>'+
@@ -243,13 +274,16 @@
     document.body.classList.add('image-viewer-open');
     viewer.querySelector('[data-viewer-close]')?.focus();
   }
-  function renderSunoGrid(post,media,titleHtml,excerptHtml){
-    const doc=new DOMParser().parseFromString(cleanHtml(post.content_html||'',attachedMediaUrls(post)),'text/html');
+  function renderSunoGrid(post,media,titleHtml,excerptHtml,bodyHtml=''){
+    const doc=new DOMParser().parseFromString(String(bodyHtml||''),'text/html');
     const textColumn=doc.querySelector('.suno-text-column');
     const lyrics=doc.querySelector('.suno-lyrics');
     const style=doc.querySelector('.suno-notes');
     const learned=doc.querySelector('.suno-learned');
     const chatgptLearned=doc.querySelector('.suno-chatgpt-learned');
+    if(!textColumn&&!lyrics&&!style&&!learned&&!chatgptLearned){
+      return titleHtml+media+excerptHtml+(bodyHtml?'<div class="post-body">'+bodyHtml+'</div>':'');
+    }
     const takeSection=(element,fallback)=>{
       if(!element)return {label:fallback,content:''};
       const label=element.querySelector(':scope > .suno-label');
@@ -257,9 +291,8 @@
       label?.remove();
       return {label:title,content:element.innerHTML};
     };
-    // Keep reflection sections independent even when the imported source nests them inside .suno-notes.
-    learned?.remove();
-    chatgptLearned?.remove();
+    // Imported Suno notes are presented in a single reading column. This preserves
+    // the complete text while avoiding three narrow columns on smaller viewports.
     const textSection=takeSection(textColumn,'01 // THE TEXT');
     const lyricsTitle=lyrics?.querySelector(':scope > summary')?.textContent?.trim()||'02 // SUNO STYLE LYRICS';
     const lyricsLabel=lyricsTitle.replace(/\\s+CLICK TO EXPAND$/i,'');
@@ -270,22 +303,26 @@
     const styleSection=takeSection(style,'03 // SUNO STYLE PROMPT');
     const learnedSection=takeSection(learned,'WHAT I LEARNED');
     const chatgptSection=takeSection(chatgptLearned,'WHAT CHATGPT LEARNED');
-    const textHtml=textColumn?textSection.content:'<p class="suno-empty-column">No accompanying text added yet.</p>';
-    const lyricsContent=lyrics?lyrics.innerHTML:'<p>No lyrics added yet.</p>';
-    const styleContent=style?styleSection.content:'<p>No Suno style prompt added yet.</p>';
-    const collapsible=(label,content,classes='')=>'<details class="suno-collapsible '+safe(classes)+'"><summary class="suno-label">'+safe(String(label||'SECTION'))+'</summary><div class="suno-section-content">'+window.DOMPurify.sanitize(String(content||''),{ALLOWED_TAGS:['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','IMG','VIDEO','AUDIO','DIV','SECTION','ASIDE','DETAILS','SUMMARY'],ALLOWED_ATTR:['href','src','alt','class']})+'</div></details>';
-    const reflection=(section)=>section.content?'<section class="suno-reflection">'+collapsible(section.label,section.content,'suno-reflection-disclosure')+'</section>':'';
-    const first='<section class="suno-column suno-column-text">'+titleHtml+media+excerptHtml+collapsible(textSection.label,textHtml,'suno-text-disclosure')+'</section>';
-    const lyricsHtml='<section class="suno-column suno-column-lyrics">'+collapsible(lyricsLabel,lyricsContent,'suno-lyrics-disclosure')+'</section>';
-    const styleHtml='<section class="suno-column suno-column-style">'+collapsible(styleSection.label,styleContent,'suno-style-disclosure')+reflection(learnedSection)+reflection(chatgptSection)+'</section>';
-    
+    const cleanSection=html=>cleanHtml(String(html||''),attachedMediaUrls(post));
+    const disclosure=(label,content,extraClass='',open=false)=>{
+      if(!String(content||'').trim())return '';
+      return '<details class="suno-reading-section '+safe(extraClass)+'" data-ha-disclosure'+(open?' open':'')+'><summary class="suno-reading-summary">'+safe(label)+'</summary><div class="suno-reading-section-content">'+cleanSection(content)+'</div></details>';
+    };
+    const reflection=(section)=>section.content?disclosure(section.label,section.content,'suno-reading-reflection'):'';
+    const mainContent=textColumn?textSection.content:(bodyHtml||'');
+    return '<div class="suno-reading-stack">'+titleHtml+media+excerptHtml+
+      (mainContent?disclosure(textSection.label,mainContent,'suno-reading-text',true):'')+
+      (lyrics?disclosure(lyricsLabel,lyrics.innerHTML,'suno-reading-lyrics'):'')+
+      (style?disclosure(styleSection.label,styleSection.content,'suno-reading-style'):'')+
+      reflection(learnedSection)+reflection(chatgptSection)+
+      '</div>';
   }
   function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,titleRow,permalinkBack,shapeClass){
     return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+titleRow+renderSunoGrid(post,media,titleHtml,excerptHtml)+shareActions(post)+permalinkBack+'</article>';
   }
   const baseDocumentTitle=document.title;
   function render(){
-    const permalink=Boolean(requestedSlug);
+    const permalink=Boolean(isCommunityArchive&&requestedSlug);
     if(controls)controls.hidden=permalink;
     const searchLabel=search?.closest('label'),categoryLabel=categoryFilter?.closest('label'),yearLabel=yearFilter?.closest('label');
     if(permalink){
@@ -328,21 +365,6 @@
       });
     });
   }
-  function openTransmissionPermalink(slug){
-    const post=posts.find(item=>item.slug===String(slug||''));
-    if(!post)return;
-    if(requestedSlug===post.slug&&new URLSearchParams(window.location.search).get('post')===post.slug)return;
-    const url=new URL(window.location.href);
-    url.searchParams.set('post',post.slug);
-    history.pushState({...history.state,vhaTransmissionPost:post.slug},'',url.pathname+url.search+url.hash);
-    requestedSlug=post.slug;
-    render();
-    requestAnimationFrame(()=>list.querySelector('.post-card')?.scrollIntoView({behavior:'smooth',block:'start'}));
-  }
-  window.addEventListener('popstate',()=>{
-    requestedSlug=new URLSearchParams(window.location.search).get('post');
-    render();
-  });
   async function loadMorePosts(){
     postsHasMore=false;
     if(loadMoreButton)loadMoreButton.hidden=true;
@@ -417,6 +439,23 @@
         }));
       posts.sort((a,b)=>new Date(b.published_at||b.created_at)-new Date(a.published_at||a.created_at));
       renderCategories();renderYears();render();
+      if(!isCommunityArchive){
+        window.__vhaTransmissionIndex=posts
+          .filter(post=>!post.community&&Number.isSafeInteger(Number(post.archive_record_id))&&Number(post.archive_record_id)>0&&post.slug)
+          .map(post=>({id:String(post.archive_record_id),slug:String(post.slug)}));
+        const params=new URLSearchParams(window.location.search);
+        const legacySlug=params.get('post');
+        if(legacySlug&&!params.has('record')){
+          const legacy=window.__vhaTransmissionIndex.find(item=>item.slug===legacySlug);
+          if(legacy){
+            const url=new URL(window.location.href);
+            url.searchParams.delete('post');
+            url.searchParams.set('record',legacy.id);
+            history.replaceState(history.state,'',url.pathname+url.search+url.hash);
+          }
+        }
+      }
+      window.dispatchEvent(new Event('VHA_TRANSMISSIONS_READY'));
     }catch(error){
       console.error('Canonical collection loading failed:',error);
       list.innerHTML='<p class="posts-empty">THE COLLECTION COULD NOT LOAD. PLEASE REFRESH AND TRY AGAIN.</p>';
@@ -442,7 +481,7 @@
     const chamberButton=event.target.closest('[data-vha-open-transmission]');
     if(chamberButton){
       event.preventDefault();
-      openTransmissionPermalink(chamberButton.dataset.vhaOpenTransmission);
+      window.dispatchEvent(new CustomEvent('VHA_REQUEST_OPEN_TRANSMISSION',{detail:{slug:chamberButton.dataset.vhaOpenTransmission,trigger:chamberButton}}));
       return;
     }
     const imageLink=event.target.closest('.post-image-open');
@@ -456,14 +495,14 @@
     if(favoriteButton){event.preventDefault();event.stopPropagation();await togglePostFavorite(favoriteButton.dataset.haFavoriteId,favoriteButton);return;}
     const sectionsButton=event.target.closest('[data-post-sections-toggle]');
     if(sectionsButton){
-      const article=sectionsButton.closest('.post-card, .post-record-card');
+      const article=sectionsButton.closest('.ha-record-card');
       if(article){
         const details=[...article.querySelectorAll('details')];
         const opening=details.some(section=>!section.open);
         details.forEach(section=>{section.open=opening;});
         sectionsButton.setAttribute('aria-expanded',String(opening));
         sectionsButton.textContent=opening?'RETRACT ALL SECTIONS':'EXPAND ALL SECTIONS';
-        const content=article.querySelector('.post-collapsible');
+        const content=article.querySelector('.ha-entry-content');
         if(content?.hidden){content.hidden=false;const titleRow=article.querySelector('.post-card-title-row');if(titleRow)titleRow.hidden=false;const dateToggle=article.querySelector('[data-post-toggle]');dateToggle?.setAttribute('aria-expanded','true');const mark=dateToggle?.querySelector('.post-disclosure-mark');if(mark)mark.textContent='−';}
       }
       return;
@@ -474,11 +513,11 @@
       const content=document.getElementById('post-content-'+slug);
       if(content){
         const opening=content.hidden;
-        const article=toggleButton.closest('.post-card, .post-record-card');
+        const article=toggleButton.closest('.ha-record-card');
         content.hidden=!opening;
         const titleRow=article?.querySelector('.post-card-title-row');
         if(titleRow)titleRow.hidden=!opening;
-        const quickActions=article?.querySelector('.post-record-quick-actions');
+        const quickActions=article?.querySelector('.ha-entry-quick-actions');
         if(quickActions)quickActions.hidden=!opening;
         toggleButton.setAttribute('aria-expanded',String(opening));
         const label=toggleButton.querySelector('[data-post-read-label]');

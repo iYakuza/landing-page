@@ -1,0 +1,92 @@
+/* Canonical Human Archive presentation for the Transmissions archive and all five movements. */
+.posts-main .posts-list.ha-list{
+  display:block!important;
+  columns:initial!important;
+  column-count:initial!important;
+  column-gap:normal!important;
+  grid-template-columns:none!important;
+  grid-auto-flow:initial!important;
+  grid-auto-rows:auto!important;
+  align-items:initial!important;
+  gap:0!important;
+  margin:26px 0 70px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+}
+.posts-list.ha-list .ha-category-group{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:26px 0 34px!important;
+}
+.posts-list.ha-list .ha-category-heading{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:16px!important;
+  margin:0 0 14px!important;
+  padding:0 0 10px!important;
+  border-bottom:1px solid rgba(145,171,171,.25)!important;
+}
+.posts-list.ha-list .ha-category-entries{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  align-items:stretch!important;
+  gap:10px!important;
+}
+.posts-list.ha-list .ha-category-entries[hidden]{display:none!important}
+.posts-list.ha-list .ha-record-card{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  transform:none!important;
+  overflow:visible!important;
+}
+.posts-list.ha-list .ha-record-card::before,
+.posts-list.ha-list .ha-record-card::after{display:none!important}
+.posts-list.ha-list .ha-record-card>.ha-entry{width:100%!important;text-align:left!important}
+.posts-list.ha-list .ha-entry-content[hidden],
+.posts-list.ha-list .ha-entry-quick-actions[hidden]{display:none!important}
+.posts-list.ha-list .ha-entry-content{max-height:560px;overflow:auto}
+.posts-list.ha-list .ha-entry-body{min-width:0;overflow-wrap:anywhere}
+.posts-list.ha-list .ha-entry-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.posts-list.ha-list .post-share{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:6px;margin:0;min-width:0}
+.posts-list.ha-list .post-share .post-share-action{display:inline-flex;align-items:center;justify-content:center;min-height:32px;padding:0 9px}
+.posts-list.ha-list .ha-empty{display:block;padding:40px;color:#89969a;font:11px/1.8 'DM Mono',monospace}
+.posts-list.ha-list .ha-empty-record{margin:0;color:#9ca9a9;font:12px/1.8 'DM Mono',monospace}
+
+/* Suno records retain their editorial sections, but read vertically instead of in narrow columns. */
+.suno-reading-stack{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;width:min(100%,940px);margin:12px 0}
+.suno-reading-section{min-width:0;border:1px solid rgba(145,171,171,.22);background:rgba(5,10,13,.34)}
+.suno-reading-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:42px;padding:10px 13px;color:#c1d5d1;font:9px/1.5 'DM Mono',monospace;letter-spacing:.1em;cursor:pointer}
+.suno-reading-summary::marker{color:#b8a67e}
+.suno-reading-section[open]>.suno-reading-summary{border-bottom:1px solid rgba(145,171,171,.16);color:#d8ff3e}
+.suno-reading-section-content{padding:14px 16px;color:#c5d2cf;font:14px/1.9 Georgia,'Times New Roman',serif;overflow-wrap:anywhere}
+.suno-reading-section-content>*:first-child{margin-top:0}
+.suno-reading-section-content>*:last-child{margin-bottom:0}
+.suno-reading-section-content img,
+.suno-reading-section-content video{display:block;max-width:100%;height:auto}
+.suno-reading-section-content audio{display:block;width:min(100%,680px);max-width:100%}
+
+.ha-record-chamber .ha-chamber-blocks-view .ha-columns{
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))!important;
+  align-items:start;
+}
+@media(max-width:900px){
+  .posts-list.ha-list .ha-category-entries{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:650px){
+  .posts-list.ha-list .ha-category-entries{grid-template-columns:minmax(0,1fr)!important;gap:9px!important}
+  .posts-list.ha-list .ha-entry-content{max-height:65vh;padding:15px}
+  .ha-record-chamber .ha-chamber-blocks-view .ha-columns{grid-template-columns:minmax(0,1fr)!important}
+  .suno-reading-section-content{padding:12px}
+}

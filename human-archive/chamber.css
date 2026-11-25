@@ -94,8 +94,8 @@
 }
 .ha-chamber-share-status{min-height:1.2em;color:#9fb38d;font:8px/1.5 ui-monospace,monospace;letter-spacing:.08em}
 .ha-chamber-grid{
-  display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,.9fr) minmax(0,1.55fr);
-  align-items:start;gap:12px;width:min(1500px,100%);margin:22px auto 0
+  display:grid;grid-template-columns:minmax(0,1fr);
+  align-items:stretch;gap:16px;width:min(1200px,100%);margin:22px auto 0
 }
 .ha-chamber-panel{min-width:0;padding:17px;border:1px solid rgba(143,171,170,.22);background:linear-gradient(145deg,rgba(15,29,22,.9),rgba(7,13,10,.96))}
 .ha-chamber-panel-heading,.ha-chamber-output-label{
@@ -119,8 +119,8 @@
 .ha-chamber-source:hover{text-decoration:underline}
 .ha-chamber-footer-note{color:#74877c;font:8px ui-monospace,monospace;letter-spacing:.1em}
 @media(max-width:1050px){
-  .ha-chamber-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .ha-chamber-output{grid-column:1/-1}
+  .ha-chamber-grid{grid-template-columns:minmax(0,1fr)}
+  .ha-chamber-output{grid-column:auto}
 }
 @media(max-width:640px){
   .ha-chamber-topbar{min-height:44px}
