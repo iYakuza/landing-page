@@ -207,6 +207,7 @@
     }catch(error){
       status(error?.message||'Could not connect to YouTube.');
       setPlaying(false);
+      if(!player)playerPromise=null;
     }finally{play.disabled=false}
   }
   window.addEventListener('resize',()=>{
@@ -333,8 +334,7 @@
   setRadioHidden(true);
   if(location.hash==="#gd-radio")setRadioHidden(false);
 
-  status('Preparing the Green Dream playlist…');
-  start(false);
+  status('Radio is idle. Press PLAY or choose a track to connect.');
 })();
   window.VHACrystal?.registerTool({
     id: "radio",
