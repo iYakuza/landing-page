@@ -1,8 +1,35 @@
 {
   "version": 1,
-  "updated_at": "2026-11-25T13:22:10.105329Z",
-  "last_processed_sha": "0cd783ece879c5e23b98f9d75b30fdb507f321d5",
+  "updated_at": "2026-11-25T13:24:57.199593Z",
+  "last_processed_sha": "4948d42a741452546735fd4f78965e065ad1d0f6",
   "entries": [
+    {
+      "id": "4948d42a741452546735fd4f78965e065ad1d0f6",
+      "timestamp": "2026-11-25T14:24:42+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Use the Green Dream logo as the favicon across remaining pages. It updates index.html, privacy-policy.html, terms-of-service.html and related project files.",
+      "commit_count": 1,
+      "files": [
+        "cms/index.html",
+        "privacy-policy.html",
+        "secure-your-soul/index.html",
+        "terms-of-service.html"
+      ],
+      "commits": [
+        {
+          "message": "Use the Green Dream logo as the favicon across remaining pages",
+          "url": "https://github.com/iYakuza/landing-page/commit/4948d42a741452546735fd4f78965e065ad1d0f6",
+          "files": [
+            "cms/index.html",
+            "privacy-policy.html",
+            "secure-your-soul/index.html",
+            "terms-of-service.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "0cd783ece879c5e23b98f9d75b30fdb507f321d5",
       "timestamp": "2026-11-25T14:21:42+01:00",
