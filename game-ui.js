@@ -3,7 +3,7 @@
   if (window.__vhaCrystalBootstrap) return;
   window.__vhaCrystalBootstrap = true;
   const script = document.createElement("script");
-  script.src = "/landing-page/shared/crystal/crystal-loader.js?v=20261123-crystal-canonical-routes-1";
+  script.src = "/landing-page/shared/crystal/crystal-loader.js?v=20261125-media-performance-1";
   script.async = false;
   document.head.appendChild(script);
 })();
