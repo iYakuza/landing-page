@@ -174,7 +174,7 @@
     const excerpt=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
     const bodyHtml=post.content_html?cleanHtml(post.content_html,attachedMediaUrls(post)):'';
     const isSuno=/class=["']suno-post-layout["']/.test(post.content_html||'');
-    const sectionsButton=(isSuno||/<details\\b/i.test(post.content_html||''))?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
+    const sectionsButton=(isSuno||/<details\b/i.test(post.content_html||''))?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
     const media=renderPostMedia(post);
     const expanded=isSuno?renderSunoGrid(post,media,'',excerpt,bodyHtml):(excerpt+media+(bodyHtml?'<div class="post-body">'+bodyHtml+'</div>':''));
     const empty=!post.content_html&&!media?'<p class="ha-empty-record">No local text was captured for this entry.</p>':'';
@@ -295,7 +295,7 @@
     // the complete text while avoiding three narrow columns on smaller viewports.
     const textSection=takeSection(textColumn,'01 // THE TEXT');
     const lyricsTitle=lyrics?.querySelector(':scope > summary')?.textContent?.trim()||'02 // SUNO STYLE LYRICS';
-    const lyricsLabel=lyricsTitle.replace(/\\s+CLICK TO EXPAND$/i,'');
+    const lyricsLabel=lyricsTitle.replace(/\s+CLICK TO EXPAND$/i,'');
     if(lyrics){
       lyrics.querySelector(':scope > summary')?.remove();
       lyrics.removeAttribute('open');
@@ -306,7 +306,7 @@
     const cleanSection=html=>cleanHtml(String(html||''),attachedMediaUrls(post));
     const disclosure=(label,content,extraClass='',open=false)=>{
       if(!String(content||'').trim())return '';
-      return '<details class="suno-reading-section '+safe(extraClass)+'" data-ha-disclosure'+(open?' open':'')+'><summary class="suno-reading-summary">'+safe(label)+'</summary><div class="suno-reading-section-content">'+cleanSection(content)+'</div></details>';
+      return '<details class="suno-reading-section '+safe(extraClass)+'" data-ha-disclosure'+(open?' open':'')+'><summary class="suno-reading-summary">'+safe(String(label||'SECTION'))+'</summary><div class="suno-reading-section-content">'+cleanSection(content)+'</div></details>';
     };
     const reflection=(section)=>section.content?disclosure(section.label,section.content,'suno-reading-reflection'):'';
     const mainContent=textColumn?textSection.content:(bodyHtml||'');

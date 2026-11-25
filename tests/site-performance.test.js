@@ -78,7 +78,8 @@ test('Suno sections are rendered as a vertical reading flow', () => {
   assert.match(postsSource, /suno-reading-stack/);
   assert.match(postsSource, /suno-reading-section/);
   assert.match(standardCss, /grid-template-columns:minmax\(0,1fr\)/);
-  assert.doesNotMatch(postsSource, /suno-three-column/);
+  assert.doesNotMatch(renderer, /suno-three-column/);
+  assert.match(postsSource, /safe\\(String\\(label\\|\\|'SECTION'\\)\\)/);
 });
 
 test('the shared Chamber grid is full-width and saved columns collapse responsively', () => {
