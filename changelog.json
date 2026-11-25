@@ -1,8 +1,61 @@
 {
   "version": 1,
-  "updated_at": "2026-11-23T20:07:17.395288Z",
-  "last_processed_sha": "3e5753b6a2e6a8ee8a6feda57368d1d197db16b8",
+  "updated_at": "2026-11-25T12:53:01.563413Z",
+  "last_processed_sha": "3190b1695851e1d8e7696e746d6085d3afa5c7ae",
   "entries": [
+    {
+      "id": "3190b1695851e1d8e7696e746d6085d3afa5c7ae",
+      "timestamp": "2026-11-25T13:52:53+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Fix malformed Crystal Signals SVG icon; Defer V/A Radio network initialization until visitor interaction; Bust cache for updated Crystal shared modules; and 2 more related changes. It updates game-ui.js, crystal-loader.js, crystal.js, radio.js and related project files.",
+      "commit_count": 5,
+      "files": [
+        "game-ui.js",
+        "shared/crystal/crystal-loader.js",
+        "shared/crystal/crystal.js",
+        "shared/crystal/tools/radio.js",
+        "tests/site-performance.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Fix malformed Crystal Signals SVG icon",
+          "url": "https://github.com/iYakuza/landing-page/commit/37f8e57a1083875680c807f7a7dfe263fe89ce82",
+          "files": [
+            "shared/crystal/crystal.js"
+          ]
+        },
+        {
+          "message": "Defer V/A Radio network initialization until visitor interaction",
+          "url": "https://github.com/iYakuza/landing-page/commit/f07be0e88bf697b095070e6e1ac70cf40a2b9969",
+          "files": [
+            "shared/crystal/tools/radio.js"
+          ]
+        },
+        {
+          "message": "Bust cache for updated Crystal shared modules",
+          "url": "https://github.com/iYakuza/landing-page/commit/3f9c5a91d53fc0b53520226af528e0e5af83bd11",
+          "files": [
+            "shared/crystal/crystal-loader.js"
+          ]
+        },
+        {
+          "message": "Bust cache for updated Crystal loader",
+          "url": "https://github.com/iYakuza/landing-page/commit/7e85d9ca2aaa25dc4ffa68d1889d7256ffff2429",
+          "files": [
+            "game-ui.js"
+          ]
+        },
+        {
+          "message": "Add regression tests for media and radio performance",
+          "url": "https://github.com/iYakuza/landing-page/commit/3190b1695851e1d8e7696e746d6085d3afa5c7ae",
+          "files": [
+            "tests/site-performance.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "3e5753b6a2e6a8ee8a6feda57368d1d197db16b8",
       "timestamp": "2026-11-23T21:06:45+01:00",
