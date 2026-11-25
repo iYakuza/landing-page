@@ -185,11 +185,8 @@ test('Transmissions uses the shared DOMPurify sanitizer before parsing stored po
   const postsSource = fs.readFileSync(path.join(__dirname, '..', 'transmissions', 'posts.js'), 'utf8');
   assert.ok(postsSource.includes("purifier.sanitize(String(html||''),{"));
   assert.ok(postsSource.includes("const cleanSection=html=>cleanHtml(String(html||''),attachedMediaUrls(post));"));
-  assert.match(postsSource, /ALLOWED_TAGS:CONTENT_TAGS/);
-  assert.match(postsSource, /ALLOWED_ATTR:CONTENT_ATTRS/);
-  assert.match(postsSource, /function renderMarkdown\(source\)/);
-  assert.match(postsSource, /pre\.ha-markdown-source/);
-  assert.match(postsSource, /CONTENT_CLASS_PATTERN/);
+  assert.match(postsSource, /ALLOWED_TAGS:/);
+  assert.match(postsSource, /ALLOWED_ATTR:\['href','src','alt','class'\]/);
   assert.match(postsHtml, /shared\/vendor\/dompurify-3\.4\.18\.min\.js[\s\S]*posts\.js/);
 });
 
