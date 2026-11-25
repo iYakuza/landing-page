@@ -5,7 +5,7 @@
   const yearFilter = document.getElementById('post-year');
   const controls = document.getElementById('posts-controls');
   const count = document.getElementById('post-count');
-  const requestedSlug = new URLSearchParams(window.location.search).get('post');
+  let requestedSlug = new URLSearchParams(window.location.search).get('post');
   const requestedMovement = String(document.body.dataset.movement || '').trim().toUpperCase();
   const PAGE_SIZE=100, loadMoreButton=document.getElementById('posts-load-more');
   let postsOffset=0,postsHasMore=false;
@@ -27,7 +27,8 @@
     }catch{}
     return '';
   }
-  function cleanHtml(html){
+  function cleanHtml(html, excludedMediaUrls = []){
+    const excludedMedia = new Set((Array.isArray(excludedMediaUrls) ? excludedMediaUrls : []).map(value => validMediaUrl(value)).filter(Boolean));
     const purifier=window.DOMPurify;
     if(!purifier||typeof purifier.sanitize!=='function'){
       console.error('Transmissions HTML sanitizer is unavailable; refusing to render stored markup.');
@@ -50,9 +51,9 @@
       [...child.attributes].forEach(a=>child.removeAttribute(a.name));
       if(originalClass)child.setAttribute('class',originalClass); 
       const safeHref=child.tagName==='A'?safeLink(originalHref):'';
-      if(['IMG','VIDEO','AUDIO'].includes(child.tagName)&&!originalSrc){child.remove();return;}
+      if(['IMG','VIDEO','AUDIO'].includes(child.tagName)&&(!originalSrc||excludedMedia.has(originalSrc))){child.remove();return;}
       if(child.tagName==='IMG'){child.setAttribute('src',originalSrc);child.setAttribute('alt',originalAlt);child.setAttribute('loading','lazy');child.style.maxWidth='100%';child.style.height='auto';}
-      if(['VIDEO','AUDIO'].includes(child.tagName)){child.setAttribute('src',originalSrc);child.setAttribute('controls','');child.setAttribute('preload','metadata');if(child.tagName==='VIDEO'){child.style.maxWidth='100%';child.style.height='auto';}}
+      if(['VIDEO','AUDIO'].includes(child.tagName)){child.setAttribute('src',originalSrc);child.setAttribute('controls','');child.setAttribute('preload','none');if(child.tagName==='VIDEO'){child.style.maxWidth='100%';child.style.height='auto';}}
         if(child.tagName==='A'&&safeHref){
         child.setAttribute('href',safeHref);child.setAttribute('target','_blank');child.setAttribute('rel','noopener noreferrer');
       }
@@ -125,12 +126,16 @@
       return '<div class="post-media-item">'+content+'</div>';
     }).join('')+'</div>';
   }
+  function attachedMediaUrls(post){
+    const items=Array.isArray(post.media_items)?post.media_items:(post.media_url?[{url:post.media_url,type:post.media_type||'audio'}]:[]);
+    return items.map(item=>validMediaUrl(item?.src||item?.url||item?.path||'')).filter(Boolean);
+  }
   function renderPostRecordCard(post){
     const category=displayCategory(post.category);
     const movementSlugs={'THE AWAKENING':'the-awakening','THE DESCENT':'the-descent','THE RECONNECTION':'the-reconnection','THE TRANSFORMATION':'the-transformation','THE RETURN':'the-return'};
     const href='/landing-page/transmissions/'+(movementSlugs[category]||'')+'/';
     const categoryLink=movementSlugs[category]?'<a class="post-category" href="'+href+'" aria-label="Browse '+safe(category)+'">'+safe(category)+'</a>':'<span class="post-category">'+safe(category)+'</span>';
-    const media=renderPostMedia(post),body=post.content_html?'<div class="ha-entry-body post-body">'+cleanHtml(post.content_html)+'</div>':'';
+    const media=renderPostMedia(post),body=post.content_html?'<div class="ha-entry-body post-body">'+cleanHtml(post.content_html,attachedMediaUrls(post))+'</div>':'';
     const isSuno=/class=["']suno-post-layout["']/.test(post.content_html||'');
     const sections=(isSuno||/<details\b/i.test(post.content_html||''))?'<button type="button" class="post-sections-toggle" data-post-sections-toggle aria-expanded="false">EXPAND ALL SECTIONS</button>':'';
     const date=postDate(post),year=postYear(post),archiveId=Number(post.archive_record_id),hasId=Number.isSafeInteger(archiveId)&&archiveId>0;
@@ -153,8 +158,8 @@
     const back='<p class="post-back"><a href="./">← BACK TO THE ARCHIVE</a></p>';
     const media=renderPostMedia(post);
     const mediaItems=Array.isArray(post.media_items)&&post.media_items.length?post.media_items.filter(item=>item&&typeof item.url==='string'):(post.media_url?[{url:post.media_url,type:post.media_type||'audio'}]:[]);
-    const body=post.content_html?'<div class="ha-entry-body post-body">'+cleanHtml(post.content_html)+'</div>':'';
-    const chamber=!post.community?'<div class="post-chamber-actions"><button type="button" class="post-chamber-button" data-vha-open-transmission="'+safe(post.slug)+'" aria-label="Enter the chamber for '+safe(post.title)+'">ENTER THE CHAMBER ↗</button><button type="button" class="post-chamber-button post-redesign-button" data-vha-edit-transmission="'+safe(post.slug)+'" aria-label="Redesign '+safe(post.title)+'"'+(canRedesignPosts?'':' hidden')+'>REDESIGN CHAMBER ↗</button></div>':'';
+    const body=post.content_html?'<div class="ha-entry-body post-body">'+cleanHtml(post.content_html,attachedMediaUrls(post))+'</div>':'';
+    const chamber=!post.community?'<div class="post-chamber-actions"><button type="button" class="post-chamber-button post-redesign-button" data-vha-edit-transmission="'+safe(post.slug)+'" aria-label="Redesign '+safe(post.title)+'"'+(canRedesignPosts?'':' hidden')+'>REDESIGN CHAMBER ↗</button></div>':'';
     if(/class=["']suno-post-layout["']/.test(post.content_html||'')){
       const excerpt=post.excerpt?'<p class="post-excerpt">'+safe(post.excerpt)+'</p>':'';
       const lead='<div class="post-card-top"><span>'+prettyDate(post.published_at||post.created_at)+'</span><span class="post-category">'+safe(displayCategory(post.category))+'</span>'+chamber+'</div>';
@@ -239,7 +244,7 @@
     viewer.querySelector('[data-viewer-close]')?.focus();
   }
   function renderSunoGrid(post,media,titleHtml,excerptHtml){
-    const doc=new DOMParser().parseFromString(cleanHtml(post.content_html||''),'text/html');
+    const doc=new DOMParser().parseFromString(cleanHtml(post.content_html||'',attachedMediaUrls(post)),'text/html');
     const textColumn=doc.querySelector('.suno-text-column');
     const lyrics=doc.querySelector('.suno-lyrics');
     const style=doc.querySelector('.suno-notes');
@@ -278,6 +283,7 @@
   function renderSunoColumns(post,media,titleHtml,excerptHtml,lead,titleRow,permalinkBack,shapeClass){
     return '<article class="post-card '+shapeClass+' post-archive-composition suno-three-column" id="post-'+safe(post.slug)+'">'+lead+titleRow+renderSunoGrid(post,media,titleHtml,excerptHtml)+shareActions(post)+permalinkBack+'</article>';
   }
+  const baseDocumentTitle=document.title;
   function render(){
     const permalink=Boolean(requestedSlug);
     if(controls)controls.hidden=permalink;
@@ -292,6 +298,7 @@
       requestAnimationFrame(()=>list.querySelector('.post-card')?.scrollIntoView({behavior:'smooth',block:'start'}));
       return;
     }
+    document.title=baseDocumentTitle;
     searchLabel?.removeAttribute('hidden');yearLabel?.removeAttribute('hidden');
     if(categoryLabel)categoryLabel.hidden=Boolean(requestedMovement)||isCommunityArchive;
     const query=search.value.trim().toLowerCase(),selectedCategory=categoryFilter?.value||'',selectedYear=yearFilter?.value||'';
@@ -321,6 +328,21 @@
       });
     });
   }
+  function openTransmissionPermalink(slug){
+    const post=posts.find(item=>item.slug===String(slug||''));
+    if(!post)return;
+    if(requestedSlug===post.slug&&new URLSearchParams(window.location.search).get('post')===post.slug)return;
+    const url=new URL(window.location.href);
+    url.searchParams.set('post',post.slug);
+    history.pushState({...history.state,vhaTransmissionPost:post.slug},'',url.pathname+url.search+url.hash);
+    requestedSlug=post.slug;
+    render();
+    requestAnimationFrame(()=>list.querySelector('.post-card')?.scrollIntoView({behavior:'smooth',block:'start'}));
+  }
+  window.addEventListener('popstate',()=>{
+    requestedSlug=new URLSearchParams(window.location.search).get('post');
+    render();
+  });
   async function loadMorePosts(){
     postsHasMore=false;
     if(loadMoreButton)loadMoreButton.hidden=true;
@@ -420,7 +442,7 @@
     const chamberButton=event.target.closest('[data-vha-open-transmission]');
     if(chamberButton){
       event.preventDefault();
-      window.dispatchEvent(new CustomEvent('VHA_REQUEST_OPEN_TRANSMISSION',{detail:{slug:chamberButton.dataset.vhaOpenTransmission,trigger:chamberButton}}));
+      openTransmissionPermalink(chamberButton.dataset.vhaOpenTransmission);
       return;
     }
     const imageLink=event.target.closest('.post-image-open');
