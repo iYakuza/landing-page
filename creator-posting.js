@@ -3,7 +3,7 @@
   if (window.__vhaUnifiedNewTransmissionLoaded) return;
   window.__vhaUnifiedNewTransmissionLoaded = true;
 
-  const EDITOR_VERSION = '20261125-ha-standard-2';
+  const EDITOR_VERSION = '20261126-block-style-parity-1';
   let isCreator = false;
   let refreshing = false;
   let authBound = false;
