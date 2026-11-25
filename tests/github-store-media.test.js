@@ -920,6 +920,22 @@ test('explicit draft Save stops the obsolete autosave lifecycle before read-only
     'close-time autosave must honour the stopped lifecycle flag');
 });
 
+test('the public Chamber renders Markdown and mirrors the selected block type styles', () => {
+  assert.match(archiveSource, /function appendMarkdownBlock\(parent,source,copySafeNode\)/);
+  assert.match(archiveSource, /node\.classList\?\.contains\('ha-markdown-source'\)/);
+  assert.match(archiveSource, /appendMarkdownBlock\(parent,node\.textContent\|\|'',copy\)/);
+  for (const blockClass of [
+    'ha-pullquote','ha-grid','ha-row','ha-stack','ha-tabs','ha-callout',
+    'ha-timeline','ha-media-text','ha-image-compare','ha-gallery',
+    'ha-cover','ha-audio-block','ha-playlist','ha-podcast','ha-page-break'
+  ]) {
+    assert.ok(archiveCssSource.includes('.ha-chamber-blocks-view .'+blockClass),
+      'public Chamber must style '+blockClass);
+  }
+  assert.match(archiveCssSource, /\.ha-block-editor-shell \.ha-editor-block-content pre\.ha-markdown-source/);
+  assert.match(archiveCssSource, /\.ha-chamber-blocks-view \.ha-markdown-rendered/);
+});
+
 test('inline videos in Human Archive cards are constrained to the card content width', () => {
   const rule = archiveCssSource.match(/\.ha-entry-body video\{([^}]*)\}/);
   assert.ok(rule, 'archive card video rule must exist');
