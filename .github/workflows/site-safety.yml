@@ -107,10 +107,10 @@ jobs:
           grep -Fq '"/landing-page/transmissions/"' shared/crystal/tools/constellation.js
           grep -Fq '"/landing-page/signals/"' shared/crystal/tools/constellation.js
           grep -Fq '/landing-page/signals/' shared/crystal/tools/presentation.js
-          grep -Fq 'crystal-loader.js?v=20261123-crystal-canonical-routes-1' game-ui.js
-          grep -Fq 'const sharedVersion = "20261123-crystal-canonical-routes-1";' shared/crystal/crystal-loader.js
+          grep -Fq 'crystal-loader.js?v=20261125-media-performance-1' game-ui.js
+          grep -Fq 'const sharedVersion = "20261125-media-performance-1";' shared/crystal/crystal-loader.js
           for page in index.html transmissions/index.html signals/index.html transmissions/the-awakening/index.html transmissions/the-descent/index.html transmissions/the-reconnection/index.html transmissions/the-transformation/index.html transmissions/the-return/index.html green-dream/index.html human-archive/index.html cv/index.html secure-your-soul/index.html cms/index.html 404.html; do
-            grep -Fq 'game-ui.js?v=20261123-crystal-canonical-routes-1' "$page"
+            grep -Fq 'game-ui.js?v=20261125-media-performance-1' "$page"
           done
           for movement in the-awakening the-descent the-reconnection the-transformation the-return; do
             grep -Fq "/landing-page/transmissions/$movement/" shared/crystal/tools/constellation.js
