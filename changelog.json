@@ -1,8 +1,85 @@
 {
   "version": 1,
-  "updated_at": "2026-11-25T23:28:13.332226Z",
-  "last_processed_sha": "3669197d2c236417f270e30e99d7a50f87f8925f",
+  "updated_at": "2026-11-25T23:29:34.664286Z",
+  "last_processed_sha": "06b00dd6fe4380ed954cefeb796a9a3b69207d17",
   "entries": [
+    {
+      "id": "06b00dd6fe4380ed954cefeb796a9a3b69207d17",
+      "timestamp": "2026-11-26T00:29:29+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Keep sanitizer contract explicit for public Markdown rendering; Test public Markdown and expanded block sanitizer; Keep shared transmission asset versions aligned. It updates github-store-media.test.js, index.html, posts.js and related project files.",
+      "commit_count": 8,
+      "files": [
+        "tests/github-store-media.test.js",
+        "transmissions/index.html",
+        "transmissions/posts.js",
+        "transmissions/the-awakening/index.html",
+        "transmissions/the-descent/index.html",
+        "transmissions/the-reconnection/index.html",
+        "transmissions/the-return/index.html",
+        "transmissions/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Keep sanitizer contract explicit for public Markdown rendering",
+          "url": "https://github.com/iYakuza/landing-page/commit/87a97cd6e302f9ca8c00b06b2ec4189a66132b6e",
+          "files": [
+            "transmissions/posts.js"
+          ]
+        },
+        {
+          "message": "Test public Markdown and expanded block sanitizer",
+          "url": "https://github.com/iYakuza/landing-page/commit/622b3894a057ff4bf2548620d5c1510cc90cbab4",
+          "files": [
+            "tests/github-store-media.test.js"
+          ]
+        },
+        {
+          "message": "Keep shared transmission asset versions aligned",
+          "url": "https://github.com/iYakuza/landing-page/commit/c858640057d5993d574c56d5a3779db37a1caaf2",
+          "files": [
+            "transmissions/index.html"
+          ]
+        },
+        {
+          "message": "Keep shared transmission asset versions aligned",
+          "url": "https://github.com/iYakuza/landing-page/commit/05042b9e0d857f14028194e6e2dbed95a0782138",
+          "files": [
+            "transmissions/the-awakening/index.html"
+          ]
+        },
+        {
+          "message": "Keep shared transmission asset versions aligned",
+          "url": "https://github.com/iYakuza/landing-page/commit/e4d7dc58a0ec3a582775708103a553c902509746",
+          "files": [
+            "transmissions/the-descent/index.html"
+          ]
+        },
+        {
+          "message": "Keep shared transmission asset versions aligned",
+          "url": "https://github.com/iYakuza/landing-page/commit/407d72799da1e07a71826cd6dae8b6c684f62d30",
+          "files": [
+            "transmissions/the-reconnection/index.html"
+          ]
+        },
+        {
+          "message": "Keep shared transmission asset versions aligned",
+          "url": "https://github.com/iYakuza/landing-page/commit/71cc602b518537a23f76f5d9235bdef6d8789944",
+          "files": [
+            "transmissions/the-transformation/index.html"
+          ]
+        },
+        {
+          "message": "Keep shared transmission asset versions aligned",
+          "url": "https://github.com/iYakuza/landing-page/commit/06b00dd6fe4380ed954cefeb796a9a3b69207d17",
+          "files": [
+            "transmissions/the-return/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "33bb3fa7ad43c2f62ef0682a880d51b801c4ff93",
       "timestamp": "2026-11-26T00:28:12+01:00",
