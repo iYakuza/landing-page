@@ -140,8 +140,11 @@
       console.error('Transmissions HTML sanitizer is unavailable; refusing to render stored markup.');
       return '';
     }
+    const sanitized=purifier.sanitize(String(html||''),{
+      ALLOWED_TAGS:CONTENT_TAGS,
+      ALLOWED_ATTR:CONTENT_ATTRS
+    });
     const config={ALLOWED_TAGS:CONTENT_TAGS,ALLOWED_ATTR:CONTENT_ATTRS};
-    const sanitized=purifier.sanitize(String(html||''),config);
     const doc=new DOMParser().parseFromString(sanitized,'text/html');
 
     // Keep source editable in the CMS, but render Markdown and Custom HTML as real blocks publicly.
