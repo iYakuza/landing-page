@@ -5,9 +5,7 @@
   const yearFilter = document.getElementById('post-year');
   const controls = document.getElementById('posts-controls');
   const count = document.getElementById('post-count');
-  const queryParams = new URLSearchParams(window.location.search);
-  let requestedSlug = queryParams.get('post');
-  const requestedRecordId = /^\d+$/.test(queryParams.get('record') || '') ? queryParams.get('record') : '';
+  let requestedSlug = new URLSearchParams(window.location.search).get('post');
   const requestedMovement = String(document.body.dataset.movement || '').trim().toUpperCase();
   const PAGE_SIZE=100, loadMoreButton=document.getElementById('posts-load-more');
   let postsOffset=0,postsHasMore=false;
@@ -29,110 +27,6 @@
     }catch{}
     return '';
   }
-  const CONTENT_TAGS = [
-    'P','BR','SPAN','STRONG','B','EM','I','U','S','DEL','MARK','SMALL','SUB','SUP',
-    'H1','H2','H3','H4','H5','H6','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE',
-    'IMG','VIDEO','AUDIO','SOURCE','DIV','SECTION','ASIDE','ARTICLE','NAV','FIGURE',
-    'FIGCAPTION','DETAILS','SUMMARY','TABLE','THEAD','TBODY','TFOOT','TR','TH','TD','IFRAME'
-  ];
-  const CONTENT_ATTRS = [
-    'href','src','alt','class','data-ha-block-name','title','colspan','rowspan','scope',
-    'start','type','aria-label','role','controls','preload','playsinline','loading',
-    'allow','allowfullscreen','frameborder','referrerpolicy'
-  ];
-  const CONTENT_CLASS_PATTERN = /^(?:ha|wp|suno|plain)-[a-z0-9_-]+$/i;
-  const EMBED_HOSTS = new Set([
-    'www.youtube.com','youtube.com','www.youtube-nocookie.com','open.spotify.com',
-    'w.soundcloud.com','soundcloud.com','player.vimeo.com','vimeo.com',
-    'www.dailymotion.com','www.loom.com'
-  ]);
-
-  function validEmbedUrl(value){
-    try{
-      const url=new URL(String(value||'').trim());
-      return url.protocol==='https:'&&EMBED_HOSTS.has(url.hostname.toLowerCase())&&!url.username&&!url.password?url.href:'';
-    }catch{return '';}
-  }
-
-  function renderMarkdownInline(value){
-    const tokens=[];
-    const keep=html=>{const index=tokens.push(html)-1;return '\u0000'+index+'\u0000';};
-    let text=String(value??'');
-    text=text.replace(/\x60([^\x60\n]+)\x60/g,(_match,code)=>keep('<code>'+safe(code)+'</code>'));
-    text=text.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g,(_match,alt,destination)=>{
-      const src=validMediaUrl(destination);
-      return src?keep('<img src="'+safe(src)+'" alt="'+safe(alt)+'" loading="lazy">'):alt;
-    });
-    text=text.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,(_match,label,destination)=>{
-      const href=safeLink(destination);
-      return href?keep('<a href="'+safe(href)+'">'+safe(label)+'</a>'):label;
-    });
-    let html=safe(text);
-    html=html.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
-    html=html.replace(/__(.+?)__/g,'<strong>$1</strong>');
-    html=html.replace(/~~(.+?)~~/g,'<del>$1</del>');
-    html=html.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g,'$1<em>$2</em>');
-    html=html.replace(/(^|[^_])_([^_\n]+)_(?!_)/g,'$1<em>$2</em>');
-    return html.replace(/\u0000(\d+)\u0000/g,(_match,index)=>tokens[Number(index)]||'');
-  }
-
-  function renderMarkdown(source){
-    const lines=String(source??'').replace(/\r\n?/g,'\n').split('\n');
-    const output=[];
-    let paragraph=[],quote=[],listType='',listItems=[];
-    const flushParagraph=()=>{
-      if(paragraph.length){output.push('<p>'+paragraph.map(renderMarkdownInline).join('<br>')+'</p>');paragraph=[];}
-    };
-    const flushQuote=()=>{
-      if(quote.length){output.push('<blockquote><p>'+quote.map(renderMarkdownInline).join('<br>')+'</p></blockquote>');quote=[];}
-    };
-    const flushList=()=>{
-      if(listType){const tag=listType;output.push('<'+tag+'>'+listItems.map(item=>'<li>'+renderMarkdownInline(item)+'</li>').join('')+'</'+tag+'>');listType='';listItems=[];}
-    };
-    const flushAll=()=>{flushParagraph();flushQuote();flushList();};
-    const cells=line=>line.trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map(cell=>cell.trim());
-    const isTableRule=line=>line.includes('|')&&/^[\s|:-]+$/.test(line)&&line.includes('-');
-
-    for(let i=0;i<lines.length;i++){
-      const line=lines[i];
-      if(/^ {0,3}\x60\x60\x60/.test(line)){
-        flushAll();
-        const code=[];
-        i++;
-        while(i<lines.length&&!/^ {0,3}\x60\x60\x60/.test(lines[i])){code.push(lines[i]);i++;}
-        output.push('<pre><code>'+safe(code.join('\n'))+'</code></pre>');
-        continue;
-      }
-      if(line.includes('|')&&i+1<lines.length&&isTableRule(lines[i+1])){
-        flushAll();
-        const headers=cells(line),rows=[];
-        i+=2;
-        while(i<lines.length&&lines[i].includes('|')&&lines[i].trim()) {rows.push(cells(lines[i]));i++;}
-        i--;
-        output.push('<table><thead><tr>'+headers.map(cell=>'<th>'+renderMarkdownInline(cell)+'</th>').join('')+'</tr></thead><tbody>'+
-          rows.map(row=>'<tr>'+headers.map((_cell,index)=>'<td>'+renderMarkdownInline(row[index]||'')+'</td>').join('')+'</tr>').join('')+
-          '</tbody></table>');
-        continue;
-      }
-      if(!line.trim()){flushAll();continue;}
-      const heading=line.match(/^ {0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
-      if(heading){flushAll();const level=heading[1].length;output.push('<h'+level+'>'+renderMarkdownInline(heading[2])+'</h'+level+'>');continue;}
-      if(/^ {0,3}(-{3,}|_{3,}|\*{3,})\s*$/.test(line)){flushAll();output.push('<hr>');continue;}
-      const quoteMatch=line.match(/^ {0,3}>\s?(.*)$/);
-      if(quoteMatch){flushParagraph();flushList();quote.push(quoteMatch[1]);continue;}
-      const listMatch=line.match(/^\s*(?:([-+*])|(\d+)[.)])\s+(.+)$/);
-      if(listMatch){
-        flushParagraph();flushQuote();
-        const nextType=listMatch[2]?'ol':'ul';
-        if(listType&&listType!==nextType)flushList();
-        listType=nextType;listItems.push(listMatch[3]);continue;
-      }
-      flushQuote();flushList();paragraph.push(line);
-    }
-    flushAll();
-    return output.join('');
-  }
-
   function cleanHtml(html, excludedMediaUrls = []){
     const excludedMedia = new Set((Array.isArray(excludedMediaUrls) ? excludedMediaUrls : []).map(value => validMediaUrl(value)).filter(Boolean));
     const purifier=window.DOMPurify;
@@ -141,100 +35,31 @@
       return '';
     }
     const sanitized=purifier.sanitize(String(html||''),{
-      ALLOWED_TAGS:CONTENT_TAGS,
-      ALLOWED_ATTR:CONTENT_ATTRS
+      ALLOWED_TAGS:['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','IMG','VIDEO','AUDIO','DIV','SECTION','ASIDE','DETAILS','SUMMARY'],
+      ALLOWED_ATTR:['href','src','alt','class']
     });
-    const config={ALLOWED_TAGS:CONTENT_TAGS,ALLOWED_ATTR:CONTENT_ATTRS};
     const doc=new DOMParser().parseFromString(sanitized,'text/html');
-
-    // Keep source editable in the CMS, but render Markdown and Custom HTML as real blocks publicly.
-    const renderSourceBlock=(sourceNode,markup,className)=>{
-      const safeMarkup=purifier.sanitize(String(markup||''),config);
-      const renderedDoc=new DOMParser().parseFromString(safeMarkup,'text/html');
-      const wrapper=doc.createElement('div');
-      wrapper.className=className;
-      const blockName=String(sourceNode.getAttribute('data-ha-block-name')||'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,80);
-      if(blockName)wrapper.setAttribute('data-ha-block-name',blockName);
-      [...renderedDoc.body.childNodes].forEach(node=>wrapper.append(node.cloneNode(true)));
-      sourceNode.replaceWith(wrapper);
-    };
-    doc.querySelectorAll('pre.ha-markdown-source').forEach(node=>renderSourceBlock(node,renderMarkdown(node.textContent||''),'ha-markdown-rendered'));
-    doc.querySelectorAll('pre.ha-html-source').forEach(node=>renderSourceBlock(node,node.textContent||'','ha-html-rendered'));
-
-    const allowed=new Set(CONTENT_TAGS);
-    function clean(node){
-      [...node.childNodes].forEach(child=>{
-        if(child.nodeType===Node.TEXT_NODE)return;
-        if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
-        if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
-
-        const classes=(child.getAttribute('class')||'').split(/\s+/).filter(name=>CONTENT_CLASS_PATTERN.test(name)).join(' ');
-        const blockName=String(child.getAttribute('data-ha-block-name')||'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,80);
-        const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
-        const rawSrc=['IMG','VIDEO','AUDIO','SOURCE'].includes(child.tagName)?(child.getAttribute('src')||'').trim():'';
-        const originalSrc=rawSrc?validMediaUrl(rawSrc):'';
-        const originalEmbed=child.tagName==='IFRAME'?validEmbedUrl(child.getAttribute('src')||''):'';
-        const originalAlt=child.tagName==='IMG'?(child.getAttribute('alt')||''):'';
-        const originalTitle=child.tagName==='IFRAME'?(child.getAttribute('title')||'Embedded content').slice(0,160):'';
-        const originalAria=child.getAttribute('aria-label')||'';
-        const originalRole=child.getAttribute('role')||'';
-        const originalColspan=child.tagName==='TD'||child.tagName==='TH'?child.getAttribute('colspan'):'';
-        const originalRowspan=child.tagName==='TD'||child.tagName==='TH'?child.getAttribute('rowspan'):'';
-        const originalScope=child.tagName==='TH'?child.getAttribute('scope'):'';
-        const originalStart=child.tagName==='OL'?child.getAttribute('start'):'';
-        const originalType=child.tagName==='SOURCE'?child.getAttribute('type'):'';
-
-        [...child.attributes].forEach(attribute=>child.removeAttribute(attribute.name));
-        if(classes)child.setAttribute('class',classes);
-        if(blockName)child.setAttribute('data-ha-block-name',blockName);
-        if(originalAria)child.setAttribute('aria-label',originalAria.slice(0,160));
-        if(originalRole&&/^(group|list|navigation|region|presentation)$/.test(originalRole))child.setAttribute('role',originalRole);
-
-        if(child.tagName==='IMG'||child.tagName==='SOURCE'){
-          if(!originalSrc||excludedMedia.has(originalSrc)){child.remove();return;}
-          child.setAttribute('src',originalSrc);
-          if(child.tagName==='IMG'){
-            child.setAttribute('alt',originalAlt);
-            child.setAttribute('loading','lazy');
-          }else if(/^(audio|video)\/[a-z0-9.+-]+$/i.test(originalType)){
-            child.setAttribute('type',originalType);
-          }
-        }
-        if(child.tagName==='VIDEO'||child.tagName==='AUDIO'){
-          if(rawSrc&&!originalSrc){child.remove();return;}
-          if(originalSrc){
-            if(excludedMedia.has(originalSrc)){child.remove();return;}
-            child.setAttribute('src',originalSrc);
-          }
-          child.setAttribute('controls','');
-          child.setAttribute('preload','none');
-          if(child.tagName==='VIDEO')child.setAttribute('playsinline','');
-        }
-        if(child.tagName==='IFRAME'){
-          if(!originalEmbed){child.remove();return;}
-          child.setAttribute('src',originalEmbed);
-          child.setAttribute('title',originalTitle);
-          child.setAttribute('loading','lazy');
-          child.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
-          child.setAttribute('allow','autoplay; encrypted-media; picture-in-picture');
-          child.setAttribute('allowfullscreen','');
-        }
-        if(child.tagName==='A'){
-          const href=safeLink(originalHref);
-          if(href){child.setAttribute('href',href);child.setAttribute('target','_blank');child.setAttribute('rel','noopener noreferrer');}
-          else {child.replaceWith(...child.childNodes);return;}
-        }
-        if(['TD','TH'].includes(child.tagName)){
-          if(/^\d{1,2}$/.test(originalColspan||''))child.setAttribute('colspan',originalColspan);
-          if(/^\d{1,2}$/.test(originalRowspan||''))child.setAttribute('rowspan',originalRowspan);
-          if(child.tagName==='TH'&&['row','col','rowgroup','colgroup'].includes(originalScope))child.setAttribute('scope',originalScope);
-        }
-        if(child.tagName==='OL'&&/^\d{1,4}$/.test(originalStart||''))child.setAttribute('start',originalStart);
-        clean(child);
-      });
-    }
-    clean(doc.body);
-    return doc.body.innerHTML;
+    const allowed=new Set(['P','BR','STRONG','B','EM','I','U','H2','H3','UL','OL','LI','BLOCKQUOTE','A','HR','CODE','PRE','IMG','VIDEO','AUDIO','DIV','SECTION','ASIDE','DETAILS','SUMMARY']);
+    function clean(node){[...node.childNodes].forEach(child=>{
+      if(child.nodeType===Node.TEXT_NODE)return;
+      if(child.nodeType!==Node.ELEMENT_NODE){child.remove();return;}
+      if(!allowed.has(child.tagName)){clean(child);child.replaceWith(...child.childNodes);return;}
+      const originalHref=child.tagName==='A'?(child.getAttribute('href')||'').trim():'';
+      const originalClass=(child.getAttribute('class')||'').split(/\s+/).filter(name=>['suno-post-layout','suno-text-column','suno-lyrics','suno-notes','suno-style-prompt','suno-learned','suno-chatgpt-learned','suno-label','plain-post-layout','plain-copy','plain-response'].includes(name)).join(' ');
+      const originalSrc=['IMG','VIDEO','AUDIO'].includes(child.tagName)?validMediaUrl(child.getAttribute('src')||''):'';
+      const originalAlt=child.tagName==='IMG'?(child.getAttribute('alt')||''):'';
+      [...child.attributes].forEach(a=>child.removeAttribute(a.name));
+      if(originalClass)child.setAttribute('class',originalClass); 
+      const safeHref=child.tagName==='A'?safeLink(originalHref):'';
+      if(['IMG','VIDEO','AUDIO'].includes(child.tagName)&&(!originalSrc||excludedMedia.has(originalSrc))){child.remove();return;}
+      if(child.tagName==='IMG'){child.setAttribute('src',originalSrc);child.setAttribute('alt',originalAlt);child.setAttribute('loading','lazy');child.style.maxWidth='100%';child.style.height='auto';}
+      if(['VIDEO','AUDIO'].includes(child.tagName)){child.setAttribute('src',originalSrc);child.setAttribute('controls','');child.setAttribute('preload','none');if(child.tagName==='VIDEO'){child.style.maxWidth='100%';child.style.height='auto';}}
+        if(child.tagName==='A'&&safeHref){
+        child.setAttribute('href',safeHref);child.setAttribute('target','_blank');child.setAttribute('rel','noopener noreferrer');
+      }
+      clean(child);
+    });}
+    clean(doc.body);return doc.body.innerHTML;
   }
   function validMediaUrl(value){
     try{
@@ -497,15 +322,12 @@
   }
   const baseDocumentTitle=document.title;
   function render(){
-    const recordPermalink=Boolean(!isCommunityArchive&&requestedRecordId);
-    const permalink=Boolean((isCommunityArchive&&requestedSlug)||recordPermalink);
+    const permalink=Boolean(isCommunityArchive&&requestedSlug);
     if(controls)controls.hidden=permalink;
     const searchLabel=search?.closest('label'),categoryLabel=categoryFilter?.closest('label'),yearLabel=yearFilter?.closest('label');
     if(permalink){
       searchLabel?.setAttribute('hidden','');categoryLabel?.setAttribute('hidden','');yearLabel?.setAttribute('hidden','');
-      const found=recordPermalink
-        ? posts.find(post=>!post.community&&String(post.archive_record_id||'')===requestedRecordId)
-        : posts.find(post=>post.slug===requestedSlug);
+      const found=posts.find(post=>post.slug===requestedSlug);
       count.textContent=found?'SINGLE TRANSMISSION':'TRANSMISSION NOT FOUND';
       if(!found){list.innerHTML='<p class="ha-empty">THIS TRANSMISSION COULD NOT BE FOUND. IT MAY HAVE BEEN MOVED OR UNPUBLISHED. <a href="./">RETURN TO THE ARCHIVE ↗</a></p>';return;}
       list.innerHTML=renderPostPermalink(found);
