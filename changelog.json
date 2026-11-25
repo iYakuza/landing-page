@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-25T13:20:13.656435Z",
-  "last_processed_sha": "f88d669897685af4e19fa0c2f830c3a81f708239",
+  "updated_at": "2026-11-25T13:21:01.577220Z",
+  "last_processed_sha": "693ecbb36f6607deb8a50ba28a7ae0d1de43ab69",
   "entries": [
+    {
+      "id": "693ecbb36f6607deb8a50ba28a7ae0d1de43ab69",
+      "timestamp": "2026-11-25T14:20:41+01:00",
+      "category": "FIX",
+      "component": "Website",
+      "title": "More reliable Website",
+      "description": "This update brings together Scope Suno layout regression test to Transmission cards. It updates site-performance.test.js.",
+      "commit_count": 1,
+      "files": [
+        "tests/site-performance.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Scope Suno layout regression test to Transmission cards",
+          "url": "https://github.com/iYakuza/landing-page/commit/693ecbb36f6607deb8a50ba28a7ae0d1de43ab69",
+          "files": [
+            "tests/site-performance.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "f88d669897685af4e19fa0c2f830c3a81f708239",
       "timestamp": "2026-11-25T14:19:56+01:00",
