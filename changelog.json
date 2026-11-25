@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-25T12:53:01.563413Z",
-  "last_processed_sha": "3190b1695851e1d8e7696e746d6085d3afa5c7ae",
+  "updated_at": "2026-11-25T12:53:15.604547Z",
+  "last_processed_sha": "6b6b33fccbe2e6d3afa97cc0cfb28c2822b71155",
   "entries": [
+    {
+      "id": "6b6b33fccbe2e6d3afa97cc0cfb28c2822b71155",
+      "timestamp": "2026-11-25T13:53:13+01:00",
+      "category": "FEATURE",
+      "component": "Website",
+      "title": "New capabilities for Website",
+      "description": "This update brings together Deduplicate Transmission media and add permalink navigation. It updates posts.js.",
+      "commit_count": 1,
+      "files": [
+        "transmissions/posts.js"
+      ],
+      "commits": [
+        {
+          "message": "Deduplicate Transmission media and add permalink navigation",
+          "url": "https://github.com/iYakuza/landing-page/commit/6b6b33fccbe2e6d3afa97cc0cfb28c2822b71155",
+          "files": [
+            "transmissions/posts.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "3190b1695851e1d8e7696e746d6085d3afa5c7ae",
       "timestamp": "2026-11-25T13:52:53+01:00",
