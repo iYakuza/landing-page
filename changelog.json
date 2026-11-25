@@ -1,8 +1,77 @@
 {
   "version": 1,
-  "updated_at": "2026-11-25T23:43:50.759014Z",
-  "last_processed_sha": "a4e7b36ef97c55fe65461afe55968d9c486cbb54",
+  "updated_at": "2026-11-25T23:44:55.633953Z",
+  "last_processed_sha": "ae521dd5f3b91c18ac19cf2ccb5c2f04bd217a74",
   "entries": [
+    {
+      "id": "ae521dd5f3b91c18ac19cf2ccb5c2f04bd217a74",
+      "timestamp": "2026-11-26T00:44:52+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Experience",
+      "title": "A refined Website Experience",
+      "description": "This update brings together Preserve shared asset version prefixes with block-style cache key. It updates index.html and related project files.",
+      "commit_count": 7,
+      "files": [
+        "human-archive/index.html",
+        "transmissions/index.html",
+        "transmissions/the-awakening/index.html",
+        "transmissions/the-descent/index.html",
+        "transmissions/the-reconnection/index.html",
+        "transmissions/the-return/index.html",
+        "transmissions/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Preserve shared asset version prefixes with block-style cache key",
+          "url": "https://github.com/iYakuza/landing-page/commit/f02ec4c8fe42efd28168522b151e0a84a88c84f3",
+          "files": [
+            "human-archive/index.html"
+          ]
+        },
+        {
+          "message": "Preserve shared asset version prefixes with block-style cache key",
+          "url": "https://github.com/iYakuza/landing-page/commit/da0f1510b785d1f9b2966b3f119bc762305eee8f",
+          "files": [
+            "transmissions/index.html"
+          ]
+        },
+        {
+          "message": "Preserve shared asset version prefixes with block-style cache key",
+          "url": "https://github.com/iYakuza/landing-page/commit/5d5654427859150521623ea46cca703615933989",
+          "files": [
+            "transmissions/the-awakening/index.html"
+          ]
+        },
+        {
+          "message": "Preserve shared asset version prefixes with block-style cache key",
+          "url": "https://github.com/iYakuza/landing-page/commit/6cb173a5adbeb5c4c2d671c30c0f8a19af5f9f31",
+          "files": [
+            "transmissions/the-descent/index.html"
+          ]
+        },
+        {
+          "message": "Preserve shared asset version prefixes with block-style cache key",
+          "url": "https://github.com/iYakuza/landing-page/commit/f01c7771c8fed0df4f79c30b763ddc987a9845c7",
+          "files": [
+            "transmissions/the-reconnection/index.html"
+          ]
+        },
+        {
+          "message": "Preserve shared asset version prefixes with block-style cache key",
+          "url": "https://github.com/iYakuza/landing-page/commit/3b0126968d681a2508774adeea6087c3aaef08bb",
+          "files": [
+            "transmissions/the-transformation/index.html"
+          ]
+        },
+        {
+          "message": "Preserve shared asset version prefixes with block-style cache key",
+          "url": "https://github.com/iYakuza/landing-page/commit/ae521dd5f3b91c18ac19cf2ccb5c2f04bd217a74",
+          "files": [
+            "transmissions/the-return/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "76897b2d9f38bfee540690014aa7a3720ab00bb2",
       "timestamp": "2026-11-26T00:43:46+01:00",
