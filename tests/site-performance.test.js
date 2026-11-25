@@ -78,8 +78,12 @@ test('Suno sections are rendered as a vertical reading flow', () => {
   assert.match(postsSource, /suno-reading-stack/);
   assert.match(postsSource, /suno-reading-section/);
   assert.match(standardCss, /grid-template-columns:minmax\(0,1fr\)/);
-  assert.doesNotMatch(renderer, /suno-three-column/);
-  assert.match(postsSource, /safe\\(String\\(label\\|\\|'SECTION'\\)\\)/);
+  const start = postsSource.indexOf('function renderTransmissionRecordCard(post){');
+  const end = postsSource.indexOf('function renderPostRecordCard(post){', start);
+  const transmissionRenderer = postsSource.slice(start, end);
+  assert.ok(start >= 0 && end > start, 'Transmission renderer must exist');
+  assert.doesNotMatch(transmissionRenderer, /suno-three-column/);
+  assert.ok(postsSource.includes("safe(String(label||'SECTION'))"));
 });
 
 test('the shared Chamber grid is full-width and saved columns collapse responsively', () => {
