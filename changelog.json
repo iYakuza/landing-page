@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T15:44:12.103163Z",
-  "last_processed_sha": "547ce691681ec4ca85ab7c9acfa23a36b3f6c5b7",
+  "updated_at": "2026-11-26T15:58:32.917333Z",
+  "last_processed_sha": "cc69984fda02762d134e6f1600ff4af0ecb44fb9",
   "entries": [
+    {
+      "id": "cc69984fda02762d134e6f1600ff4af0ecb44fb9",
+      "timestamp": "2026-11-26T16:56:01+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Optimize push workflows and avoid redundant CI runs. It updates changelog.yml, codeql.yml, secret-scan.yml, site-safety.yml and related project files.",
+      "commit_count": 1,
+      "files": [
+        ".github/workflows/changelog.yml",
+        ".github/workflows/codeql.yml",
+        ".github/workflows/secret-scan.yml",
+        ".github/workflows/site-safety.yml",
+        ".github/workflows/static-security-posture.yml"
+      ],
+      "commits": [
+        {
+          "message": "Optimize push workflows and avoid redundant CI runs",
+          "url": "https://github.com/iYakuza/landing-page/commit/7105768ab96a21f861f8f6c0ab2b558358440cda",
+          "files": [
+            ".github/workflows/changelog.yml",
+            ".github/workflows/codeql.yml",
+            ".github/workflows/secret-scan.yml",
+            ".github/workflows/site-safety.yml",
+            ".github/workflows/static-security-posture.yml"
+          ]
+        }
+      ]
+    },
     {
       "id": "57819429e6c9b11a75da31f8e36eb9e7adf0a742",
       "timestamp": "2026-11-26T16:43:50+01:00",
@@ -1327,55 +1356,6 @@
           "files": [
             "tests/site-performance.test.js",
             "transmissions/posts.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "15bed0a80712d1cb81c2d26858108a28234c3907",
-      "timestamp": "2026-11-25T14:17:34+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Experience",
-      "title": "A refined Website Experience",
-      "description": "This update brings together Standardize Transmissions with Human Archive cards and Chamber. It updates 404.html, creator-posting.js, index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "404.html",
-        "creator-posting.js",
-        "cv/index.html",
-        "green-dream/index.html",
-        "human-archive/archive.js",
-        "human-archive/chamber.css",
-        "human-archive/index.html",
-        "index.html",
-        "signals/index.html",
-        "tests/site-performance.test.js",
-        "transmissions/archive-standard.css",
-        "transmissions/index.html",
-        "transmissions/posts.js",
-        "transmissions/the-awakening/index.html",
-        "transmissions/the-descent/index.html",
-        "transmissions/the-reconnection/index.html",
-        "transmissions/the-return/index.html",
-        "transmissions/the-transformation/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Standardize Transmissions with Human Archive cards and Chamber",
-          "url": "https://github.com/iYakuza/landing-page/commit/15bed0a80712d1cb81c2d26858108a28234c3907",
-          "files": [
-            "404.html",
-            "creator-posting.js",
-            "cv/index.html",
-            "green-dream/index.html",
-            "human-archive/archive.js",
-            "human-archive/chamber.css",
-            "human-archive/index.html",
-            "index.html",
-            "signals/index.html",
-            "tests/site-performance.test.js",
-            "transmissions/archive-standard.css",
-            "transmissions/index.html"
           ]
         }
       ]
