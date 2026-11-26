@@ -222,7 +222,6 @@
     input.value = String(source ?? '');
     input.defaultValue = input.value;
     input.rows = Math.max(6, Math.min(20, input.value.split('\n').length + 1));
-    input.readOnly = Boolean(readOnly);
 
     const repaint = () => {
       code.replaceChildren(highlightMarkdown(input.value));
@@ -894,7 +893,10 @@
         block.querySelector(':scope > .ha-editor-block-controls')?.remove();
         block.querySelector(':scope > .ha-editor-block-footer')?.remove();
         const content=contentFor(block);
-        if(content)content.contentEditable='false';
+        if(content){
+          content.contentEditable='false';
+          content.querySelectorAll('textarea,input').forEach(control=>{control.readOnly=true;});
+        }
       });
       editor.querySelectorAll('.ha-editor-add-column').forEach(button=>button.remove());
     } else {

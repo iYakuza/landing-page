@@ -1028,3 +1028,13 @@ test('Markdown blocks provide syntax-coloured live editing while saving plain Ma
   assert.match(blockEditorCssSource, /\.ha-md-stage-direction/);
   assert.match(blockEditorCssSource, /\.ha-md-code-keyword/);
 });
+
+
+test('Markdown helper does not read mount-only state outside its scope and read-only editors lock Markdown inputs', () => {
+  const helperStart = blockEditorSource.indexOf('function createMarkdownEditor(source = \'\')');
+  const helperEnd = blockEditorSource.indexOf('\n  function makeBlock(', helperStart);
+  assert.ok(helperStart >= 0 && helperEnd > helperStart, 'Markdown editor helper must be a module-level function');
+  assert.doesNotMatch(blockEditorSource.slice(helperStart, helperEnd), /\breadOnly\b/,
+    'the module-level Markdown helper must not refer to the mountBlockEditor parameter');
+  assert.match(blockEditorSource, /control\.readOnly=true/);
+});
