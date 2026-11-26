@@ -65,17 +65,22 @@ for sha in commit_shas:
     files = sorted(set(path.strip() for path in files if path.strip()))
     if not files or all(path in ignored_paths for path in files):
         continue
+    # Standalone stylesheet changes are published directly by Pages, but do
+    # not need a separate visitor-feed entry or a second Pages deployment.
+    if all(Path(path).suffix.lower() in {".css", ".scss", ".sass", ".less"} for path in files):
+        continue
     if re.search(r"\brefresh\b.*\bcache\b|\brefresh crystal interaction stylesheet\b|\bsyntax\b", message, re.I):
         continue
     meaningful.append({"sha": sha, "message": message, "timestamp": timestamp, "files": files})
 
-# Advance the checkpoint even when a push contains only maintenance, so it is
-# never accidentally bundled into a later visitor-facing release.
-data["last_processed_sha"] = head_sha
+# Do not rewrite the feed for maintenance-only commits. The next meaningful
+# release will process this range and advance the checkpoint together with
+# its visitor-facing entry, avoiding a redundant GitHub Pages deployment.
 if not meaningful:
-    OUTPUT_PATH.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("No visitor-facing changes in this push range.")
     raise SystemExit(0)
+
+data["last_processed_sha"] = head_sha
 
 all_files = sorted(set(path for item in meaningful for path in item["files"]))
 messages = []
