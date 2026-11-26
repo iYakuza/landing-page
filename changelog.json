@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T01:09:02.664103Z",
-  "last_processed_sha": "c4ad434a93a62243de7a6b9b950605a500daea7d",
+  "updated_at": "2026-11-26T01:11:39.288294Z",
+  "last_processed_sha": "fef74a7a616c2fec3ef28d09f9937ec9368b8cdd",
   "entries": [
+    {
+      "id": "fef74a7a616c2fec3ef28d09f9937ec9368b8cdd",
+      "timestamp": "2026-11-26T02:11:26+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Make Transmission editor version test cache-safe. It updates site-performance.test.js.",
+      "commit_count": 1,
+      "files": [
+        "tests/site-performance.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Make Transmission editor version test cache-safe",
+          "url": "https://github.com/iYakuza/landing-page/commit/fef74a7a616c2fec3ef28d09f9937ec9368b8cdd",
+          "files": [
+            "tests/site-performance.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "e8d37d4783b895f7feb8e16952f3fcbdbf3204f6",
       "timestamp": "2026-11-26T02:08:44+01:00",
@@ -1461,27 +1482,6 @@
           "files": [
             ".github/workflows/static-security-posture.yml",
             "human-archive/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "e998d192d0057adcfb827215e63760e165796038",
-      "timestamp": "2026-11-22T18:52:17+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together ci: handle absent CSP script directive safely. It updates static-security-posture.yml.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/static-security-posture.yml"
-      ],
-      "commits": [
-        {
-          "message": "ci: handle absent CSP script directive safely",
-          "url": "https://github.com/iYakuza/landing-page/commit/e998d192d0057adcfb827215e63760e165796038",
-          "files": [
-            ".github/workflows/static-security-posture.yml"
           ]
         }
       ]
