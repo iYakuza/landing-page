@@ -15,6 +15,7 @@ const archiveCssSource = fs.readFileSync(path.join(__dirname, '..', 'human-archi
 const creatorPostingSource = fs.readFileSync(path.join(__dirname, '..', 'creator-posting.js'), 'utf8');
 const creatorPostingPagePaths = [
   'index.html',
+  'transmissions/index.html',
   'transmissions/the-awakening/index.html',
   'transmissions/the-descent/index.html',
   'transmissions/the-reconnection/index.html',
