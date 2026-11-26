@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-25T23:44:55.633953Z",
-  "last_processed_sha": "b52a5e3858d963f87f0b8f827a2a56089c056788",
+  "updated_at": "2026-11-26T00:02:26.140407Z",
+  "last_processed_sha": "f9f2f7f028bcce71b6a36e54e8ea969fb872830f",
   "entries": [
+    {
+      "id": "f9f2f7f028bcce71b6a36e54e8ea969fb872830f",
+      "timestamp": "2026-11-26T01:02:11+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Publish Transmission T-0008. It updates human-archive.json, transmissions.json.",
+      "commit_count": 1,
+      "files": [
+        "content/human-archive.json",
+        "content/transmissions.json"
+      ],
+      "commits": [
+        {
+          "message": "Publish Transmission T-0008",
+          "url": "https://github.com/iYakuza/landing-page/commit/f9f2f7f028bcce71b6a36e54e8ea969fb872830f",
+          "files": [
+            "content/human-archive.json",
+            "content/transmissions.json"
+          ]
+        }
+      ]
+    },
     {
       "id": "ae521dd5f3b91c18ac19cf2ccb5c2f04bd217a74",
       "timestamp": "2026-11-26T00:44:52+01:00",
