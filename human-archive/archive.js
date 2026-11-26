@@ -446,6 +446,28 @@ function appendSafeContent(container,source,record,used){
    }
    return;
   }
+  if(tag==='PRE'&&node.classList?.contains('ha-code-block')){
+   const pre=document.createElement('pre');
+   pre.className='ha-code-block';
+   const code=document.createElement('code');
+   // Keep the source text and line breaks unchanged; only wrap standalone
+   // bracketed section labels so they can be styled more quietly.
+   String(node.textContent||'').split(/(\r\n|\n|\r)/).forEach(part=>{
+    if(part==='\r\n'||part==='\n'||part==='\r'){
+     code.append(document.createTextNode(part));
+    }else if(/^\s*\[[^\]\r\n]+\]\s*$/.test(part)){
+     const label=document.createElement('span');
+     label.className='ha-code-block-section';
+     label.textContent=part;
+     code.append(label);
+    }else{
+     code.append(document.createTextNode(part));
+    }
+   });
+   pre.append(code);
+   parent.append(pre);
+   return;
+  }
   if(tag==='PRE'&&node.classList?.contains('ha-markdown-source')){
     const textColor=String(node.getAttribute('data-ha-text-color')||'').trim();
     appendMarkdownBlock(parent,node.textContent||'',copy,textColor);
