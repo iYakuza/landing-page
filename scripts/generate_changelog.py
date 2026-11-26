@@ -63,7 +63,13 @@ for sha in commit_shas:
     timestamp = parts[1].strip() if len(parts) > 1 else ""
     files = git("diff-tree", "--no-commit-id", "--name-only", "-r", sha).splitlines()
     files = sorted(set(path.strip() for path in files if path.strip()))
-    if not files or all(path in ignored_paths for path in files):
+    if not files or all(
+        path in ignored_paths
+        or path.startswith(".github/workflows/")
+        or path.startswith("tests/")
+        or path.startswith("docs/")
+        for path in files
+    ):
         continue
     # Standalone stylesheet changes are published directly by Pages, but do
     # not need a separate visitor-feed entry or a second Pages deployment.
