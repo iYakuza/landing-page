@@ -1021,6 +1021,7 @@ test('Markdown blocks provide syntax-coloured live editing while saving plain Ma
   assert.match(blockEditorSource, /isMarkdownSectionLabel/);
   assert.match(blockEditorSource, /'stage-direction'/);
   assert.match(blockEditorCssSource, /\.ha-markdown-highlight/);
+  assert.match(blockEditorCssSource, /\.ha-editor-block-content \.ha-markdown-highlight/);
   assert.match(blockEditorCssSource, /\.ha-markdown-input/);
   assert.match(blockEditorCssSource, /\.ha-md-bracket/);
   assert.match(blockEditorCssSource, /\.ha-md-section-label/);
