@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T08:45:52.804235Z",
-  "last_processed_sha": "7530a4bb05c78810ffdef8a2eec0e9ca915920ba",
+  "updated_at": "2026-11-26T08:47:08.032629Z",
+  "last_processed_sha": "c855ffdd557796700776d96fa35f3267d541ab97",
   "entries": [
+    {
+      "id": "c855ffdd557796700776d96fa35f3267d541ab97",
+      "timestamp": "2026-11-26T09:46:54+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Use the public Chamber HTML as redesign source for every record; Cover canonical HTML loading for all redesign records. It updates archive.js, github-store-media.test.js.",
+      "commit_count": 2,
+      "files": [
+        "human-archive/archive.js",
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Use the public Chamber HTML as redesign source for every record",
+          "url": "https://github.com/iYakuza/landing-page/commit/ea3ac9baa7b3e130bda9ea91a06e063612f86fa7",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Cover canonical HTML loading for all redesign records",
+          "url": "https://github.com/iYakuza/landing-page/commit/c855ffdd557796700776d96fa35f3267d541ab97",
+          "files": [
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "7530a4bb05c78810ffdef8a2eec0e9ca915920ba",
       "timestamp": "2026-11-26T09:45:38+01:00",
@@ -1412,35 +1441,6 @@
             "shared/contact/contact.js",
             "tests/contact-intake.test.js",
             "tests/github-store-media.test.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "d1acffb34c944ef6ee5fb865b8d50338cf87a975",
-      "timestamp": "2026-11-23T19:39:12+01:00",
-      "category": "FIX",
-      "component": "Website Updates",
-      "title": "More reliable Website Updates",
-      "description": "This update brings together Fix Google Apps Script contact response origin. It updates site-safety.yml, index.html, contact.js and related project files.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/site-safety.yml",
-        "cv/index.html",
-        "index.html",
-        "shared/contact/contact.js",
-        "tests/contact-intake.test.js"
-      ],
-      "commits": [
-        {
-          "message": "Fix Google Apps Script contact response origin",
-          "url": "https://github.com/iYakuza/landing-page/commit/d1acffb34c944ef6ee5fb865b8d50338cf87a975",
-          "files": [
-            ".github/workflows/site-safety.yml",
-            "cv/index.html",
-            "index.html",
-            "shared/contact/contact.js",
-            "tests/contact-intake.test.js"
           ]
         }
       ]
