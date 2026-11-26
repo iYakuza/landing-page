@@ -1,8 +1,66 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T08:41:59.499829Z",
-  "last_processed_sha": "1a093ddf741096273dc143ecfc4dd6f94d37b97b",
+  "updated_at": "2026-11-26T08:45:22.593893Z",
+  "last_processed_sha": "c6cd38dc13786c46be2e7e5e566e520c98d7d947",
   "entries": [
+    {
+      "id": "c6cd38dc13786c46be2e7e5e566e520c98d7d947",
+      "timestamp": "2026-11-26T09:45:03+01:00",
+      "category": "FIX",
+      "component": "Website Experience",
+      "title": "More reliable Website Experience",
+      "description": "This update brings together Fix Chamber redesign duplication and block style transforms. It updates creator-posting.js, index.html, block-editor.css, block-editor.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        "creator-posting.js",
+        "cv/index.html",
+        "editor-ui/block-editor.css",
+        "editor-ui/block-editor.js",
+        "green-dream/guest-notes/architecture-of-harm/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/index.html",
+        "green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html",
+        "green-dream/guest-notes/ethical-framework/index.html",
+        "green-dream/guest-notes/ethical-framework/ro/index.html",
+        "green-dream/guest-notes/index.html",
+        "green-dream/index.html",
+        "human-archive/index.html",
+        "index.html",
+        "secure-your-soul/index.html",
+        "signals/index.html",
+        "transmissions/index.html",
+        "transmissions/the-awakening/index.html",
+        "transmissions/the-descent/index.html",
+        "transmissions/the-reconnection/index.html",
+        "transmissions/the-return/index.html",
+        "transmissions/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Fix Chamber redesign duplication and block style transforms",
+          "url": "https://github.com/iYakuza/landing-page/commit/c6cd38dc13786c46be2e7e5e566e520c98d7d947",
+          "files": [
+            "creator-posting.js",
+            "cv/index.html",
+            "editor-ui/block-editor.css",
+            "editor-ui/block-editor.js",
+            "green-dream/guest-notes/architecture-of-harm/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html",
+            "green-dream/guest-notes/ethical-coexistence-initiative/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "1a093ddf741096273dc143ecfc4dd6f94d37b97b",
       "timestamp": "2026-11-26T09:41:42+01:00",
@@ -1384,41 +1442,6 @@
           "message": "Configure Google Apps Script contact endpoint",
           "url": "https://github.com/iYakuza/landing-page/commit/a68db71e8ecbf4a94d4212374a79bc60ba433a73",
           "files": [
-            "shared/contact/contact.js",
-            "tests/contact-intake.test.js",
-            "tests/github-store-media.test.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "ae036ab130c54cf484bed135ff2732dc911b5717",
-      "timestamp": "2026-11-23T19:15:17+01:00",
-      "category": "FEATURE",
-      "component": "Website Updates",
-      "title": "New capabilities for Website Updates",
-      "description": "This update brings together Add Google Apps Script contact intake. It updates site-safety.yml, index.html, Code.gs, README.md and related project files.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/site-safety.yml",
-        "cv/index.html",
-        "google-apps-script/Code.gs",
-        "google-apps-script/README.md",
-        "index.html",
-        "shared/contact/contact.js",
-        "tests/contact-intake.test.js",
-        "tests/github-store-media.test.js"
-      ],
-      "commits": [
-        {
-          "message": "Add Google Apps Script contact intake",
-          "url": "https://github.com/iYakuza/landing-page/commit/ae036ab130c54cf484bed135ff2732dc911b5717",
-          "files": [
-            ".github/workflows/site-safety.yml",
-            "cv/index.html",
-            "google-apps-script/Code.gs",
-            "google-apps-script/README.md",
-            "index.html",
             "shared/contact/contact.js",
             "tests/contact-intake.test.js",
             "tests/github-store-media.test.js"
