@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T01:13:10.572615Z",
-  "last_processed_sha": "2495c0bb8df0b0f9b35d990badf9cae1c82929ad",
+  "updated_at": "2026-11-26T01:15:23.374362Z",
+  "last_processed_sha": "211e3f511ef7f39ba3b5f5bb90d519e6f567cfc5",
   "entries": [
+    {
+      "id": "211e3f511ef7f39ba3b5f5bb90d519e6f567cfc5",
+      "timestamp": "2026-11-26T02:14:50+01:00",
+      "category": "FIX",
+      "component": "Website",
+      "title": "More reliable Website",
+      "description": "This update brings together Expand shared editor cache regression coverage to all chamber entry points. It updates github-store-media.test.js.",
+      "commit_count": 1,
+      "files": [
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Expand shared editor cache regression coverage to all chamber entry points",
+          "url": "https://github.com/iYakuza/landing-page/commit/211e3f511ef7f39ba3b5f5bb90d519e6f567cfc5",
+          "files": [
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "bd2d2444574f5d7dedaf4d2dc8301a6a488cf8a6",
       "timestamp": "2026-11-26T02:12:54+01:00",
@@ -1463,31 +1484,6 @@
             "transmissions/index.html",
             "transmissions/posts.js",
             "transmissions/the-awakening/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "951a1ec06801516e5e1482afde0b737c7aa48149",
-      "timestamp": "2026-11-23T11:28:20+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Publish Transmission T-0002. It updates human-archive.json, transmissions.json, 5e78664b-e1af-445b-a581-88d7dc31b33b-Sunt-o-culoare-cover.jpeg.",
-      "commit_count": 1,
-      "files": [
-        "content/human-archive.json",
-        "content/transmissions.json",
-        "media/transmissions/T-0002/5e78664b-e1af-445b-a581-88d7dc31b33b-Sunt-o-culoare-cover.jpeg"
-      ],
-      "commits": [
-        {
-          "message": "Publish Transmission T-0002",
-          "url": "https://github.com/iYakuza/landing-page/commit/951a1ec06801516e5e1482afde0b737c7aa48149",
-          "files": [
-            "content/human-archive.json",
-            "content/transmissions.json",
-            "media/transmissions/T-0002/5e78664b-e1af-445b-a581-88d7dc31b33b-Sunt-o-culoare-cover.jpeg"
           ]
         }
       ]
