@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T01:11:39.288294Z",
-  "last_processed_sha": "fef74a7a616c2fec3ef28d09f9937ec9368b8cdd",
+  "updated_at": "2026-11-26T01:13:10.572615Z",
+  "last_processed_sha": "bd2d2444574f5d7dedaf4d2dc8301a6a488cf8a6",
   "entries": [
+    {
+      "id": "bd2d2444574f5d7dedaf4d2dc8301a6a488cf8a6",
+      "timestamp": "2026-11-26T02:12:54+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Refresh the shared editor loader on the Transmissions archive; Cover the Transmissions archive in editor cache tests. It updates github-store-media.test.js, index.html.",
+      "commit_count": 2,
+      "files": [
+        "tests/github-store-media.test.js",
+        "transmissions/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Refresh the shared editor loader on the Transmissions archive",
+          "url": "https://github.com/iYakuza/landing-page/commit/42feb26535da7b7ad73a77716c42027558aae049",
+          "files": [
+            "transmissions/index.html"
+          ]
+        },
+        {
+          "message": "Cover the Transmissions archive in editor cache tests",
+          "url": "https://github.com/iYakuza/landing-page/commit/bd2d2444574f5d7dedaf4d2dc8301a6a488cf8a6",
+          "files": [
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "fef74a7a616c2fec3ef28d09f9937ec9368b8cdd",
       "timestamp": "2026-11-26T02:11:26+01:00",
@@ -1459,29 +1488,6 @@
             "content/human-archive.json",
             "content/transmissions.json",
             "media/transmissions/T-0002/5e78664b-e1af-445b-a581-88d7dc31b33b-Sunt-o-culoare-cover.jpeg"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "651fb96a5fc0848781db63d5f801a22021a50e6e",
-      "timestamp": "2026-11-23T11:15:42+01:00",
-      "category": "FIX",
-      "component": "Website Updates",
-      "title": "More reliable Website Updates",
-      "description": "This update brings together Fix CSP security posture validation. It updates static-security-posture.yml, index.html.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/static-security-posture.yml",
-        "human-archive/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Fix CSP security posture validation",
-          "url": "https://github.com/iYakuza/landing-page/commit/651fb96a5fc0848781db63d5f801a22021a50e6e",
-          "files": [
-            ".github/workflows/static-security-posture.yml",
-            "human-archive/index.html"
           ]
         }
       ]
