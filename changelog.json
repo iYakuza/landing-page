@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T08:24:38.133839Z",
-  "last_processed_sha": "66e904d6a0a26847128e3b14b813e89a6c421ca8",
+  "updated_at": "2026-11-26T08:27:31.939924Z",
+  "last_processed_sha": "73b31fa215065385cec2ea05fddb730721c9e710",
   "entries": [
+    {
+      "id": "73b31fa215065385cec2ea05fddb730721c9e710",
+      "timestamp": "2026-11-26T09:27:15+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Publish Transmission T-0008. It updates human-archive.json, transmissions.json.",
+      "commit_count": 1,
+      "files": [
+        "content/human-archive.json",
+        "content/transmissions.json"
+      ],
+      "commits": [
+        {
+          "message": "Publish Transmission T-0008",
+          "url": "https://github.com/iYakuza/landing-page/commit/73b31fa215065385cec2ea05fddb730721c9e710",
+          "files": [
+            "content/human-archive.json",
+            "content/transmissions.json"
+          ]
+        }
+      ]
+    },
     {
       "id": "66e904d6a0a26847128e3b14b813e89a6c421ca8",
       "timestamp": "2026-11-26T09:24:19+01:00",
@@ -1409,57 +1432,6 @@
             "transmissions/archive-match.css",
             "transmissions/index.html",
             "transmissions/posts.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "4f434de3704f4e0dff2d9d38eb66c258e15054c9",
-      "timestamp": "2026-11-23T17:49:18+01:00",
-      "category": "FIX",
-      "component": "Website Experience",
-      "title": "More reliable Website Experience",
-      "description": "This update brings together Fix Crystal canonical navigation routes. It updates site-safety.yml, 404.html, index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/site-safety.yml",
-        "404.html",
-        "cms/index.html",
-        "cv/index.html",
-        "game-ui.js",
-        "green-dream/index.html",
-        "human-archive/index.html",
-        "index.html",
-        "secure-your-soul/index.html",
-        "shared/crystal/crystal-loader.js",
-        "shared/crystal/crystal.js",
-        "shared/crystal/tools/constellation.js",
-        "shared/crystal/tools/presentation.js",
-        "signals/index.html",
-        "transmissions/index.html",
-        "transmissions/the-awakening/index.html",
-        "transmissions/the-descent/index.html",
-        "transmissions/the-reconnection/index.html",
-        "transmissions/the-return/index.html",
-        "transmissions/the-transformation/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Fix Crystal canonical navigation routes",
-          "url": "https://github.com/iYakuza/landing-page/commit/4f434de3704f4e0dff2d9d38eb66c258e15054c9",
-          "files": [
-            ".github/workflows/site-safety.yml",
-            "404.html",
-            "cms/index.html",
-            "cv/index.html",
-            "game-ui.js",
-            "green-dream/index.html",
-            "human-archive/index.html",
-            "index.html",
-            "secure-your-soul/index.html",
-            "shared/crystal/crystal-loader.js",
-            "shared/crystal/crystal.js",
-            "shared/crystal/tools/constellation.js"
           ]
         }
       ]
