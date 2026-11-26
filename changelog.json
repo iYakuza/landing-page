@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T08:47:08.032629Z",
-  "last_processed_sha": "73922103d1bb88f22fd8d3db4c9063733708287c",
+  "updated_at": "2026-11-26T08:47:37.379064Z",
+  "last_processed_sha": "ecd8e4f217c19eabe5d5e1fb937aaf2b76ff22e2",
   "entries": [
+    {
+      "id": "ecd8e4f217c19eabe5d5e1fb937aaf2b76ff22e2",
+      "timestamp": "2026-11-26T09:47:30+01:00",
+      "category": "FEATURE",
+      "component": "Website Updates",
+      "title": "New capabilities for Website Updates",
+      "description": "This update brings together Style code blocks as boxed monospace content in public Chambers; Test boxed code styling and add-versus-duplicate controls. It updates archive.css, github-store-media.test.js.",
+      "commit_count": 2,
+      "files": [
+        "human-archive/archive.css",
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Style code blocks as boxed monospace content in public Chambers",
+          "url": "https://github.com/iYakuza/landing-page/commit/5fd9d0da425b3e091aec4846d3ad6bfaf4230a9b",
+          "files": [
+            "human-archive/archive.css"
+          ]
+        },
+        {
+          "message": "Test boxed code styling and add-versus-duplicate controls",
+          "url": "https://github.com/iYakuza/landing-page/commit/ecd8e4f217c19eabe5d5e1fb937aaf2b76ff22e2",
+          "files": [
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "c855ffdd557796700776d96fa35f3267d541ab97",
       "timestamp": "2026-11-26T09:46:54+01:00",
@@ -1399,43 +1428,6 @@
           "files": [
             ".github/workflows/site-safety.yml",
             "cv/index.html",
-            "google-apps-script/Upload.html",
-            "index.html",
-            "shared/contact/contact.js",
-            "tests/contact-intake.test.js",
-            "tests/github-store-media.test.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "c9cc5ba4e86e402d3b4a9358fa74181be4e96fd5",
-      "timestamp": "2026-11-23T20:15:07+01:00",
-      "category": "FEATURE",
-      "component": "Website Updates",
-      "title": "New capabilities for Website Updates",
-      "description": "This update brings together Add private email attachments to contact form (#143). It updates site-safety.yml, index.html, Code.gs, README.md and related project files.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/site-safety.yml",
-        "cv/index.html",
-        "google-apps-script/Code.gs",
-        "google-apps-script/README.md",
-        "google-apps-script/Upload.html",
-        "index.html",
-        "shared/contact/contact.js",
-        "tests/contact-intake.test.js",
-        "tests/github-store-media.test.js"
-      ],
-      "commits": [
-        {
-          "message": "Add private email attachments to contact form (#143)",
-          "url": "https://github.com/iYakuza/landing-page/commit/c9cc5ba4e86e402d3b4a9358fa74181be4e96fd5",
-          "files": [
-            ".github/workflows/site-safety.yml",
-            "cv/index.html",
-            "google-apps-script/Code.gs",
-            "google-apps-script/README.md",
             "google-apps-script/Upload.html",
             "index.html",
             "shared/contact/contact.js",
