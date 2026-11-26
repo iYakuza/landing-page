@@ -14,7 +14,7 @@
       "created_at": "2026-11-16T17:53:19.301458+00:00",
       "media_path": "media/transmissions/T-0001/3bf2c4f2-7a59-4a4e-a71e-6c7956c23234-Purtata-corporatris-tilor-video.mp4",
       "media_type": "video",
-      "updated_at": "2026-11-21T19:53:11.793Z",
+      "updated_at": "2026-11-26T10:04:37.356Z",
       "media_items": [
         {
           "id": "transmission-T-0001-0",
@@ -28,7 +28,7 @@
           "status": "available"
         },
         {
-          "id": "transmission-T-0001-2",
+          "id": "transmission-T-0001-1",
           "name": "ae2ae42b-1f30-4ae3-bdbb-3884857ee3a9-Purtata-corporatris-tilor-lyrics.png",
           "url": "media/transmissions/T-0001/ae2ae42b-1f30-4ae3-bdbb-3884857ee3a9-Purtata-corporatris-tilor-lyrics.png",
           "path": "media/transmissions/T-0001/ae2ae42b-1f30-4ae3-bdbb-3884857ee3a9-Purtata-corporatris-tilor-lyrics.png",
@@ -39,7 +39,7 @@
           "status": "available"
         },
         {
-          "id": "transmission-T-0001-3",
+          "id": "transmission-T-0001-2",
           "name": "b793521b-5bb5-404b-82ba-598a64cc46f3-Purtata-corporatris-tilor-mp3.mp3",
           "url": "media/transmissions/T-0001/b793521b-5bb5-404b-82ba-598a64cc46f3-Purtata-corporatris-tilor-mp3.mp3",
           "path": "media/transmissions/T-0001/b793521b-5bb5-404b-82ba-598a64cc46f3-Purtata-corporatris-tilor-mp3.mp3",
@@ -51,7 +51,7 @@
         }
       ],
       "media_width": 100,
-      "content_html": "<div class=\"ha-columns\"><section><div class=\"ha-audio-block\"><figure><audio src=\"media/transmissions/T-0001/b793521b-5bb5-404b-82ba-598a64cc46f3-Purtata-corporatris-tilor-mp3.mp3\" controls=\"\" preload=\"none\"></audio><figcaption>Purtata corporatriștilor - mp3.mp3</figcaption></figure></div><p data-ha-block-name=\"Lyrics\">2x Io-s în deal și jobu-n șesu<br>La la la la la la la la<br>2x Tot aplic da' nu-s alesu'<br>La la la la la la la la</p><p>2x La interviu, gândești că-mi știe<br>La la la la la la la la<br>2x Cum lucrat io pă moșie<br>La la la la la la la la</p><p>2x Mi-i sorocu-nfundatu'<br>La la la la la la la la<br>2x Și am mațu-nnodatu'<br>La la la la la la la la</p><p>2x Badeo, spiculeţ de grâu<br>La la la la la la la la<br>2x Zi-mi și mie ce să zâu<br>La la la la la la la la</p><p>2x Că de-oi semna io cu tine<br>La la la la la la la la<br>2x Nu-mi trebuie' altu-n lume<br>La la la la la la la la</p><p>2x Numai tu, bădiţo, tu<br>La la la la la la la la<br>2x Altul bade, nu şi nu'.<br>La la la la la la la la</p></section><section><p data-ha-block-name=\"SUNO // PROMPT STYLE\">Replica of original uploaded audio file with raw, unaccompanied acapella vocal-only, and reference tempo carried by synchronized human footsteps; preserve the reference audio’s tempo, rhythm, structure, repeated phrasing and female vocal arrangement</p><figure><video src=\"media/transmissions/T-0001/3bf2c4f2-7a59-4a4e-a71e-6c7956c23234-Purtata-corporatris-tilor-video.mp4\" controls=\"\" preload=\"none\" playsinline=\"\"></video><figcaption>Purtata corporatriștilor - video.mp4</figcaption></figure></section><section><figure><img src=\"media/transmissions/T-0001/ae2ae42b-1f30-4ae3-bdbb-3884857ee3a9-Purtata-corporatris-tilor-lyrics.png\" alt=\"Purtata corporatriștilor - lyrics.png\" loading=\"lazy\" style=\"max-width: 100%; height: auto;\"><figcaption>Purtata corporatriștilor - lyrics.png</figcaption></figure></section></div>",
+      "content_html": "<div class=\"ha-columns\"><section><div class=\"ha-audio-block\" data-ha-block-name=\"SUNO // OUTPUT // AUDIO\"><figure><audio src=\"/landing-page/media/transmissions/T-0001/b793521b-5bb5-404b-82ba-598a64cc46f3-Purtata-corporatris-tilor-mp3.mp3\" controls=\"\" preload=\"none\"></audio><figcaption>Purtata corporatriștilor - mp3.mp3</figcaption></figure></div><p data-ha-block-name=\"Lyrics\">2x Io-s în deal și jobu-n șesu<br>La la la la la la la la<br>2x Tot aplic da' nu-s alesu'<br>La la la la la la la la</p><p>2x La interviu, gândești că-mi știe<br>La la la la la la la la<br>2x Cum lucrat io pă moșie<br>La la la la la la la la</p><p>2x Mi-i sorocu-nfundatu'<br>La la la la la la la la<br>2x Și am mațu-nnodatu'<br>La la la la la la la la</p><p>2x Badeo, spiculeţ de grâu<br>La la la la la la la la<br>2x Zi-mi și mie ce să zâu<br>La la la la la la la la</p><p>2x Că de-oi semna io cu tine<br>La la la la la la la la<br>2x Nu-mi trebuie' altu-n lume<br>La la la la la la la la</p><p>2x Numai tu, bădiţo, tu<br>La la la la la la la la<br>2x Altul bade, nu şi nu'.<br>La la la la la la la la</p></section><section><p data-ha-block-name=\"SUNO // INPUT // STYLE // PROMPT\">Replica of original uploaded audio file with raw, unaccompanied acapella vocal-only, and reference tempo carried by synchronized human footsteps; preserve the reference audio’s tempo, rhythm, structure, repeated phrasing and female vocal arrangement</p><figure data-ha-block-name=\"SUNO // OUTPUT // VIDEO\"><video src=\"/landing-page/media/transmissions/T-0001/3bf2c4f2-7a59-4a4e-a71e-6c7956c23234-Purtata-corporatris-tilor-video.mp4\" controls=\"\" preload=\"none\" playsinline=\"\"></video><figcaption>Purtata corporatriștilor - video.mp4</figcaption></figure></section><section><figure data-ha-block-name=\"CHATGPT // OUTPUT // IMAGE\"><img src=\"/landing-page/media/transmissions/T-0001/ae2ae42b-1f30-4ae3-bdbb-3884857ee3a9-Purtata-corporatris-tilor-lyrics.png\" alt=\"Purtata corporatriștilor - lyrics.png\" loading=\"lazy\" style=\"max-width: 100%; height: auto;\"><figcaption>Purtata corporatriștilor - lyrics.png</figcaption></figure></section></div>",
       "published_at": "2026-11-16T17:58:28.798269+00:00",
       "archive_record_id": 3008,
       "legacy_id": "2595777f-f155-4fe7-8817-361235c26aca",
