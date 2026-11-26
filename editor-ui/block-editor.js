@@ -1077,5 +1077,5 @@
     return api;
   }
 
-  window.VHABlockEditor = Object.freeze({ mountBlockEditor });
+  window.VHABlockEditor = Object.freeze({ version: '20261126-markdown-syntax-editor-5', mountBlockEditor });
 })();
