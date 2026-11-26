@@ -34,6 +34,8 @@ on:
       - "!docs/**"
       - "!scripts/**"
       - "!.github/**"
+      # A Pages workflow change must also deploy, even without a changelog entry.
+      - ".github/workflows/deploy-pages.yml"
       - "!google-apps-script/**"
 
 permissions:
