@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T08:27:31.939924Z",
-  "last_processed_sha": "73b31fa215065385cec2ea05fddb730721c9e710",
+  "updated_at": "2026-11-26T08:28:41.597964Z",
+  "last_processed_sha": "b65fd004dc26e58ee7411fa09c060db420e919b4",
   "entries": [
+    {
+      "id": "b65fd004dc26e58ee7411fa09c060db420e919b4",
+      "timestamp": "2026-11-26T09:28:25+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Publish Transmission T-0008. It updates human-archive.json, transmissions.json.",
+      "commit_count": 1,
+      "files": [
+        "content/human-archive.json",
+        "content/transmissions.json"
+      ],
+      "commits": [
+        {
+          "message": "Publish Transmission T-0008",
+          "url": "https://github.com/iYakuza/landing-page/commit/b65fd004dc26e58ee7411fa09c060db420e919b4",
+          "files": [
+            "content/human-archive.json",
+            "content/transmissions.json"
+          ]
+        }
+      ]
+    },
     {
       "id": "73b31fa215065385cec2ea05fddb730721c9e710",
       "timestamp": "2026-11-26T09:27:15+01:00",
@@ -1405,33 +1428,6 @@
             "index.html",
             "shared/contact/contact.js",
             "tests/github-store-media.test.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "30ca8d1bc2c79b4cb91f211f2a97ce068c46e424",
-      "timestamp": "2026-11-23T18:08:20+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Match Transmissions page to Human Archive design. It updates site-safety.yml, archive-match.css, index.html, posts.js.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/site-safety.yml",
-        "transmissions/archive-match.css",
-        "transmissions/index.html",
-        "transmissions/posts.js"
-      ],
-      "commits": [
-        {
-          "message": "Match Transmissions page to Human Archive design",
-          "url": "https://github.com/iYakuza/landing-page/commit/30ca8d1bc2c79b4cb91f211f2a97ce068c46e424",
-          "files": [
-            ".github/workflows/site-safety.yml",
-            "transmissions/archive-match.css",
-            "transmissions/index.html",
-            "transmissions/posts.js"
           ]
         }
       ]
