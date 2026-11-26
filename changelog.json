@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T01:15:23.374362Z",
-  "last_processed_sha": "97034ced6274500eb139c958f6ded8f00ead037d",
+  "updated_at": "2026-11-26T08:24:38.133839Z",
+  "last_processed_sha": "66e904d6a0a26847128e3b14b813e89a6c421ca8",
   "entries": [
+    {
+      "id": "66e904d6a0a26847128e3b14b813e89a6c421ca8",
+      "timestamp": "2026-11-26T09:24:19+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Publish Transmission T-0008. It updates human-archive.json, transmissions.json.",
+      "commit_count": 1,
+      "files": [
+        "content/human-archive.json",
+        "content/transmissions.json"
+      ],
+      "commits": [
+        {
+          "message": "Publish Transmission T-0008",
+          "url": "https://github.com/iYakuza/landing-page/commit/66e904d6a0a26847128e3b14b813e89a6c421ca8",
+          "files": [
+            "content/human-archive.json",
+            "content/transmissions.json"
+          ]
+        }
+      ]
+    },
     {
       "id": "211e3f511ef7f39ba3b5f5bb90d519e6f567cfc5",
       "timestamp": "2026-11-26T02:14:50+01:00",
@@ -1437,53 +1460,6 @@
             "shared/crystal/crystal-loader.js",
             "shared/crystal/crystal.js",
             "shared/crystal/tools/constellation.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "aa65b2b7722825fe780700a28bf9f0d191ddae9c",
-      "timestamp": "2026-11-23T11:46:53+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Align canonical routes and remove legacy redirects. It updates 404.html, index.html, transmissions.json and related project files.",
-      "commit_count": 1,
-      "files": [
-        "404.html",
-        "community/index.html",
-        "content/transmissions.json",
-        "green-dream/index.html",
-        "index.html",
-        "music/index.html",
-        "secure-your-soul/index.html",
-        "sitemap.xml",
-        "transmissions/canonical.js",
-        "transmissions/index.html",
-        "transmissions/posts.js",
-        "transmissions/the-awakening/index.html",
-        "transmissions/the-descent/index.html",
-        "transmissions/the-reconnection/index.html",
-        "transmissions/the-return/index.html",
-        "transmissions/the-transformation/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Align canonical routes and remove legacy redirects",
-          "url": "https://github.com/iYakuza/landing-page/commit/aa65b2b7722825fe780700a28bf9f0d191ddae9c",
-          "files": [
-            "404.html",
-            "community/index.html",
-            "content/transmissions.json",
-            "green-dream/index.html",
-            "index.html",
-            "music/index.html",
-            "secure-your-soul/index.html",
-            "sitemap.xml",
-            "transmissions/canonical.js",
-            "transmissions/index.html",
-            "transmissions/posts.js",
-            "transmissions/the-awakening/index.html"
           ]
         }
       ]
