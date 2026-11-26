@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T08:49:16.151454Z",
-  "last_processed_sha": "33c01e66afbb0650fe7de53b03bfdf5ac0570ba0",
+  "updated_at": "2026-11-26T09:09:23.134512Z",
+  "last_processed_sha": "451a702b2bf93baf9daf113785c2646e1e6287bc",
   "entries": [
+    {
+      "id": "451a702b2bf93baf9daf113785c2646e1e6287bc",
+      "timestamp": "2026-11-26T10:09:08+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Publish Transmission T-0008. It updates human-archive.json, transmissions.json.",
+      "commit_count": 1,
+      "files": [
+        "content/human-archive.json",
+        "content/transmissions.json"
+      ],
+      "commits": [
+        {
+          "message": "Publish Transmission T-0008",
+          "url": "https://github.com/iYakuza/landing-page/commit/451a702b2bf93baf9daf113785c2646e1e6287bc",
+          "files": [
+            "content/human-archive.json",
+            "content/transmissions.json"
+          ]
+        }
+      ]
+    },
     {
       "id": "9ae55c2dce058c89013add9bfd07a1a9560ba136",
       "timestamp": "2026-11-26T09:49:02+01:00",
@@ -1398,37 +1421,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/3190b1695851e1d8e7696e746d6085d3afa5c7ae",
           "files": [
             "tests/site-performance.test.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "3e5753b6a2e6a8ee8a6feda57368d1d197db16b8",
-      "timestamp": "2026-11-23T21:06:45+01:00",
-      "category": "FIX",
-      "component": "Website Updates",
-      "title": "More reliable Website Updates",
-      "description": "This update brings together Fix nested Google Apps Script contact iframe messaging (#145). It updates site-safety.yml, index.html, contact.js and related project files.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/site-safety.yml",
-        "cv/index.html",
-        "index.html",
-        "shared/contact/contact.js",
-        "tests/contact-intake.test.js",
-        "tests/github-store-media.test.js"
-      ],
-      "commits": [
-        {
-          "message": "Fix nested Google Apps Script contact iframe messaging (#145)",
-          "url": "https://github.com/iYakuza/landing-page/commit/3e5753b6a2e6a8ee8a6feda57368d1d197db16b8",
-          "files": [
-            ".github/workflows/site-safety.yml",
-            "cv/index.html",
-            "index.html",
-            "shared/contact/contact.js",
-            "tests/contact-intake.test.js",
-            "tests/github-store-media.test.js"
           ]
         }
       ]
