@@ -93,12 +93,14 @@ test('the shared Chamber grid is full-width and saved columns collapse responsiv
 });
 
 test('all Transmission routes use the same archive card stylesheet and renderer versions', () => {
+  const editorVersion = creatorSource.match(/const EDITOR_VERSION = '([^']+)'/)?.[1];
+  assert.ok(editorVersion, 'the shared Chamber bridge must declare its editor asset version');
   for (const page of movementPages) {
     const html = read(page);
     assert.match(html, /human-archive\/archive\.css\?v=20261122-responsive-card-video-1/, page + ' shared Human Archive styles');
     assert.match(html, /archive-standard\.css\?v=20261125-ha-standard-2/, page + ' standard archive layer');
     assert.match(html, /posts\.js\?v=20261125-ha-standard-2/, page + ' common renderer');
-    assert.match(html, /creator-posting\.js\?v=20261125-ha-standard-2/, page + ' shared Chamber bridge');
+    assert.ok(html.includes('creator-posting.js?v=' + editorVersion), page + ' shared Chamber bridge');
   }
 });
 
