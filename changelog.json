@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T08:45:22.593893Z",
-  "last_processed_sha": "c6cd38dc13786c46be2e7e5e566e520c98d7d947",
+  "updated_at": "2026-11-26T08:45:52.804235Z",
+  "last_processed_sha": "7530a4bb05c78810ffdef8a2eec0e9ca915920ba",
   "entries": [
+    {
+      "id": "7530a4bb05c78810ffdef8a2eec0e9ca915920ba",
+      "timestamp": "2026-11-26T09:45:38+01:00",
+      "category": "FIX",
+      "component": "Website",
+      "title": "More reliable Website",
+      "description": "This update brings together Correct the buttons transform regression assertion. It updates github-store-media.test.js.",
+      "commit_count": 1,
+      "files": [
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Correct the buttons transform regression assertion",
+          "url": "https://github.com/iYakuza/landing-page/commit/7530a4bb05c78810ffdef8a2eec0e9ca915920ba",
+          "files": [
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "c6cd38dc13786c46be2e7e5e566e520c98d7d947",
       "timestamp": "2026-11-26T09:45:03+01:00",
@@ -1420,31 +1441,6 @@
             "index.html",
             "shared/contact/contact.js",
             "tests/contact-intake.test.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "a68db71e8ecbf4a94d4212374a79bc60ba433a73",
-      "timestamp": "2026-11-23T19:28:18+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Configure Google Apps Script contact endpoint. It updates contact.js, contact-intake.test.js, github-store-media.test.js.",
-      "commit_count": 1,
-      "files": [
-        "shared/contact/contact.js",
-        "tests/contact-intake.test.js",
-        "tests/github-store-media.test.js"
-      ],
-      "commits": [
-        {
-          "message": "Configure Google Apps Script contact endpoint",
-          "url": "https://github.com/iYakuza/landing-page/commit/a68db71e8ecbf4a94d4212374a79bc60ba433a73",
-          "files": [
-            "shared/contact/contact.js",
-            "tests/contact-intake.test.js",
-            "tests/github-store-media.test.js"
           ]
         }
       ]
