@@ -1039,6 +1039,7 @@ test('block style dropdown transforms classic, Markdown, code, card, callout and
   assert.match(blockEditorSource, /type==='code'\) html='<pre class="ha-code-block"><code>'/);
   assert.match(blockEditorCssSource, /pre\.ha-code-block/);
   assert.match(archiveCssSource, /\.ha-chamber-blocks-view pre\.ha-code-block/);
+  assert.match(archiveSource, /ha-markdown-source','ha-code-block','ha-html-source/);
   assert.match(blockEditorSource, /duplicate\.textContent='⧉'/);
   assert.match(blockEditorSource, /type==='card'\) html='<section class="ha-card">'/);
   assert.match(blockEditorSource, /type==='callout'\) html='<aside class="ha-callout">'/);
