@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T08:47:37.379064Z",
-  "last_processed_sha": "02950ab743a0d86b76d5d74dbcc449440f695a6e",
+  "updated_at": "2026-11-26T08:49:16.151454Z",
+  "last_processed_sha": "9ae55c2dce058c89013add9bfd07a1a9560ba136",
   "entries": [
+    {
+      "id": "9ae55c2dce058c89013add9bfd07a1a9560ba136",
+      "timestamp": "2026-11-26T09:49:02+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Preserve code block styling through Chamber sanitization; Test code block class preservation in Chamber sanitizers. It updates archive.js, github-store-media.test.js.",
+      "commit_count": 2,
+      "files": [
+        "human-archive/archive.js",
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Preserve code block styling through Chamber sanitization",
+          "url": "https://github.com/iYakuza/landing-page/commit/ebdd220c70b7f43748bbc65adebd1e201bc69e25",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Test code block class preservation in Chamber sanitizers",
+          "url": "https://github.com/iYakuza/landing-page/commit/9ae55c2dce058c89013add9bfd07a1a9560ba136",
+          "files": [
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "ecd8e4f217c19eabe5d5e1fb937aaf2b76ff22e2",
       "timestamp": "2026-11-26T09:47:30+01:00",
@@ -1396,39 +1425,6 @@
           "files": [
             ".github/workflows/site-safety.yml",
             "cv/index.html",
-            "index.html",
-            "shared/contact/contact.js",
-            "tests/contact-intake.test.js",
-            "tests/github-store-media.test.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "c7733dc766e0037bc27299b7d131c2861dd3c22c",
-      "timestamp": "2026-11-23T20:31:10+01:00",
-      "category": "FIX",
-      "component": "Website Updates",
-      "title": "More reliable Website Updates",
-      "description": "This update brings together Fix contact attachment sizing and Google iframe readiness (#144). It updates site-safety.yml, index.html, Upload.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/site-safety.yml",
-        "cv/index.html",
-        "google-apps-script/Upload.html",
-        "index.html",
-        "shared/contact/contact.js",
-        "tests/contact-intake.test.js",
-        "tests/github-store-media.test.js"
-      ],
-      "commits": [
-        {
-          "message": "Fix contact attachment sizing and Google iframe readiness (#144)",
-          "url": "https://github.com/iYakuza/landing-page/commit/c7733dc766e0037bc27299b7d131c2861dd3c22c",
-          "files": [
-            ".github/workflows/site-safety.yml",
-            "cv/index.html",
-            "google-apps-script/Upload.html",
             "index.html",
             "shared/contact/contact.js",
             "tests/contact-intake.test.js",
