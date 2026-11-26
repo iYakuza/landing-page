@@ -309,3 +309,60 @@
  .ha-block-editor-topbar-actions{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
  .ha-block-editor-topbar .ha-editor-inserter{justify-content:center;min-width:0;padding:8px 5px;font-size:8px;letter-spacing:.02em}
 }
+
+
+/* Markdown: live syntax-coloured source editor. The textarea stays editable;
+   its transparent glyphs expose the safely-rendered highlight layer beneath. */
+.ha-editor-block-content:has(>.ha-markdown-editor){overflow-wrap:normal}
+.ha-markdown-editor{
+ position:relative;width:100%;min-width:0;min-height:176px;height:176px;max-height:480px;
+ overflow:hidden;border:1px solid rgba(143,171,170,.26);
+ background:#080f13;box-sizing:border-box;isolation:isolate
+}
+.ha-markdown-editor:focus-within{
+ border-color:rgba(184,216,157,.62);
+ box-shadow:0 0 0 1px rgba(184,216,157,.12),inset 0 0 28px rgba(143,171,170,.035)
+}
+.ha-markdown-highlight,.ha-markdown-input{
+ position:absolute;inset:0;display:block;width:100%;height:100%;min-height:100%;max-height:100%;
+ box-sizing:border-box;margin:0;padding:14px 16px;border:0;border-radius:0;
+ font:13px/1.82 'DM Mono',ui-monospace,monospace;letter-spacing:0;
+ white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;tab-size:2;
+ scrollbar-gutter:stable
+}
+.ha-markdown-highlight{
+ z-index:1;overflow:hidden;background:transparent;color:#e5ece8;
+ pointer-events:none;user-select:none
+}
+.ha-markdown-highlight code{display:block;min-height:100%;font:inherit;white-space:inherit}
+.ha-markdown-input{
+ z-index:2;overflow:auto;resize:none;outline:none;background:transparent!important;
+ color:transparent!important;-webkit-text-fill-color:transparent;caret-color:#d8ff3e;
+ -webkit-appearance:none;appearance:none
+}
+.ha-markdown-input::selection{
+ color:transparent;background:rgba(216,255,62,.24);-webkit-text-fill-color:transparent
+}
+.ha-markdown-input:focus-visible{outline:none}
+.ha-md-bracket,.ha-md-syntax-marker{color:#50636a}
+.ha-md-section-label{color:#b4c2a0;font-weight:600;letter-spacing:.015em}
+.ha-md-stage-direction{color:#82969a;font-style:italic}
+.ha-md-heading{color:#d8e6bf;font-weight:600}
+.ha-md-list-marker{color:#8aa7a0}
+.ha-md-strong{color:#f0f3df;font-weight:700}
+.ha-md-emphasis{color:#c6d9cd;font-style:italic}
+.ha-md-inline-code{padding:0 3px;border-radius:2px;background:rgba(143,190,188,.1);color:#c4df9b}
+.ha-md-link{color:#83bdc9;text-decoration:underline;text-decoration-color:rgba(131,189,201,.35)}
+.ha-md-code-fence{color:#596e72}
+.ha-md-code-language{color:#a6c58e}
+.ha-md-code-comment{color:#758780;font-style:italic}
+.ha-md-code-string{color:#d7b58b}
+.ha-md-code-number{color:#c5a5d7}
+.ha-md-code-keyword{color:#8bbbd0;font-weight:600}
+.ha-md-code-function{color:#d8d79b}
+.ha-md-code-identifier{color:#d5dfd9}
+.ha-md-code-punctuation{color:#7d9291}
+@media(max-width:650px){
+ .ha-markdown-highlight,.ha-markdown-input{padding:12px 11px;font-size:12px;line-height:1.8}
+ .ha-markdown-editor{min-height:166px}
+}

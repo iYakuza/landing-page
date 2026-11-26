@@ -9,6 +9,7 @@ const test = require('node:test');
 const source = fs.readFileSync(path.join(__dirname, '..', 'cms', 'github-store.js'), 'utf8');
 const archiveSource = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'archive.js'), 'utf8');
 const blockEditorSource = fs.readFileSync(path.join(__dirname, '..', 'editor-ui', 'block-editor.js'), 'utf8');
+const blockEditorCssSource = fs.readFileSync(path.join(__dirname, '..', 'editor-ui', 'block-editor.css'), 'utf8');
 const archiveHtml = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'index.html'), 'utf8');
 const archiveCssSource = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'archive.css'), 'utf8');
 const context = vm.createContext({ window: {}, URL });
@@ -1008,4 +1009,21 @@ test('opening Redesign initializes the private autosave baseline without changin
     'the initial editor state must be captured after editor listeners are wired and before autosave can flush');
   assert.match(archiveSource.slice(metadataStart, metadataEnd), /status:String\(recordMetadataInputs\.status\.value\|\|'draft'\)/,
     'publication status must be part of the autosave baseline and persisted draft metadata');
+});
+
+
+test('Markdown blocks provide syntax-coloured live editing while saving plain Markdown source', () => {
+  assert.match(blockEditorSource, /function highlightMarkdown\(source\)/);
+  assert.match(blockEditorSource, /function createMarkdownEditor\(source = ''\)/);
+  assert.match(blockEditorSource, /ha-markdown-input/);
+  assert.match(blockEditorSource, /ha-markdown-source/);
+  assert.match(blockEditorSource, /source\.textContent=markdownInput\.value/);
+  assert.match(blockEditorSource, /isMarkdownSectionLabel/);
+  assert.match(blockEditorSource, /'stage-direction'/);
+  assert.match(blockEditorCssSource, /\.ha-markdown-highlight/);
+  assert.match(blockEditorCssSource, /\.ha-markdown-input/);
+  assert.match(blockEditorCssSource, /\.ha-md-bracket/);
+  assert.match(blockEditorCssSource, /\.ha-md-section-label/);
+  assert.match(blockEditorCssSource, /\.ha-md-stage-direction/);
+  assert.match(blockEditorCssSource, /\.ha-md-code-keyword/);
 });

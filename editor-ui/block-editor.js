@@ -69,6 +69,187 @@
     return 'paragraph';
   }
 
+
+  function appendMarkdownToken(parent, value, kind) {
+    if (!value) return;
+    if (!kind) {
+      parent.append(document.createTextNode(value));
+      return;
+    }
+    const token = document.createElement('span');
+    token.className = 'ha-md-' + kind;
+    token.textContent = value;
+    parent.append(token);
+  }
+
+  function isMarkdownSectionLabel(value) {
+    return /^(?:intro|verse(?:\s+\d+)?|pre[- ]?chorus|chorus|post[- ]?chorus|bridge|outro|hook|refrain|instrumental|interlude|breakdown|spoken|solo|coda|ending|tag)(?:\b|\s|[–—:])/i.test(String(value || '').trim());
+  }
+
+  function appendMarkdownInline(parent, source) {
+    const pattern = /(\[[^\]\n]*\]|\x60[^\x60\n]+\x60|\*\*[^*\n]+\*\*|__[^_\n]+__|\*[^*\n]+\*|_[^_\n]+_|https?:\/\/[^\s]+)/g;
+    let last = 0;
+    let match;
+    while ((match = pattern.exec(source))) {
+      appendMarkdownToken(parent, source.slice(last, match.index));
+      const token = match[0];
+      if (token[0] === '[' && token[token.length - 1] === ']') {
+        const label = token.slice(1, -1);
+        appendMarkdownToken(parent, '[', 'bracket');
+        appendMarkdownToken(parent, label, isMarkdownSectionLabel(label) ? 'section-label' : 'stage-direction');
+        appendMarkdownToken(parent, ']', 'bracket');
+      } else if (token.startsWith('\x60')) {
+        appendMarkdownToken(parent, '\x60', 'syntax-marker');
+        appendMarkdownToken(parent, token.slice(1, -1), 'inline-code');
+        appendMarkdownToken(parent, '\x60', 'syntax-marker');
+      } else if (token.startsWith('**') || token.startsWith('__')) {
+        const marker = token.slice(0, 2);
+        appendMarkdownToken(parent, marker, 'syntax-marker');
+        appendMarkdownToken(parent, token.slice(2, -2), 'strong');
+        appendMarkdownToken(parent, marker, 'syntax-marker');
+      } else if (token.startsWith('*') || token.startsWith('_')) {
+        const marker = token[0];
+        appendMarkdownToken(parent, marker, 'syntax-marker');
+        appendMarkdownToken(parent, token.slice(1, -1), 'emphasis');
+        appendMarkdownToken(parent, marker, 'syntax-marker');
+      } else {
+        appendMarkdownToken(parent, token, 'link');
+      }
+      last = match.index + token.length;
+    }
+    appendMarkdownToken(parent, source.slice(last));
+  }
+
+  function appendMarkdownCodeLine(parent, source) {
+    const pattern = /(\/\/.*$|\/\*.*?\*\/|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\x60[^\x60]*\x60|\b\d+(?:\.\d+)?\b|[$A-Za-z_][\w$]*|[\{\}\(\)\[\].,;:+*\/=<>!-])/g;
+    const keywords = /^(?:async|await|break|case|catch|class|const|continue|debugger|default|delete|do|else|export|extends|false|finally|for|from|function|if|import|in|instanceof|let|new|null|of|return|static|super|switch|this|throw|true|try|typeof|var|void|while|yield)$/;
+    let last = 0;
+    let match;
+    while ((match = pattern.exec(source))) {
+      appendMarkdownToken(parent, source.slice(last, match.index));
+      const token = match[0];
+      const next = source.slice(match.index + token.length).match(/^\s*(.)/)?.[1] || '';
+      let kind = '';
+      if (token.startsWith('//') || token.startsWith('/*')) kind = 'code-comment';
+      else if (/^(["'\x60])/.test(token)) kind = 'code-string';
+      else if (/^\d/.test(token)) kind = 'code-number';
+      else if (keywords.test(token)) kind = 'code-keyword';
+      else if (/^[A-Za-z_$]/.test(token) && next === '(') kind = 'code-function';
+      else if (/^[\{\}\(\)\[\].,;:+*\/=<>!-]+$/.test(token)) kind = 'code-punctuation';
+      else if (/^[A-Za-z_$]/.test(token)) kind = 'code-identifier';
+      appendMarkdownToken(parent, token, kind);
+      last = match.index + token.length;
+    }
+    appendMarkdownToken(parent, source.slice(last));
+  }
+
+  function highlightMarkdown(source) {
+    const fragment = document.createDocumentFragment();
+    const lines = String(source ?? '').replace(/\r\n?/g, '\n').split('\n');
+    let inCodeFence = false;
+    lines.forEach((line, index) => {
+      if (index) fragment.append(document.createTextNode('\n'));
+      if (/^\s*(?:\x60{3,}|~{3,})/.test(line)) {
+        const fence = line.match(/^(\s*)(?:\x60{3,}|~{3,})(.*)$/);
+        appendMarkdownToken(fragment, fence?.[1] || '');
+        appendMarkdownToken(fragment, line.trim().slice(0, 3), 'code-fence');
+        appendMarkdownToken(fragment, fence?.[2] || '', 'code-language');
+        inCodeFence = !inCodeFence;
+        return;
+      }
+      if (inCodeFence) {
+        appendMarkdownCodeLine(fragment, line);
+        return;
+      }
+      const bracketLine = line.match(/^(\s*)(\[)([^\]\n]+)(\])(\s*)$/);
+      if (bracketLine) {
+        appendMarkdownToken(fragment, bracketLine[1]);
+        appendMarkdownToken(fragment, bracketLine[2], 'bracket');
+        appendMarkdownToken(fragment, bracketLine[3], isMarkdownSectionLabel(bracketLine[3]) ? 'section-label' : 'stage-direction');
+        appendMarkdownToken(fragment, bracketLine[4], 'bracket');
+        appendMarkdownToken(fragment, bracketLine[5]);
+        return;
+      }
+      const heading = line.match(/^(\s{0,3})(#{1,6})(\s+)(.*)$/);
+      if (heading) {
+        appendMarkdownToken(fragment, heading[1]);
+        appendMarkdownToken(fragment, heading[2], 'syntax-marker');
+        appendMarkdownToken(fragment, heading[3]);
+        appendMarkdownToken(fragment, heading[4], 'heading');
+        return;
+      }
+      const quote = line.match(/^(\s*)(>+)(\s?)(.*)$/);
+      if (quote) {
+        appendMarkdownToken(fragment, quote[1]);
+        appendMarkdownToken(fragment, quote[2], 'syntax-marker');
+        appendMarkdownToken(fragment, quote[3]);
+        appendMarkdownInline(fragment, quote[4]);
+        return;
+      }
+      const list = line.match(/^(\s*)([-*+]|\d+[.)])(\s+)(.*)$/);
+      if (list) {
+        appendMarkdownToken(fragment, list[1]);
+        appendMarkdownToken(fragment, list[2], 'list-marker');
+        appendMarkdownToken(fragment, list[3]);
+        appendMarkdownInline(fragment, list[4]);
+        return;
+      }
+      if (/^\s*(?:-{3,}|\*{3,}|_{3,})\s*$/.test(line)) {
+        appendMarkdownToken(fragment, line, 'syntax-marker');
+        return;
+      }
+      appendMarkdownInline(fragment, line);
+    });
+    return fragment;
+  }
+
+  function createMarkdownEditor(source = '') {
+    const shell = document.createElement('div');
+    shell.className = 'ha-markdown-editor';
+    const highlighted = document.createElement('pre');
+    highlighted.className = 'ha-markdown-highlight';
+    highlighted.setAttribute('aria-hidden', 'true');
+    const code = document.createElement('code');
+    highlighted.append(code);
+    const input = document.createElement('textarea');
+    input.className = 'ha-markdown-input';
+    input.setAttribute('aria-label', 'Markdown source editor');
+    input.setAttribute('spellcheck', 'false');
+    input.setAttribute('autocapitalize', 'off');
+    input.setAttribute('autocomplete', 'off');
+    input.spellcheck = false;
+    input.wrap = 'soft';
+    input.value = String(source ?? '');
+    input.defaultValue = input.value;
+    input.rows = Math.max(6, Math.min(20, input.value.split('\n').length + 1));
+    input.readOnly = Boolean(readOnly);
+
+    const repaint = () => {
+      code.replaceChildren(highlightMarkdown(input.value));
+      const height = Math.min(480, Math.max(176, input.scrollHeight || 176));
+      shell.style.height = height + 'px';
+      highlighted.scrollTop = input.scrollTop;
+      highlighted.scrollLeft = input.scrollLeft;
+    };
+    input.addEventListener('input', () => {
+      if (input.defaultValue !== input.value) input.defaultValue = input.value;
+      repaint();
+    });
+    input.addEventListener('scroll', () => {
+      highlighted.scrollTop = input.scrollTop;
+      highlighted.scrollLeft = input.scrollLeft;
+    }, { passive: true });
+    input.addEventListener('keydown', event => {
+      if (event.key !== 'Tab' || event.shiftKey || event.isComposing) return;
+      event.preventDefault();
+      input.setRangeText('  ', input.selectionStart, input.selectionEnd, 'end');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    shell.append(highlighted, input);
+    repaint();
+    return shell;
+  }
+
   function makeBlock(type, html) {
     const block = document.createElement('section');
     block.className = 'ha-editor-block';
@@ -83,7 +264,11 @@
     content.className = 'ha-editor-block-content';
     content.dataset.haBlockContent = '';
     content.innerHTML = html;
-    if (['separator','image','gallery','slideshow','tiled-gallery','image-compare','audio','video','playlist','podcast','embed','youtube','spotify','soundcloud','spacer','columns'].includes(type)) content.contentEditable = 'false';
+    if (type === 'markdown') {
+      const source = content.querySelector('.ha-markdown-source')?.textContent ?? content.querySelector('pre')?.textContent ?? content.textContent ?? '';
+      content.replaceChildren(createMarkdownEditor(source));
+      content.contentEditable = 'false';
+    } else if (['separator','image','gallery','slideshow','tiled-gallery','image-compare','audio','video','playlist','podcast','embed','youtube','spotify','soundcloud','spacer','columns'].includes(type)) content.contentEditable = 'false';
     else content.contentEditable = 'true';
 
     const footer = document.createElement('div');
@@ -403,9 +588,14 @@
 
     function focusBlock(block) {
       const ownContent=contentFor(block);
-      const target=ownContent?.contentEditable==='true'?ownContent:ownContent?.querySelector('[data-ha-block-content][contenteditable="true"]');
+      const markdownInput=ownContent?.querySelector('.ha-markdown-input');
+      const target=markdownInput || (ownContent?.contentEditable==='true'?ownContent:ownContent?.querySelector('[data-ha-block-content][contenteditable="true"]'));
       if (!target) return;
       target.focus();
+      if(target.tagName==='TEXTAREA'){
+        target.setSelectionRange(target.value.length,target.value.length);
+        return;
+      }
       const editableBlocks=target.querySelectorAll('p,h1,h2,h3,h4,li,pre,blockquote');
       const caretTarget=editableBlocks[editableBlocks.length-1]||target;
       const range = document.createRange();
@@ -507,6 +697,11 @@
       const duplicate = document.createElement('button'); duplicate.type='button'; duplicate.textContent='＋'; duplicate.title='Duplicate block'; duplicate.setAttribute('aria-label','Duplicate block');
       duplicate.addEventListener('click',() => {
         const copy=block.cloneNode(true);
+        const markdownValue=block.querySelector('.ha-markdown-input')?.value;
+        if(markdownValue!==undefined){
+          const copiedContent=contentFor(copy);
+          copiedContent?.querySelector(':scope > .ha-markdown-editor')?.replaceWith(createMarkdownEditor(markdownValue));
+        }
         [copy,...copy.querySelectorAll('[data-ha-editor-block]')].forEach(node=>{delete node.dataset.haEditorWired;});
         block.after(copy);wireBlock(copy);setSelected(copy);sync();
       });
@@ -527,7 +722,8 @@
     function transformBlock(block,type) {
       const current=contentFor(block);
       const first=current?.firstElementChild;
-      const plain=document.createElement('span');plain.textContent=current?.textContent||'';
+      const plain=document.createElement('span');
+      plain.textContent=current?.querySelector('.ha-markdown-input')?.value ?? current?.textContent ?? '';
       const inlineHTML=first&&['P','H1','H2','H3','H4'].includes(first.tagName)?first.innerHTML:plain.innerHTML;
       const quoteHTML=first?.tagName==='BLOCKQUOTE'?first.innerHTML:'<p>'+inlineHTML+'</p>';
       let html=inlineHTML;
@@ -706,6 +902,17 @@
     }
 
     function serializeContent(content, ownerBlock=null) {
+      const markdownInput=content.querySelector(':scope > .ha-markdown-editor > .ha-markdown-input');
+      if(markdownInput){
+        const holder=document.createElement('div');
+        const source=document.createElement('pre');
+        source.className='ha-markdown-source';
+        source.textContent=markdownInput.value;
+        holder.append(source);
+        const name=String(ownerBlock?.dataset.haBlockName||'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,80);
+        if(name)source.setAttribute('data-ha-block-name',name);
+        return holder.innerHTML;
+      }
       const clone=content.cloneNode(true);
       const applyBlockName=(target,block)=>{
         const root=target?.firstElementChild;
