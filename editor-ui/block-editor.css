@@ -382,3 +382,6 @@
 .ha-editor-block-actions .ha-markdown-color-picker::-webkit-color-swatch{border:1px solid rgba(220,232,225,.3);border-radius:1px}
 .ha-editor-block-actions .ha-markdown-color-picker::-moz-color-swatch{border:1px solid rgba(220,232,225,.3);border-radius:1px}
 .ha-editor-block-actions .ha-markdown-color-picker:focus-visible{outline:2px solid #d8ff3e;outline-offset:2px}
+
+.ha-editor-block-content pre.ha-code-block{box-sizing:border-box;max-width:100%;padding:14px 16px;overflow-x:auto;border:1px solid rgba(168,199,194,.22);border-radius:4px;background:#070c10;color:#d7e2df;font:12px/1.7 'DM Mono',monospace;white-space:pre;tab-size:2;}
+.ha-editor-block-content pre.ha-code-block code{display:block;padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:inherit;}
