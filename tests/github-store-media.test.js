@@ -1028,6 +1028,20 @@ test('unchanged private Transmission snapshots skip redundant draft commits', ()
     'manual Save must preserve branch conflict detection and write only when the draft payload changed');
 });
 
+test('Transmission redesign uses one canonical body instead of appending its plain-text extraction', () => {
+  assert.match(archiveSource, /record\.source_type==='transmission'[\s\S]{0,180}structure\.transmission_body\|\|record\.content_html\|\|structure\.output_text/);
+  assert.match(archiveSource, /const initialBlockHTML=savedBlocks\.length\?savedBlocks\.map/);
+});
+
+test('block style dropdown transforms classic, Markdown, code, card, callout and button blocks', () => {
+  assert.doesNotMatch(blockEditorSource, /\['classic','image','gallery'/);
+  assert.match(blockEditorSource, /type==='markdown'\) html='<pre class="ha-markdown-source">'/);
+  assert.match(blockEditorSource, /type==='code'\) html='<pre class="ha-code-block"><code>'/);
+  assert.match(blockEditorSource, /type==='card'\) html='<section class="ha-card">'/);
+  assert.match(blockEditorSource, /type==='callout'\) html='<aside class="ha-callout">'/);
+  assert.match(blockEditorSource, /type==='buttons'\) html='<div class="ha-buttons">'/);
+});
+
 test('opening Redesign initializes the private autosave baseline without changing draft data', () => {
   const baseline = archiveSource.indexOf('draftAutosaveLastSignature=transmissionDraftAutosaveSignature(buildDraftAutosaveState())');
   const listeners = archiveSource.indexOf("grid.addEventListener('change',()=>{updateSaveLabel();scheduleDraftAutosave();});");
