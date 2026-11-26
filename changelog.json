@@ -1,8 +1,47 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T00:46:12.178307Z",
-  "last_processed_sha": "0293aac99730159417f8d8c1c62028eb7edeec83",
+  "updated_at": "2026-11-26T00:51:14.789424Z",
+  "last_processed_sha": "45a0bd446a8576334ecec131b8bbccc7037cae67",
   "entries": [
+    {
+      "id": "45a0bd446a8576334ecec131b8bbccc7037cae67",
+      "timestamp": "2026-11-26T01:51:00+01:00",
+      "category": "FIX",
+      "component": "Website Updates",
+      "title": "More reliable Website Updates",
+      "description": "This update brings together Fix Markdown block editor mount scope. It updates creator-posting.js, block-editor.js, index.html, github-store-media.test.js and related project files.",
+      "commit_count": 1,
+      "files": [
+        "creator-posting.js",
+        "editor-ui/block-editor.js",
+        "human-archive/index.html",
+        "tests/github-store-media.test.js",
+        "transmissions/index.html",
+        "transmissions/the-awakening/index.html",
+        "transmissions/the-descent/index.html",
+        "transmissions/the-reconnection/index.html",
+        "transmissions/the-return/index.html",
+        "transmissions/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Fix Markdown block editor mount scope",
+          "url": "https://github.com/iYakuza/landing-page/commit/45a0bd446a8576334ecec131b8bbccc7037cae67",
+          "files": [
+            "creator-posting.js",
+            "editor-ui/block-editor.js",
+            "human-archive/index.html",
+            "tests/github-store-media.test.js",
+            "transmissions/index.html",
+            "transmissions/the-awakening/index.html",
+            "transmissions/the-descent/index.html",
+            "transmissions/the-reconnection/index.html",
+            "transmissions/the-return/index.html",
+            "transmissions/the-transformation/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "65f92e60f9a94c2f86043bb16c98cbdf03559285",
       "timestamp": "2026-11-26T01:45:55+01:00",
