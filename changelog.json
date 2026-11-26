@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T01:08:39.715907Z",
-  "last_processed_sha": "ee2dff4cc1eacf709d4b594716e4a0e6a8416a28",
+  "updated_at": "2026-11-26T01:09:02.664103Z",
+  "last_processed_sha": "e8d37d4783b895f7feb8e16952f3fcbdbf3204f6",
   "entries": [
+    {
+      "id": "e8d37d4783b895f7feb8e16952f3fcbdbf3204f6",
+      "timestamp": "2026-11-26T02:08:44+01:00",
+      "category": "FIX",
+      "component": "Website",
+      "title": "More reliable Website",
+      "description": "This update brings together Correct version-loader regression assertion. It updates github-store-media.test.js.",
+      "commit_count": 1,
+      "files": [
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Correct version-loader regression assertion",
+          "url": "https://github.com/iYakuza/landing-page/commit/e8d37d4783b895f7feb8e16952f3fcbdbf3204f6",
+          "files": [
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "ee2dff4cc1eacf709d4b594716e4a0e6a8416a28",
       "timestamp": "2026-11-26T02:08:30+01:00",
@@ -1461,31 +1482,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/e998d192d0057adcfb827215e63760e165796038",
           "files": [
             ".github/workflows/static-security-posture.yml"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "f1113b7fccbdc5a20fc1a25100b938400a022251",
-      "timestamp": "2026-11-22T18:51:06+01:00",
-      "category": "CONTENT",
-      "component": "Website Updates",
-      "title": "Fresh additions to Website Updates",
-      "description": "This update brings together cleanup: reset public changelog and remove legacy post snapshot. It updates .gitleaks.toml, changelog.json, posts.json.",
-      "commit_count": 1,
-      "files": [
-        ".gitleaks.toml",
-        "changelog.json",
-        "transmissions/posts.json"
-      ],
-      "commits": [
-        {
-          "message": "cleanup: reset public changelog and remove legacy post snapshot",
-          "url": "https://github.com/iYakuza/landing-page/commit/f1113b7fccbdc5a20fc1a25100b938400a022251",
-          "files": [
-            ".gitleaks.toml",
-            "changelog.json",
-            "transmissions/posts.json"
           ]
         }
       ]
