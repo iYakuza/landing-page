@@ -20,7 +20,23 @@ const creatorPostingPagePaths = [
   'transmissions/the-descent/index.html',
   'transmissions/the-reconnection/index.html',
   'transmissions/the-transformation/index.html',
-  'transmissions/the-return/index.html'
+  'transmissions/the-return/index.html',
+  'cv/index.html',
+  'green-dream/index.html',
+  'green-dream/guest-notes/index.html',
+  'green-dream/guest-notes/architecture-of-harm/index.html',
+  'green-dream/guest-notes/ethical-coexistence-initiative/index.html',
+  'green-dream/guest-notes/ethical-coexistence-initiative/first-year-plan/index.html',
+  'green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/index.html',
+  'green-dream/guest-notes/ethical-coexistence-initiative/foundations/ethical-framework/ro/index.html',
+  'green-dream/guest-notes/ethical-coexistence-initiative/governance-and-accountability/index.html',
+  'green-dream/guest-notes/ethical-coexistence-initiative/governance-and-first-year-plan/index.html',
+  'green-dream/guest-notes/ethical-coexistence-initiative/implementation-blueprint/index.html',
+  'green-dream/guest-notes/ethical-coexistence-initiative/ro/index.html',
+  'green-dream/guest-notes/ethical-framework/index.html',
+  'green-dream/guest-notes/ethical-framework/ro/index.html',
+  'secure-your-soul/index.html',
+  'signals/index.html'
 ];
 const creatorPostingPages = creatorPostingPagePaths.map(file =>
   fs.readFileSync(path.join(__dirname, '..', file), 'utf8')
