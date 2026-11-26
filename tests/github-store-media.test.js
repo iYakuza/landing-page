@@ -1057,7 +1057,7 @@ test('chamber entry points load the current Markdown editor assets rather than s
   assert.ok(editorVersion, 'the shared editor loader must declare its asset version');
   assert.ok(blockEditorSource.includes("version: '" + editorVersion + "'"),
     'the block editor must expose the version of the script that actually initialized');
-  assert.match(creatorPostingSource, /link\\.href === target/,
+  assert.match(creatorPostingSource, /link\.href === target/,
     'the stylesheet loader must compare the exact requested asset URL, not accept any older copy');
   assert.ok(creatorPostingSource.includes('window.VHABlockEditor?.version === EDITOR_VERSION'),
     'the script loader must verify the loaded block-editor version');
