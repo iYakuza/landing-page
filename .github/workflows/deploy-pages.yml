@@ -7,26 +7,23 @@ on:
     workflows: ["Publish visitor-friendly changelog"]
     types: [completed]
     branches: [main]
-  # Allows manual redeploys for recovery or configuration validation.
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: github-pages
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
     steps:
       - name: Check out the latest published source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -56,8 +53,7 @@ jobs:
             --exclude='/google-apps-script/' \
             ./ "$site_dir/"
 
-          # security.txt is intentionally public and must survive the
-          # artifact action's default hidden-file filtering.
+          # security.txt is intentionally public and must survive hidden-file filtering.
           mkdir -p "$site_dir/.well-known"
           cp -a .well-known/. "$site_dir/.well-known/"
 
@@ -86,6 +82,17 @@ jobs:
           path: ${{ runner.temp }}/pages-site/
           include-hidden-files: true
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
