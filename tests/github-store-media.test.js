@@ -922,9 +922,9 @@ test('explicit draft Save stops the obsolete autosave lifecycle before read-only
 });
 
 test('the public Chamber renders Markdown and mirrors the selected block type styles', () => {
-  assert.match(archiveSource, /function appendMarkdownBlock\(parent,source,copySafeNode\)/);
+  assert.match(archiveSource, /function appendMarkdownBlock\(parent,source,copySafeNode(?:,textColor='')?\)/);
   assert.match(archiveSource, /node\.classList\?\.contains\('ha-markdown-source'\)/);
-  assert.match(archiveSource, /appendMarkdownBlock\(parent,node\.textContent\|\|'',copy\)/);
+  assert.match(archiveSource, /appendMarkdownBlock\(parent,node\.textContent\|\|'',copy(?:,textColor)?\)/);
   for (const blockClass of [
     'ha-pullquote','ha-grid','ha-row','ha-stack','ha-tabs','ha-callout',
     'ha-timeline','ha-media-text','ha-image-compare','ha-gallery',
@@ -1014,7 +1014,7 @@ test('opening Redesign initializes the private autosave baseline without changin
 
 test('Markdown blocks provide syntax-coloured live editing while saving plain Markdown source', () => {
   assert.match(blockEditorSource, /function highlightMarkdown\(source\)/);
-  assert.match(blockEditorSource, /function createMarkdownEditor\(source = ''\)/);
+  assert.match(blockEditorSource, /function createMarkdownEditor\(source = '', textColor = '#e5ece8'\)/);
   assert.match(blockEditorSource, /ha-markdown-input/);
   assert.match(blockEditorSource, /ha-markdown-source/);
   assert.match(blockEditorSource, /source\.textContent=markdownInput\.value/);
@@ -1031,7 +1031,7 @@ test('Markdown blocks provide syntax-coloured live editing while saving plain Ma
 
 
 test('Markdown helper does not read mount-only state outside its scope and read-only editors lock Markdown inputs', () => {
-  const helperStart = blockEditorSource.indexOf('function createMarkdownEditor(source = \'\')');
+  const helperStart = blockEditorSource.indexOf("function createMarkdownEditor(source = '', textColor = '#e5ece8')");
   const helperEnd = blockEditorSource.indexOf('\n  function makeBlock(', helperStart);
   assert.ok(helperStart >= 0 && helperEnd > helperStart, 'Markdown editor helper must be a module-level function');
   assert.doesNotMatch(blockEditorSource.slice(helperStart, helperEnd), /\breadOnly\b/,
