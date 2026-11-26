@@ -1,8 +1,93 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T01:00:10.064706Z",
-  "last_processed_sha": "e9e1f37a84a13cc746c2599f8e20887075e18bf0",
+  "updated_at": "2026-11-26T01:08:23.667956Z",
+  "last_processed_sha": "88e5c93a43878cad176c59a9173f9e6589ffeb03",
   "entries": [
+    {
+      "id": "88e5c93a43878cad176c59a9173f9e6589ffeb03",
+      "timestamp": "2026-11-26T02:08:20+01:00",
+      "category": "FEATURE",
+      "component": "Website Updates",
+      "title": "New capabilities for Website Updates",
+      "description": "This update brings together Add an explicit version marker to the block editor; Load the exact current Markdown editor assets; Align Human Archive editor assets with the current shared editor; and 2 more related changes. It updates creator-posting.js, block-editor.js, index.html and related project files.",
+      "commit_count": 9,
+      "files": [
+        "creator-posting.js",
+        "editor-ui/block-editor.js",
+        "human-archive/index.html",
+        "index.html",
+        "transmissions/the-awakening/index.html",
+        "transmissions/the-descent/index.html",
+        "transmissions/the-reconnection/index.html",
+        "transmissions/the-return/index.html",
+        "transmissions/the-transformation/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Add an explicit version marker to the block editor",
+          "url": "https://github.com/iYakuza/landing-page/commit/c3591ec042773fca629d75b6512c6ce19a690552",
+          "files": [
+            "editor-ui/block-editor.js"
+          ]
+        },
+        {
+          "message": "Load the exact current Markdown editor assets",
+          "url": "https://github.com/iYakuza/landing-page/commit/7de6ca99ac6447ff7377d633fad30b1abe6182aa",
+          "files": [
+            "creator-posting.js"
+          ]
+        },
+        {
+          "message": "Align Human Archive editor assets with the current shared editor",
+          "url": "https://github.com/iYakuza/landing-page/commit/653789a4966dab908c34d36a66f5feda2069316f",
+          "files": [
+            "human-archive/index.html"
+          ]
+        },
+        {
+          "message": "Refresh the shared editor loader on the home page",
+          "url": "https://github.com/iYakuza/landing-page/commit/8cee6eeff44850c68a12231e1fda079620184746",
+          "files": [
+            "index.html"
+          ]
+        },
+        {
+          "message": "Refresh the shared editor loader on the Transmission movement page",
+          "url": "https://github.com/iYakuza/landing-page/commit/aa9515e93757c0bbc57e892a4f62a1ff2e892f85",
+          "files": [
+            "transmissions/the-awakening/index.html"
+          ]
+        },
+        {
+          "message": "Refresh the shared editor loader on the Transmission movement page",
+          "url": "https://github.com/iYakuza/landing-page/commit/c6ee3431db4cc4ffb5c4bae99611fe4063360815",
+          "files": [
+            "transmissions/the-descent/index.html"
+          ]
+        },
+        {
+          "message": "Refresh the shared editor loader on the Transmission movement page",
+          "url": "https://github.com/iYakuza/landing-page/commit/261352955c6010fc0c8ff85b2717f4375db28187",
+          "files": [
+            "transmissions/the-reconnection/index.html"
+          ]
+        },
+        {
+          "message": "Refresh the shared editor loader on the Transmission movement page",
+          "url": "https://github.com/iYakuza/landing-page/commit/29f3659524b47257afec93864567b3bc78f95314",
+          "files": [
+            "transmissions/the-transformation/index.html"
+          ]
+        },
+        {
+          "message": "Refresh the shared editor loader on the Transmission movement page",
+          "url": "https://github.com/iYakuza/landing-page/commit/88e5c93a43878cad176c59a9173f9e6589ffeb03",
+          "files": [
+            "transmissions/the-return/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "e9e1f37a84a13cc746c2599f8e20887075e18bf0",
       "timestamp": "2026-11-26T01:59:51+01:00",
