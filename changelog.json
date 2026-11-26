@@ -1,8 +1,37 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T10:04:57.937543Z",
-  "last_processed_sha": "30435e709c1f4985f39867c81727a625d2a0616d",
+  "updated_at": "2026-11-26T15:44:12.103163Z",
+  "last_processed_sha": "57819429e6c9b11a75da31f8e36eb9e7adf0a742",
   "entries": [
+    {
+      "id": "57819429e6c9b11a75da31f8e36eb9e7adf0a742",
+      "timestamp": "2026-11-26T16:43:50+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Soften bracketed section labels in archive code blocks; Style code block section labels with softer contrast. It updates archive.css, archive.js.",
+      "commit_count": 2,
+      "files": [
+        "human-archive/archive.css",
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Soften bracketed section labels in archive code blocks",
+          "url": "https://github.com/iYakuza/landing-page/commit/72cb9d57cd7fa8493ef77292ad74845c70e9d104",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Style code block section labels with softer contrast",
+          "url": "https://github.com/iYakuza/landing-page/commit/dcec9d743d5640b0435c7e1b5987547bf4d4b288",
+          "files": [
+            "human-archive/archive.css"
+          ]
+        }
+      ]
+    },
     {
       "id": "30435e709c1f4985f39867c81727a625d2a0616d",
       "timestamp": "2026-11-26T11:04:42+01:00",
@@ -1347,52 +1376,6 @@
             "tests/site-performance.test.js",
             "transmissions/archive-standard.css",
             "transmissions/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "50776be14836817d0d1f48cd1672c985e2d6a8ea",
-      "timestamp": "2026-11-25T13:54:46+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Experience",
-      "title": "A refined Website Experience",
-      "description": "This update brings together Align page CSP, favicons, and shared script cache versions. It updates site-safety.yml, 404.html, index.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/site-safety.yml",
-        "404.html",
-        "cms/index.html",
-        "cv/index.html",
-        "green-dream/index.html",
-        "human-archive/index.html",
-        "index.html",
-        "secure-your-soul/index.html",
-        "signals/index.html",
-        "transmissions/index.html",
-        "transmissions/the-awakening/index.html",
-        "transmissions/the-descent/index.html",
-        "transmissions/the-reconnection/index.html",
-        "transmissions/the-return/index.html",
-        "transmissions/the-transformation/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Align page CSP, favicons, and shared script cache versions",
-          "url": "https://github.com/iYakuza/landing-page/commit/50776be14836817d0d1f48cd1672c985e2d6a8ea",
-          "files": [
-            ".github/workflows/site-safety.yml",
-            "404.html",
-            "cms/index.html",
-            "cv/index.html",
-            "green-dream/index.html",
-            "human-archive/index.html",
-            "index.html",
-            "secure-your-soul/index.html",
-            "signals/index.html",
-            "transmissions/index.html",
-            "transmissions/the-awakening/index.html",
-            "transmissions/the-descent/index.html"
           ]
         }
       ]
