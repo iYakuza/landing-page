@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T08:41:40.700889Z",
-  "last_processed_sha": "6191e8d3b44d6e60a8ef7b70cdb368c075d659a2",
+  "updated_at": "2026-11-26T08:41:59.499829Z",
+  "last_processed_sha": "1a093ddf741096273dc143ecfc4dd6f94d37b97b",
   "entries": [
+    {
+      "id": "1a093ddf741096273dc143ecfc4dd6f94d37b97b",
+      "timestamp": "2026-11-26T09:41:42+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Reserve plus controls for adding blocks. It updates block-editor.js.",
+      "commit_count": 1,
+      "files": [
+        "editor-ui/block-editor.js"
+      ],
+      "commits": [
+        {
+          "message": "Reserve plus controls for adding blocks",
+          "url": "https://github.com/iYakuza/landing-page/commit/1a093ddf741096273dc143ecfc4dd6f94d37b97b",
+          "files": [
+            "editor-ui/block-editor.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "6191e8d3b44d6e60a8ef7b70cdb368c075d659a2",
       "timestamp": "2026-11-26T09:41:28+01:00",
@@ -1400,35 +1421,6 @@
             "index.html",
             "shared/contact/contact.js",
             "tests/contact-intake.test.js",
-            "tests/github-store-media.test.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "9b91dc01b829e33b9b4e3c881b0a41c7d2d275ef",
-      "timestamp": "2026-11-23T18:32:51+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Remove rejected mail-client handoff from shared contact form. It updates site-safety.yml, index.html, contact.js and related project files.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/site-safety.yml",
-        "cv/index.html",
-        "index.html",
-        "shared/contact/contact.js",
-        "tests/github-store-media.test.js"
-      ],
-      "commits": [
-        {
-          "message": "Remove rejected mail-client handoff from shared contact form",
-          "url": "https://github.com/iYakuza/landing-page/commit/9b91dc01b829e33b9b4e3c881b0a41c7d2d275ef",
-          "files": [
-            ".github/workflows/site-safety.yml",
-            "cv/index.html",
-            "index.html",
-            "shared/contact/contact.js",
             "tests/github-store-media.test.js"
           ]
         }
