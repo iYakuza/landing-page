@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T09:15:10.352318Z",
-  "last_processed_sha": "dfc6bbf1dfde703c605761aa3f9f129bd89eb6eb",
+  "updated_at": "2026-11-26T10:04:57.937543Z",
+  "last_processed_sha": "30435e709c1f4985f39867c81727a625d2a0616d",
   "entries": [
+    {
+      "id": "30435e709c1f4985f39867c81727a625d2a0616d",
+      "timestamp": "2026-11-26T11:04:42+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Publish Transmission T-0001. It updates human-archive.json, transmissions.json.",
+      "commit_count": 1,
+      "files": [
+        "content/human-archive.json",
+        "content/transmissions.json"
+      ],
+      "commits": [
+        {
+          "message": "Publish Transmission T-0001",
+          "url": "https://github.com/iYakuza/landing-page/commit/30435e709c1f4985f39867c81727a625d2a0616d",
+          "files": [
+            "content/human-archive.json",
+            "content/transmissions.json"
+          ]
+        }
+      ]
+    },
     {
       "id": "dfc6bbf1dfde703c605761aa3f9f129bd89eb6eb",
       "timestamp": "2026-11-26T10:14:39+01:00",
@@ -1370,27 +1393,6 @@
             "transmissions/index.html",
             "transmissions/the-awakening/index.html",
             "transmissions/the-descent/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "6b6b33fccbe2e6d3afa97cc0cfb28c2822b71155",
-      "timestamp": "2026-11-25T13:53:13+01:00",
-      "category": "FEATURE",
-      "component": "Website",
-      "title": "New capabilities for Website",
-      "description": "This update brings together Deduplicate Transmission media and add permalink navigation. It updates posts.js.",
-      "commit_count": 1,
-      "files": [
-        "transmissions/posts.js"
-      ],
-      "commits": [
-        {
-          "message": "Deduplicate Transmission media and add permalink navigation",
-          "url": "https://github.com/iYakuza/landing-page/commit/6b6b33fccbe2e6d3afa97cc0cfb28c2822b71155",
-          "files": [
-            "transmissions/posts.js"
           ]
         }
       ]
