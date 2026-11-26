@@ -4,17 +4,37 @@ on:
   push:
     branches: [main]
     paths:
+      # Public pages and browser code.
       - "*.html"
       - "**/*.html"
       - "*.js"
       - "**/*.js"
+      - "*.css"
+      - "**/*.css"
       - "*.json"
       - "**/*.json"
+      - "*.xml"
+      - "**/*.xml"
+      - "*.txt"
+      - "**/*.txt"
+      - "*.svg"
+      - "**/*.svg"
+      - "*.ico"
+      - "**/*.ico"
+      - "*.webmanifest"
+      - "**/*.webmanifest"
+      - "CNAME"
+      - ".nojekyll"
+      - ".well-known/**"
       - "assets/**"
       - "media/**"
       - "content/**"
-      - "!changelog.json"
+      # Internal-only changes do not need a public-site deployment.
       - "!tests/**"
+      - "!docs/**"
+      - "!scripts/**"
+      - "!.github/**"
+      - "!google-apps-script/**"
 
 permissions:
   contents: write
