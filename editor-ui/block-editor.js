@@ -721,7 +721,7 @@
       up.addEventListener('click',() => { const siblings=blocks(block.parentElement),index=siblings.indexOf(block),previous=siblings[index-1];if(previous){block.parentNode.insertBefore(block,previous);sync();} });
       const down = document.createElement('button'); down.type='button'; down.textContent='↓'; down.title='Move block down'; down.setAttribute('aria-label','Move block down');
       down.addEventListener('click',() => { const siblings=blocks(block.parentElement),index=siblings.indexOf(block),next=siblings[index+1];if(next){block.parentNode.insertBefore(next,block);sync();} });
-      const duplicate = document.createElement('button'); duplicate.type='button'; duplicate.textContent='＋'; duplicate.title='Duplicate block'; duplicate.setAttribute('aria-label','Duplicate block');
+      const duplicate = document.createElement('button'); duplicate.type='button'; duplicate.textContent='⧉'; duplicate.title='Duplicate block'; duplicate.setAttribute('aria-label','Duplicate block');
       duplicate.addEventListener('click',() => {
         const copy=block.cloneNode(true);
         const markdownValue=block.querySelector('.ha-markdown-input')?.value;
