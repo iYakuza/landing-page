@@ -1313,7 +1313,11 @@ function renderRecordStructureEditor(record,grid,status,editButton,expandButton,
  toolbar.addEventListener('dragstart',event=>event.preventDefault());
  const transmissionEditor=makeChamberNode('div','ha-chamber-editor-field ha-rich-content');transmissionEditor.contentEditable=readOnly?'false':'true';transmissionEditor.setAttribute('role','textbox');transmissionEditor.setAttribute('aria-multiline','true');transmissionEditor.setAttribute('aria-label','Archive blocks');transmissionEditor.spellcheck=true;transmissionEditor.dataset.placeholder='Start writing or add a block…';
  const savedBlocks=Array.isArray(structure.blocks)?structure.blocks:[];
- const legacyHTML=[structure.transmission_body,structure.prompt_style,structure.lyrics_style,structure.output_text].filter(value=>String(value||'').trim()).join('');
+ // A Transmission body is already the canonical post content. output_text is
+ // extracted from that same body; appending both duplicates code and Markdown.
+ const legacyHTML=record.source_type==='transmission'
+  ? String(structure.transmission_body||record.content_html||structure.output_text||'')
+  : [structure.transmission_body,structure.prompt_style,structure.lyrics_style,structure.output_text].filter(value=>String(value||'').trim()).join('');
  const initialBlockHTML=savedBlocks.length?savedBlocks.map(block=>String(block?.html||'')).join(''):(legacyHTML||record.content_html||'');
  transmissionEditor.innerHTML=sanitizeTransmissionBody(initialBlockHTML);
  const editorTop=makeChamberNode('div','ha-rich-editor-top');
