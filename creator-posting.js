@@ -3,7 +3,7 @@
   if (window.__vhaUnifiedNewTransmissionLoaded) return;
   window.__vhaUnifiedNewTransmissionLoaded = true;
 
-  const EDITOR_VERSION = '20261126-markdown-syntax-editor-4';
+  const EDITOR_VERSION = '20261126-markdown-syntax-editor-5';
   let isCreator = false;
   let refreshing = false;
   let authBound = false;
@@ -45,11 +45,12 @@
   }
 
   function loadBlockEditorStylesheet() {
-    if (document.querySelector('link[data-vha-block-editor-styles],link[href*="/editor-ui/block-editor.css"]')) return Promise.resolve();
+    const target = new URL('/landing-page/editor-ui/block-editor.css?v=' + EDITOR_VERSION, window.location.href).href;
+    if ([...document.querySelectorAll('link[rel="stylesheet"]')].some(link => link.href === target)) return Promise.resolve();
     return new Promise((resolve, reject) => {
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = '/landing-page/editor-ui/block-editor.css?v=' + EDITOR_VERSION;
+      link.href = target;
       link.dataset.vhaBlockEditorStyles = 'true';
       link.onload = () => resolve();
       link.onerror = () => {
@@ -88,7 +89,7 @@
       await loadScript('/landing-page/cms/github-store.js?v=20261120-github-cms-4', () => Boolean(window.VHACMSStore));
       await loadStylesheet();
       await loadBlockEditorStylesheet();
-      await loadScript('/landing-page/editor-ui/block-editor.js?v=' + EDITOR_VERSION, () => Boolean(window.VHABlockEditor?.mountBlockEditor));
+      await loadScript('/landing-page/editor-ui/block-editor.js?v=' + EDITOR_VERSION, () => Boolean(window.VHABlockEditor?.mountBlockEditor && window.VHABlockEditor?.version === EDITOR_VERSION));
       await loadScript('/landing-page/editor-ui/rich-text-editor.js?v=' + EDITOR_VERSION, () => Boolean(window.VHAEditorUI?.mountRichTextEditor));
       await loadScript('/landing-page/human-archive/archive.js?v=' + EDITOR_VERSION, () => Boolean(window.__vhaArchiveChamberControllerLoaded));
       if (!window.__vhaArchiveChamberReady) throw new Error('The shared Transmission editor did not start.');
