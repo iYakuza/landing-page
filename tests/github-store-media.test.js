@@ -1039,7 +1039,7 @@ test('block style dropdown transforms classic, Markdown, code, card, callout and
   assert.match(blockEditorSource, /type==='code'\) html='<pre class="ha-code-block"><code>'/);
   assert.match(blockEditorSource, /type==='card'\) html='<section class="ha-card">'/);
   assert.match(blockEditorSource, /type==='callout'\) html='<aside class="ha-callout">'/);
-  assert.match(blockEditorSource, /type==='buttons'\) html='<div class="ha-buttons">'/);
+  assert.match(blockEditorSource, /type==='buttons'\) html='<div class="ha-buttons">/);
 });
 
 test('opening Redesign initializes the private autosave baseline without changing draft data', () => {
