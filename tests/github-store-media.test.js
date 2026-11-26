@@ -12,6 +12,18 @@ const blockEditorSource = fs.readFileSync(path.join(__dirname, '..', 'editor-ui'
 const blockEditorCssSource = fs.readFileSync(path.join(__dirname, '..', 'editor-ui', 'block-editor.css'), 'utf8');
 const archiveHtml = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'index.html'), 'utf8');
 const archiveCssSource = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'archive.css'), 'utf8');
+const creatorPostingSource = fs.readFileSync(path.join(__dirname, '..', 'creator-posting.js'), 'utf8');
+const creatorPostingPagePaths = [
+  'index.html',
+  'transmissions/the-awakening/index.html',
+  'transmissions/the-descent/index.html',
+  'transmissions/the-reconnection/index.html',
+  'transmissions/the-transformation/index.html',
+  'transmissions/the-return/index.html'
+];
+const creatorPostingPages = creatorPostingPagePaths.map(file =>
+  fs.readFileSync(path.join(__dirname, '..', file), 'utf8')
+);
 const context = vm.createContext({ window: {}, URL });
 vm.runInContext(source, context, { filename: 'cms/github-store.js' });
 
@@ -1039,6 +1051,27 @@ test('Markdown helper does not read mount-only state outside its scope and read-
   assert.match(blockEditorSource, /control\.readOnly=true/);
 });
 
+
+test('chamber entry points load the current Markdown editor assets rather than stale preloaded copies', () => {
+  const editorVersion = creatorPostingSource.match(/const EDITOR_VERSION = '([^']+)'/)?.[1];
+  assert.ok(editorVersion, 'the shared editor loader must declare its asset version');
+  assert.ok(blockEditorSource.includes("version: '" + editorVersion + "'"),
+    'the block editor must expose the version of the script that actually initialized');
+  assert.match(creatorPostingSource, /link\\.href === target/,
+    'the stylesheet loader must compare the exact requested asset URL, not accept any older copy');
+  assert.ok(creatorPostingSource.includes('window.VHABlockEditor?.version === EDITOR_VERSION'),
+    'the script loader must verify the loaded block-editor version');
+  assert.ok(archiveHtml.includes('/editor-ui/block-editor.css?v=' + editorVersion),
+    'Human Archive must load the current block-editor stylesheet');
+  assert.ok(archiveHtml.includes('editor-ui/block-editor.js?v=' + editorVersion),
+    'Human Archive must load the current block-editor script');
+  assert.ok(archiveHtml.includes('archive.js?v=' + editorVersion),
+    'Human Archive must load the current chamber controller');
+  creatorPostingPages.forEach((html, index) => {
+    assert.ok(html.includes('creator-posting.js?v=' + editorVersion),
+      'the shared editor loader must be cache-busted on ' + creatorPostingPagePaths[index]);
+  });
+});
 
 test('Markdown text remains visible through the aligned syntax overlay and has a persistent colour control', () => {
   assert.match(blockEditorCssSource, /\.ha-editor-block-content \.ha-markdown-highlight,\.ha-editor-block-content \.ha-markdown-input/);
