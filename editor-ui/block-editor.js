@@ -694,7 +694,7 @@
       const currentContent=contentFor(block)?.firstElementChild;
       transform.value = /^H[1-4]$/.test(currentContent?.tagName||'') ? currentContent.tagName.toLowerCase() : (['image','audio','video','embed','separator','classic'].includes(type) ? 'paragraph' : type==='heading'?'h2':type);
       transform.addEventListener('change',() => transformBlock(block,transform.value));
-      if(['classic','image','gallery','slideshow','tiled-gallery','cover','media-text','image-compare','audio','video','file','playlist','podcast','embed','youtube','spotify','soundcloud','separator','spacer'].includes(type))transform.disabled=true;
+      if(['image','gallery','slideshow','tiled-gallery','cover','media-text','image-compare','audio','video','file','playlist','podcast','embed','youtube','spotify','soundcloud'].includes(type))transform.disabled=true;
       actions.append(transform);
 
       if(type==='markdown'){
@@ -750,19 +750,38 @@
 
     function transformBlock(block,type) {
       const current=contentFor(block);
+      const markdownInput=current?.querySelector(':scope > .ha-markdown-editor > .ha-markdown-input');
       const first=current?.firstElementChild;
-      const plain=document.createElement('span');
-      plain.textContent=current?.querySelector('.ha-markdown-input')?.value ?? current?.textContent ?? '';
-      const inlineHTML=first&&['P','H1','H2','H3','H4'].includes(first.tagName)?first.innerHTML:plain.innerHTML;
-      const quoteHTML=first?.tagName==='BLOCKQUOTE'?first.innerHTML:'<p>'+inlineHTML+'</p>';
-      let html=inlineHTML;
-      if(/^h[1-4]$/.test(type)) html='<'+type+'>'+inlineHTML+'</'+type+'>';
-      else if(type==='paragraph') html='<p>'+inlineHTML+'</p>';
-      else if(type==='quote') html='<blockquote>'+quoteHTML+'</blockquote>';
-      else if(type==='preformatted'||type==='code') html=type==='code'?'<pre><code>'+plain.innerHTML+'</code></pre>':'<pre>'+plain.innerHTML+'</pre>';
-      else if(type==='unordered-list') html='<ul><li>'+plain.innerHTML+'</li></ul>';
-      else if(type==='ordered-list') html='<ol><li>'+plain.innerHTML+'</li></ol>';
-      if(type==='columns')html=defaultHTML('columns');
+      const sourceText=markdownInput?.value ?? current?.textContent ?? '';
+      const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+      const textHTML=escapeHTML(sourceText);
+      const rootHTML=markdownInput ? textHTML : (first?.innerHTML ?? current?.innerHTML ?? '');
+      const rootText=first?.tagName==='PRE' ? first.textContent : sourceText;
+      const plainHTML=escapeHTML(rootText);
+      const paragraphHTML=first?.tagName==='P'||/^H[1-4]$/.test(first?.tagName||'') ? rootHTML : '<p>'+rootHTML+'</p>';
+      let html=paragraphHTML;
+      if(/^h[1-4]$/.test(type)) html='<'+type+'>'+rootHTML+'</'+type+'>';
+      else if(type==='paragraph') html='<p>'+rootHTML+'</p>';
+      else if(type==='quote') html='<blockquote>'+(first?.tagName==='BLOCKQUOTE'?rootHTML:'<p>'+rootHTML+'</p>')+'</blockquote>';
+      else if(type==='pullquote') html='<figure class="wp-block-pullquote"><blockquote><p>'+rootHTML+'</p></blockquote></figure>';
+      else if(type==='verse') html='<pre class="wp-block-verse">'+plainHTML+'</pre>';
+      else if(type==='preformatted') html='<pre>'+plainHTML+'</pre>';
+      else if(type==='code') html='<pre class="ha-code-block"><code>'+plainHTML+'</code></pre>';
+      else if(type==='markdown') html='<pre class="ha-markdown-source">'+textHTML+'</pre>';
+      else if(type==='html') html='<pre class="ha-html-source">'+textHTML+'</pre>';
+      else if(type==='unordered-list') html=first?.tagName==='UL'?first.outerHTML:'<ul><li>'+plainHTML+'</li></ul>';
+      else if(type==='ordered-list') html=first?.tagName==='OL'?first.outerHTML:'<ol><li>'+plainHTML+'</li></ol>';
+      else if(type==='details') html='<details open><summary>Details</summary><p>'+rootHTML+'</p></details>';
+      else if(type==='callout') html='<aside class="ha-callout">'+paragraphHTML+'</aside>';
+      else if(type==='card') html='<section class="ha-card">'+paragraphHTML+'</section>';
+      else if(type==='buttons') html='<div class="ha-buttons"><a class="ha-button" href="https://example.com">'+escapeHTML(sourceText.trim()||'Button label')+'</a></div>';
+      else if(type==='button') html='<p class="ha-button-block"><a class="ha-button" href="https://example.com">'+escapeHTML(sourceText.trim()||'Button label')+'</a></p>';
+      else if(type==='group') html='<section class="ha-group">'+paragraphHTML+'</section>';
+      else if(type==='row') html='<div class="ha-row">'+paragraphHTML+'</div>';
+      else if(type==='stack') html='<div class="ha-stack">'+paragraphHTML+'</div>';
+      else if(type==='grid') html='<div class="ha-grid">'+paragraphHTML+'</div>';
+      else if(type==='columns') html=defaultHTML('columns');
+      else if(type==='classic') html='<div>'+rootHTML+'</div>';
       const next=makeBlock(/^h[1-4]$/.test(type)?'heading':type,html);
       if(block.dataset.haBlockName)next.dataset.haBlockName=block.dataset.haBlockName;
       block.replaceWith(next); wireBlock(next); setSelected(next); focusBlock(next); sync();
