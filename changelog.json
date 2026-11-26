@@ -1,8 +1,45 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T08:28:41.597964Z",
-  "last_processed_sha": "b65fd004dc26e58ee7411fa09c060db420e919b4",
+  "updated_at": "2026-11-26T08:41:40.700889Z",
+  "last_processed_sha": "6191e8d3b44d6e60a8ef7b70cdb368c075d659a2",
   "entries": [
+    {
+      "id": "6191e8d3b44d6e60a8ef7b70cdb368c075d659a2",
+      "timestamp": "2026-11-26T09:41:28+01:00",
+      "category": "FIX",
+      "component": "Website",
+      "title": "More reliable Website",
+      "description": "This update brings together Make block style dropdown transform content types; Prevent duplicate Transmission body text in redesign; Add redesign duplication and block transform regression tests. It updates block-editor.js, archive.js, github-store-media.test.js.",
+      "commit_count": 3,
+      "files": [
+        "editor-ui/block-editor.js",
+        "human-archive/archive.js",
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Make block style dropdown transform content types",
+          "url": "https://github.com/iYakuza/landing-page/commit/e90cebadc220a77c82610268fa731cb386569d14",
+          "files": [
+            "editor-ui/block-editor.js"
+          ]
+        },
+        {
+          "message": "Prevent duplicate Transmission body text in redesign",
+          "url": "https://github.com/iYakuza/landing-page/commit/5fbc05fbfe7d1af3f46fb4c96ae5ef5156a12f10",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        },
+        {
+          "message": "Add redesign duplication and block transform regression tests",
+          "url": "https://github.com/iYakuza/landing-page/commit/6191e8d3b44d6e60a8ef7b70cdb368c075d659a2",
+          "files": [
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "b65fd004dc26e58ee7411fa09c060db420e919b4",
       "timestamp": "2026-11-26T09:28:25+01:00",
@@ -1390,41 +1427,6 @@
           "files": [
             ".github/workflows/site-safety.yml",
             "cv/index.html",
-            "index.html",
-            "shared/contact/contact.js",
-            "tests/github-store-media.test.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "f9e997e5b817e1df608cca92c06093606c9c4521",
-      "timestamp": "2026-11-23T18:23:43+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Unify homepage and CV contact through one native email form. It updates site-safety.yml, contact.js, index.html, navigation.js and related project files.",
-      "commit_count": 1,
-      "files": [
-        ".github/workflows/site-safety.yml",
-        "cv/contact.js",
-        "cv/index.html",
-        "cv/navigation.js",
-        "home.js",
-        "index.html",
-        "shared/contact/contact.js",
-        "tests/github-store-media.test.js"
-      ],
-      "commits": [
-        {
-          "message": "Unify homepage and CV contact through one native email form",
-          "url": "https://github.com/iYakuza/landing-page/commit/f9e997e5b817e1df608cca92c06093606c9c4521",
-          "files": [
-            ".github/workflows/site-safety.yml",
-            "cv/contact.js",
-            "cv/index.html",
-            "cv/navigation.js",
-            "home.js",
             "index.html",
             "shared/contact/contact.js",
             "tests/github-store-media.test.js"
