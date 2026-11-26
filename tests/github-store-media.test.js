@@ -1038,3 +1038,17 @@ test('Markdown helper does not read mount-only state outside its scope and read-
     'the module-level Markdown helper must not refer to the mountBlockEditor parameter');
   assert.match(blockEditorSource, /control\.readOnly=true/);
 });
+
+
+test('Markdown text remains visible through the aligned syntax overlay and has a persistent colour control', () => {
+  assert.match(blockEditorCssSource, /\.ha-editor-block-content \.ha-markdown-highlight,\.ha-editor-block-content \.ha-markdown-input/);
+  assert.doesNotMatch(blockEditorCssSource, /\.ha-editor-block-content \.ha-editor-block-content \.ha-markdown-input/);
+  assert.match(blockEditorCssSource, /color:var\(--ha-md-base-color,#e5ece8\)!important/);
+  assert.match(blockEditorCssSource, /\.ha-markdown-color-picker/);
+  assert.match(blockEditorSource, /colour\.type='color'/);
+  assert.match(blockEditorSource, /data-ha-text-color/);
+  assert.match(blockEditorSource, /normalizeMarkdownColor/);
+  assert.match(archiveSource, /appendMarkdownBlock\(parent,node\.textContent\|\|'',copy,textColor\)/);
+  assert.match(archiveSource, /element\.setAttribute\('data-ha-text-color',textColor\)/);
+  assert.match(archiveSource, /wrapper\.style\.color=safeTextColor/);
+});

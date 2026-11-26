@@ -203,9 +203,15 @@
     return fragment;
   }
 
-  function createMarkdownEditor(source = '') {
+  function normalizeMarkdownColor(value, fallback = '#e5ece8') {
+    const color = String(value || '').trim();
+    return /^#[0-9a-f]{6}$/i.test(color) ? color : fallback;
+  }
+
+  function createMarkdownEditor(source = '', textColor = '#e5ece8') {
     const shell = document.createElement('div');
     shell.className = 'ha-markdown-editor';
+    shell.style.setProperty('--ha-md-base-color', normalizeMarkdownColor(textColor));
     const highlighted = document.createElement('pre');
     highlighted.className = 'ha-markdown-highlight';
     highlighted.setAttribute('aria-hidden', 'true');
@@ -264,8 +270,10 @@
     content.dataset.haBlockContent = '';
     content.innerHTML = html;
     if (type === 'markdown') {
-      const source = content.querySelector('.ha-markdown-source')?.textContent ?? content.querySelector('pre')?.textContent ?? content.textContent ?? '';
-      content.replaceChildren(createMarkdownEditor(source));
+      const sourceNode = content.querySelector('.ha-markdown-source') || content.querySelector('pre');
+      const source = sourceNode?.textContent ?? content.textContent ?? '';
+      const textColor = normalizeMarkdownColor(sourceNode?.getAttribute('data-ha-text-color'));
+      content.replaceChildren(createMarkdownEditor(source, textColor));
       content.contentEditable = 'false';
     } else if (['separator','image','gallery','slideshow','tiled-gallery','image-compare','audio','video','playlist','podcast','embed','youtube','spotify','soundcloud','spacer','columns'].includes(type)) content.contentEditable = 'false';
     else content.contentEditable = 'true';
@@ -689,6 +697,26 @@
       if(['classic','image','gallery','slideshow','tiled-gallery','cover','media-text','image-compare','audio','video','file','playlist','podcast','embed','youtube','spotify','soundcloud','separator','spacer'].includes(type))transform.disabled=true;
       actions.append(transform);
 
+      if(type==='markdown'){
+        const colourLabel=document.createElement('label');
+        colourLabel.className='ha-markdown-color-control';
+        colourLabel.title='Change Markdown text colour';
+        colourLabel.setAttribute('aria-label','Change Markdown text colour');
+        const colour=document.createElement('input');
+        colour.type='color';
+        colour.className='ha-markdown-color-picker';
+        colour.value=normalizeMarkdownColor(contentFor(block)?.querySelector('.ha-markdown-editor')?.style.getPropertyValue('--ha-md-base-color'));
+        colour.setAttribute('aria-label','Markdown text colour');
+        colour.title='Markdown text colour';
+        colour.addEventListener('input',()=>{
+          const markdownEditor=contentFor(block)?.querySelector('.ha-markdown-editor');
+          if(markdownEditor)markdownEditor.style.setProperty('--ha-md-base-color',normalizeMarkdownColor(colour.value));
+          sync();
+        });
+        colourLabel.append(colour);
+        actions.append(colourLabel);
+      }
+
       const up = document.createElement('button'); up.type='button'; up.textContent='↑'; up.title='Move block up'; up.setAttribute('aria-label','Move block up');
       up.addEventListener('click',() => { const siblings=blocks(block.parentElement),index=siblings.indexOf(block),previous=siblings[index-1];if(previous){block.parentNode.insertBefore(block,previous);sync();} });
       const down = document.createElement('button'); down.type='button'; down.textContent='↓'; down.title='Move block down'; down.setAttribute('aria-label','Move block down');
@@ -698,8 +726,10 @@
         const copy=block.cloneNode(true);
         const markdownValue=block.querySelector('.ha-markdown-input')?.value;
         if(markdownValue!==undefined){
+          const markdownEditor=block.querySelector('.ha-markdown-editor');
+          const markdownColor=normalizeMarkdownColor(markdownEditor?.style.getPropertyValue('--ha-md-base-color'));
           const copiedContent=contentFor(copy);
-          copiedContent?.querySelector(':scope > .ha-markdown-editor')?.replaceWith(createMarkdownEditor(markdownValue));
+          copiedContent?.querySelector(':scope > .ha-markdown-editor')?.replaceWith(createMarkdownEditor(markdownValue,markdownColor));
         }
         [copy,...copy.querySelectorAll('[data-ha-editor-block]')].forEach(node=>{delete node.dataset.haEditorWired;});
         block.after(copy);wireBlock(copy);setSelected(copy);sync();
@@ -910,6 +940,8 @@
         const source=document.createElement('pre');
         source.className='ha-markdown-source';
         source.textContent=markdownInput.value;
+        const markdownColor=normalizeMarkdownColor(content.querySelector(':scope > .ha-markdown-editor')?.style.getPropertyValue('--ha-md-base-color'));
+        source.setAttribute('data-ha-text-color',markdownColor);
         holder.append(source);
         const name=String(ownerBlock?.dataset.haBlockName||'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,80);
         if(name)source.setAttribute('data-ha-block-name',name);

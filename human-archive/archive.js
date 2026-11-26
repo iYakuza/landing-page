@@ -300,8 +300,10 @@ function appendMarkdownInline(parent,source,copySafeNode){
  if(cursor<text.length)parent.append(document.createTextNode(text.slice(cursor)));
 }
 
-function appendMarkdownBlock(parent,source,copySafeNode){
+function appendMarkdownBlock(parent,source,copySafeNode,textColor=''){
  const wrapper=document.createElement('div');wrapper.className='ha-markdown-rendered';
+ const safeTextColor=String(textColor||'').trim();
+ if(/^#[0-9a-f]{6}$/i.test(safeTextColor))wrapper.style.color=safeTextColor;
  const lines=String(source??'').replace(/\r\n?/g,'\n').split('\n');
  let paragraph=[],quote=[],listType='',listItems=[];
  const appendLines=(element,items)=>{
@@ -445,7 +447,8 @@ function appendSafeContent(container,source,record,used){
    return;
   }
   if(tag==='PRE'&&node.classList?.contains('ha-markdown-source')){
-    appendMarkdownBlock(parent,node.textContent||'',copy);
+    const textColor=String(node.getAttribute('data-ha-text-color')||'').trim();
+    appendMarkdownBlock(parent,node.textContent||'',copy,textColor);
     return;
    }
    if(tag==='IFRAME'){
@@ -1032,6 +1035,10 @@ function sanitizeTransmissionBody(source){
   }
   const blockName=String(node.getAttribute('data-ha-block-name')||'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,80);
   if(blockName)element.setAttribute('data-ha-block-name',blockName);
+  if(node.tagName==='PRE'&&node.classList?.contains('ha-markdown-source')){
+   const textColor=String(node.getAttribute('data-ha-text-color')||'').trim();
+   if(/^#[0-9a-f]{6}$/i.test(textColor))element.setAttribute('data-ha-text-color',textColor);
+  }
   const alignment=(node.style?.textAlign||'').toLowerCase();
   if(['left','center','right','justify'].includes(alignment))element.style.textAlign=alignment;
   node.childNodes.forEach(child=>copy(child,element));parent.append(element);

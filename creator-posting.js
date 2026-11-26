@@ -3,7 +3,7 @@
   if (window.__vhaUnifiedNewTransmissionLoaded) return;
   window.__vhaUnifiedNewTransmissionLoaded = true;
 
-  const EDITOR_VERSION = '20261126-markdown-syntax-editor-3';
+  const EDITOR_VERSION = '20261126-markdown-syntax-editor-4';
   let isCreator = false;
   let refreshing = false;
   let authBound = false;
