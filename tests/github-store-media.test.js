@@ -1029,7 +1029,7 @@ test('unchanged private Transmission snapshots skip redundant draft commits', ()
 });
 
 test('Transmission redesign uses one canonical body instead of appending its plain-text extraction', () => {
-  assert.match(archiveSource, /record\.source_type==='transmission'[\s\S]{0,180}structure\.transmission_body\|\|record\.content_html\|\|structure\.output_text/);
+  assert.match(archiveSource, /const legacyHTML=String\(structure\.transmission_body\|\|record\.content_html\|\|[\s\S]{0,160}structure\.output_text/);
   assert.match(archiveSource, /const initialBlockHTML=savedBlocks\.length\?savedBlocks\.map/);
 });
 
