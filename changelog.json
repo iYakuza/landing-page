@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T09:09:23.134512Z",
-  "last_processed_sha": "451a702b2bf93baf9daf113785c2646e1e6287bc",
+  "updated_at": "2026-11-26T09:15:10.352318Z",
+  "last_processed_sha": "dfc6bbf1dfde703c605761aa3f9f129bd89eb6eb",
   "entries": [
+    {
+      "id": "dfc6bbf1dfde703c605761aa3f9f129bd89eb6eb",
+      "timestamp": "2026-11-26T10:14:39+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Publish Transmission T-0008. It updates human-archive.json, transmissions.json.",
+      "commit_count": 1,
+      "files": [
+        "content/human-archive.json",
+        "content/transmissions.json"
+      ],
+      "commits": [
+        {
+          "message": "Publish Transmission T-0008",
+          "url": "https://github.com/iYakuza/landing-page/commit/dfc6bbf1dfde703c605761aa3f9f129bd89eb6eb",
+          "files": [
+            "content/human-archive.json",
+            "content/transmissions.json"
+          ]
+        }
+      ]
+    },
     {
       "id": "451a702b2bf93baf9daf113785c2646e1e6287bc",
       "timestamp": "2026-11-26T10:09:08+01:00",
@@ -1368,59 +1391,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/6b6b33fccbe2e6d3afa97cc0cfb28c2822b71155",
           "files": [
             "transmissions/posts.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "3190b1695851e1d8e7696e746d6085d3afa5c7ae",
-      "timestamp": "2026-11-25T13:52:53+01:00",
-      "category": "FIX",
-      "component": "Website Updates",
-      "title": "More reliable Website Updates",
-      "description": "This update brings together Fix malformed Crystal Signals SVG icon; Defer V/A Radio network initialization until visitor interaction; Bust cache for updated Crystal shared modules; and 2 more related changes. It updates game-ui.js, crystal-loader.js, crystal.js, radio.js and related project files.",
-      "commit_count": 5,
-      "files": [
-        "game-ui.js",
-        "shared/crystal/crystal-loader.js",
-        "shared/crystal/crystal.js",
-        "shared/crystal/tools/radio.js",
-        "tests/site-performance.test.js"
-      ],
-      "commits": [
-        {
-          "message": "Fix malformed Crystal Signals SVG icon",
-          "url": "https://github.com/iYakuza/landing-page/commit/37f8e57a1083875680c807f7a7dfe263fe89ce82",
-          "files": [
-            "shared/crystal/crystal.js"
-          ]
-        },
-        {
-          "message": "Defer V/A Radio network initialization until visitor interaction",
-          "url": "https://github.com/iYakuza/landing-page/commit/f07be0e88bf697b095070e6e1ac70cf40a2b9969",
-          "files": [
-            "shared/crystal/tools/radio.js"
-          ]
-        },
-        {
-          "message": "Bust cache for updated Crystal shared modules",
-          "url": "https://github.com/iYakuza/landing-page/commit/3f9c5a91d53fc0b53520226af528e0e5af83bd11",
-          "files": [
-            "shared/crystal/crystal-loader.js"
-          ]
-        },
-        {
-          "message": "Bust cache for updated Crystal loader",
-          "url": "https://github.com/iYakuza/landing-page/commit/7e85d9ca2aaa25dc4ffa68d1889d7256ffff2429",
-          "files": [
-            "game-ui.js"
-          ]
-        },
-        {
-          "message": "Add regression tests for media and radio performance",
-          "url": "https://github.com/iYakuza/landing-page/commit/3190b1695851e1d8e7696e746d6085d3afa5c7ae",
-          "files": [
-            "tests/site-performance.test.js"
           ]
         }
       ]
