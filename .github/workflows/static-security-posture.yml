@@ -3,12 +3,29 @@ name: Static security posture checks
 on:
   push:
     branches: [main]
+    paths:
+      - "*.html"
+      - "**/*.html"
+      - "creator-posting.js"
+      - "*.json"
+      - "**/*.json"
+      - "content/**"
+      - "media/**"
+      - ".well-known/**"
+      - "robots.txt"
+      - "sitemap.xml"
+      - ".github/workflows/static-security-posture.yml"
+      - "!changelog.json"
   pull_request:
     branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: static-security-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   security-source-checks:

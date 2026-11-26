@@ -3,15 +3,26 @@ name: Publish visitor-friendly changelog
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - "changelog.json"
+    paths:
+      - "*.html"
+      - "**/*.html"
+      - "*.js"
+      - "**/*.js"
+      - "*.json"
+      - "**/*.json"
+      - "assets/**"
+      - "media/**"
+      - "content/**"
+      - "!changelog.json"
 
 permissions:
   contents: write
 
+# The newest push processes the whole uncheckpointed commit range.
+# Replacing stale queued/running summaries avoids redundant feed jobs.
 concurrency:
-  group: visitor-changelog
-  cancel-in-progress: false
+  group: visitor-changelog-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   publish:

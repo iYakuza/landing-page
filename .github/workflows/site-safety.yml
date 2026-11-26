@@ -3,12 +3,39 @@ name: Static-site safety checks
 on:
   push:
     branches: [main]
+    paths:
+      - "*.html"
+      - "**/*.html"
+      - "*.js"
+      - "**/*.js"
+      - "*.json"
+      - "**/*.json"
+      - "*.yml"
+      - "**/*.yml"
+      - "*.yaml"
+      - "**/*.yaml"
+      - "*.py"
+      - "**/*.py"
+      - "google-apps-script/**"
+      - "tests/**"
+      - ".github/workflows/**"
+      - ".well-known/**"
+      - "robots.txt"
+      - "sitemap.xml"
+      # These stylesheets have explicit source-level regression guards.
+      - "human-archive/archive.css"
+      - "transmissions/archive-match.css"
+      - "!changelog.json"
   pull_request:
     branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: site-safety-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   checks:

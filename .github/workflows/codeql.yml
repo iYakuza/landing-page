@@ -3,6 +3,24 @@ name: CodeQL security analysis
 on:
   push:
     branches: [main]
+    paths:
+      - "*.js"
+      - "**/*.js"
+      - "*.mjs"
+      - "**/*.mjs"
+      - "*.cjs"
+      - "**/*.cjs"
+      - "*.ts"
+      - "**/*.ts"
+      - "*.tsx"
+      - "**/*.tsx"
+      - "package.json"
+      - "package-lock.json"
+      - "pnpm-lock.yaml"
+      - "yarn.lock"
+      - ".github/workflows/codeql.yml"
+  # Keep PR checks unconditional so path filtering cannot leave required
+  # status checks pending when a change does not touch JavaScript.
   pull_request:
     branches: [main]
   schedule:
@@ -11,6 +29,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   analyze:
