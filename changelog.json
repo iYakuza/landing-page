@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T01:08:23.667956Z",
-  "last_processed_sha": "88e5c93a43878cad176c59a9173f9e6589ffeb03",
+  "updated_at": "2026-11-26T01:08:39.715907Z",
+  "last_processed_sha": "ee2dff4cc1eacf709d4b594716e4a0e6a8416a28",
   "entries": [
+    {
+      "id": "ee2dff4cc1eacf709d4b594716e4a0e6a8416a28",
+      "timestamp": "2026-11-26T02:08:30+01:00",
+      "category": "FIX",
+      "component": "Website",
+      "title": "More reliable Website",
+      "description": "This update brings together Add regression coverage for stale chamber editor assets. It updates github-store-media.test.js.",
+      "commit_count": 1,
+      "files": [
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Add regression coverage for stale chamber editor assets",
+          "url": "https://github.com/iYakuza/landing-page/commit/ee2dff4cc1eacf709d4b594716e4a0e6a8416a28",
+          "files": [
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "88e5c93a43878cad176c59a9173f9e6589ffeb03",
       "timestamp": "2026-11-26T02:08:20+01:00",
@@ -1468,22 +1489,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": "f6d72e1790ab33b5cb96269daeca3f6e82489f7e",
-      "timestamp": "2026-11-22T18:55:00+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "One live website, one source of truth",
-      "description": "The website, published content and public media live in GitHub. Owner-only publishing uses the private GitHub companion repository for drafts. Future updates are published directly to the live site.",
-      "commit_count": 1,
-      "files": [
-        "content/transmissions.json",
-        "content/signals.json",
-        "content/human-archive.json",
-        "media/"
-      ],
-      "commits": []
     }
   ]
 }
