@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-27T00:15:09.285271Z",
-  "last_processed_sha": "0cb870dd7681c5aaaa9d608f7b92aa88007046d0",
+  "updated_at": "2026-11-27T00:15:40.763099Z",
+  "last_processed_sha": "54652c0bb9ae160c2bd15c609422036e35b1d651",
   "entries": [
+    {
+      "id": "54652c0bb9ae160c2bd15c609422036e35b1d651",
+      "timestamp": "2026-11-27T01:15:26+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Experience",
+      "title": "A refined Website Experience",
+      "description": "This update brings together Refresh Human Archive full-screen chamber assets. It updates index.html.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Refresh Human Archive full-screen chamber assets",
+          "url": "https://github.com/iYakuza/landing-page/commit/54652c0bb9ae160c2bd15c609422036e35b1d651",
+          "files": [
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "0cb870dd7681c5aaaa9d608f7b92aa88007046d0",
       "timestamp": "2026-11-27T01:14:53+01:00",
@@ -1325,35 +1346,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/33bb3fa7ad43c2f62ef0682a880d51b801c4ff93",
           "files": [
             "transmissions/the-return/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "0c8ce3694dee478c8c33489be21af71dfa2a3109",
-      "timestamp": "2026-11-26T00:18:28+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Publish Transmission T-0008. It updates human-archive.json, transmissions.json, 45e88926-e9b9-4159-9c57-c2e44ad0a88d-Dumnezeule-apele-sta-teau-pe-munt-i-hota-ra-ses-i-Tu..jpeg, eca5ce37-fe71-4627-bed9-7be0aaed8a51-Dumnezeule-apele-sta-teau-pe-munt-i-hota-ra-ses-i-Tu..mp3 and related project files.",
-      "commit_count": 1,
-      "files": [
-        "content/human-archive.json",
-        "content/transmissions.json",
-        "media/transmissions/T-0008/45e88926-e9b9-4159-9c57-c2e44ad0a88d-Dumnezeule-apele-sta-teau-pe-munt-i-hota-ra-ses-i-Tu..jpeg",
-        "media/transmissions/T-0008/eca5ce37-fe71-4627-bed9-7be0aaed8a51-Dumnezeule-apele-sta-teau-pe-munt-i-hota-ra-ses-i-Tu..mp3",
-        "media/transmissions/T-0008/eda7734a-9d1a-4381-a517-0f620e236d8b-Hindy-extra-bass.mp3"
-      ],
-      "commits": [
-        {
-          "message": "Publish Transmission T-0008",
-          "url": "https://github.com/iYakuza/landing-page/commit/0c8ce3694dee478c8c33489be21af71dfa2a3109",
-          "files": [
-            "content/human-archive.json",
-            "content/transmissions.json",
-            "media/transmissions/T-0008/45e88926-e9b9-4159-9c57-c2e44ad0a88d-Dumnezeule-apele-sta-teau-pe-munt-i-hota-ra-ses-i-Tu..jpeg",
-            "media/transmissions/T-0008/eca5ce37-fe71-4627-bed9-7be0aaed8a51-Dumnezeule-apele-sta-teau-pe-munt-i-hota-ra-ses-i-Tu..mp3",
-            "media/transmissions/T-0008/eda7734a-9d1a-4381-a517-0f620e236d8b-Hindy-extra-bass.mp3"
           ]
         }
       ]
