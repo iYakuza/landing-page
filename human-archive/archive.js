@@ -1947,7 +1947,7 @@ if(!readOnly&&typeof window.VHABlockEditor?.mountBlockEditor!=='function'){
 
 }
 function buildRecordChamber(record){
- const shell=makeChamberNode('div','ha-chamber-shell');
+ const shell=makeChamberNode('main','ha-chamber-shell');
  const header=makeChamberNode('header','ha-chamber-header');
  const topbar=makeChamberNode('div','ha-chamber-topbar');
  topbar.append(makeChamberNode('span','ha-chamber-mark','EGO // HUMAN ARCHIVE'));
@@ -1960,7 +1960,7 @@ function buildRecordChamber(record){
  const expand=makeChamberNode('button','ha-chamber-expand-all','SEAL ALL ↑');expand.type='button';
  expand.setAttribute('aria-expanded','true');expand.setAttribute('aria-label','Retract all chamber sections');
  titleRow.append(title,expand);
- const main=makeChamberNode('main','ha-chamber-main');
+ const main=shell;
  const shareRow=makeChamberNode('div','ha-chamber-share-row');
  const share=makeChamberNode('div','ha-chamber-share','');
  const shareStatus=makeChamberNode('span','ha-chamber-share-status','');
@@ -1987,7 +1987,7 @@ function buildRecordChamber(record){
  const source=safeExternalUrl(record.url,new Set(['emanuelstefancu.wordpress.com']));
  if(source){const link=makeChamberNode('a','ha-chamber-source','OPEN ORIGINAL SOURCE ↗');link.href=source;link.target='_blank';link.rel='noopener noreferrer';footer.append(link);}
  footer.append(makeChamberNode('span','ha-chamber-footer-note','NO TRACE IS EVER THE WHOLE PERSON.'));
- main.append(footer);shell.append(header,main);return shell;
+ main.append(footer);shell.prepend(header);return shell;
 }
 let chamberCloseRequestedByUser=false;
 async function closeRecordChamberSafely(){
