@@ -1948,6 +1948,7 @@ if(!readOnly&&typeof window.VHABlockEditor?.mountBlockEditor!=='function'){
 }
 function buildRecordChamber(record){
  const shell=makeChamberNode('main','ha-chamber-shell');
+ shell.dataset.haChamberLayout='fullscreen-v2';
  const header=makeChamberNode('header','ha-chamber-header');
  const topbar=makeChamberNode('div','ha-chamber-topbar');
  topbar.append(makeChamberNode('span','ha-chamber-mark','EGO // HUMAN ARCHIVE'));
@@ -1987,7 +1988,14 @@ function buildRecordChamber(record){
  const source=safeExternalUrl(record.url,new Set(['emanuelstefancu.wordpress.com']));
  if(source){const link=makeChamberNode('a','ha-chamber-source','OPEN ORIGINAL SOURCE ↗');link.href=source;link.target='_blank';link.rel='noopener noreferrer';footer.append(link);}
  footer.append(makeChamberNode('span','ha-chamber-footer-note','NO TRACE IS EVER THE WHOLE PERSON.'));
- main.append(footer);shell.prepend(header);return shell;
+ main.append(footer);shell.prepend(header);
+ // Defensively remove the former inner content wrapper from cached/legacy structures.
+ const legacyMain=shell.querySelector(':scope > .ha-chamber-main');
+ if(legacyMain){
+  while(legacyMain.firstChild)shell.insertBefore(legacyMain.firstChild,legacyMain);
+  legacyMain.remove();
+ }
+ return shell;
 }
 let chamberCloseRequestedByUser=false;
 async function closeRecordChamberSafely(){
