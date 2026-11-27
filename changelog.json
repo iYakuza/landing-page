@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-27T00:10:02.692690Z",
-  "last_processed_sha": "aa05f6732ca6347a52df7b7a657d578b4a93c985",
+  "updated_at": "2026-11-27T00:15:09.285271Z",
+  "last_processed_sha": "0cb870dd7681c5aaaa9d608f7b92aa88007046d0",
   "entries": [
+    {
+      "id": "0cb870dd7681c5aaaa9d608f7b92aa88007046d0",
+      "timestamp": "2026-11-27T01:14:53+01:00",
+      "category": "FIX",
+      "component": "Website",
+      "title": "More reliable Website",
+      "description": "This update brings together Fix full-screen Human Archive chamber layout: make the chamber shell the main full-screen content surface. It updates archive.js.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/archive.js"
+      ],
+      "commits": [
+        {
+          "message": "Fix full-screen Human Archive chamber layout: make the chamber shell the main full-screen content surface",
+          "url": "https://github.com/iYakuza/landing-page/commit/0cb870dd7681c5aaaa9d608f7b92aa88007046d0",
+          "files": [
+            "human-archive/archive.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "aa05f6732ca6347a52df7b7a657d578b4a93c985",
       "timestamp": "2026-11-27T01:09:49+01:00",
@@ -1333,33 +1354,6 @@
             "media/transmissions/T-0008/45e88926-e9b9-4159-9c57-c2e44ad0a88d-Dumnezeule-apele-sta-teau-pe-munt-i-hota-ra-ses-i-Tu..jpeg",
             "media/transmissions/T-0008/eca5ce37-fe71-4627-bed9-7be0aaed8a51-Dumnezeule-apele-sta-teau-pe-munt-i-hota-ra-ses-i-Tu..mp3",
             "media/transmissions/T-0008/eda7734a-9d1a-4381-a517-0f620e236d8b-Hindy-extra-bass.mp3"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "4948d42a741452546735fd4f78965e065ad1d0f6",
-      "timestamp": "2026-11-25T14:24:42+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Use the Green Dream logo as the favicon across remaining pages. It updates index.html, privacy-policy.html, terms-of-service.html and related project files.",
-      "commit_count": 1,
-      "files": [
-        "cms/index.html",
-        "privacy-policy.html",
-        "secure-your-soul/index.html",
-        "terms-of-service.html"
-      ],
-      "commits": [
-        {
-          "message": "Use the Green Dream logo as the favicon across remaining pages",
-          "url": "https://github.com/iYakuza/landing-page/commit/4948d42a741452546735fd4f78965e065ad1d0f6",
-          "files": [
-            "cms/index.html",
-            "privacy-policy.html",
-            "secure-your-soul/index.html",
-            "terms-of-service.html"
           ]
         }
       ]
