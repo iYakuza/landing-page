@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-27T00:08:33.355940Z",
-  "last_processed_sha": "3254d59924b27317ba3e309b297cfe5a88799b5d",
+  "updated_at": "2026-11-27T00:10:02.692690Z",
+  "last_processed_sha": "aa05f6732ca6347a52df7b7a657d578b4a93c985",
   "entries": [
+    {
+      "id": "aa05f6732ca6347a52df7b7a657d578b4a93c985",
+      "timestamp": "2026-11-27T01:09:49+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Publish Transmission T-0003. It updates human-archive.json, transmissions.json.",
+      "commit_count": 1,
+      "files": [
+        "content/human-archive.json",
+        "content/transmissions.json"
+      ],
+      "commits": [
+        {
+          "message": "Publish Transmission T-0003",
+          "url": "https://github.com/iYakuza/landing-page/commit/aa05f6732ca6347a52df7b7a657d578b4a93c985",
+          "files": [
+            "content/human-archive.json",
+            "content/transmissions.json"
+          ]
+        }
+      ]
+    },
     {
       "id": "3254d59924b27317ba3e309b297cfe5a88799b5d",
       "timestamp": "2026-11-27T01:08:15+01:00",
@@ -1337,27 +1360,6 @@
             "privacy-policy.html",
             "secure-your-soul/index.html",
             "terms-of-service.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "0cd783ece879c5e23b98f9d75b30fdb507f321d5",
-      "timestamp": "2026-11-25T14:21:42+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website",
-      "title": "A refined Website",
-      "description": "This update brings together Align media tests with shared Transmission sanitizer. It updates github-store-media.test.js.",
-      "commit_count": 1,
-      "files": [
-        "tests/github-store-media.test.js"
-      ],
-      "commits": [
-        {
-          "message": "Align media tests with shared Transmission sanitizer",
-          "url": "https://github.com/iYakuza/landing-page/commit/0cd783ece879c5e23b98f9d75b30fdb507f321d5",
-          "files": [
-            "tests/github-store-media.test.js"
           ]
         }
       ]
