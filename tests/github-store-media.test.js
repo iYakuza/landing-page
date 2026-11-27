@@ -1120,3 +1120,13 @@ test('Markdown text remains visible through the aligned syntax overlay and has a
   assert.match(archiveSource, /element\.setAttribute\('data-ha-text-color',textColor\)/);
   assert.match(archiveSource, /wrapper\.style\.color=safeTextColor/);
 });
+
+
+test('columns support removing non-final columns without serializing editor controls', () => {
+  assert.match(blockEditorSource, /ha-editor-remove-column/);
+  assert.match(blockEditorSource, /Remove this column/);
+  assert.match(blockEditorSource, /siblings\\.length<=1/);
+  assert.match(blockEditorSource, /\\.ha-editor-remove-column/);
+  assert.doesNotMatch(blockEditorSource, /if\\(sources\\.length===1\\)sources\\.push/);
+  assert.match(blockEditorCssSource, /\\.ha-editor-column>\\.ha-editor-remove-column/);
+});

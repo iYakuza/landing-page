@@ -385,3 +385,25 @@
 
 .ha-editor-block-content pre.ha-code-block{box-sizing:border-box;max-width:100%;padding:14px 16px;overflow-x:auto;border:1px solid rgba(168,199,194,.22);border-radius:4px;background:#070c10;color:#d7e2df;font:12px/1.7 'DM Mono',monospace;white-space:pre;tab-size:2;}
 .ha-editor-block-content pre.ha-code-block code{display:block;padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:inherit;}
+
+
+/* Remove a column from the active layout. The last column is retained. */
+.ha-editor-block-content .ha-columns.ha-editor-columns-layout>.ha-editor-column{position:relative!important}
+.ha-editor-column>.ha-editor-remove-column{
+ position:absolute!important;top:7px!important;right:-26px!important;z-index:9!important;
+ display:grid!important;place-items:center!important;width:22px!important;height:22px!important;min-width:22px!important;
+ margin:0!important;padding:0!important;border:1px solid rgba(222,126,111,.72)!important;border-radius:50%!important;
+ background:#160c0b!important;color:#efb4a9!important;font:13px/1 sans-serif!important;
+ opacity:.92!important;cursor:pointer!important;pointer-events:auto!important;
+ box-shadow:0 0 0 3px rgba(5,10,8,.72)!important
+}
+.ha-editor-column>.ha-editor-remove-column:hover,
+.ha-editor-column>.ha-editor-remove-column:focus-visible{
+ opacity:1!important;border-color:#ff9c8b!important;background:#ff9c8b!important;color:#160c0b!important;
+ outline:2px solid #ff9c8b!important;outline-offset:2px!important
+}
+.ha-editor-column>.ha-editor-remove-column[hidden]{display:none!important}
+.ha-block-editor-shell.is-read-only .ha-editor-remove-column{display:none!important}
+@media(max-width:650px){
+ .ha-editor-column>.ha-editor-remove-column{right:-26px!important;top:5px!important;opacity:1!important}
+}

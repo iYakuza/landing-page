@@ -376,8 +376,12 @@
     const contentFor = block => block?.querySelector(':scope > .ha-editor-block-content');
 
     function updateColumnCount(columns) {
-      const count=[...columns.children].filter(node=>node.classList.contains('ha-editor-column')).length;
-      columns.style.setProperty('--ha-column-count',String(Math.max(1,count)));
+      const items=[...columns.children].filter(node=>node.classList.contains('ha-editor-column'));
+      columns.style.setProperty('--ha-column-count',String(Math.max(1,items.length)));
+      items.forEach(column=>{
+        const remove=column.querySelector(':scope > .ha-editor-remove-column');
+        if(remove)remove.hidden=items.length<=1;
+      });
     }
 
     function buildEditorColumn(source, columns, ownerBlock) {
@@ -422,6 +426,37 @@
         const firstBlock=blocks(next.querySelector('.ha-editor-column-blocks'))[0];
         if(firstBlock)focusBlock(firstBlock);
       };
+      let remove=column.querySelector(':scope > .ha-editor-remove-column');
+      if(!remove){
+        remove=document.createElement('button');
+        remove.type='button';
+        remove.className='ha-editor-remove-column';
+        remove.textContent='×';
+        column.append(remove);
+      }
+      remove.title='Remove this column';
+      remove.setAttribute('aria-label','Remove this column');
+      remove.onclick=event=>{
+        event.preventDefault();
+        event.stopPropagation();
+        const siblings=[...columns.children].filter(node=>node.classList.contains('ha-editor-column'));
+        if(siblings.length<=1)return;
+        const hasContent=blocks(stack).some(block=>{
+          const body=contentFor(block);
+          if(!body)return false;
+          const text=String(body.innerText||body.textContent||'').replace(/[\\s\\u200b]+/g,'').trim();
+          const media=body.querySelector('img,audio,video,iframe,table,hr,canvas,svg,a[href]');
+          const fields=[...body.querySelectorAll('textarea,input')].some(field=>String(field.value||'').trim());
+          return Boolean(text||media||fields);
+        });
+        if(hasContent&&!window.confirm('This column contains content. Remove the column and everything inside it? This cannot be undone.'))return;
+        column.remove();
+        updateColumnCount(columns);
+        sync();
+        const remaining=siblings.find(item=>item!==column);
+        const firstBlock=blocks(remaining?.querySelector(':scope > .ha-editor-column-blocks'))[0];
+        if(firstBlock)focusBlock(firstBlock);
+      };
       stack.ondragover=event=>{
         if(event.dataTransfer?.types.includes('text/plain'))event.preventDefault();
       };
@@ -459,7 +494,6 @@
           first.innerHTML=columns.innerHTML||'<p><br></p>';
           sources=[first];
         }
-        if(sources.length===1)sources.push(document.createElement('section'));
         columns.classList.add('ha-editor-columns-layout');
         columns.replaceChildren(...sources.map(source=>buildEditorColumn(source,columns,block)));
       }else{
@@ -947,7 +981,7 @@
           content.querySelectorAll('textarea,input').forEach(control=>{control.readOnly=true;});
         }
       });
-      editor.querySelectorAll('.ha-editor-add-column').forEach(button=>button.remove());
+      editor.querySelectorAll('.ha-editor-add-column,.ha-editor-remove-column').forEach(button=>button.remove());
     } else {
       editor.addEventListener('input',sync);
     }
@@ -981,7 +1015,7 @@
         wrapper.replaceWith(fragment);
       });
       applyBlockName(clone,ownerBlock);
-      clone.querySelectorAll('.ha-editor-add-column,.ha-editor-block-controls,.ha-editor-block-footer').forEach(node=>node.remove());
+      clone.querySelectorAll('.ha-editor-add-column,.ha-editor-remove-column,.ha-editor-block-controls,.ha-editor-block-footer').forEach(node=>node.remove());
       clone.querySelectorAll('.ha-editor-column-blocks').forEach(stack=>stack.replaceWith(...stack.childNodes));
       clone.querySelectorAll('.ha-editor-column').forEach(column=>column.classList.remove('ha-editor-column'));
       clone.querySelectorAll('.ha-editor-columns-layout').forEach(columns=>columns.classList.remove('ha-editor-columns-layout'));
