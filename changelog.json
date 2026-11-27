@@ -1,8 +1,33 @@
 {
   "version": 1,
-  "updated_at": "2026-11-27T00:56:07.937844Z",
-  "last_processed_sha": "e40c72c8d8fc4d8e45adc73692e9f63f981bc1d5",
+  "updated_at": "2026-11-27T00:56:40.863364Z",
+  "last_processed_sha": "ccb5317633f0c115f9c364d94c4103eb2c3f746d",
   "entries": [
+    {
+      "id": "ccb5317633f0c115f9c364d94c4103eb2c3f746d",
+      "timestamp": "2026-11-27T01:56:23+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Harden column removal confirmation and editor checks. It updates block-editor.js, index.html, github-store-media.test.js.",
+      "commit_count": 1,
+      "files": [
+        "editor-ui/block-editor.js",
+        "human-archive/index.html",
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Harden column removal confirmation and editor checks",
+          "url": "https://github.com/iYakuza/landing-page/commit/ccb5317633f0c115f9c364d94c4103eb2c3f746d",
+          "files": [
+            "editor-ui/block-editor.js",
+            "human-archive/index.html",
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "e40c72c8d8fc4d8e45adc73692e9f63f981bc1d5",
       "timestamp": "2026-11-27T01:55:53+01:00",
@@ -1179,35 +1204,6 @@
         {
           "message": "Test public Chamber Markdown rendering and block style parity",
           "url": "https://github.com/iYakuza/landing-page/commit/10d2e44c2289a0c3f289665bc459cbf2b43778da",
-          "files": [
-            "tests/github-store-media.test.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "a172924faab43bcf6d5e05605fc1c576be8b752f",
-      "timestamp": "2026-11-26T00:39:37+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Rollback previous incorrect visual changes; Restore original Transmission sanitizer assertions. It updates github-store-media.test.js, index.html.",
-      "commit_count": 2,
-      "files": [
-        "tests/github-store-media.test.js",
-        "transmissions/the-return/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Rollback previous incorrect visual changes",
-          "url": "https://github.com/iYakuza/landing-page/commit/2e904fe23fb45fccd71782b0d9cdf4a111a13dc9",
-          "files": [
-            "transmissions/the-return/index.html"
-          ]
-        },
-        {
-          "message": "Restore original Transmission sanitizer assertions",
-          "url": "https://github.com/iYakuza/landing-page/commit/a172924faab43bcf6d5e05605fc1c576be8b752f",
           "files": [
             "tests/github-store-media.test.js"
           ]
