@@ -1428,3 +1428,15 @@ main[data-vha-layout-root]{
 .ha-chamber-blocks-view pre.ha-code-block{display:block;max-width:100%;margin:14px 0;padding:14px 16px;overflow-x:auto;border:1px solid rgba(168,199,194,.22);border-radius:4px;background:rgba(5,9,12,.9);color:#d7e2df;font:12px/1.7 'DM Mono',ui-monospace,monospace;white-space:pre;tab-size:2;}
 .ha-chamber-blocks-view pre.ha-code-block code{display:block;padding:0;border:0;background:transparent;color:inherit;font:inherit;white-space:inherit;}
 .ha-chamber-blocks-view pre.ha-code-block code .ha-code-block-section{color:rgba(168,199,194,.62);font-size:.9em;}
+
+
+/* Full-screen chamber: the shell owns the viewport; legacy content wrappers cannot constrain it. */
+.ha-record-chamber[open]>.ha-chamber-shell{
+ display:block!important;width:100%!important;height:100%!important;min-width:0!important;
+ max-width:none!important;max-height:none!important;margin:0!important;box-sizing:border-box!important
+}
+.ha-chamber-shell>.ha-chamber-main{display:contents!important}
+.ha-chamber-shell>.ha-chamber-grid{
+ display:block!important;width:100%!important;min-width:0!important;max-width:none!important
+}
+.ha-chamber-shell .ha-chamber-blocks-view{display:block!important;width:100%!important;min-width:0!important;max-width:none!important}
