@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-27T00:56:40.863364Z",
-  "last_processed_sha": "ccb5317633f0c115f9c364d94c4103eb2c3f746d",
+  "updated_at": "2026-11-27T01:05:02.787604Z",
+  "last_processed_sha": "30316f20bfb807f46a1ac36fe75485271d4995cf",
   "entries": [
+    {
+      "id": "30316f20bfb807f46a1ac36fe75485271d4995cf",
+      "timestamp": "2026-11-27T02:04:41+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Migrate imported WordPress embeds to native editor blocks. It updates human-archive.json, github-store-media.test.js.",
+      "commit_count": 1,
+      "files": [
+        "content/human-archive.json",
+        "tests/github-store-media.test.js"
+      ],
+      "commits": [
+        {
+          "message": "Migrate imported WordPress embeds to native editor blocks",
+          "url": "https://github.com/iYakuza/landing-page/commit/30316f20bfb807f46a1ac36fe75485271d4995cf",
+          "files": [
+            "content/human-archive.json",
+            "tests/github-store-media.test.js"
+          ]
+        }
+      ]
+    },
     {
       "id": "ccb5317633f0c115f9c364d94c4103eb2c3f746d",
       "timestamp": "2026-11-27T01:56:23+01:00",
@@ -1169,43 +1192,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/5f2efc5939646b6835f63dcaaefeb29b9b464679",
           "files": [
             "transmissions/the-descent/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "10d2e44c2289a0c3f289665bc459cbf2b43778da",
-      "timestamp": "2026-11-26T00:43:03+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Render Markdown blocks and preserve Chamber block types; Match public Chamber styles to the block editor catalogue; Test public Chamber Markdown rendering and block style parity. It updates archive.css, archive.js, github-store-media.test.js.",
-      "commit_count": 3,
-      "files": [
-        "human-archive/archive.css",
-        "human-archive/archive.js",
-        "tests/github-store-media.test.js"
-      ],
-      "commits": [
-        {
-          "message": "Render Markdown blocks and preserve Chamber block types",
-          "url": "https://github.com/iYakuza/landing-page/commit/083b8317a9a63c7a053af437d8b7f8b65f0b0901",
-          "files": [
-            "human-archive/archive.js"
-          ]
-        },
-        {
-          "message": "Match public Chamber styles to the block editor catalogue",
-          "url": "https://github.com/iYakuza/landing-page/commit/752f0ecf0320f9860e92dc914d90e9b5b9447980",
-          "files": [
-            "human-archive/archive.css"
-          ]
-        },
-        {
-          "message": "Test public Chamber Markdown rendering and block style parity",
-          "url": "https://github.com/iYakuza/landing-page/commit/10d2e44c2289a0c3f289665bc459cbf2b43778da",
-          "files": [
-            "tests/github-store-media.test.js"
           ]
         }
       ]
