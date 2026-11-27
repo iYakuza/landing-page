@@ -1123,10 +1123,10 @@ test('Markdown text remains visible through the aligned syntax overlay and has a
 
 
 test('columns support removing non-final columns without serializing editor controls', () => {
-  assert.match(blockEditorSource, /ha-editor-remove-column/);
-  assert.match(blockEditorSource, /Remove this column/);
-  assert.match(blockEditorSource, /siblings\\.length<=1/);
-  assert.match(blockEditorSource, /\\.ha-editor-remove-column/);
-  assert.doesNotMatch(blockEditorSource, /if\\(sources\\.length===1\\)sources\\.push/);
-  assert.match(blockEditorCssSource, /\\.ha-editor-column>\\.ha-editor-remove-column/);
+  assert.ok(blockEditorSource.includes('ha-editor-remove-column'));
+  assert.ok(blockEditorSource.includes('Remove this column'));
+  assert.ok(blockEditorSource.includes('siblings.length<=1'));
+  assert.ok(blockEditorSource.includes('.ha-editor-remove-column'));
+  assert.ok(!blockEditorSource.includes('if(sources.length===1)sources.push'));
+  assert.ok(blockEditorCssSource.includes('.ha-editor-column>.ha-editor-remove-column'));
 });

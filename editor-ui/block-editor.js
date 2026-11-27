@@ -444,7 +444,7 @@
         const hasContent=blocks(stack).some(block=>{
           const body=contentFor(block);
           if(!body)return false;
-          const text=String(body.innerText||body.textContent||'').replace(/[\\s\\u200b]+/g,'').trim();
+          const text=String(body.innerText||body.textContent||'').trim();
           const media=body.querySelector('img,audio,video,iframe,table,hr,canvas,svg,a[href]');
           const fields=[...body.querySelectorAll('textarea,input')].some(field=>String(field.value||'').trim());
           return Boolean(text||media||fields);
