@@ -1166,3 +1166,11 @@ test('imported WordPress embeds use native provider blocks instead of WordPress 
   assert.match(timeline.html, /class="ha-embed-card"/);
   assert.ok(timeline.html.includes('OPEN ORIGINAL POST'));
 });
+
+
+test('Spotify embed blocks keep a compact track-player height in edit and view modes', () => {
+  assert.match(blockEditorCssSource, /data-ha-block="spotify".*iframe/);
+  assert.match(blockEditorCssSource, /min-height:152px!important;height:152px!important/);
+  assert.match(archiveCssSource, /\.ha-embed-spotify iframe/);
+  assert.match(archiveCssSource, /min-height:152px;height:152px/);
+});

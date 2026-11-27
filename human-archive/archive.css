@@ -1440,3 +1440,9 @@ main[data-vha-layout-root]{
  display:block!important;width:100%!important;min-width:0!important;max-width:none!important
 }
 .ha-chamber-shell .ha-chamber-blocks-view{display:block!important;width:100%!important;min-width:0!important;max-width:none!important}
+
+
+/* Compact Spotify track embeds in the published archive chamber. */
+.ha-chamber-blocks-view .ha-embed-spotify iframe{
+ min-height:152px;height:152px;aspect-ratio:auto
+}

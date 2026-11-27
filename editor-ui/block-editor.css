@@ -407,3 +407,9 @@
 @media(max-width:650px){
  .ha-editor-column>.ha-editor-remove-column{right:-26px!important;top:5px!important;opacity:1!important}
 }
+
+
+/* Spotify track blocks use the compact player height rather than the video minimum. */
+.ha-editor-block[data-ha-block="spotify"] .ha-editor-block-content iframe{
+ min-height:152px!important;height:152px!important;aspect-ratio:auto!important
+}
