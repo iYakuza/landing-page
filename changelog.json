@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-27T00:32:58.116713Z",
-  "last_processed_sha": "f3c96559d7614eeb70bd987f169b4c8aaa2bfae6",
+  "updated_at": "2026-11-27T00:53:17.130399Z",
+  "last_processed_sha": "e2b6e111fda8e549030affa8acfde649e228b0d4",
   "entries": [
+    {
+      "id": "e2b6e111fda8e549030affa8acfde649e228b0d4",
+      "timestamp": "2026-11-27T01:52:57+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Save Human Archive editor structure 1666. It updates human-archive.json.",
+      "commit_count": 1,
+      "files": [
+        "content/human-archive.json"
+      ],
+      "commits": [
+        {
+          "message": "Save Human Archive editor structure 1666",
+          "url": "https://github.com/iYakuza/landing-page/commit/e2b6e111fda8e549030affa8acfde649e228b0d4",
+          "files": [
+            "content/human-archive.json"
+          ]
+        }
+      ]
+    },
     {
       "id": "f3c96559d7614eeb70bd987f169b4c8aaa2bfae6",
       "timestamp": "2026-11-27T01:32:56+01:00",
@@ -1213,35 +1234,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/6a665220a45c22885673df095279fca23d07f7d6",
           "files": [
             "transmissions/the-transformation/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "e5f51057534bf57198ea501640f38cbf3b00bf5b",
-      "timestamp": "2026-11-26T00:39:01+01:00",
-      "category": "IMPROVEMENT",
-      "component": "Website Updates",
-      "title": "A refined Website Updates",
-      "description": "This update brings together Rollback previous public Markdown styling changes (posts.js); Rollback previous public Markdown styling changes (archive-standard.css). It updates archive-standard.css, posts.js.",
-      "commit_count": 2,
-      "files": [
-        "transmissions/archive-standard.css",
-        "transmissions/posts.js"
-      ],
-      "commits": [
-        {
-          "message": "Rollback previous public Markdown styling changes (posts.js)",
-          "url": "https://github.com/iYakuza/landing-page/commit/11ef9005cc4a5e7942c23fb666bf7ef90151faa1",
-          "files": [
-            "transmissions/posts.js"
-          ]
-        },
-        {
-          "message": "Rollback previous public Markdown styling changes (archive-standard.css)",
-          "url": "https://github.com/iYakuza/landing-page/commit/e5f51057534bf57198ea501640f38cbf3b00bf5b",
-          "files": [
-            "transmissions/archive-standard.css"
           ]
         }
       ]
