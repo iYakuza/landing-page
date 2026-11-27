@@ -1,8 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-11-27T00:15:40.763099Z",
-  "last_processed_sha": "54652c0bb9ae160c2bd15c609422036e35b1d651",
+  "updated_at": "2026-11-27T00:22:16.001886Z",
+  "last_processed_sha": "acde31b5a1306117805bf6d27319dce797bf132c",
   "entries": [
+    {
+      "id": "acde31b5a1306117805bf6d27319dce797bf132c",
+      "timestamp": "2026-11-27T01:21:55+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Experience",
+      "title": "A refined Website Experience",
+      "description": "This update brings together Preserve shared editor asset version in Human Archive controller URL. It updates index.html.",
+      "commit_count": 1,
+      "files": [
+        "human-archive/index.html"
+      ],
+      "commits": [
+        {
+          "message": "Preserve shared editor asset version in Human Archive controller URL",
+          "url": "https://github.com/iYakuza/landing-page/commit/acde31b5a1306117805bf6d27319dce797bf132c",
+          "files": [
+            "human-archive/index.html"
+          ]
+        }
+      ]
+    },
     {
       "id": "54652c0bb9ae160c2bd15c609422036e35b1d651",
       "timestamp": "2026-11-27T01:15:26+01:00",
@@ -1267,83 +1288,6 @@
         {
           "message": "Keep shared transmission asset versions aligned",
           "url": "https://github.com/iYakuza/landing-page/commit/06b00dd6fe4380ed954cefeb796a9a3b69207d17",
-          "files": [
-            "transmissions/the-return/index.html"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "33bb3fa7ad43c2f62ef0682a880d51b801c4ff93",
-      "timestamp": "2026-11-26T00:28:12+01:00",
-      "category": "CONTENT",
-      "component": "Website Updates",
-      "title": "Fresh additions to Website Updates",
-      "description": "This update brings together Render Markdown and preserve public archive blocks; Style public Human Archive content blocks; Refresh transmission public renderer and styles. It updates archive-standard.css, index.html, posts.js and related project files.",
-      "commit_count": 8,
-      "files": [
-        "transmissions/archive-standard.css",
-        "transmissions/index.html",
-        "transmissions/posts.js",
-        "transmissions/the-awakening/index.html",
-        "transmissions/the-descent/index.html",
-        "transmissions/the-reconnection/index.html",
-        "transmissions/the-return/index.html",
-        "transmissions/the-transformation/index.html"
-      ],
-      "commits": [
-        {
-          "message": "Render Markdown and preserve public archive blocks",
-          "url": "https://github.com/iYakuza/landing-page/commit/076a719bb5c56e81e72648f5d33da04702dea61d",
-          "files": [
-            "transmissions/posts.js"
-          ]
-        },
-        {
-          "message": "Style public Human Archive content blocks",
-          "url": "https://github.com/iYakuza/landing-page/commit/0f60e34b2d92e5e722c4d4dcff49c5937b86578b",
-          "files": [
-            "transmissions/archive-standard.css"
-          ]
-        },
-        {
-          "message": "Refresh transmission public renderer and styles",
-          "url": "https://github.com/iYakuza/landing-page/commit/253b25bc72c44dd7938efde1d27b714fa717a369",
-          "files": [
-            "transmissions/index.html"
-          ]
-        },
-        {
-          "message": "Refresh transmission public renderer and styles",
-          "url": "https://github.com/iYakuza/landing-page/commit/15244d8b699a9b48af3d929b88ed2043e5a1b6a8",
-          "files": [
-            "transmissions/the-awakening/index.html"
-          ]
-        },
-        {
-          "message": "Refresh transmission public renderer and styles",
-          "url": "https://github.com/iYakuza/landing-page/commit/3beb49e41674e3f436702a3bd85568f561cb1370",
-          "files": [
-            "transmissions/the-descent/index.html"
-          ]
-        },
-        {
-          "message": "Refresh transmission public renderer and styles",
-          "url": "https://github.com/iYakuza/landing-page/commit/bb9962474082a609d568d4a3e094299df2e08953",
-          "files": [
-            "transmissions/the-reconnection/index.html"
-          ]
-        },
-        {
-          "message": "Refresh transmission public renderer and styles",
-          "url": "https://github.com/iYakuza/landing-page/commit/b6deb6d3dfb992c954d67057940ff15fa65561c0",
-          "files": [
-            "transmissions/the-transformation/index.html"
-          ]
-        },
-        {
-          "message": "Refresh transmission public renderer and styles",
-          "url": "https://github.com/iYakuza/landing-page/commit/33bb3fa7ad43c2f62ef0682a880d51b801c4ff93",
           "files": [
             "transmissions/the-return/index.html"
           ]
