@@ -1,8 +1,39 @@
 {
   "version": 1,
-  "updated_at": "2026-11-26T17:24:53.988886Z",
-  "last_processed_sha": "df8d3b582cd0469bd9826da5b3a893bd3e177eeb",
+  "updated_at": "2026-11-27T00:06:26.010296Z",
+  "last_processed_sha": "0e73ff300ffd17e435fed6e1e57cb5871e94c381",
   "entries": [
+    {
+      "id": "0e73ff300ffd17e435fed6e1e57cb5871e94c381",
+      "timestamp": "2026-11-27T01:06:10+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website Updates",
+      "title": "A refined Website Updates",
+      "description": "This update brings together Publish Transmission T-0003. It updates human-archive.json, transmissions.json, 1a840387-05d0-4860-af52-0f947295d74e-Green-Dream_-The-God-Beneath-the-Noise.png, 312861e0-c3aa-4aae-987e-4e7fae3b922f-Shiva-s-Green-Dream_-Nature-and-Code.png and related project files.",
+      "commit_count": 1,
+      "files": [
+        "content/human-archive.json",
+        "content/transmissions.json",
+        "media/transmissions/T-0003/1a840387-05d0-4860-af52-0f947295d74e-Green-Dream_-The-God-Beneath-the-Noise.png",
+        "media/transmissions/T-0003/312861e0-c3aa-4aae-987e-4e7fae3b922f-Shiva-s-Green-Dream_-Nature-and-Code.png",
+        "media/transmissions/T-0003/81a13c25-edf5-45ea-8c9f-5dc922c7f71a-Green-Dream_-The-God-Beneath-the-Noise-1-.png",
+        "media/transmissions/T-0003/b5166ef8-5108-4fd1-8661-69d5f92561a3-Before-the-Name.mp3"
+      ],
+      "commits": [
+        {
+          "message": "Publish Transmission T-0003",
+          "url": "https://github.com/iYakuza/landing-page/commit/0e73ff300ffd17e435fed6e1e57cb5871e94c381",
+          "files": [
+            "content/human-archive.json",
+            "content/transmissions.json",
+            "media/transmissions/T-0003/1a840387-05d0-4860-af52-0f947295d74e-Green-Dream_-The-God-Beneath-the-Noise.png",
+            "media/transmissions/T-0003/312861e0-c3aa-4aae-987e-4e7fae3b922f-Shiva-s-Green-Dream_-Nature-and-Code.png",
+            "media/transmissions/T-0003/81a13c25-edf5-45ea-8c9f-5dc922c7f71a-Green-Dream_-The-God-Beneath-the-Noise-1-.png",
+            "media/transmissions/T-0003/b5166ef8-5108-4fd1-8661-69d5f92561a3-Before-the-Name.mp3"
+          ]
+        }
+      ]
+    },
     {
       "id": "df8d3b582cd0469bd9826da5b3a893bd3e177eeb",
       "timestamp": "2026-11-26T17:00:29+01:00",
@@ -1325,29 +1356,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/693ecbb36f6607deb8a50ba28a7ae0d1de43ab69",
           "files": [
             "tests/site-performance.test.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "f88d669897685af4e19fa0c2f830c3a81f708239",
-      "timestamp": "2026-11-25T14:19:56+01:00",
-      "category": "FIX",
-      "component": "Website",
-      "title": "More reliable Website",
-      "description": "This update brings together Fix Transmission reading-flow checks and disclosure escaping. It updates site-performance.test.js, posts.js.",
-      "commit_count": 1,
-      "files": [
-        "tests/site-performance.test.js",
-        "transmissions/posts.js"
-      ],
-      "commits": [
-        {
-          "message": "Fix Transmission reading-flow checks and disclosure escaping",
-          "url": "https://github.com/iYakuza/landing-page/commit/f88d669897685af4e19fa0c2f830c3a81f708239",
-          "files": [
-            "tests/site-performance.test.js",
-            "transmissions/posts.js"
           ]
         }
       ]
