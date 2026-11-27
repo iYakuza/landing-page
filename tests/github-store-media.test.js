@@ -12,6 +12,7 @@ const blockEditorSource = fs.readFileSync(path.join(__dirname, '..', 'editor-ui'
 const blockEditorCssSource = fs.readFileSync(path.join(__dirname, '..', 'editor-ui', 'block-editor.css'), 'utf8');
 const archiveHtml = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'index.html'), 'utf8');
 const archiveCssSource = fs.readFileSync(path.join(__dirname, '..', 'human-archive', 'archive.css'), 'utf8');
+const humanArchiveCollection = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'content', 'human-archive.json'), 'utf8'));
 const creatorPostingSource = fs.readFileSync(path.join(__dirname, '..', 'creator-posting.js'), 'utf8');
 const creatorPostingPagePaths = [
   'index.html',
@@ -1129,4 +1130,39 @@ test('columns support removing non-final columns without serializing editor cont
   assert.ok(blockEditorSource.includes('.ha-editor-remove-column'));
   assert.ok(!blockEditorSource.includes('if(sources.length===1)sources.push'));
   assert.ok(blockEditorCssSource.includes('.ha-editor-column>.ha-editor-remove-column'));
+});
+
+
+test('all 140 imported WordPress records have editable block structures', () => {
+  const legacyIds = new Set(humanArchiveCollection.records.map(record => String(record.legacy_id)));
+  const structures = humanArchiveCollection.editor_structures.filter(structure => legacyIds.has(String(structure.record_id)));
+  assert.equal(humanArchiveCollection.records.length, 140);
+  assert.equal(structures.length, 140);
+  structures.forEach(structure => {
+    assert.ok(Array.isArray(structure.blocks) && structure.blocks.length > 0,
+      'WordPress record ' + structure.record_id + ' must have editable blocks');
+    structure.blocks.forEach(block => {
+      assert.equal(typeof block.type, 'string');
+      assert.equal(typeof block.html, 'string');
+    });
+  });
+});
+
+test('imported WordPress embeds use native provider blocks instead of WordPress embed wrappers', () => {
+  const legacyIds = new Set(humanArchiveCollection.records.map(record => String(record.legacy_id)));
+  const structures = humanArchiveCollection.editor_structures.filter(structure => legacyIds.has(String(structure.record_id)));
+  const allBlocks = structures.flatMap(structure => structure.blocks || []);
+  const html = allBlocks.map(block => block.html || '').join('');
+  assert.doesNotMatch(html, /wp-block-embed(?:__wrapper)?|wp-embedded-content|embed-widget-container/);
+  assert.equal(allBlocks.filter(block => block.type === 'youtube').length, 13);
+  assert.equal(allBlocks.filter(block => block.type === 'spotify').length, 2);
+  assert.equal(allBlocks.filter(block => block.type === 'embed').length, 0);
+  const gravity = structures.find(structure => Number(structure.record_id) === 1478).blocks
+    .find(block => block.type === 'spotify');
+  assert.match(gravity.html, /class="ha-embed ha-embed-spotify"/);
+  assert.ok(gravity.html.includes('open.spotify.com/embed/track/1CO4BB8CaiQggtJ0R6GwGt'));
+  const timeline = structures.find(structure => Number(structure.record_id) === 1429).blocks
+    .find(block => block.type === 'unordered-list');
+  assert.match(timeline.html, /class="ha-embed-card"/);
+  assert.ok(timeline.html.includes('OPEN ORIGINAL POST'));
 });

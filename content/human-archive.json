@@ -7145,8 +7145,8 @@
       "blocks": [
         {
           "id": "ha-178-001",
-          "html": "<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" title=\"YouTube video player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/iRBXveKLDho?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en&#038;autohide=2&#038;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-youtube\"><iframe src=\"https://www.youtube-nocookie.com/embed/iRBXveKLDho\" title=\"YouTube video player\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; encrypted-media; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "youtube"
         },
         {
           "id": "ha-178-002",
@@ -8169,8 +8169,8 @@
       "blocks": [
         {
           "id": "ha-242-001",
-          "html": "<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" title=\"YouTube video player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/B040WrFp1A0?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en&#038;autohide=2&#038;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-youtube\"><iframe src=\"https://www.youtube-nocookie.com/embed/B040WrFp1A0\" title=\"YouTube video player\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; encrypted-media; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "youtube"
         },
         {
           "id": "ha-242-002",
@@ -9084,8 +9084,8 @@
         },
         {
           "id": "ha-589-005",
-          "html": "<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" title=\"YouTube video player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/1RGz0y4fas0?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en&#038;autohide=2&#038;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-youtube\"><iframe src=\"https://www.youtube-nocookie.com/embed/1RGz0y4fas0\" title=\"YouTube video player\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; encrypted-media; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "youtube"
         },
         {
           "id": "ha-589-media-1106",
@@ -9930,8 +9930,8 @@
       "blocks": [
         {
           "id": "ha-870-001",
-          "html": "<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" title=\"YouTube video player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/fHQqHJhVGMY?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en&#038;autohide=2&#038;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-youtube\"><iframe src=\"https://www.youtube-nocookie.com/embed/fHQqHJhVGMY\" title=\"YouTube video player\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; encrypted-media; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "youtube"
         },
         {
           "id": "ha-870-002",
@@ -10679,8 +10679,8 @@
         },
         {
           "id": "ha-1060-004",
-          "html": "<figure class=\"wp-block-embed is-type-rich is-provider-spotify wp-block-embed-spotify wp-embed-aspect-21-9 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<div class=\"embed-spotify\"><iframe title=\"Spotify Embed: The Mask\" style=\"border-radius: 12px\" width=\"100%\" height=\"152\" frameborder=\"0\" allowfullscreen allow=\"autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture\" loading=\"lazy\" src=\"https://open.spotify.com/embed/track/0jHieRglaHjl3bopesFBc7?si=6b26b82382b047e2&#038;utm_source=oembed\"></iframe></div>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-spotify\"><iframe src=\"https://open.spotify.com/embed/track/0jHieRglaHjl3bopesFBc7\" title=\"Spotify Embed: The Mask\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "spotify"
         },
         {
           "id": "ha-1060-005",
@@ -10908,8 +10908,8 @@
       "blocks": [
         {
           "id": "ha-1249-001",
-          "html": "<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" title=\"YouTube video player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/pRilwsWE00Q?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en&#038;autohide=2&#038;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-youtube\"><iframe src=\"https://www.youtube-nocookie.com/embed/pRilwsWE00Q\" title=\"YouTube video player\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; encrypted-media; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "youtube"
         },
         {
           "id": "ha-1249-002",
@@ -11203,8 +11203,8 @@
         },
         {
           "id": "ha-1404-005",
-          "html": "<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" title=\"YouTube video player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/udfzjUR6k2Y?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en&#038;autohide=2&#038;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-youtube\"><iframe src=\"https://www.youtube-nocookie.com/embed/udfzjUR6k2Y\" title=\"YouTube video player\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; encrypted-media; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "youtube"
         },
         {
           "id": "ha-1404-media-1406",
@@ -11230,8 +11230,8 @@
         },
         {
           "id": "ha-1408-002",
-          "html": "<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" title=\"YouTube video player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/9-xyUHbIO5A?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en&#038;autohide=2&#038;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-youtube\"><iframe src=\"https://www.youtube-nocookie.com/embed/9-xyUHbIO5A\" title=\"YouTube video player\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; encrypted-media; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "youtube"
         },
         {
           "id": "ha-1408-003",
@@ -11356,7 +11356,7 @@
       "blocks": [
         {
           "id": "ha-1429-001",
-          "html": "<ul class=\"wp-block-jetpack-timeline\">\n<li style=\"background-color:#eeeeee\" class=\"wp-block-jetpack-timeline-item\"><div class=\"timeline-item\"><div class=\"timeline-item__bubble\" style=\"border-color:#eeeeee\"></div><div class=\"timeline-item__dot\" style=\"background-color:#eeeeee\"></div>\n<figure class=\"wp-block-embed is-type-wp-embed is-provider-emanuel-tefancu wp-block-embed-emanuel-tefancu\"><div class=\"wp-block-embed__wrapper\">\n<blockquote class=\"wp-embedded-content\" data-secret=\"sRhv2jQCPt\"><a href=\"https://emanuelstefancu.com/2024/11/26/11-days-of-wander-foreword/\">11 Days of Wander &#8211;&nbsp;Foreword</a></blockquote><iframe loading=\"lazy\" class=\"wp-embedded-content\" sandbox=\"allow-scripts\" security=\"restricted\" style=\"position: absolute; visibility: hidden;\" title=\"&#8220;11 Days of Wander &#8211;&nbsp;Foreword&#8221; &#8212; Emanuel Ștefancu\" src=\"https://emanuelstefancu.com/2024/11/26/11-days-of-wander-foreword/embed/#?secret=EKB6HlkfzX#?secret=sRhv2jQCPt\" data-secret=\"sRhv2jQCPt\" width=\"500\" height=\"282\" frameborder=\"0\" marginwidth=\"0\" marginheight=\"0\" scrolling=\"no\"></iframe>\n</div></figure>\n</div></li>\n</ul>",
+          "html": "<ul class=\"wp-block-jetpack-timeline\">\n<li style=\"background-color:#eeeeee\" class=\"wp-block-jetpack-timeline-item\"><div class=\"timeline-item\"><div class=\"timeline-item__bubble\" style=\"border-color:#eeeeee\"></div><div class=\"timeline-item__dot\" style=\"background-color:#eeeeee\"></div>\n<div class=\"ha-embed-card\"><a class=\"ha-embed-link\" href=\"https://emanuelstefancu.com/2024/11/26/11-days-of-wander-foreword/\" target=\"_blank\" rel=\"noopener noreferrer\">OPEN ORIGINAL POST — 11 Days of Wander –&amp;nbsp;Foreword ↗</a></div>\n</div></li>\n</ul>",
           "type": "unordered-list"
         },
         {
@@ -11972,8 +11972,8 @@
       "blocks": [
         {
           "id": "ha-1478-001",
-          "html": "<figure class=\"wp-block-embed is-type-rich is-provider-spotify wp-block-embed-spotify wp-embed-aspect-21-9 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<div class=\"embed-spotify\"><iframe title=\"Spotify Embed: Gravity\" style=\"border-radius: 12px\" width=\"100%\" height=\"152\" frameborder=\"0\" allowfullscreen allow=\"autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture\" loading=\"lazy\" src=\"https://open.spotify.com/embed/track/1CO4BB8CaiQggtJ0R6GwGt?si=97c9488a45c34003&#038;utm_source=oembed\"></iframe></div>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-spotify\"><iframe src=\"https://open.spotify.com/embed/track/1CO4BB8CaiQggtJ0R6GwGt\" title=\"Spotify Embed: Gravity\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "spotify"
         },
         {
           "id": "ha-1478-002",
@@ -12059,8 +12059,8 @@
       "blocks": [
         {
           "id": "ha-1561-001",
-          "html": "<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" title=\"YouTube video player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/yy4K8B8woDM?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en&#038;autohide=2&#038;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-youtube\"><iframe src=\"https://www.youtube-nocookie.com/embed/yy4K8B8woDM\" title=\"YouTube video player\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; encrypted-media; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "youtube"
         },
         {
           "id": "ha-1561-002",
@@ -12086,8 +12086,8 @@
       "blocks": [
         {
           "id": "ha-1571-001",
-          "html": "<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" title=\"YouTube video player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/SrSW5EIeZ8E?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en&#038;autohide=2&#038;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-youtube\"><iframe src=\"https://www.youtube-nocookie.com/embed/SrSW5EIeZ8E\" title=\"YouTube video player\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; encrypted-media; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "youtube"
         },
         {
           "id": "ha-1571-002",
@@ -12200,8 +12200,8 @@
       "blocks": [
         {
           "id": "ha-1587-001",
-          "html": "<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" title=\"YouTube video player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/2KENFo8Af68?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en&#038;autohide=2&#038;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-youtube\"><iframe src=\"https://www.youtube-nocookie.com/embed/2KENFo8Af68\" title=\"YouTube video player\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; encrypted-media; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "youtube"
         },
         {
           "id": "ha-1587-002",
@@ -12267,8 +12267,8 @@
       "blocks": [
         {
           "id": "ha-1594-001",
-          "html": "<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" title=\"YouTube video player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/zQ7LfKS-ANA?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en&#038;autohide=2&#038;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-youtube\"><iframe src=\"https://www.youtube-nocookie.com/embed/zQ7LfKS-ANA\" title=\"YouTube video player\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; encrypted-media; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "youtube"
         },
         {
           "id": "ha-1594-002",
@@ -12309,8 +12309,8 @@
       "blocks": [
         {
           "id": "ha-1599-001",
-          "html": "<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" title=\"YouTube video player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/HOWIkM0j3qg?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en&#038;autohide=2&#038;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-youtube\"><iframe src=\"https://www.youtube-nocookie.com/embed/HOWIkM0j3qg\" title=\"YouTube video player\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; encrypted-media; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "youtube"
         },
         {
           "id": "ha-1599-002",
@@ -12799,8 +12799,8 @@
         },
         {
           "id": "ha-1653-004",
-          "html": "<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" title=\"YouTube video player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/KArz7bXQt9o?version=3&#038;rel=1&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;fs=1&#038;hl=en&#038;autohide=2&#038;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>",
-          "type": "embed"
+          "html": "<figure class=\"ha-embed ha-embed-youtube\"><iframe src=\"https://www.youtube-nocookie.com/embed/KArz7bXQt9o\" title=\"YouTube video player\" loading=\"lazy\" referrerpolicy=\"strict-origin-when-cross-origin\" allow=\"autoplay; encrypted-media; picture-in-picture\" allowfullscreen></iframe></figure>",
+          "type": "youtube"
         },
         {
           "id": "ha-1653-media-1655",
