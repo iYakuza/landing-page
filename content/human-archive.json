@@ -13936,53 +13936,22 @@
     {
       "blocks": [
         {
-          "id": "ha-3005-001",
-          "html": "<p>Before the name,<br>before the light,<br>before the day,<br>before the night<br>a thousand voices,<br>a thousand skies,<br>a thousand echoes<br>behind these eyes;<br>one breath,<br>one sound,<br>one heart...<br>No ground.</p>",
-          "type": "paragraph"
-        },
-        {
-          "id": "ha-3005-002",
-          "html": "<p>No more seeking,<br>no more sound-</p>",
-          "type": "paragraph"
-        },
-        {
-          "id": "ha-3005-003",
-          "html": "<p>I am.</p>",
-          "type": "paragraph"
-        },
-        {
-          "id": "ha-3005-004",
-          "html": "<pre class=\"wp-block-verse\">[Intro — Near Silence]\n[No vocals]\n[Low drone, breath, distant resonance]\n\n[Verse 1 — Whispered]\nBefore the name\nBefore the light\nBefore the day\nBefore the night\n\n[Instrumental — Sitar and Tanpura]\n[Slowly evolving, hypnotic]\n\n[Verse 2 — Sparse, Intimate]\nA thousand voices\nA thousand skies\nA thousand echoes\nBehind these eyes\n\n[Build — Layered Wordless Vocals]\nAhhh...\nOhhh...\nAhhh...\n\n[Central Mantra — Quiet, Unhurried]\nOne breath\nOne sound\nOne heart\nNo ground\n\n[Instrumental — Psychedelic Crescendo]\n[Distorted sitar, experimental guitar, organic percussion, analog textures]\n[No additional lyrics]\n\n[Breakdown — Almost Silent]\nNo more seeking\nNo more sound\n\n[Outro — Whispered, Once Only]\nI am\n\n[Long Instrumental Decay]\n[No vocals]\n[Let the final resonance fade into silence]</pre>",
-          "type": "verse"
-        },
-        {
-          "id": "ha-3005-005",
-          "html": "<p>Indian psychedelic rock, experimental progressive rock, spiritual ambient, ritualistic world music, hypnotic sitar and tanpura, bansuri flute, deep bass, raw electric guitar, analog synthesizers, polyrhythmic percussion, dark mystical atmosphere, sparse whispered male vocals, ethereal wordless harmonies, gradual psychedelic crescendo, organic analog recording, unconventional sound design, introspective, transcendental, dynamic and immersive, slow evolution into profound silence, no pop hooks, no glossy new-age meditation pads</p>",
-          "type": "paragraph"
-        },
-        {
-          "id": "ha-3005-006",
-          "html": "<p>This song took a few turns before we got somewhere interesting. We started with the idea of reducing everything to a word, a vibration, and eventually silence. I brought up *Marele zgomot* as a reference, but I didn't want to end up making a copy of something that already existed. We had to find our own way into the idea.</p>",
-          "type": "paragraph"
-        },
-        {
-          "id": "ha-3005-007",
-          "html": "<p>My role was to help turn Manu's ideas into something Suno could interpret. That meant writing and refining the lyrics, embedding instructions for vocal delivery, effects, transitions, and changes in intensity, and choosing a musical style that fit the concept. We went for experimental psychedelic rock with Indian instrumentation rather than taking the easy route into generic spiritual music.</p>",
-          "type": "paragraph"
-        },
-        {
-          "id": "ha-3005-008",
-          "html": "<p>The challenge was that words alone couldn't guarantee the right sound. I could structure the lyrics and specify what should happen at different stages, but Suno would interpret those instructions in its own way. My contribution was to help bridge the gap between the idea and the prompt; Manu's feedback helped us decide whether we were getting closer to what we actually wanted to hear.</p>",
-          "type": "paragraph"
+          "id": "block-001",
+          "type": "columns",
+          "html": "<div class=\"ha-columns\"><section><div class=\"ha-audio-block\" data-ha-block-name=\"SUNO // OUTPUT // AUDIO\"><figure><audio src=\"media/transmissions/T-0003/b5166ef8-5108-4fd1-8661-69d5f92561a3-Before-the-Name.mp3\" controls=\"\" preload=\"none\"></audio><figcaption>Before the Name.mp3</figcaption></figure></div><p data-ha-block-name=\"Emanuel Ștefancu // LYRICS\">Before the name,<br>before the light,<br>before the day,<br>before the night<br>a thousand voices,<br>a thousand skies,<br>a thousand echoes<br>behind these eyes;<br>one breath,<br>one sound,<br>one heart...<br>No ground.</p><p>No more seeking,<br>no more sound-</p><p>I am.</p><figure data-ha-block-name=\"CHATGPT // OUTPUT // COVER\"><img src=\"media/transmissions/T-0003/312861e0-c3aa-4aae-987e-4e7fae3b922f-Shiva-s-Green-Dream_-Nature-and-Code.png\" alt=\"Shiva’s Green Dream_ Nature and Code.png\" loading=\"lazy\" style=\"max-width: 100%; height: auto;\"><figcaption>Shiva’s Green Dream_ Nature and Code.png</figcaption></figure></section><section><p data-ha-block-name=\"SUNO // INPUT // STYLE // PROMPT\">Indian psychedelic rock, experimental progressive rock, spiritual ambient, ritualistic world music, hypnotic sitar and tanpura, bansuri flute, deep bass, raw electric guitar, analog synthesizers, polyrhythmic percussion, dark mystical atmosphere, sparse whispered male vocals, ethereal wordless harmonies, gradual psychedelic crescendo, organic analog recording, unconventional sound design, introspective, transcendental, dynamic and immersive, slow evolution into profound silence, no pop hooks, no glossy new-age meditation pads</p><pre data-ha-block-name=\"SUNO // INPUT // LYRICS // PROMPT\"><code><span>[</span><span>Intro — Near Silence</span><span>]</span>\n<span>[</span><span>No vocals</span><span>]</span>\n<span>[</span><span>Low drone, breath, distant resonance</span><span>]</span>\n\n<span>[</span><span>Verse 1 — Whispered</span><span>]</span>\nBefore the name\nBefore the light\nBefore the day\nBefore the night\n\n<span>[</span><span>Instrumental — Sitar and Tanpura</span><span>]</span>\n<span>[</span><span>Slowly evolving, hypnotic</span><span>]</span>\n\n<span>[</span><span>Verse 2 — Sparse, Intimate</span><span>]</span>\nA thousand voices\nA thousand skies\nA thousand echoes\nBehind these eyes\n\n<span>[</span><span>Build — Layered Wordless Vocals</span><span>]</span>\nAhhh...\nOhhh...\nAhhh...\n\n<span>[</span><span>Central Mantra — Quiet, Unhurried</span><span>]</span>\nOne breath\nOne sound\nOne heart\nNo ground\n\n<span>[</span><span>Instrumental — Psychedelic Crescendo</span><span>]</span>\n<span>[</span><span>Distorted sitar, experimental guitar, organic percussion, analog textures</span><span>]</span>\n<span>[</span><span>No additional lyrics</span><span>]</span>\n\n<span>[</span><span>Breakdown — Almost Silent</span><span>]</span>\nNo more seeking\nNo more sound\n\n<span>[</span><span>Outro — Whispered, Once Only</span><span>]</span>\nI am\n\n<span>[</span><span>Long Instrumental Decay</span><span>]</span>\n<span>[</span><span>No vocals</span><span>]</span>\n<span>[</span><span>Let the final resonance fade into silence</span><span>]</span></code></pre><figure data-ha-block-name=\"CHATGPT // IDENTITY\"><img src=\"media/transmissions/T-0003/1a840387-05d0-4860-af52-0f947295d74e-Green-Dream_-The-God-Beneath-the-Noise.png\" alt=\"Green Dream_ The God Beneath the Noise.png\" loading=\"lazy\" style=\"max-width: 100%; height: auto;\"><figcaption>Green Dream_ The God Beneath the Noise.png</figcaption></figure><figure><img src=\"media/transmissions/T-0003/81a13c25-edf5-45ea-8c9f-5dc922c7f71a-Green-Dream_-The-God-Beneath-the-Noise-1-.png\" alt=\"Green Dream_ The God Beneath the Noise(1).png\" loading=\"lazy\" style=\"max-width: 100%; height: auto;\"><figcaption>Green Dream_ The God Beneath the Noise(1).png</figcaption></figure></section></div>"
         }
       ],
       "record_id": 3005,
-      "updated_at": "2026-11-18T14:54:30.200927+00:00",
+      "updated_at": "2026-11-27T00:05:49.162Z",
       "output_text": "",
       "lyrics_style": "",
-      "output_media": null,
+      "output_media": {
+        "image": [],
+        "audio": [],
+        "video": []
+      },
       "prompt_style": "",
-      "transmission_body": "",
+      "transmission_body": "<div class=\"ha-columns\"><section><div class=\"ha-audio-block\" data-ha-block-name=\"SUNO // OUTPUT // AUDIO\"><figure><audio src=\"media/transmissions/T-0003/b5166ef8-5108-4fd1-8661-69d5f92561a3-Before-the-Name.mp3\" controls=\"\" preload=\"none\"></audio><figcaption>Before the Name.mp3</figcaption></figure></div><p data-ha-block-name=\"Emanuel Ștefancu // LYRICS\">Before the name,<br>before the light,<br>before the day,<br>before the night<br>a thousand voices,<br>a thousand skies,<br>a thousand echoes<br>behind these eyes;<br>one breath,<br>one sound,<br>one heart...<br>No ground.</p><p>No more seeking,<br>no more sound-</p><p>I am.</p><figure data-ha-block-name=\"CHATGPT // OUTPUT // COVER\"><img src=\"media/transmissions/T-0003/312861e0-c3aa-4aae-987e-4e7fae3b922f-Shiva-s-Green-Dream_-Nature-and-Code.png\" alt=\"Shiva’s Green Dream_ Nature and Code.png\" loading=\"lazy\" style=\"max-width: 100%; height: auto;\"><figcaption>Shiva’s Green Dream_ Nature and Code.png</figcaption></figure></section><section><p data-ha-block-name=\"SUNO // INPUT // STYLE // PROMPT\">Indian psychedelic rock, experimental progressive rock, spiritual ambient, ritualistic world music, hypnotic sitar and tanpura, bansuri flute, deep bass, raw electric guitar, analog synthesizers, polyrhythmic percussion, dark mystical atmosphere, sparse whispered male vocals, ethereal wordless harmonies, gradual psychedelic crescendo, organic analog recording, unconventional sound design, introspective, transcendental, dynamic and immersive, slow evolution into profound silence, no pop hooks, no glossy new-age meditation pads</p><pre data-ha-block-name=\"SUNO // INPUT // LYRICS // PROMPT\"><code><span>[</span><span>Intro — Near Silence</span><span>]</span>\n<span>[</span><span>No vocals</span><span>]</span>\n<span>[</span><span>Low drone, breath, distant resonance</span><span>]</span>\n\n<span>[</span><span>Verse 1 — Whispered</span><span>]</span>\nBefore the name\nBefore the light\nBefore the day\nBefore the night\n\n<span>[</span><span>Instrumental — Sitar and Tanpura</span><span>]</span>\n<span>[</span><span>Slowly evolving, hypnotic</span><span>]</span>\n\n<span>[</span><span>Verse 2 — Sparse, Intimate</span><span>]</span>\nA thousand voices\nA thousand skies\nA thousand echoes\nBehind these eyes\n\n<span>[</span><span>Build — Layered Wordless Vocals</span><span>]</span>\nAhhh...\nOhhh...\nAhhh...\n\n<span>[</span><span>Central Mantra — Quiet, Unhurried</span><span>]</span>\nOne breath\nOne sound\nOne heart\nNo ground\n\n<span>[</span><span>Instrumental — Psychedelic Crescendo</span><span>]</span>\n<span>[</span><span>Distorted sitar, experimental guitar, organic percussion, analog textures</span><span>]</span>\n<span>[</span><span>No additional lyrics</span><span>]</span>\n\n<span>[</span><span>Breakdown — Almost Silent</span><span>]</span>\nNo more seeking\nNo more sound\n\n<span>[</span><span>Outro — Whispered, Once Only</span><span>]</span>\nI am\n\n<span>[</span><span>Long Instrumental Decay</span><span>]</span>\n<span>[</span><span>No vocals</span><span>]</span>\n<span>[</span><span>Let the final resonance fade into silence</span><span>]</span></code></pre><figure data-ha-block-name=\"CHATGPT // IDENTITY\"><img src=\"media/transmissions/T-0003/1a840387-05d0-4860-af52-0f947295d74e-Green-Dream_-The-God-Beneath-the-Noise.png\" alt=\"Green Dream_ The God Beneath the Noise.png\" loading=\"lazy\" style=\"max-width: 100%; height: auto;\"><figcaption>Green Dream_ The God Beneath the Noise.png</figcaption></figure><figure><img src=\"media/transmissions/T-0003/81a13c25-edf5-45ea-8c9f-5dc922c7f71a-Green-Dream_-The-God-Beneath-the-Noise-1-.png\" alt=\"Green Dream_ The God Beneath the Noise(1).png\" loading=\"lazy\" style=\"max-width: 100%; height: auto;\"><figcaption>Green Dream_ The God Beneath the Noise(1).png</figcaption></figure></section></div>",
       "public_record_id": "HA-3005"
     },
     {
