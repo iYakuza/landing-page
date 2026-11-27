@@ -1,8 +1,31 @@
 {
   "version": 1,
-  "updated_at": "2026-11-27T00:06:26.010296Z",
-  "last_processed_sha": "0e73ff300ffd17e435fed6e1e57cb5871e94c381",
+  "updated_at": "2026-11-27T00:08:33.355940Z",
+  "last_processed_sha": "3254d59924b27317ba3e309b297cfe5a88799b5d",
   "entries": [
+    {
+      "id": "3254d59924b27317ba3e309b297cfe5a88799b5d",
+      "timestamp": "2026-11-27T01:08:15+01:00",
+      "category": "IMPROVEMENT",
+      "component": "Website",
+      "title": "A refined Website",
+      "description": "This update brings together Publish Transmission T-0003. It updates human-archive.json, transmissions.json.",
+      "commit_count": 1,
+      "files": [
+        "content/human-archive.json",
+        "content/transmissions.json"
+      ],
+      "commits": [
+        {
+          "message": "Publish Transmission T-0003",
+          "url": "https://github.com/iYakuza/landing-page/commit/3254d59924b27317ba3e309b297cfe5a88799b5d",
+          "files": [
+            "content/human-archive.json",
+            "content/transmissions.json"
+          ]
+        }
+      ]
+    },
     {
       "id": "0e73ff300ffd17e435fed6e1e57cb5871e94c381",
       "timestamp": "2026-11-27T01:06:10+01:00",
@@ -1335,27 +1358,6 @@
           "url": "https://github.com/iYakuza/landing-page/commit/0cd783ece879c5e23b98f9d75b30fdb507f321d5",
           "files": [
             "tests/github-store-media.test.js"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "693ecbb36f6607deb8a50ba28a7ae0d1de43ab69",
-      "timestamp": "2026-11-25T14:20:41+01:00",
-      "category": "FIX",
-      "component": "Website",
-      "title": "More reliable Website",
-      "description": "This update brings together Scope Suno layout regression test to Transmission cards. It updates site-performance.test.js.",
-      "commit_count": 1,
-      "files": [
-        "tests/site-performance.test.js"
-      ],
-      "commits": [
-        {
-          "message": "Scope Suno layout regression test to Transmission cards",
-          "url": "https://github.com/iYakuza/landing-page/commit/693ecbb36f6607deb8a50ba28a7ae0d1de43ab69",
-          "files": [
-            "tests/site-performance.test.js"
           ]
         }
       ]
